@@ -1,0 +1,1786 @@
+--------- beginning of main
+11-11 12:47:45.711  1165  1165 I chatty  : uid=1000(system) com.android.settings expire 1 line
+11-11 12:47:46.251  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:46.303 12365 12524 D ProfileInstaller: Skipping profile installation for org.fcitx.fcitx5.android.fx.rime
+11-11 12:47:46.787  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:46.989   419   419 I perfetto: probes_producer.cc:329  Producer stop (id=50)
+11-11 12:47:46.990   420   420 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:47:46.990   420   420 I perfetto: ng_service_impl.cc:1948 Tracing session 50 ended, total sessions:1
+--------- beginning of system
+11-11 12:47:46.992   427 12418 I iorapd  : Perfetto TraceBuffer saved to file: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/raw_traces/1794401266992694465.perfetto_trace.pb
+11-11 12:47:47.224   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:47:47.225 12477 12489 I Gralloc4: mapper 4.x is not supported
+11-11 12:47:47.228 12477 12489 D HostConnection: createUnique: call
+11-11 12:47:47.229 12477 12489 D HostConnection: HostConnection::get() New Host Connection established 0x7164a7e63f10, tid 12489
+11-11 12:47:47.238 12477 12489 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:47.246 12477 12525 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:47:47.247 12477 12525 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:47:47.247 12477 12525 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:47:47.257 12477 12525 D HostConnection: HostConnection::get() New Host Connection established 0x7164a7e64750, tid 12525
+11-11 12:47:47.260 12477 12525 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:47.260   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:47:47.262 12477 12525 D EGL_emulation: eglCreateContext: 0x716497e85320: maj 3 min 0 rcv 3
+11-11 12:47:47.263 12477 12525 D EGL_emulation: eglMakeCurrent: 0x716497e85320: ver 3 0 (tinfo 0x716437e90e00) (first time)
+11-11 12:47:47.327  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:47.390   499  5460 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@3abf23f
+11-11 12:47:47.390 12490 12512 V UiAutomation: Init UiAutomation@a78466a[id=-1, flags=0]
+11-11 12:47:47.394   499  1642 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: finished inst
+11-11 12:47:47.394   499  1642 I ActivityManager: Killing 12490:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to finished inst
+11-11 12:47:47.400   499  1642 W ActivityTaskManager: Force removing ActivityRecord{86407f8 u0 io.github.sandyyur.inputbench/.BenchHost t80 f}}: app died, no saved state
+11-11 12:47:47.403 12477 12477 I app_process: System.exit called, status: 0
+11-11 12:47:47.403 12477 12477 I AndroidRuntime: VM exiting with result code 0.
+--------- beginning of kernel
+11-11 12:47:47.656     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:47:47.658     0     0 I binder  : undelivered transaction 887113, process died.
+11-11 12:47:47.413   286   286 I Zygote  : Process 12490 exited due to signal 9 (Killed)
+11-11 12:47:47.413   499   533 W ActivityManager: setHasOverlayUi called on unknown pid: 12490
+11-11 12:47:47.662     0     0 I binder  : undelivered transaction 887065, process died.
+11-11 12:47:47.420  1165  1165 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:47:47.422  1165  1165 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:47:47.440   499   541 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 12490 in 44ms
+11-11 12:47:47.469  1165  1165 D ControllerRendererPool: Controller is already there.
+11-11 12:47:47.482  6020  6372 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:47:47.483  6020  6372 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:47:47.483  6020  6372 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:47:47.483  6020  6372 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:47:47.483  6020  6372 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:47:47.511  1165  1186 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:47:47.757     0     0 I binder  : 12365:12365 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:47:47.512  6020 12124 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:47:47.512  6020  6372 D CandidateSuggestionFilter: filterCandidates duration: 28
+11-11 12:47:47.512  6020  6372 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:47:47.516  6020  6372 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6020_4 identical 6 lines
+11-11 12:47:47.516  6020  6372 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:47:47.516  1165  6026 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:47:47.516 12365 12365 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:47:47.516 12365 12365 I RimeLifecycle: input_binding generation=10 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:47:47.527  1165  6018 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:47:47.528  1165  6018 D BatteryInfo: time for getBatteryInfo: 1ms
+11-11 12:47:47.528  1165  6018 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 1ms
+11-11 12:47:47.542   499   533 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:47:47.543   499   834 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 0
+11-11 12:47:47.549   499   533 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-11 12:47:47.550   499   540 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-11 12:47:47.551   420   420 I perfetto: ing_service_impl.cc:758 Configured tracing session 52, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:2, uid:1071 session name: ""
+11-11 12:47:47.551   419   419 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=52)
+11-11 12:47:47.557   286   286 D Zygote  : Forked child process 12536
+11-11 12:47:47.558  1165  6026 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:47:47.558  1165  6026 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:47:47.558  1165  6026 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 0ms
+11-11 12:47:47.569  1165  1199 D BatteryInfo: time for getStats: 148ms
+11-11 12:47:47.569  1165  1199 D BatteryInfo: time for regular BatteryInfo: 0ms
+11-11 12:47:47.576 12536 12536 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-11 12:47:47.580   499   540 I ActivityManager: Start proc 12536:io.github.sandyyur.inputbench/u0a167 for pre-top-activity {io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}
+11-11 12:47:47.586 12536 12536 I yyur.inputbenc: Unquickening 12 vdex files!
+11-11 12:47:47.586 12536 12536 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:47:47.588  1762  1837 I adbd    : jdwp connection from 12536
+11-11 12:47:47.592  1165  1199 D BatteryInfo: time for getBatteryInfo: 23ms
+11-11 12:47:47.593  1165  1165 D BatteryInfo: time for callback: 0ms
+11-11 12:47:47.607 12536 12536 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:47:47.607  1165  1165 D ControllerRendererPool: Controller is already there.
+11-11 12:47:47.623 12536 12536 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:47:47.623 12536 12536 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:47:47.630 12536 12559 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:47:47.631 12536 12559 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:47:47.633 12536 12559 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:47:47.678 12536 12557 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205ce610, tid 12557
+11-11 12:47:47.682 12536 12557 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:47.684   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:47:47.685 12536 12557 D EGL_emulation: eglCreateContext: 0x7f8210636970: maj 3 min 0 rcv 3
+11-11 12:47:47.686 12536 12557 D EGL_emulation: eglMakeCurrent: 0x7f8210636970: ver 3 0 (tinfo 0x7f81b0614b90) (first time)
+11-11 12:47:47.688   499  6017 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205d7190, tid 6017
+11-11 12:47:47.690   499  6017 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:47.691   499  6017 D EGL_emulation: eglCreateContext: 0x7f82106ba290: maj 3 min 0 rcv 3
+11-11 12:47:47.692   499  6017 D EGL_emulation: eglMakeCurrent: 0x7f82106ba290: ver 3 0 (tinfo 0x7f81b06a8670) (first time)
+11-11 12:47:47.702   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:47:47.702 12536 12557 I Gralloc4: mapper 4.x is not supported
+11-11 12:47:47.702 12536 12557 D HostConnection: createUnique: call
+11-11 12:47:47.702 12536 12557 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205ce9d0, tid 12557
+11-11 12:47:47.721 12536 12557 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:47.829  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:48.107 12529 12538 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:47:48.107   499   533 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:47:48.122   499   538 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:47:48.123   499   538 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +563ms
+11-11 12:47:48.184 12365 12365 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:47:48.211 12365 12365 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:47:48.211 12365 12365 I RimeLifecycle: input_binding generation=13 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-11 12:47:48.211 12365 12365 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:47:48.322 12565 12567 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:47:48.362   499  1647 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: from pid 12580
+11-11 12:47:48.363   499  1647 I ActivityManager: Killing 12536:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to from pid 12580
+11-11 12:47:48.367  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:48.367   499  1647 W ActivityTaskManager: Force removing ActivityRecord{37ac96d u0 io.github.sandyyur.inputbench/.BenchHost t81 f}}: app died, no saved state
+11-11 12:47:48.375  1044  1044 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:47:48.375  1165  1165 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:47:48.377  1165  1165 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:47:48.378 12580 12581 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:47:48.625     0     0 I binder  : undelivered transaction 889420, process died.
+11-11 12:47:48.381   499   533 W ActivityManager: setHasOverlayUi called on unknown pid: 12536
+11-11 12:47:48.382   286   286 I Zygote  : Process 12536 exited due to signal 9 (Killed)
+11-11 12:47:48.402   499   499 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:47:48.410   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:48.410   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:48.410   499   541 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 12536 in 42ms
+11-11 12:47:48.422  1165  6018 D BatteryTipLoader: BatteryInfoLoader post query: 1ms
+11-11 12:47:48.422  1165  6018 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:47:48.422  1165  6018 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 1ms
+11-11 12:47:48.424   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:48.424   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:48.434  1165  1165 D ControllerRendererPool: Controller is already there.
+11-11 12:47:48.436   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:48.436   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:48.439   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:48.439   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:48.456 12365 12365 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:47:48.456 12365 12365 I RimeLifecycle: input_binding generation=16 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:47:48.697     0     0 I binder  : 12365:12365 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:47:48.465  1165  6018 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:47:48.465  1165  6018 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:47:48.465  1165  6018 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 0ms
+11-11 12:47:48.466  6020  6038 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:47:48.466  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:47:48.466  6020  6038 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:47:48.466  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:47:48.466  6020  6038 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:47:48.468  1165  7088 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:47:48.469  6020 12124 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:47:48.469  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 2
+11-11 12:47:48.469  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:47:48.471  6020  6038 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6020_2 identical 6 lines
+11-11 12:47:48.471  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:47:48.471  1165  6018 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:47:48.485  1165  1199 D BatteryInfo: time for getStats: 109ms
+11-11 12:47:48.486  1165  1199 D BatteryInfo: time for regular BatteryInfo: 1ms
+11-11 12:47:48.490  1165  1199 D BatteryInfo: time for getBatteryInfo: 4ms
+11-11 12:47:48.490  1165  1165 D BatteryInfo: time for callback: 0ms
+11-11 12:47:48.496   499  2282 I ActivityManager: Force stopping org.fcitx.fcitx5.android.fx.rime appid=10181 user=0: from pid 12586
+11-11 12:47:48.496   499  2282 I ActivityManager: Killing 12365:org.fcitx.fcitx5.android.fx.rime/u0a181 (adj 200): stop org.fcitx.fcitx5.android.fx.rime due to from pid 12586
+11-11 12:47:48.500  1044  1044 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:47:48.501 12586 12587 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:47:48.521  1379  1379 I GoogleInputMethodService: GoogleInputMethodService.initializeKeyboardTheme():1171 Apply keyboard theme: theme_border_stylesheet_googleblue_materiallight_assets:theme_package_metadata_google_blue_light.binarypb_port
+11-11 12:47:48.523   708   999 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:47:48.523   708   999 I chatty  : uid=10157(com.android.systemui) Binder:708_4 identical 1 line
+11-11 12:47:48.523   708   999 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:47:48.523  1379  1379 I KeyboardModeManager: KeyboardModeManager.initializeKeyboardModeFromPreferences():258 Initialize with keyboard mode: 1 and previous keyboard mode: 1
+11-11 12:47:48.525  1379  1379 I GoogleInputMethodService: GoogleInputMethodService.initializeKeyboardTheme():1171 Apply keyboard theme: theme_border_stylesheet_googleblue_materiallight_assets:theme_package_metadata_google_blue_light.binarypb_port
+11-11 12:47:48.527   499  2282 I WindowManager: WIN DEATH: Window{e9e793a u0 InputMethod}
+11-11 12:47:48.527   499  2282 W InputDispatcher: Attempted to unregister already unregistered input channel 'e9e793a InputMethod (server)'
+11-11 12:47:48.528   499   533 W ActivityManager: setHasOverlayUi called on unknown pid: 12365
+11-11 12:47:48.773     0     0 I binder  : undelivered transaction 890339, process died.
+11-11 12:47:48.530  1379 12273 I JapaneseMozcExtension: JapaneseMozcExtension.onCreateServiceInternal():74 onCreateServiceInternal()
+11-11 12:47:48.531  1379 12274 I NetworkInfoNotification: NetworkInfoNotification$Listener.onReceive():84 onNetworkAvailable: networkState = NON_METERED, isAirplaneModeOn = false
+11-11 12:47:48.534  1379 12284 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():89 parseKeyboardGroupDef() 2132148419 -> extension_emoji_search_extension_view_m2 : WaitTime = 1 ms : RunTime = 1 ms
+11-11 12:47:48.535  1379 12284 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():89 parseKeyboardGroupDef() 2132148420 -> extension_emoji_search_keyboards_emojipicker15_m2 : WaitTime = 1 ms : RunTime = 0 ms
+11-11 12:47:48.535   286   286 I Zygote  : Process 12365 exited due to signal 9 (Killed)
+11-11 12:47:48.536   499  2282 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc com.google.android.inputmethod.latin
+11-11 12:47:48.540   499   541 I libprocessgroup: Successfully killed process cgroup uid 10181 pid 12365 in 42ms
+11-11 12:47:48.554   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:48.555   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:48.556  1379 12284 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():89 parseKeyboardGroupDef() 2132148425 -> extension_maestro_keyboards : WaitTime = 0 ms : RunTime = 0 ms
+11-11 12:47:48.557  1379  1838 W MetricsManager: MetricsManager.addProcessorImpl():484 Processor bxb@8244b4b already exists.
+11-11 12:47:48.560  1379  1845 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:47:48.561  1379  1845 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:47:48.570  1379  1379 I MaestroExtensionImpl: MaestroExtensionImpl.connectToAssistantIfAvailable():412 connectToAssistantIfAvailable() : Creating integration client.
+11-11 12:47:48.536   499  2282 I chatty  : uid=1000(system) Binder:499_1A identical 1 line
+11-11 12:47:48.536   499  2282 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc com.google.android.inputmethod.latin
+11-11 12:47:48.571  1379  2149 E ActivityThread: Failed to find provider info for com.google.android.googlequicksearchbox.GsaPublicContentProvider
+11-11 12:47:48.571  1379  2149 W AssistantConfig: appIntegrationDataInBase64 is null
+11-11 12:47:48.571  1379  1845 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:47:48.602   499   499 W InputMethodManagerService: Illegal subtype state: old subtype = null, new subtype = android.view.inputmethod.InputMethodSubtype@4145211d
+11-11 12:47:48.602 12597 12600 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:47:48.605   499   528 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10181; state: DISABLED
+11-11 12:47:48.605   499   540 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10181; state: ENABLED
+11-11 12:47:48.609   286   286 D Zygote  : Forked child process 12601
+11-11 12:47:48.610   708  1006 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:47:48.611   499   540 I ActivityManager: Start proc 12601:org.fcitx.fcitx5.android.fx.rime/u0a181 for service {org.fcitx.fcitx5.android.fx.rime/org.fcitx.fcitx5.android.input.FcitxInputMethodService}
+11-11 12:47:48.614  1379  1379 W KeyboardModeManager: KeyboardModeManager.setInputView():302 setInputView() : inputView = null
+11-11 12:47:48.618  1379 12473 I JapaneseMozcExtension: JapaneseMozcExtension.onDestroyServiceInternal():81 onDestroyServiceInternal()
+11-11 12:47:48.620 12601 12601 W android.fx.rim: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:47:48.625  1379  1379 W AssistantIntegClient: #unbindService(): calling unbindService when service is unbound.
+11-11 12:47:48.656 12601 12601 I ndk_translation: Initialized NDK translation (aarch64), version 0.2.2
+11-11 12:47:48.727 12617 12617 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-11 12:47:48.728 12617 12617 I AndroidRuntime: Using default boot image
+11-11 12:47:48.728 12617 12617 I AndroidRuntime: Leaving lock profiling enabled
+11-11 12:47:48.729 12617 12617 I app_process: Core platform API reporting enabled, enforcing=false
+11-11 12:47:48.736  1762  1837 I adbd    : jdwp connection from 12601
+11-11 12:47:48.742 12601 12601 I android.fx.rim: The ClassLoaderContext is a special shared library.
+11-11 12:47:48.751 12601 12601 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-11 12:47:48.751 12601 12601 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-11 12:47:48.769 12617 12617 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-11 12:47:48.769 12617 12617 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-11 12:47:48.777 12617 12617 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:47:48.783 12617 12617 I app_process: The ClassLoaderContext is a special shared library.
+11-11 12:47:48.787 12601 12601 I FcitxColdStart: service.onCreate begin
+11-11 12:47:48.792 12601 12642 I FcitxColdStart: font preload keys=0 duration=6ms
+11-11 12:47:48.795 12601 12601 I FcitxVoiceInput: registered floating voice receiver actions=android.content.IntentFilter@41a1ec9
+11-11 12:47:48.795 12617 12617 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-11 12:47:48.797 12617 12617 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-11 12:47:48.798 12601 12601 I FcitxColdStart: service.onCreate duration=11ms
+11-11 12:47:48.803   499   834 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: start instr
+11-11 12:47:48.804   499   834 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-11 12:47:48.804   499   540 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-11 12:47:48.808 12601 12655 I RimeLifecycle: startup phase=assets duration_ms=11
+11-11 12:47:48.809 12601 12655 I RimeLifecycle: startup phase=config duration_ms=0
+11-11 12:47:48.813   286   286 D Zygote  : Forked child process 12659
+11-11 12:47:48.814   499   540 I ActivityManager: Start proc 12659:io.github.sandyyur.inputbench/u0a167 for added application io.github.sandyyur.inputbench
+11-11 12:47:48.816 12659 12659 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-11 12:47:48.824 12659 12659 I yyur.inputbenc: Unquickening 12 vdex files!
+11-11 12:47:48.824 12659 12659 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:47:48.830  1762  1837 I adbd    : jdwp connection from 12659
+11-11 12:47:48.840 12659 12659 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:47:48.845 12659 12659 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:47:48.845 12659 12659 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:47:48.849 12659 12682 V UiAutomation: Init UiAutomation@a78466a[id=31, flags=0]
+11-11 12:47:48.855   499   528 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-11 12:47:48.858 12601 12601 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:47:48.855   499   528 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-11 12:47:48.860   499   528 I ActivityTaskManager: START u0 {flg=0x18000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 10167
+11-11 12:47:48.861   499   533 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:47:48.863 12601 12601 I RimeLifecycle: input_binding generation=1 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:47:48.864   420   420 I perfetto: ing_service_impl.cc:758 Configured tracing session 53, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:3, uid:1071 session name: ""
+11-11 12:47:48.865   419   419 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=53)
+11-11 12:47:48.873  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:48.882  1165  1165 D ControllerRendererPool: Controller is already there.
+11-11 12:47:48.900 12601 12655 W linker  : Warning: "/data/app/~~9Hz9fJSVBCwvbgSVmDmYIQ==/org.fcitx.fcitx5.android.fx.rime-drlPdIYLvsRGypSjvpzoUw==/lib/arm64/libc++_shared.so" unused DT entry: unknown processor-specific (type 0x70000001 arg 0x0) (ignoring)
+11-11 12:47:48.930 12659 12691 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:47:48.931 12659 12691 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:47:48.936 12659 12691 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:47:48.957 12659 12689 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205cf210, tid 12689
+11-11 12:47:48.959 12659 12689 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:48.960   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:47:48.961 12659 12689 D EGL_emulation: eglCreateContext: 0x7f8210612110: maj 3 min 0 rcv 3
+11-11 12:47:48.965 12659 12689 D EGL_emulation: eglMakeCurrent: 0x7f8210612110: ver 3 0 (tinfo 0x7f81b0614e00) (first time)
+11-11 12:47:48.972   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:47:48.972 12659 12689 I Gralloc4: mapper 4.x is not supported
+11-11 12:47:48.987 12659 12689 D HostConnection: createUnique: call
+11-11 12:47:48.987 12659 12689 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205cbfd0, tid 12689
+11-11 12:47:48.994 12659 12689 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:49.047   499  6017 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205d6950, tid 6017
+11-11 12:47:49.156   419   419 I perfetto: probes_producer.cc:329  Producer stop (id=51)
+11-11 12:47:49.156   420   420 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:47:49.157   420   420 I perfetto: ng_service_impl.cc:1948 Tracing session 51 ended, total sessions:2
+11-11 12:47:49.157   499  6017 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:49.374   499  6017 D EGL_emulation: eglCreateContext: 0x7f82106c8150: maj 3 min 0 rcv 3
+11-11 12:47:49.375   499   538 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:47:49.375   499  6017 D EGL_emulation: eglMakeCurrent: 0x7f82106c8150: ver 3 0 (tinfo 0x7f81b06a8670) (first time)
+11-11 12:47:49.375  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:49.376   499   533 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:47:49.389 12601 12601 I FcitxColdStart: service.onCreateInputView begin
+11-11 12:47:49.448 12601 12601 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=44ms
+11-11 12:47:49.458 12601 12601 I FcitxColdStart: KeyboardWindow.onCreateView duration=54ms
+11-11 12:47:49.469 12601 12601 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=2ms
+11-11 12:47:49.501 12601 12601 I FcitxColdStart: replaceInputView duration=112ms
+11-11 12:47:49.503 12601 12601 I FcitxColdStart: service.onCreateInputView duration=114ms
+11-11 12:47:49.503 12601 12601 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:47:49.526   499   538 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +513ms
+11-11 12:47:49.536 12601 12666 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:47:49.537 12601 12666 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:47:49.538 12601 12666 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:47:49.552 12601 12666 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205ccb10, tid 12666
+11-11 12:47:49.554 12601 12666 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:49.557   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:47:49.558 12601 12666 D EGL_emulation: eglCreateContext: 0x7f8210632e50: maj 3 min 0 rcv 3
+11-11 12:47:49.559 12601 12666 D EGL_emulation: eglMakeCurrent: 0x7f8210632e50: ver 3 0 (tinfo 0x7f81b062ff20) (first time)
+11-11 12:47:49.568   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:47:49.568 12601 12666 I Gralloc4: mapper 4.x is not supported
+11-11 12:47:49.569 12601 12666 D HostConnection: createUnique: call
+11-11 12:47:49.569 12601 12666 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205cc2d0, tid 12666
+11-11 12:47:49.576 12601 12666 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:47:49.703 12601 12623 I android.fx.rim: Compiler allocated 4928KB to compile void org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard.reloadLayout()
+11-11 12:47:49.713   499   499 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:47:49.718   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:49.718   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:49.719   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:49.719   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:49.966  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:50.302 12601 12666 I OpenGLRenderer: Davey! duration=906ms; Flags=1, IntendedVsync=2029932363274, Vsync=2030049029936, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=2030051199911, AnimationStart=2030051201154, PerformTraversalsStart=2030051201324, DrawStart=2030115536300, SyncQueued=2030120576997, SyncStart=2030121100818, IssueDrawCommandsStart=2030121534989, SwapBuffers=2030749502885, FrameCompleted=2030839575625, DequeueBufferDuration=1529196, QueueBufferDuration=328344, GpuCompleted=0, 
+11-11 12:47:50.315 12601 12601 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=12ms
+11-11 12:47:50.342 12601 12601 I Choreographer: Skipped 49 frames!  The application may be doing too much work on its main thread.
+11-11 12:47:50.368 12601 12666 I OpenGLRenderer: Davey! duration=851ms; Flags=1, IntendedVsync=2030049029438, Vsync=2030865696072, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=2030880283795, AnimationStart=2030880284907, PerformTraversalsStart=2030880288494, DrawStart=2030888077745, SyncQueued=2030889176268, SyncStart=2030894074368, IssueDrawCommandsStart=2030894342840, SwapBuffers=2030896805871, FrameCompleted=2030905764708, DequeueBufferDuration=6953911, QueueBufferDuration=476410, GpuCompleted=0, 
+11-11 12:47:50.386 12601 12601 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:47:50.386 12601 12601 I RimeLifecycle: input_binding generation=4 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-11 12:47:50.386 12601 12601 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:47:50.401 12601 12623 I android.fx.rim: Compiler allocated 5255KB to compile void org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard.reloadLayout()
+11-11 12:47:50.503  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:50.571   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:50.571   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:50.605   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:50.605   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:50.637   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:47:50.637   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:47:51.043  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:51.583  1165  1165 I chatty  : uid=1000(system) com.android.settings identical 1 line
+11-11 12:47:52.118  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:52.551   419   419 I perfetto: probes_producer.cc:329  Producer stop (id=52)
+11-11 12:47:52.551   420   420 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:47:52.554   420   420 I perfetto: ng_service_impl.cc:1948 Tracing session 52 ended, total sessions:1
+11-11 12:47:52.556   427 12532 I iorapd  : Perfetto TraceBuffer saved to file: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/raw_traces/1794401272556572748.perfetto_trace.pb
+11-11 12:47:52.657  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:52.808  1379  1845 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:47:53.197  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:53.737  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:53.831 12601 12699 D ProfileInstaller: Skipping profile installation for org.fcitx.fcitx5.android.fx.rime
+11-11 12:47:53.866   419   419 I perfetto: probes_producer.cc:329  Producer stop (id=53)
+11-11 12:47:53.867   420   420 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:47:53.867   420   420 I perfetto: ng_service_impl.cc:1948 Tracing session 53 ended, total sessions:0
+11-11 12:47:53.867   419   419 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-11 12:47:54.114     0     0 W perfetto: disabled ftrace
+11-11 12:47:54.278  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:47:59.127  1165  1165 I chatty  : uid=1000(system) com.android.settings identical 9 lines
+11-11 12:47:59.667  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:00.002   708   708 D KeyguardClockSwitch: Updating clock: 1248
+11-11 12:48:00.207  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:01.827  1165  1165 I chatty  : uid=1000(system) com.android.settings identical 3 lines
+11-11 12:48:02.367  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:02.786  1379  1459 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.shutdownVoiceInternal():95 shutdownVoiceInternal()
+11-11 12:48:02.907  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:13.423     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=300000 cc=10 chg=a
+11-11 12:48:59.387  1165  1165 I chatty  : uid=1000(system) com.android.settings identical 105 lines
+11-11 12:48:59.927  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:00.015   708   708 D KeyguardClockSwitch: Updating clock: 1249
+11-11 12:49:00.467  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:13.423     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=300000 cc=10 chg=a
+11-11 12:49:27.347  1165  1165 I chatty  : uid=1000(system) com.android.settings identical 50 lines
+11-11 12:49:27.887  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:28.207 12601 12655 I RimeLifecycle: startup phase=native duration_ms=99399
+11-11 12:49:28.417  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:28.957  1165  1165 I chatty  : uid=1000(system) com.android.settings identical 1 line
+11-11 12:49:29.497  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:29.899 12601 12655 I RimeLifecycle: bind generation=4 duration_ms=1338 ready=true usable=true direct=false no_learning=false created=1 reused=0 native_begin_us=1331743 restore_us=7 publish_us=5863
+11-11 12:49:29.932 12601 12601 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=23ms
+11-11 12:49:29.987 12601 12623 I android.fx.rim: Compiler allocated 5310KB to compile void org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard.reloadLayout()
+11-11 12:49:30.037  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:30.578  1165  1165 I chatty  : uid=1000(system) com.android.settings identical 1 line
+11-11 12:49:31.119  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:31.566   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:31.566   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:31.566   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:31.566   344 12702 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:31.568   499  2290 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:31.568   499  2290 I chatty  : uid=1000(system) Binder:499_1B identical 1 line
+11-11 12:49:31.568   499  2290 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:31.659  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:31.663   378   459 D AudioFlinger: mixer(0x77efb63da040) throttle end: throttle time(33)
+11-11 12:49:31.667   344 12702 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:31.668   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:31.785   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:31.785   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:31.785   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:31.788   344 12705 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:31.888   344 12705 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:31.888   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:31.949   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:31.949   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:31.949   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:31.950   344 12706 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:32.050   344 12706 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:32.051   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.099   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:32.099   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.099   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:32.099   344 12707 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:32.199  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:32.200   344 12707 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:32.200   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.248   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:32.248   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.248   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:32.249   344 12708 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:32.352   344 12708 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:32.352   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.397   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:32.397   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.397   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:32.399   344 12709 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:32.500   344 12709 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:32.500   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.549   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:32.549   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.549   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:32.549   344 12710 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:32.649   344 12710 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:32.650   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.699   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:32.699   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.699   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:32.700   344 12711 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:32.740  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:32.800   344 12711 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:32.800   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.849   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:32.849   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.849   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:32.849   344 12712 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:32.950   344 12712 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:32.950   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.999   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:32.999   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:32.999   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:32.999   344 12713 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:33.000   432   443 D AudioAnalytics: gc(1700, 2000): log size:1700 item map size:2, item map items:1700
+11-11 12:49:33.099   344 12713 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:33.101   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:33.149   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:33.149   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:33.149   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:33.149   344 12714 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:33.249   344 12714 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:33.251   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:33.279  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:33.797  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:34.206   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:49:34.206 12617 12658 I Gralloc4: mapper 4.x is not supported
+11-11 12:49:34.210 12617 12658 D HostConnection: createUnique: call
+11-11 12:49:34.210 12617 12658 D HostConnection: HostConnection::get() New Host Connection established 0x7c4ce2325d50, tid 12658
+11-11 12:49:34.219 12617 12658 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:49:34.226 12617 12715 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:49:34.227 12617 12715 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:49:34.227 12617 12715 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:49:34.237 12617 12715 D HostConnection: HostConnection::get() New Host Connection established 0x7c4ce2325f90, tid 12715
+11-11 12:49:34.240 12617 12715 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:49:34.240   167   167 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:49:34.241 12617 12715 D EGL_emulation: eglCreateContext: 0x7c4cd23377f0: maj 3 min 0 rcv 3
+11-11 12:49:34.242 12617 12715 D EGL_emulation: eglMakeCurrent: 0x7c4cd23377f0: ver 3 0 (tinfo 0x7c4c7234aac0) (first time)
+11-11 12:49:34.331   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:34.331   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:34.332   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:34.334   344 12716 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:34.336  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:34.360 12601 12643 I RimeInputTiming: select_queue generation=4 ordinal=1 service_wait_us=316
+11-11 12:49:34.378 12601 12601 I RimeInputTiming: commit generation=4 ordinal=1 event_wait_us=422 service_commit_us=367 request_result=REQUEST_ACCEPTED
+11-11 12:49:34.463   344 12716 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:34.463   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:34.599   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:34.600   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:34.600   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:34.600   344 12717 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:34.616   378   459 D AudioFlinger: mixer(0x77efb63da040) throttle end: throttle time(11)
+11-11 12:49:34.700   344 12717 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:34.701   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:34.748   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:34.749   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:34.749   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:34.749   344 12718 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:34.849   344 12718 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:34.849   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:34.876  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:34.899   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:34.900   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:34.900   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:34.900   344 12719 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:35.000   344 12719 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:35.000   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.049   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:35.049   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.049   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:35.050   344 12720 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:35.150   344 12720 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:35.150   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.199   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:35.200   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.200   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:35.200   344 12721 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:35.300   344 12721 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:35.300   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.348   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:35.348   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.348   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:35.349   344 12722 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:35.414  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:35.449   344 12722 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:35.449   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.499   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:35.499   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.499   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:35.500   344 12723 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:35.600   344 12723 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:35.600   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.648   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:35.649   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.649   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:35.650   344 12724 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:35.750   344 12724 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:35.751   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.799   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:35.799   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.799   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:35.799   344 12725 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:35.900   344 12725 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:35.900   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.948   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:35.948   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:35.948   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:35.949   344 12726 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:35.954  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:36.049   344 12726 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:36.049   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:36.098   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:36.098   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:36.098   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:36.099   344 12727 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:36.199   344 12727 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:36.201   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:36.494  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:37.035  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:37.166   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:37.166   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:37.166   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:37.166   344 12728 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:37.192 12601 12643 I RimeInputTiming: select_queue generation=4 ordinal=2 service_wait_us=286
+11-11 12:49:37.200 12601 12601 I RimeInputTiming: commit generation=4 ordinal=2 event_wait_us=477 service_commit_us=74 request_result=REQUEST_ACCEPTED
+11-11 12:49:37.266   344 12728 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:37.266   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:37.415   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:37.416   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:37.416   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:37.416   344 12729 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:37.516   344 12729 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:37.516   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:37.566   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:37.566   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:37.566   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:37.566   344 12730 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:37.576  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:37.666   344 12730 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:37.666   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:37.716   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:37.716   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:37.716   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:37.717   344 12731 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:37.817   344 12731 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:37.818   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:37.865   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:37.866   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:37.866   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:37.866   344 12732 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:37.966   344 12732 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:37.967   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.016   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:38.016   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.016   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:38.017   344 12733 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:38.115  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:38.117   344 12733 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:38.117   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.165   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:38.165   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.166   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:38.166   344 12734 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:38.245   499   499 I JobServiceContext: Client timed out while executing (no jobFinished received), sending onStop: cce4c04 #u0a142/1573857705 com.google.android.apps.docs/com.google.android.libraries.internal.growth.growthkit.internal.jobs.impl.GrowthKitJobService
+11-11 12:49:38.247  2833  2833 E GrowthKit: job GrowthKitJobScheduler.PeriodicSyncJob failed
+11-11 12:49:38.256  2833  2890 W GoogleApiManager: The service for ktp is not available: ConnectionResult{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: GMS core API Availability. ConnectionResult=3, tag=null
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: java.lang.IllegalArgumentException
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: 	at kad.a(PG:28)
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: 	at kcg$a.a(PG:61)
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: 	at kcg$a.f(PG:10)
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: 	at kcg.a(PG:5)
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: 	at kcg.handleMessage(PG:57)
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:49:38.259  2833  2890 W GoogleApiAvailability: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-11 12:49:38.266   344 12734 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:38.266   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.314   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:38.314   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.314   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:38.315   344 12737 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:38.415   344 12737 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:38.415   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.465   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:38.466   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.466   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:38.467   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: 0|com.google.android.apps.docs|10436|null|10142
+11-11 12:49:38.467   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:38.467   344 12738 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:38.567   344 12738 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:38.568   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.614   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:38.614   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.614   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:38.614   344 12740 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:38.655  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:38.716   344 12740 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:38.717   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.766   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:38.766   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.766   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:38.766   344 12741 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:38.866   344 12741 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:38.869   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.916   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:38.917   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:38.917   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:38.917   344 12742 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:39.017   344 12742 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:39.017   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:39.167  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:39.694  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:39.983   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:39.983   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:39.983   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:39.983   344 12743 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:40.083   344 12743 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:40.084   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.229   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:40.230   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.230   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:40.232  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:40.232   344 12744 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:40.332   344 12744 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:40.333   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.383   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:40.383   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.383   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:40.383   344 12745 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:40.483   344 12745 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:40.486   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.533   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:40.533   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.533   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:40.533   344 12746 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:40.633   344 12746 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:40.635   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.682   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:40.682   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.682   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:40.684   344 12747 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:40.770  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:40.784   344 12747 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:40.784   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.831   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:40.831   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.832   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:40.832   344 12748 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:40.932   344 12748 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:40.932   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.982   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:40.983   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:40.983   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:40.983   344 12749 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:41.083   344 12749 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:41.085   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.131   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:41.131   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.131   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:41.131   344 12750 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:41.232   344 12750 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:41.232   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.278  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:41.282   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:41.283   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.283   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:41.283   344 12751 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:41.384   344 12751 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:41.385   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.432   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:41.432   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.432   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:41.432   344 12752 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:41.532   344 12752 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:41.533   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.582   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:41.582   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.583   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:41.583   344 12753 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:41.683   344 12753 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:41.683   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.731   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:41.731   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:41.731   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:41.732   344 12754 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:41.817  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:41.834   344 12754 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:41.834   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:42.352  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:42.800   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:42.800   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:42.800   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:42.800   344 12755 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:42.887  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:42.900   344 12755 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:42.900   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.065   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:43.066   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.066   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:43.066   344 12756 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:43.166   344 12756 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:43.166   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.215   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:43.215   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.216   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:43.216   344 12757 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:43.316   344 12757 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:43.316   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.365   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:43.365   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.365   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:43.367   344 12758 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:43.428  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:43.468   344 12758 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:43.468   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.516   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:43.516   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.517   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:43.517   344 12759 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:43.617   344 12759 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:43.618   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.667   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:43.667   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.667   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:43.667   344 12760 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:43.767   344 12760 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:43.768   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.815   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:43.815   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.816   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:43.816   344 12761 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:43.916   344 12761 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:43.917   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.964   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:43.965   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:43.965   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:43.967   344 12762 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:43.967  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:44.067   344 12762 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:44.067   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:44.115   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:44.116   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:44.116   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:44.116   344 12763 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:44.216   344 12763 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:44.216   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:44.263   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:44.263   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:44.264   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:44.266   344 12764 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:44.366   344 12764 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:44.367   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:44.415   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:44.415   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:44.416   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:44.416   344 12765 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:44.497  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:44.516   344 12765 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:44.519   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:44.566   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:44.566   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:44.566   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:44.566   344 12766 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:44.667   344 12766 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:44.667   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:45.037  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:45.550  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:45.633   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:45.633   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:45.633   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:45.634   344 12767 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:45.734   344 12767 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:45.734   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:45.880   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:45.880   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:45.881   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:45.882   344 12768 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:45.985   344 12768 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:45.985   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.032   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:46.032   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.032   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:46.032   344 12769 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:46.087  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:46.132   344 12769 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:46.133   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.183   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:46.183   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.183   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:46.183   344 12770 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:46.283   344 12770 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:46.283   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.333   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:46.333   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.333   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:46.333   344 12771 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:46.433   344 12771 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:46.434   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.482   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:46.482   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.483   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:46.483   344 12772 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:46.583   344 12772 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:46.583   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.627  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:46.632   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:46.632   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.633   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:46.633   344 12773 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:46.733   344 12773 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:46.733   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.781   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:46.782   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.782   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:46.782   344 12774 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:46.883   344 12774 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:46.883   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.933   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:46.933   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:46.934   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:46.934   344 12775 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:47.034   344 12775 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:47.034   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:47.082   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:47.083   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:47.083   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:47.083   344 12776 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:47.168  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:47.183   344 12776 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:47.183   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:47.233   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:47.233   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:47.233   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:47.233   344 12777 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:47.333   344 12777 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:47.334   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:47.382   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:47.383   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:47.383   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:47.383   344 12778 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:47.483   344 12778 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:47.484   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:47.687  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:48.228  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:48.450   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:48.450   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:48.450   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:48.450   344 12779 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:48.550   344 12779 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:48.551   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:48.699   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:48.699   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:48.699   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:48.699   344 12780 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:48.767  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:48.799   344 12780 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:48.800   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:48.849   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:48.849   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:48.849   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:48.850   344 12781 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:48.950   344 12781 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:48.950   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:48.999   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:48.999   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:48.999   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:48.999   344 12782 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:49.100   344 12782 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:49.101   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.148   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:49.148   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.148   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:49.149   344 12783 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:49.249   344 12783 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:49.249   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.296   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:49.296   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.296   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:49.297   344 12784 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:49.297  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:49.399   344 12784 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:49.399   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.449   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:49.449   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.449   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:49.449   344 12785 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:49.549   344 12785 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:49.550   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.599   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:49.599   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.599   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:49.600   344 12786 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:49.700   344 12786 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:49.700   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.750   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:49.750   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.750   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:49.750   344 12787 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:49.838  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:49.852   344 12787 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:49.853   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.899   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:49.899   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:49.899   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:49.899   344 12788 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:49.999   344 12788 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:50.000   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:50.049   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:50.049   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:50.049   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:50.050   344 12789 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:50.150   344 12789 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:50.152   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:50.198   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:50.198   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:50.199   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:50.199   344 12790 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:50.299   344 12790 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:50.299   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:50.342  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:50.878  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:51.264   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:51.264   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:51.265   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:51.265   344 12791 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:51.365   344 12791 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:51.365   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:51.417  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:51.515   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:51.515   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:51.516   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:51.516   344 12792 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:51.616   344 12792 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:51.617   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:51.665   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:51.665   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:51.665   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:51.666   344 12793 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:51.766   344 12793 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:51.767   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:51.833   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:51.833   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:51.833   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:51.834   344 12794 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:51.934   344 12794 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:51.935   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:51.957  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:51.999   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:51.999   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:51.999   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:52.000   344 12795 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:52.100   344 12795 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:52.101   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.149   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:52.149   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.149   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:52.149   344 12796 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:52.249   344 12796 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:52.250   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.298   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:52.298   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.298   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:52.300   344 12797 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:52.400   344 12797 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:52.401   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.449   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:52.449   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.450   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:52.450   344 12798 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:52.499  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:52.550   344 12798 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:52.550   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.598   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:52.598   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.598   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:52.600   344 12799 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:52.700   344 12799 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:52.702   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.749   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:52.749   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.750   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:52.750   344 12800 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:52.850   344 12800 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:52.850   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.900   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:52.900   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:52.900   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:52.900   344 12801 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:53.001   344 12801 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:53.002   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:53.037  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:53.066   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:53.066   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:53.066   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:53.066   344 12802 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:53.167   344 12802 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:53.167   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:53.551  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:54.087  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:54.131   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:54.132   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:54.132   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:54.132   344 12803 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:54.233   344 12803 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:54.233   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:54.390   499  1276 I ActivityTaskManager: START u0 {act=android.settings.SETTINGS cmp=com.android.settings/.homepage.SettingsHomepageActivity} from uid 10167
+11-11 12:49:54.390   499   533 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:49:54.419   499   533 I ActivityManager: Killing 1942:android.process.acore/u0a79 (adj 955): empty for 1802s
+11-11 12:49:54.421  1165  1165 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:49:54.425  1165  1165 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:49:54.431   286   286 I Zygote  : Process 1942 exited due to signal 9 (Killed)
+11-11 12:49:54.435   499  6017 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205d3f50, tid 6017
+11-11 12:49:54.437   499   528 D CountryDetector: No listener is left
+11-11 12:49:54.438   499  6017 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:49:54.440   708   847 D EglHelper: createEglContext start
+11-11 12:49:54.444   708   847 D EGL_emulation: eglCreateContext: 0x7f82106597b0: maj 3 min 0 rcv 3
+11-11 12:49:54.451   499  6017 D EGL_emulation: eglCreateContext: 0x7f821065eda0: maj 3 min 0 rcv 3
+11-11 12:49:54.452   499  6017 D EGL_emulation: eglMakeCurrent: 0x7f821065eda0: ver 3 0 (tinfo 0x7f81b06a8670) (first time)
+11-11 12:49:54.460   708   847 D EglHelper: createEglContext done
+11-11 12:49:54.460   708   847 D EglHelper: createEglSurface start
+11-11 12:49:54.462   499   541 I libprocessgroup: Successfully killed process cgroup uid 10079 pid 1942 in 42ms
+11-11 12:49:54.484   499   533 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:49:54.492   708   847 D EglHelper: createEglSurface done
+11-11 12:49:54.500   499   538 D ArtManagerInternalImpl: /data/misc/iorapd/com.android.settings/30/com.android.settings.homepage.SettingsHomepageActivity/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:49:54.513  1165  1165 D ControllerRendererPool: Controller is already there.
+11-11 12:49:54.592   499   545 D KernelCpuUidUserSysTimeReader: Removing uids 10179-10179
+11-11 12:49:54.592  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:54.596   739   780 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:49:54.603 12601 12655 I RimeLifecycle: binding_inactive generation=5 native_create=false
+11-11 12:49:54.609 12601 12601 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:49:54.609 12601 12601 I RimeLifecycle: input_binding generation=7 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:49:54.611 12601 12655 I RimeLifecycle: binding_inactive generation=7 native_create=false
+11-11 12:49:54.650  1165  6018 D BatteryTipLoader: BatteryInfoLoader post query: 2ms
+11-11 12:49:54.650  1165  6018 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:49:54.651  1165  6018 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 3ms
+11-11 12:49:54.653  6020  6038 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:49:54.653  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:54.653  6020  6038 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:49:54.654  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:54.654  6020  6038 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:49:54.654   739   766 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:49:54.656 12659 12673 I yyur.inputbenc: Background concurrent copying GC freed 37729(1939KB) AllocSpace objects, 0(0B) LOS objects, 49% free, 1959KB/3919KB, paused 9us total 126.118ms
+11-11 12:49:54.660  1165  8207 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:49:54.661  6020 12807 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:49:54.661  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 6
+11-11 12:49:54.662  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:54.664  6020  6038 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6020_2 identical 6 lines
+11-11 12:49:54.664  6020  6038 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:54.664  1165  6018 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:49:54.670  1165  1199 D BatteryInfo: time for getStats: 247ms
+11-11 12:49:54.671  1165  1199 D BatteryInfo: time for regular BatteryInfo: 1ms
+11-11 12:49:54.673  1165  1199 D BatteryInfo: time for getBatteryInfo: 2ms
+11-11 12:49:54.673  1165  1165 D BatteryInfo: time for callback: 0ms
+11-11 12:49:54.744  1165  6018 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:49:54.745  1165  6018 D BatteryInfo: time for getBatteryInfo: 1ms
+11-11 12:49:54.745  1165  6018 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 1ms
+11-11 12:49:54.880   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:49:54.880   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:55.094  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:55.151   499  2281 I ActivityTaskManager: START u0 {flg=0x18000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 10167
+11-11 12:49:55.151   499   533 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:49:55.152   420   420 I perfetto: ing_service_impl.cc:758 Configured tracing session 54, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-11 12:49:55.153   419   419 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=54)
+11-11 12:49:55.156   499  2281 W ActivityTaskManager: Tried to set launchTime (0) < mLastActivityLaunchTime (2029408)
+11-11 12:49:55.173   419   419 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-11 12:49:55.420     0     0 W perfetto: enabled ftrace
+11-11 12:49:55.183  1165  1165 D ControllerRendererPool: Controller is already there.
+11-11 12:49:55.240   499   533 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:49:55.244   499   538 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:49:55.255 12601 12655 I RimeLifecycle: binding_inactive generation=8 native_create=false
+11-11 12:49:55.255   499   538 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +88ms
+11-11 12:49:55.259 12601 12601 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:49:55.259 12601 12601 I RimeLifecycle: input_binding generation=10 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-11 12:49:55.259 12601 12601 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:49:55.270 12601 12655 I RimeLifecycle: bind generation=10 duration_ms=10 ready=true usable=true direct=false no_learning=false created=0 reused=1 native_begin_us=1972 restore_us=4 publish_us=8361
+11-11 12:49:55.305   499  6017 D HostConnection: HostConnection::get() New Host Connection established 0x7f82205d0dd0, tid 6017
+11-11 12:49:55.308   499  6017 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:49:55.311   499  6017 D EGL_emulation: eglCreateContext: 0x7f821065eda0: maj 3 min 0 rcv 3
+11-11 12:49:55.311   499  6017 D EGL_emulation: eglMakeCurrent: 0x7f821065eda0: ver 3 0 (tinfo 0x7f81b06a8670) (first time)
+11-11 12:49:55.473   499   499 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:49:55.478   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:49:55.478   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:55.479   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:49:55.479   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:55.518   708   708 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:49:55.518   708   708 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:55.628  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:55.945   499  1642 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:56.166  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:56.697  1165  1165 I chatty  : uid=1000(system) com.android.settings identical 1 line
+11-11 12:49:57.206  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:57.228   499  1642 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:57.548   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:57.549   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:57.549   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:57.549   344 12815 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:57.550   499   528 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:57.550   499   528 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:57.649   344 12815 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:57.650   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:57.700   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:57.700   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:57.700   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:57.701   344 12817 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:57.729   378   459 D AudioFlinger: mixer(0x77efb63da040) throttle end: throttle time(34)
+11-11 12:49:57.748  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:57.801   344 12817 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:57.801   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:57.847   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:57.847   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:57.847   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:57.849   344 12818 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:57.949   344 12818 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:57.949   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.000   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:58.000   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.000   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:58.000   344 12819 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:58.100   344 12819 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:58.101   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.149   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:58.149   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.150   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:58.150   344 12820 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:58.250   344 12820 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:58.250   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.287  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:58.299   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:58.300   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.300   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:58.300   344 12821 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:58.400   344 12821 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:58.401   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.449   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:58.449   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.450   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:58.450   344 12822 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:58.450   432   569 D AudioAnalytics: gc(1700, 2000): log size:1700 item map size:2, item map items:1700
+11-11 12:49:58.550   344 12822 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:58.550   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.597   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:58.597   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.599   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:58.599   344 12823 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:58.699   344 12823 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:58.699   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.746   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:58.747   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.747   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:58.747   344 12824 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:58.828  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:58.848   344 12824 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:58.848   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.900   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:58.900   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:58.900   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:58.900   344 12825 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:59.000   344 12825 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:59.001   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:59.050   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:59.050   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:59.050   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:59.050   344 12826 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:59.151   344 12826 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:59.151   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:59.351  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:59.466   420   420 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:49:59.887  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:00.015   708   708 D KeyguardClockSwitch: Updating clock: 1250
+11-11 12:50:00.133   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:00.133   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.133   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:00.134   344 12827 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:00.154   419   419 I perfetto: probes_producer.cc:329  Producer stop (id=54)
+11-11 12:50:00.155   419   419 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-11 12:50:00.156   420   420 I perfetto: ng_service_impl.cc:1948 Tracing session 54 ended, total sessions:0
+11-11 12:50:00.402     0     0 W perfetto: disabled ftrace
+11-11 12:50:00.160 12601 12643 I RimeInputTiming: select_queue generation=10 ordinal=1 service_wait_us=276
+11-11 12:50:00.168 12601 12601 I RimeInputTiming: commit generation=10 ordinal=1 event_wait_us=344 service_commit_us=87 request_result=REQUEST_ACCEPTED
+11-11 12:50:00.234   344 12827 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:00.235   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.383   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:00.383   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.384   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:00.384   344 12828 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:00.427  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:00.484   344 12828 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:00.485   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.533   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:00.533   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.534   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:00.534   344 12829 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:00.634   344 12829 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:00.634   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.683   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:00.683   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.683   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:00.683   344 12830 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:00.783   344 12830 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:00.784   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.833   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:00.833   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.833   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:00.833   344 12831 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:00.933   344 12831 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:00.935   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.965  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:00.982   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:00.983   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:00.983   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:00.983   344 12832 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:01.083   344 12832 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:01.083   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.132   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:01.133   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.133   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:01.133   344 12833 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:01.233   344 12833 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:01.235   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.283   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:01.283   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.283   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:01.283   344 12834 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:01.384   344 12834 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:01.384   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.433   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:01.433   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.433   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:01.433   344 12835 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:01.506  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:01.534   344 12835 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:01.535   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.583   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:01.583   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.583   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:01.583   344 12836 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:01.684   344 12836 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:01.684   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.732   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:01.732   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.732   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:01.732   344 12837 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:01.832   344 12837 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:01.832   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.883   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:01.884   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:01.884   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:01.884   344 12838 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:01.984   344 12838 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:01.985   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:02.043  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:02.565  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:02.950   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:02.950   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:02.950   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:02.950   344 12839 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:02.976 12601 12643 I RimeInputTiming: select_queue generation=10 ordinal=2 service_wait_us=294
+11-11 12:50:02.983 12601 12601 I RimeInputTiming: commit generation=10 ordinal=2 event_wait_us=2847 service_commit_us=90 request_result=REQUEST_ACCEPTED
+11-11 12:50:03.050   344 12839 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:03.050   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.096  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:03.199   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:03.200   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.200   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:03.200   344 12840 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:03.300   344 12840 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:03.300   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.349   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:03.349   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.349   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:03.349   344 12841 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:03.449   344 12841 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:03.450   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.499   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:03.499   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.499   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:03.499   344 12842 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:03.600   344 12842 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:03.601   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.636  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:03.649   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:03.649   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.650   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:03.650   344 12843 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:03.750   344 12843 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:03.751   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.799   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:03.799   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.799   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:03.799   344 12844 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:03.899   344 12844 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:03.900   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.948   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:03.949   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:03.949   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:03.949   344 12845 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:04.049   344 12845 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:04.051   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.098   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:04.099   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.099   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:04.099   344 12846 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:04.175  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:04.199   344 12846 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:04.199   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.249   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:04.249   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.249   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:04.249   344 12847 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:04.351   344 12847 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:04.352   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.397   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:04.397   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.398   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:04.399   344 12848 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:04.499   344 12848 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:04.499   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.550   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:04.550   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.550   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:04.550   344 12849 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:04.650   344 12849 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:04.651   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.700   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:04.700   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:04.700   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:04.700   344 12850 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:04.711  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:04.712   499   528 I ActivityManager: Killing 1906:com.android.dialer/u0a121 (adj 995): empty for 1807s
+11-11 12:50:04.716   286   286 I Zygote  : Process 1906 exited due to signal 9 (Killed)
+11-11 12:50:04.760   499   541 I libprocessgroup: Successfully killed process cgroup uid 10121 pid 1906 in 45ms
+11-11 12:50:04.800   344 12850 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:04.801   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:05.228  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:05.744  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:05.766   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:05.766   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:05.766   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:05.767   344 12851 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:05.867   344 12851 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:05.867   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.016   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:06.016   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.016   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:06.016   344 12852 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:06.116   344 12852 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:06.117   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.163   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:06.164   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.164   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:06.165   344 12853 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:06.266   344 12853 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:06.266   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.266  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:06.315   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:06.315   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.315   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:06.316   344 12854 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:06.416   344 12854 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:06.418   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.465   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:06.465   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.465   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:06.466   344 12855 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:06.566   344 12855 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:06.567   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.615   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:06.615   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.615   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:06.615   344 12856 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:06.716   344 12856 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:06.716   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.764   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:06.765   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.765   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:06.765   344 12857 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:06.807  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:06.865   344 12857 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:06.865   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.915   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:06.915   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:06.916   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:06.916   344 12858 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:07.016   344 12858 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:07.017   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:07.063   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:07.063   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:07.063   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:07.064   344 12859 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:07.167   344 12859 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:07.167   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:07.215   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:07.215   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:07.216   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:07.216   344 12860 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:07.316   344 12860 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:07.316   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:07.349  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:07.365   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:07.365   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:07.365   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:07.365   344 12861 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:07.465   344 12861 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:07.465   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:07.517   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:07.517   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:07.517   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:07.517   344 12862 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:07.617   344 12862 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:07.618   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:07.885  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:08.411  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:08.582   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:08.583   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:08.583   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:08.583   344 12863 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:08.683   344 12863 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:08.684   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:08.833   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:08.834   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:08.834   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:08.834   344 12864 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:08.934   344 12864 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:08.935   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:08.952  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:08.999   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:09.000   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.000   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:09.000   344 12865 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:09.100   344 12865 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:09.100   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.150   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:09.150   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.150   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:09.150   344 12866 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:09.251   344 12866 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:09.251   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.300   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:09.300   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.300   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:09.300   344 12867 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:09.401   344 12867 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:09.401   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.448   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:09.448   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.448   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:09.449   344 12868 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:09.491  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:09.549   344 12868 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:09.549   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.599   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:09.600   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.600   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:09.600   344 12869 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:09.700   344 12869 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:09.701   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.747   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:09.747   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.747   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:09.749   344 12870 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:09.849   344 12870 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:09.849   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.900   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:09.900   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:09.900   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:09.900   344 12871 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:10.001   344 12871 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:10.002   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:10.027  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:10.047   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:10.048   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:10.048   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:10.049   344 12872 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:10.149   344 12872 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:10.149   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:10.196   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:10.196   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:10.197   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:10.198   344 12873 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:10.299   344 12873 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:10.301   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:10.348   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:10.348   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:10.348   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:10.348   344 12874 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:10.449   344 12874 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:10.449   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:10.567  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:11.094  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:11.416   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:11.417   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:11.417   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:11.417   344 12875 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:11.517   344 12875 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:11.517   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:11.607  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:11.665   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:11.665   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:11.665   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:11.665   344 12876 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:11.766   344 12876 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:11.766   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:11.816   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:11.816   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:11.816   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:11.817   344 12877 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:11.917   344 12877 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:11.917   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:11.966   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:11.966   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:11.966   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:11.966   344 12878 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:12.066   344 12878 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:12.067   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.127  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:12.133   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:12.133   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.133   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:12.133   344 12879 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:12.233   344 12879 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:12.234   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.281   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:12.281   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.281   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:12.283   344 12880 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:12.383   344 12880 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:12.384   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.434   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:12.434   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.434   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:12.434   344 12881 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:12.535   344 12881 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:12.535   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.600   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:12.600   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.600   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:12.600   344 12882 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:12.667  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:12.700   344 12882 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:12.701   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.749   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:12.750   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.750   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:12.750   344 12883 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:12.850   344 12883 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:12.850   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.897   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:12.897   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:12.898   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:12.898   344 12884 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:12.998   344 12884 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:12.999   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:13.050   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:13.050   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:13.050   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:13.050   344 12885 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:13.150   344 12885 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:13.151   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:13.423     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=300000 cc=10 chg=a
+11-11 12:50:13.196   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:13.197   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:13.197   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:13.197   344 12886 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:13.208  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:13.297   344 12886 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:13.298   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:13.733  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:14.266   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:14.266   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:14.266   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:14.266   344 12887 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:14.274  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:14.366   344 12887 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:14.367   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:14.516   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:14.517   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:14.517   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:14.517   344 12888 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:14.617   344 12888 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:14.620   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:14.664   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:14.664   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:14.664   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:14.665   344 12889 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:14.765   344 12889 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:14.765   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:14.814  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:14.815   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:14.815   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:14.815   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:14.815   344 12890 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:14.916   344 12890 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:14.918   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:14.965   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:14.965   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:14.965   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:14.965   344 12891 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:15.066   344 12891 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:15.066   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.116   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:15.116   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.116   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:15.116   344 12892 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:15.217   344 12892 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:15.218   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.265   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:15.266   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.266   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:15.266   344 12893 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:15.355  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:15.366   344 12893 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:15.368   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.415   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:15.416   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.416   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:15.416   344 12894 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:15.516   344 12894 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:15.517   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.566   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:15.567   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.567   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:15.568   344 12895 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:15.668   344 12895 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:15.668   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.715   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:15.716   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.716   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:15.716   344 12896 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:15.816   344 12896 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:15.816   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.865   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:15.865   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:15.866   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:15.866   344 12897 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:15.895  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:15.966   344 12897 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:15.968   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:16.016   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:16.016   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:16.016   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:16.016   344 12898 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:16.116   344 12898 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:16.118   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:16.430  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:16.971  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:17.082   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:17.083   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.083   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:17.083   344 12899 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:17.183   344 12899 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:17.183   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.333   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:17.333   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.333   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:17.333   344 12900 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:17.434   344 12900 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:17.434   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.482   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:17.483   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.483   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:17.483   344 12901 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:17.511  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:17.583   344 12901 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:17.583   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.632   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:17.632   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.633   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:17.633   344 12902 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:17.734   344 12902 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:17.734   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.782   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:17.782   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.783   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:17.783   344 12903 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:17.883   344 12903 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:17.883   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.931   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:17.931   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:17.932   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:17.932   344 12904 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:18.032   344 12904 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:18.033   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.049  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:18.081   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:18.081   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.082   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:18.082   344 12905 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:18.184   344 12905 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:18.185   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.230   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:18.230   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.230   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:18.231   344 12906 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:18.287   499   811 D WifiNl80211Manager: Scan result ready event
+11-11 12:50:18.287   499   811 D WifiNative: Scan result ready event
+11-11 12:50:18.331   344 12906 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:18.332   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.382   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:18.383   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.383   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:18.383   344 12907 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:18.484   344 12907 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:18.485   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.534   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:18.534   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.534   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:18.534   344 12908 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:18.587  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:18.635   344 12908 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:18.635   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.683   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:18.683   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.683   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:18.683   344 12909 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:18.784   344 12909 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:18.784   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.831   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:18.831   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:18.832   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:18.833   344 12910 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:18.933   344 12910 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:18.933   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:19.097  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:19.617  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:19.899   344   344 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:50:19.900   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:19.900   344   344 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:50:19.900   344 12911 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:50:20.000   344 12911 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:50:20.000   344   344 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:50:20.155  1165  1165 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:50:20.158   499  1642 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@21d0669
+11-11 12:50:20.160 12659 12682 V UiAutomation: Init UiAutomation@a78466a[id=-1, flags=0]
+11-11 12:50:20.163   499  2363 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: finished inst
+11-11 12:50:20.163   499  2363 I ActivityManager: Killing 12659:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to finished inst
+11-11 12:50:20.165   499  2363 W ActivityTaskManager: Force removing ActivityRecord{c9234c7 u0 io.github.sandyyur.inputbench/.BenchHost t83 f}}: app died, no saved state
+11-11 12:50:20.166 12617 12617 I app_process: System.exit called, status: 0
+11-11 12:50:20.166 12617 12617 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:50:20.168   499  2363 W ActivityTaskManager: Force removing ActivityRecord{c1382b4 u0 io.github.sandyyur.inputbench/.BenchHost t82 f}}: app died, no saved state
+11-11 12:50:20.175  1165  1165 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:50:20.181  1165  1165 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:50:20.438     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:50:20.440     0     0 I binder  : undelivered transaction 940464, process died.
+11-11 12:50:20.442     0     0 I binder  : undelivered transaction 940406, process died.
+11-11 12:50:20.197   286   286 I Zygote  : Process 12659 exited due to signal 9 (Killed)
+11-11 12:50:20.199   499   533 W ActivityManager: setHasOverlayUi called on unknown pid: 12659
+11-11 12:50:20.200 12601 12655 I RimeLifecycle: binding_inactive generation=11 native_create=false
+11-11 12:50:20.212   499   541 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 12659 in 47ms
+11-11 12:50:20.225   739   777 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:50:20.234  1165  1165 D ControllerRendererPool: Controller is already there.
+11-11 12:50:20.495     0     0 D logd    : logdr: UID=0 GID=0 PID=12915 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-11 12:50:20.254  1165  1199 D BatteryInfo: time for getStats: 78ms
+11-11 12:50:20.254  1165  1199 D BatteryInfo: time for regular BatteryInfo: 0ms
+11-11 12:50:20.254  1165  1199 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:50:20.255  6020  6037 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:50:20.255  6020  6037 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:50:20.255  6020  6037 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:50:20.255  1165  1165 D BatteryInfo: time for callback: 0ms
+11-11 12:50:20.256  6020  6037 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:50:20.256  6020  6037 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:50:20.500     0     0 I binder  : 12601:12601 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:50:20.259  1165  1186 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:50:20.259  6020 12807 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:50:20.259  6020  6037 D CandidateSuggestionFilter: filterCandidates duration: 2
+11-11 12:50:20.260  6020  6037 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:50:20.261  6020  6037 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6020_1 identical 6 lines
+11-11 12:50:20.261  6020  6037 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:50:20.261  1165  6018 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:50:20.268 12601 12655 I RimeLifecycle: binding_inactive generation=12 native_create=false
+11-11 12:50:20.268 12601 12601 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:50:20.268 12601 12601 I RimeLifecycle: input_binding generation=13 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:50:20.268 12601 12655 I RimeLifecycle: binding_inactive generation=13 native_create=false
+11-11 12:50:20.294  1165  6026 D BatteryTipLoader: BatteryInfoLoader post query: 1ms
+11-11 12:50:20.299  1165  6026 D BatteryInfo: time for getBatteryInfo: 4ms
+11-11 12:50:20.299  1165  6026 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 6ms
+11-11 12:50:20.315   739   778 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:50:20.330  1165  6018 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:50:20.331  1165  6018 D BatteryInfo: time for getBatteryInfo: 1ms
+11-11 12:50:20.331  1165  6018 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 1ms

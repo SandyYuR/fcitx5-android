@@ -1,0 +1,5 @@
+INSTRUMENTATION_RESULT: failure=java.lang.IllegalStateException: Chinese commit failed: 
+	at io.github.sandyyur.inputbench.Calibrate.onStart(Calibrate.java:36)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2205)
+
+INSTRUMENTATION_CODE: 1

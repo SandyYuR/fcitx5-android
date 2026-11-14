@@ -1,0 +1,6 @@
+*.zip -text
+*.bundle -text
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.mbox.txt -whitespace

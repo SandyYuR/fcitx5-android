@@ -1,0 +1,22 @@
+{
+  "pins": {
+    "before": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+    "after": "015bde3a4205d63ee0b2bcb58a46c2a7f8b8cd92",
+    "before_apk_sha256": "ac2362b4d12f952187cab7d81a6a54476f0d7061d58867053030952ee39e7f37",
+    "before_artifact_id": 13851569511,
+    "before_run_id": 43015193478,
+    "fixture_run_id": 43018095886,
+    "fixture_artifact_id": 13853652309
+  },
+  "apks": {
+    "after-arm64.apk": "652a02615f92b7cef649603ddc0b38dbeb5c87613dcd6c370e1f9bd013893194",
+    "after-tests.apk": "1a0515c9f0eefc25571a557646c320839a1cec7122629721a4e574d8ce792799",
+    "after.apk": "a7f7d057862c8068312e8774e1ec813170c9619a300a246382b9ad87ed226ddb",
+    "before-tests.apk": "c0879bb4b55d03c68efefaebdb8d23eea34881a47a87b66043173fc8ab659c53",
+    "before.apk": "ac2362b4d12f952187cab7d81a6a54476f0d7061d58867053030952ee39e7f37"
+  },
+  "harness": {
+    "CandidateTapTest.kt": "48bed3d958ecc8175dd576096d40d01aa3b4aa65909a90846617eb9a57cfce85",
+    "ScreenFixtureTest.kt": "e27658a94d476ca14d607c12a165134d405b7493388aa4ef9a2099825cbd8ffa"
+  }
+}

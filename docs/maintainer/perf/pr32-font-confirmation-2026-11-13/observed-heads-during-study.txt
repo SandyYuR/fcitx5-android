@@ -1,0 +1,4 @@
+08ffd6f035adead6bf70f90ac7dd1d13baed77c7	refs/heads/docs
+2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18	refs/heads/fix/first-candidate-latency-20261112
+88a664d46ba82712d5457d86c037629c478b042c	refs/heads/fx-rime-only
+9a26eb811904d1d353ce165bacdf9d8cfa84de86	refs/heads/test/pr32-font-only-20261113

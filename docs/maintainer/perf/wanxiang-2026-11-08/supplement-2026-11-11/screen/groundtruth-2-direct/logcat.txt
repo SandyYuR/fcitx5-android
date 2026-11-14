@@ -1,0 +1,1511 @@
+--------- beginning of main
+11-11 12:21:41.479  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:41.482   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.482   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10176} in 11ms
+11-11 12:21:41.483   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:21:41.483   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.483   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10095} in 0ms
+11-11 12:21:41.486   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:21:41.486   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.486   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10202} in 4ms
+11-11 12:21:41.487   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:21:41.487   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.487   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10101} in 0ms
+11-11 12:21:41.492   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:21:41.492   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.492   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10142} in 6ms
+11-11 12:21:41.493   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:21:41.493   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.493   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10188} in 0ms
+11-11 12:21:41.493   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:21:41.494   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.494   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10091} in 1ms
+11-11 12:21:41.499   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:21:41.500   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.500   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10143} in 6ms
+11-11 12:21:41.500   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:21:41.500   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.500   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10096} in 1ms
+11-11 12:21:41.501   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:21:41.510   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:21:41.511   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10152} in 10ms
+11-11 12:21:41.515  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:41.566  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:41.589  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:41.590  4912  4912 D [main] CursorTracker: current: [17,17]; predictionCount=1
+--------- beginning of system
+11-11 12:21:41.610   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:41.613  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[17,17] new=[19,19] cand=[-1,-1]
+11-11 12:21:41.675  5000  5018 D EGL_emulation: app_time_stats: avg=815.28ms min=763.04ms max=867.51ms count=2
+11-11 12:21:41.713  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=0 unicodeChar=120 sym=0x0078
+11-11 12:21:41.722  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=1 unicodeChar=120 sym=0x0078
+11-11 12:21:41.747   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:41.778  4912  5022 D EGL_emulation: app_time_stats: avg=59.93ms min=12.87ms max=105.08ms count=16
+11-11 12:21:41.791  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:41.817  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:41.926  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:41.933  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:42.067  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:42.071  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:42.194  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:42.197  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:42.272  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:21:42.282  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:21:42.371  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:42.414  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:42.512  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:42.520  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:42.607  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:42.608  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:42.640  4912  4912 D [main] CursorTracker: current: [19,19]; predictionCount=1
+11-11 12:21:42.641  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[19,19] new=[21,21] cand=[-1,-1]
+11-11 12:21:42.656   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:42.713  5000  5018 D EGL_emulation: app_time_stats: avg=1037.67ms min=1037.67ms max=1037.67ms count=1
+11-11 12:21:42.720  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:42.737  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:42.767   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:42.800  4912  5022 D EGL_emulation: app_time_stats: avg=59.23ms min=25.95ms max=108.70ms count=17
+11-11 12:21:42.840  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:21:42.874  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:42.979  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:42.994  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:43.032  4912  4917 I d.fx.rime.debug: Background concurrent mark compact GC freed 7044KB AllocSpace bytes, 1(20KB) LOS objects, 49% free, 7773KB/15MB, paused 162us,2.669ms total 120.370ms
+11-11 12:21:43.138  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=0 unicodeChar=120 sym=0x0078
+11-11 12:21:43.145  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=1 unicodeChar=120 sym=0x0078
+11-11 12:21:43.200  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:43.201  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:43.346  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:43.353  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:43.449  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:43.455  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:43.588  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:43.594  4912  4912 D [main] CursorTracker: current: [21,21]; predictionCount=1
+11-11 12:21:43.639   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:43.644  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[21,21] new=[23,23] cand=[-1,-1]
+11-11 12:21:43.645  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:43.717  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=0 unicodeChar=102 sym=0x0066
+11-11 12:21:43.725  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=1 unicodeChar=102 sym=0x0066
+11-11 12:21:43.747   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:43.796  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:43.802  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:43.854  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:43.878  4912  5022 D EGL_emulation: app_time_stats: avg=52.81ms min=23.73ms max=108.32ms count=17
+11-11 12:21:43.879  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:44.019  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:44.055  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:44.196  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:44.208  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:44.341  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:44.342  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:44.400  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:44.401  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:44.407  4912  4912 D [main] CursorTracker: current: [23,23]; predictionCount=1
+11-11 12:21:44.439   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:44.476  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[23,23] new=[25,25] cand=[-1,-1]
+11-11 12:21:44.514  5000  5018 D EGL_emulation: app_time_stats: avg=900.46ms min=890.70ms max=910.23ms count=2
+11-11 12:21:44.585  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:21:44.597  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:21:44.615   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:44.690  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:44.696  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:44.810  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:21:44.821  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:21:44.884  4912  5022 D EGL_emulation: app_time_stats: avg=68.85ms min=24.99ms max=154.25ms count=14
+11-11 12:21:44.922  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:44.937  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:45.016  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:45.024  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:45.099  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:45.122  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:45.220  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:45.248  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:45.342  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:45.347  4912  4912 D [main] CursorTracker: current: [25,25]; predictionCount=1
+11-11 12:21:45.353  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[25,25] new=[27,27] cand=[-1,-1]
+11-11 12:21:45.355  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:45.389   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:45.454  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:21:45.458  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:21:45.498  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:45.498   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:45.526  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:45.627  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:45.635  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:45.713  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=0 unicodeChar=114 sym=0x0072
+11-11 12:21:45.806  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=1 unicodeChar=114 sym=0x0072
+11-11 12:21:45.894  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:45.895  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:45.952  4912  5022 D EGL_emulation: app_time_stats: avg=56.43ms min=22.99ms max=133.30ms count=18
+11-11 12:21:45.968  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:45.998  4912  4912 D [main] CursorTracker: current: [27,27]; predictionCount=1
+11-11 12:21:46.022  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:46.023  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[27,27] new=[29,29] cand=[-1,-1]
+11-11 12:21:46.036  5000  5018 D EGL_emulation: app_time_stats: avg=761.20ms min=618.58ms max=903.83ms count=2
+11-11 12:21:46.052   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:46.128  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=0 unicodeChar=122 sym=0x007a
+11-11 12:21:46.137  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=1 unicodeChar=122 sym=0x007a
+11-11 12:21:46.175   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:46.213  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:46.215  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:46.384  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:21:46.404  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:46.463  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:46.466  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:46.602  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:46.633  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:46.689  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:46.700  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:46.766  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:46.774  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:46.900  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:21:46.983  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:47.032  4912  5022 D EGL_emulation: app_time_stats: avg=58.86ms min=34.97ms max=118.50ms count=17
+11-11 12:21:47.044  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:47.049  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:47.050  4912  4912 D [main] CursorTracker: current: [29,29]; predictionCount=1
+11-11 12:21:47.067  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[29,29] new=[31,31] cand=[-1,-1]
+11-11 12:21:47.116   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:47.118  5000  5018 D EGL_emulation: app_time_stats: avg=1081.81ms min=1081.81ms max=1081.81ms count=1
+11-11 12:21:47.191  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:47.194  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:47.229   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:47.287  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:47.296  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:47.415  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:47.418  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:47.490  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:47.632  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:47.699  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:21:47.702  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:47.777  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:47.782  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:47.786  4912  4912 D [main] CursorTracker: current: [31,31]; predictionCount=1
+11-11 12:21:47.804   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:47.820  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[31,31] new=[33,33] cand=[-1,-1]
+11-11 12:21:47.856  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:21:47.894  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:21:47.956   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:47.957  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:47.978  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:48.068  4912  5022 D EGL_emulation: app_time_stats: avg=56.76ms min=26.91ms max=91.02ms count=16
+11-11 12:21:48.113  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:21:48.128  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:21:48.192  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:48.195  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:48.272  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:48.288  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:48.396  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:48.453  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:48.532  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:48.535  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:48.624  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:21:48.674  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:48.771  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:48.779  4912  4912 D [main] CursorTracker: current: [33,33]; predictionCount=1
+11-11 12:21:48.783  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[33,33] new=[35,35] cand=[-1,-1]
+11-11 12:21:48.787  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:48.816   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:48.872  5000  5018 D EGL_emulation: app_time_stats: avg=876.66ms min=704.94ms max=1048.39ms count=2
+11-11 12:21:48.892  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:48.923  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:48.954   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:49.007  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:21:49.016  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:49.116  4912  5022 D EGL_emulation: app_time_stats: avg=59.31ms min=28.58ms max=120.08ms count=16
+11-11 12:21:49.123  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:49.151  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:49.245  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:49.284  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:49.378  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=0 unicodeChar=122 sym=0x007a
+11-11 12:21:49.383  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=1 unicodeChar=122 sym=0x007a
+11-11 12:21:49.413  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:49.418  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:49.616  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+--------- beginning of kernel
+11-11 12:21:49.803     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-11 12:21:49.637  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:49.691  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:49.696  4912  4912 D [main] CursorTracker: current: [35,35]; predictionCount=1
+11-11 12:21:49.740  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:49.749   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:49.752  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[35,35] new=[37,37] cand=[-1,-1]
+11-11 12:21:49.872  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=0 unicodeChar=120 sym=0x0078
+11-11 12:21:49.875  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=1 unicodeChar=120 sym=0x0078
+11-11 12:21:49.925  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:49.933   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:49.993  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:50.112  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:21:50.132  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:21:50.224  4912  5022 D EGL_emulation: app_time_stats: avg=60.99ms min=30.76ms max=185.41ms count=17
+11-11 12:21:50.255  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=0 unicodeChar=120 sym=0x0078
+11-11 12:21:50.265  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=1 unicodeChar=120 sym=0x0078
+11-11 12:21:50.350  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:50.365  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:50.486  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:50.494  4912  4912 D [main] CursorTracker: current: [37,37]; predictionCount=1
+11-11 12:21:50.510  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:50.510   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:50.517  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[37,37] new=[39,39] cand=[-1,-1]
+11-11 12:21:50.563  5000  5018 D EGL_emulation: app_time_stats: avg=845.32ms min=793.48ms max=897.15ms count=2
+11-11 12:21:50.608  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=39 scanCode=0 action=0 unicodeChar=107 sym=0x006b
+11-11 12:21:50.618  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=39 scanCode=0 action=1 unicodeChar=107 sym=0x006b
+11-11 12:21:50.649   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:50.718  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:50.728  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:50.859  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:50.865  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:50.944  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:51.034  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:51.160  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=40 scanCode=0 action=0 unicodeChar=108 sym=0x006c
+11-11 12:21:51.163  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=40 scanCode=0 action=1 unicodeChar=108 sym=0x006c
+11-11 12:21:51.235  4912  5022 D EGL_emulation: app_time_stats: avg=61.85ms min=26.23ms max=147.05ms count=15
+11-11 12:21:51.242  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:21:51.277  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:21:51.370  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:51.388  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:51.427  4912  4912 D [main] CursorTracker: current: [39,39]; predictionCount=1
+11-11 12:21:51.446  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[39,39] new=[41,41] cand=[-1,-1]
+11-11 12:21:51.454   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:51.528  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:21:51.542  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:21:51.567   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:51.628  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:51.634  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:51.749  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:51.754  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:51.849  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=0 unicodeChar=106 sym=0x006a
+11-11 12:21:51.887  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=1 unicodeChar=106 sym=0x006a
+11-11 12:21:51.976  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:52.016  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:52.106  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:21:52.143  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:21:52.208  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:52.216  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:52.264  4912  4912 D [main] CursorTracker: current: [41,41]; predictionCount=1
+11-11 12:21:52.270  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[41,41] new=[43,43] cand=[-1,-1]
+11-11 12:21:52.282  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=44 scanCode=0 action=0 unicodeChar=112 sym=0x0070
+11-11 12:21:52.314  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=44 scanCode=0 action=1 unicodeChar=112 sym=0x0070
+11-11 12:21:52.318  5000  5018 D EGL_emulation: app_time_stats: avg=877.47ms min=840.33ms max=914.61ms count=2
+11-11 12:21:52.343  4912  4917 I d.fx.rime.debug: Background concurrent mark compact GC freed 7736KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 7909KB/15MB, paused 1.726ms,5.140ms total 166.460ms
+11-11 12:21:52.351   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:52.387   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:52.406  4912  5022 D EGL_emulation: app_time_stats: avg=62.89ms min=17.45ms max=169.09ms count=17
+11-11 12:21:52.466  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:21:52.501  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:21:52.564  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:52.580  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:52.678  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:52.722  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:52.851  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=0 unicodeChar=121 sym=0x0079
+11-11 12:21:52.855  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=1 unicodeChar=121 sym=0x0079
+11-11 12:21:52.939  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:21:52.944  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:53.044  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:53.052  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:53.166  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:53.187  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:53.193  4912  4912 D [main] CursorTracker: current: [43,43]; predictionCount=1
+11-11 12:21:53.203  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[43,43] new=[45,45] cand=[-1,-1]
+11-11 12:21:53.220   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:53.275  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:21:53.281  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:21:53.319   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:53.380  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:53.406  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:53.408  4912  5022 D EGL_emulation: app_time_stats: avg=51.34ms min=23.63ms max=119.24ms count=17
+11-11 12:21:53.494  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:53.507  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:53.556  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=0 unicodeChar=106 sym=0x006a
+11-11 12:21:53.564  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=1 unicodeChar=106 sym=0x006a
+11-11 12:21:53.699  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:53.777  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:53.887  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:53.892  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:53.942  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:53.958  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:54.036  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:54.042  4912  4912 D [main] CursorTracker: current: [45,45]; predictionCount=1
+11-11 12:21:54.049  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:54.050  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[45,45] new=[47,47] cand=[-1,-1]
+11-11 12:21:54.056   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:54.152  5000  5018 D EGL_emulation: app_time_stats: avg=917.11ms min=906.82ms max=927.39ms count=2
+11-11 12:21:54.158  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=0 unicodeChar=119 sym=0x0077
+11-11 12:21:54.162  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=1 unicodeChar=119 sym=0x0077
+11-11 12:21:54.214   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:54.276  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:21:54.278  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:21:54.365  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:54.366  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:54.425  4912  5022 D EGL_emulation: app_time_stats: avg=60.71ms min=29.85ms max=108.16ms count=16
+11-11 12:21:54.428  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=0 unicodeChar=116 sym=0x0074
+11-11 12:21:54.440  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=1 unicodeChar=116 sym=0x0074
+11-11 12:21:54.632  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:54.640  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:54.785  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:54.792  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:54.794  4912  4912 D [main] CursorTracker: current: [47,47]; predictionCount=1
+11-11 12:21:54.816  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[47,47] new=[49,49] cand=[-1,-1]
+11-11 12:21:54.838   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:54.846  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=0 unicodeChar=102 sym=0x0066
+11-11 12:21:54.856  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=1 unicodeChar=102 sym=0x0066
+11-11 12:21:54.898   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:55.070  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:55.076  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:55.160  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:55.169  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:55.284  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:55.290  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:55.341  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=0 unicodeChar=102 sym=0x0066
+11-11 12:21:55.345  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=1 unicodeChar=102 sym=0x0066
+11-11 12:21:55.463  4912  5022 D EGL_emulation: app_time_stats: avg=61.54ms min=32.81ms max=106.16ms count=16
+11-11 12:21:55.479  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:55.493  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:55.540  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:55.552  4912  4912 D [main] CursorTracker: current: [49,49]; predictionCount=1
+11-11 12:21:55.563   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:55.564  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:55.564  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[49,49] new=[51,51] cand=[-1,-1]
+11-11 12:21:55.656  5000  5018 D EGL_emulation: app_time_stats: avg=751.84ms min=748.10ms max=755.58ms count=2
+11-11 12:21:55.663  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=0 unicodeChar=106 sym=0x006a
+11-11 12:21:55.689  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=1 unicodeChar=106 sym=0x006a
+11-11 12:21:55.717   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:55.819  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:55.825  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:55.878  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:55.888  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:55.968  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:56.006  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:56.129  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=0 unicodeChar=100 sym=0x0064
+11-11 12:21:56.136  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=1 unicodeChar=100 sym=0x0064
+11-11 12:21:56.202  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:21:56.211  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:21:56.338  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:56.349  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:56.448  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:56.450  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:56.464  4912  5022 D EGL_emulation: app_time_stats: avg=53.80ms min=15.60ms max=133.48ms count=17
+11-11 12:21:56.465  4912  4912 D [main] CursorTracker: current: [51,51]; predictionCount=1
+11-11 12:21:56.500   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:56.516  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[51,51] new=[53,53] cand=[-1,-1]
+11-11 12:21:56.546  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:21:56.552  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:21:56.597   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:56.672  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:56.691  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:56.785  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:56.801  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:56.896  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:56.946  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:57.029  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=0 unicodeChar=99 sym=0x0063
+11-11 12:21:57.048  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=1 unicodeChar=99 sym=0x0063
+11-11 12:21:57.132  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:57.163  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:57.275  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:57.291  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:57.353  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:57.362  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:57.363  4912  4912 D [main] CursorTracker: current: [53,53]; predictionCount=1
+11-11 12:21:57.390  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[53,53] new=[55,55] cand=[-1,-1]
+11-11 12:21:57.398   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:57.399  5000  5018 D EGL_emulation: app_time_stats: avg=871.31ms min=848.17ms max=894.45ms count=2
+11-11 12:21:57.457  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=0 unicodeChar=119 sym=0x0077
+11-11 12:21:57.460  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=1 unicodeChar=119 sym=0x0077
+11-11 12:21:57.503   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:57.530  4912  5022 D EGL_emulation: app_time_stats: avg=53.68ms min=19.47ms max=97.13ms count=17
+11-11 12:21:57.578  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:21:57.614  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:21:57.728  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:57.732  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:57.780  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=0 unicodeChar=100 sym=0x0064
+11-11 12:21:57.782  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=1 unicodeChar=100 sym=0x0064
+11-11 12:21:57.901  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:21:57.903  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:21:57.971  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:58.020  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:58.106  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:58.119  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:58.261  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:58.264  4912  4912 D [main] CursorTracker: current: [55,55]; predictionCount=1
+11-11 12:21:58.278  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:58.279  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[55,55] new=[57,57] cand=[-1,-1]
+11-11 12:21:58.293   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:58.392  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:21:58.408  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:21:58.433   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:58.489  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:58.494  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:58.551  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=0 unicodeChar=100 sym=0x0064
+11-11 12:21:58.568  4912  5022 D EGL_emulation: app_time_stats: avg=59.38ms min=21.57ms max=111.15ms count=17
+11-11 12:21:58.569  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=1 unicodeChar=100 sym=0x0064
+11-11 12:21:58.730  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:58.739  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:58.840  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:58.843  4912  4912 D [main] CursorTracker: current: [57,57]; predictionCount=1
+11-11 12:21:58.847  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[57,57] new=[59,59] cand=[-1,-1]
+11-11 12:21:58.849  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:58.859   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:58.864  5000  5018 D EGL_emulation: app_time_stats: avg=732.60ms min=532.65ms max=932.54ms count=2
+11-11 12:21:58.932  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=0 unicodeChar=122 sym=0x007a
+11-11 12:21:58.937  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=1 unicodeChar=122 sym=0x007a
+11-11 12:21:58.967   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:59.008  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:59.010  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:59.084  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:21:59.117  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:59.251  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:21:59.256  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:21:59.363  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:21:59.412  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:21:59.499  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=0 unicodeChar=122 sym=0x007a
+11-11 12:21:59.501  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=1 unicodeChar=122 sym=0x007a
+11-11 12:21:59.557  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:21:59.558  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:21:59.638  4912  5022 D EGL_emulation: app_time_stats: avg=57.04ms min=23.15ms max=126.33ms count=17
+11-11 12:21:59.640  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:21:59.648  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:21:59.843  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:21:59.845  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:21:59.905  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:21:59.908  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:21:59.914  4912  4912 D [main] CursorTracker: current: [59,59]; predictionCount=1
+11-11 12:21:59.928   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:21:59.930  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[59,59] new=[61,61] cand=[-1,-1]
+11-11 12:21:59.993  5000  5018 D EGL_emulation: app_time_stats: avg=1128.20ms min=1128.20ms max=1128.20ms count=1
+11-11 12:22:00.028  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=0 unicodeChar=106 sym=0x006a
+11-11 12:22:00.038  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=1 unicodeChar=106 sym=0x006a
+11-11 12:22:00.045  1497  1707 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-11 12:22:00.047  1497  1707 I AiAiEcho: EchoTargets: 
+11-11 12:22:00.047  1497  1707 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 12:22:00.047  1497  1707 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:22:00.048  1497  1707 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:22:00.048  1497  1707 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-11 12:22:00.049  1497  1707 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-11 12:22:00.049  1497  1707 I AiAiEcho: EchoTargets: 
+11-11 12:22:00.049  1497  1707 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 12:22:00.049  1497  1707 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:22:00.049  1497  1707 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:22:00.049  1497  1707 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-11 12:22:00.050  1497  1707 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-11 12:22:00.050  1497  1707 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-11 12:22:00.055   921   921 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-11 12:22:00.055  1187  1187 D SsBaseTemplateCard: No text view can be set up
+11-11 12:22:00.056  1187  1187 D SsBaseTemplateCard: Passed-in item info is null
+11-11 12:22:00.056  1187  1187 D SsBaseTemplateCard: Passed-in item info is null
+11-11 12:22:00.056  1187  1187 D SsBaseTemplateCard: Passed-in item info is null
+11-11 12:22:00.056  1187  1187 I SsBaseTemplateCard: Secondary card pane is null
+11-11 12:22:00.060   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:00.068   921  1059 D EGL_emulation: app_time_stats: avg=8480.08ms min=8.01ms max=41708.55ms count=5
+11-11 12:22:00.112  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:00.130  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:00.264  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:00.270  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:00.425  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=0 unicodeChar=116 sym=0x0074
+11-11 12:22:00.432  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=1 unicodeChar=116 sym=0x0074
+11-11 12:22:00.548  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:00.555  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:00.628  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:00.663  4912  5022 D EGL_emulation: app_time_stats: avg=67.65ms min=25.02ms max=130.51ms count=14
+11-11 12:22:00.686  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:00.816  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:00.818  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:00.933  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=0 unicodeChar=116 sym=0x0074
+11-11 12:22:00.944  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=1 unicodeChar=116 sym=0x0074
+11-11 12:22:01.024  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:01.028  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:01.138  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:01.139  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:01.220  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:01.235  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:01.320  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:22:01.327  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:22:01.434  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:01.479  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:01.566  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:01.569  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:01.624  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:01.634  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:01.680  4912  4917 I d.fx.rime.debug: Background concurrent mark compact GC freed 7952KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 7829KB/15MB, paused 297us,5.230ms total 110.432ms
+11-11 12:22:01.693  4912  5022 D EGL_emulation: app_time_stats: avg=52.37ms min=24.27ms max=95.83ms count=18
+11-11 12:22:01.717  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:01.754  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:01.860  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:01.915  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:02.027  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:02.038  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:02.114  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:02.121  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:02.238  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:02.245  4912  4912 D [main] CursorTracker: current: [61,61]; predictionCount=1
+11-11 12:22:02.252  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:02.272   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:02.275  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[61,61] new=[67,67] cand=[-1,-1]
+11-11 12:22:02.307  5000  5018 D EGL_emulation: app_time_stats: avg=2314.40ms min=2314.40ms max=2314.40ms count=1
+11-11 12:22:02.357  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=0 unicodeChar=119 sym=0x0077
+11-11 12:22:02.369  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=1 unicodeChar=119 sym=0x0077
+11-11 12:22:02.415  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:02.418   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:02.423  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:02.578  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=41 scanCode=0 action=0 unicodeChar=109 sym=0x006d
+11-11 12:22:02.586  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=41 scanCode=0 action=1 unicodeChar=109 sym=0x006d
+11-11 12:22:02.719  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:02.724  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:02.734  4912  5022 D EGL_emulation: app_time_stats: avg=61.11ms min=11.86ms max=166.32ms count=16
+11-11 12:22:02.812  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:02.880  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:02.976  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=0 unicodeChar=121 sym=0x0079
+11-11 12:22:02.992  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=1 unicodeChar=121 sym=0x0079
+11-11 12:22:03.059  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:03.075  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:03.202  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:22:03.205  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:22:03.321  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:03.324  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:03.364  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=0 unicodeChar=99 sym=0x0063
+11-11 12:22:03.367  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=1 unicodeChar=99 sym=0x0063
+11-11 12:22:03.516  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:03.557  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:03.608  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:03.655  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:03.775  4912  5022 D EGL_emulation: app_time_stats: avg=54.53ms min=10.64ms max=123.84ms count=17
+11-11 12:22:03.799  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:03.809  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:03.855  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:03.864  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:03.944  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:04.038  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:04.119  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:04.127  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:04.232  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:04.241  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:04.347  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=0 unicodeChar=114 sym=0x0072
+11-11 12:22:04.382  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=1 unicodeChar=114 sym=0x0072
+11-11 12:22:04.514  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:04.544  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:04.600  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=0 unicodeChar=102 sym=0x0066
+11-11 12:22:04.617  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=1 unicodeChar=102 sym=0x0066
+11-11 12:22:04.668  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:04.710  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:04.787  4912  5022 D EGL_emulation: app_time_stats: avg=63.32ms min=16.74ms max=126.99ms count=15
+11-11 12:22:04.824  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:04.827  4912  4912 D [main] CursorTracker: current: [67,67]; predictionCount=1
+11-11 12:22:04.831  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[67,67] new=[76,76] cand=[-1,-1]
+11-11 12:22:04.832  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:04.843   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:04.860  5000  5018 D EGL_emulation: app_time_stats: avg=2551.99ms min=2551.99ms max=2551.99ms count=1
+11-11 12:22:04.904  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=0 unicodeChar=106 sym=0x006a
+11-11 12:22:04.915  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=1 unicodeChar=106 sym=0x006a
+11-11 12:22:04.968   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:04.971  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:04.976  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:05.034  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:05.100  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:05.227   921   971 W Looper  : Slow delivery took 58ms wmshell.main h=android.os.Handler c=com.android.wm.shell.pip.phone.PipController$$ExternalSyntheticLambda4@2e7e8a7 m=0
+11-11 12:22:05.280  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=0 unicodeChar=116 sym=0x0074
+11-11 12:22:05.289  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=1 unicodeChar=116 sym=0x0074
+11-11 12:22:05.372  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:05.380  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:05.460  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:05.550  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:05.655  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:05.665  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:05.790  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:05.796  4912  4912 D [main] CursorTracker: current: [76,76]; predictionCount=1
+11-11 12:22:05.798  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:05.808  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[76,76] new=[78,78] cand=[-1,-1]
+11-11 12:22:05.808   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:05.808   921   971 W Looper  : Drained
+11-11 12:22:05.876  4912  5022 D EGL_emulation: app_time_stats: avg=62.35ms min=22.84ms max=129.30ms count=16
+11-11 12:22:05.938  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=0 unicodeChar=116 sym=0x0074
+11-11 12:22:05.944  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=1 unicodeChar=116 sym=0x0074
+11-11 12:22:05.966   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:06.010  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:06.040  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:06.127  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:06.151  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:06.276  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:06.291  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:06.340  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:22:06.374  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:22:06.460  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:06.464  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:06.584  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:06.591  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:06.595  4912  4912 D [main] CursorTracker: current: [78,78]; predictionCount=1
+11-11 12:22:06.607   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:06.617  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[78,78] new=[80,80] cand=[-1,-1]
+11-11 12:22:06.625  5000  5018 D EGL_emulation: app_time_stats: avg=882.75ms min=784.31ms max=981.20ms count=2
+11-11 12:22:06.688  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:06.690  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:06.736  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:06.737  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:06.765   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:06.908  4912  5022 D EGL_emulation: app_time_stats: avg=59.19ms min=32.82ms max=124.39ms count=16
+11-11 12:22:06.909  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:06.948  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:07.060  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:07.065  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:07.177  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:07.192  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:07.305  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:07.312  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:07.384  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:07.400  4912  4912 D [main] CursorTracker: current: [80,80]; predictionCount=1
+11-11 12:22:07.403  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:07.408  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[80,80] new=[82,82] cand=[-1,-1]
+11-11 12:22:07.426   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:07.541  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=0 unicodeChar=119 sym=0x0077
+11-11 12:22:07.549  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=1 unicodeChar=119 sym=0x0077
+11-11 12:22:07.559   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:07.636  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:07.643  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:07.768  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=41 scanCode=0 action=0 unicodeChar=109 sym=0x006d
+11-11 12:22:07.790  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=41 scanCode=0 action=1 unicodeChar=109 sym=0x006d
+11-11 12:22:07.931  4912  5022 D EGL_emulation: app_time_stats: avg=57.65ms min=18.66ms max=134.42ms count=16
+11-11 12:22:07.932  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:07.944  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:08.032  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:08.114  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:08.227  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:08.231  4912  4912 D [main] CursorTracker: current: [82,82]; predictionCount=1
+11-11 12:22:08.235  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:08.241   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:08.242  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[82,82] new=[84,84] cand=[-1,-1]
+11-11 12:22:08.285  5000  5018 D EGL_emulation: app_time_stats: avg=829.62ms min=807.06ms max=852.18ms count=2
+11-11 12:22:08.294  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=0 unicodeChar=121 sym=0x0079
+11-11 12:22:08.299  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=1 unicodeChar=121 sym=0x0079
+11-11 12:22:08.363   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:08.407  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:08.409  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:08.474  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:22:08.514  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:22:08.622  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:08.665  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:08.774  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:08.778  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:08.780  4912  4912 D [main] CursorTracker: current: [84,84]; predictionCount=1
+11-11 12:22:08.784  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[84,84] new=[86,86] cand=[-1,-1]
+11-11 12:22:08.808   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:08.824  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:08.834  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:08.907   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:08.962  4912  5022 D EGL_emulation: app_time_stats: avg=55.57ms min=16.14ms max=133.27ms count=16
+11-11 12:22:08.992  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:09.000  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:09.080  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:09.086  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:09.119  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=0 unicodeChar=121 sym=0x0079
+11-11 12:22:09.136  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=1 unicodeChar=121 sym=0x0079
+11-11 12:22:09.322  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:09.341  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:09.441  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:09.444  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:09.529  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:09.530  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:09.631  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:09.634  4912  4912 D [main] CursorTracker: current: [86,86]; predictionCount=1
+11-11 12:22:09.646  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[86,86] new=[88,88] cand=[-1,-1]
+11-11 12:22:09.667   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:09.700  5000  5018 D EGL_emulation: app_time_stats: avg=707.64ms min=542.88ms max=872.40ms count=2
+11-11 12:22:09.701  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:09.771  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=0 unicodeChar=122 sym=0x007a
+11-11 12:22:09.773  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=1 unicodeChar=122 sym=0x007a
+11-11 12:22:09.795   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:09.899  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:09.912  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:09.993  4912  5022 D EGL_emulation: app_time_stats: avg=54.91ms min=21.71ms max=96.39ms count=16
+11-11 12:22:10.005  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:10.007  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:10.097  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:10.114  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:10.255  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:10.263  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:10.347  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=0 unicodeChar=119 sym=0x0077
+11-11 12:22:10.378  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=1 unicodeChar=119 sym=0x0077
+11-11 12:22:10.475  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:10.479  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:10.539  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:10.543  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:10.658  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:10.663  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:10.665  4912  4912 D [main] CursorTracker: current: [88,88]; predictionCount=1
+11-11 12:22:10.692   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:10.713  5000  5018 D EGL_emulation: app_time_stats: avg=1012.78ms min=1012.78ms max=1012.78ms count=1
+11-11 12:22:10.756  4912  4917 I d.fx.rime.debug: Background concurrent mark compact GC freed 7780KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 7761KB/15MB, paused 250us,18.003ms total 85.214ms
+11-11 12:22:10.799  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[88,88] new=[90,90] cand=[-1,-1]
+11-11 12:22:10.807  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:10.815  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:10.862   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:10.886  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:11.000  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:11.002  4912  5022 D EGL_emulation: app_time_stats: avg=53.91ms min=14.88ms max=101.09ms count=17
+11-11 12:22:11.040  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:11.046  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:11.160  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=0 unicodeChar=114 sym=0x0072
+11-11 12:22:11.165  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=1 unicodeChar=114 sym=0x0072
+11-11 12:22:11.292  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:11.299  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:11.343  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=0 unicodeChar=102 sym=0x0066
+11-11 12:22:11.348  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=1 unicodeChar=102 sym=0x0066
+11-11 12:22:11.552  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:11.575  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:11.696  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:11.701  4912  4912 D [main] CursorTracker: current: [90,90]; predictionCount=1
+11-11 12:22:11.705  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[90,90] new=[93,93] cand=[-1,-1]
+11-11 12:22:11.707  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:11.742   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:11.742  5000  5018 D EGL_emulation: app_time_stats: avg=1029.32ms min=1029.32ms max=1029.32ms count=1
+11-11 12:22:11.788  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=0 unicodeChar=99 sym=0x0063
+11-11 12:22:11.796  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=1 unicodeChar=99 sym=0x0063
+11-11 12:22:11.872  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:11.929   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:11.929   921   971 W Looper  : Slow delivery took 65ms wmshell.main h=android.os.Handler c=com.android.wm.shell.common.DisplayController$DisplayWindowListenerImpl$$ExternalSyntheticLambda3@e1d5675 m=0
+11-11 12:22:11.945  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:11.981  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:12.012  4912  5022 D EGL_emulation: app_time_stats: avg=68.30ms min=38.07ms max=124.25ms count=14
+11-11 12:22:12.013  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:12.117  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:12.129   921   971 W Looper  : Drained
+11-11 12:22:12.159  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:12.288  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:12.297  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:12.366  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:12.369  4912  4912 D [main] CursorTracker: current: [93,93]; predictionCount=1
+11-11 12:22:12.373  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[93,93] new=[95,95] cand=[-1,-1]
+11-11 12:22:12.374  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:12.466   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:12.473  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=0 unicodeChar=120 sym=0x0078
+11-11 12:22:12.490  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=1 unicodeChar=120 sym=0x0078
+11-11 12:22:12.519   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:12.567  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:12.594  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:12.706  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:12.718  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:12.788  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:12.816  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:12.888  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:12.908  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:12.970  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:12.974  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:13.040  4912  5022 D EGL_emulation: app_time_stats: avg=53.42ms min=13.81ms max=105.08ms count=18
+11-11 12:22:13.137  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:13.145  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:13.263  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:13.269  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:13.459  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:13.461  4912  4912 D [main] CursorTracker: current: [95,95]; predictionCount=1
+11-11 12:22:13.467  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:13.467  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[95,95] new=[97,97] cand=[-1,-1]
+11-11 12:22:13.478   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:13.480  5000  5018 D EGL_emulation: app_time_stats: avg=868.58ms min=672.28ms max=1064.88ms count=2
+11-11 12:22:13.539  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:13.551  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:13.578   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:13.648  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:13.666  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:13.767  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:13.776  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:13.889  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=0 unicodeChar=120 sym=0x0078
+11-11 12:22:13.895  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=1 unicodeChar=120 sym=0x0078
+11-11 12:22:13.992  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:13.997  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:14.068  4912  5022 D EGL_emulation: app_time_stats: avg=61.59ms min=27.94ms max=124.02ms count=16
+11-11 12:22:14.072  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:14.138  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:14.299  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:14.313  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:14.424  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:14.426  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:14.434  4912  4912 D [main] CursorTracker: current: [97,97]; predictionCount=1
+11-11 12:22:14.448  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[97,97] new=[99,99] cand=[-1,-1]
+11-11 12:22:14.503   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:14.504   921   971 W Looper  : Slow delivery took 32ms wmshell.main h=android.os.Handler c=com.android.wm.shell.common.DisplayController$DisplayWindowListenerImpl$$ExternalSyntheticLambda3@653a60a m=0
+11-11 12:22:14.508  5000  5018 D EGL_emulation: app_time_stats: avg=1028.37ms min=1028.37ms max=1028.37ms count=1
+11-11 12:22:14.543  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=0 unicodeChar=102 sym=0x0066
+11-11 12:22:14.554  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=1 unicodeChar=102 sym=0x0066
+11-11 12:22:14.579   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:14.579   921   971 W Looper  : Drained
+11-11 12:22:14.638  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:14.659  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:14.732  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:14.770  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:14.873  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:14.909  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:14.994  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:15.000  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:15.083  4912  5022 D EGL_emulation: app_time_stats: avg=58.60ms min=21.29ms max=114.92ms count=16
+11-11 12:22:15.129  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:15.138  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:15.206  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:15.208  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:15.244  4912  4912 D [main] CursorTracker: current: [99,99]; predictionCount=1
+11-11 12:22:15.259   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:15.268  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[99,99] new=[101,101] cand=[-1,-1]
+11-11 12:22:15.310  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:22:15.314  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:22:15.349   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:15.413  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:15.418  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:15.470  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:15.472  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:15.576  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:15.604  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:15.709  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:15.728  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:15.863  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:15.866  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:15.977  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:15.986  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:16.081  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:16.084  4912  4912 D [main] CursorTracker: current: [101,101]; predictionCount=1
+11-11 12:22:16.095  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[101,101] new=[103,103] cand=[-1,-1]
+11-11 12:22:16.095  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:16.107   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:16.144  4912  5022 D EGL_emulation: app_time_stats: avg=61.16ms min=23.94ms max=119.33ms count=16
+11-11 12:22:16.184  5000  5018 D EGL_emulation: app_time_stats: avg=837.81ms min=788.92ms max=886.69ms count=2
+11-11 12:22:16.205  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:16.208  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:16.276   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:16.276  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:16.277  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:16.422  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:16.430  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:16.499  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=0 unicodeChar=114 sym=0x0072
+11-11 12:22:16.533  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=1 unicodeChar=114 sym=0x0072
+11-11 12:22:16.677  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:16.684  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:16.762  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:16.804  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:16.805  4912  4912 D [main] CursorTracker: current: [103,103]; predictionCount=1
+11-11 12:22:16.840  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[103,103] new=[105,105] cand=[-1,-1]
+11-11 12:22:16.857   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:16.905  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=0 unicodeChar=122 sym=0x007a
+11-11 12:22:16.913  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=1 unicodeChar=122 sym=0x007a
+11-11 12:22:16.944   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:16.999  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:17.013  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:17.147  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:17.169  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:17.213  4912  5022 D EGL_emulation: app_time_stats: avg=60.79ms min=21.60ms max=161.44ms count=16
+11-11 12:22:17.217  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:17.250  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:17.376  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:17.379  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:17.468  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:17.505  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:17.624  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:17.688  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:17.789  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:17.796  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:17.858  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:17.868  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:17.891  4912  4912 D [main] CursorTracker: current: [105,105]; predictionCount=1
+11-11 12:22:17.896  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[105,105] new=[107,107] cand=[-1,-1]
+11-11 12:22:17.909  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:17.917  5000  5018 D EGL_emulation: app_time_stats: avg=866.51ms min=695.03ms max=1038.00ms count=2
+11-11 12:22:17.932   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:17.935  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:17.992   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:18.126  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:18.129  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:18.237  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:18.243  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:18.326  4912  5022 D EGL_emulation: app_time_stats: avg=61.33ms min=24.26ms max=116.10ms count=17
+11-11 12:22:18.328  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:18.376  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:18.528  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:18.544  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:18.646  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:18.648  4912  4912 D [main] CursorTracker: current: [107,107]; predictionCount=1
+11-11 12:22:18.652  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[107,107] new=[109,109] cand=[-1,-1]
+11-11 12:22:18.685  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:18.691   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:18.790  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:18.794  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:18.845   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:18.889  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:18.907  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:18.996  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:19.004  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:19.101  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:19.138  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:19.210  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:19.215  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:19.330  4912  5022 D EGL_emulation: app_time_stats: avg=64.97ms min=33.20ms max=147.11ms count=15
+11-11 12:22:19.362  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:19.380  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:19.468  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:19.505  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:19.681  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:19.722  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:19.811  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:19.814  4912  4912 D [main] CursorTracker: current: [109,109]; predictionCount=1
+11-11 12:22:19.817  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[109,109] new=[111,111] cand=[-1,-1]
+11-11 12:22:19.821  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:19.838   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:19.847  5000  5018 D EGL_emulation: app_time_stats: avg=964.83ms min=766.40ms max=1163.26ms count=2
+11-11 12:22:19.912  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:19.924  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:19.947   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:20.037  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:20.051  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:20.154  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:20.168  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:20.281  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:20.293  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:20.357  4912  5022 D EGL_emulation: app_time_stats: avg=64.84ms min=27.53ms max=118.62ms count=15
+11-11 12:22:20.364  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=0 unicodeChar=122 sym=0x007a
+11-11 12:22:20.409  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=1 unicodeChar=122 sym=0x007a
+11-11 12:22:20.500  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:20.522  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:20.642  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:20.648  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:20.790  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:20.792  4912  4912 D [main] CursorTracker: current: [111,111]; predictionCount=1
+11-11 12:22:20.812  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[111,111] new=[113,113] cand=[-1,-1]
+11-11 12:22:20.817   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:20.819  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:20.859  5000  5018 D EGL_emulation: app_time_stats: avg=1011.61ms min=1011.61ms max=1011.61ms count=1
+11-11 12:22:20.903  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=0 unicodeChar=120 sym=0x0078
+11-11 12:22:20.912  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=1 unicodeChar=120 sym=0x0078
+11-11 12:22:20.952   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:21.024  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:21.040  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:21.166  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:21.177  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:21.292  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=0 unicodeChar=120 sym=0x0078
+11-11 12:22:21.329  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=52 scanCode=0 action=1 unicodeChar=120 sym=0x0078
+11-11 12:22:21.379  4912  5022 D EGL_emulation: app_time_stats: avg=61.28ms min=20.17ms max=179.14ms count=15
+11-11 12:22:21.452  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:21.457  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:21.517  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:21.520  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:21.523  4912  4912 D [main] CursorTracker: current: [113,113]; predictionCount=1
+11-11 12:22:21.529  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[113,113] new=[115,115] cand=[-1,-1]
+11-11 12:22:21.565   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:21.702  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=39 scanCode=0 action=0 unicodeChar=107 sym=0x006b
+11-11 12:22:21.712  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=39 scanCode=0 action=1 unicodeChar=107 sym=0x006b
+11-11 12:22:21.732   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:21.767  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:21.828  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:21.941  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:21.947  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:22.000  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:22.056  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:22.177  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=40 scanCode=0 action=0 unicodeChar=108 sym=0x006c
+11-11 12:22:22.189  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=40 scanCode=0 action=1 unicodeChar=108 sym=0x006c
+11-11 12:22:22.272  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:22.276  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:22.338  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:22.368  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:22.369  4912  4912 D [main] CursorTracker: current: [115,115]; predictionCount=1
+11-11 12:22:22.410  5000  5018 D EGL_emulation: app_time_stats: avg=775.77ms min=738.69ms max=812.85ms count=2
+11-11 12:22:22.411  4912  5022 D EGL_emulation: app_time_stats: avg=58.25ms min=25.70ms max=99.97ms count=16
+11-11 12:22:22.416   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:22.456  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[115,115] new=[117,117] cand=[-1,-1]
+11-11 12:22:22.527  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:22.539  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:22.568   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:22.628  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:22.671  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:22.764  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:22.788  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:22.884  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=0 unicodeChar=106 sym=0x006a
+11-11 12:22:22.894  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=1 unicodeChar=106 sym=0x006a
+11-11 12:22:22.990  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:23.023  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:23.061  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:23.108  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:23.208  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:23.210  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:23.240  4912  4912 D [main] CursorTracker: current: [117,117]; predictionCount=1
+11-11 12:22:23.248  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[117,117] new=[119,119] cand=[-1,-1]
+11-11 12:22:23.268   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:23.278  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=44 scanCode=0 action=0 unicodeChar=112 sym=0x0070
+11-11 12:22:23.321  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=44 scanCode=0 action=1 unicodeChar=112 sym=0x0070
+11-11 12:22:23.367   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:23.438  4912  5022 D EGL_emulation: app_time_stats: avg=60.58ms min=26.53ms max=143.16ms count=16
+11-11 12:22:23.443  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:23.465  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:23.561  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:23.567  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:23.693  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:23.698  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:23.793  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=0 unicodeChar=121 sym=0x0079
+11-11 12:22:23.808  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=1 unicodeChar=121 sym=0x0079
+11-11 12:22:23.920  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:23.937  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:24.028  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:24.032  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:24.113  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:24.134  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:24.162  4912  4912 D [main] CursorTracker: current: [119,119]; predictionCount=1
+11-11 12:22:24.175   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:24.236  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[119,119] new=[121,121] cand=[-1,-1]
+11-11 12:22:24.252  5000  5018 D EGL_emulation: app_time_stats: avg=920.67ms min=863.59ms max=977.75ms count=2
+11-11 12:22:24.311  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:24.314  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:24.366   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:24.392  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:24.416  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:24.452  4912  5022 D EGL_emulation: app_time_stats: avg=62.44ms min=25.45ms max=157.55ms count=15
+11-11 12:22:24.484  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:24.520  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:24.667  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=0 unicodeChar=106 sym=0x006a
+11-11 12:22:24.674  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=1 unicodeChar=106 sym=0x006a
+11-11 12:22:24.769  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:24.790  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:24.891  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:24.894  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:25.010  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:25.070  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:25.152  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:25.155  4912  4912 D [main] CursorTracker: current: [121,121]; predictionCount=1
+11-11 12:22:25.160  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[121,121] new=[123,123] cand=[-1,-1]
+11-11 12:22:25.162  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:25.180   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:25.222  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=0 unicodeChar=119 sym=0x0077
+11-11 12:22:25.254  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=1 unicodeChar=119 sym=0x0077
+11-11 12:22:25.321   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:25.324  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:25.334  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:25.480  4912  5022 D EGL_emulation: app_time_stats: avg=61.27ms min=24.21ms max=139.14ms count=16
+11-11 12:22:25.504  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:25.506  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:25.660  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=0 unicodeChar=116 sym=0x0074
+11-11 12:22:25.665  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=1 unicodeChar=116 sym=0x0074
+11-11 12:22:25.759  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:25.793  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:25.915  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:25.917  4912  4912 D [main] CursorTracker: current: [123,123]; predictionCount=1
+11-11 12:22:25.920  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:25.923  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[123,123] new=[125,125] cand=[-1,-1]
+11-11 12:22:25.943   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:25.961  5000  5018 D EGL_emulation: app_time_stats: avg=854.48ms min=771.43ms max=937.52ms count=2
+11-11 12:22:26.051  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=0 unicodeChar=102 sym=0x0066
+11-11 12:22:26.060  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=1 unicodeChar=102 sym=0x0066
+11-11 12:22:26.089   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:26.140  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:26.228  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:26.330  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:26.338  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:26.385  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:26.415  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:26.516  4912  5022 D EGL_emulation: app_time_stats: avg=67.89ms min=26.31ms max=149.63ms count=14
+11-11 12:22:26.566  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=0 unicodeChar=102 sym=0x0066
+11-11 12:22:26.583  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=1 unicodeChar=102 sym=0x0066
+11-11 12:22:26.699  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:26.703  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:26.836  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:26.838  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:26.846  4912  4912 D [main] CursorTracker: current: [125,125]; predictionCount=1
+11-11 12:22:26.858   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:26.880  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[125,125] new=[127,127] cand=[-1,-1]
+11-11 12:22:26.956  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=0 unicodeChar=106 sym=0x006a
+11-11 12:22:26.966  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=1 unicodeChar=106 sym=0x006a
+11-11 12:22:26.979   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:27.016  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:27.043  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:27.113  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:27.170  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:27.296  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:27.298  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:27.380  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=0 unicodeChar=100 sym=0x0064
+11-11 12:22:27.391  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=1 unicodeChar=100 sym=0x0064
+11-11 12:22:27.521  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:27.532  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:27.576  4912  5022 D EGL_emulation: app_time_stats: avg=58.89ms min=26.96ms max=109.09ms count=16
+11-11 12:22:27.644  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:27.652  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:27.751  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:27.766  4912  4912 D [main] CursorTracker: current: [127,127]; predictionCount=1
+11-11 12:22:27.795   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:27.826  5000  5018 D EGL_emulation: app_time_stats: avg=932.34ms min=923.38ms max=941.31ms count=2
+11-11 12:22:27.837  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:27.838  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[127,127] new=[129,129] cand=[-1,-1]
+11-11 12:22:27.891  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:22:27.904  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:22:27.929   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:27.990  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:28.122  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:28.177  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:28.187  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:28.230  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:28.268  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:28.431  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=0 unicodeChar=99 sym=0x0063
+11-11 12:22:28.441  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=1 unicodeChar=99 sym=0x0063
+11-11 12:22:28.512  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:28.526  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:28.582  4912  5022 D EGL_emulation: app_time_stats: avg=59.17ms min=23.40ms max=109.99ms count=16
+11-11 12:22:28.648  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:28.676   567   580 I system_server: Background concurrent mark compact GC freed 22MB AllocSpace bytes, 100(2132KB) LOS objects, 49% free, 23MB/47MB, paused 703us,1.358ms total 146.869ms
+11-11 12:22:28.680   567   581 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-11 12:22:28.681   567   582 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/LatinIMEGooglePrebuilt/LatinIMEGooglePrebuilt.apk' with 1 weak references
+11-11 12:22:28.681   567   582 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/GoogleTTS/GoogleTTS.apk' with 1 weak references
+11-11 12:22:28.681   567   582 W system_server: ApkAssets: Deleting an ApkAssets object '<empty> and /data/app/~~tXjDLY3z8l4_cu57akFOGQ==/org.fcitx.fcitx5.android.fx.rime.debug-cn-sQNAV1aPVIv-I7-OHFA==/base.apk' with 1 weak references
+11-11 12:22:28.684  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:28.750  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:28.804  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:28.807  4912  4912 D [main] CursorTracker: current: [129,129]; predictionCount=1
+11-11 12:22:28.812  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[129,129] new=[131,131] cand=[-1,-1]
+11-11 12:22:28.825   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:28.835  5000  5018 D EGL_emulation: app_time_stats: avg=1008.05ms min=1008.05ms max=1008.05ms count=1
+11-11 12:22:28.880  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=0 unicodeChar=119 sym=0x0077
+11-11 12:22:28.910  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=1 unicodeChar=119 sym=0x0077
+11-11 12:22:28.939   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:29.002  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:29.006  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:29.076  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:29.082  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:29.271  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=0 unicodeChar=100 sym=0x0064
+11-11 12:22:29.277  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=1 unicodeChar=100 sym=0x0064
+11-11 12:22:29.366  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:29.386  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:29.456  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:29.457  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:29.586  4912  5022 D EGL_emulation: app_time_stats: avg=61.73ms min=25.43ms max=105.30ms count=15
+11-11 12:22:29.593  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:29.600  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:29.695  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:29.715  4912  4912 D [main] CursorTracker: current: [131,131]; predictionCount=1
+11-11 12:22:29.738   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:29.747  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:29.748  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[131,131] new=[133,133] cand=[-1,-1]
+11-11 12:22:29.811  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:29.820  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:29.868   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:29.875  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:29.880  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:29.973  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=0 unicodeChar=100 sym=0x0064
+11-11 12:22:29.975  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=32 scanCode=0 action=1 unicodeChar=100 sym=0x0064
+11-11 12:22:30.186     0     0 I servicemanager: Notifying artd they don't (previously: do) have clients when we now have no record of a client
+11-11 12:22:30.021  4789  4791 I AidlLazyServiceRegistrar: Process has 0 (of 1 available) client(s) in use after notification artd has clients: 0
+11-11 12:22:30.021  4789  4791 I AidlLazyServiceRegistrar: Trying to shut down the service. No clients in use for any service in process.
+11-11 12:22:30.212     0     0 I servicemanager: Caller(pid=4789,uid=1082,sid=u:r:artd:s0) Unregistering artd
+11-11 12:22:30.224     0     0 I BpBinder: onLastStrongRef automatically unlinking death recipients:
+11-11 12:22:30.038  4789  4791 I AidlLazyServiceRegistrar: Unregistered all clients and exiting
+11-11 12:22:30.056  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:30.233     0     0 I init    : Service 'artd' (pid 4789) exited with status 0 oneshot service took 107.749001 seconds in background
+11-11 12:22:30.243     0     0 I init    : Sending signal 9 to service 'artd' (pid 4789) process group...
+11-11 12:22:30.245     0     0 I libprocessgroup: Removed cgroup /sys/fs/cgroup/uid_1082/pid_4789
+11-11 12:22:30.068  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:30.095  4912  4917 I d.fx.rime.debug: Background concurrent mark compact GC freed 7908KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8093KB/15MB, paused 3.263ms,27.332ms total 231.057ms
+11-11 12:22:30.164  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:30.240  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:30.240  4912  4912 D [main] CursorTracker: current: [133,133]; predictionCount=1
+11-11 12:22:30.250  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[133,133] new=[135,135] cand=[-1,-1]
+11-11 12:22:30.261   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:30.273  5000  5018 D EGL_emulation: app_time_stats: avg=719.34ms min=530.75ms max=907.94ms count=2
+11-11 12:22:30.342  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=0 unicodeChar=122 sym=0x007a
+11-11 12:22:30.352  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=1 unicodeChar=122 sym=0x007a
+11-11 12:22:30.383   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:30.389  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:30.420  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:30.550  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:30.570  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:30.612  4912  5022 D EGL_emulation: app_time_stats: avg=57.53ms min=29.50ms max=110.83ms count=17
+11-11 12:22:30.683  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:30.692  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:30.769  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=0 unicodeChar=103 sym=0x0067
+11-11 12:22:30.798  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=35 scanCode=0 action=1 unicodeChar=103 sym=0x0067
+11-11 12:22:30.881  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=0 unicodeChar=122 sym=0x007a
+11-11 12:22:30.917  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=54 scanCode=0 action=1 unicodeChar=122 sym=0x007a
+11-11 12:22:31.016  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:31.057  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:31.132  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:31.146  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:31.218  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:31.225  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:31.322  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:31.327  4912  4912 D [main] CursorTracker: current: [135,135]; predictionCount=1
+11-11 12:22:31.335  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:31.335  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[135,135] new=[137,137] cand=[-1,-1]
+11-11 12:22:31.346   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:31.351  5000  5018 D EGL_emulation: app_time_stats: avg=1077.10ms min=1077.10ms max=1077.10ms count=1
+11-11 12:22:31.385  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=0 unicodeChar=106 sym=0x006a
+11-11 12:22:31.405  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=38 scanCode=0 action=1 unicodeChar=106 sym=0x006a
+11-11 12:22:31.446   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:31.509  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:31.531  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:31.625  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:31.628  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:31.649  4912  5022 D EGL_emulation: app_time_stats: avg=60.56ms min=24.76ms max=108.82ms count=16
+11-11 12:22:31.733  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=0 unicodeChar=116 sym=0x0074
+11-11 12:22:31.734  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=1 unicodeChar=116 sym=0x0074
+11-11 12:22:31.874  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:31.881  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:31.988  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:32.031  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:32.132  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:32.173  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:32.289  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=0 unicodeChar=116 sym=0x0074
+11-11 12:22:32.306  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=48 scanCode=0 action=1 unicodeChar=116 sym=0x0074
+11-11 12:22:32.383  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:32.393  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:32.500  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:32.517  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:32.661  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:32.673  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:32.755  4912  5022 D EGL_emulation: app_time_stats: avg=60.61ms min=20.97ms max=142.94ms count=17
+11-11 12:22:32.759  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:22:32.782  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:22:32.864  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:32.865  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:33.011  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:33.026  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:33.136  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:33.145  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:33.319  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:33.325  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:33.383  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:33.418  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:33.564  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:33.573  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:33.626  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:33.647  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:33.761  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:33.767  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:33.772  4912  4912 D [main] CursorTracker: current: [137,137]; predictionCount=1
+11-11 12:22:33.789   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:33.804  4912  5022 D EGL_emulation: app_time_stats: avg=57.63ms min=24.37ms max=109.12ms count=17
+11-11 12:22:33.872  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[137,137] new=[143,143] cand=[-1,-1]
+11-11 12:22:33.887  5000  5018 D EGL_emulation: app_time_stats: avg=2536.58ms min=2536.58ms max=2536.58ms count=1
+11-11 12:22:33.911  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=0 unicodeChar=119 sym=0x0077
+11-11 12:22:33.923  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=51 scanCode=0 action=1 unicodeChar=119 sym=0x0077
+11-11 12:22:33.942   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:33.978  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=0 unicodeChar=111 sym=0x006f
+11-11 12:22:33.983  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=43 scanCode=0 action=1 unicodeChar=111 sym=0x006f
+11-11 12:22:34.085  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=41 scanCode=0 action=0 unicodeChar=109 sym=0x006d
+11-11 12:22:34.159  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=41 scanCode=0 action=1 unicodeChar=109 sym=0x006d
+11-11 12:22:34.220  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:34.252  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:34.400  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=0 unicodeChar=110 sym=0x006e
+11-11 12:22:34.402  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=42 scanCode=0 action=1 unicodeChar=110 sym=0x006e
+11-11 12:22:34.490  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=0 unicodeChar=121 sym=0x0079
+11-11 12:22:34.492  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=53 scanCode=0 action=1 unicodeChar=121 sym=0x0079
+11-11 12:22:34.622  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:34.652  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:34.766  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=0 unicodeChar=113 sym=0x0071
+11-11 12:22:34.805  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=45 scanCode=0 action=1 unicodeChar=113 sym=0x0071
+11-11 12:22:34.858  4912  5022 D EGL_emulation: app_time_stats: avg=62.54ms min=31.63ms max=95.26ms count=16
+11-11 12:22:34.890  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:34.906  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:35.009  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=0 unicodeChar=99 sym=0x0063
+11-11 12:22:35.014  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=31 scanCode=0 action=1 unicodeChar=99 sym=0x0063
+11-11 12:22:35.122  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=0 unicodeChar=101 sym=0x0065
+11-11 12:22:35.133  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=33 scanCode=0 action=1 unicodeChar=101 sym=0x0065
+11-11 12:22:35.220  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:35.234  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:35.360  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:35.366  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:35.480  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=0 unicodeChar=105 sym=0x0069
+11-11 12:22:35.485  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=37 scanCode=0 action=1 unicodeChar=105 sym=0x0069
+11-11 12:22:35.540  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=0 unicodeChar=115 sym=0x0073
+11-11 12:22:35.568  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=47 scanCode=0 action=1 unicodeChar=115 sym=0x0073
+11-11 12:22:35.672  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=0 unicodeChar=104 sym=0x0068
+11-11 12:22:35.695  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=36 scanCode=0 action=1 unicodeChar=104 sym=0x0068
+11-11 12:22:35.778  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:35.793  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:35.895  4912  5022 D EGL_emulation: app_time_stats: avg=52.82ms min=24.61ms max=108.31ms count=18
+11-11 12:22:35.949  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=0 unicodeChar=114 sym=0x0072
+11-11 12:22:35.961  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=46 scanCode=0 action=1 unicodeChar=114 sym=0x0072
+11-11 12:22:36.047  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=0 unicodeChar=117 sym=0x0075
+11-11 12:22:36.050  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=49 scanCode=0 action=1 unicodeChar=117 sym=0x0075
+11-11 12:22:36.148  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=0 unicodeChar=102 sym=0x0066
+11-11 12:22:36.151  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=34 scanCode=0 action=1 unicodeChar=102 sym=0x0066
+11-11 12:22:36.281  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=0 unicodeChar=97 sym=0x0061
+11-11 12:22:36.347  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=29 scanCode=0 action=1 unicodeChar=97 sym=0x0061
+11-11 12:22:36.436  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=0 unicodeChar=32 sym=0x0020
+11-11 12:22:36.439  4912  4912 D [main] CursorTracker: current: [143,143]; predictionCount=1
+11-11 12:22:36.449  4912  4912 D [main] FcitxInputMethodService: onUpdateSelection: old=[143,143] new=[152,152] cand=[-1,-1]
+11-11 12:22:36.451  4912  4912 V [main] FcitxInputMethodService: forwardKeyEvent: keyCode=62 scanCode=0 action=1 unicodeChar=32 sym=0x0020
+11-11 12:22:36.466  5000  5018 D EGL_emulation: app_time_stats: avg=2578.47ms min=2578.47ms max=2578.47ms count=1
+11-11 12:22:36.488   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:22:37.521   921  1059 D EGL_emulation: app_time_stats: avg=37452.48ms min=37452.48ms max=37452.48ms count=1
+11-11 12:22:37.820  5000  5018 D EGL_emulation: app_time_stats: avg=1353.54ms min=1353.54ms max=1353.54ms count=1
+11-11 12:22:37.845   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:22:37.846   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:22:38.170   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:22:38.170   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:22:38.504   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:22:38.505   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:22:38.830  5000  5018 D EGL_emulation: app_time_stats: avg=336.89ms min=326.80ms max=350.93ms count=3
+11-11 12:22:38.851   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:22:38.851   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:22:39.184   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:22:39.184   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:22:39.519   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:22:39.519   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:22:39.829  4912  4916 I d.fx.rime.debug: JIT allocated 66KB for compiled code of java.lang.Object org.fcitx.fcitx5.android.core.ScreenFixtureTest$replay$1.invokeSuspend(java.lang.Object)
+11-11 12:22:39.829  4912  4916 I d.fx.rime.debug: Compiler allocated 10MB to compile java.lang.Object org.fcitx.fcitx5.android.core.ScreenFixtureTest$replay$1.invokeSuspend(java.lang.Object)
+11-11 12:22:40.470   567  1260 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:22:40.471   567  1260 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:22:40.471   567   601 D OomAdjuster: Not killing cached processes
+11-11 12:22:40.473   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:22:41.015   567  1260 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:22:41.016   567  1260 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:22:41.018   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:22:41.561   567  1260 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:22:41.562   567  1260 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:22:41.564   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:22:42.108   567  1260 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:22:42.108   567  1260 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:22:42.110   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:22:42.652   567  1260 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:22:42.652   567  1260 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:22:42.654   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:22:43.195   567  1260 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:22:43.195   567  1260 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:22:43.197   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:22:43.737   567  1260 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:22:43.737   567  1260 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:22:43.739   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:22:43.825  4912  4928 I TestRunner: finished: replay(org.fcitx.fcitx5.android.core.ScreenFixtureTest)
+11-11 12:22:43.828  4912  4928 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-11 12:22:43.838   567  1260 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-11 12:22:43.838   567  1260 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-11 12:22:43.838   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.839   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.839   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.839   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.839   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.839   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.839   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.839   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.840   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.840   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.840   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.840   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.840   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.840   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:22:43.841   567   567 D BatterySaverPolicy: accessibility changed to false, updating policy.
+11-11 12:22:43.841  4900  4900 I app_process: System.exit called, status: 0
+11-11 12:22:43.841  4900  4900 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:22:43.842   567  1260 I ActivityManager: Force stopping org.fcitx.fcitx5.android.fx.rime.debug appid=10216 user=0: finished inst
+11-11 12:22:43.846   567  1260 E ActivityManager: Unable to freeze binder for 4912: -11
+11-11 12:22:44.034     0     0 I binder  : 567:1260 ioctl 400c620e 7e51a3e22354 returned -11
+11-11 12:22:44.036     0     0 I binder  : 567:1260 ioctl 400c620e 7e51a3e22354 returned -11
+11-11 12:22:43.855   567   590 D DisplayManagerService: Drop pending events for gone uid 10216
+11-11 12:22:43.856   567  1260 I ActivityManager: Killing 4912:org.fcitx.fcitx5.android.fx.rime.debug/u0a216 (adj 0): stop org.fcitx.fcitx5.android.fx.rime.debug due to finished inst
+11-11 12:22:43.860   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:22:43.860   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:22:43.860   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10216} in 5ms
+11-11 12:22:43.861   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:22:43.861   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:22:43.861   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={20216} in 0ms
+11-11 12:22:43.863  1497  2869 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-11 12:22:43.874  1497  1707 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-11 12:22:43.880  1497  1707 I AiAiEcho: EchoTargets: 
+11-11 12:22:43.880  1497  1707 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 12:22:43.880  1497  1707 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:22:43.880  1497  1707 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:22:43.880  1497  1707 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-11 12:22:43.880  1497  1707 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-11 12:22:43.880  1497  1707 I AiAiEcho: EchoTargets: 
+11-11 12:22:43.880  1497  1707 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 12:22:43.880  1497  1707 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:22:43.881   367   398 I netd    : tetherGetStats() -> {[]} <1.14ms>
+11-11 12:22:43.891  1497  1707 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:22:43.892  1497  1707 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-11 12:22:43.892  1497  1707 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-11 12:22:43.892  1497  1707 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-11 12:22:43.892   921   921 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-11 12:22:43.892  1187  1187 D SsBaseTemplateCard: No text view can be set up
+11-11 12:22:43.893  1187  1187 D SsBaseTemplateCard: Passed-in item info is null
+11-11 12:22:43.893  1187  1187 D SsBaseTemplateCard: Passed-in item info is null
+11-11 12:22:43.893  1187  1187 D SsBaseTemplateCard: Passed-in item info is null
+11-11 12:22:43.893  1187  1187 I SsBaseTemplateCard: Secondary card pane is null
+11-11 12:22:43.931   447   447 I adbd    : Remote process closed the socket (on MSG_PEEK)
+11-11 12:22:43.937   567   603 I libprocessgroup: Removed cgroup /sys/fs/cgroup/uid_10216/pid_4912
+11-11 12:22:44.122     0     0 W binder_debug: 2 callbacks suppressed
+11-11 12:22:44.122     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:22:44.124     0     0 I binder  : undelivered transaction 339164, process died.
+11-11 12:22:43.937   567  1121 V ActivityManager: Got obituary of 4912:org.fcitx.fcitx5.android.fx.rime.debug
+11-11 12:22:43.937   567  1121 I WindowManager: WIN DEATH: Window{6d9926e u0 InputMethod}
+11-11 12:22:43.937   567  1121 W InputManager-JNI: Input channel object '6d9926e InputMethod (client)' was disposed without first being removed with the input manager!
+11-11 12:22:43.938   368   368 I Zygote  : Process 4912 exited due to signal 9 (Killed)
+11-11 12:22:43.943   567  1121 E IPCThreadState: Binder transaction failure. id: 339238, BR_*: 29189, error: -3 (No such process)
+11-11 12:22:43.943   567  1121 W ActivityManager: pid 567 system sent binder code 13 with flags 1 to frozen apps and got error -32
+11-11 12:22:44.128     0     0 I binder_alloc: 4912: binder_alloc_buf, no vma
+11-11 12:22:44.130     0     0 I binder  : undelivered transaction 339146, process died.
+11-11 12:22:44.130     0     0 I binder  : cannot allocate buffer: vma cleared, target dead or dying
+11-11 12:22:44.131     0     0 I binder  : 567:1121 transaction async to 4912:0 failed 339238/29189/-3, size 60-0 line 3544
+11-11 12:22:44.131     0     0 I binder  : undelivered transaction 339147, process died.
+11-11 12:22:43.949   567   592 W ActivityManager: setHasOverlayUi called on unknown pid: 4912
+11-11 12:22:43.949   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={}
+11-11 12:22:43.971  5000  5018 D EGL_emulation: app_time_stats: avg=1713.61ms min=330.22ms max=4479.72ms count=3
+11-11 12:22:43.986   444   444 E BpTransactionCompletedListener: Failed to transact (-32)
+11-11 12:22:44.004   567  1011 D ActivityManager: freezer override set to true
+11-11 12:22:44.005   567  1011 D ActivityManager: sync unfroze 1130 com.android.bluetooth for 19
+11-11 12:22:44.005   567  1011 D ActivityManager: sync unfroze 1653 com.android.printspooler for 19
+11-11 12:22:44.005   567  1011 D ActivityManager: sync unfroze 2028 com.android.localtransport for 19
+11-11 12:22:44.005   567  1011 D ActivityManager: sync unfroze 1651 com.google.android.googlesdksetup for 19
+11-11 12:22:44.005   567  1011 D ActivityManager: sync unfroze 2305 com.google.android.onetimeinitializer for 19
+11-11 12:22:44.005   567  1011 D ActivityManager: sync unfroze 1996 com.android.managedprovisioning for 19
+11-11 12:22:44.005   567  1011 D ActivityManager: sync unfroze 2454 com.android.camera2 for 19
+11-11 12:22:44.005   567  1011 D ActivityManager: sync unfroze 2495 com.android.dynsystem for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2513 com.android.dynsystem:dynsystem for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2558 com.android.shell for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2615 com.google.android.configupdater for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2631 com.android.carrierdefaultapp for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2013 com.android.cellbroadcastreceiver for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2276 com.android.imsserviceentitlement for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2655 com.google.android.federatedcompute for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2710 com.google.android.ondevicepersonalization.services for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 1456 com.android.providers.calendar for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2356 com.google.android.tts for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2728 com.google.android.rkpdapp for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 2234 com.android.traceur for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 3039 com.google.android.apps.safetyhub for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 1940 com.google.android.cellbroadcastreceiver for 19
+11-11 12:22:44.006   567  1011 D ActivityManager: sync unfroze 3040 com.google.android.marvin.talkback for 19
+11-11 12:22:44.009   567  1011 D ActivityManager: sync unfroze 3048 com.google.android.healthconnect.controller for 19
+11-11 12:22:44.009   567  1011 D ActivityManager: sync unfroze 2888 com.google.android.settings.intelligence for 19
+11-11 12:22:44.009   567  1011 D ActivityManager: sync unfroze 1105 com.android.settings for 19
+11-11 12:22:44.009   567  1011 D ActivityManager: sync unfroze 2059 com.google.android.as.oss for 19
+11-11 12:22:44.010   567  1011 D ActivityManager: sync unfroze 2287 com.google.android.apps.wallpaper for 19
+11-11 12:22:44.010   567  1011 D ActivityManager: sync unfroze 1798 com.android.keychain for 19
+11-11 12:22:44.010   567  1011 D ActivityManager: sync unfroze 1731 android.process.media for 19
+11-11 12:22:44.013   567  1011 D ActivityManager: sync unfroze 2806 com.google.android.ext.services for 19
+11-11 12:22:44.013   567  1011 D ActivityManager: sync unfroze 2373 com.google.android.packageinstaller for 19
+11-11 12:22:44.013   567  1011 D ActivityManager: sync unfroze 1965 com.google.android.apps.wellbeing for 19
+11-11 12:22:44.013   567  1011 D ActivityManager: sync unfroze 922 com.google.android.permissioncontroller for 19
+11-11 12:22:44.013   567  1011 D ActivityManager: sync unfroze 1847 android.process.acore for 19
+11-11 12:22:44.014   567  1011 D ActivityManager: sync unfroze 1745 com.google.android.gms.persistent for 19
+11-11 12:22:44.014   567  1011 D ActivityManager: sync unfroze 2129 com.google.android.documentsui for 19
+11-11 12:22:44.014   567  1011 D ActivityManager: sync unfroze 1347 com.google.android.inputmethod.latin for 19
+11-11 12:22:44.036   567  1011 D ActivityManager: freezer override set to false
+11-11 12:22:44.036  1187  1729 D EGL_emulation: app_time_stats: avg=12026.60ms min=5.48ms max=83937.55ms count=7
+11-11 12:22:44.041  1347  1787 W GoogleApiManager: The service for hic is not available: him{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:22:44.058  1347  1347 I AppBase : AppBase.onTrimMemory():412 onTrimMemory(): 40
+11-11 12:22:44.058  1347  1347 I KeyboardDefCache: MemoryFileCache$1.onTrimMemory():126 clearMemory() for trim memory: 40
+11-11 12:22:44.058  1347  1347 I KeyboardDefCache: MemoryFileCache.clearMemory():410 evictAll()
+11-11 12:22:44.150  5304  5304 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-11 12:22:44.151  5304  5304 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-11 12:22:44.175   156   156 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-11 12:22:44.175  5304  5306 I Gralloc4: mapper 4.x is not supported
+11-11 12:22:44.360     0     0 I servicemanager: Caller(pid=5304,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+11-11 12:22:44.341   567  1011 I ActivityManager: Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+11-11 12:22:44.342   567  1011 I ActivityManager: Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+11-11 12:22:44.343   567  1121 W JobInfo : Job 'com.google.android.providers.media.module/com.android.providers.media.MediaService#-300' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+11-11 12:22:44.346   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:22:44.347  1483  1978 I MediaProvider: Begin Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+11-11 12:22:44.357  1483  1978 W ModernMediaScanner: Failed to visit /data/local/tmp/screen-after.png: java.nio.file.AccessDeniedException: /data/local/tmp/screen-after.png
+11-11 12:22:44.357  1483  1978 I MediaProvider: Scanned internal due to REASON_DEMAND, found 0 items in 9ms, 0 inserts 0 updates 0 deletes
+11-11 12:22:44.358  1483  1978 I MediaProvider: End Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+11-11 12:22:44.539     0     0 W audit   : audit_lost=47 audit_rate_limit=5 audit_backlog_limit=64
+11-11 12:22:44.546     0     0 E audit   : rate limit exceeded
+11-11 12:22:44.340  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:144): avc:  denied  { search } for  comm=4173796E635461736B202331 name="tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+11-11 12:22:44.344  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:145): avc:  denied  { getattr } for  comm=4173796E635461736B202331 path="/data/local/tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+11-11 12:22:44.344  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:146): avc:  denied  { search } for  comm=4173796E635461736B202331 name="tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+11-11 12:22:44.344  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:147): avc:  denied  { getattr } for  comm=4173796E635461736B202331 path="/data/local/tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+11-11 12:22:44.344  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:148): avc:  denied  { search } for  comm=4173796E635461736B202331 name="tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module

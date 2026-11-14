@@ -1,0 +1,50 @@
+{
+  "date_beijing": "2026-11-13",
+  "purpose": "Font cache correctness and final two-product latency confirmation after removing the plain-candidate fast path",
+  "baseline": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "current": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+  "only_production_change": "AutoScaleTextView.setTypeface cache invalidation, 12 inserted lines",
+  "fixture_run": 43018095886,
+  "fixture_artifact": 13853652309,
+  "wanxiang": "v18.1.10 base + 2026-11-07 LTS; original full-pinyin/context/abbreviation/small-charset YAML",
+  "protocol": "external_process_input_manager_phase_v3",
+  "actual_hold_min_ns": 20000000,
+  "conditions": {
+    "gap_ms": 100,
+    "comments": "visible original scheme configuration",
+    "trace": false
+  },
+  "vms": [
+    {
+      "name": "forward",
+      "order": "baseline,current",
+      "seed": 2026111301
+    },
+    {
+      "name": "reverse",
+      "order": "current,baseline",
+      "seed": 2026111302
+    }
+  ],
+  "blocks_per_vm": 6,
+  "order_balance": "Exactly three ABBA and three BAAB blocks per VM, shuffled using the fixed seed",
+  "planned_fresh_processes": 48,
+  "selections_per_process": 6,
+  "planned_correct_selections": 288,
+  "unit": "One paired observation per four-process block: mean(current pair) minus mean(baseline pair); report each VM separately",
+  "primary": "First actual i injection DOWN to IME window UP",
+  "secondary": [
+    "First candidate window UP to editor InputConnection",
+    "First planned n DOWN to ni event",
+    "All injection lateness and actual holds",
+    "Warm rounds 2-6 as a within-process median, separate from first"
+  ],
+  "correctness": "Separate disposable VM: baseline must fail exactly the unchanged-text/new-typeface-width assertion; current same test and all three candidate pixel/rendering tests must pass",
+  "rules": [
+    "Commit this plan before dispatch",
+    "Keep every valid unfavorable result; never repeat an accepted sample to improve numbers",
+    "Preserve setup failures and exact APK/probe/SDK/signer identities",
+    "No P95, phone, Release, first unbound engine startup or visible-screen latency claims",
+    "Report positive deltas and uncertainty; no post-hoc pass threshold or general speedup claim"
+  ]
+}

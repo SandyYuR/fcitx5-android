@@ -1,0 +1,33 @@
+{
+  "accepted_performance_samples": 0,
+  "correct_commits_before_rejection": 6,
+  "rejection": "ValueError('Incomplete or reversed input timestamps')",
+  "minimal_event": {
+    "source_commit": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+    "round": 2,
+    "key": "i",
+    "clock": "SystemClock.elapsedRealtimeNanos, across both Android processes",
+    "timestamps": {
+      "inject_down_ns": 71844737058401,
+      "inject_down_return_ns": 71844737503816,
+      "inject_up_ns": 71844756335753,
+      "inject_up_return_ns": 71844756065831
+    },
+    "inject_up_return_minus_inject_up_ns": -269922,
+    "same_injection_thread": true
+  },
+  "restoration_summary": {
+    "settings_restored": {
+      "show_ime_with_hard_keyboard": true,
+      "screen_off_timeout": true,
+      "default_ime": true,
+      "enabled_imes": true,
+      "hwui": true
+    },
+    "owned_test_packages_remaining": 0,
+    "diagnostic_packages_remaining": 0,
+    "restoration_errors": 0,
+    "audit_errors": 0
+  },
+  "privacy_note": "Only a synthetic touch event and equality/cleanup results are published. Original device/package/window state remains local."
+}

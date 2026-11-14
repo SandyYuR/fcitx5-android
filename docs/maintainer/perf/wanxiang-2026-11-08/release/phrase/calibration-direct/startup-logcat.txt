@@ -1,0 +1,384 @@
+--------- beginning of main
+11-08 14:42:10.921  1202  1202 I chatty  : uid=1000(system) com.android.settings expire 6 lines
+11-08 14:42:11.425  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:11.504  4372  4375 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-08 14:42:11.567  4386  4389 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-08 14:42:11.617   500   533 D EventSequenceValidator: Transition from ACTIVITY_FINISHED to INTENT_STARTED
+--------- beginning of system
+11-08 14:42:11.617   500  3910 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 0
+11-08 14:42:11.618   430   430 I perfetto: ing_service_impl.cc:758 Configured tracing session 9, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-08 14:42:11.618   414   414 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=9)
+11-08 14:42:11.621   500   533 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-08 14:42:11.621   500   540 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-08 14:42:11.625   500   533 D EventSequenceValidator: Transition from INTENT_STARTED to ACTIVITY_LAUNCHED
+--------- beginning of kernel
+11-08 14:42:11.883     0     0 W perfetto: enabled ftrace
+11-08 14:42:11.638   414   414 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-08 14:42:11.649   285   285 D Zygote  : Forked child process 4406
+11-08 14:42:11.650   500   540 I ActivityManager: Start proc 4406:io.github.sandyyur.inputbench/u0a167 for pre-top-activity {io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}
+11-08 14:42:11.652  4406  4406 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-08 14:42:11.661  4406  4406 I yyur.inputbenc: Unquickening 12 vdex files!
+11-08 14:42:11.661  4406  4406 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-08 14:42:11.663  2587  2605 I adbd    : jdwp connection from 4406
+11-08 14:42:11.680  4406  4406 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-08 14:42:11.683  4406  4406 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-08 14:42:11.683  4406  4406 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-08 14:42:11.687  4406  4428 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-08 14:42:11.691  4406  4428 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-08 14:42:11.694  4406  4428 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-08 14:42:11.730  4406  4426 D HostConnection: HostConnection::get() New Host Connection established 0x793cca61eb90, tid 4426
+11-08 14:42:11.732  4406  4426 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:11.733   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-08 14:42:11.734  4406  4426 D EGL_emulation: eglCreateContext: 0x793cba630a00: maj 3 min 0 rcv 3
+11-08 14:42:11.735  4406  4426 D EGL_emulation: eglMakeCurrent: 0x793cba630a00: ver 3 0 (tinfo 0x793c5a66a330) (first time)
+11-08 14:42:11.744   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-08 14:42:11.744  4406  4426 I Gralloc4: mapper 4.x is not supported
+11-08 14:42:11.744  4406  4426 D HostConnection: createUnique: call
+11-08 14:42:11.745  4406  4426 D HostConnection: HostConnection::get() New Host Connection established 0x793cca620690, tid 4426
+11-08 14:42:11.760  4406  4426 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:11.908  4340  4359 I oid.documentsu: Waiting for a blocking GC ProfileSaver
+11-08 14:42:11.926  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:11.959  4398  4400 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-08 14:42:11.959   500   533 D EventSequenceValidator: Transition from ACTIVITY_LAUNCHED to ACTIVITY_FINISHED
+11-08 14:42:11.962   500   538 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-08 14:42:11.962   500   538 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +340ms
+11-08 14:42:11.983  1442  1442 I KeyboardViewUtil: KeyboardViewUtil.getKeyboardHeightRatio():128 systemKeyboardHeightRatio:1.000000; userKeyboardHeightRatio:1.000000.
+11-08 14:42:11.987  1442  1442 I KeyboardViewUtil: KeyboardViewUtil.getKeyboardHeightRatio():128 systemKeyboardHeightRatio:1.000000; userKeyboardHeightRatio:1.000000.
+11-08 14:42:11.989  1442  1442 I AndroidIME: AbstractIme.onActivate():84 PasswordIme.onActivate() : EditorInfo = Package = com.android.settings : Type = Text : Learning = Disable : Suggestion = Show : AutoCorrection = Disable : Microphone = Show : NoPersonalizedLearning = Disable : AutoStartVoiceInput = Disable, IncognitoMode = false
+11-08 14:42:11.990  1442  1442 W KeyboardModeManager: KeyboardModeManager.setInputView():302 setInputView() : inputView = com.google.android.apps.inputmethod.libs.framework.core.InputView{b0acb7e V.E...... ......I. 0,0-0,0}
+11-08 14:42:11.990  1442  1442 W AndroidIME: KeyboardViewManager.initializeViews():300 initializeViews() : keyboard full width = -1; root view width = 320; measured keyboard height = 0
+11-08 14:42:11.994  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:11.995  1442  1442 I VoiceImeExtension: VoiceImeExtension.shouldStartVoiceInputAutomatically():336 No private IME option set to start voice input.
+11-08 14:42:12.000  1442  1442 I AndroidIME: AbstractIme.onDeactivate():161 PasswordIme.onDeactivate()
+11-08 14:42:12.010  1442  1442 I KeyboardViewUtil: KeyboardViewUtil.getKeyboardHeightRatio():128 systemKeyboardHeightRatio:1.000000; userKeyboardHeightRatio:1.000000.
+11-08 14:42:12.010  1442  1442 I LatinIme: LatinIme.initialize():396 initialize() : Language = en-US
+11-08 14:42:12.010  1442  1442 I Delight5Facilitator: Delight5Facilitator.initializeForIme():561 initializeForIme() : Locale = [en_US], layout = qwerty
+11-08 14:42:12.011  1442  1442 I Delight5Facilitator: Delight5Facilitator.resetDecoder():670 resetDecoder() : Locale = [en_US]
+11-08 14:42:12.011  1442  1442 I Delight5Decoder: Delight5DecoderWrapper.createOrResetDecoder():293 Decoder reset
+11-08 14:42:12.015  1442  1442 I AndroidIME: AbstractIme.onActivate():84 LatinIme.onActivate() : EditorInfo = Package = io.github.sandyyur.inputbench : Type = Text : Learning = Disable : Suggestion = Hide : AutoCorrection = Disable : Microphone = Show : NoPersonalizedLearning = Disable : AutoStartVoiceInput = Disable, IncognitoMode = false
+11-08 14:42:12.015  1442  1442 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.cancelShutdown():55 cancelShutdown()
+11-08 14:42:12.015  1442  1442 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.syncLanguagePacks():67 syncLanguagePacks()
+11-08 14:42:12.015  1442  3607 I SpeechFactory: SpeechRecognitionFactory.maybeScheduleAutoPackDownloadForFallback():160 maybeScheduleAutoPackDownloadForFallback()
+11-08 14:42:12.016  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.016  1442  1881 I chatty  : uid=10131(com.google.android.inputmethod.latin) GoogleApiHandle identical 1 line
+11-08 14:42:12.017  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.017  1442  1442 I KeyboardWrapper: KeyboardWrapper.consumeEvent():264 Skip consuming an event as current keyboard is deactivated (state=0, keyboard existence=false)
+11-08 14:42:12.017  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.017  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.017  1442  1442 W KeyboardModeManager: KeyboardModeManager.setInputView():302 setInputView() : inputView = com.google.android.apps.inputmethod.libs.framework.core.InputView{b0acb7e V.E...... ......I. 0,0-0,0}
+11-08 14:42:12.018  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.018  1442  1442 I VoiceImeExtension: VoiceImeExtension.shouldStartVoiceInputAutomatically():336 No private IME option set to start voice input.
+11-08 14:42:12.018  1442  3606 I MainLanguageModelLoader: MainLanguageModelLoader.run():142 Running LM loader for [en_US]
+11-08 14:42:12.018  1442  3606 I SuperDelight: SuperDelightLanguageModelProvider.fetchLanguageModel():57 SuperDelightLanguageModelProvider#fetchLanguageModel(): 1 locales
+11-08 14:42:12.019  1442  4266 I SuperDelight: SuperDelightManager.initializeBundledDelightSuperpacks():362 initializeBundledDelightSuperpacks()
+11-08 14:42:12.019  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.019  1442  1895 I SP      : Registering bundled_delight.2020043000, url: null, constraints: *:*, flags: *, requested: 2020043000, current: 2020043000
+11-08 14:42:12.019  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.021  1442  4266 I SuperDelight: SuperDelightManager.lambda$syncBundledLanguageModels$14():780 SuperDelightManager#syncBundledLanguageModels(): Syncing for version 2020043000
+11-08 14:42:12.024  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.025  1442  1895 I SuperDelight: SuperDelightBundledSlicingStrategy.getSlices():39 BundledSlicing#getSlices() : Locale = [en_US]
+11-08 14:42:12.025  1442  1895 I SuperDelight: SuperDelightBundledSlicingStrategy.getSlices():63 BundledSlicing#getSlices(): result {slices=[bundled_delight:main_en_us_2019120400_2], last batch=true, sync metadata=false}
+11-08 14:42:12.025  1442  1895 I SP      : Syncing bundled_delight (2020043000) with slices: [main_en_us_2019120400_2], metadata: false
+11-08 14:42:12.035  1442  1442 D ActivityThread: ViewRootImpl.ConfigChangedCallback for IME, config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9}
+11-08 14:42:12.040  1442  4439 I JobSchedulerImpl: JobSchedulerImpl.schedule():68 Schedule task: PeriodicTasks. Cancel the pre-existing task.
+11-08 14:42:12.046  1442  4439 W JobInfoUtil: JobInfoUtil.setJobInfo():55 The max execution delay will be ignored for periodic task: PeriodicTasks
+11-08 14:42:12.050  1442  1442 I InlineSuggestionCandidateViewController: InlineSuggestionCandidateViewController.initializeAppToRightBoundaryRatio():343 Phenotype Inline app to ratio list is empty. Use default list.
+11-08 14:42:12.056  1442  4439 I JobSchedulerImpl: JobSchedulerImpl.schedule():86 Schedule task: PeriodicTasks. Success.
+11-08 14:42:12.061   500   500 W InputMethodManagerService: Illegal subtype state: old subtype = null, new subtype = android.view.inputmethod.InputMethodSubtype@4145211d
+11-08 14:42:12.065   500  4272 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10169; state: DISABLED
+11-08 14:42:12.066   500   540 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10169; state: ENABLED
+11-08 14:42:12.068   722   758 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-08 14:42:12.074  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.074  4437  4441 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-08 14:42:12.078  1442  1442 I KeyboardViewHelper: KeyboardViewHelper.getView():164 Get view with height ratio:1.000000; experiment height ratio:1.000000.
+11-08 14:42:12.083   285   285 D Zygote  : Forked child process 4443
+11-08 14:42:12.084   500   540 I ActivityManager: Start proc 4443:org.fcitx.fcitx5.android.fx.rime/u0a169 for service {org.fcitx.fcitx5.android.fx.rime/org.fcitx.fcitx5.android.input.FcitxInputMethodService}
+11-08 14:42:12.098  4443  4443 W android.fx.rim: Unexpected CPU variant for X86 using defaults: x86_64
+11-08 14:42:12.109  1442  1895 I SP      : Sync for bundled_delight succeeded in 84 ms: no changes
+11-08 14:42:12.109  1442  1895 I SP      : GC for 'bundled_delight' (10) with ttl of 0 ms took 0 ms (0/0/0)
+11-08 14:42:12.117  1442  3606 I SuperDelight: SuperDelightManager.initializeDelightSuperpacks():321 initializeDelightSuperpacks()
+11-08 14:42:12.117  1442  3606 I SuperDelight: SuperDelightManager.getDelightMetadataUriAndVersion():1036 getDelightMetadataUriAndVersion(): Phenotype : 2020043000 : https://www.gstatic.com/android/keyboard/dictionarypack/Klaw-normal/metadata.json
+11-08 14:42:12.117  1442  3606 I SuperDelight: SuperDelightAppsSuperpacksManager.initializeDelightAppsSuperpacks():85 initializeDelightAppsSuperpacks()
+11-08 14:42:12.117  1442  3606 I MainLanguageModelLoader: MainLanguageModelLoader.updateLmAvailableState():365 updateLmAvailableState(): locale? en_US prevState? AVAILABLE
+11-08 14:42:12.117  1442  2261 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():578 loadLanguageModel() : 1, version [2020052800]
+11-08 14:42:12.117  1442  3606 I MainLanguageModelLoader: MainLanguageModelLoader.updateLmAvailableState():401 updateLmAvailableState(): locale? en_US newState? AVAILABLE
+11-08 14:42:12.118  1442  3606 I Delight5Facilitator: BlacklistLoader.run():35 Running blacklist loader
+11-08 14:42:12.118  1442  3606 I Delight5Facilitator: ContactsLanguageModelLoader.run():33 Running contacts language model loader
+11-08 14:42:12.118  1442  3606 I Delight5Facilitator: PersonalLanguageModelLoader.run():40 Running personal language model loader
+11-08 14:42:12.118  1442  3606 I Delight5Facilitator: UserHistoryLanguageModelLoader.run():71 Running user history language model loader
+11-08 14:42:12.119  1442  3606 I EmojiShortcutsLoader: EmojiShortcutsLoader.getEmojiShortcuts():98 Reading en_US emoji shortcuts
+11-08 14:42:12.120  1442  4266 I SuperDelight: SuperDelightManager.lambda$registerAndUpgradeSuperpacks$4():473 SuperDelightManager#registerAndUpgradeSuperpacks(delight): current 2020043000, required 2020043000
+11-08 14:42:12.120  1442  4266 I SuperDelight: SuperDelightManager.lambda$syncDownloadableLanguageModels$6():569 SuperDelightManager#syncDownloadableLanguageModels(delight): [OnDevice] Syncing for version 2020043000
+11-08 14:42:12.121  1442  1895 I SuperDelight: SuperDelightDownloadSlicingStrategy.getSlices():82 DownloadSlicing#getSlices() : Locale = [en_US]
+11-08 14:42:12.128  1442  1442 I KeyboardViewHelper: KeyboardViewHelper.getView():164 Get view with height ratio:1.000000; experiment height ratio:1.000000.
+11-08 14:42:12.141  4443  4443 I ndk_translation: Initialized NDK translation (aarch64), version 0.2.2
+11-08 14:42:12.147  1442  2261 I native  : proto-store.cc:45 File not found: '/data/user/0/com.google.android.inputmethod.latin/files/personal/adapt_state.en.dat'.
+11-08 14:42:12.147  1442  2261 I native  : (This might be OK for example when a language is being loaded for the first time.)
+11-08 14:42:12.147  1442  2261 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():598 Loaded main LM 1.en
+11-08 14:42:12.147  1442  2261 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():578 loadLanguageModel() : 7, version [n/a]
+11-08 14:42:12.148  1442  2261 I native  : blacklist-assembly.cc:116 LoadBlacklist en
+11-08 14:42:12.148  1442  2261 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():616 Loaded dynamic LM 7.en
+11-08 14:42:12.148  1442  2261 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():578 loadLanguageModel() : 4, version [n/a]
+11-08 14:42:12.148  1442  2261 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():616 Loaded dynamic LM 4.en
+11-08 14:42:12.149  1442  2261 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():578 loadLanguageModel() : 3, version [n/a]
+11-08 14:42:12.149  1442  2261 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():616 Loaded dynamic LM 3.en
+11-08 14:42:12.163  1442  1895 I SuperDelight: SuperDelightDownloadSlicingStrategy.getSlices():231 DownloadSlicing#getSlices(): result {slices=[delight:main_en_us_2020052800_1], last batch=true, sync metadata=false}
+11-08 14:42:12.164  1442  1895 I SP      : Syncing delight (2020043000) with slices: [main_en_us_2020052800_1], metadata: false
+11-08 14:42:12.167  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.174  1442  1895 I SuperDelight: SuperDelightMergingStrategy.merge():57 SuperDelightMergingStrategy#merge(): selected[[main_en_us_2020052800_1]] synced[[main_en_us_2020052800_1]]
+11-08 14:42:12.175  1442  1895 I SP      : Sync for delight succeeded in 54 ms: no changes
+11-08 14:42:12.175  1442  1895 I SP      : GC for 'delight' (10) with ttl of 0 ms took 0 ms (0/0/0)
+11-08 14:42:12.201   500   500 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-08 14:42:12.216  1442  4457 I LstmExtension: LstmExtension.onCreate():132 onCreate(): Finished in 0 ms
+11-08 14:42:12.217  1442  4457 I ConversationToQueryExtension: ConversationToQueryExtension.onCreate():89 onCreate()
+11-08 14:42:12.217  1442  4457 I ConversationToQueryClientSingleton: ConversationToQueryClientSingleton.register():101 registering client 'Conv2QueryExtension'
+11-08 14:42:12.217  1442  4457 I ConversationToQueryExtension: ConversationToQueryExtension.isEnabled():134 isEnabled() : true
+11-08 14:42:12.217  1442  4457 I ConversationToQueryExtension: ConversationToQueryExtension.isEnabled():141 isConv2QueryDisabledByChevronUi() : false
+11-08 14:42:12.217  1442  4457 I ConversationToQueryExtension: ConversationToQueryExtension.updateCandidateProvider():270 Create MagicGCandidateProvider
+11-08 14:42:12.217  1442  4457 I ConversationToQueryExtension: ConversationToQueryExtension.onCreate():128 onCreate() : Finished in 1 ms
+11-08 14:42:12.221   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:12.221   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:12.223  2587  2605 I adbd    : jdwp connection from 4443
+11-08 14:42:12.224  1442  1442 I AndroidIME: KeyboardViewManager.saveKeyboardBottomGap():224 realScreenHeight: 640 screenHeightInInches: 4.000000
+11-08 14:42:12.224  1442  1442 I AndroidIME: keyboardHolderHeight: 233 inputViewBottomGapFromScreen: 0
+11-08 14:42:12.224  1442  1442 I AndroidIME: getKeyboardBodyViewHolderPaddingBottom(): 0 getKeyboardBottomGapFromScreen(): 0
+11-08 14:42:12.224  1442  1442 I AndroidIME: keyboardBottomGap: 0 bodyViewHolderBottomPadding: 0
+11-08 14:42:12.224  1442  1442 I AndroidIME: 
+11-08 14:42:12.224   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:12.225   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:12.227   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:12.228   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:12.234  1442  3606 I EmojiShortcutsLoader: EmojiShortcutsLoader.getEmojiShortcuts():114 Read en_US emoji shortcuts successfully.
+11-08 14:42:12.234  1442  3606 I EmojiShortcutsLoader: EmojiShortcutsLoader.run():59 1 emoji shortcut maps loaded.
+11-08 14:42:12.234  1442  3606 I EmojiShortcutsLoader: EmojiShortcutsLoader.run():67 Finished loading emoji shortcuts
+11-08 14:42:12.234  1442  3606 I Delight5Facilitator: EmailLanguageModelLoader.run():29 Running email language model loader
+11-08 14:42:12.244   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:12.244   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:12.248   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:12.248   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:12.250  4443  4443 I android.fx.rim: The ClassLoaderContext is a special shared library.
+11-08 14:42:12.251  1442  1442 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltip():130 dismissTooltip(): tooltip with id inline_suggestion_tooltip not found in tooltipManager.
+11-08 14:42:12.251  1442  1442 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltip():130 dismissTooltip(): tooltip with id inline_suggestion_tooltip not found in tooltipManager.
+11-08 14:42:12.252  1442  1442 I KeyboardWrapper: KeyboardWrapper.consumeEvent():264 Skip consuming an event as current keyboard is deactivated (state=0, keyboard existence=true)
+11-08 14:42:12.252  1442  1442 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.shutdown():77 shutdown()
+11-08 14:42:12.252  1442  1442 I AndroidIME: AbstractIme.onDeactivate():161 LatinIme.onDeactivate()
+11-08 14:42:12.252   500  2005 E InputMethodManagerService: Ignoring com.android.server.inputmethod.InputMethodManagerService.updateStatusIcon:2770 due to an invalid token. uid:10131 token:android.os.Binder@ca783c4
+11-08 14:42:12.257  1442  3606 I CrankEngineLocales: CrankEngineLocales.getLocaleToUseForCrankEngine():67 Using locale en_US for emoji prediction
+11-08 14:42:12.266  4443  4443 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-08 14:42:12.266  4443  4443 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-08 14:42:12.277   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:12.277   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:12.278  1442  1442 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltip():130 dismissTooltip(): tooltip with id inline_suggestion_tooltip not found in tooltipManager.
+11-08 14:42:12.278  1442  1442 W KeyboardModeManager: KeyboardModeManager.setInputView():302 setInputView() : inputView = null
+11-08 14:42:12.281  1442  1442 I LstmExtension: LstmExtension.onCreateServiceInternal():143 onCreateServiceInternal()
+11-08 14:42:12.281  1442  1442 I LstmExtension: LstmExtension.onCreateServiceInternal():150 onCreateServiceInternal(): Finished in 0 ms
+11-08 14:42:12.285  1442  4471 I DlamWrapper: DlamWrapper$1.onSuccess():154 close(): Successfully wrote DLAM properties file.
+11-08 14:42:12.286  1442  4472 I JapaneseMozcExtension: JapaneseMozcExtension.onDestroyServiceInternal():81 onDestroyServiceInternal()
+11-08 14:42:12.293  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.295  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.296  1442  1442 I ConversationToQueryExtension: ConversationToQueryExtension.onDestroy():320 onDestroy()
+11-08 14:42:12.296  1442  1442 I ConversationToQueryClientSingleton: ConversationToQueryClientSingleton.deregister():110 deregistering client 'Conv2QueryExtension'
+11-08 14:42:12.296  1442  1442 I ConversationToQueryClientSingleton: ConversationToQueryClientSingleton.deregister():115 number of registered clients: 0
+11-08 14:42:12.296  1442  2261 I tflite  : Initialized TensorFlow Lite runtime.
+11-08 14:42:12.298  1442  1442 W AssistantIntegClient: #unbindService(): calling unbindService when service is unbound.
+11-08 14:42:12.301  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.303  1442  1881 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-08 14:42:12.303  4443  4443 I [main]  : Migrated keypress workaround: enabled=false
+11-08 14:42:12.305  4443  4443 I SmartDefaultInitializer: Smart init: device=SMALL_PHONE, model=sdk_gphone_x86_64, smallestWidth=320dp, enable=true, threshold=500
+11-08 14:42:12.318  4443  4485 I FcitxColdStart: font preload keys=0 duration=3ms
+11-08 14:42:12.324  4443  4443 I FcitxColdStart: service.onCreate begin
+11-08 14:42:12.327  4443  4443 I FcitxVoiceInput: registered floating voice receiver actions=android.content.IntentFilter@dd823b4
+11-08 14:42:12.336  4443  4443 I FcitxColdStart: service.onCreate duration=11ms
+11-08 14:42:12.337  4443  4477 I [DefaultDispatcher-worker-2]: Bundled presets installed 21 file(s)
+11-08 14:42:12.372   500  4272 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-08 14:42:12.378  4443  4443 I FcitxColdStart: service.onStartInput restarting=false
+11-08 14:42:12.381  4443  4443 I RimeLifecycle: input_binding generation=1 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-08 14:42:12.382  4443  4443 I FcitxColdStart: service.onCreateInputView begin
+11-08 14:42:12.429  4443  4443 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=37ms
+11-08 14:42:12.436  4443  4443 I FcitxColdStart: KeyboardWindow.onCreateView duration=45ms
+11-08 14:42:12.443  4443  4443 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=1ms
+11-08 14:42:12.465  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:12.469  4443  4487 I RimeLifecycle: startup phase=assets duration_ms=139
+11-08 14:42:12.470  4443  4487 I RimeLifecycle: startup phase=config duration_ms=2
+11-08 14:42:12.474  4443  4443 I FcitxColdStart: replaceInputView duration=92ms
+11-08 14:42:12.476  4443  4443 I FcitxColdStart: service.onCreateInputView duration=94ms
+11-08 14:42:12.476  4443  4443 I FcitxColdStart: service.onStartInputView restarting=false
+11-08 14:42:12.490  4443  4487 W linker  : Warning: "/data/app/~~8TXS_HGpzSTxErAYSPRnyg==/org.fcitx.fcitx5.android.fx.rime-juASzDzb8YNBZFzdf5XDGw==/lib/arm64/libc++_shared.so" unused DT entry: unknown processor-specific (type 0x70000001 arg 0x0) (ignoring)
+11-08 14:42:12.569  4443  4493 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-08 14:42:12.570  4443  4493 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-08 14:42:12.575  4443  4493 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-08 14:42:12.587  4443  4493 D HostConnection: HostConnection::get() New Host Connection established 0x793cca634610, tid 4493
+11-08 14:42:12.592  4443  4493 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:12.593   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-08 14:42:12.594  4443  4493 D EGL_emulation: eglCreateContext: 0x793cba66bcb0: maj 3 min 0 rcv 3
+11-08 14:42:12.596  4443  4493 D EGL_emulation: eglMakeCurrent: 0x793cba66bcb0: ver 3 0 (tinfo 0x793c5a67d8f0) (first time)
+11-08 14:42:12.606   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-08 14:42:12.607  4443  4493 I Gralloc4: mapper 4.x is not supported
+11-08 14:42:12.608  4443  4493 D HostConnection: createUnique: call
+11-08 14:42:12.609  4443  4493 D HostConnection: HostConnection::get() New Host Connection established 0x793cca634850, tid 4493
+11-08 14:42:12.616  4443  4493 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:12.372   500  4272 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-08 14:42:12.684   500   500 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-08 14:42:12.699   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:12.699   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:12.713   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:12.713   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:13.006  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:13.067  4443  4443 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=17ms
+11-08 14:42:13.088  4443  4443 I Choreographer: Skipped 35 frames!  The application may be doing too much work on its main thread.
+11-08 14:42:13.545  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:14.081  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:14.197  4500  4500 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-08 14:42:14.198  4500  4500 I AndroidRuntime: Using default boot image
+11-08 14:42:14.198  4500  4500 I AndroidRuntime: Leaving lock profiling enabled
+11-08 14:42:14.199  4500  4500 I app_process: Core platform API reporting enabled, enforcing=false
+11-08 14:42:14.235  4500  4500 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-08 14:42:14.235  4500  4500 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-08 14:42:14.238  4500  4500 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-08 14:42:14.238  4500  4500 I app_process: The ClassLoaderContext is a special shared library.
+11-08 14:42:14.244  4500  4500 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-08 14:42:14.246  4500  4500 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-08 14:42:14.248   500  2005 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: start instr
+11-08 14:42:14.248   500  2005 I ActivityManager: Killing 4406:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to start instr
+11-08 14:42:14.249   500  2005 W ActivityTaskManager: Force removing ActivityRecord{e2adfc8 u0 io.github.sandyyur.inputbench/.BenchHost t16 f}}: app died, no saved state
+11-08 14:42:14.500     0     0 I binder_alloc: 4406: binder_alloc_buf, no vma
+11-08 14:42:14.501     0     0 I binder  : 500:2005 transaction failed 29189/-3, size 64-0 line 3226
+11-08 14:42:14.263   285   285 I Zygote  : Process 4406 exited due to signal 9 (Killed)
+11-08 14:42:14.265   500  2005 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-08 14:42:14.265   500   540 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-08 14:42:14.267   500   533 W ActivityManager: setHasOverlayUi called on unknown pid: 4406
+11-08 14:42:14.284   285   285 D Zygote  : Forked child process 4513
+11-08 14:42:14.285   500   540 I ActivityManager: Start proc 4513:io.github.sandyyur.inputbench/u0a167 for added application io.github.sandyyur.inputbench
+11-08 14:42:14.289  4513  4513 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-08 14:42:14.296   500   541 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 4406 in 44ms
+11-08 14:42:14.302  4513  4513 I yyur.inputbenc: Unquickening 12 vdex files!
+11-08 14:42:14.302  4513  4513 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-08 14:42:14.313  2587  2605 I adbd    : jdwp connection from 4513
+11-08 14:42:14.564     0     0 I binder  : 4443:4443 transaction failed 29189/-22, size 96-0 line 3053
+11-08 14:42:14.331  4443  4443 I FcitxColdStart: service.onStartInput restarting=false
+11-08 14:42:14.331  4443  4443 I RimeLifecycle: input_binding generation=4 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-08 14:42:14.356  4513  4513 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-08 14:42:14.370  4513  4513 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-08 14:42:14.370  4513  4513 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-08 14:42:14.378  4513  4534 V UiAutomation: Init UiAutomation@1954e63[id=4, flags=0]
+11-08 14:42:14.382   500  2005 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 10167
+11-08 14:42:14.382   500   533 D EventSequenceValidator: Transition from ACTIVITY_FINISHED to INTENT_STARTED
+11-08 14:42:14.385   500   533 D EventSequenceValidator: Transition from INTENT_STARTED to ACTIVITY_LAUNCHED
+11-08 14:42:14.432  4513  4540 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-08 14:42:14.442  4513  4540 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-08 14:42:14.446  4513  4540 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-08 14:42:14.468  4513  4538 D HostConnection: HostConnection::get() New Host Connection established 0x793cca61eb90, tid 4538
+11-08 14:42:14.470  4513  4538 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:14.475   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-08 14:42:14.476  4513  4538 D EGL_emulation: eglCreateContext: 0x793cba661f40: maj 3 min 0 rcv 3
+11-08 14:42:14.476  4513  4538 D EGL_emulation: eglMakeCurrent: 0x793cba661f40: ver 3 0 (tinfo 0x793c5a66bb30) (first time)
+11-08 14:42:14.482   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-08 14:42:14.482  4513  4538 I Gralloc4: mapper 4.x is not supported
+11-08 14:42:14.504  4513  4538 D HostConnection: createUnique: call
+11-08 14:42:14.505  4513  4538 D HostConnection: HostConnection::get() New Host Connection established 0x793cca620690, tid 4538
+11-08 14:42:14.511  4513  4538 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:14.582  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:14.860   500   533 D EventSequenceValidator: Transition from ACTIVITY_LAUNCHED to ACTIVITY_FINISHED
+11-08 14:42:14.861   500   538 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-08 14:42:14.863   500   538 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +476ms
+11-08 14:42:14.879  4443  4443 I FcitxColdStart: service.onStartInputView restarting=false
+11-08 14:42:14.895  4443  4443 I FcitxColdStart: service.onStartInput restarting=false
+11-08 14:42:14.895  4443  4443 I RimeLifecycle: input_binding generation=7 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-08 14:42:14.895  4443  4443 I FcitxColdStart: service.onStartInputView restarting=false
+11-08 14:42:15.087   500   500 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-08 14:42:15.091   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:15.091   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:15.096   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:15.096   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:15.121  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:15.128   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:15.128   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:15.131   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:15.131   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:15.171   722   722 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-08 14:42:15.171   722   722 D InterruptionStateProvider: No heads up: no huns
+11-08 14:42:15.661  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:16.553   500   532 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+11-08 14:42:16.201  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:16.620   414   414 I perfetto: probes_producer.cc:329  Producer stop (id=9)
+11-08 14:42:16.621   414   414 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-08 14:42:16.622   430   430 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-08 14:42:16.622   430   430 I perfetto: ng_service_impl.cc:1948 Tracing session 9 ended, total sessions:0
+11-08 14:42:16.867     0     0 W perfetto: disabled ftrace
+11-08 14:42:16.741  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:17.281  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:17.425   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-08 14:42:17.425  4500  4512 I Gralloc4: mapper 4.x is not supported
+11-08 14:42:17.429  4500  4512 D HostConnection: createUnique: call
+11-08 14:42:17.429  4500  4512 D HostConnection: HostConnection::get() New Host Connection established 0x72ebb67b1990, tid 4512
+11-08 14:42:17.439  4500  4512 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:17.445  4500  4547 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-08 14:42:17.445  4500  4547 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-08 14:42:17.446  4500  4547 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-08 14:42:17.456  4500  4547 D HostConnection: HostConnection::get() New Host Connection established 0x72ebb67b1a50, tid 4547
+11-08 14:42:17.458  4500  4547 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:17.459   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-08 14:42:17.460  4500  4547 D EGL_emulation: eglCreateContext: 0x72eba67d0920: maj 3 min 0 rcv 3
+11-08 14:42:17.461  4500  4547 D EGL_emulation: eglMakeCurrent: 0x72eba67d0920: ver 3 0 (tinfo 0x72eb467defb0) (first time)
+11-08 14:42:16.557   500   532 I chatty  : uid=1000(system) android.io identical 5 lines
+11-08 14:42:16.558   500   532 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+11-08 14:42:17.529   500  2005 W ActivityManager: Unable to start service Intent { act=com.google.android.c2dm.intent.REGISTER pkg=com.google.android.gms } U=0: not found
+11-08 14:42:17.529   500  2005 W ActivityManager: Unbind failed: could not find connection for android.os.BinderProxy@8a5ee00
+11-08 14:42:17.529  3119  3190 W FirebaseInstanceId: Token retrieval failed: SERVICE_NOT_AVAILABLE. Will retry token retrieval
+11-08 14:42:17.572   500  2005 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@643a54f
+11-08 14:42:17.573  4513  4534 V UiAutomation: Init UiAutomation@1954e63[id=-1, flags=0]
+11-08 14:42:17.578   500  4272 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: finished inst
+11-08 14:42:17.578   500  4272 I ActivityManager: Killing 4513:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to finished inst
+11-08 14:42:17.578   500  4272 W ActivityTaskManager: Force removing ActivityRecord{df632c8 u0 io.github.sandyyur.inputbench/.BenchHost t17 f}}: app died, no saved state
+11-08 14:42:17.581  4500  4500 I app_process: System.exit called, status: 0
+11-08 14:42:17.581  4500  4500 I AndroidRuntime: VM exiting with result code 0.
+11-08 14:42:17.624   500   533 W ActivityManager: setHasOverlayUi called on unknown pid: 4513
+11-08 14:42:17.865     0     0 I binder  : undelivered transaction 232233, process died.
+11-08 14:42:17.628   285   285 I Zygote  : Process 4513 exited due to signal 9 (Killed)
+11-08 14:42:17.899     0     0 I binder  : 4443:4443 transaction failed 29189/-22, size 96-0 line 3053
+11-08 14:42:17.662  4443  4443 I FcitxColdStart: service.onStartInput restarting=false
+11-08 14:42:17.662  4443  4443 I RimeLifecycle: input_binding generation=10 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-08 14:42:17.674   500   541 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 4513 in 95ms
+11-08 14:42:17.686   500   533 D EventSequenceValidator: Transition from ACTIVITY_FINISHED to INTENT_STARTED
+11-08 14:42:17.686   500  2007 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 0
+11-08 14:42:17.691   500   533 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-08 14:42:17.692   500   540 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-08 14:42:17.692   500   533 D EventSequenceValidator: Transition from INTENT_STARTED to ACTIVITY_LAUNCHED
+11-08 14:42:17.693   430   430 I perfetto: ing_service_impl.cc:758 Configured tracing session 10, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-08 14:42:17.693   414   414 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=10)
+11-08 14:42:17.718   414   414 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-08 14:42:17.718   285   285 D Zygote  : Forked child process 4564
+11-08 14:42:17.963     0     0 W perfetto: enabled ftrace
+11-08 14:42:17.718   500   540 I ActivityManager: Start proc 4564:io.github.sandyyur.inputbench/u0a167 for pre-top-activity {io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}
+11-08 14:42:17.720  4564  4564 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-08 14:42:17.731  4564  4564 I yyur.inputbenc: Unquickening 12 vdex files!
+11-08 14:42:17.731  4564  4564 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-08 14:42:17.735  2587  2605 I adbd    : jdwp connection from 4564
+11-08 14:42:17.748  4564  4564 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-08 14:42:17.752  4564  4564 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-08 14:42:17.752  4564  4564 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-08 14:42:17.760  4564  4586 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-08 14:42:17.761  4564  4586 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-08 14:42:17.763  4564  4586 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-08 14:42:17.788  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:17.800  4564  4584 D HostConnection: HostConnection::get() New Host Connection established 0x793cca61eb90, tid 4584
+11-08 14:42:17.803  4564  4584 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:17.804   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-08 14:42:17.808  4564  4584 D EGL_emulation: eglCreateContext: 0x793cba630a00: maj 3 min 0 rcv 3
+11-08 14:42:17.809  4564  4584 D EGL_emulation: eglMakeCurrent: 0x793cba630a00: ver 3 0 (tinfo 0x793c5a66a4b0) (first time)
+11-08 14:42:17.815   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-08 14:42:17.815  4564  4584 I Gralloc4: mapper 4.x is not supported
+11-08 14:42:17.816  4564  4584 D HostConnection: createUnique: call
+11-08 14:42:17.816  4564  4584 D HostConnection: HostConnection::get() New Host Connection established 0x793cca620690, tid 4584
+11-08 14:42:17.829  4564  4584 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-08 14:42:18.159   500   538 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-08 14:42:18.160  4556  4558 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-08 14:42:18.161   500   533 D EventSequenceValidator: Transition from ACTIVITY_LAUNCHED to ACTIVITY_FINISHED
+11-08 14:42:18.165   500   538 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +472ms
+11-08 14:42:18.189  4443  4443 I FcitxColdStart: service.onStartInputView restarting=false
+11-08 14:42:18.195  4443  4589 D ProfileInstaller: Installing profile for org.fcitx.fcitx5.android.fx.rime
+11-08 14:42:18.208  4443  4443 I FcitxColdStart: service.onStartInput restarting=false
+11-08 14:42:18.208  4443  4443 I RimeLifecycle: input_binding generation=13 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-08 14:42:18.208  4443  4443 I FcitxColdStart: service.onStartInputView restarting=false
+11-08 14:42:18.329  1202  1202 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-08 14:42:18.582     0     0 D logd    : logdr: UID=0 GID=0 PID=4609 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns

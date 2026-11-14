@@ -1,0 +1,79 @@
+{
+  "products": {
+    "baseline": {
+      "source": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+      "executed_jvm": 79,
+      "failures_errors_skipped": {
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "apk_sha256": "dbdd319006474d6fc58312e71b042dc325192900ae466b8e129991bc494d764a",
+      "native_libraries": [
+        "lib/x86_64/libc++_shared.so",
+        "lib/x86_64/libdirect-rime.so",
+        "lib/x86_64/libquickjs.so"
+      ],
+      "fcitx_native_dependencies": [],
+      "fcitx_cpp_symbols": [],
+      "native_audit_sha256": "0d0355ab7d3bf71e3198a29eaaf66f6c6f84499f249a8c9350d88a1a98fce578"
+    },
+    "ui": {
+      "source": "06b3979f16c2c008d587814648e6a2308b6571a8",
+      "executed_jvm": 79,
+      "failures_errors_skipped": {
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "apk_sha256": "1def777d04fee77275aa1f72c3b042d1036cf270452505b4ba0b79e47253be87",
+      "native_libraries": [
+        "lib/x86_64/libc++_shared.so",
+        "lib/x86_64/libdirect-rime.so",
+        "lib/x86_64/libquickjs.so"
+      ],
+      "fcitx_native_dependencies": [],
+      "fcitx_cpp_symbols": [],
+      "native_audit_sha256": "ac2e571b3e918f4d594f075f8eeb9f0fe67a55405d8f1656ba05c0c29a72f68c"
+    },
+    "priority": {
+      "source": "0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e",
+      "executed_jvm": 81,
+      "failures_errors_skipped": {
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "apk_sha256": "b6221e2707261e97e47adbd9d44163398cbdf929c5beb44ec516380a643cbe53",
+      "native_libraries": [
+        "lib/x86_64/libc++_shared.so",
+        "lib/x86_64/libdirect-rime.so",
+        "lib/x86_64/libquickjs.so"
+      ],
+      "fcitx_native_dependencies": [],
+      "fcitx_cpp_symbols": [],
+      "native_audit_sha256": "0b19ed31cc952f245ff50e346f4e949955587eb591a718966247f695036a04e6"
+    },
+    "combined": {
+      "source": "25d2b499aed815392d914ac29e5368f05cad3f00",
+      "executed_jvm": 81,
+      "failures_errors_skipped": {
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "apk_sha256": "f16febac0eb4d34804309c3a2c3667c243c399292ad2f77a518a0e405f6a820c",
+      "native_libraries": [
+        "lib/x86_64/libc++_shared.so",
+        "lib/x86_64/libdirect-rime.so",
+        "lib/x86_64/libquickjs.so"
+      ],
+      "fcitx_native_dependencies": [],
+      "fcitx_cpp_symbols": [],
+      "native_audit_sha256": "9ceee4965af90b78c16bfe61a88ae5e23eb4b6ac45113e0f3374d32013225bf2"
+    }
+  },
+  "shared_signer_sha256": "76a8ab612b83d48fcda4b11b65a9ab36f626e9f903d095f8d99611866b34a7c2",
+  "same_sdk_lock_sha256": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f",
+  "eight_apk_hashes_verified": true
+}

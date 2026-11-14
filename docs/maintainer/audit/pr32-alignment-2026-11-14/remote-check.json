@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-11-14T05:36:30.195571+00:00",
+  "remote": "ref: refs/heads/fx-rime-only\tHEAD\n0f3e334350c183eb4699ef7b7f74d676efc44056\tHEAD\n9337c8c6a1f5cc61a2f2eba56d766bf985c0c539\trefs/heads/docs\n0f3e334350c183eb4699ef7b7f74d676efc44056\trefs/heads/fx-rime-only",
+  "default_branch": "fx-rime-only",
+  "code_base": "0f3e334350c183eb4699ef7b7f74d676efc44056",
+  "code_head": "4a87997ac115badf407dc741ffb8d124879a665b",
+  "default_is_ancestor": true,
+  "code_merge_preview": "25897796eaf4094569c1e5fa85084a44c90c4e78",
+  "merge_preview_tree_equals_head": true,
+  "changed_since_prior_head": [
+    "AGENTS.md"
+  ]
+}

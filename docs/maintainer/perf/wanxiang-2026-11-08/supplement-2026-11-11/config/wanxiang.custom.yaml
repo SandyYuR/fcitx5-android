@@ -1,0 +1,72 @@
+# 本文件的工作目录是在用户根目录，本目录携带是因为如果放外面就会更新的时候覆盖你的修改，因此我只能藏起来。
+# 如果没有按初始化说明进行初始化那么你需要手动复制本文件到上层目录，请知悉。
+patch:
+  speller/algebra:
+    __patch:
+      - wanxiang_algebra:/模糊音_en_eng         # 开启 en/eng 模糊
+      - wanxiang_algebra:/模糊音_in_ing         # 开启 in/ing 模糊
+      - wanxiang_algebra:/模糊音_c_ch           # 开启 c/ch 模糊
+      - wanxiang_algebra:/模糊音_z_zh           # 开启 z/zh 模糊
+      - wanxiang_algebra:/模糊音_s_sh           # 开启 s/sh 模糊
+      - 自定义模糊音                            # 开启自定义模糊音
+      - wanxiang_algebra:/base/全拼  
+      # 可选输入方案名称：全拼，自然码, 自然龙, 汉心龙，小鹤双拼, 搜狗双拼, 微软双拼, 智能ABC, 紫光双拼, 国标双拼，拼音加加，乱序17
+      - wanxiang_algebra:/26jian
+      #- wanxiang_algebra:/18jian
+      #- wanxiang_algebra:/14jian
+
+    
+  #这里改成什么就需要手动创建同名的 custom_phrasexx.txt 文件在用户目录，这个文件主要用于置顶，编码为自定义编码的词汇
+  #custom_phrase/user_dict: custom_phrasexx
+    
+  #导入根目录下名称为userxx.dict.yaml的自定义固定词典，编码要与固定词库一致，编码权重都不要少，形如姓名、专有名词公司名称等等
+  #translator/packs/+:
+  #  - userxx
+
+  #下面是候选数量
+  menu/page_size: 6
+
+  #以下恢复``造词功能，也就是平时不记录，引导才记录，按需造词，如果你想恢复这个功能，请取消注释----
+  #recognizer/patterns/add_user_dict: "^``[A-Za-z/`']*$"      #自造词引导方式
+  #user_dict_set/enable_user_dict: true
+  #add_user_dict/enable_user_dict: true
+  # 取消注释以开启自动无词频造词
+  #add_user_dict/enable_auto_phrase: true
+
+
+#以下为个人自定义项
+  context_reorder/enable_fallback_reorder: true    # 启用同码回删再输首次交换
+
+  super_replacer/rules/@0/mode: comment  # 将翻译功能原来的append新增候选模式改为comment仅注释：不改变候选文字，仅在括号内提示
+
+  #translator/enable_correction: true     # 是否开启自动纠错
+
+  #wanxiang_english/english_spacing: off    #关闭英文单词间自动加空格
+
+  #wanxiang_lookup/enable_direct: true  #启用无引导的直接辅助查询，能够充分理解其类似手心的直接辅助功能，仅针对两个字的词组，支持两个字任意单、双辅助，双辅助也支持两个字的首辅助组合
+
+  super_comment/cand_type:
+    user_phrase: "+"             # 自造词和用户词，通过``引导造词的和无感造词的结果都会展示这一标记
+    sentence: "∞"                # 造句结果，展示这一标记说明词库中没有对应内容
+    phrase: ""                   # 主翻译器里的词（cn词库里的词）
+    table: ""                    # mix词库里的词
+    user_table: "⌥"             # 自定义短语，通过custom_phrase.txt手动设置的词库
+    completion: "✧"             # 长词联想，即补全标记
+    predict: "P"                # 预测标记
+    abbrev: "^"                 # 简码标记
+    fallback: "~"               # 回退标记
+
+#以下为PC开关默认值设定
+#  switches/@3/reset: 1   #表情开
+#  switches/@4/reset: 1   #翻译开
+#  switches/@5/reset: 1   #预测开
+#  switches/@9/reset: 1   #有声调的注释
+#  switches/@10/reset: 1   #提示开
+#  switches/@11/reset: 1   #小字集
+
+
+自定义模糊音:
+  __append:
+    # an - ang
+    - derive/(ā|á|ǎ|à|a)ng(.*)$/$1n$2
+    #- derive/(ā|á|ǎ|à|a)n([^g].*)?$/$1ng$2

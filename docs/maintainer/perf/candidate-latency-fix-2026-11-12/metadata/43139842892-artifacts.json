@@ -1,0 +1,85 @@
+{
+  "total_count": 4,
+  "artifacts": [
+    {
+      "id": 13909811123,
+      "node_id": "MDg6QXJ0aWZhY3QxMzkwOTgxMTEyMw==",
+      "name": "direct-rime-frontend-arm64-debug",
+      "size_in_bytes": 23455147,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13909811123",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13909811123/zip",
+      "expired": false,
+      "digest": "sha256:9ded67dfb2f762847246e0637e8a1ef23e1292a65d9c6ba5febadfa616775303",
+      "created_at": "2026-11-12T02:22:37Z",
+      "updated_at": "2026-11-12T02:22:37Z",
+      "expires_at": "2026-12-12T02:13:04Z",
+      "workflow_run": {
+        "id": 43139842892,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec"
+      }
+    },
+    {
+      "id": 13909371946,
+      "node_id": "MDg6QXJ0aWZhY3QxMzkwOTM3MTk0Ng==",
+      "name": "direct-rime-android-smoke-results",
+      "size_in_bytes": 401234,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13909371946",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13909371946/zip",
+      "expired": false,
+      "digest": "sha256:da61d67d9af2ce8c65587660a655a070d9ddfc67c2cbd7d02d86d4db11376929",
+      "created_at": "2026-11-12T02:18:44Z",
+      "updated_at": "2026-11-12T02:18:44Z",
+      "expires_at": "2026-12-12T02:13:04Z",
+      "workflow_run": {
+        "id": 43139842892,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec"
+      }
+    },
+    {
+      "id": 13909013947,
+      "node_id": "MDg6QXJ0aWZhY3QxMzkwOTAxMzk0Nw==",
+      "name": "direct-rime-frontend-android-results",
+      "size_in_bytes": 1234420,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13909013947",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13909013947/zip",
+      "expired": false,
+      "digest": "sha256:c5b31396f49645dd12aff961738cb25b0c2afd20bf6edc7eb9a201122b095176",
+      "created_at": "2026-11-12T02:19:34Z",
+      "updated_at": "2026-11-12T02:19:34Z",
+      "expires_at": "2026-12-12T02:13:04Z",
+      "workflow_run": {
+        "id": 43139842892,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec"
+      }
+    },
+    {
+      "id": 13908848015,
+      "node_id": "MDg6QXJ0aWZhY3QxMzkwODg0ODAxNQ==",
+      "name": "direct-rime-arm64-debug",
+      "size_in_bytes": 4920060,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13908848015",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13908848015/zip",
+      "expired": false,
+      "digest": "sha256:8cc1a6db87acb4847f7381574ed99db5a10ac3ee2dc6238c6e92b73895b30e5d",
+      "created_at": "2026-11-12T02:17:10Z",
+      "updated_at": "2026-11-12T02:17:10Z",
+      "expires_at": "2026-12-12T02:13:04Z",
+      "workflow_run": {
+        "id": 43139842892,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec"
+      }
+    }
+  ]
+}

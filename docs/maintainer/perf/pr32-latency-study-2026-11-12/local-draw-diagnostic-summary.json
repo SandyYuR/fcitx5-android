@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "scope": "local diagnostic-only draw invalidation and Perfetto attribution",
+  "product_commit": "adb6a4e33426333677934ac82f0a19997245556a",
+  "parent_runner_commit": "13de8dc273a504ca7ccd5ab87f19f3cb0506aca9",
+  "later_tool_hardening_commit": "e8bc4fe70a5f23bbe56b8e2607580d786e4ff1c1",
+  "protocol": "draw_invalidation_uiautomation_diagnostic_v3",
+  "diagnostic_only": true,
+  "accepted_for_performance_comparison": false,
+  "fixture_sha256": "333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f",
+  "harness_sha256": "2b002a2eaa15a0aff0e59ae5613569f481e882a9d5ee2185a52d69066ef95a05",
+  "local_source": {
+    "trace_sha256": "034a76822d8a32fbe5c62254d8a577ccc5cfe52cceb682e97e8cd0e0fbe0fa86",
+    "trace_bytes": 18654564,
+    "ime_json_sha256": "fa9191130ab8caa24205b120f688da468652f570ae849a3f4b4992626c8c8f8b",
+    "association_json_sha256": "2fee1ae9b3e387793778fad545acef7d4a05fb99e8b38ec61131702cd1cdcf73",
+    "raw_files_published": false
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "inject_up_to_window_up_ms": 93.895559,
+      "window_up_to_ni_ready_ms": 37.214898,
+      "inject_call_ms": 42.341495,
+      "inject_return_to_window_up_ms": 51.554064,
+      "main_cpu_ms": 23.183577,
+      "render_cpu_ms": 12.329712,
+      "owner_cpu_ms": 44.818372,
+      "post_and_wait_overlap_ms": 10.583113,
+      "main_thread_coverage_complete": true
+    },
+    {
+      "round": 2,
+      "inject_up_to_window_up_ms": 116.341378,
+      "window_up_to_ni_ready_ms": 36.686495,
+      "inject_call_ms": 62.369041,
+      "inject_return_to_window_up_ms": 53.972337,
+      "main_cpu_ms": 61.289225,
+      "render_cpu_ms": 6.60459,
+      "owner_cpu_ms": 0.0,
+      "post_and_wait_overlap_ms": 7.668441,
+      "main_thread_coverage_complete": true
+    },
+    {
+      "round": 3,
+      "inject_up_to_window_up_ms": 164.678041,
+      "window_up_to_ni_ready_ms": 36.267801,
+      "inject_call_ms": 52.218269,
+      "inject_return_to_window_up_ms": 112.459772,
+      "main_cpu_ms": 80.977921,
+      "render_cpu_ms": 9.485688,
+      "owner_cpu_ms": 0.0,
+      "post_and_wait_overlap_ms": 22.795014,
+      "main_thread_coverage_complete": true
+    },
+    {
+      "round": 4,
+      "inject_up_to_window_up_ms": 72.685853,
+      "window_up_to_ni_ready_ms": 36.535741,
+      "inject_call_ms": 26.137747,
+      "inject_return_to_window_up_ms": 46.548106,
+      "main_cpu_ms": 47.631923,
+      "render_cpu_ms": 14.316364,
+      "owner_cpu_ms": 0.0,
+      "post_and_wait_overlap_ms": 9.153422,
+      "main_thread_coverage_complete": true
+    },
+    {
+      "round": 5,
+      "inject_up_to_window_up_ms": 59.543208,
+      "window_up_to_ni_ready_ms": 36.999688,
+      "inject_call_ms": 16.788871,
+      "inject_return_to_window_up_ms": 42.754337,
+      "main_cpu_ms": 34.672827,
+      "render_cpu_ms": 8.530186,
+      "owner_cpu_ms": 0.0,
+      "post_and_wait_overlap_ms": 6.087324,
+      "main_thread_coverage_complete": true
+    },
+    {
+      "round": 6,
+      "inject_up_to_window_up_ms": 88.420759,
+      "window_up_to_ni_ready_ms": 33.63309,
+      "inject_call_ms": 48.040796,
+      "inject_return_to_window_up_ms": 40.379963,
+      "main_cpu_ms": null,
+      "render_cpu_ms": 10.320541,
+      "owner_cpu_ms": 0.0,
+      "post_and_wait_overlap_ms": 5.007893,
+      "main_thread_coverage_complete": false
+    }
+  ],
+  "draw_invalidation": {
+    "bindings": 108,
+    "callback_events": 175,
+    "dropped_events": 0,
+    "candidate_events": 106,
+    "keyboard_events": 48,
+    "preedit_events": 21
+  },
+  "attribution": {
+    "stable_window_up_to_ni_ready_range_ms": [
+      33.63309,
+      37.214898
+    ],
+    "long_wait_variation_location": "before the IME window received i UP",
+    "first_round_owner_cpu_ms": 44.818372,
+    "later_round_owner_cpu_ms": 0.0,
+    "interpretation": "The strongest explanation is diagnostic-probe-amplified main-thread traversal/JIT/GC interacting with asynchronous UiAutomation injection and window dispatch. RenderThread and postAndWait contribute but do not explain the full warm wait. Drawable callbacks are mostly consequences of state, visibility and drawing changes; this sample does not identify CandidateItemUi as a stable regression source."
+  },
+  "validation_limits": [
+    "The probe replaces 108 drawable callbacks and captures Java stacks, so it is structural evidence rather than an untraced performance estimate.",
+    "Round 6 main-thread scheduler coverage is incomplete and its main CPU value is null.",
+    "Perfetto reported config_write_into_file_no_flush; no measured value from this diagnostic is mixed into the formal comparison.",
+    "The original full trace, device state and window inventory remain local."
+  ]
+}

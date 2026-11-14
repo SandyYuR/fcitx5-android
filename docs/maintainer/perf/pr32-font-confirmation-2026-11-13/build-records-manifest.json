@@ -1,0 +1,78 @@
+[
+  {
+    "file": "baseline-apk-audit.json",
+    "sha256": "8be0e0227406612344c4db423c4e1af16518dc1695faf9bef32ca887c0420e7c"
+  },
+  {
+    "file": "baseline-build.log",
+    "sha256": "9027203efc0e5ddcb9eaac1a09027bf334fa8d7c00b0f007748d1bdaf3b4ca15"
+  },
+  {
+    "file": "baseline-commit.txt",
+    "sha256": "e3007414ec9b19c84ac3e244aeb7febcc6d275cb47774dc21e5e283e7270cb09"
+  },
+  {
+    "file": "baseline-harness-sha256.txt",
+    "sha256": "b8e6e069129227dcc49c5e3c3422cb9abb5f82af0c8c6d3876a641f917218bdc"
+  },
+  {
+    "file": "baseline-native-link-audit.json",
+    "sha256": "0d0355ab7d3bf71e3198a29eaaf66f6c6f84499f249a8c9350d88a1a98fce578"
+  },
+  {
+    "file": "baseline-submodules.txt",
+    "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59"
+  },
+  {
+    "file": "baseline-tests.apk.signer.txt",
+    "sha256": "aadd5f85035e7aaace89487f57fe6b4d5a3e205fc316600a47d169faf29d6c4f"
+  },
+  {
+    "file": "baseline.apk.signer.txt",
+    "sha256": "1c92d532ce1c219936ef732154d3e56d279d7d0b39b2a71f2c7e5600b9d73293"
+  },
+  {
+    "file": "current-apk-audit.json",
+    "sha256": "a5f9010a3cd61f13ec5fd146cca4a2cc52427ee51bcfab9385915fa7a21f0f86"
+  },
+  {
+    "file": "current-build.log",
+    "sha256": "e34b6876a7d7d2c14798262dc3863033446c3749ec432aa38d295da28a82b35e"
+  },
+  {
+    "file": "current-commit.txt",
+    "sha256": "cb923953df04bb1a1e6eb3f6f0efca9efd04e7faaeb1148c6d9b00e78324b125"
+  },
+  {
+    "file": "current-harness-sha256.txt",
+    "sha256": "b8e6e069129227dcc49c5e3c3422cb9abb5f82af0c8c6d3876a641f917218bdc"
+  },
+  {
+    "file": "current-native-link-audit.json",
+    "sha256": "006a644fd7c111f61f13255a06e9411195a772dc26f20352a84c32fe6146e2e4"
+  },
+  {
+    "file": "current-submodules.txt",
+    "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59"
+  },
+  {
+    "file": "current-tests.apk.signer.txt",
+    "sha256": "aadd5f85035e7aaace89487f57fe6b4d5a3e205fc316600a47d169faf29d6c4f"
+  },
+  {
+    "file": "current.apk.signer.txt",
+    "sha256": "1c92d532ce1c219936ef732154d3e56d279d7d0b39b2a71f2c7e5600b9d73293"
+  },
+  {
+    "file": "font-confirmation-plan.json",
+    "sha256": "c71507c6849e9e9bb879328f61a6e363fc9707d1582ecd704d19d7b027ed812f"
+  },
+  {
+    "file": "font-scope-audit.json",
+    "sha256": "2082e0d47d3c8019ae34cc317f0724da7c7eb788fb5bc0c21b614ffc55c4df32"
+  },
+  {
+    "file": "products.json",
+    "sha256": "9d1326601da6ef54e9d93733e70b23306e9d1aea73e7435091151400366be09f"
+  }
+]

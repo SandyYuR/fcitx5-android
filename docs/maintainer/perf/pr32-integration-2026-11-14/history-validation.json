@@ -1,0 +1,22 @@
+{
+  "restored_old_pr32": true,
+  "restored_deleted_pipeline": true,
+  "restored_final_source": true,
+  "restored_initial_integration": true,
+  "source_zip_byte_identical": true,
+  "source_files": 1565,
+  "head": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2",
+  "prerequisites": [
+    "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+    "1230ee45bf11cce18a445475f785cdf62bf141b6",
+    "0f3e334350c183eb4699ef7b7f74d676efc44056"
+  ],
+  "files": {
+    "before-integration.bundle": "ff2fb426c1f54c413ae176de2d2db7de2a97f8448649f2beed74ac150d26e718",
+    "integrated-history.bundle": "7b5e9e49f771addbe7a70d79f891c3245c0fb0ac5130a99a9c361e49c979361d",
+    "integrated-source.zip": "0d64499fbdc9a228acc252ac51fcb916dfd8c4745eb8baee751408f4714f5faa",
+    "pr32-before.patch": "2bd11ce0298bd3c48001570af94c6893fe9b50be59e450826994f217315116f0",
+    "pipeline-before.patch": "12c81ea24fd2c5d7d5dce47ff8438bcdd6ee436384de0c5ea6de00fad87694ad",
+    "integrated-commits.mbox.txt": "9efd9ad4e628e7c8be3f500ea8742fb89c1d763f45ab49d0aaae05aa6d0b1e28"
+  }
+}

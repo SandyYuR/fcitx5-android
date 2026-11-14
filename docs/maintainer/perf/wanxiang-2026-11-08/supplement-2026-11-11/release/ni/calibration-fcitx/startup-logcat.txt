@@ -1,0 +1,1107 @@
+--------- beginning of main
+11-11 12:14:53.256  2905  3016 E GnpSdk  : [PhenotypeManagerImpl] Phenotype registration timed out [com.google.android.libraries.internal.growth.growthkit#com.google.android.apps.docs].
+11-11 12:14:53.435  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+--------- beginning of kernel
+11-11 12:14:53.792     0     0 I binder  : release 3137:3137 transaction 86681 out, still active
+11-11 12:14:53.794     0     0 W binder_release_work: 1 callbacks suppressed
+11-11 12:14:53.794     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:14:53.855  3168  3188 I android.traceu: Waiting for a blocking GC ProfileSaver
+11-11 12:14:53.932  2905  3190 E GnpSdk  : [PhenotypeManagerImpl] Phenotype registration timed out [com.google.android.libraries.notifications#com.google.android.apps.docs].
+--------- beginning of system
+11-11 12:14:53.933   492   520 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10150; state: DISABLED
+11-11 12:14:53.933   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10150; state: DISABLED
+11-11 12:14:53.936  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:53.939   285   285 D Zygote  : Forked child process 3239
+11-11 12:14:53.940   492   533 I ActivityManager: Start proc 3239:com.google.android.apps.wallpaper/u0a150 for broadcast {com.google.android.apps.wallpaper/com.android.wallpaper.module.RotationWallpaperUpdateReceiver}
+11-11 12:14:53.947  3239  3239 W .apps.wallpape: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:14:53.960  1797  1807 I adbd    : jdwp connection from 3239
+11-11 12:14:53.962  3239  3239 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:14:53.963  3239  3239 I .apps.wallpape: The ClassLoaderContext is a special shared library.
+11-11 12:14:53.965  3239  3239 I .apps.wallpape: The ClassLoaderContext is a special shared library.
+11-11 12:14:53.974  3239  3239 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:53.974  3239  3239 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:54.014  1281  1321 W AutoDndManagerImpl: Could not connect to determine support
+11-11 12:14:54.014  1281  1321 W AutoDndManagerImpl: idb: None of the queried APIs are available. ContextManager.API: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.014  1281  1321 W AutoDndManagerImpl: 	at ied.a(PG:11)
+11-11 12:14:54.014  1281  1321 W AutoDndManagerImpl: 	at igc.handleMessage(PG:122)
+11-11 12:14:54.014  1281  1321 W AutoDndManagerImpl: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-11 12:14:54.014  1281  1321 W AutoDndManagerImpl: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:14:54.014  1281  1321 W AutoDndManagerImpl: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-11 12:14:54.016  1281  1314 W GoogleApiManager: The service for ibm is not available: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.016  1281  1314 W GoogleApiManager: The service for ibm is not available: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: Logging to Clearcut failed.
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: ida: 17: API: ClearcutLogger.API is not available on this device. Connection failed with: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: 	at jjk.a(Unknown Source:7)
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: 	at iek.handleMessage(PG:9)
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: 	at android.app.ActivityThread.main(ActivityThread.java:7656)
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: 	at java.lang.reflect.Method.invoke(Native Method)
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+11-11 12:14:54.016  1281  1281 E ClientLoggingReceiver: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+11-11 12:14:54.055   492   520 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-11 12:14:54.055   492   520 D PackageManager: Clear ephemeral installer activity
+11-11 12:14:54.058  1281  1314 W GoogleApiManager: The service for ibm is not available: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.062   492   520 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-11 12:14:54.062   492   520 D PackageManager: Clear ephemeral installer activity
+11-11 12:14:54.062   492   520 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-11 12:14:54.062   492   520 D PackageManager: Clear ephemeral installer activity
+11-11 12:14:54.064  1281  1314 I chatty  : uid=10113(com.google.android.apps.wellbeing) GoogleApiHandle identical 3 lines
+11-11 12:14:54.070  1281  1314 W GoogleApiManager: The service for ibm is not available: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.092  1281  1325 W ffl     : Cannot reschedule growth notification, not scheduled.
+11-11 12:14:54.095  1281  1314 W GoogleApiManager: The service for ibm is not available: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.095  1281  1314 W GoogleApiManager: The service for ibm is not available: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: Logging to Clearcut failed.
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: ida: 17: API: ClearcutLogger.API is not available on this device. Connection failed with: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: 	at jjk.a(Unknown Source:7)
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: 	at iek.handleMessage(PG:9)
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: 	at android.app.ActivityThread.main(ActivityThread.java:7656)
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: 	at java.lang.reflect.Method.invoke(Native Method)
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+11-11 12:14:54.095  1281  1281 E ClientLoggingReceiver: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+11-11 12:14:54.103   492   520 W PackageManager: Cannot suspend the platform package: android
+11-11 12:14:54.104   492   520 W PackageManager: Cannot suspend package "com.google.android.permissioncontroller": required for permissions management
+11-11 12:14:54.106   492   520 W PackageManager: Cannot suspend package "com.android.dialer": is the default dialer
+11-11 12:14:54.106   492   520 W PackageManager: Cannot suspend package "com.google.android.packageinstaller": required for package installation
+11-11 12:14:54.107   492   520 W PackageManager: Cannot suspend package "com.android.settings": contains the active launcher
+11-11 12:14:54.276  1281  1314 W GoogleApiManager: The service for ibm is not available: ibt{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.283   492  1924 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10118; state: DISABLED
+11-11 12:14:54.283   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10118; state: DISABLED
+11-11 12:14:54.287   285   285 D Zygote  : Forked child process 3262
+11-11 12:14:54.288   492  1924 I ActivityManager: Killing 2501:com.android.localtransport/1000 (adj 985): empty #17
+11-11 12:14:54.293   492   533 I ActivityManager: Start proc 3262:com.google.android.configupdater/u0a118 for broadcast {com.google.android.configupdater/com.google.android.configupdater.MainReceiver}
+11-11 12:14:54.294  3262  3262 W d.configupdate: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:14:54.295   285   285 I Zygote  : Process 2501 exited due to signal 9 (Killed)
+11-11 12:14:54.296  1797  1807 I adbd    : jdwp connection from 3262
+11-11 12:14:54.317  3262  3262 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:14:54.319  3262  3262 I d.configupdate: The ClassLoaderContext is a special shared library.
+11-11 12:14:54.319  3262  3262 D nativeloader: classloader namespace configured for unbundled product apk. library_path=/product/priv-app/ConfigUpdater/lib/x86_64:/product/lib64:/system/product/lib64
+11-11 12:14:54.334  3262  3262 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:54.334  3262  3262 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:54.340   492   534 I libprocessgroup: Successfully killed process cgroup uid 1000 pid 2501 in 47ms
+11-11 12:14:54.351  3262  3262 E ConfigUpdater: ignoring update request
+11-11 12:14:54.397   492  1748 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10128; state: DISABLED
+11-11 12:14:54.397   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10128; state: DISABLED
+11-11 12:14:54.399   492  1748 I ActivityManager: Killing 2668:com.google.android.webview:webview_service/u0a146 (adj 985): empty #17
+11-11 12:14:54.388  3262  3262 I chatty  : uid=10118(com.google.android.configupdater) identical 10 lines
+11-11 12:14:54.396  3262  3262 E ConfigUpdater: ignoring update request
+11-11 12:14:54.401   285   285 D Zygote  : Forked child process 3305
+11-11 12:14:54.403   286   286 I Zygote  : Process 2668 exited due to signal 9 (Killed)
+11-11 12:14:54.404   492   533 I ActivityManager: Start proc 3305:com.google.android.deskclock/u0a128 for broadcast {com.google.android.deskclock/com.android.deskclock.AlarmInitReceiver}
+11-11 12:14:54.414  3305  3305 W droid.deskcloc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:14:54.418  1797  1807 I adbd    : jdwp connection from 3305
+11-11 12:14:54.430  3305  3305 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:14:54.431  3305  3305 I droid.deskcloc: The ClassLoaderContext is a special shared library.
+11-11 12:14:54.432  3305  3305 I droid.deskcloc: The ClassLoaderContext is a special shared library.
+11-11 12:14:54.432  3305  3305 D nativeloader: classloader namespace configured for unbundled product apk. library_path=/product/app/PrebuiltDeskClockGoogle/lib/x86_64:/product/lib64:/system/product/lib64
+11-11 12:14:54.434  3305  3305 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:54.434  3305  3305 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:54.438  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:54.444   492   534 I libprocessgroup: Successfully killed process cgroup uid 10146 pid 2668 in 44ms
+11-11 12:14:54.449  3305  3305 W PrimesInit: Primes instant initialization
+11-11 12:14:54.452  3305  3325 W Primes  : background initialization
+11-11 12:14:54.453  3305  3326 I GAv4    : Google Analytics 18.5.89 is starting up. To enable debug logging on a device run:
+11-11 12:14:54.453  3305  3326 I GAv4    :   adb shell setprop log.tag.GAv4 DEBUG
+11-11 12:14:54.453  3305  3326 I GAv4    :   adb logcat -s GAv4
+11-11 12:14:54.465  3305  3305 I AlarmClock: AlarmInitReceiver android.intent.action.BOOT_COMPLETED
+11-11 12:14:54.466   492  1924 I ActivityManager: Killing 2056:com.android.printspooler/u0a109 (adj 985): empty #17
+11-11 12:14:54.466  1437  1476 I LauncherIconVisibilityInitializerBase: LauncherIconVisibilityInitializerBase$1.run():51 doUpdate() : Visible = false
+11-11 12:14:54.466   492  1924 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10149; state: DISABLED
+11-11 12:14:54.470   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10149; state: ENABLED
+11-11 12:14:54.470  3305  3329 W GAv4    : AnalyticsReceiver is not registered or is disabled. Register the receiver for reliable dispatching on non-Google Play devices. See http://goo.gl/8Rd3yj for instructions.
+11-11 12:14:54.471   285   285 I Zygote  : Process 2056 exited due to signal 9 (Killed)
+11-11 12:14:54.474   285   285 D Zygote  : Forked child process 3333
+11-11 12:14:54.474   492   533 I ActivityManager: Start proc 3333:com.google.android.onetimeinitializer/u0a149 for broadcast {com.google.android.onetimeinitializer/com.google.android.onetimeinitializer.OneTimeInitializerReceiver}
+11-11 12:14:54.479  3305  3325 I PrimesTesting: GserviceFlagsSupplier.get()
+11-11 12:14:54.483  3333  3333 W timeinitialize: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:14:54.488  1797  1807 I adbd    : jdwp connection from 3333
+11-11 12:14:54.494  3333  3333 I timeinitialize: The ClassLoaderContext is a special shared library.
+11-11 12:14:54.502  3333  3333 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:54.502  3333  3333 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:54.502  3333  3333 V OneTimeInitializerReceiver: OneTimeInitializerReceiver.onReceive
+11-11 12:14:54.504  3333  3353 V OneTimeInitializer: OneTimeInitializer.initialize
+11-11 12:14:54.506  3333  3353 V OneTimeInitializer: Device Policy is not installed, doing nothing.
+11-11 12:14:54.508   492  1924 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10090; state: DISABLED
+11-11 12:14:54.508   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10090; state: ENABLED
+11-11 12:14:54.511   492  1924 I ActivityManager: Killing 2643:com.android.externalstorage/u0a86 (adj 985): empty #17
+11-11 12:14:54.514   492   534 I libprocessgroup: Successfully killed process cgroup uid 10109 pid 2056 in 44ms
+11-11 12:14:54.515  3305  3329 W GAv4    : CampaignTrackingReceiver is not registered, not exported or is disabled. Installation campaign tracking is not possible. See http://goo.gl/8Rd3yj for instructions.
+11-11 12:14:54.518   285   285 D Zygote  : Forked child process 3355
+11-11 12:14:54.518   492   533 I ActivityManager: Start proc 3355:com.google.android.packageinstaller/u0a90 for broadcast {com.google.android.packageinstaller/com.android.packageinstaller.TemporaryFileManager}
+11-11 12:14:54.518  3305  3329 W GAv4    : AnalyticsService not registered in the app manifest. Hits might not be delivered reliably. See http://goo.gl/8Rd3yj for instructions.
+11-11 12:14:54.522   285   285 I Zygote  : Process 2643 exited due to signal 9 (Killed)
+11-11 12:14:54.527  3355  3355 W ackageinstalle: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:14:54.532  1797  1807 I adbd    : jdwp connection from 3355
+11-11 12:14:54.560   492   534 I libprocessgroup: Successfully killed process cgroup uid 10086 pid 2643 in 46ms
+11-11 12:14:54.804     0     0 I init    : Untracked pid 3137 received signal 1
+11-11 12:14:54.588  3355  3355 I ackageinstalle: The ClassLoaderContext is a special shared library.
+11-11 12:14:54.591  3355  3355 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:54.593   492   521 I ActivityManager: Killing 2842:com.google.android.documentsui/u0a92 (adj 985): empty #17
+11-11 12:14:54.591  3355  3355 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:54.601   285   285 I Zygote  : Process 2842 exited due to signal 9 (Killed)
+11-11 12:14:54.613  1437  1437 D CompatibilityChangeReporter: Compat change id reported: 150939131; UID 10133; state: DISABLED
+11-11 12:14:54.617  1437  1437 I KeyboardViewUtil: KeyboardViewUtil.getKeyboardHeightRatio():128 systemKeyboardHeightRatio:1.000000; userKeyboardHeightRatio:1.000000.
+11-11 12:14:54.629  1437  1437 W SessionManager: SessionManager.beginSession():53 Try to begin an already begun session [INPUT_SESSION], end it first
+11-11 12:14:54.636   492   534 I libprocessgroup: Successfully killed process cgroup uid 10092 pid 2842 in 42ms
+11-11 12:14:54.751  2379  3383 W GoogleApiManager: The service for gg is not available: ao{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.753  2379  3383 W GoogleApiManager: The service for gg is not available: ao{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: GMS core API Availability. ConnectionResult=3, tag=null
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: java.lang.IllegalArgumentException
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at au.a(PG:2)
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at ct.a(PG:132)
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at cp.a(PG:150)
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at cp.a(PG:131)
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at cp.h(PG:75)
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at cp.a(PG:98)
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at ct.handleMessage(PG:112)
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:14:54.758  2379  3383 W GoogleApiAvailability: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-11 12:14:54.769   709   709 I AutoRevokePermissions: Parsed teamfood setting value: null
+11-11 12:14:54.769   709   709 I AutoRevokePermissions: Parsed teamfood setting value: null
+11-11 12:14:54.769   709   709 I AutoRevokePermissions: scheduleAutoRevokePermissions with frequency 1296000000ms and threshold 7776000000ms
+11-11 12:14:54.770   709   709 I AutoRevokePermissions: user 0 is a profile owner. Running Auto Revoke.
+11-11 12:14:54.770   709   709 I AutoRevokePermissions: Parsed teamfood setting value: null
+11-11 12:14:54.772   709   709 I AutoRevokePermissions: onStartJob
+11-11 12:14:54.772   709   709 I AutoRevokePermissions: Skipping auto revoke first run when scheduled by system
+11-11 12:14:54.778   492  1677 I ActivityManager: Finished processing BOOT_COMPLETED for u0
+11-11 12:14:54.779  1537  1537 I Dialer  : VvmTaskReceiver - task received
+11-11 12:14:54.779  1537  1537 I Dialer  : VvmTaskReceiver - TaskExecutor already running
+11-11 12:14:54.779  1537  1537 I Dialer  : Task.createTask - create task:com.android.voicemail.impl.ActivationTask
+11-11 12:14:54.779  1537  1537 I Dialer  : TaskQueue.add - duplicated task added
+11-11 12:14:54.779  1537  1537 I Dialer  : VvmTaskExecutor - com.android.voicemail.impl.ActivationTask@9b6a0e5 added
+11-11 12:14:54.779   492  1677 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:io.github.sandyyur.inputbench flg=0x4000010 (has extras) } to com.google.android.packageinstaller/com.android.packageinstaller.PackageInstalledReceiver
+11-11 12:14:54.782  1741  1741 V MultiDispActionReceiver: startService
+11-11 12:14:54.783  1741  1741 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1669 android.content.ContextWrapper.startService:720 android.content.ContextWrapper.startService:720 com.android.emulator.multidisplay.MultiDisplayServiceReceiver.onReceive:33 android.app.ActivityThread.handleReceiver:4032 
+11-11 12:14:55.029     0     0 E binder  : invalid inc weak node for 86682
+11-11 12:14:55.031     0     0 I binder  : 492:2350 IncRefs 0 refcount change on invalid ref 823 ret -22
+11-11 12:14:54.784   492   520 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:org.fcitx.fcitx5.android.fx.rime flg=0x4000010 (has extras) } to com.google.android.packageinstaller/com.android.packageinstaller.PackageInstalledReceiver
+11-11 12:14:55.036     0     0 E binder  : invalid inc weak node for 86684
+11-11 12:14:55.043     0     0 I binder  : 492:2350 IncRefs 0 refcount change on invalid ref 828 ret -22
+11-11 12:14:55.047     0     0 I binder  : 492:2350 transaction failed 29189/-22, size 104-0 line 3053
+11-11 12:14:55.051     0     0 I binder  : 492:2350 transaction failed 29189/0, size 4-0 line 2985
+11-11 12:14:55.054     0     0 I binder  : send failed reply for transaction 86681, target dead
+11-11 12:14:54.865  1741  3393 I android_emulator_multidisplay_JNI: multidisplay pipe connected!!!
+11-11 12:14:54.865  1741  3393 D MultiDisplayService: received 1
+11-11 12:14:54.865  1741  3393 D MultiDisplayService: received 0
+11-11 12:14:54.865  1741  3393 D MultiDisplayService: received 320
+11-11 12:14:54.865  1741  3393 D MultiDisplayService: received 640
+11-11 12:14:54.865  1741  3393 D MultiDisplayService: received 0
+11-11 12:14:54.865  1741  3393 D MultiDisplayService: received 0
+11-11 12:14:54.865  1741  3393 E MultiDisplayService: invalid parameters for add/modify display
+11-11 12:14:54.872  3377  3379 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:14:54.939  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:54.966   492   492 D NotificationService: 0|com.google.android.partnersetup|10436|null|10117: granting content://settings/system/notification_sound
+11-11 12:14:54.966   492   492 I chatty  : uid=1000(system) Binder:492_3 identical 1 line
+11-11 12:14:54.966   492   492 D NotificationService: 0|com.google.android.partnersetup|10436|null|10117: granting content://settings/system/notification_sound
+11-11 12:14:54.967   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:14:54.973   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: 0|com.google.android.partnersetup|10436|null|10117
+11-11 12:14:54.973   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:14:55.440  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:55.817  1925  2763 I MediaProvider: Scanned internal due to REASON_MOUNTED, found 232 items in 2736ms, 0 inserts 226 updates 0 deletes
+11-11 12:14:55.848  1925  2763 I MediaProvider: Scanned external_primary due to REASON_MOUNTED, found 14 items in 20ms, 0 inserts 0 updates 0 deletes
+11-11 12:14:55.849  1925  2763 I MediaProvider: End Intent { act=android.intent.action.MEDIA_MOUNTED dat=file:///storage/emulated/0 flg=0x5000010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+11-11 12:14:55.941  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:56.034  3396  3398 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:14:56.135  3411  3414 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:14:56.427     0     0 I         : logcat (3419) used greatest stack depth: 10584 bytes left
+11-11 12:14:56.197   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:14:56.197   492  1271 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 0
+11-11 12:14:56.200   413   413 I perfetto: ing_service_impl.cc:758 Configured tracing session 4, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-11 12:14:56.200   412   412 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=4)
+11-11 12:14:56.206   492   526 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-11 12:14:56.207   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-11 12:14:56.211   285   285 D Zygote  : Forked child process 3431
+11-11 12:14:56.214   412   412 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-11 12:14:56.458     0     0 W perfetto: enabled ftrace
+11-11 12:14:56.221   492   533 I ActivityManager: Start proc 3431:io.github.sandyyur.inputbench/u0a167 for pre-top-activity {io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}
+11-11 12:14:56.223  3431  3431 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-11 12:14:56.230  3431  3431 I yyur.inputbenc: Unquickening 12 vdex files!
+11-11 12:14:56.231  3431  3431 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:14:56.237  1797  1807 I adbd    : jdwp connection from 3431
+11-11 12:14:56.257  3431  3431 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:14:56.261  3431  3431 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:56.262  3431  3431 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:56.278  3431  3454 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:14:56.279  3431  3454 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:14:56.281  3431  3454 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:14:56.312  3431  3452 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a4fd0, tid 3452
+11-11 12:14:56.314  3431  3452 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:14:56.316   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:14:56.321  3431  3452 D EGL_emulation: eglCreateContext: 0x7f3a244bab50: maj 3 min 0 rcv 3
+11-11 12:14:56.322  3431  3452 D EGL_emulation: eglMakeCurrent: 0x7f3a244bab50: ver 3 0 (tinfo 0x7f39c44f3e20) (first time)
+11-11 12:14:56.329   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:14:56.329  3431  3452 I Gralloc4: mapper 4.x is not supported
+11-11 12:14:56.330  3431  3452 D HostConnection: createUnique: call
+11-11 12:14:56.330  3431  3452 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a3f50, tid 3452
+11-11 12:14:56.356  3431  3452 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:14:56.443  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:56.533   492   586 E ReportEncoder: No watchlist hash
+11-11 12:14:56.533   492   586 I WatchlistLoggingHandler: Milliseconds spent on tryAggregateRecords(): 21622
+11-11 12:14:56.534   492   525 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+11-11 12:14:56.646   347   582 W ServiceManager: Permission failure: android.permission.ACCESS_SURFACE_FLINGER from uid=10167 pid=3431
+11-11 12:14:56.646   347   582 D PermissionCache: checking android.permission.ACCESS_SURFACE_FLINGER for uid=10167 => denied (194 us)
+11-11 12:14:56.646   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:14:56.646  3423  3425 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:14:56.648   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:14:56.655   492   531 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +448ms
+11-11 12:14:56.673   492   537 E libprocessgroup: AddTidToCgroup failed to write '3459'; fd=53: Invalid argument
+11-11 12:14:56.673   492   537 E libprocessgroup: Failed to add task into cgroup
+11-11 12:14:56.673   492   537 W libprocessgroup: ExecuteForTask failed for aggregate profile: Invalid argument
+11-11 12:14:56.675  1437  1437 I KeyboardViewUtil: KeyboardViewUtil.getKeyboardHeightRatio():128 systemKeyboardHeightRatio:1.000000; userKeyboardHeightRatio:1.000000.
+11-11 12:14:56.675  1437  3458 W JobInfoUtil: JobInfoUtil.setJobInfo():55 The max execution delay will be ignored for periodic task: PeriodicTasks
+11-11 12:14:56.676  1437  1437 I AndroidIME: AbstractIme.onActivate():84 PasswordIme.onActivate() : EditorInfo = Package = com.android.settings : Type = Text : Learning = Disable : Suggestion = Show : AutoCorrection = Disable : Microphone = Show : NoPersonalizedLearning = Disable : AutoStartVoiceInput = Disable, IncognitoMode = false
+11-11 12:14:56.676  1437  3458 I JobSchedulerImpl: JobSchedulerImpl.schedule():86 Schedule task: PeriodicTasks. Success.
+11-11 12:14:56.677  1437  1437 W KeyboardModeManager: KeyboardModeManager.setInputView():302 setInputView() : inputView = com.google.android.apps.inputmethod.libs.framework.core.InputView{d45471c V.E...... ......I. 0,0-0,0}
+11-11 12:14:56.677  1437  1437 W AndroidIME: KeyboardViewManager.initializeViews():300 initializeViews() : keyboard full width = -1; root view width = 320; measured keyboard height = 0
+11-11 12:14:56.680  1437  1437 I FeaturePermissionsManager: FeaturePermissionsManager.disableFeaturesWithDeniedPermissions():644 disableFeaturesWithDeniedPermissions() : Disable import_user_contacts
+11-11 12:14:56.680  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.680  1437  1437 I FeaturePermissionsManager: FeaturePermissionsManager.onSharedPreferenceChanged():498 onSharedPreferenceChanged() : Disable FeatureInfo : Description = 2131954416 : Permissions=[android.permission.READ_CONTACTS] : Listeners=[dum@2b9fb95, cmp@82411c3]
+11-11 12:14:56.680  1437  1437 I VoiceImeExtension: VoiceImeExtension.shouldStartVoiceInputAutomatically():336 No private IME option set to start voice input.
+11-11 12:14:56.681  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.683  1437  1784 I chatty  : uid=10133(com.google.android.inputmethod.latin) GoogleApiHandle identical 1 line
+11-11 12:14:56.685  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.687  1437  1437 I AndroidIME: AbstractIme.onDeactivate():161 PasswordIme.onDeactivate()
+11-11 12:14:56.689  1437  3460 W JobInfoUtil: JobInfoUtil.setJobInfo():55 The max execution delay will be ignored for periodic task: daily_ping_task
+11-11 12:14:56.690  1437  3460 I JobSchedulerImpl: JobSchedulerImpl.schedule():86 Schedule task: daily_ping_task. Success.
+11-11 12:14:56.690  1437  1437 I KeyboardViewUtil: KeyboardViewUtil.getKeyboardHeightRatio():128 systemKeyboardHeightRatio:1.000000; userKeyboardHeightRatio:1.000000.
+11-11 12:14:56.691  1437  1437 I LatinIme: LatinIme.initialize():396 initialize() : Language = en-US
+11-11 12:14:56.691  1437  1437 I Delight5Facilitator: Delight5Facilitator.initializeForIme():561 initializeForIme() : Locale = [en_US], layout = qwerty
+11-11 12:14:56.691  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.691  1437  1437 I Delight5Facilitator: Delight5Facilitator.resetDecoder():670 resetDecoder() : Locale = [en_US]
+11-11 12:14:56.693  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.693  1437  1437 I Delight5Decoder: Delight5DecoderWrapper.createOrResetDecoder():293 Decoder reset
+11-11 12:14:56.693  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.696  1437  1784 I chatty  : uid=10133(com.google.android.inputmethod.latin) GoogleApiHandle identical 3 lines
+11-11 12:14:56.696  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.697  1437  1437 I AndroidIME: AbstractIme.onActivate():84 LatinIme.onActivate() : EditorInfo = Package = io.github.sandyyur.inputbench : Type = Text : Learning = Disable : Suggestion = Hide : AutoCorrection = Disable : Microphone = Show : NoPersonalizedLearning = Disable : AutoStartVoiceInput = Disable, IncognitoMode = false
+11-11 12:14:56.697  1437  1437 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.cancelShutdown():55 cancelShutdown()
+11-11 12:14:56.697  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.697  1437  1437 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.syncLanguagePacks():67 syncLanguagePacks()
+11-11 12:14:56.700  1437  3458 I JobSchedulerImpl: JobSchedulerImpl.cancel():120 Cancel task: DlamTrainingTask. Not pending.
+11-11 12:14:56.701  1437  3463 I MainLanguageModelLoader: MainLanguageModelLoader.run():142 Running LM loader for [en_US]
+11-11 12:14:56.701  1437  3463 I SuperDelight: SuperDelightLanguageModelProvider.fetchLanguageModel():57 SuperDelightLanguageModelProvider#fetchLanguageModel(): 1 locales
+11-11 12:14:56.701  1437  2169 I SuperDelight: SuperDelightManager.initializeBundledDelightSuperpacks():362 initializeBundledDelightSuperpacks()
+11-11 12:14:56.701  1437  1747 I SP      : Registering bundled_delight.2020043000, url: null, constraints: *:*, flags: *, requested: 2020043000, current: 2020043000
+11-11 12:14:56.702  1437  2169 I SuperDelight: SuperDelightManager.lambda$syncBundledLanguageModels$14():780 SuperDelightManager#syncBundledLanguageModels(): Syncing for version 2020043000
+11-11 12:14:56.702  1437  1747 I SuperDelight: SuperDelightBundledSlicingStrategy.getSlices():39 BundledSlicing#getSlices() : Locale = [en_US]
+11-11 12:14:56.703  1437  1747 I SuperDelight: SuperDelightBundledSlicingStrategy.getSlices():63 BundledSlicing#getSlices(): result {slices=[bundled_delight:main_en_us_2019120400_2], last batch=true, sync metadata=false}
+11-11 12:14:56.703  1437  1747 I SP      : Syncing bundled_delight (2020043000) with slices: [main_en_us_2019120400_2], metadata: false
+11-11 12:14:56.705  1437  1437 I KeyboardWrapper: KeyboardWrapper.consumeEvent():264 Skip consuming an event as current keyboard is deactivated (state=0, keyboard existence=false)
+11-11 12:14:56.706  1437  1437 W KeyboardModeManager: KeyboardModeManager.setInputView():302 setInputView() : inputView = com.google.android.apps.inputmethod.libs.framework.core.InputView{d45471c V.E...... ......I. 0,0-0,0}
+11-11 12:14:56.706  1437  1437 I VoiceImeExtension: VoiceImeExtension.shouldStartVoiceInputAutomatically():336 No private IME option set to start voice input.
+11-11 12:14:56.710  1437  1624 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:14:56.711  1437  1624 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:14:56.712  1437  1624 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:14:56.727  1437  1624 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a3f50, tid 1624
+11-11 12:14:56.729  1437  1624 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:14:56.730   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:14:56.730   953  1142 D DhcpClient: Received packet: 02:15:b2:00:00:00 OFFER, ip /10.0.2.16, mask /255.255.255.0, DNS servers: /10.0.2.3 , gateways [/10.0.2.2] lease time 86400, domain null
+11-11 12:14:56.730   953  1142 D DhcpClient: Received packet: 02:15:b2:00:00:00 ACK: your new IP /10.0.2.16, netmask /255.255.255.0, gateways [/10.0.2.2] DNS servers: /10.0.2.3 , lease time 86400
+11-11 12:14:56.732  1437  1747 I SP      : Sync for bundled_delight succeeded in 30 ms: no changes
+11-11 12:14:56.732  1437  1624 D EGL_emulation: eglCreateContext: 0x7f3a246b7b70: maj 3 min 0 rcv 3
+11-11 12:14:56.732  1437  1747 I SP      : GC for 'bundled_delight' (10) with ttl of 0 ms took 0 ms (0/0/0)
+11-11 12:14:56.736  1437  1624 D EGL_emulation: eglMakeCurrent: 0x7f3a246b7b70: ver 3 0 (tinfo 0x7f39c462ac50) (first time)
+11-11 12:14:56.740  1437  3463 I SuperDelight: SuperDelightManager.initializeDelightSuperpacks():321 initializeDelightSuperpacks()
+11-11 12:14:56.740  1437  3463 I SuperDelight: SuperDelightManager.getDelightMetadataUriAndVersion():1036 getDelightMetadataUriAndVersion(): Phenotype : 2020043000 : https://www.gstatic.com/android/keyboard/dictionarypack/Klaw-normal/metadata.json
+11-11 12:14:56.740  1437  3463 I SuperDelight: SuperDelightAppsSuperpacksManager.initializeDelightAppsSuperpacks():85 initializeDelightAppsSuperpacks()
+11-11 12:14:56.740  1437  3463 I MainLanguageModelLoader: MainLanguageModelLoader.updateLmAvailableState():365 updateLmAvailableState(): locale? en_US prevState? UNKNOWN
+11-11 12:14:56.740  1437  3463 I MainLanguageModelLoader: MainLanguageModelLoader.updateLmAvailableState():401 updateLmAvailableState(): locale? en_US newState? AVAILABLE
+11-11 12:14:56.740  1437  3463 I Delight5Facilitator: BlacklistLoader.run():35 Running blacklist loader
+11-11 12:14:56.741  1437  2561 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():578 loadLanguageModel() : 1, version [2020052800]
+11-11 12:14:56.743  1437  3463 I Delight5Facilitator: ContactsLanguageModelLoader.run():33 Running contacts language model loader
+11-11 12:14:56.744   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:14:56.744  1437  1624 I Gralloc4: mapper 4.x is not supported
+11-11 12:14:56.744  1437  3463 I Delight5Facilitator: PersonalLanguageModelLoader.run():40 Running personal language model loader
+11-11 12:14:56.744  1437  3463 I Delight5Facilitator: UserHistoryLanguageModelLoader.run():71 Running user history language model loader
+11-11 12:14:56.744  1437  1624 D HostConnection: createUnique: call
+11-11 12:14:56.745  1437  1624 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a4cd0, tid 1624
+11-11 12:14:56.745  1437  3463 I EmojiSuperpacksManager: EmojiSuperpacksManager.triggerSync():369 triggerSync() : isBundled = false
+11-11 12:14:56.752  1437  2169 I SuperDelight: SuperDelightManager.lambda$registerAndUpgradeSuperpacks$4():473 SuperDelightManager#registerAndUpgradeSuperpacks(delight): current 2020043000, required 2020043000
+11-11 12:14:56.754  1437  1747 I SP      : Registering emoji.3, url: https://www.gstatic.com/android/keyboard/modelpack/emoji/20180213165651/superpacks_manifest.zip, constraints: m:*, flags: fg, requested: 3, current: -1
+11-11 12:14:56.754  1437  1624 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:14:56.760  1437  3463 I EmojiSuperpacksManager: EmojiSuperpacksManager.triggerSync():369 triggerSync() : isBundled = true
+11-11 12:14:56.762  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.getEmojiShortcuts():93 Emoji shortcut file does not exist.
+11-11 12:14:56.762  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.run():59 0 emoji shortcut maps loaded.
+11-11 12:14:56.762  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.run():67 Finished loading emoji shortcuts
+11-11 12:14:56.762  1437  3463 I Delight5Facilitator: EmailLanguageModelLoader.run():29 Running email language model loader
+11-11 12:14:56.764  1437  2169 I SuperDelight: SuperDelightManager.lambda$syncDownloadableLanguageModels$6():569 SuperDelightManager#syncDownloadableLanguageModels(delight): [OnDevice] Syncing for version 2020043000
+11-11 12:14:56.767  1437  1747 I SP      : Requesting download of URL https://www.gstatic.com/android/keyboard/modelpack/emoji/20180213165651/superpacks_manifest.zip to emoji-3.zip.fetched (constraints: m:b)
+11-11 12:14:56.767  1437  1747 I SP      : Registering bundled_emoji.3, url: null, constraints: m:*, flags: *, requested: 3, current: -1
+11-11 12:14:56.768  1437  3463 I CrankEngineLocales: CrankEngineLocales.getLocaleToUseForCrankEngine():67 Using locale en_US for emoji prediction
+11-11 12:14:56.779  1437  1818 I FetchBundledResourceTask: FetchBundledResourceTask.execute():64 Successfully copied file from /data/user/0/com.google.android.inputmethod.latin/files/emoji_superpacks_manifest_bundled.zip to /data/user/0/com.google.android.inputmethod.latin/files/superpacks/manifests/bundled_emoji-3.zip.fetched.
+11-11 12:14:56.780  1437  1747 I SP      : Registering next-word-predictor.20190205, url: https://www.gstatic.com/android/keyboard/next_word_predictor/superpacks-manifest-20190205.json, constraints: *:*, flags: *, requested: 20190205, current: -1
+11-11 12:14:56.796  1437  1747 I SP      : Requesting download of URL https://www.gstatic.com/android/keyboard/next_word_predictor/superpacks-manifest-20190205.json to next-word-predictor-20190205.fetched (constraints: m:b)
+11-11 12:14:56.798  1437  1747 I SuperDelight: SuperDelightDownloadSlicingStrategy.getSlices():82 DownloadSlicing#getSlices() : Locale = [en_US]
+11-11 12:14:56.815  1437  3464 I SpeechFactory: SpeechRecognitionFactory.maybeScheduleAutoPackDownloadForFallback():160 maybeScheduleAutoPackDownloadForFallback()
+11-11 12:14:56.541   492   525 I chatty  : uid=1000(system) android.io identical 8 lines
+11-11 12:14:56.541   492   525 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+11-11 12:14:56.831   492   492 W InputMethodManagerService: Illegal subtype state: old subtype = null, new subtype = android.view.inputmethod.InputMethodSubtype@70bfcd7e
+11-11 12:14:56.836  1437  1747 I SuperDelight: SuperDelightDownloadSlicingStrategy.getSlices():231 DownloadSlicing#getSlices(): result {slices=[delight:main_en_us_2020052800_1], last batch=true, sync metadata=false}
+11-11 12:14:56.838  1437  1747 I SP      : Syncing delight (2020043000) with slices: [main_en_us_2020052800_1], metadata: false
+11-11 12:14:56.839  1437  1747 I SP      : Registering emoji-predictor.20190205, url: https://www.gstatic.com/android/keyboard/emoji_predictor/superpacks-manifest-20190205.json, constraints: *:*, flags: *, requested: 20190205, current: -1
+11-11 12:14:56.861  1437  1437 I InlineSuggestionCandidateViewController: InlineSuggestionCandidateViewController.initializeAppToRightBoundaryRatio():343 Phenotype Inline app to ratio list is empty. Use default list.
+11-11 12:14:56.875  1437  1546 I LstmExtension: LstmExtension.onCreate():132 onCreate(): Finished in 17 ms
+11-11 12:14:56.875  1437  1546 I ConversationToQueryExtension: ConversationToQueryExtension.onCreate():89 onCreate()
+11-11 12:14:56.880   492   492 W InputMethodManagerService: Illegal subtype state: old subtype = null, new subtype = android.view.inputmethod.InputMethodSubtype@4145211d
+11-11 12:14:56.880  3475  3477 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:14:56.883   492  2350 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10168; state: DISABLED
+11-11 12:14:56.883   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10168; state: ENABLED
+11-11 12:14:56.886   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:14:56.889   693   749 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:14:56.905   285   285 D Zygote  : Forked child process 3479
+11-11 12:14:56.916   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:14:56.916   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:14:56.921  1437  1546 I ConversationToQueryClientSingleton: ConversationToQueryClientSingleton.register():101 registering client 'Conv2QueryExtension'
+11-11 12:14:56.921  1437  1546 I ConversationToQueryExtension: ConversationToQueryExtension.isEnabled():134 isEnabled() : true
+11-11 12:14:56.923   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:14:56.924   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:14:56.924   492   533 I ActivityManager: Start proc 3479:org.fcitx.fcitx5.android.fx.rime/u0a168 for service {org.fcitx.fcitx5.android.fx.rime/org.fcitx.fcitx5.android.input.FcitxInputMethodService}
+11-11 12:14:56.926   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:14:56.926   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:14:56.927  1437  1546 I ConversationToQueryExtension: ConversationToQueryExtension.isEnabled():141 isConv2QueryDisabledByChevronUi() : false
+11-11 12:14:56.927  1437  1546 I ConversationToQueryExtension: ConversationToQueryExtension.updateCandidateProvider():270 Create MagicGCandidateProvider
+11-11 12:14:56.932  1437  1747 I SP      : Requesting download of URL https://www.gstatic.com/android/keyboard/emoji_predictor/superpacks-manifest-20190205.json to emoji-predictor-20190205.fetched (constraints: m:b)
+11-11 12:14:56.935  3479  3479 W android.fx.rim: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:14:56.957  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:56.957  3479  3479 I ndk_translation: Initialized NDK translation (aarch64), version 0.2.2
+11-11 12:14:56.962  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.964  1437  2561 I native  : proto-store.cc:45 File not found: '/data/user/0/com.google.android.inputmethod.latin/files/personal/adapt_state.en.dat'.
+11-11 12:14:56.964  1437  2561 I native  : (This might be OK for example when a language is being loaded for the first time.)
+11-11 12:14:56.965  1437  2561 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():598 Loaded main LM 1.en
+11-11 12:14:56.965  1437  2561 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():578 loadLanguageModel() : 7, version [n/a]
+11-11 12:14:56.965  1437  2561 I native  : blacklist-assembly.cc:116 LoadBlacklist en
+11-11 12:14:56.965  1437  2561 I native  : blacklist.cc:217 No blacklist file for a language. (This is OK if the language is loaded for the first time.) /data/user/0/com.google.android.inputmethod.latin/files/personal/blacklist.en_us.list
+11-11 12:14:56.965  1437  2561 E native  : android-decoder-jni.cc:521 Failed to load dynamic LM from /data/user/0/com.google.android.inputmethod.latin/files/personal/blacklist.en_us.list
+11-11 12:14:56.965  1437  2561 W Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():619 Failed to load dynamic LM 7.en
+11-11 12:14:56.965  1437  2561 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():578 loadLanguageModel() : 4, version [n/a]
+11-11 12:14:56.968  1437  1437 I KeyboardViewHelper: KeyboardViewHelper.getView():164 Get view with height ratio:1.000000; experiment height ratio:1.000000.
+11-11 12:14:56.970  1437  2561 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():616 Loaded dynamic LM 4.en
+11-11 12:14:56.970  1437  2561 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():578 loadLanguageModel() : 3, version [n/a]
+11-11 12:14:56.970  1437  2561 E native  : dynamic-lm.cc:754 Cannot load dynamic lm from /data/user/0/com.google.android.inputmethod.latin/files/personal/userhistory/UserHistory.en_US.dict, openBuffer failed.
+11-11 12:14:56.970  1437  2561 I Delight5Decoder: Delight5DecoderWrapper.loadLanguageModel():616 Loaded dynamic LM 3.en
+11-11 12:14:56.972  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:56.984  1437  1437 I KeyboardViewHelper: KeyboardViewHelper.getView():164 Get view with height ratio:1.000000; experiment height ratio:1.000000.
+11-11 12:14:57.008  1437  1546 I ConversationToQueryExtension: ConversationToQueryExtension.onCreate():128 onCreate() : Finished in 86 ms
+11-11 12:14:57.059   685   685 V AvrcpMediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-11 12:14:57.059   685   685 D AvrcpMediaPlayerList: Name of package changed: com.android.camera2
+11-11 12:14:57.063   492   584 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS | 
+11-11 12:14:57.064   492   492 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AIs
+11-11 12:14:57.065  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:14:57.065   492   523 I RoleManagerService: Granting default roles...
+11-11 12:14:57.065   709  2938 I PermissionControllerServiceImpl: Updating user sensitive for uid 10135
+11-11 12:14:57.067   685   685 V AvrcpMediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-11 12:14:57.068   685   685 D AvrcpMediaPlayerList: Name of package changed: com.android.stk
+11-11 12:14:57.069   492   584 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS | 
+11-11 12:14:57.077   709   991 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.apps.photos, role: android.app.role.SYSTEM_GALLERY
+11-11 12:14:57.078   492   492 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AIw
+11-11 12:14:57.080   709   991 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.apps.messaging, role: android.app.role.SMS
+11-11 12:14:57.081   709  2938 I PermissionControllerServiceImpl: Updating user sensitive for uid 1001
+11-11 12:14:57.082  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:14:57.087  1437  1747 I SuperDelight: SuperDelightMergingStrategy.merge():57 SuperDelightMergingStrategy#merge(): selected[[main_en_us_2020052800_1]] synced[[main_en_us_2020052800_1]]
+11-11 12:14:57.089  1797  1807 I adbd    : jdwp connection from 3479
+11-11 12:14:57.094   492   531 W Searchables: No global search activity found
+11-11 12:14:57.096  1437  1747 I SP      : Sync for delight succeeded in 300 ms: no changes
+11-11 12:14:57.096  1437  1747 I SP      : Successfully got manifest for bundled_emoji-manifest: manifests:bundled_emoji-3
+11-11 12:14:57.105  1437  1437 I AndroidIME: KeyboardViewManager.saveKeyboardBottomGap():224 realScreenHeight: 640 screenHeightInInches: 4.000000
+11-11 12:14:57.105  1437  1437 I AndroidIME: keyboardHolderHeight: 233 inputViewBottomGapFromScreen: 0
+11-11 12:14:57.105  1437  1437 I AndroidIME: getKeyboardBodyViewHolderPaddingBottom(): 0 getKeyboardBottomGapFromScreen(): 0
+11-11 12:14:57.105  1437  1437 I AndroidIME: keyboardBottomGap: 0 bodyViewHolderBottomPadding: 0
+11-11 12:14:57.105  1437  1437 I AndroidIME: 
+11-11 12:14:57.112  1437  1747 I SP      : GC for 'delight' (10) with ttl of 0 ms took 0 ms (0/0/0)
+11-11 12:14:57.113   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:14:57.113   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:14:57.118  1437  1437 E AndroidIME: EmojiCompatManager$1.onFailed():183 EmojiCompat failed its initialization
+11-11 12:14:57.119  1437  1437 I LstmExtension: LstmExtension.onCreateServiceInternal():143 onCreateServiceInternal()
+11-11 12:14:57.119  1437  1437 I LstmTrainingCache: TrainingCache.getCacheConfig():182 getCacheConfig()
+11-11 12:14:57.122  1437  1437 I LstmExtension: LstmExtension.onCreateServiceInternal():150 onCreateServiceInternal(): Finished in 4 ms
+11-11 12:14:57.140   685   685 V AvrcpMediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-11 12:14:57.140   685   685 D AvrcpMediaPlayerList: Name of package changed: com.google.android.apps.wellbeing
+11-11 12:14:57.140   685   685 V AvrcpMediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-11 12:14:57.140   685   685 D AvrcpMediaPlayerList: Name of package changed: com.google.android.apps.docs
+11-11 12:14:57.140   685   685 V AvrcpMediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-11 12:14:57.140   685   685 D AvrcpMediaPlayerList: Name of package changed: com.google.android.gsf
+11-11 12:14:57.140   685   685 V AvrcpMediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-11 12:14:57.140   685   685 D AvrcpMediaPlayerList: Name of package changed: com.android.settings
+11-11 12:14:57.142   709   991 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.googlequicksearchbox, role: android.app.role.ASSISTANT
+11-11 12:14:57.143   492   584 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS | 
+11-11 12:14:57.148   492   492 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AI0
+11-11 12:14:57.144   492   584 I chatty  : uid=1000(system) InputReader identical 1 line
+11-11 12:14:57.145   492   584 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS | 
+11-11 12:14:57.149   709   750 I PermissionControllerServiceImpl: Updating user sensitive for uid 10113
+11-11 12:14:57.149  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:14:57.151   492   492 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AI4
+11-11 12:14:57.152   709   750 I PermissionControllerServiceImpl: Updating user sensitive for uid 10139
+11-11 12:14:57.153   709   750 I PermissionControllerServiceImpl: Updating user sensitive for uid 10122
+11-11 12:14:57.154   492   492 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AI8
+11-11 12:14:57.159   709   750 I PermissionControllerServiceImpl: Updating user sensitive for uid 1000
+11-11 12:14:57.160   492   492 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AJA
+11-11 12:14:57.164  3479  3479 I android.fx.rim: The ClassLoaderContext is a special shared library.
+11-11 12:14:57.166  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:14:57.167  1029  1029 I chatty  : uid=1001(radio) com.android.phone identical 1 line
+11-11 12:14:57.169  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:14:57.171   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:14:57.171   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:14:57.416     0     0 I binder  : 492:492 transaction failed 29189/-22, size 108-0 line 3053
+11-11 12:14:57.176   492   531 W VoiceInteractionManager: no available voice interaction services found for user 0
+11-11 12:14:57.180  1437  1437 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltip():130 dismissTooltip(): tooltip with id inline_suggestion_tooltip not found in tooltipManager.
+11-11 12:14:57.180  1437  1437 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltip():130 dismissTooltip(): tooltip with id inline_suggestion_tooltip not found in tooltipManager.
+11-11 12:14:57.181  1437  1437 I KeyboardWrapper: KeyboardWrapper.consumeEvent():264 Skip consuming an event as current keyboard is deactivated (state=0, keyboard existence=true)
+11-11 12:14:57.181  1437  1437 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.shutdown():77 shutdown()
+11-11 12:14:57.182  1437  1437 I AndroidIME: AbstractIme.onDeactivate():161 LatinIme.onDeactivate()
+11-11 12:14:57.182  1437  1747 I SP      : Successfully got manifest for next-word-predictor-manifest: manifests:next-word-predictor-20190205
+11-11 12:14:57.185   685   685 V AvrcpMediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-11 12:14:57.185   685   685 D AvrcpMediaPlayerList: Name of package changed: com.android.traceur
+11-11 12:14:57.185   492   584 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS | 
+11-11 12:14:57.188  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: Widget host dead: HostId{user:0, app:10154, hostId:1024, pkg:com.google.android.apps.nexuslauncher}
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: android.os.DeadObjectException
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at android.os.BinderProxy.transactNative(Native Method)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at android.os.BinderProxy.transact(BinderProxy.java:540)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at com.android.internal.appwidget.IAppWidgetHost$Stub$Proxy.providersChanged(IAppWidgetHost.java:231)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at com.android.server.appwidget.AppWidgetServiceImpl.handleNotifyProvidersChanged(AppWidgetServiceImpl.java:2190)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at com.android.server.appwidget.AppWidgetServiceImpl.access$1900(AppWidgetServiceImpl.java:142)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at com.android.server.appwidget.AppWidgetServiceImpl$CallbackHandler.handleMessage(AppWidgetServiceImpl.java:3740)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at com.android.server.SystemServer.run(SystemServer.java:622)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at com.android.server.SystemServer.main(SystemServer.java:408)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at java.lang.reflect.Method.invoke(Native Method)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+11-11 12:14:57.194   492   492 E AppWidgetServiceImpl: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:925)
+11-11 12:14:57.214   492  1677 E InputMethodManagerService: Ignoring com.android.server.inputmethod.InputMethodManagerService.updateStatusIcon:2770 due to an invalid token. uid:10133 token:android.os.Binder@8e06a83
+11-11 12:14:57.234   709   750 I PermissionControllerServiceImpl: Updating user sensitive for uid 10105
+11-11 12:14:57.236   492   492 I Telecom : DefaultDialerCache: Refreshing default dialer for user 0: now com.android.dialer: DDC.oR@AJE
+11-11 12:14:57.246  3479  3479 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-11 12:14:57.246  3479  3479 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-11 12:14:57.253  1437  1747 I EmojiSlicingStrategy: EmojiSlicingStrategy.matchEnabledLocalesWithPackLocales():136 matchEnabledLocalesWithPackLocales() : User enabled 1 locales; returning 1 slices
+11-11 12:14:57.253  1437  1747 I SP      : Syncing bundled_emoji (3) with slices: [{7b9ddb0b8c001e17cee03b1edf554b20, m:*}], metadata: false
+11-11 12:14:57.292  1437  1747 I SP      : Successfully got manifest for emoji-predictor-manifest: manifests:emoji-predictor-20190205
+11-11 12:14:57.294  1437  1818 I FetchBundledResourceTask: FetchBundledResourceTask.execute():64 Successfully copied file from /data/user/0/com.google.android.inputmethod.latin/files/emoji_search_en_us.zip to /data/user/0/com.google.android.inputmethod.latin/files/superpacks/bundled_emoji/7b9ddb0b8c001e17cee03b1edf554b20.zip.fetched.
+11-11 12:14:57.309  1437  1747 I SP      : Successfully got manifest for emoji-manifest: manifests:emoji-3
+11-11 12:14:57.315  3479  3479 I [main]  : Migrated keypress workaround: enabled=false
+11-11 12:14:57.342  3479  3479 I SmartDefaultInitializer: Smart init: device=SMALL_PHONE, model=sdk_gphone_x86_64, smallestWidth=320dp, enable=true, threshold=500
+11-11 12:14:57.368  1437  1747 I SP      : Syncing next-word-predictor (20190205) with slices: [tflite-nwp-74677d39b6034080225e11e2b5058e7a], metadata: false
+11-11 12:14:57.381   492   502 I system_server: Background young concurrent copying GC freed 197159(9709KB) AllocSpace objects, 129(4072KB) LOS objects, 40% free, 16MB/27MB, paused 24us total 312.477ms
+11-11 12:14:57.409  3479  3507 I [DefaultDispatcher-worker-1]: Bundled presets installed 21 file(s)
+11-11 12:14:57.410   161   161 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+11-11 12:14:57.652     0     0 I AidlLazyServiceRegistrar: Trying to shut down the service. No clients in use for any service in process.
+11-11 12:14:57.656     0     0 I AidlLazyServiceRegistrar: Unregistered all clients and exiting
+11-11 12:14:57.659     0     0 I init    : Service 'apexd' (pid 217) exited with status 0 oneshot service took 30.980000 seconds in background
+11-11 12:14:57.663     0     0 I init    : Sending signal 9 to service 'apexd' (pid 217) process group...
+11-11 12:14:57.667     0     0 I libprocessgroup: Successfully killed process cgroup uid 0 pid 217 in 0ms
+11-11 12:14:57.429  3479  3479 I FcitxColdStart: service.onCreate begin
+11-11 12:14:57.441  1437  1747 I SP      : Scheduling job with delay of 0s for {m:b, bg}, 1 candidates
+11-11 12:14:57.450  3479  3515 I FcitxColdStart: font preload keys=0 duration=50ms
+11-11 12:14:57.478  1437  1747 I SP      : Scheduling: download registered, 0 started, 0 paused, 1 scheduled, 1 pending: next-word-predictor:tflite-nwp-74677d39b6034080225e11e2b5058e7a * {m:b, bg}
+11-11 12:14:57.479  1437  1747 I SP      : Syncing emoji-predictor (20190205) with slices: [tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6], metadata: false
+11-11 12:14:57.484   492   531 W Searchables: No global search activity found
+11-11 12:14:57.487  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:57.494  1437  1747 I EmojiSlicingStrategy: EmojiSlicingStrategy.matchEnabledLocalesWithPackLocales():136 matchEnabledLocalesWithPackLocales() : User enabled 1 locales; returning 1 slices
+11-11 12:14:57.494  1437  1747 I SP      : Syncing emoji (3) with slices: [{442dd7424a2b73ebe817b5223ec48db9, m:*}], metadata: false
+11-11 12:14:57.497  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:57.497  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:57.501  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:57.510  1437  1747 I SP      : Scheduling job with delay of 0s for {m:b, bg}, 2 candidates
+11-11 12:14:57.528   492   531 W VoiceInteractionManager: no available voice interaction services found for user 0
+11-11 12:14:57.529  1437  1747 I SP      : Scheduling: download registered, 0 started, 0 paused, 2 scheduled, 2 pending: next-word-predictor:tflite-nwp-74677d39b6034080225e11e2b5058e7a * {m:b, bg}, emoji-predictor:tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6 * {m:b, bg}
+11-11 12:14:57.529   492   531 W Searchables: No global search activity found
+11-11 12:14:57.530  3479  3479 W linker  : Warning: "/data/app/~~fOxWBV1cHZIEM6QteITnoQ==/org.fcitx.fcitx5.android.fx.rime-WpAAOYo20Tl4SsvVsVE_Kw==/lib/arm64/libc++_shared.so" unused DT entry: unknown processor-specific (type 0x70000001 arg 0x0) (ignoring)
+11-11 12:14:57.533   492   531 E system_server: No package ID 7f found for ID 0x7f0801ef.
+11-11 12:14:57.533   492   531 E system_server: No package ID 7f found for ID 0x7f13047f.
+11-11 12:14:57.533   492   531 E system_server: No package ID 7f found for ID 0x7f13047f.
+11-11 12:14:57.533   492   531 E system_server: No package ID 7f found for ID 0x7f0801eb.
+11-11 12:14:57.533   492   531 E system_server: No package ID 7f found for ID 0x7f13047d.
+11-11 12:14:57.533   492   531 E system_server: No package ID 7f found for ID 0x7f13047d.
+11-11 12:14:57.533   492   531 E system_server: No package ID 7f found for ID 0x7f0801ed.
+11-11 12:14:57.533   492   531 E system_server: No package ID 7f found for ID 0x7f13047e.
+11-11 12:14:57.533   492   531 E system_server: No package ID 7f found for ID 0x7f13047e.
+11-11 12:14:57.534   492   531 W Searchables: No global search activity found
+11-11 12:14:57.536  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:57.540  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:57.542   492   531 W Searchables: No global search activity found
+11-11 12:14:57.549   492   531 E system_server: No package ID 7f found for ID 0x7f080271.
+11-11 12:14:57.549   492   531 E system_server: No package ID 7f found for ID 0x7f1212ec.
+11-11 12:14:57.549   492   531 E system_server: No package ID 7f found for ID 0x7f080270.
+11-11 12:14:57.549   492   531 E system_server: No package ID 7f found for ID 0x7f120592.
+11-11 12:14:57.549   492   531 E system_server: No package ID 7f found for ID 0x7f08026f.
+11-11 12:14:57.549   492   531 E system_server: No package ID 7f found for ID 0x7f120c2b.
+11-11 12:14:57.551   492   531 W Searchables: No global search activity found
+11-11 12:14:57.568   492   531 W Searchables: No global search activity found
+11-11 12:14:57.587  1437  1747 I SP      : Scheduling job with delay of 0s for {m:b, bg}, 3 candidates
+11-11 12:14:57.633  3479  3479 I FcitxVoiceInput: registered floating voice receiver actions=android.content.IntentFilter@7701482
+11-11 12:14:57.651  3479  3479 I FcitxColdStart: service.onCreate duration=222ms
+11-11 12:14:57.560   492   531 I chatty  : uid=1000(system) android.bg identical 4 lines
+11-11 12:14:57.572   492   531 W VoiceInteractionManager: no available voice interaction services found for user 0
+11-11 12:14:57.672   492  1748 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-11 12:14:57.680  3479  3479 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:14:57.772  3479  3479 I FcitxColdStart: service.onCreateInputView begin
+11-11 12:14:57.956  1029  1045 I m.android.phon: Background young concurrent copying GC freed 42767(2583KB) AllocSpace objects, 0(0B) LOS objects, 18% free, 5369KB/6561KB, paused 19us total 351.337ms
+11-11 12:14:57.972   492  1271 W system_server: Long monitor contention with owner android.bg (531) at boolean com.android.server.usage.AppStandbyController.isCarrierApp(java.lang.String)(AppStandbyController.java:1571) waiters=0 in int com.android.server.usage.AppStandbyController.getAppStandbyBucket(java.lang.String, int, long, boolean) for 382ms
+11-11 12:14:57.972   492   631 W system_server: Long monitor contention with owner android.bg (531) at boolean com.android.server.usage.AppStandbyController.isCarrierApp(java.lang.String)(AppStandbyController.java:1571) waiters=1 in boolean com.android.server.usage.AppStandbyController.isCarrierApp(java.lang.String) for 294ms
+11-11 12:14:57.672   492  1748 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-11 12:14:57.976   492   492 W Looper  : Slow dispatch took 298ms main h=com.android.server.job.JobSchedulerService$JobHandler c=null m=4
+11-11 12:14:57.976   492   492 V NotificationListeners: binding: Intent { act=android.service.notification.NotificationListenerService cmp=com.google.android.apps.nexuslauncher/com.android.launcher3.notification.NotificationListener (has extras) }
+11-11 12:14:57.976   492   492 W ActivityManager: Unable to start service Intent { act=android.service.notification.NotificationListenerService cmp=com.google.android.apps.nexuslauncher/com.android.launcher3.notification.NotificationListener } U=0: not found
+11-11 12:14:57.976   492   492 W NotificationListeners: Unable to bind notification listener service: Intent { act=android.service.notification.NotificationListenerService cmp=com.google.android.apps.nexuslauncher/com.android.launcher3.notification.NotificationListener (has extras) } in user 0
+11-11 12:14:57.978  1437  1747 I SP      : Scheduling: download registered, 0 started, 0 paused, 3 scheduled, 3 pending: next-word-predictor:tflite-nwp-74677d39b6034080225e11e2b5058e7a * {m:b, bg}, emoji-predictor:tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6 * {m:b, bg}, emoji:442dd7424a2b73ebe817b5223ec48db9 * {m:b, bg}
+11-11 12:14:57.989  1437  1747 I SP      : Sync for bundled_emoji succeeded in 800 ms: {added: [7b9ddb0b8c001e17cee03b1edf554b20], metadata: false
+11-11 12:14:58.005  1437  1747 I SP      : GC for 'bundled_emoji' (10) with ttl of 0 ms took 1 ms (0/0/1)
+11-11 12:14:58.005  3479  3479 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=42ms
+11-11 12:14:58.006  1437  1710 I EmojiSuperpacksManager: EmojiSuperpacksManager.processPackSet():492 processPackSet() : isBundled = true
+11-11 12:14:58.006  1437  3463 I EmojiSuperpacksManager: EmojiSuperpacksManager.triggerSync():369 triggerSync() : isBundled = false
+11-11 12:14:58.006  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.getEmojiShortcuts():98 Reading en_US emoji shortcuts
+11-11 12:14:58.009  1437  1747 I SP      : Registering emoji.3, url: https://www.gstatic.com/android/keyboard/modelpack/emoji/20180213165651/superpacks_manifest.zip, constraints: m:*, flags: fg, requested: 3, current: 3
+11-11 12:14:58.012  1437  1747 I EmojiSlicingStrategy: EmojiSlicingStrategy.matchEnabledLocalesWithPackLocales():136 matchEnabledLocalesWithPackLocales() : User enabled 1 locales; returning 1 slices
+11-11 12:14:58.012  1437  1747 I SP      : Syncing emoji (3) with slices: [{442dd7424a2b73ebe817b5223ec48db9, m:*}], metadata: false
+11-11 12:14:58.013  3479  3479 I FcitxColdStart: KeyboardWindow.onCreateView duration=51ms
+11-11 12:14:58.019  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.getEmojiShortcuts():114 Read en_US emoji shortcuts successfully.
+11-11 12:14:58.019  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.run():59 1 emoji shortcut maps loaded.
+11-11 12:14:58.020  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.run():67 Finished loading emoji shortcuts
+11-11 12:14:58.023  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:58.033  3479  3479 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=5ms
+11-11 12:14:58.034  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:58.036  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:58.037  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:14:58.040  1437  1747 I SP      : Scheduling job with delay of 0s for {m:b, bg}, 3 candidates
+11-11 12:14:58.043  1437  1747 I SP      : Scheduling: download registered, 0 started, 0 paused, 3 scheduled, 3 pending: next-word-predictor:tflite-nwp-74677d39b6034080225e11e2b5058e7a * {m:b, bg}, emoji-predictor:tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6 * {m:b, bg}, emoji:442dd7424a2b73ebe817b5223ec48db9 * {m:b, bg}
+11-11 12:14:58.044  1437  1747 I SP      : GC for 'emoji' (10) with ttl of 0 ms took 0 ms (0/0/0)
+11-11 12:14:58.044  1437  1747 I AbstractSyncResultCallback: AbstractSyncResultCallback.onFailure():36 onFailure(): emoji.sync cancelled; expected if new request supersedes pending one.
+11-11 12:14:58.062  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:14:58.064  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:58.073  3479  3479 I FcitxColdStart: replaceInputView duration=301ms
+11-11 12:14:58.075  3479  3479 I FcitxColdStart: service.onCreateInputView duration=304ms
+11-11 12:14:58.075  3479  3479 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:14:58.077  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:14:58.089  3479  3522 I fcitx5  : native-lib.cpp:531] Starting...
+11-11 12:14:58.200  3479  3524 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:14:58.201  3479  3524 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:14:58.202  3479  3524 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:14:58.222  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{3659097 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.222  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{16c284 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.222  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f0d3a6d V.ED..... ......ID 2,28-30,43 #fffffe} during layout: running second layout pass
+11-11 12:14:58.222  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{dbd46a2 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.222  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8689f33 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.222  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{97f82f0 V.ED..... ......ID 2,28-30,43 #fffffd} during layout: running second layout pass
+11-11 12:14:58.222  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{ad01069 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9cd2aee V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{183fb8f V.ED..... ......ID 2,28-30,43 #fffffc} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{b71de1c V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6d04a25 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ae507fa V.ED..... ......ID 2,28-30,43 #fffffb} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{14ec1ab V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2ccc008 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1e063a1 V.ED..... ......ID 2,28-30,43 #fffffa} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a6ba9c6 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2b5cd87 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{971d4b4 V.ED..... ......ID 2,28-30,43 #fffff9} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{b7e98dd V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f689c52 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{897bb23 V.ED..... ......ID 2,28-30,43 #fffff8} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{3b18820 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.223  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2d0e5d9 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.225  1437  1624 I OpenGLRenderer: Davey! duration=1508ms; Flags=1, IntendedVsync=42244257916, Vsync=42560924570, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=42575283628, AnimationStart=42575284119, PerformTraversalsStart=42575284279, DrawStart=42637847490, SyncQueued=42639222669, SyncStart=42639834884, IssueDrawCommandsStart=42640895335, SwapBuffers=43660244708, FrameCompleted=43753369131, DequeueBufferDuration=940667, QueueBufferDuration=226965, GpuCompleted=0, 
+11-11 12:14:58.227  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7d02b9e V.ED..... ......ID 2,28-30,43 #fffff7} during layout: running second layout pass
+11-11 12:14:58.227  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{b20e67f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.227  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{877064c V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.227  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9610695 V.ED..... ......ID 2,28-30,43 #fffff6} during layout: running second layout pass
+11-11 12:14:58.227  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a8f63aa V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.227  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ee76b9b V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.227  3479  3524 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a2150, tid 3524
+11-11 12:14:58.230  3479  3524 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:14:58.231   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:14:58.231  1437  1437 W TooltipLifecycleManager: TooltipLifecycleManager.dismissTooltip():130 dismissTooltip(): tooltip with id inline_suggestion_tooltip not found in tooltipManager.
+11-11 12:14:58.232  1437  1437 W KeyboardModeManager: KeyboardModeManager.setInputView():302 setInputView() : inputView = null
+11-11 12:14:58.233  1437  1437 I Environment: Environment.getDeviceMode():694 Get device mode by ui mode:1 and smallestScreenWidthDp:320
+11-11 12:14:58.233  3479  3524 D EGL_emulation: eglCreateContext: 0x7f3a244d3120: maj 3 min 0 rcv 3
+11-11 12:14:58.237  3479  3524 D EGL_emulation: eglMakeCurrent: 0x7f3a244d3120: ver 3 0 (tinfo 0x7f39c45055b0) (first time)
+11-11 12:14:58.237  1437  1818 I JapaneseMozcExtension: JapaneseMozcExtension.onDestroyServiceInternal():81 onDestroyServiceInternal()
+11-11 12:14:58.238  1437  1437 I Choreographer: Skipped 66 frames!  The application may be doing too much work on its main thread.
+11-11 12:14:58.242  1437  3460 I DlamWrapper: DlamWrapper$1.onSuccess():154 close(): Successfully wrote DLAM properties file.
+11-11 12:14:58.242  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{343b38 V.ED..... ......ID 2,28-30,43 #fffff5} during layout: running second layout pass
+11-11 12:14:58.242  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5987711 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.242  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e581076 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.242  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1c72677 V.ED..... ......ID 2,28-30,43 #ffffea} during layout: running second layout pass
+11-11 12:14:58.242  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{68dd2e4 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.243   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:14:58.243  3479  3524 I Gralloc4: mapper 4.x is not supported
+11-11 12:14:58.243  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fc734d V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.243  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{12cbe02 V.ED..... ......ID 2,28-30,43 #ffffe9} during layout: running second layout pass
+11-11 12:14:58.243  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{97db313 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.243  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ac73950 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.243  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e29f749 V.ED..... ......ID 2,28-30,43 #ffffe8} during layout: running second layout pass
+11-11 12:14:58.243  3479  3524 D HostConnection: createUnique: call
+11-11 12:14:58.243  3479  3524 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a43d0, tid 3524
+11-11 12:14:58.244  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{cacb84e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.244  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{66d6f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.244  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{aee9a7c V.ED..... ......ID 2,28-30,43 #ffffe7} during layout: running second layout pass
+11-11 12:14:58.244  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{291bf05 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.244  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3200b5a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.244  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9b6718b V.ED..... ......ID 2,28-30,43 #ffffe6} during layout: running second layout pass
+11-11 12:14:58.244  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5c8e268 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.244  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ff44681 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.246  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1438326 V.ED..... ......ID 2,28-30,43 #ffffe5} during layout: running second layout pass
+11-11 12:14:58.246  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{1189b67 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.246  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f7dbd14 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.246  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{99dc9bd V.ED..... ......ID 2,28-30,43 #ffffe4} during layout: running second layout pass
+11-11 12:14:58.246  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d4abb2 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4898703 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5039680 V.ED..... ......ID 2,28-30,43 #ffffe3} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{16244b9 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7ddd0fe V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{193905f V.ED..... ......ID 2,28-30,43 #ffffe2} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a4b9aac V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8597375 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c1ff0a V.ED..... ......ID 2,28-30,43 #ffffd8} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a0ad37b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f2db598 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f5ad1f1 V.ED..... ......ID 2,28-30,43 #ffffd7} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{70901d6 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ee92c57 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7149344 V.ED..... ......ID 2,28-30,43 #ffffd6} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{3399c2d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4eb6562 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cea36f3 V.ED..... ......ID 2,28-30,43 #ffffd5} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{f699fb0 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c0ce29 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{d9e75ae V.ED..... ......ID 2,28-30,43 #ffffd4} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6e74f4f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c106dc V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c6f23e5 V.ED..... ......ID 2,28-30,43 #ffffd3} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{603eba V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9f3916b V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.247  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6c5b4c8 V.ED..... ......ID 2,28-30,43 #ffffd2} during layout: running second layout pass
+11-11 12:14:58.249  3479  3524 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:14:58.260  1437  1437 I ConversationToQueryExtension: ConversationToQueryExtension.onDestroy():320 onDestroy()
+11-11 12:14:58.260  1437  1437 I ConversationToQueryClientSingleton: ConversationToQueryClientSingleton.deregister():110 deregistering client 'Conv2QueryExtension'
+11-11 12:14:58.260  1437  1437 I ConversationToQueryClientSingleton: ConversationToQueryClientSingleton.deregister():115 number of registered clients: 0
+11-11 12:14:58.261  1437  1437 I SpBackgroundTask: SuperpacksBackgroundJobService.onStartJob():23 onStartJob: android.app.job.JobParameters@697a3b8
+11-11 12:14:58.262  1437  1437 I SP      : ====> Starting job {m:b, bg}
+11-11 12:14:58.263  3479  3522 I fcitx5  : instance.cpp:669] Starting fcitx5 5.1.23
+11-11 12:14:58.263  1437  1747 I SP      : Scheduling: job start ({m:b, bg}), 3 started, 0 paused, 0 scheduled, 3 pending: next-word-predictor:tflite-nwp-74677d39b6034080225e11e2b5058e7a @ * {m:b, bg}, emoji-predictor:tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6 @ * {m:b, bg}, emoji:442dd7424a2b73ebe817b5223ec48db9 @ * {m:b, bg}
+11-11 12:14:58.263  1437  1747 I SP      : Requesting download of URL https://www.gstatic.com/android/keyboard/next_word_predictor/prod/tflite-nwp-74677d39b6034080225e11e2b5058e7a.zip to tflite-nwp-74677d39b6034080225e11e2b5058e7a.zip.fetched (constraints: m:b)
+11-11 12:14:58.264  1437  1747 I SP      : Requesting download of URL https://www.gstatic.com/android/keyboard/emoji_predictor/tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6.zip to tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6.zip.fetched (constraints: m:b)
+11-11 12:14:58.264  1437  1747 I SP      : Requesting download of URL https://www.gstatic.com/android/keyboard/emoji/20180213165651/en.zip to 442dd7424a2b73ebe817b5223ec48db9.zip.fetched (constraints: m:b)
+11-11 12:14:58.267  1437  1437 W AssistantIntegClient: #unbindService(): calling unbindService when service is unbound.
+11-11 12:14:58.271  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:58.287   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:14:58.281  1437  1784 I chatty  : uid=10133(com.google.android.inputmethod.latin) GoogleApiHandle identical 1 line
+11-11 12:14:58.281  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:58.291   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:14:58.291   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:14:58.294   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:14:58.294   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:14:58.400  1537  1572 W .android.diale: Suspending all threads took: 99.281ms
+11-11 12:14:58.450  3479  3522 I fcitx5  : instance.cpp:1448] Override Enabled Addons: {}
+11-11 12:14:58.450  3479  3522 I fcitx5  : instance.cpp:1449] Override Disabled Addons: {}
+11-11 12:14:58.694  3479  3522 I fcitx5  : addonmanager.cpp:208] Loaded addon clipboard
+11-11 12:14:58.726  3479  3522 I fcitx5  : addonmanager.cpp:208] Loaded addon androidfrontend
+11-11 12:14:58.839  3479  3524 I OpenGLRenderer: Davey! duration=1155ms; Flags=1, IntendedVsync=43210940627, Vsync=43610940611, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=43617515752, AnimationStart=43617516494, PerformTraversalsStart=43617516784, DrawStart=43800500892, SyncQueued=43803118461, SyncStart=43803836423, IssueDrawCommandsStart=43804423119, SwapBuffers=44245253030, FrameCompleted=44367586229, DequeueBufferDuration=1772060, QueueBufferDuration=6263148, GpuCompleted=2563467345148232566, 
+11-11 12:14:58.846  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:58.854  3479  3522 E fcitx5  : instance.cpp:1458] Couldn't find keyboard-us
+11-11 12:14:58.869  3479  3479 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=28ms
+11-11 12:14:58.879  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:14:58.881  3479  3522 I fcitx5  : addonmanager.cpp:208] Loaded addon notifications
+11-11 12:14:58.881  3479  3522 I fcitx5  : native-lib.cpp:709] Setting up callback
+11-11 12:14:58.882  3479  3522 I [fcitx-main]: onFirstRun
+11-11 12:14:58.886  3479  3479 I Choreographer: Skipped 47 frames!  The application may be doing too much work on its main thread.
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e3d85b0 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{50dbc29 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6e3cbae V.ED..... ......ID 2,28-30,43 #ffffb0} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{da0ed4f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fed4cdc V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{39cf1e5 V.ED..... ......ID 2,28-30,43 #ffffaf} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{7a4f4ba V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5a90f6b V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3705ac8 V.ED..... ......ID 2,28-30,43 #ffffae} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{12fc761 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{61da286 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{bc73747 V.ED..... ......ID 2,28-30,43 #ffffad} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e945b74 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8c0789d V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5216112 V.ED..... ......ID 2,28-30,43 #ffffac} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{b600e3 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{455bae0 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b10199 V.ED..... ......ID 2,28-30,43 #ffffab} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{f307c5e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c3dc83f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{90ba50c V.ED..... ......ID 2,28-30,43 #ffffaa} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9871e55 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{484006a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{50a95b V.ED..... ......ID 2,28-30,43 #ffffa9} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d5405f8 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c684ad1 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{dd9b936 V.ED..... ......ID 2,28-30,43 #ffffa8} during layout: running second layout pass
+11-11 12:14:58.920  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{1e68037 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{bbf89a4 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{555c30d V.ED..... ......ID 2,28-30,43 #ffffa7} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{32c2 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{398e8d3 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{53d9c10 V.ED..... ......ID 2,28-30,43 #ffff9c} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5288309 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c22b90e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{dff3f2f V.ED..... ......ID 2,28-30,43 #ffff9b} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{848693c V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{74d46c5 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8d5581a V.ED..... ......ID 2,28-30,43 #ffff9a} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{1ca9f4b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ed0dd28 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7408a41 V.ED..... ......ID 2,28-30,43 #ffff99} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{fe0dbe6 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fa1e527 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{eeaa3d4 V.ED..... ......ID 2,28-30,43 #ffff98} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{1ca897d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cced072 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1bdacc3 V.ED..... ......ID 2,28-30,43 #ffff97} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a382940 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{dfb4079 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{83581be V.ED..... ......ID 2,28-30,43 #ffff96} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{344521f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{816996c V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9e66b35 V.ED..... ......ID 2,28-30,43 #ffff95} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{bc3fbca V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{165f13b V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{689e058 V.ED..... ......ID 2,28-30,43 #ffff94} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{71f85b1 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b0e0a96 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2386617 V.ED..... ......ID 2,28-30,43 #ffff8a} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{de8aa04 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2f5cbed V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{d183a22 V.ED..... ......ID 2,28-30,43 #ffff89} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d534cb3 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3486270 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{67039e9 V.ED..... ......ID 2,28-30,43 #ffff88} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{2a3d66e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{22c010f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5a9359c V.ED..... ......ID 2,28-30,43 #ffff87} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a098ba5 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{53aeb7a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8319f2b V.ED..... ......ID 2,28-30,43 #ffff86} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{1e20f88 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{92c3d21 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{afc4546 V.ED..... ......ID 2,28-30,43 #ffff85} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4a90307 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{94c9c34 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:14:58.921  3479  3479 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{16e8a5d V.ED..... ......ID 2,28-30,43 #ffff84} during layout: running second layout pass
+11-11 12:14:58.990  3479  3524 I OpenGLRenderer: Davey! duration=890ms; Flags=0, IntendedVsync=43627609487, Vsync=44410942789, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=44414492049, AnimationStart=44414493401, PerformTraversalsStart=44414499142, DrawStart=44473897774, SyncQueued=44501014580, SyncStart=44501317518, IssueDrawCommandsStart=44501794108, SwapBuffers=44509947404, FrameCompleted=44518376960, DequeueBufferDuration=1505331, QueueBufferDuration=4444403, GpuCompleted=-502761581221019727, 
+11-11 12:14:59.016  3239  3258 I .apps.wallpape: Waiting for a blocking GC ProfileSaver
+11-11 12:14:59.028  3239  3258 I .apps.wallpape: WaitForGcToComplete blocked ProfileSaver on ClassLinker for 12.270ms
+11-11 12:14:59.051  3479  3522 I fcitx5  : native-lib.cpp:723] Finishing startup
+11-11 12:14:59.123  3479  3498 I android.fx.rim: Background young concurrent copying GC freed 235666(13MB) AllocSpace objects, 94(4396KB) LOS objects, 73% free, 8815KB/32MB, paused 548us total 179.063ms
+11-11 12:14:59.166  3479  3522 I fcitx5  : rimeengine.cpp:1288] Loaded data dir profiles: 1, external=0
+11-11 12:14:59.170  3479  3522 I fcitx5  : rimeengine.cpp:519] Rime reloadConfig()
+11-11 12:14:59.171  3479  3522 I fcitx5  : rimeengine.cpp:739] Rime updateConfig(): restartRime(fullcheck=false)
+11-11 12:14:59.171  3479  3522 I fcitx5  : rimeengine.cpp:744] Rime restartRime(): begin, fullcheck=0, constructed=0, factoryRegistered=0
+11-11 12:14:59.171  3479  3522 I fcitx5  : rimeengine.cpp:751] Rime restartRime(): finalize()
+11-11 12:14:59.175  3479  3522 I fcitx5  : rimeengine.cpp:444] Rime Start: fullcheck=0, currentDataDir=rime
+11-11 12:14:59.175  3532  3532 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-11 12:14:59.175  3479  3522 I fcitx5  : rimeengine.cpp:489] Rime Start: firstRun setup()
+11-11 12:14:59.177  3532  3532 I AndroidRuntime: Using default boot image
+11-11 12:14:59.177  3532  3532 I AndroidRuntime: Leaving lock profiling enabled
+11-11 12:14:59.178  3479  3522 I fcitx5  : rimeengine.cpp:493] Rime Start: initialize()
+11-11 12:14:59.178  3532  3532 I app_process: Core platform API reporting enabled, enforcing=false
+11-11 12:14:59.213  1437  1747 I SP      : Download stopped: next-word-predictor:tflite-nwp-74677d39b6034080225e11e2b5058e7a, succeeded, size: 1868197
+11-11 12:14:59.217  1437  1747 I SP      : Scheduling: download stopped, 0 started, 0 paused, 0 scheduled, 2 pending: emoji-predictor:tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6 @ {m:b, bg}, emoji:442dd7424a2b73ebe817b5223ec48db9 @ {m:b, bg}
+11-11 12:14:59.220  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:59.239  3532  3532 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-11 12:14:59.239  3532  3532 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-11 12:14:59.245  3532  3532 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:14:59.248  3532  3532 I app_process: The ClassLoaderContext is a special shared library.
+11-11 12:14:59.259  3532  3532 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-11 12:14:59.280  3532  3532 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-11 12:14:59.288   492   971 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: start instr
+11-11 12:14:59.288   492   971 I ActivityManager: Killing 3431:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to start instr
+11-11 12:14:59.299   492   583 W InputDispatcher: channel '44fabf io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost (server)' ~ Consumer closed input channel or an error occurred.  events=0x9
+11-11 12:14:59.299   492   583 E InputDispatcher: channel '44fabf io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost (server)' ~ Channel is unrecoverably broken and will be disposed!
+11-11 12:14:59.299   285   285 I Zygote  : Process 3431 exited due to signal 9 (Killed)
+11-11 12:14:59.300   492   971 W ActivityTaskManager: Force removing ActivityRecord{a22e964 u0 io.github.sandyyur.inputbench/.BenchHost t10 f}}: app died, no saved state
+11-11 12:14:59.312   492   971 W InputDispatcher: Attempted to unregister already unregistered input channel '44fabf io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost (server)'
+11-11 12:14:59.323   492  1271 W WindowManager: Failed looking up window session=Session{aba3360 3431:u0a10167} callers=com.android.server.wm.WindowManagerService.windowForClientLocked:5425 com.android.server.wm.WindowState$DeathRecipient.binderDied:2810 android.os.IBinder$DeathRecipient.binderDied:305 
+11-11 12:14:59.323   492  1271 I WindowManager: WIN DEATH: null
+11-11 12:14:59.327   492   971 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-11 12:14:59.327   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-11 12:14:59.330   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 3431
+11-11 12:14:59.340   492   534 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 3431 in 42ms
+11-11 12:14:59.341   285   285 D Zygote  : Forked child process 3545
+11-11 12:14:59.343   492   533 I ActivityManager: Start proc 3545:io.github.sandyyur.inputbench/u0a167 for added application io.github.sandyyur.inputbench
+11-11 12:14:59.362  3545  3545 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-11 12:14:59.363  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:59.625     0     0 I binder  : 3479:3479 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:14:59.380  3545  3545 I yyur.inputbenc: Unquickening 12 vdex files!
+11-11 12:14:59.381  3545  3545 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:14:59.394  1516  1516 D CellBroadcastReceiver: onReceive Intent { act=android.intent.action.SERVICE_STATE flg=0x1000010 cmp=com.google.android.cellbroadcastreceiver/com.android.cellbroadcastreceiver.CellBroadcastReceiver (has extras) }
+11-11 12:14:59.414  3479  3479 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:14:59.416  1029  1029 I Telephony: isRttCurrentlySupported -- regular acct, hasVoiceAvailability: false
+11-11 12:14:59.416  1029  1029 I Telephony:  isRttSupported: false
+11-11 12:14:59.416  1029  1029 I Telephony:  isRoaming: false
+11-11 12:14:59.416  1029  1029 I Telephony:  isOnWfc: false
+11-11 12:14:59.429  1797  1807 I adbd    : jdwp connection from 3545
+11-11 12:14:59.448  1437  1747 I SP      : Download stopped: emoji-predictor:tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6, succeeded, size: 1036909
+11-11 12:14:59.454  1437  1452 I putmethod.lati: ThreadFlipBegin blocked for 5.527ms
+11-11 12:14:59.455  1437  1747 I SP      : Scheduling: download stopped, 0 started, 0 paused, 0 scheduled, 1 pending: emoji:442dd7424a2b73ebe817b5223ec48db9 @ {m:b, bg}
+11-11 12:14:59.458  1437  1552 I putmethod.lati: IncrementDisableThreadFlip blocked for 5.525ms
+11-11 12:14:59.461  1437  2197 I putmethod.lati: IncrementDisableThreadFlip blocked for 12.372ms
+11-11 12:14:59.464  3545  3545 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:14:59.466  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:59.474  3305  3323 I droid.deskcloc: Waiting for a blocking GC ProfileSaver
+11-11 12:14:59.475  3545  3545 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:59.475  3545  3545 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:14:59.493  3545  3567 V UiAutomation: Init UiAutomation@de92449[id=1, flags=0]
+11-11 12:14:59.495   492   642 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 10167
+11-11 12:14:59.496   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:14:59.503   413   413 I perfetto: ing_service_impl.cc:758 Configured tracing session 5, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:2, uid:1071 session name: ""
+11-11 12:14:59.503   412   412 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=5)
+11-11 12:14:59.508  3479  3522 I fcitx5  : rimeengine.cpp:497] Rime Start: maintenanceMode=1
+11-11 12:14:59.509  3479  3522 I fcitx5  : rimeengine.cpp:758] Rime restartRime(): re-register input context property
+11-11 12:14:59.511  3479  3522 I fcitx5  : rimeengine.cpp:769] Rime restartRime(): end
+11-11 12:14:59.511  3479  3522 I fcitx5  : addonmanager.cpp:208] Loaded addon rime
+11-11 12:14:59.548  3545  3576 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:14:59.554  3545  3576 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:14:59.559  3545  3576 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:14:59.574  1437  1747 I SP      : <==== Finishing job {m:b, bg}, 1313 ms. elapsed since start
+11-11 12:14:59.574  1437  1747 I SP      : Download stopped: emoji:442dd7424a2b73ebe817b5223ec48db9, succeeded, size: 94091
+11-11 12:14:59.577  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:59.582  3545  3574 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a4fd0, tid 3574
+11-11 12:14:59.589  3545  3574 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:14:59.590   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:14:59.591  3545  3574 D EGL_emulation: eglCreateContext: 0x7f3a244b6ab0: maj 3 min 0 rcv 3
+11-11 12:14:59.592  3545  3574 D EGL_emulation: eglMakeCurrent: 0x7f3a244b6ab0: ver 3 0 (tinfo 0x7f39c44f3f40) (first time)
+11-11 12:14:59.599   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:14:59.599  3545  3574 I Gralloc4: mapper 4.x is not supported
+11-11 12:14:59.612  3545  3574 D HostConnection: createUnique: call
+11-11 12:14:59.612  3545  3574 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a3f50, tid 3574
+11-11 12:14:59.620  3545  3574 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:14:59.632  3479  3479 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=30ms
+11-11 12:14:59.647  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:14:59.847  1437  1747 I SP      : Sync for next-word-predictor succeeded in 2480 ms: {added: [tflite-nwp-74677d39b6034080225e11e2b5058e7a], metadata: false
+11-11 12:14:59.855  1437  1747 I SP      : GC for 'next-word-predictor' (10) with ttl of 0 ms took 0 ms (0/0/0)
+11-11 12:14:59.855  1437  1747 I SP      : Sync for emoji-predictor succeeded in 2377 ms: {added: [tflite-emoji-pred-a69f4f3dd1a865206f8a5f8cdcd9f6d6], metadata: false
+11-11 12:14:59.863  1437  1747 I SP      : Sync for emoji succeeded in 1853 ms: {added: [442dd7424a2b73ebe817b5223ec48db9], metadata: false
+11-11 12:14:59.864  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:14:59.871  1437  1747 I SP      : GC for 'emoji-predictor' (10) with ttl of 0 ms took 0 ms (0/0/0)
+11-11 12:14:59.871  1437  1747 I SP      : GC for 'emoji' (10) with ttl of 0 ms took 0 ms (0/0/0)
+11-11 12:14:59.872  1437  1818 I EmojiSuperpacksManager: EmojiSuperpacksManager.processPackSet():492 processPackSet() : isBundled = false
+11-11 12:14:59.872  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.getEmojiShortcuts():98 Reading en_US emoji shortcuts
+11-11 12:14:59.919  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.getEmojiShortcuts():114 Read en_US emoji shortcuts successfully.
+11-11 12:14:59.919  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.run():59 1 emoji shortcut maps loaded.
+11-11 12:14:59.919  1437  3463 I EmojiShortcutsLoader: EmojiShortcutsLoader.run():67 Finished loading emoji shortcuts
+11-11 12:14:59.956  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:59.963  1437  1784 I chatty  : uid=10133(com.google.android.inputmethod.latin) GoogleApiHandle identical 1 line
+11-11 12:14:59.966  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:14:59.968   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:14:59.968   492   531 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +471ms
+11-11 12:14:59.970   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:14:59.993  3479  3479 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:14:59.994  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:00.002   693   693 D KeyguardClockSwitch: Updating clock: 1215
+11-11 12:15:00.007  3479  3479 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:15:00.007  3479  3479 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:15:00.007  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:00.198   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:15:00.202  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:00.207   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:15:00.207   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:00.223   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:15:00.223   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:00.226   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:15:00.226   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:00.228   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:15:00.228   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:00.380   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:15:00.381   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:00.404  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:15:00.944  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:15:01.201   412   412 I perfetto: probes_producer.cc:329  Producer stop (id=4)
+11-11 12:15:01.202   413   413 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:15:01.205   413   413 I perfetto: ng_service_impl.cc:1948 Tracing session 4 ended, total sessions:1
+11-11 12:15:01.485  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:15:01.724  1437  1476 I PeriodicStatsRunner: PeriodicStatsRunner.call():180 call()
+11-11 12:15:01.735  1437  1476 I putmethod.lati: Explicit concurrent copying GC freed 33108(1283KB) AllocSpace objects, 3(232KB) LOS objects, 24% free, 6441KB/8588KB, paused 13us total 10.985ms
+11-11 12:15:01.747  1437  1476 I TiresiasImpl: TiresiasImpl.setupTrainingCache():1431 setupTrainingCache()
+11-11 12:15:01.747  1437  1476 I Tiresias: TrainingCache.getCacheConfig():182 getCacheConfig()
+11-11 12:15:01.749  1437  1784 W GoogleApiManager: The service for iam is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:15:01.750  1437  1784 W GoogleApiManager: The service for iam is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: GMS core API Availability. ConnectionResult=3, tag=null
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: java.lang.IllegalArgumentException
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at hor.a(PG:37)
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at hrn.a(PG:137)
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at hrj.a(PG:152)
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at hrj.a(PG:136)
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at hrj.h(PG:80)
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at hrj.a(PG:103)
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at hrn.handleMessage(PG:107)
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:15:01.750  1437  1784 W GoogleApiAvailability: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-11 12:15:01.760  1437  1476 I Tiresias: TrainingCache.createMultiCollectionClient():135 createMultiCollectionClient(): Finished in 13 ms
+11-11 12:15:01.760  1437  1476 W PeriodicStatsRunner: PeriodicStatsRunner.call():237 call() : Finished in 36 ms
+11-11 12:15:01.778  1437  1476 I TrainingCachePoolImpl: TrainingCachePoolImpl$RefCountedTrainingCache.addClient():94 Using cache tiresias for client mrv@50ccf8e, new refcount=1
+11-11 12:15:01.784  1437  3584 I SqliteObjectDatabaseHelper: SqliteObjectDatabaseHelper.onCreate():37 [SqliteObjectDatabaseHelper.onCreate] version N/A => 1
+11-11 12:15:01.784  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table cc doesn't exist and needs to be created
+11-11 12:15:01.784  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table cc
+11-11 12:15:01.784  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table kl doesn't exist and needs to be created
+11-11 12:15:01.785  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table kl
+11-11 12:15:01.785  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table c doesn't exist and needs to be created
+11-11 12:15:01.785  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table c
+11-11 12:15:01.785  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table d doesn't exist and needs to be created
+11-11 12:15:01.785  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table d
+11-11 12:15:01.786  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table tpb doesn't exist and needs to be created
+11-11 12:15:01.786  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table tpb
+11-11 12:15:01.786  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table nia doesn't exist and needs to be created
+11-11 12:15:01.786  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table nia
+11-11 12:15:01.786  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table cm doesn't exist and needs to be created
+11-11 12:15:01.786  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table cm
+11-11 12:15:01.786  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table es doesn't exist and needs to be created
+11-11 12:15:01.787  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table es
+11-11 12:15:01.787  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table tf doesn't exist and needs to be created
+11-11 12:15:01.787  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table tf
+11-11 12:15:01.788  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table s doesn't exist and needs to be created
+11-11 12:15:01.788  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table s
+11-11 12:15:01.788  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table tm doesn't exist and needs to be created
+11-11 12:15:01.788  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table tm
+11-11 12:15:01.789  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table vo doesn't exist and needs to be created
+11-11 12:15:01.789  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table vo
+11-11 12:15:01.789  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table ic doesn't exist and needs to be created
+11-11 12:15:01.789  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table ic
+11-11 12:15:01.789  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.getStoredSchemaForCollection():220 Table tp doesn't exist and needs to be created
+11-11 12:15:01.789  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():106 Creating table tp
+11-11 12:15:01.792  1437  3584 I SqliteObjectDatabaseHelper: SqliteObjectDatabaseHelper.onOpen():52 [SqliteObjectDatabaseHelper.onOpen] version N/A => 1
+11-11 12:15:01.792  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table cc up-to-date, skipping.
+11-11 12:15:01.793  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table kl up-to-date, skipping.
+11-11 12:15:01.793  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table c up-to-date, skipping.
+11-11 12:15:01.793  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table d up-to-date, skipping.
+11-11 12:15:01.793  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table tpb up-to-date, skipping.
+11-11 12:15:01.794  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table nia up-to-date, skipping.
+11-11 12:15:01.794  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table cm up-to-date, skipping.
+11-11 12:15:01.794  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table es up-to-date, skipping.
+11-11 12:15:01.794  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table tf up-to-date, skipping.
+11-11 12:15:01.795  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table s up-to-date, skipping.
+11-11 12:15:01.795  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table tm up-to-date, skipping.
+11-11 12:15:01.795  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table vo up-to-date, skipping.
+11-11 12:15:01.795  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table ic up-to-date, skipping.
+11-11 12:15:01.795  1437  3584 I SqliteObjectCollectionManager: SqliteObjectCollectionManager.createOrMigrateCollection():109 Table tp up-to-date, skipping.
+11-11 12:15:01.954   492   492 D NotificationService: 0|com.google.android.inputmethod.latin|10436|null|10133: granting content://settings/system/notification_sound
+11-11 12:15:01.954   492   492 I chatty  : uid=1000(system) Binder:492_3 identical 1 line
+11-11 12:15:01.954   492   492 D NotificationService: 0|com.google.android.inputmethod.latin|10436|null|10133: granting content://settings/system/notification_sound
+11-11 12:15:01.955   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:15:01.959   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: 0|com.google.android.inputmethod.latin|10436|null|10133
+11-11 12:15:01.959   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:02.024  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:15:02.257  1437  1476 I PeriodicStatsRunner: PeriodicStatsRunner.call():180 call()
+11-11 12:15:02.268  1437  1476 I putmethod.lati: Explicit concurrent copying GC freed 3554(174KB) AllocSpace objects, 0(0B) LOS objects, 24% free, 6630KB/8840KB, paused 13us total 10.596ms
+11-11 12:15:02.276  1437  1476 W PeriodicStatsRunner: PeriodicStatsRunner.call():237 call() : Finished in 19 ms
+11-11 12:15:02.278  1437  1784 W GoogleApiManager: The service for iam is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: GMS core API Availability. ConnectionResult=3, tag=null
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: java.lang.IllegalArgumentException
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at hor.a(PG:37)
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at hrn.a(PG:137)
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at hrj.a(PG:152)
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at hrj.a(PG:136)
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at hrj.h(PG:80)
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at hrn.b(PG:130)
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at hrn.handleMessage(PG:83)
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:15:02.278  1437  1784 W GoogleApiAvailability: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-11 12:15:02.281  1437  1784 W GoogleApiManager: The service for iam is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: GMS core API Availability. ConnectionResult=3, tag=null
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: java.lang.IllegalArgumentException
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at hor.a(PG:37)
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at hrn.a(PG:137)
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at hrj.a(PG:152)
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at hrj.a(PG:136)
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at hrj.h(PG:80)
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at hrj.a(PG:103)
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at hrn.handleMessage(PG:107)
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:15:02.282  1437  1784 W GoogleApiAvailability: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-11 12:15:02.482   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: 0|com.google.android.inputmethod.latin|10436|null|10133
+11-11 12:15:02.482   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:02.522   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: 0|com.google.android.inputmethod.latin|10436|null|10133
+11-11 12:15:02.522   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:02.564  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:15:02.808   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:15:02.808  3532  3544 I Gralloc4: mapper 4.x is not supported
+11-11 12:15:02.816  3532  3544 D HostConnection: createUnique: call
+11-11 12:15:02.816  3532  3544 D HostConnection: HostConnection::get() New Host Connection established 0x7beae183e250, tid 3544
+11-11 12:15:02.822  3532  3544 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:15:02.832  3532  3587 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:15:02.832  3532  3587 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:15:02.833  3532  3587 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:15:02.843  3532  3587 D HostConnection: HostConnection::get() New Host Connection established 0x7beae183ff90, tid 3587
+11-11 12:15:02.845  3532  3587 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:15:02.846   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:15:02.849  3532  3587 D EGL_emulation: eglCreateContext: 0x7bead1858ab0: maj 3 min 0 rcv 3
+11-11 12:15:02.851  3532  3587 D EGL_emulation: eglMakeCurrent: 0x7bead1858ab0: ver 3 0 (tinfo 0x7bea718653a0) (first time)
+11-11 12:15:02.972   492   642 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@d629e2d
+11-11 12:15:02.972  3545  3567 V UiAutomation: Init UiAutomation@de92449[id=-1, flags=0]
+11-11 12:15:02.975   492   971 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: finished inst
+11-11 12:15:02.976   492   971 I ActivityManager: Killing 3545:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to finished inst
+11-11 12:15:02.977   492   971 W ActivityTaskManager: Force removing ActivityRecord{3f3efae u0 io.github.sandyyur.inputbench/.BenchHost t11 f}}: app died, no saved state
+11-11 12:15:02.977  3532  3532 I app_process: System.exit called, status: 0
+11-11 12:15:02.977  3532  3532 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:15:03.234     0     0 I binder_alloc: 3545: binder_alloc_buf, no vma
+11-11 12:15:03.236     0     0 I binder  : 492:971 transaction failed 29189/-3, size 4-0 line 3226
+11-11 12:15:02.997   285   285 I Zygote  : Process 3545 exited due to signal 9 (Killed)
+11-11 12:15:03.242     0     0 I binder  : release 3545:3566 transaction 181002 out, still active
+11-11 12:15:03.245     0     0 I binder  : send failed reply for transaction 181002, target dead
+11-11 12:15:03.251     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:15:03.010   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 3545
+11-11 12:15:03.256     0     0 W binder_cleanup_transaction: 32 callbacks suppressed
+11-11 12:15:03.256     0     0 I binder  : undelivered transaction 181036, process died.
+11-11 12:15:03.032   492   534 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 3545 in 55ms
+11-11 12:15:03.071  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:15:03.320     0     0 I binder  : 3479:3479 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:15:03.090  3479  3479 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:15:03.106   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:15:03.106   492  1748 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 0
+11-11 12:15:03.110   492   526 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-11 12:15:03.111   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-11 12:15:03.123   285   285 D Zygote  : Forked child process 3597
+11-11 12:15:03.124   492   533 I ActivityManager: Start proc 3597:io.github.sandyyur.inputbench/u0a167 for pre-top-activity {io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}
+11-11 12:15:03.128  3597  3597 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-11 12:15:03.147  3597  3597 I yyur.inputbenc: Unquickening 12 vdex files!
+11-11 12:15:03.148  3597  3597 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:15:03.152   413   413 I perfetto: ing_service_impl.cc:758 Configured tracing session 6, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:2, uid:1071 session name: ""
+11-11 12:15:03.152   412   412 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=6)
+11-11 12:15:03.154  1797  1807 I adbd    : jdwp connection from 3597
+11-11 12:15:03.173  3597  3597 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:15:03.177  3597  3597 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:15:03.177  3597  3597 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:15:03.191  3597  3621 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:15:03.193  3597  3621 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:15:03.195  3597  3621 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:15:03.224  3597  3619 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a2bd0, tid 3619
+11-11 12:15:03.226  3597  3619 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:15:03.227   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:15:03.228  3597  3619 D EGL_emulation: eglCreateContext: 0x7f3a244d4880: maj 3 min 0 rcv 3
+11-11 12:15:03.229  3597  3619 D EGL_emulation: eglMakeCurrent: 0x7f3a244d4880: ver 3 0 (tinfo 0x7f39c44f4930) (first time)
+11-11 12:15:03.238   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:15:03.239  3597  3619 I Gralloc4: mapper 4.x is not supported
+11-11 12:15:03.239  3597  3619 D HostConnection: createUnique: call
+11-11 12:15:03.239  3597  3619 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a22d0, tid 3619
+11-11 12:15:03.268  3597  3619 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:15:03.573  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:15:03.595   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:15:03.596  3592  3594 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:15:03.596   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:15:03.599   492   531 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +489ms
+11-11 12:15:03.608  3479  3479 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:15:03.609  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:03.624  3479  3479 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:15:03.624  3479  3479 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:15:03.625  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:04.035     0     0 D logd    : logdr: UID=0 GID=0 PID=3643 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-11 12:15:03.813   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:15:03.696  3479  3479 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:03.817   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:15:03.817   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:03.818   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:15:03.818   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:03.825   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:15:03.825   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:15:03.833   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:15:03.833   693   693 D InterruptionStateProvider: No heads up: no huns

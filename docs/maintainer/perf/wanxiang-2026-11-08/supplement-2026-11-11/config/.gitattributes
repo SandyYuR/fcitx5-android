@@ -1,0 +1,2 @@
+# User-provided inputs are kept byte-for-byte, including CRLF and whitespace.
+*.yaml -text -whitespace

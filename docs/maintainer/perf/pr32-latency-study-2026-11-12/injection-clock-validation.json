@@ -1,0 +1,294 @@
+{
+  "criterion": "0 < inject_down <= inject_down_return <= inject_up <= inject_up_return",
+  "runs": [
+    {
+      "run_id": "43176830239",
+      "samples": 9,
+      "touches": 162,
+      "violation_count": 0,
+      "violations": [],
+      "samples_checked": [
+        {
+          "file": "run-43176830239\\latency-study-pilot-forward\\samples\\b01-p01-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43176830239\\latency-study-pilot-forward\\samples\\b01-p02-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43176830239\\latency-study-pilot-forward\\samples\\b01-p03-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43176830239\\latency-study-pilot-reverse\\samples\\b01-p01-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43176830239\\latency-study-pilot-reverse\\samples\\b01-p02-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43176830239\\latency-study-pilot-reverse\\samples\\b01-p03-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43176830239\\latency-study-profile\\samples\\b01-p01-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43176830239\\latency-study-profile\\samples\\b01-p02-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43176830239\\latency-study-profile\\samples\\b01-p03-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        }
+      ]
+    },
+    {
+      "run_id": "43178037142",
+      "samples": 36,
+      "touches": 648,
+      "violation_count": 0,
+      "violations": [],
+      "samples_checked": [
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b01-p01-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b01-p02-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b01-p03-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b02-p01-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b02-p02-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b02-p03-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b03-p01-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b03-p02-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b03-p03-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b04-p01-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b04-p02-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b04-p03-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b05-p01-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b05-p02-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b05-p03-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b06-p01-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b06-p02-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-forward\\samples\\b06-p03-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b01-p01-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b01-p02-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b01-p03-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b02-p01-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b02-p02-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b02-p03-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b03-p01-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b03-p02-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b03-p03-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b04-p01-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b04-p02-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b04-p03-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b05-p01-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b05-p02-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b05-p03-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b06-p01-baseline\\baseline-1.json",
+          "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b06-p02-regressed\\regressed-1.json",
+          "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+          "touches": 18,
+          "violations": 0
+        },
+        {
+          "file": "run-43178037142\\latency-study-formal-reverse\\samples\\b06-p03-current\\current-1.json",
+          "source": "adb6a4e33426333677934ac82f0a19997245556a",
+          "touches": 18,
+          "violations": 0
+        }
+      ]
+    }
+  ],
+  "valid": true
+}

@@ -1,0 +1,42 @@
+{
+  "criteria": {
+    "markers": 12,
+    "max_span_ms": 50,
+    "max_abs_drift_ms": 34
+  },
+  "runs": [
+    {
+      "label": "pilot-direct",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_accepted": true,
+      "offset_ms": 288461.736304,
+      "residual_span_ms": 23.033362000016496,
+      "start_end_drift_ms": 7.1772060000221245,
+      "clock_accepted": true
+    },
+    {
+      "label": "pilot-current",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_accepted": true,
+      "offset_ms": 356559.905379,
+      "residual_span_ms": 15.811384000000544,
+      "start_end_drift_ms": 3.5109830000437796,
+      "clock_accepted": true
+    },
+    {
+      "label": "pilot-fcitx",
+      "visible_edges": 12,
+      "host_marker_frames": 12,
+      "output_correct": true,
+      "analysis_accepted": true,
+      "offset_ms": 432712.90787699993,
+      "residual_span_ms": 32.12235999997938,
+      "start_end_drift_ms": 10.549730000027921,
+      "clock_accepted": true
+    }
+  ]
+}

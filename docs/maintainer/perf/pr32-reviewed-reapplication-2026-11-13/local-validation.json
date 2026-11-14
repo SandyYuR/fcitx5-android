@@ -1,0 +1,9 @@
+{
+  "source_scope": "Four exact product scopes and exact UI+priority composition verified by verify-reviewed-scope.py",
+  "workflow": "All Bash run blocks parsed; both embedded Python blocks parsed; six selected candidate/direction bindings executed with exact expected GITHUB_ENV value",
+  "paint_review": "Android 15 TextPaint constructor vs set reviewed for seven extra fields; corrected constructor-equivalent reset and strengthened device oracle frozen in source",
+  "source_recovery": "Four exact source archives reconstructed byte-identically in independent bare repository using prerequisite B at depth one",
+  "local_android_tests": "Unavailable locally; real SDK/JVM/device execution is exclusively reported from the current Actions artifacts, never inferred from grammar checks",
+  "previous_screen": "Valid unfavorable first-screen samples retained; no confirmation samples existed in the first run",
+  "default_and_user_branch_changes": false
+}

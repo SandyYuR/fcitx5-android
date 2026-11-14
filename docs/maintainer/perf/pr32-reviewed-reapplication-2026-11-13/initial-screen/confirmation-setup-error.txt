@@ -1,0 +1,4 @@
+Run 43362289967, jobs 131690584164 / 131690584156.
+Both confirmation jobs failed at Bind the selected source to the fixed forward/reverse pair.
+2026-11-13T04:31:53Z SyntaxError: unterminated string literal (detected at line 5)
+Emulator and sampling steps were skipped. Both artifacts contain only six setup metadata files, no samples.json or raw process.

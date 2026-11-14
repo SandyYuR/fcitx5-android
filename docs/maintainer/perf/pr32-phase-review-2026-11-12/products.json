@@ -1,0 +1,60 @@
+{
+  "sources": {
+    "baseline": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+    "current": "e8bc4fe70a5f23bbe56b8e2607580d786e4ff1c1"
+  },
+  "driver_commit": "397d9bd970aa70b4de8725b55d5d8e7618f4f936",
+  "metadata_driver_commit": "397d9bd970aa70b4de8725b55d5d8e7618f4f936",
+  "sdk_lock_sha256": {
+    "baseline": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f",
+    "current": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f"
+  },
+  "protocol": "external_process_input_manager_phase_v3",
+  "harness_sha256": "71ab11a5fde3eaecebef23d20773404b15582479159c7174ef04e5aec11e46be",
+  "host_sources_sha256": {
+    "tools/candidate-perf/host/BenchTouchDriver.java": "95f85ed7c7f7d1e8b15bc501277cc7b38f380b58670510fa9d0f112e82a2a965",
+    "tools/candidate-perf/host/BenchHost.java": "bb2afdf547729eecec065117742fd0f35ef9db3feeeb1381777b899581b53cd7",
+    "tools/candidate-perf/host/BenchControl.java": "9b48f4c1a7931cdd03372c1d41a2919c7e40643bd39c7f4edb82168f81537cbe",
+    "tools/candidate-perf/host/AndroidManifest.xml": "9f322d7d9062b8a158fa7d787314754a4cd44536ee4d223288d0de5299064374",
+    "tools/screen-perf/build-host.sh": "2ed8acbac95e1fa2f686a8109390e3bedbb1d9b3e251e6692f5ffe3d4d0f488e"
+  },
+  "host_sha256": "69d399b32306d739572827bd31e64891b2c3fdd660aeb7b44cfb4d69f80a0e65",
+  "packages": {
+    "baseline-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+    "baseline.apk": "org.fcitx.fcitx5.android.fx.rime.debug",
+    "current-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+    "current.apk": "org.fcitx.fcitx5.android.fx.rime.debug"
+  },
+  "signer_sha256": {
+    "baseline-tests.apk": "c912c5215a9b68f25eca0100d82bddbaddcce7113754740b124973d43a013c0a",
+    "baseline.apk": "c912c5215a9b68f25eca0100d82bddbaddcce7113754740b124973d43a013c0a",
+    "current-tests.apk": "c912c5215a9b68f25eca0100d82bddbaddcce7113754740b124973d43a013c0a",
+    "current.apk": "c912c5215a9b68f25eca0100d82bddbaddcce7113754740b124973d43a013c0a"
+  },
+  "native_audit_sha256": {
+    "baseline": "0d0355ab7d3bf71e3198a29eaaf66f6c6f84499f249a8c9350d88a1a98fce578",
+    "current": "006a644fd7c111f61f13255a06e9411195a772dc26f20352a84c32fe6146e2e4"
+  },
+  "apks": {
+    "baseline-tests.apk": "75d530fba9d842a8529b43f8125425cc090701ccef9bfcd538b0a3d218ea0544",
+    "baseline.apk": "ae92fa1c2552d08a8b9e6d052685e1784e86e56453b26b23dc854a5b9491045d",
+    "current-tests.apk": "295444cf0443972679030c317dc0b5cb15ba2c627f0f2f2ace7b469d131b2e15",
+    "current.apk": "ffd1aea4f273832d65a3e6041baad93d50ba79c438f774074487c39d78d72d42"
+  },
+  "host_rebuild": {
+    "source": "ad981a25e82da1b9249e8f8366931ef25400ad3a",
+    "previous_host": {
+      "sha256": "3312dca8bafb333b42214d7055e5ab79abb840c04a125f32040ac90a434bac9c",
+      "sources": {
+        "tools/candidate-perf/host/BenchTouchDriver.java": "ee5e49229b4f9de5d3469fac2086bd38e246756ff1c9af01a6e3d1c8636b0a74",
+        "tools/candidate-perf/host/BenchHost.java": "bb2afdf547729eecec065117742fd0f35ef9db3feeeb1381777b899581b53cd7",
+        "tools/candidate-perf/host/BenchControl.java": "9b48f4c1a7931cdd03372c1d41a2919c7e40643bd39c7f4edb82168f81537cbe",
+        "tools/candidate-perf/host/AndroidManifest.xml": "9f322d7d9062b8a158fa7d787314754a4cd44536ee4d223288d0de5299064374",
+        "tools/screen-perf/build-host.sh": "2ed8acbac95e1fa2f686a8109390e3bedbb1d9b3e251e6692f5ffe3d4d0f488e"
+      }
+    },
+    "changed_product_apks": false,
+    "driver_version": 2,
+    "reason": "Enforce >=20ms actual hold after late DOWN; no fake input or target warm-up"
+  }
+}

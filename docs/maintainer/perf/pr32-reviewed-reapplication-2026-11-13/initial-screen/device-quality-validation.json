@@ -1,0 +1,26 @@
+{
+  "baseline": {
+    "source": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+    "executed": 15,
+    "failures_errors_skipped": 0,
+    "junit_sha256": "93aace08371bf816afca97aca4d20546a14471b0012d2af4ab6a65ad51a5682e"
+  },
+  "ui": {
+    "source": "47a9a34f724e1b723247f9c8f52f80f29152d935",
+    "executed": 15,
+    "failures_errors_skipped": 0,
+    "junit_sha256": "f469999aaac3182bae3c03e95d9c958446d38a5e38e8f3287648f38f06c71dc0"
+  },
+  "priority": {
+    "source": "0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e",
+    "executed": 15,
+    "failures_errors_skipped": 0,
+    "junit_sha256": "14ef1998f25c253fbe4c22cb16e3b871b01210bae38120a17691cb2545525b5d"
+  },
+  "combined": {
+    "source": "7f27c8af0ba8fa2f7d4ce113a1122d50d4641f3c",
+    "executed": 15,
+    "failures_errors_skipped": 0,
+    "junit_sha256": "9de3e7172fca8c15f4a5907235e72d151526cf2b834bc156730a5c4a2f568ee3"
+  }
+}

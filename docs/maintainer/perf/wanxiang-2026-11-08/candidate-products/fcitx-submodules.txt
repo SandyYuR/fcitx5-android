@@ -1,0 +1,7 @@
+ 27cca6e0239938b2d53937061d0980c087856b22 lib/fcitx5/src/main/cpp/fcitx5 (27cca6e)
+ 1126616c3ec569617da772e30d7a97f6b2694172 lib/fcitx5/src/main/cpp/prebuilt (1126616)
+ 1eb1d0d2d8891563efc742a53c83b789c97a6e47 plugin/rime/src/main/cpp/fcitx5-rime (heads/master)
+ e9b1a374a6ea015fca5bdd04318924b4483ac35a plugin/rime/src/main/cpp/rime-essay (e9b1a37)
+ 56b934b099dfbeab842320f13aa8b461a6ab3e42 plugin/rime/src/main/cpp/rime-luna-pinyin (heads/master)
+ 082425ea0684bca36474415d4a0e8db9b016487e plugin/rime/src/main/cpp/rime-prelude (heads/master)
+ 7c9874c6b2e0b94947653e9a7de6f99623ff27e4 plugin/rime/src/main/cpp/rime-stroke (7c9874c)

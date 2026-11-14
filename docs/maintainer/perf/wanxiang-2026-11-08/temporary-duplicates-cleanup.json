@@ -1,0 +1,114 @@
+[
+  {
+    "run": 42472686975,
+    "id": 13614615165,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509825334,
+    "digest": "sha256:9037337759b20714469e160fb923b2ba9e0ae7d860ddc7160412caf1c7015429",
+    "deleted": true
+  },
+  {
+    "run": 42472298097,
+    "id": 13613917492,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509825334,
+    "digest": "sha256:ceca964071e834afbca8b5a3ea4b9aa825e1ca3ad74c1d6a68bba8467581ad1e",
+    "deleted": true
+  },
+  {
+    "run": 42471310085,
+    "id": 13613816610,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509825334,
+    "digest": "sha256:7842f480047b9b8e7267181c1d551d41326d297bcfd28d744a1380002db3b2ae",
+    "deleted": true
+  },
+  {
+    "run": 42470539915,
+    "id": 13613242757,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509825334,
+    "digest": "sha256:c1a85b400c6b2f5c72f351d2f3ba99116607523b595540651b96112cf3adb882",
+    "deleted": true
+  },
+  {
+    "run": 42470354071,
+    "id": 13613800157,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509825334,
+    "digest": "sha256:8ca4ec8e06d0e6a4cc9e512a7e4d7bc74d01a84a463123cc3734f330a4c62732",
+    "deleted": true
+  },
+  {
+    "run": 42469721005,
+    "id": 13612797447,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509825334,
+    "digest": "sha256:c5ce9414426e97c43dbde6b1a8f314c5f29ae5e1ad0cd43d46564fa5fea6ad40",
+    "deleted": true
+  },
+  {
+    "run": 42468873525,
+    "id": 13611799876,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509825334,
+    "digest": "sha256:59c59b0f233466fb3ad3b366aa77c669fe41c69c004177e093d8a5856d45a701",
+    "deleted": true
+  },
+  {
+    "run": 42468687163,
+    "id": 13612647739,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509825334,
+    "digest": "sha256:864218338745269611adf291c90808bc60ca0d98ebeb30a51e1d89a321dabf1f",
+    "deleted": true
+  },
+  {
+    "run": 42467967580,
+    "id": 13612502250,
+    "name": "wanxiang-debug-products-20261108",
+    "bytes": 49333427,
+    "digest": "sha256:8efb40863f1a027e1290510aae04b26c6df19abc2f265c174a42b2ab7722b2d4",
+    "deleted": true
+  },
+  {
+    "run": 42467849236,
+    "id": 13611574296,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509821238,
+    "digest": "sha256:d1f0883ef2eba234e2d9f68582aad3505784f16ea41cfe7692b4d8628d4bc3ee",
+    "deleted": true
+  },
+  {
+    "run": 42467677459,
+    "id": 13611539571,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509821238,
+    "digest": "sha256:7e6a16f68ecc2255a39055ca3c792fe06ba6a01151533964ed9b26a259c7ba2b",
+    "deleted": true
+  },
+  {
+    "run": 42466643589,
+    "id": 13611643864,
+    "name": "wanxiang-debug-products-20261108",
+    "bytes": 49333427,
+    "digest": "sha256:a173efe664c5de5b41db746d8b8dff79f8d6edf433104ece79ced2957c674937",
+    "deleted": true
+  },
+  {
+    "run": 42466643589,
+    "id": 13611582887,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509821238,
+    "digest": "sha256:b0ae9109c6363d5ebae48ab771cdc64358bc6d4d14bbb562527a84057d79622c",
+    "deleted": true
+  },
+  {
+    "run": 42466496970,
+    "id": 13612410244,
+    "name": "wanxiang-inputs-20261108",
+    "bytes": 509821238,
+    "digest": "sha256:1376cd49c3163625380e0f7ac3b75551dec0cd80515ae801f0b9e145daf75ab4",
+    "deleted": true
+  }
+]

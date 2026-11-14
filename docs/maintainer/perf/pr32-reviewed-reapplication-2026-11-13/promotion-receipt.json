@@ -1,0 +1,27 @@
+{
+  "promoted": false,
+  "pr32_head": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+  "reason": {
+    "candidate": "ui",
+    "screen_exclusions": {
+      "combined": [
+        "i_injected_down_to_dispatch_up_ms"
+      ],
+      "ui": [],
+      "priority": []
+    },
+    "promote": false,
+    "reason": "independent_confirmation_did_not_meet_frozen_gate",
+    "replicated_benefit_metrics": [],
+    "cold_positive_median_metrics": [],
+    "warm_consistent_slow_metrics": []
+  },
+  "tested_current_stage_processes": 80,
+  "tested_current_stage_selections": 480,
+  "first_revision_processes": 32,
+  "first_revision_selections": 192,
+  "first_revision_confirmation_processes": 0,
+  "total_process_counts_only": 112,
+  "total_correct_selection_counts_only": 672,
+  "default_branch_pushed": false
+}

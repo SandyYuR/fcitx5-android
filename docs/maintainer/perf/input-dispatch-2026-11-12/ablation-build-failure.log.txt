@@ -1,0 +1,686 @@
+build	Build isolated UI-only and priority-only variants	﻿2026-11-12T03:24:53.4968329Z ##[group]Run bash tools/dispatch-ablation/build.sh "$RUNNER_TEMP/references" "$RUNNER_TEMP/products"
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.4969061Z [36;1mbash tools/dispatch-ablation/build.sh "$RUNNER_TEMP/references" "$RUNNER_TEMP/products"[0m
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5021840Z shell: /usr/bin/bash -e {0}
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5022171Z env:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5022533Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5023066Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5023465Z   MAVEN_ARGS: -ntp
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5023745Z   ANDROID_HOME: /usr/local/lib/android/sdk
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5024081Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5024427Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5024770Z   GRADLE_USER_HOME: /home/runner/.gradle
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5025084Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5025563Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5026101Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5026462Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.5026767Z ##[endgroup]
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.6693300Z Cloning into '/home/runner/work/_temp/dispatch-product-ui'...
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:53.8551157Z done.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:54.0601848Z HEAD is now at 0d9417b2 优化(候选): 精简文字与角标构造并保持字体测量正确
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:54.0934923Z Submodule 'native/rime-prelude' (https://github.com/rime/rime-prelude.git) registered for path 'native/rime-prelude'
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:54.0957838Z Cloning into '/home/runner/work/_temp/dispatch-product-ui/native/rime-prelude'...
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:54.6555331Z Submodule path 'native/rime-prelude': checked out '082425ea0684bca36474415d4a0e8db9b016487e'
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:24:55.4588239Z Starting a Gradle Daemon (subsequent builds will be faster)
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:04.8604179Z > Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:05.1605314Z > Task :build-logic:convention:compileKotlin FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:05.2583910Z > Task :build-logic:convention:compileJava NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:05.2593039Z > Task :build-logic:convention:pluginDescriptors
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:05.2593818Z > Task :build-logic:convention:processResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:05.2594272Z > Task :build-logic:convention:classes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:05.2594717Z > Task :build-logic:convention:jar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:09.1586752Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:09.1587995Z > Configure project :app
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:09.1589374Z Checking the license for package NDK (Side by side) 28.0.13004108 in /usr/local/lib/android/sdk/licenses
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:09.1590708Z License for package NDK (Side by side) 28.0.13004108 accepted.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:09.1592095Z Preparing "Install NDK (Side by side) 28.0.13004108 v.28.0.13004108".
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:37.6581575Z "Install NDK (Side by side) 28.0.13004108 v.28.0.13004108" ready.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:37.6583750Z Installing NDK (Side by side) 28.0.13004108 in /usr/local/lib/android/sdk/ndk/28.0.13004108
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:37.6584753Z "Install NDK (Side by side) 28.0.13004108 v.28.0.13004108" complete.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:38.0581907Z "Install NDK (Side by side) 28.0.13004108 v.28.0.13004108" finished.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:39.9583967Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:39.9606585Z > Task :prepareRimeSdk
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:39.9608101Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1794453898723.json
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:39.9609363Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:39.9609775Z BUILD SUCCESSFUL in 45s
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:39.9610526Z 5 actionable tasks: 4 executed, 1 from cache
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:39.9612041Z Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.1/userguide/configuration_cache_enabling.html
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:41.2813224Z > Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:41.3795049Z > Task :build-logic:convention:compileKotlin UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:41.3823287Z > Task :build-logic:convention:compileJava NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:41.3835610Z > Task :build-logic:convention:pluginDescriptors UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:41.3850686Z > Task :build-logic:convention:processResources UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:41.3856711Z > Task :build-logic:convention:classes UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:41.3892416Z > Task :build-logic:convention:jar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:45.6782876Z > Task :prepareRimeSdk
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:45.6788000Z > Task :lib:common:preBuild UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:45.6791021Z > Task :lib:common:preDebugBuild UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:45.7767429Z > Task :lib:common:extractDebugSupportedLocales FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:45.7791494Z > Task :lib:common:generateDebugResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:48.5764217Z > Task :lib:common:packageDebugResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:48.5778966Z > Task :lib:common:processDebugNavigationResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.0783613Z > Task :lib:common:parseDebugLocalResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.0832951Z > Task :app:preBuild
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.0842474Z > Task :app:preFxDebugBuild
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.0843573Z > Task :lib:common:generateDebugRFile FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.0844795Z > Task :codegen:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.1772550Z > Task :codegen:compileKotlin FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.1773401Z > Task :codegen:compileJava NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.1774052Z > Task :codegen:processResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.1774604Z > Task :codegen:classes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.1775004Z > Task :codegen:jar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.1775440Z > Task :lib:common:compileDebugAidl FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.6786976Z > Task :app:dataBindingMergeDependencyArtifactsFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:49.6825172Z > Task :app:generateFxDebugResValues
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:53.5767649Z > Task :app:prepareLibraryDefinitionsFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:53.6765741Z > Task :app:extractFxDebugSupportedLocales
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:53.6802430Z > Task :app:mapFxDebugSourceSetPaths
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:53.7805611Z > Task :app:generateFxDebugLocaleConfig FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:53.7855692Z > Task :app:generateFxDebugResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:57.9782754Z > Task :lib:common:compileDebugKotlin
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:59.1779829Z > Task :app:packageFxDebugResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:59.2792599Z > Task :app:processFxDebugNavigationResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:59.5764351Z > Task :app:parseFxDebugLocalResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:59.5792492Z > Task :app:generateFxDebugBuildConfig
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:59.5793496Z > Task :app:generateFxDebugRFile FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:59.5811424Z > Task :lib:common:javaPreCompileDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:25:59.8772602Z > Task :app:mergeFxDebugResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.0832807Z > Task :app:dataBindingGenBaseClassesFxDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.0862991Z > Task :app:javaPreCompileFxDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.1774481Z > Task :app:prepareDirectRimeAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.1796677Z > Task :app:generateDataDescriptor
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.1812389Z > Task :app:generateFxDebugAssets UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.7772970Z > Task :lib:common:compileDebugJavaWithJavac FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.8787253Z > Task :lib:common:bundleLibCompileToJarDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.8822691Z > Task :lib:common:generateDebugAssets UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.8872401Z > Task :lib:common:mergeDebugAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.9822877Z > Task :lib:common:processDebugJavaRes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:00.9889678Z > Task :lib:common:bundleLibRuntimeToJarDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:02.8786776Z > Task :lib:common:writeDebugAarMetadata
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:02.8787934Z > Task :lib:common:extractDeepLinksDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:02.8788756Z > Task :lib:common:processDebugManifest FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:02.8790273Z > Task :lib:common:mapDebugSourceSetPaths
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:02.9761878Z > Task :lib:common:compileDebugLibraryResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:02.9772544Z > Task :lib:common:mergeDebugJniLibFolders
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:02.9773399Z > Task :lib:common:mergeDebugNativeLibs NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:02.9774200Z > Task :lib:common:copyDebugJniLibsProjectOnly
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:02.9775307Z > Task :app:generateFxDebugGlobalSynthetics
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:03.8782669Z > Task :app:mergeFxDebugAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:04.0762493Z > Task :app:compressFxDebugAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:17.0792628Z > Task :app:l8DexDesugarLibFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:17.3782669Z > Task :app:checkFxDebugDuplicateClasses
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:18.5792847Z > Task :app:desugarFxDebugFileDependencies
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:28.6762527Z > Task :app:kspFxDebugKotlin
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:26:48.5793471Z > Task :app:mergeExtDexFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.0762466Z > Task :app:mergeLibDexFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.2766349Z > Task :app:checkFxDebugAarMetadata
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.2767698Z > Task :app:compileFxDebugNavigationResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.2792977Z > Task :app:createFxDebugCompatibleScreenManifests
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.2796631Z > Task :app:extractDeepLinksFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.6782099Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.6802617Z > Task :app:processFxDebugMainManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.6803917Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:55:5-405:19 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.6805384Z 	application@android:supportsRtl was tagged at AndroidManifest.xml:55 to replace other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.7761222Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.7787491Z > Task :app:processFxDebugManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:15.8770361Z > Task :app:processFxDebugManifestForPackage
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:17.9762539Z > Task :app:processFxDebugResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:22.3782059Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:22.3812559Z > Task :app:configureCMakeDebug[x86_64]
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:22.3872725Z C/C++: CMake Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:22.3912964Z C/C++:   Manually-specified variables were not used by the project:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:22.3942363Z C/C++:     PREBUILT_DIR
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:22.3943168Z C/C++:     VERSION_NAME
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:24.9782558Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:24.9812856Z > Task :app:buildCMakeDebug[x86_64][direct-rime]
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:24.9842702Z > Task :app:mergeFxDebugJniLibFolders
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:25.1768621Z > Task :app:mergeFxDebugNativeLibs
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:25.3774969Z > Task :app:stripFxDebugDebugSymbols
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:26.4763843Z > Task :app:validateSigningFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:26.4784139Z > Task :app:writeFxDebugAppMetadata
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:26.5763934Z > Task :app:writeFxDebugSigningConfigVersions
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:26.5788409Z > Task :app:mergeFxDebugNativeDebugMetadata NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:26.5789435Z > Task :app:preFxDebugAndroidTestBuild SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:27.9762500Z > Task :app:dataBindingMergeDependencyArtifactsFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.0803018Z > Task :app:generateFxDebugAndroidTestResValues FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.0845833Z > Task :app:generateFxDebugAndroidTestResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.0862608Z > Task :app:mergeFxDebugAndroidTestResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.1792810Z > Task :app:dataBindingGenBaseClassesFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.2782946Z > Task :app:mergeFxDebugAndroidTestManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.2812454Z > Task :app:processFxDebugAndroidTestManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.2842615Z > Task :app:generateFxDebugAndroidTestBuildConfig
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.2843892Z > Task :app:packageFxDebugAndroidTestResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.2872546Z > Task :app:processFxDebugAndroidTestNavigationResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.2902357Z > Task :app:parseFxDebugAndroidTestLocalResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.3772741Z > Task :app:generateFxDebugAndroidTestRFile
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.3832936Z > Task :app:javaPreCompileFxDebugAndroidTest FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.3833906Z > Task :app:generateFxDebugAndroidTestAssets UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.3882552Z > Task :app:mergeFxDebugAndroidTestAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.3883407Z > Task :app:compressFxDebugAndroidTestAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:28.3884328Z > Task :app:generateFxDebugAndroidTestGlobalSynthetics FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:29.7773470Z > Task :app:checkFxDebugAndroidTestDuplicateClasses
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:29.8772910Z > Task :app:desugarFxDebugAndroidTestFileDependencies
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.6792877Z > Task :app:mergeExtDexFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.6822279Z > Task :app:mergeLibDexFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.6852255Z > Task :app:checkFxDebugAndroidTestAarMetadata
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.6882186Z > Task :app:mapFxDebugAndroidTestSourceSetPaths
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.6912312Z > Task :app:compileFxDebugAndroidTestNavigationResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.8775074Z > Task :app:processFxDebugAndroidTestResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.9774457Z > Task :app:mergeFxDebugAndroidTestJniLibFolders
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.9802789Z > Task :app:mergeFxDebugAndroidTestNativeLibs NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.9822636Z > Task :app:stripFxDebugAndroidTestDebugSymbols NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.9852374Z > Task :app:validateSigningFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.9862249Z > Task :app:writeFxDebugAndroidTestSigningConfigVersions
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.9892025Z > Task :app:preFxDebugUnitTestBuild
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:31.9912274Z > Task :app:javaPreCompileFxDebugUnitTest FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:32.0785524Z > Task :app:packageFxDebugUnitTestForUnitTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2772130Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2802652Z > Task :app:mergeFxDebugUnitTestManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2809429Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:6:5-8:31 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2871941Z 	permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:6 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2888338Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:10:5-12:31 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2903450Z 	uses-permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:10 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2905655Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:34:5-39 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2907184Z 	queries was tagged at AndroidManifest.xml:34 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2908767Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:364:9-366:35 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2910523Z 	activity#com.canhub.cropper.CropImageActivity was tagged at AndroidManifest.xml:364 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2912343Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:368:9-371:35 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2913952Z 	provider#com.canhub.cropper.CropFileProvider was tagged at AndroidManifest.xml:368 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2915522Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:374:9-376:35 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2917250Z 	activity#com.journeyapps.barcodescanner.CaptureActivity was tagged at AndroidManifest.xml:374 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2920891Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:379:9-381:35 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2922955Z 	service#androidx.room.MultiInstanceInvalidationService was tagged at AndroidManifest.xml:379 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2924647Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:396:13-399:39 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2926665Z 	meta-data#androidx.work.WorkManagerInitializer was tagged at AndroidManifest.xml:396 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2928271Z /home/runner/work/_temp/dispatch-product-ui/app/src/main/AndroidManifest.xml:400:13-403:39 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.2934263Z 	meta-data#splitties.views.dsl.appcompat.experimental.AppCompatViewInstantiatorInjecter was tagged at AndroidManifest.xml:400 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.3766712Z /home/runner/work/_temp/dispatch-product-ui/app/build/intermediates/tmp/manifest/test/fx/debug/tempFile2ProcessTestManifest12541232274941862928.xml:61:5-406:19 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.3770078Z 	application@android:supportsRtl was tagged at tempFile2ProcessTestManifest12541232274941862928.xml:61 to replace other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.3772118Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.3772695Z > Task :app:processFxDebugUnitTestManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:35.3773551Z > Task :app:generateFxDebugUnitTestConfig
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:27:37.0761704Z > Task :app:compileFxDebugKotlin
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3763825Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:318:47 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Snapshot'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3794426Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:376:21 Unnecessary safe call on a non-null receiver of type 'Snapshot'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3815404Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangAdvancedSession.kt:122:23 No cast needed.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3843360Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangCommonSettings.kt:85:13 'when' is exhaustive so 'else' is redundant here.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3873061Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangYaml.kt:232:33 No cast needed.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3875565Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/input/font/FontProviders.kt:181:46 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3903750Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt:1187:19 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3933113Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/common/ExpressivePreferenceListStyle.kt:187:17 Check for instance is always 'true'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3963321Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/keyboardtest/KeyboardTestDialog.kt:34:65 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3992988Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/rimeupdate/RimeSchemeUpdateActivity.kt:245:23 Condition is always 'true'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.3995855Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/BackupProtectionDialog.kt:57:60 Unnecessary safe call on a non-null receiver of type 'BackupProtection'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4024165Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/UserDataRestoreActivity.kt:105:17 'fun startActivityForResult(intent: Intent, requestCode: Int): Unit' is deprecated. This method has been deprecated in favor of using the Activity Result API
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4052652Z       which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4054307Z       contracts for common intents available in
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4082393Z       {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4112321Z       testing, and allow receiving results in separate, testable classes independent from your
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4141856Z       activity. Use
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4149364Z       {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4232635Z       passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4254399Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/UserDataRestoreActivity.kt:112:15 'fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Unit' is deprecated. This method has been deprecated in favor of using the Activity Result API
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4282528Z       which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4312096Z       contracts for common intents available in
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4313433Z       {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4342416Z       testing, and allow receiving results in separate, testable classes independent from your
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4371966Z       activity. Use
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4397648Z       {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4422348Z       with the appropriate {@link ActivityResultContract} and handling the result in the
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4442225Z       {@link ActivityResultCallback#onActivityResult(Object) callback}.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4453491Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt:182:31 Unnecessary non-null assertion (!!) on a non-null receiver of type 'File'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4483754Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt:189:59 Unnecessary non-null assertion (!!) on a non-null receiver of type 'File'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4513509Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorDialogFragment.kt:726:74 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4537143Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyboardCanvasOverlay.kt:81:18 'fun setBoundsInParent(p0: Rect!): Unit' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4573301Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:509:52 Unnecessary safe call on a non-null receiver of type 'String'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4577147Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1260:47 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4603992Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1261:46 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4634121Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1262:44 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4664105Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1270:47 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4694264Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1271:46 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4703772Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1272:44 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4723809Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeColorEditorActivity.kt:309:44 Unnecessary safe call on a non-null receiver of type 'String'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4753417Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:126:76 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4783463Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:133:56 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4813509Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:216:60 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4843416Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:221:60 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4846625Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:271:76 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4873522Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:275:56 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4903386Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:355:56 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4933087Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/WordCloudView.kt:169:60 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4963290Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangUpdateActivity.kt:306:41 Unnecessary safe call on a non-null receiver of type 'Data'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4966364Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/utils/AlertDialog.kt:16:53 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:01.4992867Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/main/java/org/fcitx/fcitx5/android/utils/AtomicFileMove.kt:21:102 Expression is unused.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:08.3760713Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:08.3792518Z > Task :app:compileFxDebugJavaWithJavac
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:08.3825475Z > Task :app:processFxDebugJavaRes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:09.5802876Z > Task :app:mergeFxDebugJavaResource
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:20.2761491Z > Task :app:dexBuilderFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:20.5778953Z > Task :app:bundleFxDebugClassesToCompileJar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:20.5792877Z > Task :app:kspFxDebugAndroidTestKotlin SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:22.3761219Z > Task :app:mergeProjectDexFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:23.7802811Z > Task :app:packageFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:23.7803673Z > Task :app:generateBuildMetadataFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:23.7882675Z > Task :app:createFxDebugApkListingFileRedirect
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:23.7912405Z > Task :app:assembleFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:23.9761802Z > Task :app:bundleFxDebugClassesToRuntimeJar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:23.9763400Z > Task :app:kspFxDebugUnitTestKotlin SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.5762173Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.5793494Z > Task :app:compileFxDebugAndroidTestKotlin
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.5814124Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:1061:32 Unnecessary safe call on a non-null receiver of type 'FcitxInputMethodService'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.5836153Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:1153:34 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RimeImportActivity'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.5875039Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:1194:93 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RimeImportActivity'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.5934285Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:1361:48 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RadioButton'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.5954046Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:2028:69 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextKeyboardLayoutEditorActivity'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.5964394Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/input/InputStatisticsDeviceTest.kt:252:69 Unnecessary non-null assertion (!!) on a non-null receiver of type 'FcitxInputMethodService'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.5994160Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/LayoutEditorResultTest.kt:168:42 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextKeyboardLayoutEditorActivity'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.6023325Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangSettingsUiTest.kt:135:40 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextView'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.6026163Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangSettingsUiTest.kt:136:28 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextView'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.6029023Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangSettingsUiTest.kt:136:74 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextView'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:30.6031940Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangSettingsUiTest.kt:136:91 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextView'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:33.0772237Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:33.0812691Z > Task :app:compileFxDebugAndroidTestJavaWithJavac
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:33.0842629Z > Task :app:processFxDebugAndroidTestJavaRes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:33.1764362Z > Task :app:mergeFxDebugAndroidTestJavaResource
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:37.4773043Z > Task :app:dexBuilderFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:37.7792916Z > Task :app:mergeProjectDexFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:37.8800845Z > Task :app:packageFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:37.8832531Z > Task :app:createFxDebugAndroidTestApkListingFileRedirect
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:37.8862626Z > Task :app:assembleFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8760618Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8775506Z > Task :app:compileFxDebugUnitTestKotlin
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8778282Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/WebSocketFrameGuardTest.kt:84:44 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'ProtectionDomain?'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8782141Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:25:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8785329Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:25:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8788170Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:25:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8790928Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:61:14 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8793773Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:79:14 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8796523Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:92:14 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8799433Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt:21:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8802518Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt:21:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8805316Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt:21:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8808038Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataRestoreProcessTest.kt:19:13 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'String?'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8811137Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt:27:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8814801Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt:27:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8818100Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt:27:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8821521Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt:29:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8824986Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt:29:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8828023Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt:29:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8830768Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/stats/InputStatsTest.kt:232:26 Java type mismatch: inferred type is 'Any?', but 'Any' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8833902Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/stats/InputStatsTest.kt:273:26 Java type mismatch: inferred type is 'Any?', but 'Any' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8837069Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/data/theme/ThemeAssetTransactionTest.kt:42:42 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8843283Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt:52:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8846625Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt:52:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8849753Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt:52:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8853081Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt:61:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8856303Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt:61:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8859344Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt:61:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8863317Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/input/voice/VoiceFinishIntegrationTest.kt:80:26 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8866773Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppContractTest.kt:101:46 Unnecessary non-null assertion (!!) on a non-null receiver of type 'JsonObject'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8869899Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceBridgeContractTest.kt:571:50 Unnecessary non-null assertion (!!) on a non-null receiver of type 'JsonObject'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8873175Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/testing/FilesystemFixtures.kt:15:17 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'String?'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8876230Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt:45:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8879458Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt:45:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8882674Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt:45:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8885858Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt:108:36 Unnecessary safe call on a non-null receiver of type 'Map<String, Any?>'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8888885Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt:384:81 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8891745Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt:515:81 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8894706Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt:518:149 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8897992Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/DownloadPublisherTest.kt:97:38 Java type mismatch: inferred type is 'File?', but 'File' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8901470Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadWorkerTest.kt:43:89 The corresponding parameter in the supertype 'WorkerFactory' is named 'workerParameters'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8905434Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadsLifecycleTest.kt:36:89 The corresponding parameter in the supertype 'WorkerFactory' is named 'workerParameters'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8908365Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangUpdateActivityTest.kt:298:35 Redundant call of conversion method.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:48.8911670Z w: file:///home/runner/work/_temp/dispatch-product-ui/app/src/test/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangUpdateWorkerTest.kt:94:89 The corresponding parameter in the supertype 'WorkerFactory' is named 'workerParameters'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:49.9760480Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:49.9762168Z > Task :app:compileFxDebugUnitTestJavaWithJavac NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:29:49.9763302Z > Task :app:processFxDebugUnitTestJavaRes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:19.9764947Z > Task :app:testFxDebugUnitTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2762038Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1794453940930.json
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2765508Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2766790Z [Incubating] Problems report is available at: file:///home/runner/work/_temp/dispatch-product-ui/build/reports/problems/problems-report.html
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2767918Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2768744Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2769483Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2770461Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2773655Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2776910Z For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2778240Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2778489Z BUILD SUCCESSFUL in 4m 45s
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.2779163Z 125 actionable tasks: 100 executed, 22 from cache, 3 up-to-date
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:26.3249732Z {'report_files': 14, 'tests': 131, 'failures': 0, 'errors': 0, 'skipped': 0}
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:27.3637940Z Stopping Daemon(s)
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:27.3638634Z 1 Daemon stopped
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:27.4141041Z Cloning into '/home/runner/work/_temp/dispatch-product-priority'...
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:27.4206802Z done.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:27.5223511Z HEAD is now at bc787391 优化(输入): 将按键结果发布纳入交互优先级作用域
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:27.5453338Z Submodule 'native/rime-prelude' (https://github.com/rime/rime-prelude.git) registered for path 'native/rime-prelude'
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:27.5476335Z Cloning into '/home/runner/work/_temp/dispatch-product-priority/native/rime-prelude'...
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:27.9676342Z Submodule path 'native/rime-prelude': checked out '082425ea0684bca36474415d4a0e8db9b016487e'
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:28.6076078Z Starting a Gradle Daemon, 1 stopped Daemon could not be reused, use --status for details
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:34.8112585Z > Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:35.1055885Z > Task :build-logic:convention:compileKotlin FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:35.1067766Z > Task :build-logic:convention:compileJava NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:35.1068523Z > Task :build-logic:convention:pluginDescriptors
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:35.1069072Z > Task :build-logic:convention:processResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:35.1069685Z > Task :build-logic:convention:classes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:35.2077054Z > Task :build-logic:convention:jar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:40.0045218Z > Task :prepareRimeSdk
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:40.0072609Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1794454230844.json
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:40.0073715Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:40.0074132Z BUILD SUCCESSFUL in 11s
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:40.0074884Z 5 actionable tasks: 4 executed, 1 from cache
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:40.0623401Z Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.1/userguide/configuration_cache_enabling.html
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:41.3130073Z > Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:41.4117303Z > Task :build-logic:convention:compileKotlin UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:41.4142795Z > Task :build-logic:convention:compileJava NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:41.4144199Z > Task :build-logic:convention:pluginDescriptors UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:41.4145261Z > Task :build-logic:convention:processResources UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:41.4146294Z > Task :build-logic:convention:classes UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:41.4172296Z > Task :build-logic:convention:jar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1127984Z > Task :prepareRimeSdk
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1152619Z > Task :lib:common:preBuild UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1171048Z > Task :lib:common:preDebugBuild UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1202263Z > Task :lib:common:extractDebugSupportedLocales FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1212387Z > Task :lib:common:generateDebugResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1232379Z > Task :lib:common:packageDebugResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1262316Z > Task :lib:common:processDebugNavigationResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1272582Z > Task :app:prepareLibraryDefinitionsFxDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1301964Z > Task :app:preBuild
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.1322132Z > Task :app:preFxDebugBuild
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.5111615Z > Task :app:dataBindingMergeDependencyArtifactsFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.5143827Z > Task :app:generateFxDebugResValues FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.5204733Z > Task :app:extractFxDebugSupportedLocales FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.5262241Z > Task :app:mapFxDebugSourceSetPaths
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.6108788Z > Task :app:generateFxDebugLocaleConfig FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.6137992Z > Task :app:generateFxDebugResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.7125959Z > Task :lib:common:parseDebugLocalResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.7172720Z > Task :lib:common:generateDebugRFile FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.7182344Z > Task :codegen:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.7183202Z > Task :codegen:compileKotlin FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.7183819Z > Task :codegen:compileJava NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.7184409Z > Task :codegen:processResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.7184937Z > Task :codegen:classes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.7185394Z > Task :codegen:jar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.8142871Z > Task :lib:common:compileDebugAidl FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.8144229Z > Task :lib:common:compileDebugKotlin FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.8172525Z > Task :lib:common:javaPreCompileDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.8173322Z > Task :app:mergeFxDebugResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:46.9109229Z > Task :app:packageFxDebugResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.0125409Z > Task :app:processFxDebugNavigationResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.0143757Z > Task :app:parseFxDebugLocalResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.1112744Z > Task :app:dataBindingGenBaseClassesFxDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.1167148Z > Task :app:generateFxDebugBuildConfig
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.1202109Z > Task :app:generateFxDebugRFile FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.1232211Z > Task :app:javaPreCompileFxDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.2127819Z > Task :app:prepareDirectRimeAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.2152665Z > Task :app:generateDataDescriptor
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.2172581Z > Task :app:generateFxDebugAssets UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.2202565Z > Task :app:generateFxDebugGlobalSynthetics FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.3142833Z > Task :app:l8DexDesugarLibFxDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.4162774Z > Task :app:checkFxDebugDuplicateClasses
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.7132855Z > Task :lib:common:compileDebugJavaWithJavac FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.8162783Z > Task :lib:common:bundleLibCompileToJarDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.8252577Z > Task :lib:common:generateDebugAssets UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.8309764Z > Task :lib:common:mergeDebugAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.8322118Z > Task :lib:common:processDebugJavaRes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.8325040Z > Task :lib:common:bundleLibRuntimeToJarDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.9133077Z > Task :lib:common:writeDebugAarMetadata
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.9134329Z > Task :lib:common:extractDeepLinksDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.9135264Z > Task :lib:common:processDebugManifest FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.9136031Z > Task :lib:common:mapDebugSourceSetPaths
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.9136916Z > Task :lib:common:compileDebugLibraryResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.9137744Z > Task :lib:common:mergeDebugJniLibFolders
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:47.9138571Z > Task :lib:common:mergeDebugNativeLibs NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:48.0113023Z > Task :lib:common:copyDebugJniLibsProjectOnly
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:48.1108732Z > Task :app:desugarFxDebugFileDependencies FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:48.8122756Z > Task :app:mergeFxDebugAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:48.8134150Z > Task :app:compressFxDebugAssets FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:49.5116771Z > Task :app:mergeExtDexFxDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:49.6123806Z > Task :app:mergeLibDexFxDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:49.7144814Z > Task :app:checkFxDebugAarMetadata
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:49.7194126Z > Task :app:compileFxDebugNavigationResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:49.7227268Z > Task :app:createFxDebugCompatibleScreenManifests
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:49.7252477Z > Task :app:extractDeepLinksFxDebug FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:50.2135465Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:50.2182923Z > Task :app:processFxDebugMainManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:50.2211959Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:55:5-405:19 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:50.2242864Z 	application@android:supportsRtl was tagged at AndroidManifest.xml:55 to replace other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:50.3136054Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:50.3152868Z > Task :app:processFxDebugManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:50.3182482Z > Task :app:processFxDebugManifestForPackage
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:52.1142795Z > Task :app:processFxDebugResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:52.9108581Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:52.9133076Z > Task :app:configureCMakeDebug[x86_64]
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:52.9162536Z C/C++: CMake Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:52.9192730Z C/C++:   Manually-specified variables were not used by the project:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:52.9193846Z C/C++:     PREBUILT_DIR
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:52.9222257Z C/C++:     VERSION_NAME
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.0106498Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.0142867Z > Task :app:buildCMakeDebug[x86_64][direct-rime]
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.0144081Z > Task :app:mergeFxDebugJniLibFolders
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.1110475Z > Task :app:mergeFxDebugNativeLibs
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.2108819Z > Task :app:stripFxDebugDebugSymbols
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.3132904Z > Task :app:validateSigningFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.3146987Z > Task :app:writeFxDebugAppMetadata
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.3152402Z > Task :app:writeFxDebugSigningConfigVersions
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.3153493Z > Task :app:mergeFxDebugNativeDebugMetadata NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.3154473Z > Task :app:preFxDebugAndroidTestBuild SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.4132143Z > Task :app:dataBindingMergeDependencyArtifactsFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.4196115Z > Task :app:generateFxDebugAndroidTestResValues FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.4232936Z > Task :app:generateFxDebugAndroidTestResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.4234279Z > Task :app:mergeFxDebugAndroidTestResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5122554Z > Task :app:dataBindingGenBaseClassesFxDebugAndroidTest FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5136657Z > Task :app:mergeFxDebugAndroidTestManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5137898Z > Task :app:processFxDebugAndroidTestManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5139048Z > Task :app:generateFxDebugAndroidTestBuildConfig
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5140134Z > Task :app:packageFxDebugAndroidTestResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5141433Z > Task :app:processFxDebugAndroidTestNavigationResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5142412Z > Task :app:parseFxDebugAndroidTestLocalResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5143276Z > Task :app:generateFxDebugAndroidTestRFile FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5144178Z > Task :app:javaPreCompileFxDebugAndroidTest FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.5145466Z > Task :app:generateFxDebugAndroidTestAssets UP-TO-DATE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.6131012Z > Task :app:mergeFxDebugAndroidTestAssets
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.6168845Z > Task :app:compressFxDebugAndroidTestAssets FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.6194902Z > Task :app:generateFxDebugAndroidTestGlobalSynthetics FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.6232183Z > Task :app:checkFxDebugAndroidTestDuplicateClasses
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.6245612Z > Task :app:desugarFxDebugAndroidTestFileDependencies FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.6273598Z > Task :app:mergeExtDexFxDebugAndroidTest FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.7136130Z > Task :app:mergeLibDexFxDebugAndroidTest FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.7154766Z > Task :app:checkFxDebugAndroidTestAarMetadata
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.7162689Z > Task :app:mapFxDebugAndroidTestSourceSetPaths
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.7192503Z > Task :app:compileFxDebugAndroidTestNavigationResources FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.8137986Z > Task :app:processFxDebugAndroidTestResources
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.8162668Z > Task :app:mergeFxDebugAndroidTestJniLibFolders
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.8252496Z > Task :app:mergeFxDebugAndroidTestNativeLibs NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.9127302Z > Task :app:stripFxDebugAndroidTestDebugSymbols NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.9130916Z > Task :app:validateSigningFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.9132214Z > Task :app:writeFxDebugAndroidTestSigningConfigVersions
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.9133096Z > Task :app:preFxDebugUnitTestBuild
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:55.9133954Z > Task :app:javaPreCompileFxDebugUnitTest FROM-CACHE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.0108288Z > Task :app:packageFxDebugUnitTestForUnitTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2162440Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2173257Z > Task :app:mergeFxDebugUnitTestManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2208943Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:6:5-8:31 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2211133Z 	permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:6 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2224091Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:10:5-12:31 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2225993Z 	uses-permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:10 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2227743Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:34:5-39 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2229320Z 	queries was tagged at AndroidManifest.xml:34 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2230647Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:364:9-366:35 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2232395Z 	activity#com.canhub.cropper.CropImageActivity was tagged at AndroidManifest.xml:364 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2233961Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:368:9-371:35 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2235544Z 	provider#com.canhub.cropper.CropFileProvider was tagged at AndroidManifest.xml:368 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2236826Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:374:9-376:35 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2238392Z 	activity#com.journeyapps.barcodescanner.CaptureActivity was tagged at AndroidManifest.xml:374 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2239969Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:379:9-381:35 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2241743Z 	service#androidx.room.MultiInstanceInvalidationService was tagged at AndroidManifest.xml:379 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2243319Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:396:13-399:39 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2244845Z 	meta-data#androidx.work.WorkManagerInitializer was tagged at AndroidManifest.xml:396 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2246342Z /home/runner/work/_temp/dispatch-product-priority/app/src/main/AndroidManifest.xml:400:13-403:39 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2248195Z 	meta-data#splitties.views.dsl.appcompat.experimental.AppCompatViewInstantiatorInjecter was tagged at AndroidManifest.xml:400 to remove other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2250567Z /home/runner/work/_temp/dispatch-product-priority/app/build/intermediates/tmp/manifest/test/fx/debug/tempFile2ProcessTestManifest11789033224100330052.xml:61:5-406:19 Warning:
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2252735Z 	application@android:supportsRtl was tagged at tempFile2ProcessTestManifest11789033224100330052.xml:61 to replace other declarations but no other declaration present
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2253726Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2254052Z > Task :app:processFxDebugUnitTestManifest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:30:56.2254688Z > Task :app:generateFxDebugUnitTestConfig
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:31:05.2107944Z > Task :app:kspFxDebugKotlin
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:31:35.2107802Z > Task :app:compileFxDebugKotlin
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7174252Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:318:47 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Snapshot'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7177174Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:376:21 Unnecessary safe call on a non-null receiver of type 'Snapshot'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7179668Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangAdvancedSession.kt:122:23 No cast needed.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7182196Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangCommonSettings.kt:85:13 'when' is exhaustive so 'else' is redundant here.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7184670Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangYaml.kt:232:33 No cast needed.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7186837Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/input/font/FontProviders.kt:181:46 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7189986Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt:1187:19 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7193395Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/common/ExpressivePreferenceListStyle.kt:187:17 Check for instance is always 'true'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7195998Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/keyboardtest/KeyboardTestDialog.kt:34:65 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7198519Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/rimeupdate/RimeSchemeUpdateActivity.kt:245:23 Condition is always 'true'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7201092Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/BackupProtectionDialog.kt:57:60 Unnecessary safe call on a non-null receiver of type 'BackupProtection'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7237068Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/UserDataRestoreActivity.kt:105:17 'fun startActivityForResult(intent: Intent, requestCode: Int): Unit' is deprecated. This method has been deprecated in favor of using the Activity Result API
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7240602Z       which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7242020Z       contracts for common intents available in
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7243363Z       {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7244937Z       testing, and allow receiving results in separate, testable classes independent from your
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7245945Z       activity. Use
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7247239Z       {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7248855Z       passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7252739Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/UserDataRestoreActivity.kt:112:15 'fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Unit' is deprecated. This method has been deprecated in favor of using the Activity Result API
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7256020Z       which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7257138Z       contracts for common intents available in
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7258363Z       {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7259892Z       testing, and allow receiving results in separate, testable classes independent from your
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7260896Z       activity. Use
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7262007Z       {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7263473Z       with the appropriate {@link ActivityResultContract} and handling the result in the
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7264771Z       {@link ActivityResultCallback#onActivityResult(Object) callback}.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7267954Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt:182:31 Unnecessary non-null assertion (!!) on a non-null receiver of type 'File'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7271736Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt:189:59 Unnecessary non-null assertion (!!) on a non-null receiver of type 'File'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7274889Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorDialogFragment.kt:726:74 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7278291Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyboardCanvasOverlay.kt:81:18 'fun setBoundsInParent(p0: Rect!): Unit' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7281216Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:509:52 Unnecessary safe call on a non-null receiver of type 'String'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7284651Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1260:47 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7288834Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1261:46 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7293163Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1262:44 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7297334Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1270:47 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7301038Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1271:46 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7305109Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1272:44 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7308373Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeColorEditorActivity.kt:309:44 Unnecessary safe call on a non-null receiver of type 'String'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7311060Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:126:76 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7313719Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:133:56 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7316526Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:216:60 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7319003Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:221:60 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7321740Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:271:76 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7324508Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:275:56 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7327089Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:355:56 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7329633Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/WordCloudView.kt:169:60 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7332379Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangUpdateActivity.kt:306:41 Unnecessary safe call on a non-null receiver of type 'Data'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7335037Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/utils/AlertDialog.kt:16:53 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:32:55.7337325Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/main/java/org/fcitx/fcitx5/android/utils/AtomicFileMove.kt:21:102 Expression is unused.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:01.7125871Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:01.7152728Z > Task :app:compileFxDebugJavaWithJavac
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:01.7153888Z > Task :app:processFxDebugJavaRes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:02.6107534Z > Task :app:mergeFxDebugJavaResource
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:30.3125353Z > Task :app:dexBuilderFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:30.5113468Z > Task :app:bundleFxDebugClassesToCompileJar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:30.5142314Z > Task :app:kspFxDebugAndroidTestKotlin SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:34.1106945Z > Task :app:mergeProjectDexFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:35.9106923Z > Task :app:packageFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:35.9132956Z > Task :app:generateBuildMetadataFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:35.9162606Z > Task :app:createFxDebugApkListingFileRedirect
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:35.9192350Z > Task :app:assembleFxDebug
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:36.1122970Z > Task :app:bundleFxDebugClassesToRuntimeJar
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:36.2121867Z > Task :app:kspFxDebugUnitTestKotlin SKIPPED
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0155068Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0169981Z > Task :app:compileFxDebugAndroidTestKotlin
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0203982Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:1061:32 Unnecessary safe call on a non-null receiver of type 'FcitxInputMethodService'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0233983Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:1153:34 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RimeImportActivity'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0247778Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:1194:93 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RimeImportActivity'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0273533Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:1361:48 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RadioButton'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0293821Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt:2028:69 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextKeyboardLayoutEditorActivity'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0323719Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/input/InputStatisticsDeviceTest.kt:252:69 Unnecessary non-null assertion (!!) on a non-null receiver of type 'FcitxInputMethodService'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0351830Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/LayoutEditorResultTest.kt:168:42 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextKeyboardLayoutEditorActivity'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0363513Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangSettingsUiTest.kt:135:40 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextView'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0413331Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangSettingsUiTest.kt:136:28 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextView'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0432900Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangSettingsUiTest.kt:136:74 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextView'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:44.0463699Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangSettingsUiTest.kt:136:91 Unnecessary non-null assertion (!!) on a non-null receiver of type 'TextView'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:45.6112864Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:45.6152923Z > Task :app:compileFxDebugAndroidTestJavaWithJavac
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:45.6172636Z > Task :app:processFxDebugAndroidTestJavaRes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:45.6202418Z > Task :app:mergeFxDebugAndroidTestJavaResource
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:52.0125025Z > Task :app:dexBuilderFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:52.6107129Z > Task :app:mergeProjectDexFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:52.8107052Z > Task :app:packageFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:52.8109531Z > Task :app:createFxDebugAndroidTestApkListingFileRedirect
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:33:52.8110613Z > Task :app:assembleFxDebugAndroidTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3123596Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3125014Z > Task :app:compileFxDebugUnitTestKotlin
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3128162Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/WebSocketFrameGuardTest.kt:84:44 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'ProtectionDomain?'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3132254Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:25:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3135602Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:25:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3141781Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:25:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3145563Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:61:14 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3149196Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:79:14 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3152414Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:92:14 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3155742Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt:21:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3159662Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt:21:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3163334Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt:21:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3167144Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataRestoreProcessTest.kt:19:13 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'String?'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3170660Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt:27:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3174408Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt:27:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3177853Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt:27:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3181729Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt:29:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3184977Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt:29:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3188173Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt:29:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3191407Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/stats/InputStatsTest.kt:232:26 Java type mismatch: inferred type is 'Any?', but 'Any' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3194291Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/stats/InputStatsTest.kt:273:26 Java type mismatch: inferred type is 'Any?', but 'Any' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3197336Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/data/theme/ThemeAssetTransactionTest.kt:42:42 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3200538Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt:52:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3204362Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt:52:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3207696Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt:52:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3210962Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt:61:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3214516Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt:61:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3217660Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt:61:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3221377Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/input/voice/VoiceFinishIntegrationTest.kt:80:26 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3224874Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppContractTest.kt:101:46 Unnecessary non-null assertion (!!) on a non-null receiver of type 'JsonObject'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3227978Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceBridgeContractTest.kt:571:50 Unnecessary non-null assertion (!!) on a non-null receiver of type 'JsonObject'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3231110Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/testing/FilesystemFixtures.kt:15:17 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'String?'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3234317Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt:45:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3237366Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt:45:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3240479Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt:45:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3244023Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt:108:36 Unnecessary safe call on a non-null receiver of type 'Map<String, Any?>'.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3246969Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt:384:81 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3249843Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt:515:81 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3252719Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt:518:149 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3255832Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/DownloadPublisherTest.kt:97:38 Java type mismatch: inferred type is 'File?', but 'File' was expected.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3259296Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadWorkerTest.kt:43:89 The corresponding parameter in the supertype 'WorkerFactory' is named 'workerParameters'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3264390Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadsLifecycleTest.kt:36:89 The corresponding parameter in the supertype 'WorkerFactory' is named 'workerParameters'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3268151Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangUpdateActivityTest.kt:298:35 Redundant call of conversion method.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:04.3271861Z w: file:///home/runner/work/_temp/dispatch-product-priority/app/src/test/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangUpdateWorkerTest.kt:94:89 The corresponding parameter in the supertype 'WorkerFactory' is named 'workerParameters'. This may cause problems when calling this function with named arguments.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:05.4105635Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:05.4107520Z > Task :app:compileFxDebugUnitTestJavaWithJavac NO-SOURCE
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:05.5106946Z > Task :app:processFxDebugUnitTestJavaRes
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3107143Z > Task :app:testFxDebugUnitTest
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3108272Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1794454240977.json
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3108903Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3109974Z [Incubating] Problems report is available at: file:///home/runner/work/_temp/dispatch-product-priority/build/reports/problems/problems-report.html
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3110641Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3111016Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3111623Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3112287Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3112782Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3113431Z For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3113966Z 
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3114127Z BUILD SUCCESSFUL in 3m 38s
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3114547Z 125 actionable tasks: 72 executed, 50 from cache, 3 up-to-date
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:19.3624555Z {'report_files': 14, 'tests': 131, 'failures': 0, 'errors': 0, 'skipped': 0}
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4002788Z Stopping Daemon(s)
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4003790Z 1 Daemon stopped
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4418868Z fatal: path 'native/rime-sdk.lock.json' exists on disk, but not in '4d77cd79a580a9984130a5653b13f949ec5bc0a9'
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4880251Z Traceback (most recent call last):
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4881727Z   File "<stdin>", line 5, in <module>
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4882371Z   File "<stdin>", line 5, in <dictcomp>
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4883032Z   File "/usr/lib/python3.10/subprocess.py", line 421, in check_output
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4885906Z     return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4887070Z   File "/usr/lib/python3.10/subprocess.py", line 526, in run
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4888275Z     raise CalledProcessError(retcode, process.args,
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.4890531Z subprocess.CalledProcessError: Command '['git', 'show', '4d77cd79a580a9984130a5653b13f949ec5bc0a9:native/rime-sdk.lock.json']' returned non-zero exit status 128.
+build	Build isolated UI-only and priority-only variants	2026-11-12T03:34:20.5012604Z ##[error]Process completed with exit code 1.

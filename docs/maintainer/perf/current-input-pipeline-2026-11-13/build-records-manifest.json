@@ -1,0 +1,212 @@
+[
+  {
+    "path": "baseline-apk-audit.json",
+    "sha256": "3ead1adcab9bd50e58030f3a4eb222835683d4fecd4949b626ed8634594dc29d",
+    "bytes": 1181
+  },
+  {
+    "path": "baseline-build.log",
+    "sha256": "e146b044bfdd7cf1a8d763fbebc08a436f3e022ddec62e4ccddb6f4bbb505f64",
+    "bytes": 33490
+  },
+  {
+    "path": "baseline-commit.txt",
+    "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+    "bytes": 41
+  },
+  {
+    "path": "baseline-harness-sha256.txt",
+    "sha256": "b8e6e069129227dcc49c5e3c3422cb9abb5f82af0c8c6d3876a641f917218bdc",
+    "bytes": 65
+  },
+  {
+    "path": "baseline-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateActionGuardTest.xml",
+    "sha256": "d0b67dc2a1295dc0d8d35dcb109b61da5034ec2558a658793576c09910a07c77",
+    "bytes": 3106
+  },
+  {
+    "path": "baseline-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateSelectionQueueTest.xml",
+    "sha256": "2a34e7bd73d806beaf2eda90105b13d3d5b66ee7524edd3f0cee2be0babcab95",
+    "bytes": 507
+  },
+  {
+    "path": "baseline-jvm/TEST-org.fcitx.fcitx5.android.core.InputBindingStartupTest.xml",
+    "sha256": "c1dddbb0be4a64ba6daec16d5ed99a549be7a9693cea13acf2a4bd217fde488b",
+    "bytes": 2381
+  },
+  {
+    "path": "baseline-jvm/TEST-org.fcitx.fcitx5.android.core.InputEventQueueTest.xml",
+    "sha256": "5e1613b63efe560f6cdb6823611a6418fcc772ba760a5591bd86cc0504b2ec30",
+    "bytes": 1784
+  },
+  {
+    "path": "baseline-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateCharacterTest.xml",
+    "sha256": "844a8b8a4968f54c0abde35e2726c6d45f6f500e0c4b8a7e7f507890e553b1c5",
+    "bytes": 826
+  },
+  {
+    "path": "baseline-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateTouchCancellationTest.xml",
+    "sha256": "68ebdd7b7965a9352bacbf21bbff0d2d5335efa51270692b86b9ce4dd2d07c04",
+    "bytes": 2406
+  },
+  {
+    "path": "baseline-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.horizontal.MovingCandidateBadgeTest.xml",
+    "sha256": "abfe90fed6cdca887a90c46409aaac82207aa05e2d78f0a89144a86f607b4f6c",
+    "bytes": 3702
+  },
+  {
+    "path": "baseline-jvm/TEST-org.fcitx.fcitx5.android.input.keyboard.CustomGestureViewHoldTest.xml",
+    "sha256": "094007c90a61baeaab7cb42d9324613f1e0f685233a66e50a57eb88039c855c5",
+    "bytes": 706
+  },
+  {
+    "path": "baseline-jvm/TEST-org.fcitx.fcitx5.android.input.keyboard.CustomGestureViewSwipeTest.xml",
+    "sha256": "9e5d2d26eb44b9e91d21728fef0754c013e66b709fae3fce1d0acbeb9a29c8b0",
+    "bytes": 1619
+  },
+  {
+    "path": "baseline-jvm/binary/output-events.bin",
+    "sha256": "550d8a522b6527a77a6c4176b852dfc8dbb6c8c91d6c1f2fd268e65d7153baa9",
+    "bytes": 290
+  },
+  {
+    "path": "baseline-jvm/binary/results-generic.bin",
+    "sha256": "0fce9b4b0e2be2e25f5b356f2021836b7c9fd07563e83f420987d0b01ffd14a5",
+    "bytes": 14015
+  },
+  {
+    "path": "baseline-native-link-audit.json",
+    "sha256": "c2ad6c30e38371e7c09619f280e8187b2adf941cc63201ff91d299cb19fd3b72",
+    "bytes": 1155
+  },
+  {
+    "path": "baseline-submodules.txt",
+    "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59",
+    "bytes": 77
+  },
+  {
+    "path": "baseline-tests.apk.signer.txt",
+    "sha256": "c26a8e0b165faf1f3d8ef45bc7859d7c7949b062424147e5709ee61e470f831c",
+    "bytes": 311
+  },
+  {
+    "path": "baseline.apk.signer.txt",
+    "sha256": "294241909e02a24bc0325cdc93fd2fa74e9a920b182496235b4d0bf6c7c9976a",
+    "bytes": 1658
+  },
+  {
+    "path": "current-apk-audit.json",
+    "sha256": "a4d39a6d9cac0acf46a5650b387c4574aa6558db7091793e4a175bde623ed3cd",
+    "bytes": 1180
+  },
+  {
+    "path": "current-build.log",
+    "sha256": "ea7f5fb1498d11f62be64e50fecafef56e8d88360936766a5f385e023cc1dc74",
+    "bytes": 33928
+  },
+  {
+    "path": "current-commit.txt",
+    "sha256": "b483d9577b1a8eb2c606998f02e22dac1c8b15c34c0e7d8049ed33c9285bd294",
+    "bytes": 41
+  },
+  {
+    "path": "current-harness-sha256.txt",
+    "sha256": "b8e6e069129227dcc49c5e3c3422cb9abb5f82af0c8c6d3876a641f917218bdc",
+    "bytes": 65
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateActionGuardTest.xml",
+    "sha256": "8b0b705f8609ef7610ff4241136e2b12fe5f8efe3eb1ff6c3473e1a59b64244e",
+    "bytes": 3106
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateSelectionQueueTest.xml",
+    "sha256": "f08328537a3e67e4f3c8d7b98a13c0a90a28dd7e87647084d07d7abdbbfcb4dd",
+    "bytes": 507
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.core.InputBindingStartupTest.xml",
+    "sha256": "00a3837b000d5c8ed5315c8ab48b055ecdc8ebc56a8985f5cbb887f4f3dc4fbd",
+    "bytes": 2380
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.core.InputEventQueueTest.xml",
+    "sha256": "76881237c8746e3d230585b47244cddc974668201320d516bc4a4f99e6843d44",
+    "bytes": 1786
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.input.broadcast.CandidateBroadcastTest.xml",
+    "sha256": "d6f4318097baeb22c11491fc4e34ae3275f4ec10717decbbe32516d16d46bf00",
+    "bytes": 1020
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateCharacterTest.xml",
+    "sha256": "e72cbca0013d6107ece0555c69f228b81c6b0e6f43da39bf1a11906d923fd3e1",
+    "bytes": 826
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateTouchCancellationTest.xml",
+    "sha256": "96fbb65a6d1952dd41e7adad43d08e5c42d8050c50da7d52c7182d1b13b5774b",
+    "bytes": 2409
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.horizontal.MovingCandidateBadgeTest.xml",
+    "sha256": "cedb229db7cb6f43c736a6483db4590325011fd804bbfae0d2689f8c25dd8ca0",
+    "bytes": 3704
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.input.keyboard.CustomGestureViewHoldTest.xml",
+    "sha256": "7c1fa3387fb03607892010f59f6f82da2fbdb5b827feb787d6c1a472c6474ad4",
+    "bytes": 705
+  },
+  {
+    "path": "current-jvm/TEST-org.fcitx.fcitx5.android.input.keyboard.CustomGestureViewSwipeTest.xml",
+    "sha256": "c6a9903517df25f484b11ba1d5a86d6ae63fada7475b0547a17bf5e6336bfcd8",
+    "bytes": 1617
+  },
+  {
+    "path": "current-jvm/binary/output-events.bin",
+    "sha256": "e74a79b87c50f6e6e97553183feba30919545d09c4a98cda44c617b252a950f0",
+    "bytes": 290
+  },
+  {
+    "path": "current-jvm/binary/results-generic.bin",
+    "sha256": "aa2b23f6e0924a8b889ca5a122a15e1311a74d42610fe8829f30de1acdbcf133",
+    "bytes": 14795
+  },
+  {
+    "path": "current-native-link-audit.json",
+    "sha256": "1d6c9817be06e1c2af249b6d886c9cece6fae4897faacd61a82e34f3d38a33be",
+    "bytes": 1154
+  },
+  {
+    "path": "current-submodules.txt",
+    "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59",
+    "bytes": 77
+  },
+  {
+    "path": "current-tests.apk.signer.txt",
+    "sha256": "c26a8e0b165faf1f3d8ef45bc7859d7c7949b062424147e5709ee61e470f831c",
+    "bytes": 311
+  },
+  {
+    "path": "current.apk.signer.txt",
+    "sha256": "294241909e02a24bc0325cdc93fd2fa74e9a920b182496235b4d0bf6c7c9976a",
+    "bytes": 1658
+  },
+  {
+    "path": "pipeline-plan.json",
+    "sha256": "ec349e49e709e90913ac39376a5dd50b44895192a28c7cefa2f413dfa9d3e581",
+    "bytes": 3826
+  },
+  {
+    "path": "pipeline-scope.json",
+    "sha256": "9b8dd3b3407be5cb25f5a0160f1bd400a51e85b935517f9cd6a8559d528b826d",
+    "bytes": 1101
+  },
+  {
+    "path": "products.json",
+    "sha256": "9a929c82d6a9f2911fd32d3cf2cfb34cd1d9902703a85f5e9520e974fbf47c1b",
+    "bytes": 3435
+  }
+]

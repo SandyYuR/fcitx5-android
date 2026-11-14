@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "research_code_head": "e8bc4fe70a5f23bbe56b8e2607580d786e4ff1c1",
+  "experiment_driver": "204acdea83ae84b311b72aff154e564739eec623",
+  "original_build_driver": "483c2870a6136f61cd5a13c416829fcfcca274b0",
+  "workflow_id": 388119728,
+  "runs": [
+    {
+      "id": 43173173211,
+      "name": "Candidate latency study",
+      "head_sha": "483c2870a6136f61cd5a13c416829fcfcca274b0",
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43173173211",
+      "created_at": "2026-11-12T07:09:22Z",
+      "updated_at": "2026-11-12T07:22:39Z",
+      "failed_step": "Build three pinned products and one neutral host",
+      "error": "Expected one APK signer: baseline-tests.apk",
+      "phase": "metadata finalization after successful product builds/native audits/host build",
+      "measurement_samples": 0,
+      "recovery_run": "43176830239"
+    },
+    {
+      "id": 43176830239,
+      "name": "Candidate latency study",
+      "head_sha": "204acdea83ae84b311b72aff154e564739eec623",
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43176830239",
+      "created_at": "2026-11-12T07:39:07Z",
+      "updated_at": "2026-11-12T07:44:08Z"
+    },
+    {
+      "id": 43178037142,
+      "name": "Candidate latency study",
+      "head_sha": "204acdea83ae84b311b72aff154e564739eec623",
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43178037142",
+      "created_at": "2026-11-12T07:48:54Z",
+      "updated_at": "2026-11-12T08:01:31Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "latency-study-pilot-forward.zip",
+      "run_id": "43176830239",
+      "artifact_id": 13925170512,
+      "sha256": "421e8edb9cf1ec3eeb89aca58862f63172b1d5296a0c23f962e1742819e81729",
+      "bytes": 121024,
+      "members": 40,
+      "kind": "pilot"
+    },
+    {
+      "file": "latency-study-pilot-reverse.zip",
+      "run_id": "43176830239",
+      "artifact_id": 13925255322,
+      "sha256": "7dad5a776e86ca3e82fd048874faa7f7ad8aef205850f11708a4fa7c5882b1a1",
+      "bytes": 121542,
+      "members": 40,
+      "kind": "pilot"
+    },
+    {
+      "file": "latency-study-profile.zip",
+      "run_id": "43176830239",
+      "artifact_id": 13925110775,
+      "sha256": "677e95c3782c3a94fb9764c7a2b7491397a45dbeb8b6535c9b3453f2185cb804",
+      "bytes": 7401749,
+      "members": 46,
+      "kind": "profile"
+    },
+    {
+      "file": "latency-study-formal-forward.zip",
+      "run_id": "43178037142",
+      "artifact_id": 13925297850,
+      "sha256": "cfd90ea810d3a37d515826c20c5a8d3de34e69a2c23f450adfcacdcf9ed429f2",
+      "bytes": 624658,
+      "members": 190,
+      "kind": "formal"
+    },
+    {
+      "file": "latency-study-formal-reverse.zip",
+      "run_id": "43178037142",
+      "artifact_id": 13924989039,
+      "sha256": "d51a4a9c301033689027556050d03162c95b49ab0d09641ccb29947122fa45d3",
+      "bytes": 630671,
+      "members": 190,
+      "kind": "formal"
+    }
+  ],
+  "local_failed_attempts": [
+    {
+      "stage": "read-only AVD identification",
+      "error": "AVD identity mismatch",
+      "cause": "Windows CRCRLF line endings",
+      "device_mutations": false,
+      "performance_samples": 0
+    },
+    {
+      "stage": "isolated pilot timestamp validation",
+      "evidence": "local-clock-rejection-minimal.json",
+      "performance_samples": 0
+    }
+  ],
+  "local_draw_diagnostic": {
+    "evidence": "local-draw-diagnostic-summary.json",
+    "processes": 1,
+    "selections": 6,
+    "diagnostic_only": true,
+    "accepted_for_performance_comparison": false,
+    "raw_trace_published": false
+  },
+  "validation": {
+    "pilot_processes": 9,
+    "pilot_selections": 54,
+    "formal_processes": 36,
+    "formal_selections": 216,
+    "clock_touch_checks": 810,
+    "clock_violations": 0,
+    "tool_tests_at_research_code_head": 103,
+    "optimized_cadence_tests": 14,
+    "python_3_10_grammar_files": 4
+  },
+  "status": "Drawing attribution completed for this round; probe/JIT/graphics confounding remains, so no product performance acceptance is claimed."
+}

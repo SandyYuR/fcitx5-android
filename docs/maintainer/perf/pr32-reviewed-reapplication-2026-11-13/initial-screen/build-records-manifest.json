@@ -1,0 +1,254 @@
+[
+  {
+    "file": "baseline-apk-audit.json",
+    "sha256": "223478ffceb39d7decf22a9b4cb7af1c16c639ac0940e26241f88c29e5fd0db2"
+  },
+  {
+    "file": "baseline-build.log",
+    "sha256": "2e2b5ab7549c43bbee7c6a6e83163b660bbbd81e0b73d90c223aaf842322ae7f"
+  },
+  {
+    "file": "baseline-commit.txt",
+    "sha256": "cb923953df04bb1a1e6eb3f6f0efca9efd04e7faaeb1148c6d9b00e78324b125"
+  },
+  {
+    "file": "baseline-harness-sha256.txt",
+    "sha256": "b8e6e069129227dcc49c5e3c3422cb9abb5f82af0c8c6d3876a641f917218bdc"
+  },
+  {
+    "file": "baseline-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateActionGuardTest.xml",
+    "sha256": "8a9ed50ec3da85659790d6f9df65ea71ced26ee23d4a9431de335f7f2f479ac4"
+  },
+  {
+    "file": "baseline-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateSelectionQueueTest.xml",
+    "sha256": "ffc2015107313af2c2d441b89db54dbc5dd453e2cbe06415fd6b123c5131363c"
+  },
+  {
+    "file": "baseline-jvm/TEST-org.fcitx.fcitx5.android.core.InputBindingStartupTest.xml",
+    "sha256": "64335a8db79ed909a1e5605c04d056d7cba9d97e2e578b7939cec7fb4b4dcc1b"
+  },
+  {
+    "file": "baseline-jvm/TEST-org.fcitx.fcitx5.android.core.InputEventQueueTest.xml",
+    "sha256": "55ca7917e77d700e066bd92d63d0241b816d2ce1d454a032c978db5834cbdec5"
+  },
+  {
+    "file": "baseline-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateRenderingStateTest.xml",
+    "sha256": "19a46e7c1d15f55fd86b091b8aa817287d4fdbc5018593d84860ac34a2e8ceef"
+  },
+  {
+    "file": "baseline-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateTouchCancellationTest.xml",
+    "sha256": "e3e30942188cb64e03b877470673f4c514141d6ff2f357e7817e74f2f48c8b2c"
+  },
+  {
+    "file": "baseline-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.horizontal.MovingCandidateBadgeTest.xml",
+    "sha256": "3e05314f91d1f9de4e808d81a0b21a698db22d221cc7e31ba5ce606fa5b4753c"
+  },
+  {
+    "file": "baseline-native-link-audit.json",
+    "sha256": "0d0355ab7d3bf71e3198a29eaaf66f6c6f84499f249a8c9350d88a1a98fce578"
+  },
+  {
+    "file": "baseline-submodules.txt",
+    "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59"
+  },
+  {
+    "file": "baseline-tests.apk.signer.txt",
+    "sha256": "05aea1c0f260c8b1369959878b9aaa0e426e059e48565346e188ef948f7929c3"
+  },
+  {
+    "file": "baseline.apk.signer.txt",
+    "sha256": "4fd74f3b282304ca9011cf7a59b011cda27728596b466a3c42e4678b9c12c010"
+  },
+  {
+    "file": "combined-apk-audit.json",
+    "sha256": "d1e85f57af32ed260420aa24a10358fbf33ce01840c8ec677c19fa9e38ce9d02"
+  },
+  {
+    "file": "combined-build.log",
+    "sha256": "f5411f4a0857ae845267f606542e5b133c77de716f6ee201b9d819f4cf19fd4c"
+  },
+  {
+    "file": "combined-commit.txt",
+    "sha256": "1a23547d8c6abe064046a8afddc9ba95a28a7eb2a6ad46fee86fd312d308b9ce"
+  },
+  {
+    "file": "combined-harness-sha256.txt",
+    "sha256": "b8e6e069129227dcc49c5e3c3422cb9abb5f82af0c8c6d3876a641f917218bdc"
+  },
+  {
+    "file": "combined-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateActionGuardTest.xml",
+    "sha256": "a9c0f858ad474c61613169e9a1b74994607d9a11ffbdae70e1471e971e1f964b"
+  },
+  {
+    "file": "combined-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateSelectionQueueTest.xml",
+    "sha256": "f8492aeef91f82bb91179a27a812648d5b3096db48b9b80989f4fddd8a34af42"
+  },
+  {
+    "file": "combined-jvm/TEST-org.fcitx.fcitx5.android.core.InputBindingStartupTest.xml",
+    "sha256": "65b721e2055aebb7a0158142eaef63031ec1b83b6f6b45b6139085135179b113"
+  },
+  {
+    "file": "combined-jvm/TEST-org.fcitx.fcitx5.android.core.InputEventQueueTest.xml",
+    "sha256": "916b78752866e6588143c3abca8c44943e303c10004ad95686203a44c026d391"
+  },
+  {
+    "file": "combined-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateRenderingStateTest.xml",
+    "sha256": "f07069d2fae06936caf7c922722ea29c58003f509a41bd9c7bf0bd26c80426fa"
+  },
+  {
+    "file": "combined-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateTouchCancellationTest.xml",
+    "sha256": "f3f321200c88b57de61142132edf5b9963b299192b644720599d788dccf47326"
+  },
+  {
+    "file": "combined-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.horizontal.MovingCandidateBadgeTest.xml",
+    "sha256": "f36ffff82d068c5a0909fa24b87571a0b00deedfbea98f8b92c64576139603a2"
+  },
+  {
+    "file": "combined-native-link-audit.json",
+    "sha256": "9ceee4965af90b78c16bfe61a88ae5e23eb4b6ac45113e0f3374d32013225bf2"
+  },
+  {
+    "file": "combined-submodules.txt",
+    "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59"
+  },
+  {
+    "file": "combined-tests.apk.signer.txt",
+    "sha256": "05aea1c0f260c8b1369959878b9aaa0e426e059e48565346e188ef948f7929c3"
+  },
+  {
+    "file": "combined.apk.signer.txt",
+    "sha256": "4fd74f3b282304ca9011cf7a59b011cda27728596b466a3c42e4678b9c12c010"
+  },
+  {
+    "file": "priority-apk-audit.json",
+    "sha256": "0089d3eeec2750304a1f6f15af67fe882d299024d7e6cda85292bcc6e00d46bd"
+  },
+  {
+    "file": "priority-build.log",
+    "sha256": "d271debbbba849d758794d44d6a6d7ce35885b66991810fea398b93a635c9b60"
+  },
+  {
+    "file": "priority-commit.txt",
+    "sha256": "dd3f948799c55e24a2b6228653474a47f5281b4de587a5dd9ff13824c6c63604"
+  },
+  {
+    "file": "priority-harness-sha256.txt",
+    "sha256": "b8e6e069129227dcc49c5e3c3422cb9abb5f82af0c8c6d3876a641f917218bdc"
+  },
+  {
+    "file": "priority-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateActionGuardTest.xml",
+    "sha256": "9dc1dbac6dc4eec6c3ced8dab9193f9fb256dd4d49cb856a29e5556cbc40ca35"
+  },
+  {
+    "file": "priority-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateSelectionQueueTest.xml",
+    "sha256": "04401eb660dc8a5066d6b5ad6ba96076edaafda687d4c4c221aac9a4e1b8fe31"
+  },
+  {
+    "file": "priority-jvm/TEST-org.fcitx.fcitx5.android.core.InputBindingStartupTest.xml",
+    "sha256": "13b2c132485aa0feb0215b2cfdbc5e7aae800288731b042bb41d5c3d7ae14b4d"
+  },
+  {
+    "file": "priority-jvm/TEST-org.fcitx.fcitx5.android.core.InputEventQueueTest.xml",
+    "sha256": "7d40fe1c2260a3106c60a455a65dedf7147b0638e7a8b6e7814f9aaf732977e8"
+  },
+  {
+    "file": "priority-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateRenderingStateTest.xml",
+    "sha256": "ae30ed09ed560020f448e472795adfd5299497242c5d53e082eec3f935cd3798"
+  },
+  {
+    "file": "priority-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateTouchCancellationTest.xml",
+    "sha256": "ff7d048e2781d15b43d11f312e0185db94e51bcf81e1b908127bdf5ab3505d22"
+  },
+  {
+    "file": "priority-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.horizontal.MovingCandidateBadgeTest.xml",
+    "sha256": "754e250347ce1c7b2201e6af0cd6368d459e4b4bb61a836abd583eabcea35c34"
+  },
+  {
+    "file": "priority-native-link-audit.json",
+    "sha256": "0b19ed31cc952f245ff50e346f4e949955587eb591a718966247f695036a04e6"
+  },
+  {
+    "file": "priority-submodules.txt",
+    "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59"
+  },
+  {
+    "file": "priority-tests.apk.signer.txt",
+    "sha256": "05aea1c0f260c8b1369959878b9aaa0e426e059e48565346e188ef948f7929c3"
+  },
+  {
+    "file": "priority.apk.signer.txt",
+    "sha256": "4fd74f3b282304ca9011cf7a59b011cda27728596b466a3c42e4678b9c12c010"
+  },
+  {
+    "file": "products.json",
+    "sha256": "e5a276a2eeed4235d351d6557da6609583aa4d109c83a479fc0bfd52dc650460"
+  },
+  {
+    "file": "reapply-plan.json",
+    "sha256": "cbe1a6b015b5dcce13a2610c85e0ae668ececb25211bc216ab8183b7cbdf06b1"
+  },
+  {
+    "file": "reviewed-scope.json",
+    "sha256": "a07a0a21f96624b418fe196434dd9e52a6a58db1043f9d854fc6fdcd09e93c0d"
+  },
+  {
+    "file": "ui-apk-audit.json",
+    "sha256": "36ec283a941774ceda9bb33c75de4cb7242669b8a029cd678f37e71b8e0d7152"
+  },
+  {
+    "file": "ui-build.log",
+    "sha256": "f970beb114b8eea5a95b3f7dbf9e431d381d6644212a7d88c0d3587e12ca80dc"
+  },
+  {
+    "file": "ui-commit.txt",
+    "sha256": "a2ea1f87dc78445fd191abd57f613afadff9de3af036535c84f5d9f20a3f9668"
+  },
+  {
+    "file": "ui-harness-sha256.txt",
+    "sha256": "b8e6e069129227dcc49c5e3c3422cb9abb5f82af0c8c6d3876a641f917218bdc"
+  },
+  {
+    "file": "ui-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateActionGuardTest.xml",
+    "sha256": "bceb9f9b490f637eb0d3092e83b16917aa3819fc720d35492dca5862e3fe5e87"
+  },
+  {
+    "file": "ui-jvm/TEST-org.fcitx.fcitx5.android.core.CandidateSelectionQueueTest.xml",
+    "sha256": "21d73992cee58ef478c652c83246d869190b883125256c3adec0745d4ce39bf7"
+  },
+  {
+    "file": "ui-jvm/TEST-org.fcitx.fcitx5.android.core.InputBindingStartupTest.xml",
+    "sha256": "fdb2d8daaf62bb13c51e3a152ebb0e5a17f06d07d2d54bbeaf6250f4bd390029"
+  },
+  {
+    "file": "ui-jvm/TEST-org.fcitx.fcitx5.android.core.InputEventQueueTest.xml",
+    "sha256": "4c9a90012fa526160c02eb215c6f00c3f27104ed98e1a89d2a7001ca7a8b3001"
+  },
+  {
+    "file": "ui-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateRenderingStateTest.xml",
+    "sha256": "f64d022f6385f2158fe6059b092c454a6f44a79365c64f845d5516190f26670c"
+  },
+  {
+    "file": "ui-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.CandidateTouchCancellationTest.xml",
+    "sha256": "f5d65ad0f8bbb61074d9da58293a2bd5ab45c9e600bec34d4728fab9768ca626"
+  },
+  {
+    "file": "ui-jvm/TEST-org.fcitx.fcitx5.android.input.candidates.horizontal.MovingCandidateBadgeTest.xml",
+    "sha256": "07c449d7bc4b2f7c0f01cdeaa1f1681e0146802b5a0b0496eb4e5b2ce06f14ae"
+  },
+  {
+    "file": "ui-native-link-audit.json",
+    "sha256": "ac2e571b3e918f4d594f075f8eeb9f0fe67a55405d8f1656ba05c0c29a72f68c"
+  },
+  {
+    "file": "ui-submodules.txt",
+    "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59"
+  },
+  {
+    "file": "ui-tests.apk.signer.txt",
+    "sha256": "05aea1c0f260c8b1369959878b9aaa0e426e059e48565346e188ef948f7929c3"
+  },
+  {
+    "file": "ui.apk.signer.txt",
+    "sha256": "4fd74f3b282304ca9011cf7a59b011cda27728596b466a3c42e4678b9c12c010"
+  }
+]

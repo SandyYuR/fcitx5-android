@@ -1,0 +1,31 @@
+{
+  "sources": {
+    "baseline": "88a664d46ba82712d5457d86c037629c478b042c",
+    "current": "f02bbaec1c2820545382dab82b3e007e9f2735fe"
+  },
+  "compared_paths": [
+    "app/src/main",
+    "app/src/fx",
+    "app/src/debug",
+    "app/src/release",
+    "direct-rime",
+    "native",
+    "build-logic",
+    "gradle",
+    "app/build.gradle.kts",
+    "build.gradle.kts",
+    "settings.gradle.kts",
+    "gradle.properties",
+    "prepare_personal_build.sh"
+  ],
+  "changed_paths": [
+    "app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcastReceiver.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcaster.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt"
+  ],
+  "diff_sha256": "6f13a074dc44b9a809ebf5cadddf4260dc88aca098349cd6b214d8b5878404ca",
+  "native_engine_sdk_and_build_inputs_unchanged": true,
+  "generated_git_version_metadata_can_differ": true
+}

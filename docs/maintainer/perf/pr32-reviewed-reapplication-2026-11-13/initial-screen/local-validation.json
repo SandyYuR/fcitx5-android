@@ -1,0 +1,8 @@
+{
+  "python_grammar_files": 7,
+  "workflow_embedded_shell": "pass",
+  "williams_square_checks": 2,
+  "balanced_confirmation_checks": 6,
+  "recorded_sample_and_compressed_hold_checks": 4,
+  "synthetic_checks_are_not_performance_samples": true
+}

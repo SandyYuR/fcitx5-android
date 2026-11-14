@@ -1,0 +1,52 @@
+{
+  "baseline": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "measured_current": "e8bc4fe70a5f23bbe56b8e2607580d786e4ff1c1",
+  "delivered_code": "38555944c2c365d85af8fd73c693ec6182e4d86f",
+  "formal_driver": "9b63190fc97408f5960a8a3203a411565e5ccd82",
+  "compiled_probe": "397d9bd970aa70b4de8725b55d5d8e7618f4f936",
+  "host_driver": "ad981a25e82da1b9249e8f8366931ef25400ad3a",
+  "source_archives": [
+    {
+      "source": "e8bc4fe70a5f23bbe56b8e2607580d786e4ff1c1",
+      "file": "measured-app-e8bc4fe7-source.zip",
+      "sha256": "1d106a13eac961d50f9f43cf3ab4d293e71f565cca665710bdff68c783a37a19",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    },
+    {
+      "source": "38555944c2c365d85af8fd73c693ec6182e4d86f",
+      "file": "delivered-pr-38555944-source.zip",
+      "sha256": "c6f66ef91257159c6915b2d983f697b261e5d720ed0a6ed7852eeabfcc4fb93b",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    },
+    {
+      "source": "9b63190fc97408f5960a8a3203a411565e5ccd82",
+      "file": "experiment-9b63190f-source.zip",
+      "sha256": "0e9c4d1d787917998375f9e60371f7d60e2a143fec797b05b24006ed6d8f1573",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    }
+  ],
+  "exact_history": "source-history-bundles.zip",
+  "partial_bundle_prerequisite": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "production_source_paths_identical_measured_vs_delivered": [
+    "app/src/main",
+    "direct-rime",
+    "native",
+    "build-logic",
+    "gradle",
+    "app/build.gradle.kts",
+    "build.gradle.kts",
+    "settings.gradle.kts",
+    "gradle.properties"
+  ],
+  "generated_version_metadata_can_differ": true,
+  "delivered_385_apk_was_performance_timed": false,
+  "new_default_88a664d4_was_measured": false,
+  "default_branch_pushed": false,
+  "cleanup": "completed; see cleanup-receipt.json"
+}

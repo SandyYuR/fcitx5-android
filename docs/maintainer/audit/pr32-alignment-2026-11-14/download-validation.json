@@ -1,0 +1,23 @@
+[
+  {
+    "id": 14100661003,
+    "name": "direct-rime-frontend-arm64-debug",
+    "bytes": 23786634,
+    "sha256": "1b3a8c0a9556f411158d1dae7de5c8e73578b3782e9bfb02c03dab4309b6107d",
+    "xml_count": 283
+  },
+  {
+    "id": 14100237468,
+    "name": "direct-rime-frontend-android-results",
+    "bytes": 1329488,
+    "sha256": "06c4b9c71c0540fd16fb3d78da268a3e2d5bf3f5fff3921407dd0056626aaf57",
+    "xml_count": 1
+  },
+  {
+    "id": 14099084657,
+    "name": "direct-rime-android-smoke-results",
+    "bytes": 404324,
+    "sha256": "303525dbbbe1959bf081a18225975de0b1a0ca19e50ca87934e7632b16d120cc",
+    "xml_count": 1
+  }
+]

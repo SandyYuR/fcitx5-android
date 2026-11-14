@@ -20,6 +20,7 @@
 | 统一页面、编辑器与辅助面板外观 | [界面设计与共用组件](/maintainer/implementation/design-system) |
 | 维护同步、下载、备份与恢复 | [现行实现协议](/maintainer/implementation/) |
 | 查输入链路、候选和性能的由来 | [直连版历史阅读路线](/maintainer/history/) |
+| 查万象两版本性能对照 | [2026-11-08 冻结版本性能复测](/maintainer/perf/wanxiang-2026-11-08/) |
 | 找截图、日志、JSON、测试结果和 ZIP | [验证证据目录](/maintainer/evidence)；附件保留在对应报告目录 |
 | 追溯保留 Fcitx 层的旧版本 | [靓企鹅中州韵维护报告](/legacy/fcitx/maintainer/) · [后续批注与方案](/legacy/fcitx/notes/) |
 | 为文档站增补或迁移页面 | [分类与维护约定](/maintainer/documentation) · [参与文档修改](/about/contribute-docs) |

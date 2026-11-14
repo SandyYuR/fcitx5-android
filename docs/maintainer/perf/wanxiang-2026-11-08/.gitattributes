@@ -1,0 +1,9 @@
+# Keep experimental bytes intact across checkouts; collapse generated evidence in PR review.
+* -text
+*.json linguist-generated=true
+*.txt linguist-generated=true
+*.tsv linguist-generated=true
+*.yaml linguist-generated=true
+*.rgb binary
+*.zip binary
+*.png binary

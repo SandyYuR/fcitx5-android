@@ -1,0 +1,14 @@
+{
+  "original_yaml_bytes": true,
+  "candidate_54_commits_and_runtime_identity": true,
+  "screen_21_attempts_7128_touch_keys_reference_labels_verified": true,
+  "screen_outputs_all_match": false,
+  "screen_output_mismatches": [
+    "steady-r1-direct",
+    "steady-r3-direct"
+  ],
+  "screen_hardware_outputs_equal_across_products": true,
+  "screen_accepted_visual_rounds": 11,
+  "release_576_exact_callbacks_no_failures_and_same_host": true,
+  "evidence_integrity_verified": true
+}
