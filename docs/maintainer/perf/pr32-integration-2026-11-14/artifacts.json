@@ -60,6 +60,44 @@
   ],
   "final": [
     {
+      "id": 14097865265,
+      "name": "direct-rime-frontend-arm64-debug",
+      "size_in_bytes": 23790744,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097865265",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097865265/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:56:06Z",
+      "expires_at": "2026-12-14T03:47:00Z",
+      "updated_at": "2026-11-14T03:56:06Z",
+      "digest": "sha256:d884accce9dd269d36c8b33cab5ad2dccef11ddb3cea928e4a365f23c0f431b8",
+      "workflow_run": {
+        "id": 43553382736,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2"
+      }
+    },
+    {
+      "id": 14097651609,
+      "name": "direct-rime-frontend-android-results",
+      "size_in_bytes": 1350306,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097651609",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097651609/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:55:04Z",
+      "expires_at": "2026-12-14T03:47:00Z",
+      "updated_at": "2026-11-14T03:55:04Z",
+      "digest": "sha256:f691af0e187d2b9b9ea6eb04dc127dfe33e0476a29abdd8cdecde39833925721",
+      "workflow_run": {
+        "id": 43553382736,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2"
+      }
+    },
+    {
       "id": 14097650670,
       "name": "direct-rime-arm64-debug",
       "size_in_bytes": 4949306,
@@ -96,8 +134,27 @@
         "head_branch": "fix/first-candidate-latency-20261112",
         "head_sha": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2"
       }
+    },
+    {
+      "id": 14097117669,
+      "name": "direct-rime-pr-native-audit",
+      "size_in_bytes": 676,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097117669",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14097117669/zip",
+      "expired": false,
+      "created_at": "2026-11-14T03:59:26Z",
+      "expires_at": "2026-12-14T03:47:00Z",
+      "updated_at": "2026-11-14T03:59:26Z",
+      "digest": "sha256:e95fdc027d4cbed6ffd8a01177859a9a62b3dc6a968e715168bae82bffc7a785",
+      "workflow_run": {
+        "id": 43553382733,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2"
+      }
     }
   ],
-  "final_complete": false,
-  "description": "Artifact identities at the archival checkpoint; final CI is still running. Only original XML/logcat and verification records are embedded; APKs are identified by these SHA256 records."
+  "final_complete": true,
+  "description": "Original artifact identities. The documentation embeds XML/logcat and audit records; APKs are not duplicated in the documentation archive."
 }

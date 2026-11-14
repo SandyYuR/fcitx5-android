@@ -1,14 +1,37 @@
 {
-  "status": "pending",
-  "reason": "Publish recoverable source/history before deleting the temporary branch.",
-  "delete_branch": "perf/input-pipeline-20261113",
-  "expected_tip": "a3c9bea60ef409b93e3c506525a3f510b03bb9c6",
-  "delete_worktree": "/workspace/fcitx5-android-pipeline",
-  "retained": [
-    "fix/first-candidate-latency-20261112",
-    "report/wanxiang-retest-20261108",
-    "perf/pr35-default-comparison-20261114",
-    "default/docs/user branches"
+  "status": "completed",
+  "archive_published_before_deletion": "97bf7d245ef62cd4eb1e0d7e0b1068bc1a2a0ca1",
+  "deleted": {
+    "remote_branch": "perf/input-pipeline-20261113",
+    "local_branch": "perf/input-pipeline-20261113",
+    "tip": "a3c9bea60ef409b93e3c506525a3f510b03bb9c6",
+    "worktree": "/workspace/fcitx5-android-pipeline"
+  },
+  "deletion_guard": "explicit expected-tip force-with-lease",
+  "remote_refs_after": {
+    "docs": "e79e3cf1d01e079475462dd851fb0cacb6dc1895",
+    "documentation/direct-rime-backend-seams": "c8abcc38a258b670a85ae6e57d7f8eb63f79fc53",
+    "fix/first-candidate-latency-20261112": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2",
+    "fx-rime-only": "0f3e334350c183eb4699ef7b7f74d676efc44056",
+    "perf/pr35-default-comparison-20261114": "a3486b32b483a209eff9ccb069526d5926489c1a",
+    "report/wanxiang-retest-20261108": "97bf7d245ef62cd4eb1e0d7e0b1068bc1a2a0ca1"
+  },
+  "remaining_worktrees": [
+    "/workspace/fcitx5-android         aafc6d58 [fix/first-candidate-latency-20261112]",
+    "/workspace/fcitx5-android-report  97bf7d24 [report/wanxiang-retest-20261108]"
   ],
-  "performance_workflow_state": "disabled_manually"
+  "default_written_by_this_task": false,
+  "default_advanced_externally_and_incorporated": "0f3e334350c183eb4699ef7b7f74d676efc44056",
+  "user_owned_branches_not_modified": true,
+  "source_archive_restore_verified": true,
+  "final_ci": {
+    "pr": 43553382733,
+    "direct": 43553382736,
+    "status": "success"
+  },
+  "performance_workflow": {
+    "id": 388119728,
+    "state": "disabled_manually"
+  },
+  "historical_ci_and_raw_evidence_preserved": true
 }

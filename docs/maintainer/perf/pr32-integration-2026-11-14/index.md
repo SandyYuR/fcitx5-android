@@ -28,7 +28,9 @@ v3 独立进程发键器、冻结的 88a664d4／f02bbaec 双机计划、复用�
 
 ## 验证与数据边界
 
-本地采样工具 **109 项单测通过**，见[完整执行记录](./tool-tests.txt)。[预期设备用例](./expected-device-cases.json)根据这次实际源码提取，排除需要独立模型夹具的 `diagnoseColdCandidateCore`，普通前端设备门禁应完整执行 **60 项**。
+本地采样工具 **109 项单测通过**，见[完整执行记录](./tool-tests.txt)。[预期设备用例](./expected-device-cases.json)根据这次实际源码提取，排除需要独立模型夹具的 `diagnoseColdCandidateCore`，普通前端设备门禁完整执行 **60 项**。
+
+最终六个 CI 任务全部成功：**2,327 项应用 JVM、60 项前端设备回归、6 项引擎冒烟**均零失败／错误／跳过。JVM 原件为 283 份 XML；不把两个任务重复执行的同一批用例相加。APK 白名单及链接审计通过，三个 native 库为 `libc++_shared.so`、`libdirect-rime.so`、`libquickjs.so`，未发现 Fcitx 原生依赖或符号。CI 的合并预览 `fe960bf4` 与 PR 头的内容树已核对一致。
 
 本次整合 CI 的实际结果见[逐项核验](./ci-validation.json)与[原始验证资料](./ci-records.zip)：[PR CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43553382733)、[Direct Rime CI](https://github.com/SandyYuR/fcitx5-android/actions/runs/43553382736)。附件身份见[Actions 清单](./artifacts.json)。构建及功能检查不能替代性能对照。
 
@@ -44,7 +46,7 @@ v3 独立进程发键器、冻结的 88a664d4／f02bbaec 双机计划、复用�
 
 ## 清理范围与可恢复性
 
-只清理本轮临时分支 **`perf/input-pipeline-20261113`** 及其 `/workspace/fcitx5-android-pipeline` 工作区；归档推送后执行，具体状态见[清理回执](./cleanup-receipt.json)。
+只清理本轮临时分支 **`perf/input-pipeline-20261113`** 及其 `/workspace/fcitx5-android-pipeline` 工作区；已在归档推送后完成，具体状态见[清理回执](./cleanup-receipt.json)。
 
 保留 PR #32 的 `fix/first-candidate-latency-20261112` 和文档 PR #31 的 `report/wanxiang-retest-20261108`。`perf/pr35-default-comparison-20261114`、用户重构与文档分支，以及其他新功能分支属于其他正在进行的工作，不纳入本轮清理。现有手动性能工作流的启停状态和历史 CI 保留。
 
