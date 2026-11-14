@@ -3747,10 +3747,8 @@ class InputView(
                 broadcaster.onCandidateUpdate(it.data)
             }
             is FcitxEvent.PagedCandidateEvent -> {
-                // Keep legacy candidate listeners alive even in paged mode.
-                broadcaster.onCandidateUpdate(
-                    FcitxEvent.CandidateListEvent.Data(total = -1, candidates = it.data.candidates)
-                )
+                // Paging-aware receivers consume the complete snapshot; the broadcaster
+                // adapts it once for components that only need the list.
                 broadcaster.onPagedCandidateUpdate(it.data)
             }
             is FcitxEvent.ClientPreeditEvent -> {

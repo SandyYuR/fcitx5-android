@@ -19,7 +19,7 @@ import org.mechdancer.dependency.ScopeEvent
 import org.fcitx.fcitx5.android.input.dependency.InputUniqueComponent
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class InputBroadcaster : InputUniqueComponent<InputBroadcaster>(InputBroadcaster::class), Dependent, InputBroadcastReceiver {
+class InputBroadcaster : InputUniqueComponent<InputBroadcaster>(InputBroadcaster::class), Dependent, PagedCandidateReceiver {
 
     private val receivers = ConcurrentLinkedQueue<InputBroadcastReceiver>()
 
@@ -60,7 +60,13 @@ class InputBroadcaster : InputUniqueComponent<InputBroadcaster>(InputBroadcaster
     }
 
     override fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data) {
-        receivers.forEach { it.onPagedCandidateUpdate(data) }
+        // One event per receiver, with one shared adaptation for list-only components.
+        // A paging receiver must not render a synthetic first-page/highlight state first.
+        val list = CandidateListEvent.Data(total = -1, candidates = data.candidates)
+        receivers.forEach {
+            if (it is PagedCandidateReceiver) it.onPagedCandidateUpdate(data)
+            else it.onCandidateUpdate(list)
+        }
     }
 
     override fun onStatusAreaUpdate(actions: Array<Action>) {

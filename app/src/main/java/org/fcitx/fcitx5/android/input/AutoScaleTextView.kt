@@ -145,6 +145,18 @@ class AutoScaleTextView @JvmOverloads constructor(
         needsCalculateTransform = true
     }
 
+    override fun setTypeface(tf: Typeface?) {
+        val previous = typeface
+        super.setTypeface(tf)
+        if (typeface !== previous) {
+            // TextView's Layout does not own this view's measured bounds or transform.
+            needsMeasureText = true
+            needsCalculateTransform = true
+            requestLayout()
+            invalidate()
+        }
+    }
+
     override fun setText(charSequence: CharSequence?, bufferType: BufferType) {
         // setText can be called from the super constructor; guard against the
         // shadowed `text` field not yet being initialized by comparing safely.

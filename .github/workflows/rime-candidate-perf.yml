@@ -1,19 +1,47 @@
-name: First candidate tap comparison
+name: Candidate latency study
 on:
   workflow_dispatch:
     inputs:
+      phase:
+        description: Build only, calibrate the three sources, or run the predeclared formal blocks
+        type: choice
+        options: [build, pilot, formal]
+        default: pilot
+      current_ref:
+        description: Exact 40-character current product commit; never use a moving branch
+        type: string
+        required: true
+      products_run:
+        description: Optional existing study product run; source, probe, host and APK hashes must match
+        type: string
+        default: ''
+      recover_driver:
+        description: Original 40-character driver SHA, only to finish metadata from a failed products_run
+        type: string
+        default: ''
+      seed:
+        description: Recorded randomization seed; the reverse VM uses seed plus one
+        type: string
+        default: '20261112'
+      blocks:
+        description: Formal blocks per VM, a multiple of six from 6 to 24; pilot always uses one
+        type: number
+        default: 1
       profile:
-        description: Capture a separate diagnostic trace instead of the three untraced trials
+        description: Also run a separate traced pilot on another VM; never combine it with untraced samples
         type: boolean
         default: false
+
 permissions:
   contents: read
   actions: read
 concurrency:
-  group: rime-candidate-${{ github.ref }}
-  cancel-in-progress: true
+  group: candidate-latency-study-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  compare:
+  build:
+    if: inputs.products_run == '' || inputs.recover_driver != ''
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -26,30 +54,126 @@ jobs:
           java-version: '17'
       - uses: android-actions/setup-android@v4
         with:
-          packages: platform-tools
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
       - uses: gradle/actions/setup-gradle@v6
-      - name: Reuse checksum-verified, identical reference products
-        continue-on-error: true # Expired artifacts fall back to rebuilding pinned references.
+        if: inputs.recover_driver == ''
+      - name: Validate the failed build identity before recovery
+        if: inputs.recover_driver != ''
+        env:
+          RECOVER_DRIVER: ${{ inputs.recover_driver }}
+          PRODUCTS_RUN: ${{ inputs.products_run }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, urllib.request
+          driver, run = os.environ['RECOVER_DRIVER'], os.environ['PRODUCTS_RUN']
+          if not re.fullmatch(r'[0-9a-f]{40}', driver) or not re.fullmatch(r'[0-9]+', run):
+              raise SystemExit('Recovery requires the original driver SHA and failed product run ID')
+          request = urllib.request.Request(
+              f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run}",
+              headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'User-Agent': 'latency-study'})
+          with urllib.request.urlopen(request) as response:
+              record = json.load(response)
+          if (record['head_sha'] != driver or record['status'] != 'completed' or
+                  record['conclusion'] != 'failure' or record['path'] != '.github/workflows/rime-candidate-perf.yml'):
+              raise SystemExit('The identified run is not the expected failed latency product build')
+          PY
+      - uses: actions/download-artifact@v6
+        if: inputs.recover_driver != ''
+        with:
+          name: latency-study-products
+          run-id: ${{ inputs.products_run }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/study-products
+      - name: Recover metadata without rebuilding the original APKs
+        if: inputs.recover_driver != ''
+        env:
+          CURRENT_REF: ${{ inputs.current_ref }}
+          RECOVER_DRIVER: ${{ inputs.recover_driver }}
+          PRODUCTS_RUN: ${{ inputs.products_run }}
+        run: bash tools/input-perf/build-study-products.sh --recover "$RUNNER_TEMP/study-products" "$CURRENT_REF" "$RECOVER_DRIVER" "$PRODUCTS_RUN"
+      - name: Build three pinned products and one neutral host
+        if: inputs.recover_driver == ''
+        env:
+          CURRENT_REF: ${{ inputs.current_ref }}
+        run: bash tools/input-perf/build-study-products.sh "$RUNNER_TEMP/study-products" "$CURRENT_REF"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: latency-study-products
+          path: ${{ runner.temp }}/study-products/
+          retention-days: 30
+          if-no-files-found: warn
+
+  compare:
+    needs: build
+    if: always() && !cancelled() && inputs.phase != 'build' && (needs.build.result == 'success' || (needs.build.result == 'skipped' && inputs.products_run != ''))
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - replica: forward
+            order: baseline,regressed,current
+            seed_offset: 0
+          - replica: reverse
+            order: current,regressed,baseline
+            seed_offset: 1
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      CURRENT_REF: ${{ inputs.current_ref }}
+      STUDY_MODE: ${{ inputs.phase }}
+      STUDY_ORDER: ${{ matrix.order }}
+      STUDY_SEED_BASE: ${{ inputs.seed }}
+      STUDY_SEED_OFFSET: ${{ matrix.seed_offset }}
+      STUDY_BLOCKS_INPUT: ${{ inputs.blocks }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - uses: actions/download-artifact@v6
+        with:
+          name: latency-study-products
+          run-id: ${{ inputs.products_run != '' && inputs.recover_driver == '' && inputs.products_run || github.run_id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/study-products
+      - name: Download the existing frozen fixture
         uses: actions/download-artifact@v6
         with:
-          name: candidate-reference-apks
-          run-id: 39102152140
+          artifact-ids: '13853652309'
+          run-id: 43018095886
           github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/candidate-apks
-      - name: Build untouched Fcitx default and direct reference products
-        run: bash tools/candidate-perf/build-products.sh "$RUNNER_TEMP/candidate-apks"
-      - uses: actions/upload-artifact@v7
-        with:
-          name: candidate-reference-apks
-          path: ${{ runner.temp }}/candidate-apks/
-          retention-days: 7
-      - name: Prepare neutral editor and exact user fixture
+          path: ${{ runner.temp }}/study-inputs
+          merge-multiple: true
+      - name: Validate products, fixture and study controls
         run: |
-          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
-          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/candidate-host" "$GITHUB_WORKSPACE/tools/candidate-perf/host"
-          python3 tools/screen-perf/prepare.py "$RUNNER_TEMP/candidate-fixture.zip"
-          mkdir -p build/candidate-comparison
-          cp "$RUNNER_TEMP/candidate-fixture.manifest.json" "$RUNNER_TEMP/candidate-apks/"*.txt build/candidate-comparison/
+          bash tools/input-perf/build-study-products.sh --verify "$RUNNER_TEMP/study-products" "$CURRENT_REF" "$RUNNER_TEMP/study-inputs"
+          python3 - <<'PY'
+          import os, re
+          seed = os.environ['STUDY_SEED_BASE']
+          blocks = os.environ['STUDY_BLOCKS_INPUT']
+          if not re.fullmatch(r'[0-9]+', seed) or not re.fullmatch(r'[0-9]+', blocks):
+              raise SystemExit('Seed and blocks must be nonnegative decimal integers')
+          blocks = 1 if os.environ['STUDY_MODE'] == 'pilot' else int(blocks)
+          if not 1 <= blocks <= 24:
+              raise SystemExit('Blocks must be between 1 and 24')
+          if os.environ['STUDY_MODE'] == 'formal' and blocks % 6:
+              raise SystemExit('Three-product formal blocks must be a multiple of six')
+          with open(os.environ['GITHUB_ENV'], 'a') as output:
+              output.write(f"STUDY_SEED={int(seed) + int(os.environ['STUDY_SEED_OFFSET'])}\n")
+              output.write(f'STUDY_BLOCKS={blocks}\n')
+          PY
+          mkdir -p build/latency-study
+          cp "$RUNNER_TEMP/study-products/products.json" "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/latency-study/
+          uname -a > build/latency-study/host-kernel.txt
+          cat /proc/cpuinfo > build/latency-study/host-cpuinfo.txt
+          lscpu > build/latency-study/host-lscpu.txt
+          free -m > build/latency-study/host-memory.txt
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -60,10 +184,93 @@ jobs:
           api-level: 35
           target: aosp_atd
           arch: x86_64
+          avd-name: test
+          emulator-port: 5554
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: python3 tools/candidate-perf/run.py --apks "$RUNNER_TEMP/candidate-apks" --fixture "$RUNNER_TEMP/candidate-fixture.zip" --host "$RUNNER_TEMP/candidate-host/host.apk" --output build/candidate-comparison ${{ github.event_name == 'workflow_dispatch' && inputs.profile && '--trials 1 --profile' || '--trials 3' }}
+          script: |
+            adb -s emulator-5554 root
+            adb -s emulator-5554 wait-for-device
+            adb -s emulator-5554 shell getprop > build/latency-study/device-properties.txt
+            python3 tools/input-perf/run-study.py --apks "$RUNNER_TEMP/study-products" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --fixture-manifest "$RUNNER_TEMP/study-inputs/fixture.manifest.json" --host "$RUNNER_TEMP/study-products/host.apk" --output build/latency-study/samples --serial emulator-5554 --expected-avd-name test --allow-destructive-reset --mode "$STUDY_MODE" --order "$STUDY_ORDER" --seed "$STUDY_SEED" --blocks "$STUDY_BLOCKS"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: first-candidate-tap-results
-          path: build/candidate-comparison/
+          name: latency-study-${{ inputs.phase }}-${{ matrix.replica }}
+          path: build/latency-study/
+          retention-days: 30
+          if-no-files-found: warn
+
+  profile:
+    needs: build
+    if: always() && !cancelled() && inputs.profile && inputs.phase != 'build' && (needs.build.result == 'success' || (needs.build.result == 'skipped' && inputs.products_run != ''))
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      CURRENT_REF: ${{ inputs.current_ref }}
+      STUDY_SEED_BASE: ${{ inputs.seed }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - uses: actions/download-artifact@v6
+        with:
+          name: latency-study-products
+          run-id: ${{ inputs.products_run != '' && inputs.recover_driver == '' && inputs.products_run || github.run_id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/study-products
+      - uses: actions/download-artifact@v6
+        with:
+          artifact-ids: '13853652309'
+          run-id: 43018095886
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/study-inputs
+          merge-multiple: true
+      - name: Validate the separate diagnostic inputs
+        run: |
+          bash tools/input-perf/build-study-products.sh --verify "$RUNNER_TEMP/study-products" "$CURRENT_REF" "$RUNNER_TEMP/study-inputs"
+          python3 - <<'PY'
+          import os, re
+          seed = os.environ['STUDY_SEED_BASE']
+          if not re.fullmatch(r'[0-9]+', seed):
+              raise SystemExit('Seed must be a nonnegative decimal integer')
+          with open(os.environ['GITHUB_ENV'], 'a') as output:
+              output.write(f'STUDY_SEED={int(seed) + 2}\n')
+          PY
+          mkdir -p build/latency-study-profile
+          cp "$RUNNER_TEMP/study-products/products.json" "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/latency-study-profile/
+          uname -a > build/latency-study-profile/host-kernel.txt
+          cat /proc/cpuinfo > build/latency-study-profile/host-cpuinfo.txt
+          lscpu > build/latency-study-profile/host-lscpu.txt
+          free -m > build/latency-study-profile/host-memory.txt
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: aosp_atd
+          arch: x86_64
+          avd-name: test
+          emulator-port: 5554
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            adb -s emulator-5554 root
+            adb -s emulator-5554 wait-for-device
+            adb -s emulator-5554 shell getprop > build/latency-study-profile/device-properties.txt
+            python3 tools/input-perf/run-study.py --apks "$RUNNER_TEMP/study-products" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --fixture-manifest "$RUNNER_TEMP/study-inputs/fixture.manifest.json" --host "$RUNNER_TEMP/study-products/host.apk" --output build/latency-study-profile/samples --serial emulator-5554 --expected-avd-name test --allow-destructive-reset --mode pilot --order baseline,regressed,current --seed "$STUDY_SEED" --blocks 1 --profile
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: latency-study-profile
+          path: build/latency-study-profile/
+          retention-days: 30
+          if-no-files-found: warn

@@ -30,8 +30,6 @@ interface InputBroadcastReceiver {
 
     fun onCandidateUpdate(data: CandidateListEvent.Data) {}
 
-    fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data) {}
-
     fun onStatusAreaUpdate(actions: Array<Action>) {}
 
     fun onSelectionUpdate(start: Int, end: Int) {}
@@ -44,4 +42,9 @@ interface InputBroadcastReceiver {
 
     fun onReturnKeyDrawableUpdate(@DrawableRes resourceId: Int) {}
 
+}
+
+/** Consume the complete page instead of its list-only compatibility presentation. */
+interface PagedCandidateReceiver : InputBroadcastReceiver {
+    fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data)
 }

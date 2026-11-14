@@ -46,6 +46,8 @@
 
 开发者和 AI 编程助手先读 [AGENTS.md](AGENTS.md)，界面修改再读 [DESIGN.md](DESIGN.md)。完整手册、协议和验证记录维护在同仓库的 `docs` 分支，代码分支不存放整套手册。
 
+输入链路与线程、候选和维护边界见[Rime 直连架构](https://sandyyur.github.io/fcitx5-android/maintainer/implementation/direct-rime-architecture)。
+
 使用 Java 17、Android SDK 36、NDK `28.0.13004108`、CMake `3.31.6`；具体版本与支持的 ABI 以 [Versions.kt](build-logic/convention/src/main/kotlin/Versions.kt) 为准。下面从仓库根构建 ARM64 Debug：
 
 ```sh
@@ -62,6 +64,20 @@ Windows 使用 `gradlew.bat` 和可用的 Python；没有 Bash 时，执行 `git
 内置引擎来自 [SandyYuR/librime 的 zhongzhou](https://github.com/SandyYuR/librime/tree/zhongzhou)，由 [native/rime-sdk.lock.json](native/rime-sdk.lock.json) 固定 SDK 版本与摘要，Gradle 下载并校验。用户另行授权的 `.so` 或引擎提供 APK 属于运行时变体，不改写该锁。共享预设 `native/rime-prelude` 是唯一子模块；当前构建不使用旧 prebuilder/prebuilt。开发 SDK 仅显式接入 Debug，详见[原生依赖说明](native/README.md)和[引擎更新流程](https://sandyyur.github.io/fcitx5-android/maintainer/engine-update)。
 
 `-PinputDiagnostics=true` 用于逐键性能诊断，与用户开启的统计、词云功能独立。`-PdirectRimePrototype=true` 额外包含 `.lab` 诊断模块；日常构建无需选择后端。
+
+已有候选/连续选词探针的事件 JSON 与 Perfetto trace 可用 `python3 tools/input-perf/associate-events.py --help` 查看逐事件归因用法。工具逐事件核对 trace 范围、进程和线程状态覆盖，缺失数据不会当作有效的零 CPU；失败仍保留 SQL、调度与 JSON。带 trace 的归因与无 trace 性能对照分别报告。
+
+固定节拍探针为 `tools/input-perf/CadenceCandidateTapTest.kt`（复制到 androidTest 中的 `CandidateTapTest.kt`），通过测试专用 InputManager 异步注入，分别记录计划、实际提交及窗口接收时间。v2 提前缓存目标 View 与坐标，窗口回调只检查该目标的位置和附着状态，不再递归搜索整个视图树。固定的是计划节拍，注入线程迟到仍须独立报告。实际保持时长从注入 DOWN 起至少 20ms，DOWN 迟到不会压缩触摸；新样本声明保持策略并单独校验，失败也保留原始 IME 数据。旧记录按其原始探针摘要和策略解释，不能直接作为当前探针的重测结果。它仅用于 API 35 一次性调试模拟器，不进入产品 APK。`python3 tools/input-perf/run-cadence.py --help` 列出来源清单、夹具摘要、执行顺序和独立 trace 参数；分析时使用 `associate-events.py --kind cadence`，不为可合并的中间编码伪造引擎终点。
+
+运行器要求显式传入 `--serial`、`--expected-avd-name` 和 `--allow-destructive-reset`，在设备身份核对完成前不会写设备。该协议会卸载 Debug 包并清空其数据，只能用于已获准清空的一次性测试 AVD，不能直接用于保留日常数据的模拟手机；缺少重置选项会直接退出。所有 ADB 命令绑定同一序列号，不采用环境默认设备。v2 产物清单必须使用 `fixed_cadence_100ms_input_manager_async_cached_targets_v2` 协议和本次探针摘要；旧 `cached_letters` 数据仍可分析，但不能混作本次测量。
+
+需要保留原应用数据的本机结构诊断使用 `tools/input-perf/run-isolated-study.py`。它只接管运行前确认不存在的三个独立诊断包，拒绝采用已有包；临时输入法、设置和屏幕唤醒状态均在原始状态记录后修改并逐项恢复。仅当原前台是本项目 `MainActivity` 时才恢复并验证该窗口，不会擅自启动其他应用。运行仍须显式指定串号、AVD 名称及 `--allow-owned-test-apps`，失败样本和恢复结果会保留，未通过时间轴或完整性校验的数据不能进入性能汇总。
+
+候选字形簇只在真正上滑选字时拆分；分页快照按接收组件能力选择一种表示，普通列表组件仍使用列表事件。字体变化会清理文字测量缓存。这些改动的历次数据和限制见[输入链路复核](https://sandyyur.github.io/fcitx5-android/maintainer/perf/current-input-pipeline-2026-11-13/)与[绘制等待调查](https://sandyyur.github.io/fcitx5-android/maintainer/perf/render-wait-2026-11-14/)，旧性能结果不作为当前组合已提速的证明。
+
+工具回归可在没有设备时运行：`python3 -m unittest discover -s tools/input-perf -p 'test_*.py' -v`。PR CI 执行这些测试并编译固定节拍探针，普通前端设备回归不会执行会准备测试方案的性能探针。
+
+`Candidate latency study` 工作流用于复核首个 i 的分发等待：先以同一个探针构建冻结基线、旧候选试验和指定完整 SHA 的当前版，再在独立 CI 模拟器中读取同一固定夹具。`run-study.py` 的 pilot 明确记录执行顺序，formal 三版本采用六种排列的均衡块；两版本时使用 ABBA/BAAB 块。每个新进程前恢复测试夹具，首轮与后五轮分开统计，同时报告完整 i 触摸、n 到 ni 响应、注入迟到和点选到 IC，不能只比较 UP 提交后的局部等待。trace 是独立 pilot，不并入无 trace 对照；这些脚本只能在明确获准清空的测试 AVD 中执行。
 
 ## 项目来源与范围
 

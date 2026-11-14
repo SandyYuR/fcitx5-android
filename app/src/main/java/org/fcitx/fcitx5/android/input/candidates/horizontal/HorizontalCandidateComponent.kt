@@ -7,7 +7,6 @@ package org.fcitx.fcitx5.android.input.candidates.horizontal
 
 import android.graphics.Typeface
 import android.os.Looper
-import android.os.SystemClock
 import android.text.TextPaint
 import android.util.TypedValue
 import android.view.inputmethod.EditorInfo
@@ -36,7 +35,7 @@ import org.fcitx.fcitx5.android.core.FcitxEvent.PagedCandidateEvent
 import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.BooleanKey.ExpandedCandidatesEmpty
 import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.TransitionEvent.ExpandedCandidatesUpdated
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
-import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
+import org.fcitx.fcitx5.android.input.broadcast.PagedCandidateReceiver
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeContent
 import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgePosition
@@ -60,7 +59,7 @@ import splitties.dimensions.dp
 import kotlin.math.max
 
 class HorizontalCandidateComponent :
-    UniqueViewComponent<HorizontalCandidateComponent, RecyclerView>(HorizontalCandidateComponent::class), InputBroadcastReceiver {
+    UniqueViewComponent<HorizontalCandidateComponent, RecyclerView>(HorizontalCandidateComponent::class), PagedCandidateReceiver {
 
     private val context by manager.context()
     private val service by manager.inputMethodService()
@@ -178,8 +177,6 @@ class HorizontalCandidateComponent :
     private var lastPagedCursor = -1
     private var lastPagedHasPrev = false
     private var lastPagedData: PagedCandidateEvent.Data? = null
-    private var pagedCandidateFlowActive = false
-    private var lastPagedEventUptimeMs = 0L
     private var lastRenderedCandidatesSnapshot: Array<CandidateWord> = emptyArray()
     private var lastRenderedActiveIndex = Int.MIN_VALUE
 
@@ -215,8 +212,6 @@ class HorizontalCandidateComponent :
 
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
         // New input session should not inherit paged-candidate flow state from previous one.
-        pagedCandidateFlowActive = false
-        lastPagedEventUptimeMs = 0L
         lastPagedData = null
         // 新会话（含 Rime 重启、切换输入法）的 generation 必须前进：否则即使新会话的候选
         // 内容与旧会话完全一样，(offset, generation) 也会与上次相同而被去重吞掉，展开面板
@@ -589,19 +584,8 @@ class HorizontalCandidateComponent :
     }
 
     override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
-        if (pagedCandidateFlowActive && data.total == -1) {
-            val now = SystemClock.uptimeMillis()
-            // Keep preferring paged events only when they are still arriving.
-            // If paged stream is stale (e.g. engine/plugin restarted), fallback to legacy list updates.
-            if (now - lastPagedEventUptimeMs <= 500L) {
-                pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
-                pendingLegacyCandidateUpdate = null
-                return
-            }
-            pagedCandidateFlowActive = false
-            lastPagedData = null
-            pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
-        }
+        // This is an actual list-mode snapshot, not a duplicate of a paged event.
+        // Switching modes must take effect immediately, even within the same frame.
         lastPagedData = null
         lastRenderedCandidatesSnapshot = emptyArray()
         lastRenderedActiveIndex = Int.MIN_VALUE
@@ -624,8 +608,6 @@ class HorizontalCandidateComponent :
     }
 
     override fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data) {
-        pagedCandidateFlowActive = true
-        lastPagedEventUptimeMs = SystemClock.uptimeMillis()
         pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
         pendingLegacyCandidateUpdate = null
         val candidates = data.candidates
