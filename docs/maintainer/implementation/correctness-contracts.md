@@ -21,7 +21,7 @@
 
 细粒度输入诊断只在 `inputDiagnostics` 构建中启用；关闭时不创建 `ServiceTask`，也不为诊断登记逐任务完成回调。`rime.service.waiting/running` 描述已接收工作的生命周期，`rime.service.wait_ns` 从服务入队算到工作开始；`rime.events.pending_batches` 是 `InputEventQueue` 的真实批次数，`rime.events.presentation_replaced` 只计算相邻展示替换；`rime.events.result_wait_ns` 从事件批次产生算到服务开始处理，另以 `rime.events.flow_wait_ns` 区分 Flow 交付。它们不是丢键计数，也不能将不同阶段的分位数相加成端到端分位数。
 
-`DirectRimeBackend.maintain` 保存维护前的绑定，但只有维护代次仍为当前代次、引擎仍在运行且尚无可用绑定时才恢复。期间收到的当前绑定元数据优先，显式 `needsRime = false` 不提升为输入需求。等待 owner 或操作完成后的取消均经过 `NonCancellable` 恢复段，随后继续传播取消，不显示普通失败提示；恢复失败作为原异常的 suppressed exception 保留。`MaintenanceSaveTest` 覆盖 owner 前取消、操作后取消、失败反馈和维护中切换编辑器。
+`DirectRimeBackend.maintain` 薄委托 `DirectRimeMaintenanceCoordinator.run`。协调器保存本次 previous metadata，仅在维护 token 仍为当前代次、started 且尚无 usable binding 时恢复。恢复前经 Backend 原锁读取当次 metadata，缺失时才准备 previous；prepare 后再次读取决定 begin 或 clear，显式 `needsRime = false` 不提升。取消仍经 `NonCancellable` 恢复并传播，恢复错误保留到当次 primary 的 suppressed，具体时点见[维护与绑定恢复协调](#维护与绑定恢复协调)。`MaintenanceSaveTest` 继续覆盖 owner 前取消、操作后取消、失败反馈和维护中切换编辑器。
 
 其他输入约束：
 
@@ -29,9 +29,9 @@
 | --- | --- |
 | 异步交付前验证 session/generation；同代次 `needsRime` 只提升 | `DirectRimeBackend.prepareInputSession` / `requireInputSession` |
 | 分页遇组合变化必须取消，批间让出执行机会 | `core/CandidatePageReader.kt` 中的顶层函数 `readCandidatePage` |
-| 部署、同步与重载期间关闭按键处理，finally 恢复 | `DirectRimeBackend.maintain` 与 `keyGate` |
+| 部署、同步与重载期间关闭按键处理，finally 恢复 | `DirectRimeBackend.maintain` → `DirectRimeMaintenanceCoordinator.run`；实际 enter／leave 与 `keyGate` 回调仍在 Backend |
 | commit 只消费一次，展示刷新不得移动光标或重放旧提交 | `refreshPresentation` 与 native action 13；action 9 仅用于真实原始编码光标移动 |
-| 候选点选绑定实际显示的数据版本与原始序号 | `CandidateSelectionTarget`、`selectCandidateIfCurrent`；横向、展开和浮动入口共用服务串行队列 |
+| 候选点选绑定实际显示的数据版本与原始序号 | `CandidateSelectionTarget`、`selectCandidateIfCurrent`、`DirectRimeInteractionTargets`；横向、展开和浮动入口共用服务串行队列 |
 | DOWN 必须有兜底 UP；focus 不覆盖显式 inactive binding | `focus` / `deactivate`、`KeyboardInputLifecycleTrackerTest` |
 | 临时线程优先级必须恢复；提升失败不拒键 | `core/InteractiveThreadPriority.kt` |
 
@@ -47,6 +47,42 @@ Native owner 只缓存 `schema_id`、`schema_name` 与 `ascii_mode` 三个稳定
 
 Kotlin 的 `DirectRimeInputMethodEntryCache` 只保留最后一个不可变展示对象。中英文模式、中文态的方案 ID／名称或资源显示名变化时重建；西文态忽略没有显示的后台方案字段，回到中文态按当前方案重新比较。该缓存不保存输入绑定，也不改变方案恢复行为。
 
+### 维护与绑定恢复协调
+
+`core/DirectRimeMaintenanceCoordinator<B>` 唯一持有维护 Mutex，通过固定 `Owner<Binding>` 投影调用后端当次状态和实际动作。Backend 继续持有 private Binding、epoch／bindingLock、started／Snapshot、keyGate／events 和原 native owner；协调器不创建 owner、scope、dispatcher 或线程，不取得实时输入绑定或 native session 的所有权。
+
+Mutex 覆盖屏障、owner 操作、`NonCancellable` 恢复及 finally；取消等待 Mutex 的请求不进入维护，不推进 epoch。取得 Mutex 后，`enterMaintenance` 仍在原 try 前，依次 maintenance=true、block、锁内保存 previous／推进 epoch／binding=null／invalidate，返回当次 token。屏障失败不进入恢复或 leave，但 Mutex 沿原 withLock 解锁；进入 try 后的 fatal Error 只经过 finally，不作为可恢复 Exception 捕获。
+
+owner 内保持 clearBinding、清状态菜单并交付 token 事件、维护提示、operation、可选方案刷新、激活完成和恢复顺序。恢复动态检查 started、token／inputSession 和 usable，再按上述两次原锁读取使用 current 与 previous metadata；不将两次读取扩大成新锁区间，也不承诺锁区间外无条件的并发覆盖保证。
+
+Exception 恢复继续 `withContext(NonCancellable)` 再进入原 owner，先处理 `DirectRimeEngineOperations` 激活失败，再检查 token，按外部失败 Boolean 决定是否恢复；取消和 `EngineSwitchRecoveredException` 不显示普通错误。恢复错误附加到协调器实际捕获的 primary，显式 self 排除、最后清 maintenance 及 keyGate.running(当次 started) 保留，实际 leave 动作仍由 Backend 执行。调试 coroutine transport 可能复制标准 Throwable，source 与跨边界实际 primary 的同对象不是新增约束。
+
+`DirectRimeMaintenanceCoordinatorTest` 使用真实 dispatcher、Mutex、同步代次／metadata 与 InputKeyGate，检查屏障、并发等待、取消、两次 metadata 读取、错误恢复和门控；受控错误的 identity 与普通 IOException transport 分别检查。真实 Backend 的 `MaintenanceSaveTest`、输入绑定、发布状态及 `InputKeyGateTest` 继续同跑，原始当前提交与设备范围见[第 5 项固定记录](../changes/2026-11-14-direct-rime-responsibility-splits.md#第-5-项-维护与绑定恢复协调)。
+
+### 后端展示与菜单
+
+`core/DirectRimeStatusMenu` 只组装状态菜单并将动作 ID 解码为命令；互斥组选项仍先关闭其他成员，再启用目标。`core/DirectRimePresentation` 只将本次 Snapshot 转成预编辑、面板、带 generation／`tabsRevision` 的音节标签和候选展示值。展示转换不得消费 commit、调用 native 或自行推进候选版本。
+
+`core/DirectRimePublicationState` 集中持有 client preedit、input panel、输入法展示条目、状态菜单四类缓存，以及 `publishedGeneration`、`candidateVersion` 和候选事件缓存。它在同一 owner 上判断展示变化、推进候选版本、登记候选点选目标，并生成统计／提交先于展示的完整输入事件批次；绑定结束时清空 client preedit、input panel 和候选缓存并使旧候选目标失效，状态菜单与输入法展示条目保留到新绑定发布。菜单构建与 commit 计时通过构造时注入的 builder／`CommitClock` 调用。状态类不持有 native 快照、不调用 Native、不创建线程、不直接写队列，不取得输入绑定或 native session 的所有权。
+
+`DirectRimeBackend` 继续持有输入 generation、本次 native 快照、输入门控及 native 生命周期。后端先校验当前绑定与结果代次，在 owner 上按需调用 `Native.options`，再将结果与本次展示上下文交给发布状态，最后调用 `events.offer`。过期结果不得推进发布代次、候选版本或覆盖当前缓存；提示计时与寿命由 `DirectRimeStatusHintScheduler` 在原 owner 上协调，通过后端的 started／generation 检查后才调用发布状态更新面板。候选点选与分页读取沿原 owner／队列执行，目标规则交给 `DirectRimeInteractionTargets` 动态判定，实际 Native 与最终结果门仍在 Backend。`clearStatusActions` 只清菜单缓存，维护与启动等生命周期事件仍由 Backend 构造和交付。
+
+完整 `buildBatch`、绑定清空及候选版本转换、菜单清空和提示过期继续在 owner 上执行。四类对外展示缓存和候选版本保留 volatile 读取边界。`EngineLifecycleController.start` 的同步 `onStarting` 沿原行为在启动调用线程显示“准备中”面板；这一 `showUnavailable` 只替换 volatile panel 并返回原有不绑定 generation 的面板事件，不改变候选版本或已发布 generation。
+
+`DirectRimeStatusMenuTest` 与 `DirectRimePresentationTest` 检查菜单和显示转换规则。`DirectRimePublicationStateTest` 直接检查完整批次、统计与 commit 计时关联、候选版本失效／强制重发、绑定清空后的菜单与输入法条目保留、提示过期、不可用面板以及菜单清空后重建。`DirectRimePublicationContractTest` 通过后端的 `sendKey`／`setCandidatePagingMode` 入口检查统计与提交先于展示、发布目标的版本和过期结果不改状态；满足 `Snapshot.isUnchangedRelease` 的松键只更新后端持有的 native 快照。强制刷新仍读取新快照，不能重放旧 commit；仅在同代次、同分页模式且未触发既有候选失效条件时，重发候选而不推进候选版本。清空绑定展示仍推进候选版本，使旧界面持有的目标失效。Backend 集成 JVM 夹具替换了 Native，真实开关保存、跨会话恢复与触摸行为仍由 `DirectRimeFrontendTest` 验证；本次发布状态拆分范围见[2026-11-14 核对](../changes/2026-11-14-direct-rime-publication-state.md)，此前验证保留在[2026-11-13 后端重构核对](../changes/2026-11-13-direct-rime-backend-seams.md)。
+
+### 瞬时提示调度
+
+`core/DirectRimeStatusHintScheduler` 持有提示文本、提示 generation、Job 和既有 `StatusHintLifetime`，复用 Backend 的 engineScope、owner 与 uptime clock。它不创建新 scope、dispatcher 或线程，不取得输入绑定或 native session 的所有权，也不保存 native Snapshot、候选版本或发布缓存。`statusHintPresented` 继续先进入原 owner，再将提示 ID 与实际帧时间交给调度器。
+
+show 先取消旧任务并清文本、提示 ID 与 generation，再启动未呈现时 10 秒的兜底。首次有效 presented 将帧时间夹到不超过 owner 当前 uptime，截止时间改为该帧加 1,500 毫秒；早于 start、已过兜底期、重复呈现及旧提示 ID 均拒绝。owner 迟到处理呈现回调时保留原帧时间，已到截止时间便立即过期，不重新延长可见寿命。
+
+expiry 先核提示 ID，匹配时先清 Job、文本与 lifetime，再检查引擎 started 及提示 generation 是否仍等于当前输入代次，决定是否更新面板。expiry 保留提示 generation，显式 clear 才归零；旧任务不能清新提示。finalize、clearBinding、真实 DOWN 与 publish 沿原条件调用 clear／show。纯过期回调继续使用 `DirectRimePublicationState.expireStatusHint`，只清面板 auxUp／statusHintId 并交付原同代次单面板事件，不调用 Native、不重放 commit、不推进候选版本、native revision 或 tabsRevision。
+
+`showUnavailable` 与 `EngineLifecycleController.start` 的同步 `onStarting` 保留原启动调用线程更新 volatile 不可用面板的例外，不改为异步调度，也不清原瞬时提示；该面板事件不推进候选版本或已发布 generation。
+
+`DirectRimeStatusHintSchedulerTest` 使用测试专用虚拟 owner／Delay 检查寿命、迟到帧、旧 ID、替换、取消和输入代次变化。`DirectRimeStatusHintContractTest` 使用真实 Backend 与既有 Native shadow 检查 expiry 无 Native 刷新／commit 重放、绑定结束、停止清理先于 native finalize，以及 owner 阻塞时 startup 仍同步更新面板；回调同时核原 owner 线程。既有 `StatusHintLifetimeTest`、`InputEngineApiTest`、发布状态及输入绑定测试继续守护原规则，实际执行见[第 3 项固定记录](../changes/2026-11-14-direct-rime-responsibility-splits.md#第-3-项-瞬时提示调度)。
+
 ### 候选目标、坐标与展示快照
 
 `CandidateWord.selectionTarget` 由生产者在发布前登记，包含编辑器/候选版本、原始序号及其局部页/全局含义。它不参与文字显示相等性。界面可以在不重绑相同文字的情况下更新目标，但不能用 backend 的最新版本给仍未加载完成的旧分页数据重新贴标签；点击时还需确认 adapter 项与 holder 实际显示的文字相符。`CandidateGenerationTracker` 同时观察引擎版本，避免第一屏相同就漏刷懒候选尾部。
@@ -57,7 +93,7 @@ Kotlin 的 `DirectRimeInputMethodEntryCache` 只保留最后一个不可变展�
 
 方案菜单的当前项由 `SubModeManager.resolveSelectedSchemaAction` 从同一份动作列表的勾选状态解析，不能用 `currentIme().subMode` 的西文/密码直接输入标记推断方案。方案切换后，密码字段仍应保持直接输入和原编辑器焦点。
 
-Android 光标位置以 UTF-16 计，服务交给引擎 API 的位置以显示文本 Unicode 码点计，Rime setter 使用原始编码 UTF-8 字节位置。`moveCursorIfCurrent` 校验排队时的编辑器及预编辑文本，再按需调用 `Native.rawInput(generation, revision)`。原始读取不消费 commit、不推进 revision，也不加入每键快照；`preeditCursorToRawBytes` 只接受可确定的文字、分隔符和边界映射，无法确定时重新发送当前 client preedit 恢复光标。“候选预览”不按预测词位置改写原始编码。
+Android 光标位置以 UTF-16 计，服务交给引擎 API 的位置以显示文本 Unicode 码点计，Rime setter 使用原始编码 UTF-8 字节位置。`moveCursorIfCurrent` 在原 owner 上委托 `DirectRimeInteractionTargets.moveCursor`，校验排队时的编辑器及预编辑文本，再经 Backend 回调按需调用 `Native.rawInput(generation, revision)`。原始读取不消费 commit、不推进 revision，也不加入每键快照；`preeditCursorToRawBytes` 只接受可确定的文字、分隔符和边界映射，无法确定时重新发送当前 client preedit 恢复光标。“候选预览”不按预测词位置改写原始编码。
 
 `refreshPresentation` 使用 native action 13 读取新结果，仍只消费一次待提交文字，但不调用 `set_caret_pos` 或重新 Compose。同模式重新呈现可以发送候选而不增加 `candidateVersion`；native `revision` 仍然前进。不能重新发送带旧 commit 的缓存快照，也不能把显示偏移传给原始光标 setter。
 
@@ -65,11 +101,59 @@ JNI 仅对未处理、无新 commit、同代次且所有展示值相同的结果
 
 JNI 分配失败后停止后续构造，只做允许的引用释放，已有 Java 异常优先于新包装的 native 异常。成功取得的 Rime 结果与 JNI 字符引用由作用域清理保护，包装层后续复制失败仍恰好释放一次。候选迭代需区分两种失败：`candidate_list_next` 正常返回后，包装复制失败可以调用 `candidate_list_end`；锁定 SDK 的 `candidate_list_next` 内部会先释放旧文本，若它自身抛出异常，指针可能部分失效，此时禁止再次调用 `end`。这避免包装层二次释放，不表示已修复 SDK 内部所有部分分配的回收。`engine_test.cpp` 的 `testCandidateIteratorFailureDoesNotReclosePartialApiState` 固定该边界。
 
+### 交互目标校验与光标操作
+
+`core/DirectRimeInteractionTargets` 仅持有固定 Owner 引用，不保存 Snapshot、代次、运行／维护标志或展示版本副本，也不创建 owner、scope、dispatcher 或线程。Owner getter 投影 Backend 当次状态；inputSession 可在非 owner 线程失效，原短路顺序及重复读取保留，不能把它们解释成一次捕获后的新原子保证。
+
+`admitsAction` 依次核输入门控、expected generation、候选 context 与 tab context；`actionStillCurrent` 在原 owner 内再核 generation、当前 Snapshot native revision 及两种 context。后续 `act` 仍由 Backend 读取最新 Snapshot／started／maintenance／epoch 作最后门控，不把这一检查前移或去掉。候选 context 比较实际发布的 candidateVersion，tab context 比较 tabsRevision；分页 `candidatePageStillCurrent` 只核运行／维护、generation 和 candidateVersion，不以 native revision 变化拒绝同展示的候选读取。
+
+光标流程先读取当次 Snapshot，依次核 started／maintenance／ready、Snapshot generation 和 expectedSession，保留后两者各自的 inputSession 读取，再核 ComposingText 与排队时 client preedit；状态或代次门失败直接返回 false。mode／文本不匹配、raw 为空或映射失败时调用原 client cursor 恢复回调并返回 false；目标已等于 raw caret 时恢复并返回 true，不调用 act 9。其余移动仍经 Backend callback，act 返回空或非 ready 时返回 false，不新增恢复事件；raw／act 异常沿原入口传播。Native raw 请求保留 Snapshot 的 generation／revision，UTF-8 映射复用既有函数，恢复不重放 commit。
+
+索引、局部／全局分页、legacy／schema action、admission 等待、诊断／统计及 `readCandidatePage` 批次仍在 Backend。`DirectRimeInteractionTargetsTest` 直接检查动态 getter、三类版本、短路与光标分支；`DirectRimeInteractionContractTest` 使用真实 Backend owner 和共享 Native shadow 检查拒绝 stale target、分页读时点、act 最后门及 Unicode 映射。当前原始验收及旧守卫／只读／映射回归范围见[第 6 项固定记录](../changes/2026-11-14-direct-rime-responsibility-splits.md#第-6-项-交互目标校验与光标操作)。
+
 ### 同步完成与备份门控
 
 `RimeSyncUserData` 的返回值表示是否启动维护线程。`Engine::sync` 等待线程后，还必须确认本次请求收到成功完成通知；失败在同次维护中保持有效，后续成功通知不能覆盖它，下一次请求则重新计数。原生同步会清理 session，不能继续复用旧句柄。运行时 `save()` 走相同维护门控；引擎未启动时跳过 native 同步，使已有用户文件仍可导出。系统关机广播直接进入最终关闭门控并等待 `Native.stop()`，不调用 `save()` 启动词典同步；关机门控一旦设置，迟到的连接或恢复回调不能重启引擎。真正复制备份时仍须通过下方停写入口，不能把同步成功当作停写完成。
 
 会话销毁后，Lua 的 `Memory` 对象可能尚未回收，仍占用 LevelDB。同步维护先通过 `stop` / `initialize(false)` 释放模块与词库资源，再发起同步；不重跑进程级 `setup`，也不强制重编方案。初始化失败时不能继续同步并覆盖错误；`PluginSdkSmokeTest` 实际覆盖 Lua 已学习词条的同步与重启读取。
+
+## 资源维护与方案导入
+
+### 管理命令解析
+
+`core/DirectRimeManagementCommands` 只将 `profile-manager`、`import-profile` 和 `schema-selector` 的 RawConfig 字段解码为只读命令，不调用 Native、不检查文件或引擎、不进入维护。后端保留路径分发、输入 owner 与维护，工作目录操作由 `DirectRimeProfileOperations` 在该边界内调用实际 Config／Repository；未知路径继续不进入维护、不改变输入代次或展示缓存。三类资源更新请求的准备仍由 `DirectRimeMaintenanceFiles` 负责。
+
+Profile 的 `Name` 后 `Action` 继续在原 Direct Boot 检查之后读取。未知动作解码为 `ProfileAction.Unknown`，仍在原 mutation lease／try 内报错并更新 `config.error`，不能把这一步提前到守卫或租约之前。`RawConfig` 的字段可变：命令头部捕获已读取的名称与动作，但 `ExternalPath` 和 `NewName` 仍在原分支执行时读取；后者保持在引用检查、必要停止之后的 rename try 内，不能为统一解析而提前冻结这些字段。
+
+导入的 `Archive` 后 `Destination` 继续在原 idle 与 builtin 检查之后读取。缺少 Archive 与空字串保留区别，解析不修剪或规范化路径；canonical path、目录可用性与 ZIP 安装校验仍按原次序执行。方案列表按 `split('\t', limit = 3)` 读取，仅选择第一列恰为 `1` 的三列行，保留空 ID、重复项、顺序及第三列剩余内容，不新增方案有效性过滤。
+
+`DirectRimeManagementCommandsTest` 检查字段默认值、头部捕获与后续字段读取、导入字串以及方案行规则。`DirectRimeManagementCommandContractTest` 通过真实后端维护入口及临时 repository 检查未知路径、未知动作、Direct Boot、busy lease 和 import 前置检查的错误顺序；没有用新生产回调替代原守卫。固定范围与实际结果见[职责分批核对](../changes/2026-11-14-direct-rime-responsibility-splits.md)。
+
+### 工作目录操作协调
+
+`core/DirectRimeProfileOperations` 同步协调管理和导入操作，沿后端的单一维护 owner 调用实际配置、Repository 与文件事务。Backend 保留 Direct Boot、维护门控、导入初始 idle／builtin 检查、命令解码及 transaction prepare。协调器在 Backend 中 `by lazy` 构造，并以 supplier 取得 Repository；manager 的首次实际 Repository 访问仍在原 try 内的 mutation lease 位置，初始化异常也会记录 `config.error`，构造协调器不能提前读取 CE。
+
+manager 在 Name／Action 解码后进入 try，取得 lease 后执行各分支，释放 lease 后清空 `config.error`；任一 Exception 记录原 message 并重抛。Unknown 动作继续在 lease／try 内报错。create 在原调用处才读取 ExternalPath；switch 先检查 builtin，再保存选择并重启，重启失败保留已写入的新选择。
+
+rename／delete 先检查 profile 未被引用。活动 profile 的 rename 首次停止在内部 try／finally 之前；NewName 在停止后的 rename try 内读取，finally 为活动 profile 重启。首次停止失败不会读取 NewName 或重启；重命名持久化失败沿 Config 自身事务恢复文件，重启失败保持原 finally 异常优先级。目录持久化和文件保护继续由 Config／Repository 的实际实现负责。
+
+管理操作与[方案 ZIP 导入](#方案-zip-导入)各自保留原恢复顺序：管理切换失败保留新选择，导入切换失败尝试恢复先前 profile。只有 manager 清空或设置 `config.error`；import 沿自己的登记和清理规则执行。两条路径保持原 catch(Exception)、取消及恢复／finally 异常覆盖规则。
+
+`DirectRimeProfileOperationsTest` 用实际 Config、Repository 和 ZIP 事务检查 lease、字段读取、目录持久化、注册前后清理与恢复，通过回调记录停止／重启顺序和异常。`DirectRimeManagementCommandContractTest` 的真实后端 Direct Boot case 同时检查构造与两条拒绝路径没有初始化 Repository。实际执行范围见[第 2 项固定记录](../changes/2026-11-14-direct-rime-responsibility-splits.md#第-2-项-profile-操作协调)。
+
+### 设置与资源更新
+
+高级设置保存、自定义方案更新和万象更新继续在 `withContext(NonCancellable) { maintain { … } }` 内执行。`core/DirectRimeMaintenanceFiles` 在 owner 上、停止引擎前完成既有目标与文件校验，生成含目标目录、payload 和安装策略的 `PreparedRimeInstall`。空自定义／万象 payload 在停机前返回；高级设置的空 payload 仍交由安装事务报错。各入口的文件保护规则见下文[万象更新](#万象方案更新与配置编辑)与[自定义更新](#自定义方案更新)。
+
+`data/RimeProfileUpdateInstaller` 先停止 native，再调用 `WanxiangUpdateTransaction`。初次停止失败不在安装器内恢复或重启；安装失败则在底层恢复之外再次调用恢复，恢复成功后才重启，并将恢复或重启异常附加到原错误。这层恢复也覆盖底层事务进入自身恢复段前的校验失败，不能因底层已有恢复而移除。停止和重启继续沿用后端维护回调，由 `DirectRimeEngineOperations` 在原 owner 上协调外部引擎启动守卫及 watchdog。
+
+`DirectRimeMaintenanceFilesTest` 检查三种安装策略与空资源边界；`RimeProfileUpdateInstallerTest` 检查替换前停止、激活失败回滚、事务前校验失败、初次停止失败和恢复异常。既有 `WanxiangUpdateTransactionTest`、更新 Worker 测试及 `MaintenanceSaveTest` 继续分别守护底层事务、任务状态和维护绑定恢复。
+
+### 方案 ZIP 导入
+
+普通方案 ZIP 的 `import-profile` 直接进入 `maintain`，没有整段包裹 `NonCancellable`；取消与绑定恢复沿用维护入口的规则。`data/RimeProfileImportTransaction` 只负责文件部分：限定 archive 来自缓存导入目录，选择未被登记或占用的名称，解压到同一父目录的隐藏 staging，再以目录 rename 安装。
+
+后端完成初始 idle／builtin 检查、字段解码与 transaction prepare，`DirectRimeProfileOperations.installImported` 先 install，再在 profile mutation lease 内重新检查 builtin，完成 `config.create` 后立即 `markRegistered`，捕获先前 profile 后切换并重启。切换或重启失败先切回 previous 并重启，再抛异常；外层继续调用 `recoverAfterFailure`。失败清理会尝试移除 staging，且仅在安装完成、尚未登记时删除 target；登记后的目录保留，恢复异常沿原覆盖规则传播，import 不改 `config.error`。`RimeProfileImportTransactionTest` 检查文件事务，`DirectRimeProfileOperationsTest` 检查登记、lease 和恢复顺序；真实引擎回归为 `DirectRimeFrontendTest.profileImportSelectionAndMigration`。外部引擎活动时的导入限制继续遵循下文引擎变体契约。
 
 ## 运行时引擎变体
 
@@ -88,6 +172,18 @@ JNI 分配失败后停止后续构造，只做允许的引用释放，已有 Jav
 导入暂存只属于当前 Activity 和当前两次确认流程，不跨配置重建恢复。每个 Activity 使用独立 token 子目录；创建时只回收当前进程没有登记为活动的旧 token，销毁时无条件删除自己的暂存。主题、语言、旋转或系统配置导致重建时，旧确认流程取消，用户必须重新选择文件。不能让一个页面实例删除另一个仍在确认的文件，也不能为恢复对话框而让尚未完成第二次授权的代码文件跨 Activity 生命周期存活。
 
 相关回归包括 `RimeEngineElfTest`、`RimeEngineStoreTest`、`RimeEngineProbeServiceTest`、设置搜索覆盖，以及 `RimeEngineVariantDeviceTest` 的真实 DSO/provider 探测、部署、候选上屏和进程内停止重启。方案测试必须区分 API 探测通过、引擎加载失败、方案编译错误与缺失模型；修补过的测试夹具不能表述成原上游方案已经无错误。
+
+### 引擎运行协调
+
+`DirectRimeEngineOperations` 在既有 owner 上同步协调配置、槽切换、维护重启与激活结果，唯一持有 activeSelection、newActivation、维护 pending selection 和 Handler／watchdog。`DirectRimeBackend` 继续持有唯一 volatile started、本次 Snapshot 与 startupError，提供原方案刷新及展示缓存重置；启动阶段及实时输入绑定／门控由 Backend 负责，维护流程与 finally 时点由 `DirectRimeMaintenanceCoordinator` 控制，实际屏障、绑定动作和事件仍由 Backend 回调完成。Repository 和 shared supplier 继续惰性取得，授权、启用守卫和目录保护复用原 Store／Config，不增加 owner、线程、scope 或会话状态副本。
+
+startup 每轮在原 try 外先重置 selection／newActivation，再进入 assets、config、engine-selection 和 native 阶段。configure 在载荷发布、provider 再校验和 profile 检查前登记本轮选择及完整检查标志，失败不能误归因给旧槽或内置引擎。Direct Boot 固定内置，不读取外部选择或写激活记录；普通启动的 fullCheck 条件与维护重启的 fullCheck=true 保持。
+
+槽切换先停止当前槽，且该 stop 位于可恢复目标加载 try 之外。切换 stop 先 arm watchdog、started=false、清 Snapshot，再调用 Native.stop；失败后不得在污染进程加载目标或回退槽。维护 stop 则先准备／核对激活守卫，再调用 Native.stop，成功后才写 started=false；不能统一成同一种失败写入顺序。启动／停止 watchdog 的内置与外部条件、超时和取消时点保持原规则。
+
+目标加载失败先清启动 watchdog，再停止 target。target 清理停止失败保留原 targetError 和 addSuppressed 调用，取消 watchdog 后安排 500ms 进程恢复，不加载 fallback。Kotlin 2.4.10 的 addSuppressed 扩展遇 self 忽略追加，继续抛原异常；这条路径没有新增显式 self 判断。清理成功后才登记 activationFailed 并尝试先前／回退槽；回退失败保留原 targetError 优先级、显式 self 排除和 attempted 守卫，安排新进程继续回退。回退成功仍抛 `EngineSwitchRecoveredException`，由原 maintain 识别；方案刷新与槽展示 revision／缓存重置保持原时点，旧输入和 commit 不重放。
+
+维护成功先调用 activationSucceeded，再清 pending 和 watchdog；失败先清 pending，再调用 activationFailed，之后才处理 started／watchdog／进程恢复。Repository 写入异常继续传播，不能提前清理后续状态或用 Boolean 返回值吞掉。`DirectRimeEngineOperationsTest` 的 24 项使用已登记载荷夹具、实际 Repository／Config 目录事务和共享 Native shadow，覆盖停止污染、目标清理／相同异常、回退、完整检查、维护守卫、持久化错误顺序及 startup 归因；描述符观察保留生产 fd 原值。既有 `RimeEngineStoreTest`、`RimeEnginePluginsTest`、`MaintenanceSaveTest`、`EngineLifecycleControllerTest` 和 `DirectBootStartupTest` 同跑，本机 shadow 回归与真实设备执行范围分别记录。
 
 ## 首次解锁前启动
 

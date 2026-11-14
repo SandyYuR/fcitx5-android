@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "build_type": "Debug",
+  "abi": "x86_64",
+  "input_diagnostics": false,
+  "driver_commit": "a3486b32b483a209eff9ccb069526d5926489c1a",
+  "sources": {
+    "before": "88a664d46ba82712d5457d86c037629c478b042c",
+    "after": "e6c6187606b6855ed9c8ab184ade379f10b64e29"
+  },
+  "files": {
+    "before.apk": "31f35df5749d43842089128637d3c633ec318dc30de46c5931363e69eae8002b",
+    "before-tests.apk": "6ba73486b45aca73337926a35d20980964e0825a7a474153c9cbca1a4f46bdb1",
+    "after.apk": "5e010c29962f8b532ae96a2ee36c4d6c4984e1c99ccf71a96615c513b7551160",
+    "after-tests.apk": "68795b6e34b830da80cd2245f51c40553056f2356320bd1f61de67e7fccc1210",
+    "host.apk": "33d24be70517e3e53b84ecfce8f60a07e1a18096bc0700469fd94fe30fdce458"
+  },
+  "packages": {
+    "before": "org.fcitx.fcitx5.android.fx.rime.debug",
+    "after": "org.fcitx.fcitx5.android.fx.rime.debug"
+  },
+  "signer_sha256": {
+    "before.apk": "724b9f9a71d987ebb5c7c1feb4195fb0b23f95a22fc91c85cabfc342276c3222",
+    "before-tests.apk": "724b9f9a71d987ebb5c7c1feb4195fb0b23f95a22fc91c85cabfc342276c3222",
+    "after.apk": "724b9f9a71d987ebb5c7c1feb4195fb0b23f95a22fc91c85cabfc342276c3222",
+    "after-tests.apk": "724b9f9a71d987ebb5c7c1feb4195fb0b23f95a22fc91c85cabfc342276c3222"
+  },
+  "harness_sha256": "48bed3d958ecc8175dd576096d40d01aa3b4aa65909a90846617eb9a57cfce85",
+  "frontend_harness_sha256": "985afd933332bbda09828f1fb1d22be736712bab5225a91462f4b71051c06626",
+  "host_source_sha256": {
+    "tools/candidate-perf/host/BenchHost.java": "bb2afdf547729eecec065117742fd0f35ef9db3feeeb1381777b899581b53cd7",
+    "tools/candidate-perf/host/BenchControl.java": "9b48f4c1a7931cdd03372c1d41a2919c7e40643bd39c7f4edb82168f81537cbe",
+    "tools/candidate-perf/host/AndroidManifest.xml": "9f322d7d9062b8a158fa7d787314754a4cd44536ee4d223288d0de5299064374",
+    "tools/screen-perf/build-host.sh": "2ed8acbac95e1fa2f686a8109390e3bedbb1d9b3e251e6692f5ffe3d4d0f488e"
+  },
+  "driver_sha256": {
+    "tools/candidate-perf/run.py": "16691a2f8e54ce916e3f08526250ba97a6862267b805e1a8aa0c21a92dd1cc37",
+    "tools/input-perf/compare-refactor.py": "477bee3e664d5c7995864ce606c6d3ac4bec5b05c8cffd4c362109e399f64e9e"
+  },
+  "driver_source_sha256": {
+    "tools/input-perf/build-refactor-products.sh": "566aaf18f3f99aef0296ee7251f60da601f98172e64f886af67f8de26d3fb9b0",
+    "tools/input-perf/compare-refactor.py": "477bee3e664d5c7995864ce606c6d3ac4bec5b05c8cffd4c362109e399f64e9e",
+    "tools/candidate-perf/run.py": "16691a2f8e54ce916e3f08526250ba97a6862267b805e1a8aa0c21a92dd1cc37",
+    ".github/workflows/rime-candidate-perf.yml": "b77f77fe1f02d09e106264297addabd5b4385bf47575086e1731bb8a31924fe2"
+  },
+  "sdk_lock_sha256": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f",
+  "native_library_sha256": {
+    "lib/x86_64/libc++_shared.so": "d6bceb7915ddb75ec4f96f97837efd80cf6084b00ad38e2666728f6cc24a9f68",
+    "lib/x86_64/libdirect-rime.so": "5a48966d37f74aa80238900bc10ac4c15d8b47c4f55ae71182db2f6cde3306ed",
+    "lib/x86_64/libquickjs.so": "8ea65d8b3efbd8d19a003691ff329c5483d18f3b59547cd8f8e1cac69470079e"
+  },
+  "build_driver_commit": "ff8cc837e47418d715e341aa56538e252bcd24b9",
+  "recovery": {
+    "build_driver_commit": "ff8cc837e47418d715e341aa56538e252bcd24b9",
+    "build_run": 43541579966,
+    "artifact_id": 14092750868,
+    "artifact_zip_sha256": "b7ceab4c1b04d0f9e6227f5a37533be741966b8e1c2256166dcb61469164d665",
+    "sources": {
+      "before": "88a664d46ba82712d5457d86c037629c478b042c",
+      "after": "e6c6187606b6855ed9c8ab184ade379f10b64e29"
+    },
+    "files": {
+      "after-apk-audit.json": "c7bab470b7ea9e1bc53fe26feffdd0661e05f202d358bdc575ef2683ff227900",
+      "after-build.log": "1a17f72a482d0276fb4600570d69d7b3e2e1673f288531a3772ff949ddc3ead3",
+      "after-clean.log": "9b9d7a3473062ddb49a692f90b908f471ff356b67260b4235f3b4dbb032b922a",
+      "after-commit.txt": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+      "after-frontend-harness-sha256.txt": "c244798949c4dcad163a83dbe25294ecb24f37ca1ac3cf4cc952b17244ca4930",
+      "after-harness-sha256.txt": "b02398b2ea001b1763a38f864afdd67fcf7287bebd5f5bd88a6ec32c5bed8238",
+      "after-native-link-audit.json": "267deafcedde691c74246b3b2454284123f17bd5fd3e07ef6dc9bf65084fe252",
+      "after-submodules.txt": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59",
+      "after-tests.apk": "68795b6e34b830da80cd2245f51c40553056f2356320bd1f61de67e7fccc1210",
+      "after.apk": "5e010c29962f8b532ae96a2ee36c4d6c4984e1c99ccf71a96615c513b7551160",
+      "before-apk-audit.json": "05dad19e3cf1ebaa232e55b96773d544a6a3e4448a203c0b00c272a5d60b07e0",
+      "before-build.log": "3b5a1ab1e3613ae4910592b0ac99a206eb78978121a5e794825641b0bc8dc3f9",
+      "before-clean.log": "747b1fd65a98a8a475b699d187319b35e4df29c134684e5284269013697b48e9",
+      "before-commit.txt": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+      "before-frontend-harness-sha256.txt": "c244798949c4dcad163a83dbe25294ecb24f37ca1ac3cf4cc952b17244ca4930",
+      "before-harness-sha256.txt": "b02398b2ea001b1763a38f864afdd67fcf7287bebd5f5bd88a6ec32c5bed8238",
+      "before-native-link-audit.json": "23a8a328fa2df8265214cac139f08b8c85d86b71b97f4d5b095d1e338b562cdb",
+      "before-submodules.txt": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59",
+      "before-tests.apk": "6ba73486b45aca73337926a35d20980964e0825a7a474153c9cbca1a4f46bdb1",
+      "before.apk": "31f35df5749d43842089128637d3c633ec318dc30de46c5931363e69eae8002b",
+      "host.apk": "33d24be70517e3e53b84ecfce8f60a07e1a18096bc0700469fd94fe30fdce458"
+    }
+  }
+}

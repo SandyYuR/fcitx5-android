@@ -1,0 +1,1877 @@
+[
+  {
+    "id": 14094485168,
+    "name": "refactor-performance-reverse",
+    "published_sha256": "8db842a8def4eb0f21dc7cc6edcff426566ac5345fe9b146944d3697034e8b60",
+    "zip_sha256_verified": true,
+    "all_members_crc_verified": true,
+    "members": [
+      {
+        "name": "refactor-perf/b01-p01-after/backend-instrumentation.txt",
+        "crc32": 2053700750,
+        "sha256": "11d8af4fc8fead0ce292d6bba4fa5d16d42b18ea961ab53c03ac8b6a6b995b19",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/backend-logcat.txt",
+        "crc32": 1459480449,
+        "sha256": "0b93e4f4ca2704ff97a80e54c76b141a55517476920bbcee66d323ee474d0d56",
+        "bytes": 235494
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/backend.json",
+        "crc32": 1315407665,
+        "sha256": "2226f3069f3406f945cb8c77b0da2c579813a49d89443cd0070a9350a8d87523",
+        "bytes": 2056
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/candidate/after-1.instrumentation.txt",
+        "crc32": 2936789923,
+        "sha256": "ac32e3922b64868691618a72a8f8a2c330cbde36019c8988fd1785bbc74e5d95",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/candidate/after-1.json",
+        "crc32": 1202546223,
+        "sha256": "dc49561adc154709808083c88ea64197ef9e04cf748331e1a5a5231a94a76432",
+        "bytes": 9411
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/candidate/after-1.logcat.txt",
+        "crc32": 425401913,
+        "sha256": "e6469c75943fcf6ae852c02bb83d83f833217753f3a58937c2b8d0abe4188bbc",
+        "bytes": 207039
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/candidate/after-prepare.txt",
+        "crc32": 749974279,
+        "sha256": "617260b5abfa3a5012451f77717f230efa638a0badabaa57e7cb01548a15c00e",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/candidate/comparison.json",
+        "crc32": 3949723560,
+        "sha256": "e29b542342504c470052a0a23c5a28fc2b4469342749533aa8f02927547d5e67",
+        "bytes": 10760
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/sample.json",
+        "crc32": 686634545,
+        "sha256": "b854868e512a086d8eeb6c7b288c5b47dbd40f55953a50ec02030e8d74d2f177",
+        "bytes": 4228
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/candidate-driver.log",
+        "crc32": 4092917749,
+        "sha256": "47c4e708e3ee96b3efee9a8ed1ff291a8063112c2ec8ff928aa4ca29fa39b3c8",
+        "bytes": 2060
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/backend-instrumentation.txt",
+        "crc32": 729596467,
+        "sha256": "24b0e693014c6192903dad12c619d2a6a8b965a48183b868e34c3c869a6f2bd7",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b01-p01-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/backend-logcat.txt",
+        "crc32": 3545353912,
+        "sha256": "1ac5902edada7733470d4009904313bfff20308ba0df262c4d234f52b5ef97c8",
+        "bytes": 94859
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/backend.json",
+        "crc32": 3599495837,
+        "sha256": "3da86fa6811f5e0d53cfa62a660ec86e5efdb0b5fa3d0de18dc45fa1cbc3ca62",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/candidate/before-1.instrumentation.txt",
+        "crc32": 2857045787,
+        "sha256": "4191a1a3e6b4ad173d5ca53876372a130ee10305942e81f604ec9b6815d53e6c",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/candidate/before-1.json",
+        "crc32": 611415950,
+        "sha256": "1a925141dedec9bfc5b959c2851bc7450111975f12d72be058f922ce16725273",
+        "bytes": 9406
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/candidate/before-1.logcat.txt",
+        "crc32": 2632938608,
+        "sha256": "10d201627fee0683c6cd27713986ef34fa1bd347c4db1f0b5d99202518b7eedc",
+        "bytes": 174616
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/candidate/before-prepare.txt",
+        "crc32": 3108190857,
+        "sha256": "0cf7b2fa0a8648b49150cbfab7a0c21de87852f54412a4cdef109f2d85dd9dc1",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/candidate/comparison.json",
+        "crc32": 303535582,
+        "sha256": "99d698133bfbc50c95873a375b97c9cf5e1dd723f66c4f1b58ca04cf5cd0c248",
+        "bytes": 10756
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/candidate-driver.log",
+        "crc32": 221362673,
+        "sha256": "d0cffed77ac4997e88a15510ed3f128d99cd4cf483da940a97fa42191de62007",
+        "bytes": 2056
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/sample.json",
+        "crc32": 275711677,
+        "sha256": "7893432c77ee069f087a1944fee112bc04b4c821018abdd5e8695e3311ce0df7",
+        "bytes": 4225
+      },
+      {
+        "name": "refactor-perf/b01-p02-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/backend-instrumentation.txt",
+        "crc32": 2376164088,
+        "sha256": "736c92b697fd74dc9cf0737e156a97980e2e209952dedba11b87f87c3248bdf3",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/backend-logcat.txt",
+        "crc32": 1602977549,
+        "sha256": "7289e8f3601ece826e5b26aa501b2fdab01643b6f08f91477f3222188cc0b62f",
+        "bytes": 109267
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/backend.json",
+        "crc32": 4212440837,
+        "sha256": "27ce2d71ba7de680b5e01dbb942813c167451a297aa570cfff7d5e98bece90f9",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/candidate/before-1.instrumentation.txt",
+        "crc32": 1196495397,
+        "sha256": "2cd747cf9eb43fe1fd99828910521bb3eb9433071b388a124d7e78389a22e657",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/candidate/before-1.json",
+        "crc32": 2706218602,
+        "sha256": "b16acf411edbdfbff7bd3abdfd79d08084ef78bfea6078ddd801d92bc1edd903",
+        "bytes": 9406
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/candidate/before-1.logcat.txt",
+        "crc32": 3940335785,
+        "sha256": "2b905c6750d9212f5c790279fb9564601bf30dc98a24d4b97970f6b5b6d97f6f",
+        "bytes": 213933
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/candidate/before-prepare.txt",
+        "crc32": 1251839064,
+        "sha256": "8d49da08ad490b75c4ad432a6bcab83570a31b806223577b56884f306f62ef3d",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/candidate/comparison.json",
+        "crc32": 3583883378,
+        "sha256": "23509726a9c1659263c6db9a93ecff950fe3a1f5fa6229a666622dccf9733175",
+        "bytes": 10756
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/candidate-driver.log",
+        "crc32": 4156485661,
+        "sha256": "94f71064a50ade3f3f7fb13661973c63eb74776da7401fca68184d9e9645b439",
+        "bytes": 2056
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/sample.json",
+        "crc32": 1158980549,
+        "sha256": "1e5bac9ad7f66e0368d6d02c2370087cd0eda275431fd067108197750baae725",
+        "bytes": 4225
+      },
+      {
+        "name": "refactor-perf/b01-p03-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/backend-instrumentation.txt",
+        "crc32": 1886798201,
+        "sha256": "82ab937dd943350ef93acc1fb226b2fea3d0a1aa61c542450ce3caf6b0a3d784",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/backend-logcat.txt",
+        "crc32": 1543677840,
+        "sha256": "99e80e65a9413e686eca4ce98c0902f2f575e2f358d79c90b2f8c616554b855d",
+        "bytes": 96691
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/backend.json",
+        "crc32": 218770179,
+        "sha256": "ee2cef84a9b6bfa43f965b1155ca69456377919225041683012b0c7604cd9e35",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/candidate/after-1.instrumentation.txt",
+        "crc32": 364566763,
+        "sha256": "8ecd6138dabb77d974066fd18a69f23d9d232b356c41d92563638904ae85a05e",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/candidate/after-1.json",
+        "crc32": 229480102,
+        "sha256": "a6f49b232f2b6c36e23233bfbbb3bbfe407800e3f076c5c04432e073e94fc2bd",
+        "bytes": 9406
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/candidate/after-1.logcat.txt",
+        "crc32": 1346198514,
+        "sha256": "cf6ee577acef1a054908099326f8b6a871aa3e5ce12beaa9cd90205f1aa23e77",
+        "bytes": 174201
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/candidate/after-prepare.txt",
+        "crc32": 3162084098,
+        "sha256": "1d68e8147ee07de6658c34eaf7c6c10552adcc42409caa073037220d11817ecc",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/candidate/comparison.json",
+        "crc32": 746145082,
+        "sha256": "f16ecdeaeed0303d40ce530b1241156f8a289b9adc60524a2a4d559acd26e560",
+        "bytes": 10755
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/candidate-driver.log",
+        "crc32": 795868882,
+        "sha256": "d4b0b23252a4369afbd9b25b30fa18d8c262c15f49c0e1904194f11ee2005108",
+        "bytes": 2055
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/sample.json",
+        "crc32": 4126992470,
+        "sha256": "e155d6496870c90e659347ef06649e54f4df9c645c8e0aae1dacfe9aaa784804",
+        "bytes": 4224
+      },
+      {
+        "name": "refactor-perf/b01-p04-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/backend-instrumentation.txt",
+        "crc32": 3213557084,
+        "sha256": "fdfe42c82195d7b0654880968bcf1cd4c9fdeb59d4d96031fe5294c098db3399",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/backend-logcat.txt",
+        "crc32": 3418697181,
+        "sha256": "3c0cbee17b6de4b7fa7e84cfcef507948b7a50e77c56c65b6b899fd7631273bc",
+        "bytes": 95919
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/backend.json",
+        "crc32": 1933884505,
+        "sha256": "2e290fdaf15ec29dcbb3103e4c7f74e426c03a670c2e2f375d47461a75e05192",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/candidate/before-1.instrumentation.txt",
+        "crc32": 702721836,
+        "sha256": "cb1cb957650403ee8768bae9738876339133ff85b5ef14c555c106b4d58c0858",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/candidate/before-1.json",
+        "crc32": 3242247349,
+        "sha256": "0fec5765aaba3b6b1480d11d6c43b3045761094f0a58c6bd2d6dd8777de058d2",
+        "bytes": 9403
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/candidate/before-1.logcat.txt",
+        "crc32": 3562394864,
+        "sha256": "a7875631b09e65c5dde7adb1656526c7a4e5beab593e804e7d5cbb80c8c86d44",
+        "bytes": 176534
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/candidate/before-prepare.txt",
+        "crc32": 2350324256,
+        "sha256": "3202886eabd0b07a12c159a808183a41414e7e4d0f89b35d574349018b04b323",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/candidate/comparison.json",
+        "crc32": 120782788,
+        "sha256": "7f3f7fdeb9beb7058f669e6f1759d68c03b5c7e4ee44616688680d99fcaae248",
+        "bytes": 10753
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/candidate-driver.log",
+        "crc32": 4091007378,
+        "sha256": "445dbaf84746bb6bf7b2f373882eb620796b7af2041741bf8d65ac5a1af47ef7",
+        "bytes": 2053
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/sample.json",
+        "crc32": 633353969,
+        "sha256": "7ab980ddf1eb69c719ff302ab07be9d5dd3006a69ae0902311268a9bc5cb6eca",
+        "bytes": 4222
+      },
+      {
+        "name": "refactor-perf/b02-p01-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/backend-instrumentation.txt",
+        "crc32": 1741013738,
+        "sha256": "ec6de21a092a316e8ccc297cac7092646c3c5fd52b9dcc9fb4ead21075faa05c",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/backend-logcat.txt",
+        "crc32": 218290200,
+        "sha256": "fc262016629bf54c4276d01eab1e0ecec595c106821f5fa6a4ca65ff3b90be55",
+        "bytes": 301567
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/backend.json",
+        "crc32": 483464138,
+        "sha256": "cb8d4ee48289125091d482c261252e62fae930f1c6fcf8a12d178151821cd1e0",
+        "bytes": 2056
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/candidate/after-1.instrumentation.txt",
+        "crc32": 1502984650,
+        "sha256": "639ea0658a43054a15b32c138b54a3725eddb3d0082fa8e816207149ad9238eb",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/candidate/after-1.json",
+        "crc32": 2533921086,
+        "sha256": "ba4940b82b03e4826d014cd0c82bde7c311aad1bf4faaec16f344e9ccd82b7ec",
+        "bytes": 9399
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/candidate/after-1.logcat.txt",
+        "crc32": 3769439718,
+        "sha256": "ccf0be8e51a33b54eaf3262ea8dcc6c293ac51712dcdc15692b5226808a909ea",
+        "bytes": 191883
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/candidate/after-prepare.txt",
+        "crc32": 3796482499,
+        "sha256": "8b85a7b4091d91307e86beec72364923dd370da51d17cb614db645e65e9dca12",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/candidate/comparison.json",
+        "crc32": 2179139874,
+        "sha256": "4b222a01dce04773e9044ed6147cb8a2292edb8a7bc7c212777d267494cb22f3",
+        "bytes": 10748
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/candidate-driver.log",
+        "crc32": 1548235311,
+        "sha256": "a52f746e561403a28351db63ef886e785afa20211ed140ffcf857da10ae921ef",
+        "bytes": 2048
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/sample.json",
+        "crc32": 2667558432,
+        "sha256": "63a4889225d9e0c924a0b9c499e7356b8170a904cf3f37db20233488a3257d42",
+        "bytes": 4216
+      },
+      {
+        "name": "refactor-perf/b02-p02-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/backend-instrumentation.txt",
+        "crc32": 2994275487,
+        "sha256": "23d133c53366544b35dee5be381b7b7a7dd90381586f67987d74b0def2599c4a",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/backend-logcat.txt",
+        "crc32": 3626564541,
+        "sha256": "315e4cd13e59166215d92df586944908afd1fa268a2f4cb261983c7b284c6872",
+        "bytes": 96868
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/backend.json",
+        "crc32": 3258016202,
+        "sha256": "bfcda20a5626b10fed2d1b46e1510b5b0420a696bc901b20bca54954d0e13df0",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/candidate/after-1.instrumentation.txt",
+        "crc32": 2571168579,
+        "sha256": "77230c6c3d84aa7a58f46358a7897717b808ca2546427570c04cfc8672ab8260",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/candidate/after-1.json",
+        "crc32": 659775214,
+        "sha256": "df70165e5ed8628856a06f3a46ef761fc5b4a57c7e0febd76f35d2303a7c2195",
+        "bytes": 9405
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/candidate/after-1.logcat.txt",
+        "crc32": 3158577872,
+        "sha256": "f1bc01d3b2d77e1c162cebf6ca28044a9c7eb287e937e8141319eee7bd571732",
+        "bytes": 181971
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/candidate/after-prepare.txt",
+        "crc32": 3669032143,
+        "sha256": "b79c7f56bc731bcba71dcd9a5a4a3bec1ba76283e03bdf68dfd09e99abdc6499",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/candidate/comparison.json",
+        "crc32": 1156842042,
+        "sha256": "861127e5b19ab27371847a9554bde7a8bfa4f0a015b3cd4dedcbac981af5d544",
+        "bytes": 10754
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/candidate-driver.log",
+        "crc32": 211805867,
+        "sha256": "f5e0361fb2715e63dae5ee370f8812b82c40e1029be5162e2126a210727756a0",
+        "bytes": 2054
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/sample.json",
+        "crc32": 3233891533,
+        "sha256": "b2c18bf6bac66e4fbab5d8c9b8d577c8a3badfff59e85861b5e27bd5e7e3d385",
+        "bytes": 4223
+      },
+      {
+        "name": "refactor-perf/b02-p03-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/backend-instrumentation.txt",
+        "crc32": 2473437991,
+        "sha256": "1c2eadce63f374e7ed58e53ec544fee66646c91ad8f5a72d81b97373d725d43f",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/backend-logcat.txt",
+        "crc32": 3805188073,
+        "sha256": "30c32ae2a6dd8408fe173b5673d9276a8e2f095c61f0e1f160b6335ab80f06e2",
+        "bytes": 96157
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/backend.json",
+        "crc32": 337440641,
+        "sha256": "7e0fcc6f8757499f65b5db25f50dd150d0bfc275f13797fa2639648cd7a97b30",
+        "bytes": 2056
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/candidate/before-1.instrumentation.txt",
+        "crc32": 2676274330,
+        "sha256": "621cb41e4a64b4c1e57bfc1ee724b58c56de05243552e3d88ed58eb471cb173b",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/candidate/before-1.json",
+        "crc32": 3224889740,
+        "sha256": "5cd7092e21290791afb05e34d3d6cfe2305b91e2027c6091c6adc6e333a3d2eb",
+        "bytes": 9403
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/candidate/before-1.logcat.txt",
+        "crc32": 3662737181,
+        "sha256": "2fd75e666f3f44167f1a22bfd265abb8b0f99d1740a1b795564c8af1ddb9feed",
+        "bytes": 174363
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/candidate/before-prepare.txt",
+        "crc32": 497586662,
+        "sha256": "87a9e9d02c885c70b7bfd8189a108ca07d40a2186ec6a51da34b54382a79e13d",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/candidate/comparison.json",
+        "crc32": 3296959027,
+        "sha256": "af2f190af1061a0fdb1c3ab68da110bc049e6b7e62d4687302ee0a411c02e1e5",
+        "bytes": 10753
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/candidate-driver.log",
+        "crc32": 1033125931,
+        "sha256": "b3d00dd9a577499fd1fde51f41339cee94e38aba0d771fdb76bac239af1bc8f6",
+        "bytes": 2053
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/sample.json",
+        "crc32": 2835368568,
+        "sha256": "3dea6e2d5ea134fd3d2cc8d7aa88b043de8f2bc110c4a9a8e8e07d231b344ce4",
+        "bytes": 4221
+      },
+      {
+        "name": "refactor-perf/b02-p04-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/backend-instrumentation.txt",
+        "crc32": 3834414823,
+        "sha256": "e9136070d39af1e8d923bfb861d09be477571ed47e6af001b27dbce58c197f3f",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/backend-logcat.txt",
+        "crc32": 3140110452,
+        "sha256": "576f93e1d36ee13b6f3681a56872fbe76be0e115a909642c4bcaafd262883b73",
+        "bytes": 96306
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/backend.json",
+        "crc32": 3866832182,
+        "sha256": "3a304f40a24fa6ccb9db2deb23642d68e273588d9e623d30ee87514eaec63fa4",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/candidate/after-1.instrumentation.txt",
+        "crc32": 4072998704,
+        "sha256": "ffee3ffc18879d9d273a04809ca13ed518a08d271ad842ee0da5cf1bafb00e8c",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/candidate/after-1.json",
+        "crc32": 414282759,
+        "sha256": "28358418e0dcc14ff0fc07ef329cf4f3ba86145e2d0a90c956865cbb8a68b121",
+        "bytes": 9409
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/candidate/after-1.logcat.txt",
+        "crc32": 652166139,
+        "sha256": "ba63d11f15cc81310af879ad342a2b31fdcc16c18b59d08d25218e5e9c22b2a6",
+        "bytes": 173037
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/candidate/after-prepare.txt",
+        "crc32": 3604363116,
+        "sha256": "db8981a5ec53966c47e0e1bdb6322fc934178c3be0fc65377ef2d0b23e3c80af",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/candidate/comparison.json",
+        "crc32": 1362913548,
+        "sha256": "ab0450b0f0fea3a1cfbd48b5bc6235b46e6cc76c939627ebf34104e93aa7a1ac",
+        "bytes": 10758
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/candidate-driver.log",
+        "crc32": 3719999377,
+        "sha256": "33522af823a408700df8844d7d54360d810043066ae67cffbeb193db8581dcff",
+        "bytes": 2058
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/sample.json",
+        "crc32": 1383555056,
+        "sha256": "cc2b732b36cbd180af7b1ffe1dc7602a3eb62f101ac8d74d55ca0e3591a4e4c6",
+        "bytes": 4227
+      },
+      {
+        "name": "refactor-perf/b03-p01-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/backend-instrumentation.txt",
+        "crc32": 4137221319,
+        "sha256": "52492e60621add8e05fa947955268fad6cb8948f226ca966d434a318f4adfcbd",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/backend-logcat.txt",
+        "crc32": 618213819,
+        "sha256": "0b3dece0ba325be2c45acb87e0858f957a3c6dd3fe7a40e896d66eab1c712b1a",
+        "bytes": 95257
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/backend.json",
+        "crc32": 1437751189,
+        "sha256": "b4b84e7a6c4940925b26bde2c6b06621ccbb93e68175b28c4d292d3d06f32b7a",
+        "bytes": 2056
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/candidate/before-1.instrumentation.txt",
+        "crc32": 239975070,
+        "sha256": "3480e38f4f834ca1c4ee9266fd0ef2a1995830d82882bc03d67092c9a2441915",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/candidate/before-1.json",
+        "crc32": 2572137729,
+        "sha256": "ac2bd8919705f963b41ef1ccd748727bcf6560f78e818a724ce10853a7e45302",
+        "bytes": 9409
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/candidate/before-1.logcat.txt",
+        "crc32": 1285782035,
+        "sha256": "fa1f1e97811e471de69ee150dbbdc016ef01b62b8ba52a7321e795bbb171176a",
+        "bytes": 179151
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/candidate/before-prepare.txt",
+        "crc32": 2996251481,
+        "sha256": "2abe771d858894e9a4c21c08b65cb69c1346f6d2713b0e2051d92795359bba25",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/candidate/comparison.json",
+        "crc32": 1712652015,
+        "sha256": "028fc9a48dd1408329b91a894cc906da46163275af04f513ec8b9b74caf5a24d",
+        "bytes": 10759
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/candidate-driver.log",
+        "crc32": 678123434,
+        "sha256": "1f2031fbb56462c808b3b40aa48cd4a6c52151d2e8617d282535986f66c36811",
+        "bytes": 2059
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/sample.json",
+        "crc32": 4112077908,
+        "sha256": "f4e3f5c5fe9b00645ef8a9751ac23262ea699fd99d4aa9ccc4554ca9d1f87c48",
+        "bytes": 4227
+      },
+      {
+        "name": "refactor-perf/b03-p02-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/backend-instrumentation.txt",
+        "crc32": 322994289,
+        "sha256": "aec5db94b24b681de0167075c95541e2ff8f4c7f08e670ffbe245e2cae5749f9",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/backend-logcat.txt",
+        "crc32": 2848213010,
+        "sha256": "88ab9c1e9f13befccfc772bf637664a4aa5e08245c885d1050972a6bfc28a9db",
+        "bytes": 94851
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/backend.json",
+        "crc32": 608172945,
+        "sha256": "5041659bdad59aaccd98deb4253c8a06e60ff8128c3da9190d9f2bc8338f1ffe",
+        "bytes": 2055
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/candidate/before-1.instrumentation.txt",
+        "crc32": 2769419413,
+        "sha256": "73667c14f5cab992b9e9405de48a4a29cb3c3f11eff0fd68f2beb96e9a24be96",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/candidate/before-1.json",
+        "crc32": 3156672153,
+        "sha256": "e318b1d3215c902388c559ceef8d28a1a1c5689784561177d5fc8b1bc285bfd3",
+        "bytes": 9513
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/candidate/before-1.logcat.txt",
+        "crc32": 1838047927,
+        "sha256": "982610060b6556b9baf19254fd7afd59c26ed2120dc3266af4939564867b731f",
+        "bytes": 175094
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/candidate/before-prepare.txt",
+        "crc32": 2561784347,
+        "sha256": "727759b5361e1437bdb03d2881c03130b52018c544474566528d77337e0e035c",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/candidate/comparison.json",
+        "crc32": 2455098003,
+        "sha256": "d0e4a20c8ff9dcd37b4ed304c84d611516d9ba01e16c815e1a63a3753e05dfcc",
+        "bytes": 10863
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/candidate-driver.log",
+        "crc32": 817840279,
+        "sha256": "949ff75489afc5693862e508068de1dd2d018b7ac311be3bffab9f1ef138e77a",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/sample.json",
+        "crc32": 3846422691,
+        "sha256": "e3d64bc150556defb556d1933b43a06762c32b272507c2b13666552c6b1596ba",
+        "bytes": 4224
+      },
+      {
+        "name": "refactor-perf/b03-p03-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/backend-instrumentation.txt",
+        "crc32": 679869776,
+        "sha256": "b6e792a19574c2152118d0dbe564c099872685d9bc0f83fd5b2162e852a59bf2",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/backend-logcat.txt",
+        "crc32": 2202379906,
+        "sha256": "422528908d7a7775915bc70ad9d9a2ed5b491a9b6547cbaabfb3e0c33c365561",
+        "bytes": 94399
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/backend.json",
+        "crc32": 3995621057,
+        "sha256": "f5b9e3ff1fc2e5b568c127dec568f6c778e0d285e959c9b3b2b2320819433779",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/candidate/after-1.instrumentation.txt",
+        "crc32": 2236677859,
+        "sha256": "5ac203da238eb92aa91b6ae4e58096d606ed5c2c9229e68526d1c52ce48d01b6",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/candidate/after-1.json",
+        "crc32": 544457495,
+        "sha256": "ef642b1208cfd81399635b3ca08523aa2b8eecfb798f43702e84a5f5820aa79a",
+        "bytes": 9511
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/candidate/after-1.logcat.txt",
+        "crc32": 2736145936,
+        "sha256": "80011380fd4ab423b69c3d7d34a108b7061a64cf99886bc0f11f3d56aeeff6ff",
+        "bytes": 171524
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/candidate/after-prepare.txt",
+        "crc32": 3973323962,
+        "sha256": "b35b26b0f2988ad4f301155003b5b87ee2821fc5cc27545f7ee7a2e58c80694c",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/candidate/comparison.json",
+        "crc32": 3582064366,
+        "sha256": "4110cf64886f7218f7569dba7ff563ba3c26e2338138964ca21b6e3b237807c7",
+        "bytes": 10860
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/candidate-driver.log",
+        "crc32": 1066603710,
+        "sha256": "66955cf4d3d35a71ef0867dabe5bdb3f9c122cf7cd76987a1e24e41aec25fee3",
+        "bytes": 2054
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/sample.json",
+        "crc32": 915313922,
+        "sha256": "85d8a321512e00fbe555c05aab5136b1eef004c6f3caa610a87712b188b92582",
+        "bytes": 4223
+      },
+      {
+        "name": "refactor-perf/b03-p04-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/device-cpu.txt",
+        "crc32": 3031827606,
+        "sha256": "94a054abbcefbe1edc44061728f7428e623e2b0a8ddf908a4ac2bedca14ab233",
+        "bytes": 1664
+      },
+      {
+        "name": "refactor-perf/device-properties.txt",
+        "crc32": 72208212,
+        "sha256": "1999066290aaf0d548486fe259383c5930d10f3841592d1b23a34d5346e647b6",
+        "bytes": 23995
+      },
+      {
+        "name": "refactor-perf/fixture.manifest.json",
+        "crc32": 2574739769,
+        "sha256": "d6e7bb35e8d86b2e8a9fdab7722a1c07ef37f027ce017e5e767ff74405cadf10",
+        "bytes": 4632
+      },
+      {
+        "name": "refactor-perf/plan.json",
+        "crc32": 3404213076,
+        "sha256": "cd8cac0a3cf40b627c79d2445395dce272e6a5e0b4bce39c45a049885544224f",
+        "bytes": 742
+      },
+      {
+        "name": "refactor-perf/products.json",
+        "crc32": 1585923395,
+        "sha256": "5fc00f06f7f4e547d48041a491f84d7b9ea3600970f33cee86aec359c6067697",
+        "bytes": 5618
+      },
+      {
+        "name": "refactor-perf/samples.json",
+        "crc32": 792325780,
+        "sha256": "3fa57cc5d785256a1b744630d3054643cb711b1fa881d8572051fb79c5ce62ee",
+        "bytes": 55284
+      },
+      {
+        "name": "refactor-perf/summary.json",
+        "crc32": 3680018069,
+        "sha256": "710e40dc001308fcd753c313b2d9ef25d2c0773bba35cf4770ba70e1c942793f",
+        "bytes": 13969
+      },
+      {
+        "name": "refactor-host-env/host-cpuinfo.txt",
+        "crc32": 3064664711,
+        "sha256": "02a3084c534e4cb722349c3497fc282972eb6178684a99f6dff7b0718a4a7786",
+        "bytes": 5164
+      },
+      {
+        "name": "refactor-host-env/host-kernel.txt",
+        "crc32": 1085456003,
+        "sha256": "61c959df0ed77099212cf9e042100aef13d47bfc16dc48cc621bebe01928ae31",
+        "bytes": 120
+      },
+      {
+        "name": "refactor-host-env/host-memory.txt",
+        "crc32": 3483555687,
+        "sha256": "0b764a688a3558955a234a32764ab169471fb766c2a34388ec90bba6f16d478c",
+        "bytes": 207
+      }
+    ]
+  },
+  {
+    "id": 14093133758,
+    "name": "refactor-performance-forward",
+    "published_sha256": "81252a3968bae9505ad017747df7833a4a6b5de545cdef557450761b30d2e5fb",
+    "zip_sha256_verified": true,
+    "all_members_crc_verified": true,
+    "members": [
+      {
+        "name": "refactor-perf/b01-p01-before/backend-instrumentation.txt",
+        "crc32": 2680555002,
+        "sha256": "f53e765eccaa6993f083ba6a2b4f5efd5e841311c39f556bc784171968911ec3",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/backend-logcat.txt",
+        "crc32": 4093705054,
+        "sha256": "51cf98bd4910af18e271fd403409787c4c18a9062d367b364ae669031926b2ae",
+        "bytes": 134368
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/backend.json",
+        "crc32": 253417230,
+        "sha256": "f961d4729e1ac8bfda546a14acf6f88f47711de2c570bfe83d8bf33ce7dde328",
+        "bytes": 2055
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/candidate/before-1.instrumentation.txt",
+        "crc32": 875955986,
+        "sha256": "e69ed419ae2adcead96ec68ba33aa787a3c067aa291b03865946052c1f3d3299",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/candidate/before-1.json",
+        "crc32": 1805042073,
+        "sha256": "e2a4057221cc983f09062131fbe361182ef1d61fcd8e584cfa833b0ec88d2d82",
+        "bytes": 9403
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/candidate/before-1.logcat.txt",
+        "crc32": 3920917342,
+        "sha256": "579d601bdbf5b33c018b4502025c8e7df4467cac002bf46671adae450825fc0a",
+        "bytes": 197697
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/candidate/before-prepare.txt",
+        "crc32": 1857449746,
+        "sha256": "eb8cb24b0961b250272e3c0f90876d70b2c1f6e5a1b377ce6b3b50b39ea5b65b",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/candidate/comparison.json",
+        "crc32": 1785626759,
+        "sha256": "069cacde413c11bc806beaa1b5ce94ca366cd3284023277072b147331efa54ee",
+        "bytes": 10753
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/candidate-driver.log",
+        "crc32": 1239436903,
+        "sha256": "88c55c3ce98709a8080396ff76224c51f81e99804f8b3a0f421f8843c2cce5e0",
+        "bytes": 2053
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/sample.json",
+        "crc32": 1026970827,
+        "sha256": "c69c07fc47a6ef33c29ebc52ce5ca8c03988229daab246e12983300b97d6dfdf",
+        "bytes": 4220
+      },
+      {
+        "name": "refactor-perf/b01-p01-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/backend-instrumentation.txt",
+        "crc32": 3956469672,
+        "sha256": "68faa8fb913804326424bf0e52dd299058dad6bfef3cb1b92beae19985096d6f",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/backend-logcat.txt",
+        "crc32": 2419963530,
+        "sha256": "8e37ddf7f0d64c0dc82157ebdfb83b3da412b91314b2ce40c6bac6b4a84d6780",
+        "bytes": 95433
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/backend.json",
+        "crc32": 2624376665,
+        "sha256": "430e2741ec0f54b0add230c0eb93a00ce60d373a5466392308ad2144604ebc0c",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/candidate/after-1.instrumentation.txt",
+        "crc32": 3371511080,
+        "sha256": "3a08ab72c82c8ce5ba1309aceffc3f08989314cca49d9c7cda4cdca8cfd8b8d4",
+        "bytes": 715
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/candidate/after-1.json",
+        "crc32": 102134373,
+        "sha256": "ad612800b10ef2d9ea421eb7be3c13419d27949bd29d4ac6f5be2efbc335ca32",
+        "bytes": 9409
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/candidate/after-1.logcat.txt",
+        "crc32": 3462960708,
+        "sha256": "c003699136c2691d649311d009318ae90972d6ea06794bdf0ab8d8b683b5b227",
+        "bytes": 172970
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/candidate/after-prepare.txt",
+        "crc32": 761906387,
+        "sha256": "4f594f2da7506b3a2c08a237d0f72df67d93d952c358beccb87cdfa91f7d3b8b",
+        "bytes": 718
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/candidate/comparison.json",
+        "crc32": 3504572163,
+        "sha256": "e951baa892a7e97c775f8db19b78042ce59fc28fd759260295ebed06adaa4e03",
+        "bytes": 10758
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/candidate-driver.log",
+        "crc32": 819258550,
+        "sha256": "fc1bf71f20cd1bb2556f0a90fc4f76ea5066ef3a8ad3966b6bea7fca1f7d56b7",
+        "bytes": 2058
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/sample.json",
+        "crc32": 2422149166,
+        "sha256": "50793852b5b6b2b3b48a1a44b7235d7cb03603a9f83f6ced6c6d5751b536ff87",
+        "bytes": 4227
+      },
+      {
+        "name": "refactor-perf/b01-p02-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/backend-instrumentation.txt",
+        "crc32": 2920654620,
+        "sha256": "fdb570390ac8addfea172cc77680424d69781b13c434c2610bca4d42311b929c",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/backend-logcat.txt",
+        "crc32": 2296349571,
+        "sha256": "03711ffcc9f21fab58b1c0afd0bebb87bc97a8e72b6296202cf1be01ea5baf9f",
+        "bytes": 100454
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/backend.json",
+        "crc32": 18884093,
+        "sha256": "869eac2c2fe41c18e8436db36e84376cbf5d7b9e3a85fd29ec6919f3551a589f",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/candidate/after-1.instrumentation.txt",
+        "crc32": 2701204739,
+        "sha256": "695f8ec0d57e569303c2781f31f2bb0ba71deaa5b87a35e3025e28583e432034",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/candidate/after-1.json",
+        "crc32": 938336196,
+        "sha256": "17bebcd7116da977e91fc0cdf5c1a9f80d771770b8f4fdb390ed97991682f495",
+        "bytes": 9413
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/candidate/after-1.logcat.txt",
+        "crc32": 3873998568,
+        "sha256": "ac0363801b616ba8d94bf5d28ac6811eb379a19bd6c48db975041bce16fac6a4",
+        "bytes": 188126
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/candidate/after-prepare.txt",
+        "crc32": 2460513860,
+        "sha256": "c677ba20ddeb8bebcfd7696dd3f641df41b4849f003be5af75f42c941dd08b43",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/candidate/comparison.json",
+        "crc32": 793720469,
+        "sha256": "b6386905fbe8d0c4617bf2db2b09aa0ab8e04ddfa711aafb272f6b4726e16848",
+        "bytes": 10762
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/candidate-driver.log",
+        "crc32": 2879854178,
+        "sha256": "822875ac7baf5516335ef7531b058a4ac5cd477a83917aecf33fef6a51aa2abb",
+        "bytes": 2062
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/sample.json",
+        "crc32": 4282708703,
+        "sha256": "570d70821795f11d595d995c60e4e3ccb29976561fbbf3fd9b155295ebbffd7b",
+        "bytes": 4231
+      },
+      {
+        "name": "refactor-perf/b01-p03-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/backend-instrumentation.txt",
+        "crc32": 1060365859,
+        "sha256": "6adc6d47bfe2ec410e6da8e0aab40a36d7b6cd91094bc6ac1be45e45cd9b45cb",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/backend.json",
+        "crc32": 1751642959,
+        "sha256": "dcb6a4def395fa0f09cecc1d0772c4010d504b5e2cd4b315e1a7dcc021114a2e",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/backend-logcat.txt",
+        "crc32": 1974693913,
+        "sha256": "d70ea11a97db48edef6ad2841743a247e03e2eaa33fc5573efe6f48c8a259134",
+        "bytes": 95985
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/candidate/before-1.instrumentation.txt",
+        "crc32": 1787995491,
+        "sha256": "1ccc4ead4172b42974cf2161d786cceff9056eb0679929e111c8bf08fa726896",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/candidate/before-1.json",
+        "crc32": 3487657021,
+        "sha256": "8eaaaafb56ccec1060321d8258eac5e6bf2f7f1f5a6599150732cffb6d7b1686",
+        "bytes": 9407
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/candidate/before-1.logcat.txt",
+        "crc32": 3699895747,
+        "sha256": "1c42a5d153537b887ce17c599b0d171c66ed84f7b6e7e6df3ddf0badfa116ce1",
+        "bytes": 192143
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/candidate/before-prepare.txt",
+        "crc32": 1242105064,
+        "sha256": "04d2abe8b040a11caf17bff0ed997ee419434c0ef34e3ba9093a50650f606a72",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/candidate/comparison.json",
+        "crc32": 1039414767,
+        "sha256": "027d31ed8ebbf9320ef88fa0273adce7704b82514dd5da13de38ab34f2733f7d",
+        "bytes": 10757
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/candidate-driver.log",
+        "crc32": 4069153725,
+        "sha256": "5da3d562cb64a352589a722038c0dca63d5ae99c9aeac1bbd1214b03f877894d",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/sample.json",
+        "crc32": 2362010669,
+        "sha256": "ba1193b39b2cd0cc50ff261329966024d3a6cae80167fb27a5dd9921910d5fb0",
+        "bytes": 4226
+      },
+      {
+        "name": "refactor-perf/b01-p04-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/backend-instrumentation.txt",
+        "crc32": 795681156,
+        "sha256": "6dffba90352b0f57e8122e55f8552b0baaa352364976b769b791b0d705f910c1",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/backend-logcat.txt",
+        "crc32": 925214293,
+        "sha256": "b9562f072ae4b6e6ec1bb9be0f0a47190645a49c0f4d38a8b201be980a0b2fdb",
+        "bytes": 96218
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/backend.json",
+        "crc32": 1322941956,
+        "sha256": "026b4f90bc0645a46ca3e6de8827e5193adeb61106083c923aaf98a9569c047a",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/candidate/after-1.instrumentation.txt",
+        "crc32": 285185203,
+        "sha256": "676f97ef509c8ce80a607b7b41d18e751aebf526c0f0503f242c49ea893d8813",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/candidate/after-1.json",
+        "crc32": 1598241123,
+        "sha256": "6af73ee9622eb444e799746042974385b1c9913908a1446487f6d21444cbfb97",
+        "bytes": 9410
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/candidate/after-1.logcat.txt",
+        "crc32": 1912088396,
+        "sha256": "271b8f2bed985706b3851034c604471e2443428e4984c1534d0b6312de030526",
+        "bytes": 178361
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/candidate/after-prepare.txt",
+        "crc32": 2369247557,
+        "sha256": "ce3b39536d938f236cd7cddd08116b7dd044d6d8c34d0b589a4ad1e103db0757",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/candidate/comparison.json",
+        "crc32": 2388062141,
+        "sha256": "f4cae4133421bedf1962c89b0677ce64e354cb76f119e10b1e888b38234d2815",
+        "bytes": 10759
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/candidate-driver.log",
+        "crc32": 3457660023,
+        "sha256": "0c47e87f674a923258b0bf759a3c690afbc24b6707f305520a4ed831fb802b96",
+        "bytes": 2059
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/sample.json",
+        "crc32": 1912152155,
+        "sha256": "fa61751731e06198351f9d394eac00ef0a59afc3643a8d2811d90faf3db17a81",
+        "bytes": 4228
+      },
+      {
+        "name": "refactor-perf/b02-p01-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/backend-instrumentation.txt",
+        "crc32": 132180826,
+        "sha256": "cf20015b6506d8476bf93b9c5c44fbf78761004da63d4e1bd7c29afd472fb093",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/backend-logcat.txt",
+        "crc32": 2686339273,
+        "sha256": "84668bbfba10cc3d6f68a73f27879023072cb50cb97a04cc623abe037335e6aa",
+        "bytes": 91359
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/backend.json",
+        "crc32": 157510174,
+        "sha256": "54f3719a81addb13af3d72dae950c2a9a11f16bf0b8ed511bc85a81d9b19cbf3",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/candidate/before-1.instrumentation.txt",
+        "crc32": 1687708611,
+        "sha256": "662eedd14c2666dcffc49832e2c3fe08e4a878868adad51102cb9949565e8954",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/candidate/before-1.json",
+        "crc32": 568070699,
+        "sha256": "bd78c4f0a1c0b5d6520284a670790e78022319d830195c49e45fab92a8dcbf82",
+        "bytes": 9409
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/candidate/before-prepare.txt",
+        "crc32": 804899816,
+        "sha256": "c019dd8a4dfccce1ea87249ab073dc881c4248de3e8fb3ab52892b6234ba704b",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/candidate/before-1.logcat.txt",
+        "crc32": 704367044,
+        "sha256": "9d70d2fe64ffa9bb2b5c70b5cc222b3d15ef0a529bd34090ecde7bca86d6f9b6",
+        "bytes": 185074
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/candidate/comparison.json",
+        "crc32": 518643457,
+        "sha256": "284e0ca34732c9ef3111400878f4a39cba1cb2f0355e0afbfb2606b9513db410",
+        "bytes": 10759
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/candidate-driver.log",
+        "crc32": 1412363832,
+        "sha256": "04c49bd69bf24dfd572e57ee6d844a8be4cfbc27fda71494431a5c1cb42d06fa",
+        "bytes": 2059
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/sample.json",
+        "crc32": 170167062,
+        "sha256": "5b15d82827e920acf74acb74760df7a893810c626aa443e4d9ed82c44ab33f23",
+        "bytes": 4228
+      },
+      {
+        "name": "refactor-perf/b02-p02-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/backend-instrumentation.txt",
+        "crc32": 2822964220,
+        "sha256": "2c810898f546cbbda1eb2e36d5af79d8da71b29f765a4493d7fea813d9845c35",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/backend-logcat.txt",
+        "crc32": 899268803,
+        "sha256": "73d27f725485a6b94f89fe163db7bae283f8731572387b4c7db7367249fb3043",
+        "bytes": 307108
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/backend.json",
+        "crc32": 2886358441,
+        "sha256": "f2b808e01c159163b2896abab01339234f59a322b2b6f875d53fa8d4e510e01f",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/candidate/before-1.instrumentation.txt",
+        "crc32": 519485818,
+        "sha256": "f9500084948508a5e08ef7ccbd274eb090552db8cbf6efa1127435d1dad93557",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/candidate/before-1.json",
+        "crc32": 1521441289,
+        "sha256": "f17a013e8c4be7ebcbda503d162c68266d058d17c30a4aa5a8c6ca0cbdf0ade4",
+        "bytes": 9422
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/candidate/before-1.logcat.txt",
+        "crc32": 3613396743,
+        "sha256": "9a3a3352e8bdb44212edf08d5862decb04f9b6d5fabcc431290be61d58668df8",
+        "bytes": 259268
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/candidate/before-prepare.txt",
+        "crc32": 809594581,
+        "sha256": "3ec4dd06bf64f6d17b537ba1013a313d76219155e5ee1bf39fd5bff2f739d565",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/candidate/comparison.json",
+        "crc32": 3193836439,
+        "sha256": "05dc91ffb6457b8f5833c8c7cf49210c187d5df13d008037baf5347fc8b63ee6",
+        "bytes": 10772
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/candidate-driver.log",
+        "crc32": 1045481827,
+        "sha256": "8c1be302e683dbb527d7acd88cad1261adea0f5672e3befbe889acdc846d869f",
+        "bytes": 2072
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/sample.json",
+        "crc32": 1688264874,
+        "sha256": "7d84c136ce52ca376b9ba682c33fc87c7b72f455967043203972a84e000d4224",
+        "bytes": 4241
+      },
+      {
+        "name": "refactor-perf/b02-p03-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/backend-instrumentation.txt",
+        "crc32": 418234210,
+        "sha256": "673273493a644808b61ad181de7d9e8a1c9ad27160658041db0b2b522c7ae8a2",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/backend-logcat.txt",
+        "crc32": 815726697,
+        "sha256": "535ca20905adfec7246d3210021330ac40872849e763fda3c50c4c5babf8f618",
+        "bytes": 91766
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/backend.json",
+        "crc32": 1655668643,
+        "sha256": "be02607ee167e1118d8b0cf3071f6b06fb3b217d0c588eb67945e401366c66fa",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/candidate/after-1.instrumentation.txt",
+        "crc32": 505298800,
+        "sha256": "71e529f80cd91fbe0c61b6df054802a24d6a67cdb68725639710a16b98831cca",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/candidate/after-1.json",
+        "crc32": 1930720403,
+        "sha256": "e8ce0cecbbbcb565e3a3fc636375882f0ae373688a657f5d1b7819f8ea1a16e7",
+        "bytes": 9405
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/candidate/after-1.logcat.txt",
+        "crc32": 3610321412,
+        "sha256": "a7c2a6aabddeb03f4d66d61228291cc5ed5488b03c6e29fe24c5c72fc8ead263",
+        "bytes": 169657
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/candidate/after-prepare.txt",
+        "crc32": 4175566441,
+        "sha256": "2be67a8dc36ead594cdb8ace972104a82bfa990d9646213b48cc83ce5794a476",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/candidate/comparison.json",
+        "crc32": 3849930444,
+        "sha256": "4aae743f4e2d07740173b72d7d9ae3411bc8bc6318fa36e19d38273853eb1b65",
+        "bytes": 10754
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/candidate-driver.log",
+        "crc32": 3063338322,
+        "sha256": "fa3df9f11372c2b4bf107543a8f957f8598ee9191a93f13260adb8561961be8a",
+        "bytes": 2054
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/sample.json",
+        "crc32": 1049911833,
+        "sha256": "a590fdd87076a56d6e0f5e69f84bfc7cd4b66029c480205b52f4995fdd54ec44",
+        "bytes": 4223
+      },
+      {
+        "name": "refactor-perf/b02-p04-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/backend-instrumentation.txt",
+        "crc32": 3394900489,
+        "sha256": "d5d573fdf2affc649ebaf1038175060e6c29e69616bd546e24e214061fbb0754",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/backend-logcat.txt",
+        "crc32": 2402072473,
+        "sha256": "031b8a29f527a22f4b2815c51e854f206de6395720beb6a77d0f2da0d8ce920d",
+        "bytes": 95798
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/backend.json",
+        "crc32": 1401743773,
+        "sha256": "4313cf64addb46b752ffddcb61709200e1106380d71c6a78e4310d023fc9840d",
+        "bytes": 2056
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/candidate/before-1.instrumentation.txt",
+        "crc32": 584237063,
+        "sha256": "e29db3e80d0c5975e6a58d9328c4dc27702791a35ee71517698d6e2c5833f15f",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/candidate/before-1.json",
+        "crc32": 356123295,
+        "sha256": "31809a8ea2fef53dd12d31ab0d142e9e415ffe92eb85f539a6eed9e3662e787c",
+        "bytes": 9412
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/candidate/before-1.logcat.txt",
+        "crc32": 409943209,
+        "sha256": "b4e40d5ad0ad87de2ba14c6e0117a6838fa24fdcb0c6bb909e89d5781884ee1a",
+        "bytes": 167735
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/candidate/before-prepare.txt",
+        "crc32": 4197794639,
+        "sha256": "67718c771cc5526440588f25bf3bf4ce3b850b06c3961e3ba6b8eb3d2c1c298d",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/candidate/comparison.json",
+        "crc32": 4076930297,
+        "sha256": "1babd2f0c2e7868298ad053d83e32aa5ed3827f5bda2e441e6a91813dde30f26",
+        "bytes": 10762
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/candidate-driver.log",
+        "crc32": 2128207460,
+        "sha256": "199dd8c0693c3d307b70c0cb7f81c0675d506a8cdbac9d5084c3ead0efdfe1dd",
+        "bytes": 2062
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/sample.json",
+        "crc32": 756265147,
+        "sha256": "f373a9a1f7b21eccac464f600ce7f5a9eb3200ded61714eb09b226def63cdb75",
+        "bytes": 4230
+      },
+      {
+        "name": "refactor-perf/b03-p01-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/backend-instrumentation.txt",
+        "crc32": 2621607579,
+        "sha256": "ba530114523d9c39c821e72942712eaaeca2721cc00db5b63c9856b542bd2608",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/backend-logcat.txt",
+        "crc32": 1284083523,
+        "sha256": "d71d3db62552184499974e553c7a73766e01b47082798cb9b39ee13f2191184c",
+        "bytes": 93723
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/backend.json",
+        "crc32": 2792115908,
+        "sha256": "1a9e049d00e3c924c5337c96e089132dd3798920423cf4fb1ce72dcf87f3a3a7",
+        "bytes": 2057
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/candidate/after-1.instrumentation.txt",
+        "crc32": 3619768606,
+        "sha256": "94799c10b386d2a4459e3f0c683e7dd18bb7a33fbdeed8ceed970f0a6d8642b1",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/candidate/after-1.json",
+        "crc32": 3760364288,
+        "sha256": "8faae7e3fa6a7b9a81ce708cc92819648f24b461a05b8a5b85bd75a22fee9ec0",
+        "bytes": 9402
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/candidate/after-1.logcat.txt",
+        "crc32": 1840773298,
+        "sha256": "82c77552401e43bed032108137ff174f1e987530a2a405c8b5639130d725e5cd",
+        "bytes": 174269
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/candidate/after-prepare.txt",
+        "crc32": 3088256935,
+        "sha256": "14564f0950d03ff1314027ba5148b2e8b119407b2d4995b70a5a6ea61e163e77",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/candidate/comparison.json",
+        "crc32": 1859272707,
+        "sha256": "4163c6a101d23c23130d500814985dc0cf8d252496adbba2727a29d42e83b01e",
+        "bytes": 10751
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/candidate-driver.log",
+        "crc32": 2287059450,
+        "sha256": "94e26c76360887d4b758bc04c3591bdc7f8ccbe36c8b99633a65e53aac84d818",
+        "bytes": 2051
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/sample.json",
+        "crc32": 614868697,
+        "sha256": "125a4c0047205169285429c25561dda69aadaf3f69d90d5aca6b8b499406cba1",
+        "bytes": 4220
+      },
+      {
+        "name": "refactor-perf/b03-p02-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/backend-instrumentation.txt",
+        "crc32": 1650485896,
+        "sha256": "66837960981865c61acb2773a0eb604d305a6acc5ba6d73499b5045935c474e9",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/backend-logcat.txt",
+        "crc32": 331539089,
+        "sha256": "dda71d8e64def017c813e1d8f99bf6c1a6530e5899ed5fd5b56e980229b74513",
+        "bytes": 94236
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/backend.json",
+        "crc32": 1670684884,
+        "sha256": "36eebbf83d2d2cca4af7803e0a807ed547e74bd3a21331ae81df58f80efb636e",
+        "bytes": 2056
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/candidate/after-1.instrumentation.txt",
+        "crc32": 1630946040,
+        "sha256": "7cde4bdb1f4983c117cfcd439cd0dc996f2eec51dbc7d11b7e9690e8e64f7af0",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/candidate/after-1.json",
+        "crc32": 4163003548,
+        "sha256": "4d1802bfe044adc5d6cbb30c5d236272b4f22f7b76d4f8e7dbe662567ee2ff1e",
+        "bytes": 9507
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/candidate/after-1.logcat.txt",
+        "crc32": 650606832,
+        "sha256": "62cb4285f6d86969e8fa615fd76181365f5663a9d8f4a13973d2f7afa549c3b4",
+        "bytes": 183031
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/candidate/after-prepare.txt",
+        "crc32": 547680599,
+        "sha256": "56162d4608b0c196be63140dfbec6162cf5f249428bbf7867f7b9d8a81e34cb0",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/candidate/comparison.json",
+        "crc32": 2356993591,
+        "sha256": "0e745a8f4a1dd103aa3048c64cc7ff7ba0b27dce580e4e59bee6754d8415d223",
+        "bytes": 10856
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/candidate-driver.log",
+        "crc32": 1132769050,
+        "sha256": "88ddd7fbfda094124182d7766fa03c3fffc1535ee35ad45cf0d19abdbec1ae38",
+        "bytes": 2050
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/sample.json",
+        "crc32": 2920708721,
+        "sha256": "d5f490315c134d8bb1837df62fd214334133fb092d52bd5d2c2f24f7b87c8a83",
+        "bytes": 4218
+      },
+      {
+        "name": "refactor-perf/b03-p03-after/selected-apks/after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/backend-instrumentation.txt",
+        "crc32": 3400700931,
+        "sha256": "876c449529a74fdec677b5c7f7ce401563ffa38d7033ed8359646a33b0ae3066",
+        "bytes": 773
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/backend-logcat.txt",
+        "crc32": 1640087317,
+        "sha256": "2afe4f380f6a74cf08a470f5195eb0d7d330a92c70a3053d4504336fb09feeef",
+        "bytes": 92632
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/backend.json",
+        "crc32": 3864588168,
+        "sha256": "8899d054f4ced210ed7c898095f80927c83e13bd72e898e6eaca2c5677ee3554",
+        "bytes": 2055
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/candidate/before-1.instrumentation.txt",
+        "crc32": 3713001112,
+        "sha256": "54a2d5d7d66db93a0ed704ba417ef59dcb69ed4581d7fbc44b7960f1dfc4c08c",
+        "bytes": 716
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/candidate/before-1.json",
+        "crc32": 3177077392,
+        "sha256": "4ea3abb8b46341d4caa59f686619d05108876771a766b9de005da3c59e3d0553",
+        "bytes": 9517
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/candidate/before-1.logcat.txt",
+        "crc32": 2364091925,
+        "sha256": "dae020756e4d08fe43db731c7ce9d549117055d2dd9997ea4e5ca5524ba3314d",
+        "bytes": 167655
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/candidate/before-prepare.txt",
+        "crc32": 14178,
+        "sha256": "afe1eac2beb29049f30f5fb040931133f76723d502349298f76159b83810cb93",
+        "bytes": 719
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/candidate/comparison.json",
+        "crc32": 845335288,
+        "sha256": "21bc31661eab3a4b213e9bb2167d962cdcc6e8875d470e6d658ef4a6e78b0112",
+        "bytes": 10867
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/candidate-driver.log",
+        "crc32": 451175037,
+        "sha256": "bd9ddf6b723aa117c08adb377215100c40af0c42839e6a218b9b8486cf4829d1",
+        "bytes": 2061
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/sample.json",
+        "crc32": 3970334117,
+        "sha256": "5de46fec08019bca5b73406a641b4e5fd3ec5383f6504b5500069b128ad28bdc",
+        "bytes": 4228
+      },
+      {
+        "name": "refactor-perf/b03-p04-before/selected-apks/before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "refactor-perf/device-cpu.txt",
+        "crc32": 2393198104,
+        "sha256": "6ebbe81695a53fe1deda51176bfe45c0583a8544f0475334904f6539f2b8f9d2",
+        "bytes": 1664
+      },
+      {
+        "name": "refactor-perf/device-properties.txt",
+        "crc32": 783502910,
+        "sha256": "db496fab942b675b583cb72053ec500c66a9952209c87a83650298e9365a2057",
+        "bytes": 23623
+      },
+      {
+        "name": "refactor-perf/fixture.manifest.json",
+        "crc32": 2574739769,
+        "sha256": "d6e7bb35e8d86b2e8a9fdab7722a1c07ef37f027ce017e5e767ff74405cadf10",
+        "bytes": 4632
+      },
+      {
+        "name": "refactor-perf/plan.json",
+        "crc32": 2535338127,
+        "sha256": "77e5424ed85960b838322a11b12edb732d8e3a23d4f939819b53224c4023aa20",
+        "bytes": 742
+      },
+      {
+        "name": "refactor-perf/products.json",
+        "crc32": 1585923395,
+        "sha256": "5fc00f06f7f4e547d48041a491f84d7b9ea3600970f33cee86aec359c6067697",
+        "bytes": 5618
+      },
+      {
+        "name": "refactor-perf/samples.json",
+        "crc32": 2056557479,
+        "sha256": "cbe96bd53031324770e3cbef299367bd0e415640c76e989ee960b5b6b179808a",
+        "bytes": 55319
+      },
+      {
+        "name": "refactor-perf/summary.json",
+        "crc32": 962775226,
+        "sha256": "677461e38391a950ebe4b5a683a3212f60d9601305a95204076004cf1069c087",
+        "bytes": 14030
+      },
+      {
+        "name": "refactor-host-env/host-cpuinfo.txt",
+        "crc32": 3745757405,
+        "sha256": "269f44cd5fbcfd5ed287c26bf13ef3c71af06a6242ecb1deb9940a52602547d2",
+        "bytes": 5164
+      },
+      {
+        "name": "refactor-host-env/host-kernel.txt",
+        "crc32": 1085456003,
+        "sha256": "61c959df0ed77099212cf9e042100aef13d47bfc16dc48cc621bebe01928ae31",
+        "bytes": 120
+      },
+      {
+        "name": "refactor-host-env/host-memory.txt",
+        "crc32": 3345328839,
+        "sha256": "163b5ecd616a100e3070e97613e64b48d99cf7b52921f8dd2cf42550de118f94",
+        "bytes": 207
+      }
+    ]
+  },
+  {
+    "id": 14092558291,
+    "name": "refactor-performance-products",
+    "published_sha256": "032ae1641631c61d80ada3c3ced1f7368b1e9617ed5b980c02c756f6402e3c2b",
+    "zip_sha256_verified": true,
+    "all_members_crc_verified": true,
+    "members": [
+      {
+        "name": "after-apk-audit.json",
+        "crc32": 3554092541,
+        "sha256": "c7bab470b7ea9e1bc53fe26feffdd0661e05f202d358bdc575ef2683ff227900",
+        "bytes": 1181
+      },
+      {
+        "name": "after-clean.log",
+        "crc32": 1752801962,
+        "sha256": "9b9d7a3473062ddb49a692f90b908f471ff356b67260b4235f3b4dbb032b922a",
+        "bytes": 978
+      },
+      {
+        "name": "after-build.log",
+        "crc32": 934965973,
+        "sha256": "1a17f72a482d0276fb4600570d69d7b3e2e1673f288531a3772ff949ddc3ead3",
+        "bytes": 20079
+      },
+      {
+        "name": "after-commit.txt",
+        "crc32": 3087258461,
+        "sha256": "a67b4798de201d0cc9292f84a2b7fd70a1b302685ef35607668073c06ecd97b2",
+        "bytes": 41
+      },
+      {
+        "name": "after-frontend-harness-sha256.txt",
+        "crc32": 3975049024,
+        "sha256": "c244798949c4dcad163a83dbe25294ecb24f37ca1ac3cf4cc952b17244ca4930",
+        "bytes": 65
+      },
+      {
+        "name": "after-harness-sha256.txt",
+        "crc32": 1411385038,
+        "sha256": "b02398b2ea001b1763a38f864afdd67fcf7287bebd5f5bd88a6ec32c5bed8238",
+        "bytes": 65
+      },
+      {
+        "name": "after-native-link-audit.json",
+        "crc32": 1764074450,
+        "sha256": "267deafcedde691c74246b3b2454284123f17bd5fd3e07ef6dc9bf65084fe252",
+        "bytes": 1152
+      },
+      {
+        "name": "after-submodules.txt",
+        "crc32": 3552620217,
+        "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59",
+        "bytes": 77
+      },
+      {
+        "name": "after-tests.apk",
+        "crc32": 1830974195,
+        "sha256": "68795b6e34b830da80cd2245f51c40553056f2356320bd1f61de67e7fccc1210",
+        "bytes": 939646
+      },
+      {
+        "name": "after.apk",
+        "crc32": 548848062,
+        "sha256": "5e010c29962f8b532ae96a2ee36c4d6c4984e1c99ccf71a96615c513b7551160",
+        "bytes": 25604441
+      },
+      {
+        "name": "apk-sha256.txt",
+        "crc32": 268482056,
+        "sha256": "1c08cd48a6a4a6fb852fe00d4b289cf0cbaf9ddbf341bf7326d8e92712764e27",
+        "bytes": 393
+      },
+      {
+        "name": "before-apk-audit.json",
+        "crc32": 1122931301,
+        "sha256": "05dad19e3cf1ebaa232e55b96773d544a6a3e4448a203c0b00c272a5d60b07e0",
+        "bytes": 1182
+      },
+      {
+        "name": "before-build.log",
+        "crc32": 733589959,
+        "sha256": "3b5a1ab1e3613ae4910592b0ac99a206eb78978121a5e794825641b0bc8dc3f9",
+        "bytes": 19763
+      },
+      {
+        "name": "before-clean.log",
+        "crc32": 4125512361,
+        "sha256": "747b1fd65a98a8a475b699d187319b35e4df29c134684e5284269013697b48e9",
+        "bytes": 1022
+      },
+      {
+        "name": "before-commit.txt",
+        "crc32": 2350404598,
+        "sha256": "8bc2530ea19d59f392cf0c023bbc5e00a89eb56ac96d0cc292574745dfbaa994",
+        "bytes": 41
+      },
+      {
+        "name": "before-frontend-harness-sha256.txt",
+        "crc32": 3975049024,
+        "sha256": "c244798949c4dcad163a83dbe25294ecb24f37ca1ac3cf4cc952b17244ca4930",
+        "bytes": 65
+      },
+      {
+        "name": "before-harness-sha256.txt",
+        "crc32": 1411385038,
+        "sha256": "b02398b2ea001b1763a38f864afdd67fcf7287bebd5f5bd88a6ec32c5bed8238",
+        "bytes": 65
+      },
+      {
+        "name": "before-native-link-audit.json",
+        "crc32": 958239615,
+        "sha256": "23a8a328fa2df8265214cac139f08b8c85d86b71b97f4d5b095d1e338b562cdb",
+        "bytes": 1153
+      },
+      {
+        "name": "before-submodules.txt",
+        "crc32": 3552620217,
+        "sha256": "5c0800fe9e9aba9cb3890eb1213f3ce5be26741a4c8cf2d983ae50a62964de59",
+        "bytes": 77
+      },
+      {
+        "name": "before-tests.apk",
+        "crc32": 3321068900,
+        "sha256": "6ba73486b45aca73337926a35d20980964e0825a7a474153c9cbca1a4f46bdb1",
+        "bytes": 939697
+      },
+      {
+        "name": "before.apk",
+        "crc32": 3135708458,
+        "sha256": "31f35df5749d43842089128637d3c633ec318dc30de46c5931363e69eae8002b",
+        "bytes": 25584487
+      },
+      {
+        "name": "harness-sha256.txt",
+        "crc32": 1411385038,
+        "sha256": "b02398b2ea001b1763a38f864afdd67fcf7287bebd5f5bd88a6ec32c5bed8238",
+        "bytes": 65
+      },
+      {
+        "name": "host.apk",
+        "crc32": 2379372375,
+        "sha256": "33d24be70517e3e53b84ecfce8f60a07e1a18096bc0700469fd94fe30fdce458",
+        "bytes": 12715
+      },
+      {
+        "name": "products.json",
+        "crc32": 1585923395,
+        "sha256": "5fc00f06f7f4e547d48041a491f84d7b9ea3600970f33cee86aec359c6067697",
+        "bytes": 5618
+      }
+    ]
+  }
+]
