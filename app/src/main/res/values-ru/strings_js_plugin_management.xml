@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="js_app_preferred">Помощник для кнопки ИИ</string>
+    <string name="js_app_selection_failed">Этот инструмент больше недоступен. Выберите его снова.</string>
+    <string name="js_plugin_export">Экспорт исходного кода</string>
+    <string name="js_plugin_export_summary">Сохранить текущий исходный код JavaScript без сохранённых настроек и API-ключей.</string>
+    <string name="js_plugin_export_success">Исходный код плагина экспортирован.</string>
+    <string name="js_plugin_replace">Импорт замены</string>
+    <string name="js_plugin_replace_summary">Заменить этот плагин изменённым файлом .js, сохранив настройки и API-ключи.</string>
+    <string name="js_plugin_replace_builtin_message">Эта версия заменит встроенный плагин, даже если номер версии не изменился. Замена сохранится после обновления приложения. Встроенную версию можно восстановить в настройках плагина.</string>
+    <string name="js_plugin_replace_permissions">Существующие разрешения будут сброшены. Это подтверждение разрешает доступ к указанным выше сетевым хостам. Разрешения на функции приложения и доступ к другим хостам будут запрошены при использовании.</string>
+    <string name="js_plugin_import_wrong_id">Выберите файл исходного кода для %1$s. Этот файл относится к другому плагину.</string>
+    <string name="js_plugin_import_incompatible">Замена должна сохранить голосовые функции этого плагина и существующие инструменты. Другой инструмент следует импортировать из списка плагинов.</string>
+    <string name="js_plugin_source_builtin">Источник: встроенный</string>
+    <string name="js_plugin_source_custom">Источник: пользовательская замена</string>
+    <string name="js_plugin_source_imported">Источник: импортированный</string>
+    <string name="js_plugin_source_failed">Не удалось обновить исходный код плагина: %1$s</string>
+    <string name="js_plugin_restore">Восстановить встроенную версию</string>
+    <string name="js_plugin_restore_summary">Использовать версию из этого приложения, сохранив настройки и API-ключи.</string>
+    <string name="js_plugin_restore_message">Снова использовать встроенную версию? Импортированный исходный код, настройки и API-ключи будут сохранены. Необходимые разрешения будут запрошены снова при использовании.</string>
+    <string name="js_plugin_restored">Встроенный плагин восстановлен.</string>
+    <string name="js_voice_import_post_install_failed">Плагин установлен, но не удалось обновить разрешения или список плагинов: %1$s. Откройте страницу плагина снова и проверьте разрешения.</string>
+</resources>

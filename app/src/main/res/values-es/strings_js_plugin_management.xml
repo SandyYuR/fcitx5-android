@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="js_app_preferred">Asistente usado por el botón de IA</string>
+    <string name="js_app_selection_failed">Esta herramienta ya no está disponible. Vuelve a seleccionarla.</string>
+    <string name="js_plugin_export">Exportar código fuente</string>
+    <string name="js_plugin_export_summary">Guardar el código fuente JavaScript actual sin los ajustes ni las claves de API guardados.</string>
+    <string name="js_plugin_export_success">Código fuente del complemento exportado.</string>
+    <string name="js_plugin_replace">Importar reemplazo</string>
+    <string name="js_plugin_replace_summary">Reemplazar este complemento con un archivo .js modificado y conservar sus ajustes y claves de API.</string>
+    <string name="js_plugin_replace_builtin_message">Esta versión reemplazará el complemento integrado aunque su número de versión no cambie. Las actualizaciones de la aplicación conservarán tu reemplazo. Puedes restaurar la versión integrada en los ajustes del complemento.</string>
+    <string name="js_plugin_replace_permissions">Los permisos existentes se restablecerán. Esta confirmación autoriza los hosts de red indicados; los permisos para las funciones de la aplicación y otros hosts se solicitarán al usarlos.</string>
+    <string name="js_plugin_import_wrong_id">Selecciona un archivo de código fuente para %1$s. Este archivo pertenece a otro complemento.</string>
+    <string name="js_plugin_import_incompatible">El reemplazo debe conservar la función de voz y los accesos a aplicaciones existentes de este complemento. Importa una herramienta diferente desde la lista de complementos.</string>
+    <string name="js_plugin_source_builtin">Código fuente: integrado</string>
+    <string name="js_plugin_source_custom">Código fuente: reemplazo personalizado</string>
+    <string name="js_plugin_source_imported">Código fuente: importado</string>
+    <string name="js_plugin_source_failed">No se pudo actualizar el código fuente del complemento: %1$s</string>
+    <string name="js_plugin_restore">Restaurar versión integrada</string>
+    <string name="js_plugin_restore_summary">Usar la versión incluida con esta aplicación y conservar los ajustes y las claves de API.</string>
+    <string name="js_plugin_restore_message">¿Volver a usar la versión integrada? Se conservarán el código fuente importado, los ajustes y las claves de API. Los permisos se solicitarán de nuevo cuando se necesiten.</string>
+    <string name="js_plugin_restored">Complemento integrado restaurado.</string>
+    <string name="js_voice_import_post_install_failed">El complemento se instaló, pero no se pudo actualizar la autorización o la lista de complementos: %1$s. Vuelve a abrir la página del complemento y revisa sus permisos.</string>
+</resources>

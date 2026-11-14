@@ -2,6 +2,11 @@
 <resources>
     <string name="ai_assistant">AI アシスタント</string>
     <string name="js_tools">JS ツール</string>
+    <string name="js_tools_select_title">このボタンで開く JS アプリを選択</string>
+    <string name="js_tools_select_hint">「ボタンを編集」で開く JS アプリを選び直してください。</string>
+    <string name="js_app_shortcut_missing">この JS アプリは利用できなくなりました。ボタンを再設定してください。</string>
+    <string name="js_app_shortcut_password">パスワード欄では JS アプリを利用できません。</string>
+    <string name="youdao_free_translate">翻訳（API キー不要）</string>
     <string name="js_app_none">先に JavaScript アプリプラグインをインポートしてください。</string>
     <string name="js_app_password">パスワード欄では AI アシスタントを利用できません。</string>
     <string name="js_app_permission_message">このプラグインに次の機能を許可しますか？\n\n%1$s\n\nプラグインの設定からアクセス権を取り消せます。</string>

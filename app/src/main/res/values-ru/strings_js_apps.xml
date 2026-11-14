@@ -2,6 +2,11 @@
 <resources>
     <string name="ai_assistant">ИИ-помощник</string>
     <string name="js_tools">Инструменты JS</string>
+    <string name="js_tools_select_title">Выберите приложение JS для этой кнопки</string>
+    <string name="js_tools_select_hint">Снова выберите нужное приложение JS в разделе «Редактировать кнопки».</string>
+    <string name="js_app_shortcut_missing">Это приложение JS больше недоступно. Настройте кнопку заново.</string>
+    <string name="js_app_shortcut_password">Приложения JS недоступны в полях пароля.</string>
+    <string name="youdao_free_translate">Перевод (без API-ключа)</string>
     <string name="js_app_none">Сначала импортируйте плагин-приложение JavaScript.</string>
     <string name="js_app_password">ИИ-помощник недоступен в полях пароля.</string>
     <string name="js_app_permission_message">Разрешить этому плагину следующие действия?\n\n%1$s\n\nДоступ можно отозвать в настройках плагина.</string>
