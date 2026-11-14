@@ -1,0 +1,424 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-11-14",
+  "record_status": "measured_results_and_original_artifacts_verified",
+  "repository": "SandyYuR/fcitx5-android",
+  "sources": {
+    "before": "88a664d46ba82712d5457d86c037629c478b042c",
+    "after": "e6c6187606b6855ed9c8ab184ade379f10b64e29"
+  },
+  "original_build_driver": "ff8cc837e47418d715e341aa56538e252bcd24b9",
+  "original_build_run": 43541579966,
+  "original_build_artifact_sha256": "b7ceab4c1b04d0f9e6227f5a37533be741966b8e1c2256166dcb61469164d665",
+  "measurement_driver": "a3486b32b483a209eff9ccb069526d5926489c1a",
+  "measurement_run": 43543624849,
+  "run_attempt": 1,
+  "all_three_jobs_success": true,
+  "build_type": "Debug",
+  "abi": "x86_64",
+  "input_diagnostics": false,
+  "traced": false,
+  "reused_original_product_apk_bytes": true,
+  "native_library_sha256": {
+    "lib/x86_64/libc++_shared.so": "d6bceb7915ddb75ec4f96f97837efd80cf6084b00ad38e2666728f6cc24a9f68",
+    "lib/x86_64/libdirect-rime.so": "5a48966d37f74aa80238900bc10ac4c15d8b47c4f55ae71182db2f6cde3306ed",
+    "lib/x86_64/libquickjs.so": "8ea65d8b3efbd8d19a003691ff329c5483d18f3b59547cd8f8e1cac69470079e"
+  },
+  "candidate_raw_ns_recalculation_verified": true,
+  "backend_logged_quantiles_and_cross_process_statistics_verified": true,
+  "backend_per_key_durations_available": false,
+  "per_sample_and_workflow_statistics_match": true,
+  "all_backend_commit_sequences_identical": true,
+  "counts": {
+    "measurement_vms": 2,
+    "abba_blocks_per_vm": 3,
+    "candidate_processes_total": 24,
+    "candidate_processes_per_product": 12,
+    "backend_processes_total": 24,
+    "backend_processes_per_product": 12,
+    "candidate_selections_total": 144,
+    "candidate_first_selections_per_product": 12,
+    "candidate_steady_selections_per_product": 60,
+    "backend_words_total": 2400,
+    "backend_measured_words_per_process": 100,
+    "backend_warmup_words_per_process": 20,
+    "backend_keys_per_process": 784
+  },
+  "published_files": {
+    "forward-results.zip": {
+      "sha256": "81252a3968bae9505ad017747df7833a4a6b5de545cdef557450761b30d2e5fb",
+      "bytes": 643373
+    },
+    "reverse-results.zip": {
+      "sha256": "8db842a8def4eb0f21dc7cc6edcff426566ac5345fe9b146944d3697034e8b60",
+      "bytes": 661805
+    },
+    "products.json": {
+      "sha256": "5fc00f06f7f4e547d48041a491f84d7b9ea3600970f33cee86aec359c6067697",
+      "bytes": 5618
+    },
+    "fixture.manifest.json": {
+      "sha256": "d6e7bb35e8d86b2e8a9fdab7722a1c07ef37f027ce017e5e767ff74405cadf10",
+      "bytes": 4632
+    },
+    "download-verification.json": {
+      "sha256": "8f8b0d1c2be705fc2ac699df00b168de440ee920a81969c251e848bb7c962e3f",
+      "bytes": 70955
+    },
+    "recalculation.json": {
+      "sha256": "a5825c2831f909859d0878ea92127fe146eff66155bac79faa8c866c0892d68d",
+      "bytes": 37860
+    }
+  },
+  "actions_artifacts": [
+    {
+      "id": 14094485168,
+      "name": "refactor-performance-reverse",
+      "digest": "sha256:8db842a8def4eb0f21dc7cc6edcff426566ac5345fe9b146944d3697034e8b60",
+      "expires_at": "2026-12-14T01:58:01Z"
+    },
+    {
+      "id": 14093133758,
+      "name": "refactor-performance-forward",
+      "digest": "sha256:81252a3968bae9505ad017747df7833a4a6b5de545cdef557450761b30d2e5fb",
+      "expires_at": "2026-12-14T01:58:01Z"
+    },
+    {
+      "id": 14092558291,
+      "name": "refactor-performance-products",
+      "digest": "sha256:032ae1641631c61d80ada3c3ced1f7368b1e9617ed5b980c02c756f6402e3c2b",
+      "expires_at": "2026-12-14T01:58:01Z"
+    }
+  ],
+  "limitations": [
+    "View.onDraw is a CPU-side callback, not frame presentation",
+    "Backend quantiles are logged per process; individual key durations were not saved",
+    "Each UI and Backend measurement uses a different fresh instrumentation process",
+    "Prepared fixtures and operating-system file caches do not represent storage cold boot",
+    "ART allocation metrics include process-wide background activity",
+    "Debug emulator measurements do not establish physical-device Release performance",
+    "Product APKs and the fixture/model ZIP are retained locally and in Actions, not copied into docs"
+  ],
+  "unmeasured_scopes": [
+    "engine_activation",
+    "binding_preparation",
+    "maintenance_recovery",
+    "overall_startup"
+  ],
+  "interpretation": {
+    "speedup_established": false,
+    "strict_performance_equivalence_established": false,
+    "unlocated_allocation_object_increase_observed": true,
+    "allocation_byte_median_difference_does_not_establish_memory_saving": true,
+    "first_preedit_group_medians_increased_but_paired_block_signs_mixed": true
+  },
+  "allocation_object_ranges": {
+    "before": {
+      "min": 49794,
+      "max": 49964
+    },
+    "after": {
+      "min": 53894,
+      "max": 54107
+    }
+  },
+  "paired_allocation_objects": [
+    {
+      "replica": "forward",
+      "block": 1,
+      "delta_objects_after_minus_before": 4111.5
+    },
+    {
+      "replica": "forward",
+      "block": 2,
+      "delta_objects_after_minus_before": 4025.0
+    },
+    {
+      "replica": "forward",
+      "block": 3,
+      "delta_objects_after_minus_before": 4131.5
+    },
+    {
+      "replica": "reverse",
+      "block": 1,
+      "delta_objects_after_minus_before": 4175.0
+    },
+    {
+      "replica": "reverse",
+      "block": 2,
+      "delta_objects_after_minus_before": 4050.0
+    },
+    {
+      "replica": "reverse",
+      "block": 3,
+      "delta_objects_after_minus_before": 4095.0
+    }
+  ],
+  "observed_allocation_bytes_step": 32768,
+  "backend_events_by_process": [
+    {
+      "replica": "forward",
+      "label": "before",
+      "block": 1,
+      "position": 1,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "after",
+      "block": 1,
+      "position": 2,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "after",
+      "block": 1,
+      "position": 3,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "before",
+      "block": 1,
+      "position": 4,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "after",
+      "block": 2,
+      "position": 1,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "before",
+      "block": 2,
+      "position": 2,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "before",
+      "block": 2,
+      "position": 3,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "after",
+      "block": 2,
+      "position": 4,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "before",
+      "block": 3,
+      "position": 1,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "after",
+      "block": 3,
+      "position": 2,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 783,
+        "InputPanelEvent": 783
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "after",
+      "block": 3,
+      "position": 3,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "forward",
+      "label": "before",
+      "block": 3,
+      "position": 4,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "after",
+      "block": 1,
+      "position": 1,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "before",
+      "block": 1,
+      "position": 2,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "before",
+      "block": 1,
+      "position": 3,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "after",
+      "block": 1,
+      "position": 4,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "before",
+      "block": 2,
+      "position": 1,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "after",
+      "block": 2,
+      "position": 2,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 783,
+        "InputPanelEvent": 783
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "after",
+      "block": 2,
+      "position": 3,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "before",
+      "block": 2,
+      "position": 4,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "after",
+      "block": 3,
+      "position": 1,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "before",
+      "block": 3,
+      "position": 2,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "before",
+      "block": 3,
+      "position": 3,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    },
+    {
+      "replica": "reverse",
+      "label": "after",
+      "block": 3,
+      "position": 4,
+      "events": {
+        "CommitStringEvent": 100,
+        "PagedCandidateEvent": 784,
+        "InputPanelEvent": 784
+      }
+    }
+  ]
+}

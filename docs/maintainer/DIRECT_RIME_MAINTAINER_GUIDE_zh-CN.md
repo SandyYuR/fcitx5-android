@@ -240,6 +240,8 @@ Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/a
 相同文件名的远端模型也可能换过内容，应按原报告哈希找匹配夹具，不能跳过检查。
 手动触发性能 workflow、上传日志或设备数据前取得明确授权。
 
+[2026-11-14 职责拆分性能对照](history/direct-rime-refactor-performance-2026-11-14.md)固定默认产品与拆分产品，在两组 Actions Debug 模拟器测量候选点击及 Backend 工作负载；保留对象分配增加与延迟波动的信号和边界，不将职责移动或行数变化写成提速结论。
+
 日常构建的 `RimeLifecycle bind` 记录每次绑定的总耗时，以及 `native_begin_us`、`publish_us` 和会话 `created`/`reused` 计数。前者包含 native 创建或复用会话、由 Rime 恢复方案/开关和读取初始快照，后者记录前端发布与绑定门控处理；前端快照回放已移除，不再输出单独的 `restore_us`。单位为微秒，总计 `duration_ms` 为毫秒，不包括进入 owner 前的排队。`ready` 表示 native 方案可用，`usable` 表示此编辑器可以收键，`direct` 标识直接输入。`binding_key wait_ms` 是按键在绑定期间的等待时间，`delivered=true` 表示延后交付，不能据此归为丢键。
 
 绑定及首次快照发布的同步工作均在 `InteractiveThreadPriority` 作用域内，退出或异常时恢复原优先级。日常日志只增加每次绑定的少量计时与计数；逐键 CPU、缺页和文件 I/O 统计仍须 `-PinputDiagnostics=true`。没有分段记录的旧日志只能定位到整次绑定，不能直接断言耗时来自词库重开、Lua 或界面绘制；优化后的真机延迟须在相同方案和设备上复测。
