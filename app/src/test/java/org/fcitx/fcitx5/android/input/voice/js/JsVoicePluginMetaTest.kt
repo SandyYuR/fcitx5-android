@@ -96,6 +96,18 @@ class JsVoicePluginMetaTest {
         assertEquals(1234L, decoded.importedAt)
         assertEquals(22050, decoded.meta.sampleRate)
         assertEquals(listOf("example.com"), decoded.meta.hosts)
+        assertFalse(decoded.overridesBuiltIn)
+        assertEquals(record.copy(overridesBuiltIn = true),
+            JsVoicePluginRecord.decode(record.copy(overridesBuiltIn = true).encode()))
+    }
+
+    @Test
+    fun oldOrMalformedRecordsCannotSilentlyOptIntoReplacingBuiltIns() {
+        val legacy = """{"id":"llm-assistant","source":"old.js","importedAt":1}"""
+        assertFalse(JsVoicePluginRecord.decode(legacy)!!.overridesBuiltIn)
+        for (invalid in listOf("\"true\"", "1", "null", "{}")) {
+            assertNull(JsVoicePluginRecord.decode(legacy.dropLast(1) + ",\"overridesBuiltIn\":" + invalid + "}"))
+        }
     }
 
     @Test

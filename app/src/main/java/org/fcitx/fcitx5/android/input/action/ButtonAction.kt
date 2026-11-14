@@ -23,10 +23,12 @@ import org.fcitx.fcitx5.android.input.editing.TextEditingWindow
 import org.fcitx.fcitx5.android.input.status.StatusAreaWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.ButtonsCustomizerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.TextKeyboardLayoutProfilePickerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
+import org.fcitx.fcitx5.android.input.voice.js.JsAppButtonBinding
 import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.fcitx.fcitx5.android.utils.buildDocumentsProviderIntent
@@ -113,7 +115,9 @@ sealed class ButtonAction {
          * @param id The button ID
          * @return The corresponding ButtonAction, or null if not found
          */
-        fun fromId(id: String): ButtonAction? = allActions.find { it.id == id }
+        fun fromId(id: String): ButtonAction? =
+            JsAppButtonBinding.decode(id)?.let { JsAppButtonAction(it.pluginId, it.appId) }
+                ?: allActions.find { it.id == id }
 
         /**
          * All available button actions.
@@ -127,6 +131,7 @@ sealed class ButtonAction {
                 ClipboardAction,
                 VoiceInputAction,
                 AiAssistantAction,
+                JsToolsAction,
                 ThemeToggleAction,
                 RandomThemeAction,
                 LanguageSwitchAction,
@@ -167,6 +172,7 @@ sealed class ButtonAction {
                 ClipboardAction,
                 VoiceInputAction,
                 AiAssistantAction,
+                JsToolsAction,
                 ThemeToggleAction,
                 RandomThemeAction
             )
@@ -884,5 +890,57 @@ data object AiAssistantAction : ButtonAction() {
     override fun onLongPress(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,
         windowManager: InputWindowManager, view: View) {
         org.fcitx.fcitx5.android.input.voice.js.JsApps.configure(context)
+    }
+}
+
+/** One exact JS App shortcut encoded entirely in [id], so layout JSON needs no new schema. */
+internal data class JsAppButtonAction(
+    val pluginId: String,
+    val appId: String,
+) : ButtonAction() {
+    override val id = requireNotNull(JsAppButtonBinding.encode(pluginId, appId))
+    override val defaultIcon = when {
+        pluginId == "js:youdao-free-translate" && appId == "youdao_translate" ->
+            R.drawable.ic_translate_24
+        pluginId == "js:llm-assistant" && appId == "llm_assistant" ->
+            R.drawable.ic_auto_awesome_24
+        else -> R.drawable.ic_baseline_code_24
+    }
+    override val defaultLabelRes = R.string.js_tools
+    override val iconSlot = "toolbar.js_tools"
+    override val hasLongPress = true
+
+    override fun execute(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,
+        windowManager: InputWindowManager, view: View?, onActionComplete: (() -> Unit)?) {
+        org.fcitx.fcitx5.android.input.voice.js.JsApps.toggleExact(service, pluginId, appId)
+    }
+
+    override fun onLongPress(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,
+        windowManager: InputWindowManager, view: View) {
+        org.fcitx.fcitx5.android.input.voice.js.JsApps.configure(context, pluginId)
+    }
+}
+
+/** Editor template and compatibility behavior for the unreleased generic JS picker button. */
+data object JsToolsAction : ButtonAction() {
+    override val id = "js_tools"
+    override val defaultIcon = R.drawable.ic_baseline_code_24
+    override val defaultLabelRes = R.string.js_tools
+    override val iconSlot = "toolbar.js_tools"
+    override val hasLongPress = true
+
+    override fun execute(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,
+        windowManager: InputWindowManager, view: View?, onActionComplete: (() -> Unit)?) {
+        service.toast(R.string.js_tools_select_hint)
+        context.startActivity(Intent(context, ButtonsCustomizerActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    }
+
+    override fun onLongPress(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,
+        windowManager: InputWindowManager, view: View) {
+        context.startActivity(Intent(context, ButtonsCustomizerActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
     }
 }

@@ -3,6 +3,7 @@ package org.fcitx.fcitx5.android.input.voice.js
 
 import okhttp3.OkHttpClient
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderRegistry
 import org.fcitx.fcitx5.android.utils.appContext
 import java.io.File
@@ -45,6 +46,7 @@ internal object JsVoiceProviders {
         val originName: String,
         val hasVoice: Boolean = true,
         val apps: List<JsPluginApp> = emptyList(),
+        val overridesBuiltIn: Boolean = false,
     )
 
     private val lock = Any()
@@ -65,6 +67,22 @@ internal object JsVoiceProviders {
             .writeTimeout(20, TimeUnit.SECONDS)
             .build()
     }
+
+    private data class BundledAppAsset(
+        val baseName: String,
+        val labelRes: Int? = null,
+        val appLabelRes: Int? = null,
+    )
+
+    /** Explicit order keeps the default assistant stable and makes every shipped script auditable. */
+    private val bundledAppAssets = listOf(
+        BundledAppAsset("llm-assistant", R.string.ai_assistant, R.string.ai_assistant),
+        BundledAppAsset(
+            "youdao-free-translate",
+            R.string.youdao_free_translate,
+            R.string.youdao_free_translate,
+        ),
+    )
 
     private fun builtInSpecs(): List<Spec> = listOf(
         Spec(
@@ -126,25 +144,56 @@ internal object JsVoiceProviders {
             originName = record.sourceName,
             hasVoice = record.meta.voiceAsr != null,
             apps = record.meta.apps,
+            overridesBuiltIn = record.overridesBuiltIn,
         )
     }
 
-    // A previously imported plugin can become bundled. Prefer the bundled implementation while
-    // retaining the imported file and the settings/secrets under the same provider ID.
-    private fun builtInAppSpecs(): List<Spec> {
-        val meta = appContext.assets.open("bundled/js-apps/llm-assistant.json").bufferedReader().use {
-            requireNotNull(JsVoicePluginMeta.parse(it.readText()))
+    // A previously imported plugin can become bundled. Its old file stays inactive unless the
+    // user explicitly replaces the bundled source from that plugin's settings.
+    private fun builtInAppSpecs(): List<Spec> = bundledAppAssets.map { asset ->
+        val manifestPath = "bundled/js-apps/${asset.baseName}.json"
+        val meta = appContext.assets.open(manifestPath).bufferedReader().use {
+            requireNotNull(JsVoicePluginMeta.parse(it.readText())) {
+                "Invalid bundled JS App manifest: $manifestPath"
+            }
         }
-        return listOf(Spec(meta.providerId, appContext.getString(R.string.ai_assistant), meta.version,
-            meta.hosts.toSet(), meta.sampleRate, Source.Asset("bundled/js-apps/llm-assistant.js"),
-            true, "llm-assistant.js", false, meta.apps))
+        require(meta.id == asset.baseName) {
+            "Bundled JS App ID ${meta.id} does not match asset ${asset.baseName}"
+        }
+        require(meta.apps.isNotEmpty()) { "Bundled JS App ${meta.id} has no apps" }
+        val scriptName = "${asset.baseName}.js"
+        Spec(
+            id = meta.providerId,
+            label = asset.labelRes?.let { appContext.getString(it) } ?: meta.displayName,
+            version = meta.version,
+            hosts = meta.hosts.toSet(),
+            sampleRate = meta.sampleRate,
+            source = Source.Asset("bundled/js-apps/$scriptName"),
+            builtIn = true,
+            originName = scriptName,
+            hasVoice = meta.voiceAsr != null,
+            apps = meta.apps.map { app ->
+                asset.appLabelRes?.let { app.copy(label = appContext.getString(it)) } ?: app
+            },
+        )
     }
 
-    private fun buildSpecs(): List<Spec> = (builtInSpecs() + builtInAppSpecs() + importedSpecs()).distinctBy { it.id }
+    private fun buildSpecs(): List<Spec> {
+        val bundled = builtInSpecs() + builtInAppSpecs()
+        val imported = importedSpecs()
+        val replacements = imported.filter { it.overridesBuiltIn }.associateBy(Spec::id)
+        val bundledIds = bundled.map(Spec::id).toSet()
+        return bundled.map { replacements[it.id] ?: it } + imported.filter { it.id !in bundledIds }
+    }
 
     fun all(): List<Spec> = synchronized(lock) { cached ?: buildSpecs().also { cached = it; cachedById = it.associateBy(Spec::id) } }
 
     fun builtInIds(): Set<String> = (builtInSpecs() + builtInAppSpecs()).map { it.id }.toSet()
+
+    fun builtInSpecOf(pluginId: String): Spec? =
+        (builtInSpecs() + builtInAppSpecs()).firstOrNull { it.id == pluginId }
+
+    fun isBuiltInId(pluginId: String): Boolean = builtInSpecOf(pluginId) != null
 
     fun specOf(pluginId: String): Spec? = synchronized(lock) {
         all()
@@ -210,5 +259,18 @@ internal object JsVoiceProviders {
         installedRevision = -1L
         synchronized(lock) { cached = null }
         install()
+        reconcilePreferredVoiceInput()
+        JsApps.onPluginsChanged()
+    }
+
+    /** A source change may turn a custom JS voice override back into an app-only asset. */
+    private fun reconcilePreferredVoiceInput() {
+        val preference = AppPrefs.getInstance().keyboard.preferredVoiceInput
+        val selected = preference.getValue()
+        if (!selected.startsWith("js:") || VoiceInputProviderRegistry.get(selected) != null) return
+        if (!preference.sharedPreferences.edit().putString(preference.key, "").commit()) {
+            // SharedPreferences changes its in-memory value before reporting a failed commit.
+            preference.sharedPreferences.edit().putString(preference.key, selected).commit()
+        }
     }
 }

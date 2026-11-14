@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ai_assistant">AI 도우미</string>
+    <string name="js_tools">JS 도구</string>
+    <string name="js_tools_select_title">이 버튼으로 열 JS 앱 선택</string>
+    <string name="js_tools_select_hint">‘버튼 편집’에서 이 버튼으로 열 JS 앱을 다시 선택하세요.</string>
+    <string name="js_app_shortcut_missing">이 JS 앱은 더 이상 사용할 수 없습니다. 버튼을 다시 설정하세요.</string>
+    <string name="js_app_shortcut_password">비밀번호 입력란에서는 JS 앱을 사용할 수 없습니다.</string>
+    <string name="youdao_free_translate">번역 (API 키 불필요)</string>
     <string name="js_app_none">먼저 JavaScript 앱 플러그인을 가져오세요.</string>
     <string name="js_app_password">비밀번호 입력란에서는 AI 도우미를 사용할 수 없습니다.</string>
     <string name="js_app_permission_message">이 플러그인에 다음 기능을 허용하시겠습니까?\n\n%1$s\n\n플러그인 설정에서 접근 권한을 취소할 수 있습니다.</string>
