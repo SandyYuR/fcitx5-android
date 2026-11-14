@@ -9,7 +9,7 @@ docKind: reference
 以下正文描述 **Foxy** 的接口。中州鹅的实际支持范围见[宿主实现](/maintainer/implementation/js-voice-plugins#js-app-test-branch)。
 
 中州鹅的 AI 助手与 JS App 功能已于 2026-11-05 合入默认分支 `fx-rime-only`；较早的 APK 需更新后使用。
-已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP、SSE 流式 HTTP，以及按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`）；旧式平铺布局、任意 `js.*` 布局命令和通用 App 选择器尚未实现。语音 WebSocket 仍可使用。
+已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP、SSE 流式 HTTP、按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`），以及旧式平铺 `fields` / `buttons` 布局和布局里的 `app` 节点；通用 App 选择器尚未实现。语音 WebSocket 仍可使用。
 
 Foxy 要求请求主机在静态 `hosts` 中声明。中州鹅的 **App HTTP** 还允许从用户配置的 HTTPS 地址提取主机，并在首次请求时逐域名授权；内置助手的 `hosts` 为空。这个扩展不等于给原版 Foxy 放开任意域名，语音接口仍按静态清单授权。
 
@@ -149,11 +149,14 @@ foxy.app.register({
 | `input` | `id`、`label`、`labelPlacement`、`placeholder`、`multiline`、`height`、`value`、`weight` |
 | `select` | `id`、`label`、`labelPlacement`、`options`、`value`、`height`、`weight` |
 | `button` | `id`、`label`、`style`（`outlined`、`filled`）、`weight` |
+| `app` | `command`（`js.<appId>`）、`label`、`style`；渲染成切换到该 App 的按钮 |
 | `spacer` | `height`、`weight` |
 
 下拉选项可以是字符串或 `{label, value}`。标签默认在控件左侧；`labelPlacement: "top"` 将标签放在上方。没有 `weight` 时，子项不会拉伸。界面的 `maxWidth`、`maxHeight` 是以 dp 为单位的边界。Foxy 保留旧版平铺 `fields` / `buttons` 格式以便兼容。
 
-中州鹅还支持 `input.readOnly: true`，用于允许选择和复制、但不接收键盘输入的结果框。旧式平铺格式不在当前适配范围内。
+中州鹅还支持 `input.readOnly: true`，用于允许选择和复制、但不接收键盘输入的结果框。
+
+中州鹅同样兼容旧式平铺格式：没有 `layout` 时按 Foxy 的规则把 `title`、`fields`（最多 12 个）和 `buttons`（最多 8 个）拼成纵向界面，字段缺省值取上一轮的 `values`。`app` 节点按 `command` 解析成唯一注册的 App，解析不到（或同一 App ID 出现在多个插件里）时提示改用编辑按钮里的精确绑定；`js.<appId>` 只用于 `app` 节点，键盘布局 JSON 仍应写 `js_app:<pluginId>/<appId>`，因为 App ID 只在插件内唯一。
 
 ### 增量更新界面
 

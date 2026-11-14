@@ -17,7 +17,7 @@ Older APKs need an update. See the [current host implementation](/maintainer/imp
 | --- | --- |
 | JS Apps | App registration, permissions, structured native layouts, editor APIs, credentials, non-streaming HTTP and SSE streaming are supported. The toolbar provides an AI assistant entry. |
 | Network authorization | App HTTP accepts declared hosts or hosts derived from configured HTTPS addresses, with separate approval before sending text or credentials. The built-in assistant has no default API addresses or static hosts. Voice transports still require declared hosts. |
-| Streaming and commands | App SSE (`foxy.http.stream`) and App WebSocket with per-kind callbacks and `foxy.websocket.authorize()` are supported. Legacy flat layouts, generic `js.*` layout commands and arbitrary App selection are not implemented. The voice WebSocket transport is supported. |
+| Streaming and commands | App SSE (`foxy.http.stream`), App WebSocket with per-kind callbacks and `foxy.websocket.authorize()`, legacy flat `fields` / `buttons` layouts and `app` layout nodes are supported. A generic App selector is not implemented. The voice WebSocket transport is supported. |
 | Controls | Floating panels keep keyboard input available. The host additionally supports `input.readOnly` for a selectable AI reply. |
 
 Button IDs and selector IDs are delivered to the plugin as events: a label such as “Confirm” has no built-in generate/insert behavior. Handle selector events explicitly to keep the panel open.
@@ -151,9 +151,12 @@ The plugin owns the layout tree. Foxy renders these nodes with native controls s
 | `input` | `id`, `label`, `labelPlacement`, `placeholder`, `multiline`, `height`, `value`, `weight` |
 | `select` | `id`, `label`, `labelPlacement`, `options`, `value`, `height`, `weight` |
 | `button` | `id`, `label`, `style` (`outlined` or `filled`), `weight` |
+| `app` | `command` (`js.<appId>`), `label`, `style`; renders a button that switches to that App |
 | `spacer` | `height`, `weight` |
 
-Select `options` may be strings or `{label, value}` objects. Labels are inline by default; set `labelPlacement: "top"` for stacked labels. Children do not stretch unless `weight` is provided. Dialog-level `maxWidth` and `maxHeight` are dp bounds. The old flat `fields` / `buttons` format remains supported for compatibility.
+Select `options` may be strings or `{label, value}` objects. Labels are inline by default; set `labelPlacement: "top"` for stacked labels. Children do not stretch unless `weight` is provided. Dialog-level `maxWidth` and `maxHeight` are dp bounds.
+
+The old flat `fields` / `buttons` format is supported too: without `layout`, `title`, up to 12 `fields` and up to 8 `buttons` are composed into a vertical dialog, and field values fall back to the previous `values`. An `app` node resolves its `command` to the single registered App; when nothing matches (or two plugins register the same App ID) the dialog asks the user to rebind it. `js.<appId>` is only for `app` nodes — keyboard layout JSON should keep using `js_app:<pluginId>/<appId>`, because App IDs are unique per plugin only.
 
 ### Incremental Dialog Updates
 

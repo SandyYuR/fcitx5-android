@@ -12,7 +12,7 @@
 - “编辑按钮”中的“JS 工具”是添加模板：用户在配置阶段选择一个已注册 App，布局保存 `js_app:js:<plugin-id>/<app-id>` 形式的稳定动态动作 ID。运行时短按直接解析当前 `Spec` 与 App，不再弹选择器；长按进入对应插件设置。一个插件的多个 App 可分别绑定，纯语音插件不列出。目标缺失时不回退其他 App，重新安装相同 ID 后从当前目录恢复解析。
 - AI 首选保存完整的插件 ID 与 App ID 组合，不依赖名称、用途标签或列表顺序。短按运行与长按配置使用同一解析结果；所选插件或 App 消失时清除失效选择并回退到 `js:llm-assistant`，之后重新安装该外部插件不会自动恢复旧选择。选择其他 App 不转移插件之间的设置、密钥或权限。
 - App 回调收到 `event`、`values`、`appId`、`command`、`settings`、普通设置顶层别名及已配置的密钥字段 ID。按钮和下拉选择使用控件 ID 作为事件名，主流程按次序执行。
-- 支持 `column`、`row`、`text`、`input`、`select`、`button`、`spacer`。标签默认在左侧，`labelPlacement: "top"` 放上方；字段的 `height` 只计控件，不计标签。`input.readOnly: true` 允许选择、复制和滚动，但不接收键盘输入。
+- 支持 `column`、`row`、`text`、`input`、`select`、`button`、`app`、`spacer`；没有 `layout` 时按 Foxy 规则把 `title`、`fields`、`buttons` 转成同样的声明式布局。标签默认在左侧，`labelPlacement: "top"` 放上方；字段的 `height` 只计控件，不计标签。`input.readOnly: true` 允许选择、复制和滚动，但不接收键盘输入。
 - 本地界面扩展 `header` 与 `actions`：根 `column` 首部的 `header` 和末尾的 `actions` 固定在滚动正文两侧；空间过矮时整块滚动，切换只移动现有视图。`actions` 只接收按钮，并按完整按钮换行；旧 `row` 表单仍按原结构显示。
 - 按钮 `style` 可为 `filled`、`tonal`、`text` 或默认描边。`icon` 仅接受内置 `assistant`、`close`、`send`、`check`；`iconOnly` 保留文字作为无障碍说明，未知图标回退文字。文本可用 `tone: "error"`、`maxLines`（1–8）与 `description`（长按说明，最多 600 字符）。这些是中州鹅的界面扩展，不表示原版 Foxy 提供相同字段。
 - 原生界面通过 `SettingsUiPreferences.themedContext` 复用主界面颜色角色，包含深浅色、Monet、手动色板和纯黑。图标来自受限应用资源，不接受脚本提供的外部图片路径；界面样式不改变原有事件 ID、能力权限或输入连接归属。
@@ -38,7 +38,7 @@
 
 内置助手以 **发送 AI → 显示 AI 回复 → 确认上屏** 为主流程。无有效回复的旧 `confirm` 事件按生成处理；输入、用途、服务或配置变化使旧回复失效，不能提交旧结果。失败保持窗口与输入。按钮标签没有宿主内建语义，其他插件应自行实现完整状态处理。
 
-当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的文本请求，以及 App SSE 与 App WebSocket；旧式平铺 `fields/buttons` 和任意 `js.*` 布局命令未实现。动态 JS App 按钮只解析已注册 App，不执行任意布局命令。
+当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的文本请求，以及 App SSE 与 App WebSocket。旧式平铺 `fields/buttons` 由 `JsAppLegacyLayout` 按 Foxy 规则转换成同样的声明式布局（`title`、最多 12 个字段、最多 8 个按钮、缺省值取上一轮 `values`）；布局里的 `app` 节点由 `JsAppCommand` 解析成唯一注册的 App，解析不到或同 ID 多插件时提示重新绑定。`js.<appId>` 只用于 `app` 节点，不执行任意布局命令，键盘布局仍写 `js_app:<pluginId>/<appId>`。
 新版 [Foxy 英文接口参考](/features/voice-input-js-en)和[中文译文](/features/voice-input-js-reference-zh-CN)包含上游完整 API；判断本宿主支持范围以本页和能力表为准。
 
 ## 插件定义
