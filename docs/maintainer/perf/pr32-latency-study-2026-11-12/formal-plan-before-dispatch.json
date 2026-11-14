@@ -1,0 +1,36 @@
+{
+  "driver_commit": "204acdea83ae84b311b72aff154e564739eec623",
+  "supporting_metrics": [
+    "first i_injected_down_to_dispatch_up_ms",
+    "first i_injected_up_to_dispatch_ms",
+    "first select_injected_up_to_ic_ms"
+  ],
+  "seeds": [
+    2026111201,
+    2026111202
+  ],
+  "primary_metric": "first n_planned_down_to_ni_ready_ms",
+  "products_run": "43176830239",
+  "mode": "formal",
+  "fixture_sha256": "333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f",
+  "unit": "One fresh process per source per block; fixture restored before every process; first selection separated from median of five warm selections",
+  "traced": false,
+  "recorded_utc": "2026-11-12T07:48:46.7190372Z",
+  "blocks_per_vm": 6,
+  "apk_sha256": {
+    "baseline-tests.apk": "2f0232014f95359a40d6c3dcbdabb43907d9a5332c4f3d17a949860084da0045",
+    "baseline.apk": "5b530bf32f2dd902337bd47d94e17df44acd0bcc551bd72d4282fb3bf9429a8f",
+    "current-tests.apk": "0fccb84803660f88d500dc881a6fb4b6e1fd53f4b8f12eddd5de412b0f9eeabd",
+    "current.apk": "610ef8c81843af5b282d762bc7d463cf1a78aad06b24c5daa4dc98d56930e6b1",
+    "regressed-tests.apk": "a87ea076cb88ef2bd3a8d33e127e919b09f0162e8a188bc4e2bcd2adae2291b4",
+    "regressed.apk": "e8e51d27b41a3cdc466e330333bcf06dbe8cbc7ffdd058c368bf0ad34b6e3293"
+  },
+  "interpretation": "Analyze paired block differences separately per VM. Preserve all attempted samples and failures. Do not pool pilot or traced runs into formal timing estimates. ni_ready is observation of backend preedit publication, not a frame presentation timestamp.",
+  "harness_sha256": "06d66c801a6caa2c4d009270ae53ca02bcfbf5a0f6c7f3cab98efd50dd307c93",
+  "sources": {
+    "baseline": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+    "regressed": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+    "current": "adb6a4e33426333677934ac82f0a19997245556a"
+  },
+  "vms": 2
+}

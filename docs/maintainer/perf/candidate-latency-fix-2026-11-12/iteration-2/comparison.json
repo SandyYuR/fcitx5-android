@@ -1,0 +1,594 @@
+{
+  "method": "Same VM per order, three untraced fresh processes per product; two VM orders. One traced fresh process/product/VM is separate attribution, not merged into performance tables. Composite first-word measure includes probe polling and injection pauses; not a real typing speed.",
+  "untraced_records": [
+    {
+      "order": "before,after",
+      "product": "before",
+      "file": "before-1.json",
+      "n_up_to_preedit_ms": 64.323804,
+      "first_i_inject_to_dispatch_ms": 35.571775,
+      "select_external_up_to_ic_ms": 12.477214,
+      "select_external_up_to_edit_ms": 27.878587,
+      "select_dispatch_up_to_edit_ms": 27.109733,
+      "n_down_to_first_word_edit_ms": 367.049467
+    },
+    {
+      "order": "before,after",
+      "product": "before",
+      "file": "before-2.json",
+      "n_up_to_preedit_ms": 32.098522,
+      "first_i_inject_to_dispatch_ms": 26.374094,
+      "select_external_up_to_ic_ms": 5.997839,
+      "select_external_up_to_edit_ms": 14.986701,
+      "select_dispatch_up_to_edit_ms": 14.114004,
+      "n_down_to_first_word_edit_ms": 361.732591
+    },
+    {
+      "order": "before,after",
+      "product": "before",
+      "file": "before-3.json",
+      "n_up_to_preedit_ms": 64.833428,
+      "first_i_inject_to_dispatch_ms": 54.363914,
+      "select_external_up_to_ic_ms": 17.403172,
+      "select_external_up_to_edit_ms": 21.959994,
+      "select_dispatch_up_to_edit_ms": 21.415058,
+      "n_down_to_first_word_edit_ms": 377.108758
+    },
+    {
+      "order": "before,after",
+      "product": "after",
+      "file": "after-1.json",
+      "n_up_to_preedit_ms": 76.42964,
+      "first_i_inject_to_dispatch_ms": 0.63408,
+      "select_external_up_to_ic_ms": 14.167353,
+      "select_external_up_to_edit_ms": 19.432436,
+      "select_dispatch_up_to_edit_ms": 18.835543,
+      "n_down_to_first_word_edit_ms": 386.475362
+    },
+    {
+      "order": "before,after",
+      "product": "after",
+      "file": "after-2.json",
+      "n_up_to_preedit_ms": 47.380188,
+      "first_i_inject_to_dispatch_ms": 84.629224,
+      "select_external_up_to_ic_ms": 5.931876,
+      "select_external_up_to_edit_ms": 12.247175,
+      "select_dispatch_up_to_edit_ms": 11.845266,
+      "n_down_to_first_word_edit_ms": 365.926888
+    },
+    {
+      "order": "before,after",
+      "product": "after",
+      "file": "after-3.json",
+      "n_up_to_preedit_ms": 75.82338,
+      "first_i_inject_to_dispatch_ms": 0.520951,
+      "select_external_up_to_ic_ms": 7.486943,
+      "select_external_up_to_edit_ms": 10.867954,
+      "select_dispatch_up_to_edit_ms": 10.354847,
+      "n_down_to_first_word_edit_ms": 394.053837
+    },
+    {
+      "order": "after,before",
+      "product": "before",
+      "file": "before-1.json",
+      "n_up_to_preedit_ms": 55.083327,
+      "first_i_inject_to_dispatch_ms": 80.493283,
+      "select_external_up_to_ic_ms": 16.698628,
+      "select_external_up_to_edit_ms": 32.345504,
+      "select_dispatch_up_to_edit_ms": 31.639636,
+      "n_down_to_first_word_edit_ms": 402.441106
+    },
+    {
+      "order": "after,before",
+      "product": "before",
+      "file": "before-2.json",
+      "n_up_to_preedit_ms": 30.883447,
+      "first_i_inject_to_dispatch_ms": 0.496271,
+      "select_external_up_to_ic_ms": 4.735429,
+      "select_external_up_to_edit_ms": 7.532982,
+      "select_dispatch_up_to_edit_ms": 7.101196,
+      "n_down_to_first_word_edit_ms": 393.019199
+    },
+    {
+      "order": "after,before",
+      "product": "before",
+      "file": "before-3.json",
+      "n_up_to_preedit_ms": 33.855336,
+      "first_i_inject_to_dispatch_ms": 85.267282,
+      "select_external_up_to_ic_ms": 10.360138,
+      "select_external_up_to_edit_ms": 12.920507,
+      "select_dispatch_up_to_edit_ms": 12.170023,
+      "n_down_to_first_word_edit_ms": 382.692058
+    },
+    {
+      "order": "after,before",
+      "product": "after",
+      "file": "after-1.json",
+      "n_up_to_preedit_ms": 82.347641,
+      "first_i_inject_to_dispatch_ms": 51.303837,
+      "select_external_up_to_ic_ms": 18.33829,
+      "select_external_up_to_edit_ms": 32.049763,
+      "select_dispatch_up_to_edit_ms": 31.367018,
+      "n_down_to_first_word_edit_ms": 416.859162
+    },
+    {
+      "order": "after,before",
+      "product": "after",
+      "file": "after-2.json",
+      "n_up_to_preedit_ms": 31.225694,
+      "first_i_inject_to_dispatch_ms": 11.792126,
+      "select_external_up_to_ic_ms": 4.998719,
+      "select_external_up_to_edit_ms": 19.352949,
+      "select_dispatch_up_to_edit_ms": 18.746398,
+      "n_down_to_first_word_edit_ms": 336.836052
+    },
+    {
+      "order": "after,before",
+      "product": "after",
+      "file": "after-3.json",
+      "n_up_to_preedit_ms": 72.117274,
+      "first_i_inject_to_dispatch_ms": 83.056197,
+      "select_external_up_to_ic_ms": 6.597114,
+      "select_external_up_to_edit_ms": 14.075679,
+      "select_dispatch_up_to_edit_ms": 13.50312,
+      "n_down_to_first_word_edit_ms": 398.70734
+    }
+  ],
+  "untraced_summary": {
+    "before,after": {
+      "before": {
+        "n_up_to_preedit_ms": {
+          "n": 3,
+          "median": 64.323804,
+          "min": 32.098522,
+          "max": 64.833428
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 3,
+          "median": 35.571775,
+          "min": 26.374094,
+          "max": 54.363914
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 3,
+          "median": 12.477214,
+          "min": 5.997839,
+          "max": 17.403172
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 3,
+          "median": 21.959994,
+          "min": 14.986701,
+          "max": 27.878587
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 3,
+          "median": 21.415058,
+          "min": 14.114004,
+          "max": 27.109733
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 3,
+          "median": 367.049467,
+          "min": 361.732591,
+          "max": 377.108758
+        }
+      },
+      "after": {
+        "n_up_to_preedit_ms": {
+          "n": 3,
+          "median": 75.82338,
+          "min": 47.380188,
+          "max": 76.42964
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 3,
+          "median": 0.63408,
+          "min": 0.520951,
+          "max": 84.629224
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 3,
+          "median": 7.486943,
+          "min": 5.931876,
+          "max": 14.167353
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 3,
+          "median": 12.247175,
+          "min": 10.867954,
+          "max": 19.432436
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 3,
+          "median": 11.845266,
+          "min": 10.354847,
+          "max": 18.835543
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 3,
+          "median": 386.475362,
+          "min": 365.926888,
+          "max": 394.053837
+        }
+      }
+    },
+    "after,before": {
+      "before": {
+        "n_up_to_preedit_ms": {
+          "n": 3,
+          "median": 33.855336,
+          "min": 30.883447,
+          "max": 55.083327
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 3,
+          "median": 80.493283,
+          "min": 0.496271,
+          "max": 85.267282
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 3,
+          "median": 10.360138,
+          "min": 4.735429,
+          "max": 16.698628
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 3,
+          "median": 12.920507,
+          "min": 7.532982,
+          "max": 32.345504
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 3,
+          "median": 12.170023,
+          "min": 7.101196,
+          "max": 31.639636
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 3,
+          "median": 393.019199,
+          "min": 382.692058,
+          "max": 402.441106
+        }
+      },
+      "after": {
+        "n_up_to_preedit_ms": {
+          "n": 3,
+          "median": 72.117274,
+          "min": 31.225694,
+          "max": 82.347641
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 3,
+          "median": 51.303837,
+          "min": 11.792126,
+          "max": 83.056197
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 3,
+          "median": 6.597114,
+          "min": 4.998719,
+          "max": 18.33829
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 3,
+          "median": 19.352949,
+          "min": 14.075679,
+          "max": 32.049763
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 3,
+          "median": 18.746398,
+          "min": 13.50312,
+          "max": 31.367018
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 3,
+          "median": 398.70734,
+          "min": 336.836052,
+          "max": 416.859162
+        }
+      }
+    },
+    "all": {
+      "before": {
+        "n_up_to_preedit_ms": {
+          "n": 6,
+          "median": 44.469331499999996,
+          "min": 30.883447,
+          "max": 64.833428
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 6,
+          "median": 44.9678445,
+          "min": 0.496271,
+          "max": 85.267282
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 6,
+          "median": 11.418676,
+          "min": 4.735429,
+          "max": 17.403172
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 6,
+          "median": 18.4733475,
+          "min": 7.532982,
+          "max": 32.345504
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 6,
+          "median": 17.764530999999998,
+          "min": 7.101196,
+          "max": 31.639636
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 6,
+          "median": 379.90040799999997,
+          "min": 361.732591,
+          "max": 402.441106
+        }
+      },
+      "after": {
+        "n_up_to_preedit_ms": {
+          "n": 6,
+          "median": 73.970327,
+          "min": 31.225694,
+          "max": 82.347641
+        },
+        "first_i_inject_to_dispatch_ms": {
+          "n": 6,
+          "median": 31.5479815,
+          "min": 0.520951,
+          "max": 84.629224
+        },
+        "select_external_up_to_ic_ms": {
+          "n": 6,
+          "median": 7.042028500000001,
+          "min": 4.998719,
+          "max": 18.33829
+        },
+        "select_external_up_to_edit_ms": {
+          "n": 6,
+          "median": 16.714313999999998,
+          "min": 10.867954,
+          "max": 32.049763
+        },
+        "select_dispatch_up_to_edit_ms": {
+          "n": 6,
+          "median": 16.124758999999997,
+          "min": 10.354847,
+          "max": 31.367018
+        },
+        "n_down_to_first_word_edit_ms": {
+          "n": 6,
+          "median": 390.26459950000003,
+          "min": 336.836052,
+          "max": 416.859162
+        }
+      }
+    }
+  },
+  "traced": [
+    {
+      "order": "before,after",
+      "product": "before",
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 160981681505,
+        "up_ns": 161009089044,
+        "injection_up_ns": 161008312316,
+        "end_ns": 161074598772,
+        "total_up_ms": 65.509728,
+        "core_calls": 1,
+        "core_wall_ms": 57.230709,
+        "core_cpu_ms": 16.012482,
+        "snapshot_ms": 0.614335,
+        "core_first_after_up_ms": 6.376844,
+        "after_native_to_endpoint_ms": 1.902175,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 80545,
+          "ts": 161015465888,
+          "dur": 57230709,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 290,
+          "tid": 3758,
+          "thread_name": "rime-main",
+          "pid": 3701,
+          "process_name": "zygote64"
+        },
+        "core_thread_state_ms": {
+          "Running": 16.012482,
+          "R": 1.606584,
+          "D": 39.541373,
+          "R+": 0.07027
+        }
+      },
+      "candidate_layouts": [
+        {
+          "id": "81598",
+          "ts": "161096386197",
+          "dur": "16550654",
+          "name": "RV OnLayout",
+          "utid": "208",
+          "tid": "3701",
+          "pid": "3701",
+          "process": "zygote64",
+          "cpu_ms": 13.792652,
+          "wall_ms": 16.550654
+        }
+      ],
+      "max_layout_wall_ms": 16.550654,
+      "max_layout_cpu_ms": 13.792652
+    },
+    {
+      "order": "before,after",
+      "product": "after",
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 211862660060,
+        "up_ns": 211889707366,
+        "injection_up_ns": 211888837821,
+        "end_ns": 211933569499,
+        "total_up_ms": 43.862133,
+        "core_calls": 1,
+        "core_wall_ms": 17.662666,
+        "core_cpu_ms": 14.000973,
+        "snapshot_ms": 20.280756,
+        "core_first_after_up_ms": 4.466444,
+        "after_native_to_endpoint_ms": 21.733023,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 81630,
+          "ts": 211894173810,
+          "dur": 17662666,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 291,
+          "tid": 4190,
+          "thread_name": "rime-main",
+          "pid": 4134,
+          "process_name": "<pre-initialized>"
+        },
+        "core_thread_state_ms": {
+          "Running": 14.000973,
+          "R": 1.334995,
+          "D": 2.239705,
+          "R+": 0.086993
+        }
+      },
+      "candidate_layouts": [
+        {
+          "id": "82495",
+          "ts": "211963592038",
+          "dur": "13072744",
+          "name": "RV OnLayout",
+          "utid": "213",
+          "tid": "4134",
+          "pid": "4134",
+          "process": "<pre-initialized>",
+          "cpu_ms": 10.839755,
+          "wall_ms": 13.072744
+        }
+      ],
+      "max_layout_wall_ms": 13.072744,
+      "max_layout_cpu_ms": 10.839755
+    },
+    {
+      "order": "after,before",
+      "product": "before",
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 209539762038,
+        "up_ns": 209568290982,
+        "injection_up_ns": 209565098102,
+        "end_ns": 209622252136,
+        "total_up_ms": 53.961154,
+        "core_calls": 1,
+        "core_wall_ms": 44.861215,
+        "core_cpu_ms": 19.604042,
+        "snapshot_ms": 0.915619,
+        "core_first_after_up_ms": 6.678374,
+        "after_native_to_endpoint_ms": 2.421565,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 81067,
+          "ts": 209574969356,
+          "dur": 44861215,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 305,
+          "tid": 4215,
+          "thread_name": "rime-main",
+          "pid": 4147,
+          "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+        },
+        "core_thread_state_ms": {
+          "Running": 19.604042,
+          "R": 19.249635,
+          "D": 4.200124,
+          "R+": 1.807414
+        }
+      },
+      "candidate_layouts": [
+        {
+          "id": "82210",
+          "ts": "209639947661",
+          "dur": "14723402",
+          "name": "RV OnLayout",
+          "utid": "218",
+          "tid": "4147",
+          "pid": "4147",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "cpu_ms": 12.479836,
+          "wall_ms": 14.723402
+        }
+      ],
+      "max_layout_wall_ms": 14.723402,
+      "max_layout_cpu_ms": 12.479836
+    },
+    {
+      "order": "after,before",
+      "product": "after",
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 159591262249,
+        "up_ns": 159615500752,
+        "injection_up_ns": 159614933358,
+        "end_ns": 159687273062,
+        "total_up_ms": 71.77231,
+        "core_calls": 1,
+        "core_wall_ms": 34.906399,
+        "core_cpu_ms": 16.348543,
+        "snapshot_ms": 0.512607,
+        "core_first_after_up_ms": 32.791095,
+        "after_native_to_endpoint_ms": 4.074816,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 80449,
+          "ts": 159648291847,
+          "dur": 34906399,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 285,
+          "tid": 3772,
+          "thread_name": "rime-main",
+          "pid": 3716,
+          "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+        },
+        "core_thread_state_ms": {
+          "Running": 16.348543,
+          "R": 17.485956,
+          "D": 1.0719
+        }
+      },
+      "candidate_layouts": [
+        {
+          "id": "81137",
+          "ts": "159704061989",
+          "dur": "11933925",
+          "name": "RV OnLayout",
+          "utid": "207",
+          "tid": "3716",
+          "pid": "3716",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "cpu_ms": 10.768627,
+          "wall_ms": 11.933925
+        }
+      ],
+      "max_layout_wall_ms": 11.933925,
+      "max_layout_cpu_ms": 10.768627
+    }
+  ]
+}

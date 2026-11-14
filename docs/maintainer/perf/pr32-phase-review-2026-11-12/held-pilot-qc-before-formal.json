@@ -1,0 +1,8 @@
+{
+  "processes": 12,
+  "selections": 72,
+  "touches": 216,
+  "all_holds_at_least_20ms": true,
+  "product_apks_unchanged": true,
+  "compared_version_effects_before_formal_dispatch": false
+}

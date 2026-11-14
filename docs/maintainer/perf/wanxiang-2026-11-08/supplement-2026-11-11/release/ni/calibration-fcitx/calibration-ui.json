@@ -1,0 +1,2133 @@
+{
+  "nodes": [
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        0,
+        0,
+        320,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        0,
+        0,
+        320,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        0,
+        0,
+        320,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        0,
+        0,
+        320,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        8,
+        0,
+        160,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        8,
+        0,
+        160,
+        24
+      ]
+    },
+    {
+      "text": "12:15",
+      "package": "com.android.systemui",
+      "bounds": [
+        8,
+        0,
+        50,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        50,
+        0,
+        160,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        50,
+        0,
+        160,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        50,
+        0,
+        160,
+        24
+      ]
+    },
+    {
+      "text": "Google Partner Setup notification: Enable Google Play services",
+      "package": "com.android.systemui",
+      "bounds": [
+        50,
+        0,
+        72,
+        24
+      ]
+    },
+    {
+      "text": "Gboard notification: Enable Google Play services",
+      "package": "com.android.systemui",
+      "bounds": [
+        72,
+        0,
+        94,
+        24
+      ]
+    },
+    {
+      "text": "Drive notification: Enable Google Play services",
+      "package": "com.android.systemui",
+      "bounds": [
+        94,
+        0,
+        116,
+        24
+      ]
+    },
+    {
+      "text": "Android System notification: Serial console enabled",
+      "package": "com.android.systemui",
+      "bounds": [
+        116,
+        0,
+        138,
+        24
+      ]
+    },
+    {
+      "text": "Android System notification: Choose input method",
+      "package": "com.android.systemui",
+      "bounds": [
+        138,
+        0,
+        160,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        160,
+        0,
+        312,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        160,
+        0,
+        312,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        160,
+        0,
+        304,
+        24
+      ]
+    },
+    {
+      "text": "Wifi signal full.",
+      "package": "com.android.systemui",
+      "bounds": [
+        265,
+        1,
+        283,
+        23
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        268,
+        1,
+        283,
+        23
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        268,
+        4,
+        283,
+        19
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        268,
+        4,
+        283,
+        19
+      ]
+    },
+    {
+      "text": "Phone three bars.",
+      "package": "com.android.systemui",
+      "bounds": [
+        283,
+        1,
+        298,
+        23
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        283,
+        1,
+        298,
+        23
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        283,
+        4,
+        298,
+        19
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        283,
+        4,
+        298,
+        19
+      ]
+    },
+    {
+      "text": "Battery charging, 100 percent.",
+      "package": "com.android.systemui",
+      "bounds": [
+        304,
+        0,
+        312,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        304,
+        4,
+        312,
+        17
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        160,
+        0,
+        160,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        160,
+        0,
+        160,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "com.android.systemui",
+      "bounds": [
+        160,
+        0,
+        160,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        24,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        24,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        24,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        24,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        24,
+        320,
+        24
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        24,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        24,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        24,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        386,
+        320,
+        408
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        386,
+        99,
+        408
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        386,
+        99,
+        408
+      ]
+    },
+    {
+      "text": "Deploying...",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        386,
+        99,
+        408
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        408,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        408,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        408,
+        320,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        408,
+        320,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        408,
+        320,
+        448
+      ]
+    },
+    {
+      "text": "Status area",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        408,
+        40,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        408,
+        40,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        40,
+        408,
+        280,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        40,
+        408,
+        280,
+        448
+      ]
+    },
+    {
+      "text": "Undo",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        42,
+        408,
+        86,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        44,
+        408,
+        84,
+        448
+      ]
+    },
+    {
+      "text": "Redo",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        90,
+        408,
+        134,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        92,
+        408,
+        132,
+        448
+      ]
+    },
+    {
+      "text": "Text Editing",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        138,
+        408,
+        182,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        140,
+        408,
+        180,
+        448
+      ]
+    },
+    {
+      "text": "Floating Keyboard",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        186,
+        408,
+        230,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        188,
+        408,
+        228,
+        448
+      ]
+    },
+    {
+      "text": "Clipboard",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        234,
+        408,
+        278,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        236,
+        408,
+        276,
+        448
+      ]
+    },
+    {
+      "text": "Day\/Night Theme",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        282,
+        408,
+        280,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        284,
+        408,
+        280,
+        448
+      ]
+    },
+    {
+      "text": "Hide keyboard",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        280,
+        408,
+        320,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        280,
+        408,
+        320,
+        448
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        448,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        448,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        448,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        448,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        448,
+        320,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        448,
+        32,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        448,
+        32,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        448,
+        32,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        2,
+        476,
+        30,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        32,
+        448,
+        64,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        32,
+        448,
+        64,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        32,
+        448,
+        64,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        34,
+        476,
+        62,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        64,
+        448,
+        96,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        64,
+        448,
+        96,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        64,
+        448,
+        96,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        66,
+        476,
+        94,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        96,
+        448,
+        128,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        96,
+        448,
+        128,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        96,
+        448,
+        128,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        98,
+        476,
+        126,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        128,
+        448,
+        160,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        128,
+        448,
+        160,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        128,
+        448,
+        160,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        130,
+        476,
+        158,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        160,
+        448,
+        192,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        160,
+        448,
+        192,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        160,
+        448,
+        192,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        162,
+        476,
+        190,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        192,
+        448,
+        224,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        192,
+        448,
+        224,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        192,
+        448,
+        224,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        194,
+        476,
+        222,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        224,
+        448,
+        256,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        224,
+        448,
+        256,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        224,
+        448,
+        256,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        226,
+        476,
+        254,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        256,
+        448,
+        288,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        256,
+        448,
+        288,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        256,
+        448,
+        288,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        258,
+        476,
+        286,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        288,
+        448,
+        320,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        288,
+        448,
+        320,
+        496
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        288,
+        448,
+        320,
+        479
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        290,
+        476,
+        318,
+        491
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        496,
+        320,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        16,
+        496,
+        48,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        16,
+        496,
+        48,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        16,
+        496,
+        48,
+        527
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        18,
+        524,
+        46,
+        539
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        48,
+        496,
+        80,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        48,
+        496,
+        80,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        48,
+        496,
+        80,
+        527
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        50,
+        524,
+        78,
+        539
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        80,
+        496,
+        112,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        80,
+        496,
+        112,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        80,
+        496,
+        112,
+        527
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        82,
+        524,
+        110,
+        539
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        112,
+        496,
+        144,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        112,
+        496,
+        144,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        112,
+        496,
+        144,
+        527
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        114,
+        524,
+        142,
+        539
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        144,
+        496,
+        176,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        144,
+        496,
+        176,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        144,
+        496,
+        176,
+        527
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        146,
+        524,
+        174,
+        539
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        176,
+        496,
+        208,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        176,
+        496,
+        208,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        176,
+        496,
+        208,
+        527
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        178,
+        524,
+        206,
+        539
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        208,
+        496,
+        240,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        208,
+        496,
+        240,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        208,
+        496,
+        240,
+        527
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        210,
+        524,
+        238,
+        539
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        240,
+        496,
+        272,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        240,
+        496,
+        272,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        240,
+        496,
+        272,
+        527
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        242,
+        524,
+        270,
+        539
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        272,
+        496,
+        304,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        272,
+        496,
+        304,
+        544
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        272,
+        496,
+        304,
+        527
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        274,
+        524,
+        302,
+        539
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        544,
+        320,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        544,
+        48,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        544,
+        48,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        12,
+        556,
+        36,
+        580
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        48,
+        544,
+        80,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        48,
+        544,
+        80,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        48,
+        544,
+        80,
+        575
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        50,
+        572,
+        78,
+        587
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        80,
+        544,
+        112,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        80,
+        544,
+        112,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        80,
+        544,
+        112,
+        575
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        82,
+        572,
+        110,
+        587
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        112,
+        544,
+        144,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        112,
+        544,
+        144,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        112,
+        544,
+        144,
+        575
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        114,
+        572,
+        142,
+        587
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        144,
+        544,
+        176,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        144,
+        544,
+        176,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        144,
+        544,
+        176,
+        575
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        146,
+        572,
+        174,
+        587
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        176,
+        544,
+        208,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        176,
+        544,
+        208,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        176,
+        544,
+        208,
+        575
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        178,
+        572,
+        206,
+        587
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        208,
+        544,
+        240,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        208,
+        544,
+        240,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        208,
+        544,
+        240,
+        575
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        210,
+        572,
+        238,
+        587
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        240,
+        544,
+        272,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        240,
+        544,
+        272,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        240,
+        544,
+        272,
+        575
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        242,
+        572,
+        270,
+        587
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        272,
+        544,
+        320,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        272,
+        544,
+        320,
+        592
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        284,
+        556,
+        308,
+        580
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        592,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        592,
+        48,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        592,
+        48,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        605,
+        48,
+        627
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        48,
+        592,
+        86,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        48,
+        592,
+        86,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        48,
+        602,
+        86,
+        633
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        61,
+        603,
+        74,
+        616
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        86,
+        592,
+        125,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        86,
+        592,
+        125,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        94,
+        604,
+        118,
+        628
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        125,
+        592,
+        234,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        125,
+        592,
+        234,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        125,
+        607,
+        234,
+        625
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        234,
+        592,
+        272,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        234,
+        592,
+        272,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        234,
+        592,
+        272,
+        623
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        236,
+        620,
+        270,
+        635
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        272,
+        592,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        272,
+        592,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        284,
+        604,
+        308,
+        628
+      ]
+    },
+    {
+      "text": "",
+      "package": "org.fcitx.fcitx5.android.fx.rime",
+      "bounds": [
+        0,
+        640,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "io.github.sandyyur.inputbench",
+      "bounds": [
+        0,
+        0,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "io.github.sandyyur.inputbench",
+      "bounds": [
+        0,
+        0,
+        320,
+        640
+      ]
+    },
+    {
+      "text": "",
+      "package": "io.github.sandyyur.inputbench",
+      "bounds": [
+        0,
+        24,
+        320,
+        408
+      ]
+    },
+    {
+      "text": "",
+      "package": "io.github.sandyyur.inputbench",
+      "bounds": [
+        0,
+        24,
+        320,
+        408
+      ]
+    },
+    {
+      "text": "",
+      "package": "io.github.sandyyur.inputbench",
+      "bounds": [
+        0,
+        0,
+        320,
+        24
+      ]
+    }
+  ],
+  "windows": [
+    {
+      "type": 3,
+      "bounds": [
+        0,
+        0,
+        320,
+        24
+      ]
+    },
+    {
+      "type": 2,
+      "bounds": [
+        0,
+        386,
+        320,
+        640
+      ]
+    },
+    {
+      "type": 1,
+      "bounds": [
+        0,
+        0,
+        320,
+        640
+      ]
+    }
+  ]
+}

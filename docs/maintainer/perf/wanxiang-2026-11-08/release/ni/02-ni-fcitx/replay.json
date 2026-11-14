@@ -1,0 +1,379 @@
+{
+  "phases": [
+    {
+      "phase": "fresh",
+      "launch_ns": 569988718220,
+      "ime_observed_ns": 571236982152,
+      "ime_window_stable_observed_ns": 571753662960,
+      "setup_hint_gone_ns": 649360666732
+    },
+    {
+      "phase": "noneditor",
+      "hidden_observed_ns": 661433217517
+    },
+    {
+      "phase": "rebind",
+      "launch_ns": 661933396497,
+      "ime_observed_ns": 662146923142,
+      "ime_window_stable_observed_ns": 662666167569,
+      "setup_hint_gone_ns": 664208530416
+    }
+  ],
+  "samples": [
+    {
+      "phase": "fresh",
+      "round": 0,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 649360870965,
+          "up_ns": 649393045248
+        },
+        {
+          "key": "i",
+          "down_ns": 649513107684,
+          "up_ns": 649560281500
+        }
+      ],
+      "last_key_down_ns": 649513107684,
+      "last_key_up_ns": 649560281500,
+      "settle_finished_ns": 650579589274,
+      "candidate_panel_observed_ns": 650591601435,
+      "candidate_down_ns": 650698400664,
+      "candidate_up_ns": 650741408059
+    },
+    {
+      "phase": "fresh",
+      "round": 1,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 650964045304,
+          "up_ns": 651005859595
+        },
+        {
+          "key": "i",
+          "down_ns": 651117407096,
+          "up_ns": 651157634295
+        }
+      ],
+      "last_key_down_ns": 651117407096,
+      "last_key_up_ns": 651157634295,
+      "settle_finished_ns": 652166400826,
+      "candidate_panel_observed_ns": 652177983378,
+      "candidate_down_ns": 652178032010,
+      "candidate_up_ns": 652206639018
+    },
+    {
+      "phase": "fresh",
+      "round": 2,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 652415073595,
+          "up_ns": 652458486152
+        },
+        {
+          "key": "i",
+          "down_ns": 652562866998,
+          "up_ns": 652606606558
+        }
+      ],
+      "last_key_down_ns": 652562866998,
+      "last_key_up_ns": 652606606558,
+      "settle_finished_ns": 653616356987,
+      "candidate_panel_observed_ns": 653628788963,
+      "candidate_down_ns": 653628864004,
+      "candidate_up_ns": 653673304901
+    },
+    {
+      "phase": "fresh",
+      "round": 3,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 653880053415,
+          "up_ns": 653924995217
+        },
+        {
+          "key": "i",
+          "down_ns": 654032610479,
+          "up_ns": 654073200895
+        }
+      ],
+      "last_key_down_ns": 654032610479,
+      "last_key_up_ns": 654073200895,
+      "settle_finished_ns": 655082368517,
+      "candidate_panel_observed_ns": 655093448992,
+      "candidate_down_ns": 655093496442,
+      "candidate_up_ns": 655123656920
+    },
+    {
+      "phase": "fresh",
+      "round": 4,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 655327865501,
+          "up_ns": 655359016233
+        },
+        {
+          "key": "i",
+          "down_ns": 655466326130,
+          "up_ns": 655507710542
+        }
+      ],
+      "last_key_down_ns": 655466326130,
+      "last_key_up_ns": 655507710542,
+      "settle_finished_ns": 656517101552,
+      "candidate_panel_observed_ns": 656532619151,
+      "candidate_down_ns": 656532677328,
+      "candidate_up_ns": 656574627115
+    },
+    {
+      "phase": "fresh",
+      "round": 5,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 656780441454,
+          "up_ns": 656824837254
+        },
+        {
+          "key": "i",
+          "down_ns": 656936944166,
+          "up_ns": 656973347284
+        }
+      ],
+      "last_key_down_ns": 656936944166,
+      "last_key_up_ns": 656973347284,
+      "settle_finished_ns": 657983396432,
+      "candidate_panel_observed_ns": 657995109959,
+      "candidate_down_ns": 657995158291,
+      "candidate_up_ns": 658038830560
+    },
+    {
+      "phase": "fresh",
+      "round": 6,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 658246220352,
+          "up_ns": 658290504057
+        },
+        {
+          "key": "i",
+          "down_ns": 658399323209,
+          "up_ns": 658440783868
+        }
+      ],
+      "last_key_down_ns": 658399323209,
+      "last_key_up_ns": 658440783868,
+      "settle_finished_ns": 659449095533,
+      "candidate_panel_observed_ns": 659464409830,
+      "candidate_down_ns": 659464467296,
+      "candidate_up_ns": 659507136037
+    },
+    {
+      "phase": "fresh",
+      "round": 7,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 659713697247,
+          "up_ns": 659758576937
+        },
+        {
+          "key": "i",
+          "down_ns": 659866150272,
+          "up_ns": 659907692969
+        }
+      ],
+      "last_key_down_ns": 659866150272,
+      "last_key_up_ns": 659907692969,
+      "settle_finished_ns": 660916121902,
+      "candidate_panel_observed_ns": 660927242017,
+      "candidate_down_ns": 660927291711,
+      "candidate_up_ns": 660957978316
+    },
+    {
+      "phase": "rebind",
+      "round": 0,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 664208620240,
+          "up_ns": 664241361827
+        },
+        {
+          "key": "i",
+          "down_ns": 664350126899,
+          "up_ns": 664391260602
+        }
+      ],
+      "last_key_down_ns": 664350126899,
+      "last_key_up_ns": 664391260602,
+      "settle_finished_ns": 665399354518,
+      "candidate_panel_observed_ns": 665410813611,
+      "candidate_down_ns": 665424771451,
+      "candidate_up_ns": 665457978089
+    },
+    {
+      "phase": "rebind",
+      "round": 1,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 665664310569,
+          "up_ns": 665707487853
+        },
+        {
+          "key": "i",
+          "down_ns": 665812789187,
+          "up_ns": 665856347017
+        }
+      ],
+      "last_key_down_ns": 665812789187,
+      "last_key_up_ns": 665856347017,
+      "settle_finished_ns": 666867563206,
+      "candidate_panel_observed_ns": 666881317548,
+      "candidate_down_ns": 666881371918,
+      "candidate_up_ns": 666925357629
+    },
+    {
+      "phase": "rebind",
+      "round": 2,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 667128856930,
+          "up_ns": 667174473556
+        },
+        {
+          "key": "i",
+          "down_ns": 667281866172,
+          "up_ns": 667324057213
+        }
+      ],
+      "last_key_down_ns": 667281866172,
+      "last_key_up_ns": 667324057213,
+      "settle_finished_ns": 668333901091,
+      "candidate_panel_observed_ns": 668344873336,
+      "candidate_down_ns": 668344924883,
+      "candidate_up_ns": 668391747452
+    },
+    {
+      "phase": "rebind",
+      "round": 3,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 668598072441,
+          "up_ns": 668642420109
+        },
+        {
+          "key": "i",
+          "down_ns": 668749656132,
+          "up_ns": 668790519343
+        }
+      ],
+      "last_key_down_ns": 668749656132,
+      "last_key_up_ns": 668790519343,
+      "settle_finished_ns": 669798033887,
+      "candidate_panel_observed_ns": 669808712445,
+      "candidate_down_ns": 669808763070,
+      "candidate_up_ns": 669841488873
+    },
+    {
+      "phase": "rebind",
+      "round": 4,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 670047089765,
+          "up_ns": 670091064133
+        },
+        {
+          "key": "i",
+          "down_ns": 670197697805,
+          "up_ns": 670240418509
+        }
+      ],
+      "last_key_down_ns": 670197697805,
+      "last_key_up_ns": 670240418509,
+      "settle_finished_ns": 671254450977,
+      "candidate_panel_observed_ns": 671265381579,
+      "candidate_down_ns": 671265435780,
+      "candidate_up_ns": 671305424075
+    },
+    {
+      "phase": "rebind",
+      "round": 5,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 671514281740,
+          "up_ns": 671559323632
+        },
+        {
+          "key": "i",
+          "down_ns": 671666431564,
+          "up_ns": 671707068368
+        }
+      ],
+      "last_key_down_ns": 671666431564,
+      "last_key_up_ns": 671707068368,
+      "settle_finished_ns": 672716342419,
+      "candidate_panel_observed_ns": 672730334690,
+      "candidate_down_ns": 672730393448,
+      "candidate_up_ns": 672774912641
+    },
+    {
+      "phase": "rebind",
+      "round": 6,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 672979794343,
+          "up_ns": 673024111352
+        },
+        {
+          "key": "i",
+          "down_ns": 673132728548,
+          "up_ns": 673173580012
+        }
+      ],
+      "last_key_down_ns": 673132728548,
+      "last_key_up_ns": 673173580012,
+      "settle_finished_ns": 674182928689,
+      "candidate_panel_observed_ns": 674197266083,
+      "candidate_down_ns": 674197336548,
+      "candidate_up_ns": 674241441986
+    },
+    {
+      "phase": "rebind",
+      "round": 7,
+      "keys": [
+        {
+          "key": "n",
+          "down_ns": 674447540894,
+          "up_ns": 674492235103
+        },
+        {
+          "key": "i",
+          "down_ns": 674600127477,
+          "up_ns": 674641408279
+        }
+      ],
+      "last_key_down_ns": 674600127477,
+      "last_key_up_ns": 674641408279,
+      "settle_finished_ns": 675650030581,
+      "candidate_panel_observed_ns": 675661111036,
+      "candidate_down_ns": 675661162012,
+      "candidate_up_ns": 675690878059
+    }
+  ],
+  "output": "你你你你你你你你",
+  "word": "你",
+  "method": "external real touch; timestamps before injection"
+}

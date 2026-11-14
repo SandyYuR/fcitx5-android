@@ -1,0 +1,26 @@
+{
+  "state": "completed",
+  "recorded_at_utc": "2026-11-13T05:35:18.912730+00:00",
+  "archive_commit_pushed_before_deletion": "53af22f73053f55ac055b35c7e670af8bb5fc9ff",
+  "deleted_exact_refs": {
+    "test/pr32-reviewed-ui-20261113": "06b3979f16c2c008d587814648e6a2308b6571a8",
+    "test/pr32-reviewed-priority-20261113": "0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e",
+    "test/pr32-reviewed-combined-20261113": "25d2b499aed815392d914ac29e5368f05cad3f00",
+    "test/pr32-reviewed-ablation-20261113": "2240c6fe84bf541f40fe2d9a55ba08fa9ee4375d"
+  },
+  "remote_refs_absent": true,
+  "local_refs_absent": true,
+  "worktree_removed": true,
+  "workflow_states": {
+    "388119728": "disabled_manually",
+    "387536957": "disabled_manually"
+  },
+  "protected_remote_heads_after": {
+    "docs": "08ffd6f035adead6bf70f90ac7dd1d13baed77c7",
+    "fx-rime-only": "88a664d46ba82712d5457d86c037629c478b042c",
+    "refactor/direct-rime-backend-seams": "ae74bcfbb5b10effc21fc544924a310ceb31f66b"
+  },
+  "default_branch_pushed": false,
+  "user_refactor_branch_touched": false,
+  "historical_ci_deleted": false
+}

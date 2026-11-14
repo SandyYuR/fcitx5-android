@@ -1,0 +1,67 @@
+{
+  "base": "0f3e334350c183eb4699ef7b7f74d676efc44056",
+  "head": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2",
+  "commits": [
+    {
+      "sha": "516260a146d45b524081c75e6a8a56b224bf55ae",
+      "subject": "\u4fee\u590d(\u5019\u9009): \u5b57\u4f53\u53d8\u5316\u65f6\u91cd\u7f6e\u6d4b\u91cf\u7f13\u5b58\u5e76\u8986\u76d6\u6837\u5f0f\u56de\u5f52"
+    },
+    {
+      "sha": "851754ecdab565cf26cbaa3d95d32f79e3620301",
+      "subject": "\u4f18\u5316(\u5019\u9009): \u5728\u4e0a\u6ed1\u9009\u5b57\u65f6\u624d\u62c6\u5206\u5b57\u5f62\u7c07"
+    },
+    {
+      "sha": "b9204e0bb254133d91eeabd78843c3f017103857",
+      "subject": "\u4fee\u590d(\u5019\u9009): \u6309\u63a5\u6536\u80fd\u529b\u5206\u53d1\u5206\u9875\u5feb\u7167\u5e76\u79fb\u9664\u8d85\u65f6\u4ef2\u88c1"
+    },
+    {
+      "sha": "b935ff786404c1b1486cee882002a8c3b1e2cfbd",
+      "subject": "\u6d4b\u8bd5(\u8f93\u5165): \u6574\u5408\u6837\u672c\u4fdd\u62a4\u3001\u771f\u5b9e\u89e6\u6478\u65f6\u957f\u4e0e\u5468\u671f\u8ffd\u8e2a\u5237\u65b0"
+    },
+    {
+      "sha": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2",
+      "subject": "\u96c6\u6210(\u5019\u9009): \u63a5\u5165\u524d\u7aef\u56de\u5f52\u4e0e\u6027\u80fd\u5de5\u5177\u95e8\u7981"
+    }
+  ],
+  "production": [
+    {
+      "file": "app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt",
+      "source": "2e86e2ec",
+      "sha256": "f0721f509f7ac592badf088952b98aa17cf2f75d13d5a8959b320e25ca2f41da"
+    },
+    {
+      "file": "app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt",
+      "source": "a3c9bea6",
+      "sha256": "2e55d6b74d676bb54397d59dde127202f8dcde741d6304902ec9a67c0c7edf28"
+    },
+    {
+      "file": "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+      "source": "a3c9bea6",
+      "sha256": "5ac19ab55c1efba5d0915ab7898942fedfd7e95692c484fe72e9d6f02e81f984"
+    },
+    {
+      "file": "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcastReceiver.kt",
+      "source": "a3c9bea6",
+      "sha256": "81b4a0ef236155787f493e4fbb99c0dd9867b27ec9563ae6ffc6165eb92f9a73"
+    },
+    {
+      "file": "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcaster.kt",
+      "source": "a3c9bea6",
+      "sha256": "1fcbd95501254d938398c2b0c5b8705b4ac50880a0fb239d4644496ed30f021f"
+    },
+    {
+      "file": "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+      "source": "a3c9bea6",
+      "sha256": "6f3a0a6016a927690e8167a038b6c0a5eae62861c9cf3052bceff6dfcd3320e5"
+    }
+  ],
+  "preserved_latest_default": true,
+  "source_change_to_native_or_sdk": false,
+  "tools_source": "2e86e2ec plus a3c9bea6 periodic producer flush; one-off v3 drivers archived",
+  "historical_performance_not_relabelled": true,
+  "initial_integration_head": "8ee233bc7f75786fc36faff412a89d1a6ccca601",
+  "device_wait_fix": "Wait for asynchronously bound status-area entries; same real-tap/mode assertions retained; production files unchanged.",
+  "pre_refactor_integration_head": "82d88f95f18beabfe201bc0cf32fd96286918e40",
+  "initial_base": "1230ee45bf11cce18a445475f785cdf62bf141b6",
+  "pr35_backend_refactor_preserved": true
+}

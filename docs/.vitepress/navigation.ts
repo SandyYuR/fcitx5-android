@@ -98,6 +98,8 @@ const maintenance = [
     { text: '文档维护与分类约定', link: '/maintainer/documentation' },
   ] },
   { text: '代码与文档对照', collapsed: false, items: [
+    { text: '候选修复与文档压缩合入 · 2026-11-14', link: '/maintainer/changes/2026-11-14-pr32-squash-merge' },
+    { text: 'PR #32 分支与指引对齐 · 2026-11-14', link: '/maintainer/changes/2026-11-14-pr32-alignment' },
     { text: '后端职责分批拆分 · 2026-11-14', link: '/maintainer/changes/2026-11-14-direct-rime-responsibility-splits' },
     { text: '后端发布状态拆分 · 2026-11-14', link: '/maintainer/changes/2026-11-14-direct-rime-publication-state' },
     { text: '后端展示与维护重构 · 2026-11-13', link: '/maintainer/changes/2026-11-13-direct-rime-backend-seams' },
@@ -117,6 +119,7 @@ const maintenance = [
   ] },
   { text: '现行实现协议', collapsed: false, items: [
     { text: '协议索引', link: '/maintainer/implementation/' },
+    { text: 'Rime 直连架构与职责', link: '/maintainer/implementation/direct-rime-architecture' },
     { text: '正确性约束与代码定位', link: '/maintainer/implementation/correctness-contracts' },
     { text: '界面设计与共用组件', link: '/maintainer/implementation/design-system' },
     { text: 'JS 语音宿主与插件 API', link: '/maintainer/implementation/js-voice-plugins' },

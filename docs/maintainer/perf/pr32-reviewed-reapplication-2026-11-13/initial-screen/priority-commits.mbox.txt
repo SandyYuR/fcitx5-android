@@ -1,0 +1,90 @@
+From 0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 03:38:46 +0000
+Subject: [PATCH] =?UTF-8?q?=E4=BC=98=E5=8C=96(=E8=BE=93=E5=85=A5):=20?=
+ =?UTF-8?q?=E4=BB=85=E5=BB=B6=E7=BB=AD=E5=8E=9F=E7=94=9F=E6=8C=89=E9=94=AE?=
+ =?UTF-8?q?=E4=B8=8E=E7=BB=93=E6=9E=9C=E5=8F=91=E5=B8=83=E7=9A=84=E4=BA=A4?=
+ =?UTF-8?q?=E4=BA=92=E4=BC=98=E5=85=88=E7=BA=A7?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../fcitx5/android/core/DirectRimeBackend.kt  | 17 +++++++---
+ .../android/core/InputBindingStartupTest.kt   | 31 +++++++++++++++++++
+ 2 files changed, 43 insertions(+), 5 deletions(-)
+
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt b/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
+index e84a8490..6cab85f2 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
+@@ -494,12 +494,19 @@ class DirectRimeBackend(context: Context) : InputEngine {
+             val collectStatistics = !bypass && shouldCollectStatistics(statisticsSource, previous)
+             val wallTime = if (collectStatistics) System.currentTimeMillis() else 0L
+             val monotonicTime = if (collectStatistics) SystemClock.elapsedRealtime() else 0L
+-            val result = if (bypass) null else interactivePriority.run { Native.key(expected, sym, states.toInt(), up, collectStatistics) }
+-            val nativeAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
+-            if (result != null) {
+-                val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous!!, result, wallTime, monotonicTime) else null
+-                publish(result, release = up, statistics = statistics, statisticsKey = if (up) null else sym)
++            // Only diagnostic builds need a mutable timestamp carrier. Keep normal
++            // key handling free of timing-container allocations.
++            val nativeCompletedAt = if (BuildConfig.INPUT_DIAGNOSTICS) LongArray(1) else null
++            val result = if (bypass) null else interactivePriority.run {
++                val value = Native.key(expected, sym, states.toInt(), up, collectStatistics)
++                if (nativeCompletedAt != null) nativeCompletedAt[0] = SystemClock.elapsedRealtimeNanos()
++                val statistics = if (collectStatistics) statisticsFromResult(statisticsSource!!, previous!!, value, wallTime, monotonicTime) else null
++                // Match act(): preserve the accepted result's publication before
++                // restoring priority, excluding logs and forwarded-key bookkeeping.
++                publish(value, release = up, statistics = statistics, statisticsKey = if (up) null else sym)
++                value
+             }
++            val nativeAt = nativeCompletedAt?.get(0) ?: 0L
+             if (!up && result?.ready == true) {
+                 bindingKeys++
+                 if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
+diff --git a/app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt b/app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt
+index 02b24ad0..0046de00 100644
+--- a/app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt
++++ b/app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt
+@@ -91,6 +91,37 @@ class InputBindingStartupTest {
+             withContext(owner) { Process.getThreadPriority(Process.myTid()) })
+     }
+ 
++    @Test fun keyResultStatusReadKeepsPriorityAndRestoresTheOwner() = runBlocking {
++        createBackend()
++        bind("editor")
++        withContext(owner) { Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND) }
++        BindingNativeShadow.calls.clear()
++
++        backend.sendKey('N', 0u, 0, false, 0)
++
++        assertEquals(listOf("inline-ascii", "options"), BindingNativeShadow.calls.map { it.phase })
++        assertTrue(BindingNativeShadow.calls.all { it.priority <= Process.THREAD_PRIORITY_DISPLAY })
++        assertEquals(Process.THREAD_PRIORITY_BACKGROUND,
++            withContext(owner) { Process.getThreadPriority(Process.myTid()) })
++        assertTrue(currentSnapshot().ascii)
++    }
++
++    @Test fun keyPublicationFailureStillRestoresTheOwnerThreadPriority() = runBlocking {
++        createBackend()
++        bind("editor")
++        withContext(owner) { Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND) }
++        BindingNativeShadow.calls.clear()
++        BindingNativeShadow.failOptions = true
++
++        val failure = runCatching { backend.sendKey('N', 0u, 0, false, 0) }.exceptionOrNull()
++
++        assertTrue(failure is IllegalStateException)
++        assertEquals(listOf("inline-ascii", "options"), BindingNativeShadow.calls.map { it.phase })
++        assertTrue(BindingNativeShadow.calls.all { it.priority <= Process.THREAD_PRIORITY_DISPLAY })
++        assertEquals(Process.THREAD_PRIORITY_BACKGROUND,
++            withContext(owner) { Process.getThreadPriority(Process.myTid()) })
++    }
++
+     @Test fun newApplicationUsesRimeAsciiReset() = runBlocking {
+         createBackend()
+         bind("editor.one")
+-- 
+2.52.0
+

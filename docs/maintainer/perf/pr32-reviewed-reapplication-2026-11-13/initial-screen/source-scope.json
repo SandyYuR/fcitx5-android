@@ -1,0 +1,53 @@
+{
+  "sources": {
+    "baseline": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+    "ui": "47a9a34f724e1b723247f9c8f52f80f29152d935",
+    "priority": "0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e",
+    "combined": "7f27c8af0ba8fa2f7d4ce113a1122d50d4641f3c"
+  },
+  "compared_paths": [
+    "app/src/main",
+    "app/src/fx",
+    "app/src/debug",
+    "app/src/release",
+    "direct-rime",
+    "native",
+    "build-logic",
+    "gradle",
+    "app/build.gradle.kts",
+    "build.gradle.kts",
+    "settings.gradle.kts",
+    "gradle.properties",
+    "prepare_personal_build.sh"
+  ],
+  "product_scopes": {
+    "ui": {
+      "source": "47a9a34f724e1b723247f9c8f52f80f29152d935",
+      "changed_paths": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt"
+      ],
+      "diff_sha256": "07c3efc9aeaf75998295b3d448f31c5b702b35f421fc700f1859735c56ed0d34"
+    },
+    "priority": {
+      "source": "0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e",
+      "changed_paths": [
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt"
+      ],
+      "diff_sha256": "51f72db5157c78d893ef63d1f68e83b6f262deba108194be017233818b303280"
+    },
+    "combined": {
+      "source": "7f27c8af0ba8fa2f7d4ce113a1122d50d4641f3c",
+      "changed_paths": [
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt"
+      ],
+      "diff_sha256": "579de7b49d11f99904a6d87149258679cc0fa3039955f355c7fab081d5548ccc"
+    }
+  },
+  "combined_is_exact_composition": true,
+  "generated_git_version_metadata_can_differ": true
+}

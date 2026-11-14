@@ -1,0 +1,332 @@
+{
+  "ime": {
+    "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+    "clock": "SystemClock.elapsedRealtimeNanos, across both Android processes",
+    "model_mapped": true,
+    "fcitx_core_mapped": true,
+    "switch_labels": [
+      "万象拼音",
+      "中文 → 英文",
+      "中标 → 英标",
+      "半角 → 全角",
+      "表情开 → 表情关",
+      "翻译关 → 英译中",
+      "上下文开 → 上下文关",
+      "原编码",
+      "简体",
+      "简码开 → 简码关",
+      "有声调",
+      "提示开 → 提示关",
+      "小字集 → 大字集",
+      "词组先 → 单字先",
+      "英文开 → 英文关"
+    ],
+    "rounds": [
+      {
+        "round": 1,
+        "n": {
+          "key": "n",
+          "inject_up_ns": 77591676554,
+          "dispatch_down_ns": 77567302565,
+          "dispatch_up_ns": 77594955923,
+          "dispatch_return_ns": 77597344981
+        },
+        "i": {
+          "key": "i",
+          "inject_up_ns": 77754791235,
+          "dispatch_down_ns": 77731976276,
+          "dispatch_up_ns": 77831421704,
+          "dispatch_return_ns": 77833916589
+        },
+        "select": {
+          "key": "你",
+          "inject_up_ns": 77904164471,
+          "dispatch_down_ns": 77877943368,
+          "dispatch_up_ns": 77958340984,
+          "dispatch_return_ns": 77962590481
+        },
+        "preedit_collected_ns": 77669692941,
+        "commit_collected_ns": 77975097093
+      },
+      {
+        "round": 2,
+        "n": {
+          "key": "n",
+          "inject_up_ns": 78203712925,
+          "dispatch_down_ns": 78181696179,
+          "dispatch_up_ns": 78204548294,
+          "dispatch_return_ns": 78206395390
+        },
+        "i": {
+          "key": "i",
+          "inject_up_ns": 78277975187,
+          "dispatch_down_ns": 78256317034,
+          "dispatch_up_ns": 78278450294,
+          "dispatch_return_ns": 78280620734
+        },
+        "select": {
+          "key": "你",
+          "inject_up_ns": 78342350990,
+          "dispatch_down_ns": 78320180821,
+          "dispatch_up_ns": 78343079613,
+          "dispatch_return_ns": 78346024074
+        },
+        "preedit_collected_ns": 78224358635,
+        "commit_collected_ns": 78352296974
+      },
+      {
+        "round": 3,
+        "n": {
+          "key": "n",
+          "inject_up_ns": 78419628202,
+          "dispatch_down_ns": 78397888610,
+          "dispatch_up_ns": 78420230663,
+          "dispatch_return_ns": 78421358006
+        },
+        "i": {
+          "key": "i",
+          "inject_up_ns": 78476351832,
+          "dispatch_down_ns": 78453964164,
+          "dispatch_up_ns": 78477520824,
+          "dispatch_return_ns": 78479943204
+        },
+        "select": {
+          "key": "你",
+          "inject_up_ns": 78549757527,
+          "dispatch_down_ns": 78523527087,
+          "dispatch_up_ns": 78550421936,
+          "dispatch_return_ns": 78552748909
+        },
+        "preedit_collected_ns": 78433596204,
+        "commit_collected_ns": 78557336503
+      },
+      {
+        "round": 4,
+        "n": {
+          "key": "n",
+          "inject_up_ns": 78637226648,
+          "dispatch_down_ns": 78614997455,
+          "dispatch_up_ns": 78637999981,
+          "dispatch_return_ns": 78640469038
+        },
+        "i": {
+          "key": "i",
+          "inject_up_ns": 78688125912,
+          "dispatch_down_ns": 78666927620,
+          "dispatch_up_ns": 78693881439,
+          "dispatch_return_ns": 78695147141
+        },
+        "select": {
+          "key": "你",
+          "inject_up_ns": 78786923447,
+          "dispatch_down_ns": 78764654490,
+          "dispatch_up_ns": 78787570174,
+          "dispatch_return_ns": 78788946271
+        },
+        "preedit_collected_ns": 78656206843,
+        "commit_collected_ns": 78792245268
+      },
+      {
+        "round": 5,
+        "n": {
+          "key": "n",
+          "inject_up_ns": 78853073033,
+          "dispatch_down_ns": 78831331832,
+          "dispatch_up_ns": 78853968053,
+          "dispatch_return_ns": 78855158084
+        },
+        "i": {
+          "key": "i",
+          "inject_up_ns": 78914933609,
+          "dispatch_down_ns": 78892369362,
+          "dispatch_up_ns": 78915475551,
+          "dispatch_return_ns": 78917120290
+        },
+        "select": {
+          "key": "你",
+          "inject_up_ns": 79003377299,
+          "dispatch_down_ns": 78981899495,
+          "dispatch_up_ns": 79003934369,
+          "dispatch_return_ns": 79005101407
+        },
+        "preedit_collected_ns": 78870287494,
+        "commit_collected_ns": 79007422278
+      },
+      {
+        "round": 6,
+        "n": {
+          "key": "n",
+          "inject_up_ns": 79070336072,
+          "dispatch_down_ns": 79048265673,
+          "dispatch_up_ns": 79071358226,
+          "dispatch_return_ns": 79072859592
+        },
+        "i": {
+          "key": "i",
+          "inject_up_ns": 79153447506,
+          "dispatch_down_ns": 79132152857,
+          "dispatch_up_ns": 79154014333,
+          "dispatch_return_ns": 79155155483
+        },
+        "select": {
+          "key": "你",
+          "inject_up_ns": 79206935400,
+          "dispatch_down_ns": 79183521888,
+          "dispatch_up_ns": 79207566679,
+          "dispatch_return_ns": 79208862417
+        },
+        "preedit_collected_ns": 79089937862,
+        "commit_collected_ns": 79214651690
+      }
+    ]
+  },
+  "editor": {
+    "text": "你你你你你你",
+    "connections": [
+      75406461070,
+      75479119180,
+      79538711999,
+      79545779057
+    ],
+    "commits": [
+      {
+        "at_ns": 77976951801,
+        "text": "你"
+      },
+      {
+        "at_ns": 78353353551,
+        "text": "你"
+      },
+      {
+        "at_ns": 78558245175,
+        "text": "你"
+      },
+      {
+        "at_ns": 78798159815,
+        "text": "你"
+      },
+      {
+        "at_ns": 79007993280,
+        "text": "你"
+      },
+      {
+        "at_ns": 79215779808,
+        "text": "你"
+      }
+    ],
+    "edits": [
+      {
+        "at_ns": 78003007804,
+        "text": "你"
+      },
+      {
+        "at_ns": 78354554713,
+        "text": "你你"
+      },
+      {
+        "at_ns": 78559542125,
+        "text": "你你你"
+      },
+      {
+        "at_ns": 78800850898,
+        "text": "你你你你"
+      },
+      {
+        "at_ns": 79012693632,
+        "text": "你你你你你"
+      },
+      {
+        "at_ns": 79218181741,
+        "text": "你你你你你你"
+      }
+    ],
+    "draws": [
+      {
+        "at_ns": 78013147300,
+        "text": "你"
+      },
+      {
+        "at_ns": 78361020980,
+        "text": "你你"
+      },
+      {
+        "at_ns": 78570628715,
+        "text": "你你你"
+      },
+      {
+        "at_ns": 78811332818,
+        "text": "你你你你"
+      },
+      {
+        "at_ns": 79013408465,
+        "text": "你你你你你"
+      },
+      {
+        "at_ns": 79228450092,
+        "text": "你你你你你你"
+      }
+    ]
+  },
+  "timings_ms": [
+    {
+      "round": 1,
+      "injection_up_to_ime_dispatch": 54.176513,
+      "ime_dispatch_up_to_commit_collector": 16.756109,
+      "ime_dispatch_up_to_editor_input_connection": 18.610817,
+      "ime_dispatch_up_to_editor_change": 44.66682,
+      "ime_dispatch_up_to_editor_draw": 54.806316,
+      "ime_touch_up_handler": 4.249497,
+      "n_dispatch_up_to_preedit_collector": 74.737018
+    },
+    {
+      "round": 2,
+      "injection_up_to_ime_dispatch": 0.728623,
+      "ime_dispatch_up_to_commit_collector": 9.217361,
+      "ime_dispatch_up_to_editor_input_connection": 10.273938,
+      "ime_dispatch_up_to_editor_change": 11.4751,
+      "ime_dispatch_up_to_editor_draw": 17.941367,
+      "ime_touch_up_handler": 2.944461,
+      "n_dispatch_up_to_preedit_collector": 19.810341
+    },
+    {
+      "round": 3,
+      "injection_up_to_ime_dispatch": 0.664409,
+      "ime_dispatch_up_to_commit_collector": 6.914567,
+      "ime_dispatch_up_to_editor_input_connection": 7.823239,
+      "ime_dispatch_up_to_editor_change": 9.120189,
+      "ime_dispatch_up_to_editor_draw": 20.206779,
+      "ime_touch_up_handler": 2.326973,
+      "n_dispatch_up_to_preedit_collector": 13.365541
+    },
+    {
+      "round": 4,
+      "injection_up_to_ime_dispatch": 0.646727,
+      "ime_dispatch_up_to_commit_collector": 4.675094,
+      "ime_dispatch_up_to_editor_input_connection": 10.589641,
+      "ime_dispatch_up_to_editor_change": 13.280724,
+      "ime_dispatch_up_to_editor_draw": 23.762644,
+      "ime_touch_up_handler": 1.376097,
+      "n_dispatch_up_to_preedit_collector": 18.206862
+    },
+    {
+      "round": 5,
+      "injection_up_to_ime_dispatch": 0.55707,
+      "ime_dispatch_up_to_commit_collector": 3.487909,
+      "ime_dispatch_up_to_editor_input_connection": 4.058911,
+      "ime_dispatch_up_to_editor_change": 8.759263,
+      "ime_dispatch_up_to_editor_draw": 9.474096,
+      "ime_touch_up_handler": 1.167038,
+      "n_dispatch_up_to_preedit_collector": 16.319441
+    },
+    {
+      "round": 6,
+      "injection_up_to_ime_dispatch": 0.631279,
+      "ime_dispatch_up_to_commit_collector": 7.085011,
+      "ime_dispatch_up_to_editor_input_connection": 8.213129,
+      "ime_dispatch_up_to_editor_change": 10.615062,
+      "ime_dispatch_up_to_editor_draw": 20.883413,
+      "ime_touch_up_handler": 1.295738,
+      "n_dispatch_up_to_preedit_collector": 18.579636
+    }
+  ]
+}

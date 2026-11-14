@@ -1,0 +1,109 @@
+{
+  "date_beijing": "2026-11-13",
+  "purpose": "Reviewed reapplication of candidate allocation/layout optimizations and a narrower native-key publication priority scope",
+  "sources": {
+    "baseline": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+    "ui": "06b3979f16c2c008d587814648e6a2308b6571a8",
+    "priority": "0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e",
+    "combined": "25d2b499aed815392d914ac29e5368f05cad3f00"
+  },
+  "kept": [
+    "default TextView style inheritance",
+    "original body/comment span structure and all CharacterStyle.updateDrawState semantics",
+    "font invalidation fix",
+    "unchanged single owner/generation/input ordering",
+    "same SDK/model/YAML and fixed source APKs"
+  ],
+  "revised": [
+    "One run Paint plus one immutable constructor-equivalent template only for multi-run traversal; reset every later run from the template",
+    "Lazy index badge preserving default style and parent layout params",
+    "Skip identical Flexbox minWidth/flexGrow assignments based on actual values",
+    "Display-priority scope contains Native.key/result publication, excludes logs/forwarded-key bookkeeping"
+  ],
+  "not_restored": [
+    "TextView defaultStyleAttr=0",
+    "MetricAffectingSpan-only measurement filtering",
+    "plain-string candidate/highlight fast path",
+    "high-priority logs or forwarding bookkeeping",
+    "Cached string reuse for arbitrary mutable CharSequence input"
+  ],
+  "fixture_run": 43018095886,
+  "fixture_artifact": 13853652309,
+  "fixture": "Wanxiang18.1.10base+Nov7LTS original full-pinyin/context/abbrev/small-charset YAML",
+  "protocol": "external_process_input_manager_phase_v3",
+  "gap_ms": 100,
+  "comments": "visible original config",
+  "minimum_actual_hold_ns": 20000000,
+  "trace": false,
+  "screen": {
+    "vms": 2,
+    "blocks_per_vm": 4,
+    "block": "Four-treatment Williams square, all products once per block; each product occupies every ordinal position once and each directed neighbor pair once per complete square",
+    "orders": [
+      "baseline,ui,priority,combined",
+      "combined,priority,ui,baseline"
+    ],
+    "seeds": [
+      2026111341,
+      2026111342
+    ],
+    "processes": 32,
+    "selections": 192,
+    "unit": "One current-minus-baseline delta per block, 4 paired observations per contrast per VM"
+  },
+  "selection": {
+    "candidate_preference": [
+      "combined",
+      "ui",
+      "priority"
+    ],
+    "exclusion": "A cold metric has positive paired medians in both VMs and at least 3 of 4 blocks slower in each VM",
+    "cold_metrics": [
+      "i_injected_down_to_dispatch_up_ms",
+      "select_dispatch_up_to_ic_ms"
+    ],
+    "rule": "Use the first nonexcluded product in the fixed preference; never choose the lowest observed median; no confirmation if all are excluded"
+  },
+  "confirmation": {
+    "vms": 2,
+    "blocks_per_vm": 6,
+    "orders": "baseline,candidate and candidate,baseline",
+    "balance": "Three ABBA and three BAAB blocks per VM",
+    "seeds": [
+      2026111351,
+      2026111352
+    ],
+    "processes": 48,
+    "selections": 288,
+    "same_product_apk_bytes": true,
+    "unit": "Mean of two candidate processes minus mean of two baseline processes within each ABBA/BAAB block"
+  },
+  "promotion_policy": {
+    "requirements": [
+      "All per-product source/build/APK/native/JVM/Android correctness gates pass",
+      "Independent confirmation has at least one cold metric negative median and at least 5 of 6 blocks faster in BOTH VMs",
+      "Neither cold metric has positive median in BOTH VMs",
+      "No warm metric has positive medians and at least 4 of 6 slower blocks in BOTH VMs"
+    ],
+    "note": "These are conservative engineering gates, not a formal statistical noninferiority guarantee; retain all raw signs/ranges and all unfavorable outcomes; no P95/phone/Release/general speedup claims"
+  },
+  "quality_classes": [
+    "CandidateTypefaceTest",
+    "CandidateRenderingTest",
+    "CandidateIndexBadgeTest",
+    "CandidateOverflowTest",
+    "TextRunReuseTest"
+  ],
+  "rules": [
+    "Commit plan before dispatch",
+    "Correctness gates precede timing",
+    "One fixed screen and at most one independent confirmation",
+    "Never rerun accepted samples to replace unfavorable results",
+    "Preserve setup failures and APK/probe/host/signer/SDK hashes",
+    "Do not change default branch or unrelated user refactor branch"
+  ],
+  "revision": 2,
+  "previous_screen_run": 43362289967,
+  "revision_reason": "Correctness review found TextPaint(Paint) and set(TextPaint) differ for seven extra fields; old UI/combined are inadmissible regardless of timings. Preserve first screen and setup failures; use a new frozen plan for corrected source.",
+  "prior_confirmation_samples": 0
+}

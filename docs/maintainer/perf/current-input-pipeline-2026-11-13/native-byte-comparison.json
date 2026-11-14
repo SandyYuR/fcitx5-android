@@ -1,0 +1,12 @@
+{
+  "baseline": {
+    "lib/x86_64/libc++_shared.so": "d6bceb7915ddb75ec4f96f97837efd80cf6084b00ad38e2666728f6cc24a9f68",
+    "lib/x86_64/libdirect-rime.so": "7a7424fb7be270e46c1f109555e3009bceb4c2883f7704e53120b5cc6c7f089b",
+    "lib/x86_64/libquickjs.so": "8ea65d8b3efbd8d19a003691ff329c5483d18f3b59547cd8f8e1cac69470079e"
+  },
+  "current": {
+    "lib/x86_64/libc++_shared.so": "d6bceb7915ddb75ec4f96f97837efd80cf6084b00ad38e2666728f6cc24a9f68",
+    "lib/x86_64/libdirect-rime.so": "d073798f20f6994bf19eb913e27c8613c4028c58c401940f5c4b5126e05b7031",
+    "lib/x86_64/libquickjs.so": "8ea65d8b3efbd8d19a003691ff329c5483d18f3b59547cd8f8e1cac69470079e"
+  }
+}

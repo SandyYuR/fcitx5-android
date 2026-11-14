@@ -1,0 +1,14 @@
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/custom
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/dicts
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/lua
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/lua/wanxiang
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/lua/data
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/opencc
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/opencc/wanxiang
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/build
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/config
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/icon_themes
+/sdcard/Android/data/org.fcitx.fcitx5.android.fx.rime/files/theme

@@ -1,0 +1,455 @@
+{
+  "total_count": 5,
+  "jobs": [
+    {
+      "id": 130515630716,
+      "run_id": 43017245174,
+      "workflow_name": "Wanxiang 2026-11-11 three-version comparison",
+      "head_branch": "perf/wanxiang-current-20261111",
+      "run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/runs/43017245174",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTbElH88AAAAeY1Z6fA",
+      "head_sha": "a20f57e68073174e4e3703217a3a4a3e780acf6a",
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/jobs/130515630716",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43017245174/job/130515630716",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T12:13:55Z",
+      "started_at": "2026-11-11T12:13:58Z",
+      "completed_at": "2026-11-11T12:14:25Z",
+      "name": "build_debug",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T12:13:58Z",
+          "completed_at": "2026-11-11T12:14:01Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T12:14:01Z",
+          "completed_at": "2026-11-11T12:14:04Z"
+        },
+        {
+          "name": "Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T12:14:04Z",
+          "completed_at": "2026-11-11T12:14:04Z"
+        },
+        {
+          "name": "Run android-actions/setup-android@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-11T12:14:04Z",
+          "completed_at": "2026-11-11T12:14:11Z"
+        },
+        {
+          "name": "Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-11T12:14:11Z",
+          "completed_at": "2026-11-11T12:14:18Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-11T12:14:18Z",
+          "completed_at": "2026-11-11T12:14:20Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v7",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7,
+          "started_at": "2026-11-11T12:14:20Z",
+          "completed_at": "2026-11-11T12:14:20Z"
+        },
+        {
+          "name": "Build current default and verify original reference products",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-11-11T12:14:20Z",
+          "completed_at": "2026-11-11T12:14:20Z"
+        },
+        {
+          "name": "Verify source pins, APKs and identical instrumentation",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-11T12:14:20Z",
+          "completed_at": "2026-11-11T12:14:20Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-11T12:14:20Z",
+          "completed_at": "2026-11-11T12:14:23Z"
+        },
+        {
+          "name": "Post Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-11-11T12:14:23Z",
+          "completed_at": "2026-11-11T12:14:23Z"
+        },
+        {
+          "name": "Post Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-11T12:14:23Z",
+          "completed_at": "2026-11-11T12:14:23Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-11-11T12:14:23Z",
+          "completed_at": "2026-11-11T12:14:24Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-11T12:14:24Z",
+          "completed_at": "2026-11-11T12:14:24Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/check-runs/130515630716",
+      "labels": [
+        "ubuntu-22.04"
+      ],
+      "runner_id": 1000003678,
+      "runner_name": "GitHub Actions 1000003678",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130515631210,
+      "run_id": 43017245174,
+      "workflow_name": "Wanxiang 2026-11-11 three-version comparison",
+      "head_branch": "perf/wanxiang-current-20261111",
+      "run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/runs/43017245174",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTbElH88AAAAeY1Z8ag",
+      "head_sha": "a20f57e68073174e4e3703217a3a4a3e780acf6a",
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/jobs/130515631210",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43017245174/job/130515631210",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T12:13:55Z",
+      "started_at": "2026-11-11T12:13:58Z",
+      "completed_at": "2026-11-11T12:16:17Z",
+      "name": "prepare",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T12:13:59Z",
+          "completed_at": "2026-11-11T12:14:01Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T12:14:01Z",
+          "completed_at": "2026-11-11T12:14:02Z"
+        },
+        {
+          "name": "Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T12:14:02Z",
+          "completed_at": "2026-11-11T12:14:03Z"
+        },
+        {
+          "name": "Run android-actions/setup-android@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-11T12:14:03Z",
+          "completed_at": "2026-11-11T12:14:13Z"
+        },
+        {
+          "name": "Run actions/cache@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-11T12:14:13Z",
+          "completed_at": "2026-11-11T12:14:18Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-11T12:14:18Z",
+          "completed_at": "2026-11-11T12:14:50Z"
+        },
+        {
+          "name": "Prepare exact source assets, user configuration and three production APKs",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-11T12:14:50Z",
+          "completed_at": "2026-11-11T12:16:04Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-11T12:16:04Z",
+          "completed_at": "2026-11-11T12:16:12Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-11T12:16:12Z",
+          "completed_at": "2026-11-11T12:16:13Z"
+        },
+        {
+          "name": "Post Run actions/cache@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-11-11T12:16:13Z",
+          "completed_at": "2026-11-11T12:16:14Z"
+        },
+        {
+          "name": "Post Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-11-11T12:16:14Z",
+          "completed_at": "2026-11-11T12:16:14Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-11-11T12:16:14Z",
+          "completed_at": "2026-11-11T12:16:14Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-11T12:16:14Z",
+          "completed_at": "2026-11-11T12:16:14Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/check-runs/130515631210",
+      "labels": [
+        "ubuntu-22.04"
+      ],
+      "runner_id": 1000003679,
+      "runner_name": "GitHub Actions 1000003679",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130516769595,
+      "run_id": 43017245174,
+      "workflow_name": "Wanxiang 2026-11-11 three-version comparison",
+      "head_branch": "perf/wanxiang-current-20261111",
+      "run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/runs/43017245174",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTbElH88AAAAeY2fbOw",
+      "head_sha": "a20f57e68073174e4e3703217a3a4a3e780acf6a",
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/jobs/130516769595",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43017245174/job/130516769595",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T12:16:17Z",
+      "started_at": "2026-11-11T12:16:20Z",
+      "completed_at": "2026-11-11T12:20:01Z",
+      "name": "candidate",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-11T12:16:21Z",
+          "completed_at": "2026-11-11T12:16:23Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-11T12:16:23Z",
+          "completed_at": "2026-11-11T12:16:25Z"
+        },
+        {
+          "name": "Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-11T12:16:25Z",
+          "completed_at": "2026-11-11T12:16:25Z"
+        },
+        {
+          "name": "Run android-actions/setup-android@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-11T12:16:25Z",
+          "completed_at": "2026-11-11T12:16:35Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-11T12:16:35Z",
+          "completed_at": "2026-11-11T12:16:46Z"
+        },
+        {
+          "name": "Run actions/download-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-11T12:16:46Z",
+          "completed_at": "2026-11-11T12:16:53Z"
+        },
+        {
+          "name": "Enable KVM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-11T12:16:53Z",
+          "completed_at": "2026-11-11T12:16:53Z"
+        },
+        {
+          "name": "Run reactivecircus/android-emulator-runner@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-11T12:16:53Z",
+          "completed_at": "2026-11-11T12:19:58Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-11T12:19:58Z",
+          "completed_at": "2026-11-11T12:19:59Z"
+        },
+        {
+          "name": "Post Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-11-11T12:19:59Z",
+          "completed_at": "2026-11-11T12:19:59Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-11-11T12:19:59Z",
+          "completed_at": "2026-11-11T12:19:59Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-11T12:19:59Z",
+          "completed_at": "2026-11-11T12:19:59Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/check-runs/130516769595",
+      "labels": [
+        "ubuntu-22.04"
+      ],
+      "runner_id": 1000003680,
+      "runner_name": "GitHub Actions 1000003680",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130516772935,
+      "run_id": 43017245174,
+      "workflow_name": "Wanxiang 2026-11-11 three-version comparison",
+      "head_branch": "perf/wanxiang-current-20261111",
+      "run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/runs/43017245174",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTbElH88AAAAeY2foRw",
+      "head_sha": "a20f57e68073174e4e3703217a3a4a3e780acf6a",
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/jobs/130516772935",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43017245174/job/130516772935",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-11-11T12:16:18Z",
+      "started_at": "2026-11-11T12:16:18Z",
+      "completed_at": "2026-11-11T12:16:17Z",
+      "name": "release (${{ matrix.word }})",
+      "steps": [],
+      "check_run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/check-runs/130516772935",
+      "labels": [
+        "ubuntu-22.04"
+      ],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    },
+    {
+      "id": 130516772950,
+      "run_id": 43017245174,
+      "workflow_name": "Wanxiang 2026-11-11 three-version comparison",
+      "head_branch": "perf/wanxiang-current-20261111",
+      "run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/runs/43017245174",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTbElH88AAAAeY2foVg",
+      "head_sha": "a20f57e68073174e4e3703217a3a4a3e780acf6a",
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/jobs/130516772950",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43017245174/job/130516772950",
+      "status": "completed",
+      "conclusion": "skipped",
+      "created_at": "2026-11-11T12:16:18Z",
+      "started_at": "2026-11-11T12:16:18Z",
+      "completed_at": "2026-11-11T12:16:17Z",
+      "name": "screen",
+      "steps": [],
+      "check_run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/check-runs/130516772950",
+      "labels": [
+        "ubuntu-22.04"
+      ],
+      "runner_id": null,
+      "runner_name": null,
+      "runner_group_id": null,
+      "runner_group_name": null
+    }
+  ]
+}

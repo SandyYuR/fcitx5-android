@@ -1,0 +1,67 @@
+{
+  "sources": {
+    "baseline": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+    "ui": "06b3979f16c2c008d587814648e6a2308b6571a8",
+    "priority": "0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e",
+    "combined": "25d2b499aed815392d914ac29e5368f05cad3f00"
+  },
+  "driver_commit": "2240c6fe84bf541f40fe2d9a55ba08fa9ee4375d",
+  "metadata_driver_commit": "2240c6fe84bf541f40fe2d9a55ba08fa9ee4375d",
+  "sdk_lock_sha256": {
+    "baseline": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f",
+    "ui": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f",
+    "priority": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f",
+    "combined": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f"
+  },
+  "protocol": "external_process_input_manager_phase_v3",
+  "harness_sha256": "95e1918ba170222bf3fefd8b723fe01b1291e501b674c93303e4ed6f56d5f26d",
+  "contract_classes_sha256": {
+    "CandidateTypefaceTest.kt": "4464638df5a7b88672e1791c1e0417aa2e2a5d58f66c25b71d146f5c4d1a6460",
+    "CandidateRenderingTest.kt": "4bb0b4ab7e7c34cceac317236aad075ee8f697ac5581172a9a227d6b3bbdd2e9",
+    "TextRunReuseTest.kt": "9c7547c635b40849e4c5a63e2631181ee6e422b846bd867f5c7a482d68b556a3"
+  },
+  "host_sources_sha256": {
+    "tools/candidate-perf/host/BenchTouchDriver.java": "95f85ed7c7f7d1e8b15bc501277cc7b38f380b58670510fa9d0f112e82a2a965",
+    "tools/candidate-perf/host/BenchHost.java": "bb2afdf547729eecec065117742fd0f35ef9db3feeeb1381777b899581b53cd7",
+    "tools/candidate-perf/host/BenchControl.java": "9b48f4c1a7931cdd03372c1d41a2919c7e40643bd39c7f4edb82168f81537cbe",
+    "tools/candidate-perf/host/AndroidManifest.xml": "9f322d7d9062b8a158fa7d787314754a4cd44536ee4d223288d0de5299064374",
+    "tools/screen-perf/build-host.sh": "2ed8acbac95e1fa2f686a8109390e3bedbb1d9b3e251e6692f5ffe3d4d0f488e"
+  },
+  "host_sha256": "873227ca5f3f5dc7f51ecbff27de5a7f917d3fd767ac4033b291c571ab5d3e6a",
+  "packages": {
+    "baseline-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+    "baseline.apk": "org.fcitx.fcitx5.android.fx.rime.debug",
+    "combined-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+    "combined.apk": "org.fcitx.fcitx5.android.fx.rime.debug",
+    "priority-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+    "priority.apk": "org.fcitx.fcitx5.android.fx.rime.debug",
+    "ui-tests.apk": "org.fcitx.fcitx5.android.fx.rime.debug.test",
+    "ui.apk": "org.fcitx.fcitx5.android.fx.rime.debug"
+  },
+  "signer_sha256": {
+    "baseline-tests.apk": "76a8ab612b83d48fcda4b11b65a9ab36f626e9f903d095f8d99611866b34a7c2",
+    "baseline.apk": "76a8ab612b83d48fcda4b11b65a9ab36f626e9f903d095f8d99611866b34a7c2",
+    "combined-tests.apk": "76a8ab612b83d48fcda4b11b65a9ab36f626e9f903d095f8d99611866b34a7c2",
+    "combined.apk": "76a8ab612b83d48fcda4b11b65a9ab36f626e9f903d095f8d99611866b34a7c2",
+    "priority-tests.apk": "76a8ab612b83d48fcda4b11b65a9ab36f626e9f903d095f8d99611866b34a7c2",
+    "priority.apk": "76a8ab612b83d48fcda4b11b65a9ab36f626e9f903d095f8d99611866b34a7c2",
+    "ui-tests.apk": "76a8ab612b83d48fcda4b11b65a9ab36f626e9f903d095f8d99611866b34a7c2",
+    "ui.apk": "76a8ab612b83d48fcda4b11b65a9ab36f626e9f903d095f8d99611866b34a7c2"
+  },
+  "native_audit_sha256": {
+    "baseline": "0d0355ab7d3bf71e3198a29eaaf66f6c6f84499f249a8c9350d88a1a98fce578",
+    "ui": "ac2e571b3e918f4d594f075f8eeb9f0fe67a55405d8f1656ba05c0c29a72f68c",
+    "priority": "0b19ed31cc952f245ff50e346f4e949955587eb591a718966247f695036a04e6",
+    "combined": "9ceee4965af90b78c16bfe61a88ae5e23eb4b6ac45113e0f3374d32013225bf2"
+  },
+  "apks": {
+    "baseline-tests.apk": "23ab17d78b9c70fe2ba858d97acf7b8f262ce5fc1f5b7296d2c7da600d68da14",
+    "baseline.apk": "dbdd319006474d6fc58312e71b042dc325192900ae466b8e129991bc494d764a",
+    "combined-tests.apk": "22e0131bc5c9b547ab5f815db243f872994d0b19e3d6e349a9d906d85dcc886a",
+    "combined.apk": "f16febac0eb4d34804309c3a2c3667c243c399292ad2f77a518a0e405f6a820c",
+    "priority-tests.apk": "52ec2fd5492f06ce5c41a75251bec8ac3a457a2d39b8d13ee9e84eb61878e101",
+    "priority.apk": "b6221e2707261e97e47adbd9d44163398cbdf929c5beb44ec516380a643cbe53",
+    "ui-tests.apk": "cf08a0ce76fc2023ab0024a3de132c8cc58cf164d9ddcf72507519ba68d74ca3",
+    "ui.apk": "1def777d04fee77275aa1f72c3b042d1036cf270452505b4ba0b79e47253be87"
+  }
+}

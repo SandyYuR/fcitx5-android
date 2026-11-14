@@ -1,0 +1,99 @@
+{
+  "source": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2",
+  "cases": [
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#preeditCursorUsesRawCoordinates",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#schemaSwitchPreferencesSurviveNewSessionsAndRestart",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#newSessionsRespectRimeAsciiReset",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#newSessionsKeepRimeSavedAscii",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#modeMenuRemembersBothDirections",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#modeMenuWithoutSaveOptionsStaysSessionLocal",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#newSessionsRespectRimeSchemaOrder",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#newSessionsKeepRimeRecentSchema",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#newApplicationDoesNotInheritInlineAscii",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#redeployReloadsLuaAndSchema",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#replayPerformanceWorkload",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#serviceQueuePerformanceWorkload",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#schemaCommentsAndSwitchGroupsMatchRime",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#wanxiangAdvancedReadsPreserveDeployedFilesAndChineseInput",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#candidateSchemaAndEditorContracts",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#bindingReplayPreservesForwardedHardwareKeyPairs",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#silentNonEditorCanBePromotedWithoutDroppingItsFirstKey",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#modeAndSchemaHintsExpireWithoutReplayingCommits",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#symbolKeysAndPopupsUseRimePunctuation",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#originalKeyboardCanTypeUsingTouch",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#immediateTypingAndCandidateTapAfterRebind",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#statusAreaModeMenuFollowsTouchSwitches",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#candidateActionMenuCannotOutliveItsEditor",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#schemaMenuKeepsPasswordEditorFocused",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#profileImportSelectionAndMigration",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#originalSettingsAndLayoutEditorOpen",
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#candidateDeliveryAndCharacterGestureKeepTheirDisplayedBinding",
+    "org.fcitx.fcitx5.android.ui.main.log.LogExportTest#realAdapterSnapshotSurvivesAppendsClearAndFilterChanges",
+    "org.fcitx.fcitx5.android.ui.main.log.LogExportTest#pendingPickerSnapshotRestoresAndRepeatedTapsCannotStartAnotherExport",
+    "org.fcitx.fcitx5.android.ui.main.log.LogExportTest#consecutiveRealOutputWritesCompleteBeforeSuccessIsReported",
+    "org.fcitx.fcitx5.android.ui.main.log.LogExportTest#logActivityCreatesSavedStateModelAndRetainsItAcrossRecreation",
+    "org.fcitx.fcitx5.android.ui.main.log.LogExportTest#inputPriorityRestoresEvenWhenNativeWorkThrows",
+    "org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapterViewTest#headerActionsStaySeparateFromReusedKeyCells",
+    "org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapterViewTest#headerMoveButtonsFollowBoundariesWhenTheHolderIsRebound",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#brandIconsKeepTransparentMarginsAndRenderInBothModes",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#setupAndAboutShowTheBrandIconInBothModes",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#updateOverflowMenuOpensMirrorManagement",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#allUpdaterPagesLaunchWithMaterialControlsInBothModes",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#logAndCrashPagesLaunchWithMaterialThemeInBothModes",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#importCropAndClipboardSettingsUseSameThemeInBothModes",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#engineManagerToolbarBackClosesPage",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#engineSwitchShowsProgressAndDisablesOnlyEngineActions",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#engineProviderApksAreListedBeforeImportedSharedLibraries",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#rimeEngineEntrySummaryStaysOnOneLine",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#engineManagerDestroyRemovesOnlyItsStagingDirectory",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#clipboardEditorAndSharedDialogsUseMaterialComponents",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest#materialSlidersAndStyledSpinnerKeepEditorSelectionAndProgressCallbacks",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateTypefaceTest#replacingTypefaceRemeasuresUnchangedText",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateRenderingTest#plainAndCommentedCandidatesMatchTheOriginalSpanRendering",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateRenderingTest#plainHighlightKeepsContentColorsAndPixels",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateRenderingTest#fontRefreshAndBlankCommentTransitionsKeepMetricsAndPixels",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeTest#everyCornerKeepsBadgeInsidePaddingAndResetsOldMargins",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeTest#badgeVisibilityAndPositionNeverChangeCandidateGeometry",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeTest#adapterToggleSupportsTwoDigitIndicesAndDefaultsToTopLeft",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest#horizontalTextKeepsNaturalWidthAndShowsTailInsideViewport",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest#identicalRelayoutPreservesManualScrollButContentAndResizeFollowTail",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest#horizontalDragDoesNotClickCandidate",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest#nonHorizontalCandidateKeepsProportionalTextMode",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest#horizontalAdapterEnablesOverflowMode",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest#horizontalAdapterDisablesOverflowMode"
+  ],
+  "class_sources": [
+    {
+      "class": "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest",
+      "sha256": "34bdd2676a3e49add2b8ad6fa228d380f836c44dd552acee90006cf1ede797b0"
+    },
+    {
+      "class": "org.fcitx.fcitx5.android.ui.main.log.LogExportTest",
+      "sha256": "575eaaf0479bb929f90ac44bc4cd23ebd98be501eb6ad3e27e33191a30c9aa09"
+    },
+    {
+      "class": "org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapterViewTest",
+      "sha256": "a88fe6dc57423c95681a890171adbfd3cdc8c508e8a7f95997df382b20cb3edf"
+    },
+    {
+      "class": "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest",
+      "sha256": "87e85f5d8a50166f53fee7a3046c73e251a85474dffe62c4ac7473b391e5f428"
+    },
+    {
+      "class": "org.fcitx.fcitx5.android.input.candidates.CandidateTypefaceTest",
+      "sha256": "4464638df5a7b88672e1791c1e0417aa2e2a5d58f66c25b71d146f5c4d1a6460"
+    },
+    {
+      "class": "org.fcitx.fcitx5.android.input.candidates.CandidateRenderingTest",
+      "sha256": "4bb0b4ab7e7c34cceac317236aad075ee8f697ac5581172a9a227d6b3bbdd2e9"
+    },
+    {
+      "class": "org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeTest",
+      "sha256": "cc5cf7fb69b7e0994a6e0adbf5a6edd5c92d8cf0bfb2c45b4ac5098bc635460e"
+    },
+    {
+      "class": "org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest",
+      "sha256": "4183d684ae9b1040da31990c77f888558ba31ca57787ad201bd47e0c1a65dcf6"
+    }
+  ]
+}

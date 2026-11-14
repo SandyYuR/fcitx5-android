@@ -1,0 +1,105 @@
+{
+  "total_count": 5,
+  "artifacts": [
+    {
+      "id": 13854435296,
+      "node_id": "MDg6QXJ0aWZhY3QxMzg1NDQzNTI5Ng==",
+      "name": "nov11-published-release-both-results",
+      "size_in_bytes": 1629777,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13854435296",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13854435296/zip",
+      "expired": false,
+      "digest": "sha256:dbfe4daa1d8124fa8d7e35b3e1bec57bcf2c9ce5aac4e9d0c4391697f0732ee5",
+      "created_at": "2026-11-11T12:13:51Z",
+      "updated_at": "2026-11-11T12:13:51Z",
+      "expires_at": "2026-12-11T11:57:23Z",
+      "workflow_run": {
+        "id": 43016199455,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/wanxiang-current-20261111",
+        "head_sha": "716c1192d0d531b668a002517f91c481e52d67bd"
+      }
+    },
+    {
+      "id": 13852913778,
+      "node_id": "MDg6QXJ0aWZhY3QxMzg1MjkxMzc3OA==",
+      "name": "nov11-touch-screen-results",
+      "size_in_bytes": 1171107,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13852913778",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13852913778/zip",
+      "expired": false,
+      "digest": "sha256:0fe8313516f61fe408c8c09f88a164f5f230d3a29ed2111e00634acca80c226e",
+      "created_at": "2026-11-11T12:08:46Z",
+      "updated_at": "2026-11-11T12:08:46Z",
+      "expires_at": "2026-12-11T11:57:23Z",
+      "workflow_run": {
+        "id": 43016199455,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/wanxiang-current-20261111",
+        "head_sha": "716c1192d0d531b668a002517f91c481e52d67bd"
+      }
+    },
+    {
+      "id": 13852624254,
+      "node_id": "MDg6QXJ0aWZhY3QxMzg1MjYyNDI1NA==",
+      "name": "nov11-touch-screen-videos",
+      "size_in_bytes": 2239373,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13852624254",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13852624254/zip",
+      "expired": false,
+      "digest": "sha256:e030f49d4e182025aa827cb71b2dcfa6e3458a2c0df7a6ece21dcc905654f4fa",
+      "created_at": "2026-11-11T12:08:46Z",
+      "updated_at": "2026-11-11T12:08:46Z",
+      "expires_at": "2026-11-25T12:08:46Z",
+      "workflow_run": {
+        "id": 43016199455,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/wanxiang-current-20261111",
+        "head_sha": "716c1192d0d531b668a002517f91c481e52d67bd"
+      }
+    },
+    {
+      "id": 13852293708,
+      "node_id": "MDg6QXJ0aWZhY3QxMzg1MjI5MzcwOA==",
+      "name": "wanxiang-inputs-20261111",
+      "size_in_bytes": 519956947,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13852293708",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13852293708/zip",
+      "expired": false,
+      "digest": "sha256:0a2c0ec384a7ad0e463bd23c96dfec861b4fb4bff88563de721195289cbff4f8",
+      "created_at": "2026-11-11T11:59:04Z",
+      "updated_at": "2026-11-11T11:59:04Z",
+      "expires_at": "2026-11-25T11:58:58Z",
+      "workflow_run": {
+        "id": 43016199455,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/wanxiang-current-20261111",
+        "head_sha": "716c1192d0d531b668a002517f91c481e52d67bd"
+      }
+    },
+    {
+      "id": 13852114155,
+      "node_id": "MDg6QXJ0aWZhY3QxMzg1MjExNDE1NQ==",
+      "name": "wanxiang-debug-products-20261111",
+      "size_in_bytes": 72945509,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13852114155",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13852114155/zip",
+      "expired": false,
+      "digest": "sha256:b33272b601b07c63dd53e90c8219cc6ead364e1b202bb3de2d518c5fcbd24fb8",
+      "created_at": "2026-11-11T11:57:58Z",
+      "updated_at": "2026-11-11T11:57:58Z",
+      "expires_at": "2026-11-25T11:57:55Z",
+      "workflow_run": {
+        "id": 43016199455,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/wanxiang-current-20261111",
+        "head_sha": "716c1192d0d531b668a002517f91c481e52d67bd"
+      }
+    }
+  ]
+}

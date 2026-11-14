@@ -1,0 +1,118 @@
+{
+  "metric": "Device touch DOWN to visible pixel change, aligned by independent editor marker; includes 32ms key hold, IME, editor, rendering and video sampling",
+  "clock": {
+    "method": "median(marker Choreographer frame clock - video PTS), no candidate-derived clock fitting",
+    "offset_ms": 1623746.6366909998,
+    "residual_ms": [
+      9.894688000204042,
+      -0.2613259998615831,
+      0.26132600009441376,
+      -5.517021999694407,
+      -3.8617019997909665,
+      8.561284000054002,
+      0.49000800028443336,
+      8.467660000082105,
+      -4.144019999774173,
+      -4.033033999847248,
+      -5.243381999898702,
+      16.311936000129208
+    ],
+    "start_end_drift_ms": -1.771512999664992
+  },
+  "video": {
+    "width": 1080,
+    "height": 1920,
+    "screen_width": 1080,
+    "screen_height": 1920,
+    "frames": 573,
+    "frame_interval_ms": {
+      "n": 572,
+      "mean_ms": 214.03879195804197,
+      "p50_ms": 185.97799999999864,
+      "p95_ms": 438.1780000000077,
+      "p99_ms": 543.9219999999949
+    },
+    "stream": {
+      "width": 1080,
+      "height": 1920,
+      "r_frame_rate": "90000/1",
+      "avg_frame_rate": "10314000/2204333",
+      "time_base": "1/90000",
+      "disposition": {
+        "default": 1,
+        "dub": 0,
+        "original": 0,
+        "comment": 0,
+        "lyrics": 0,
+        "karaoke": 0,
+        "forced": 0,
+        "hearing_impaired": 0,
+        "visual_impaired": 0,
+        "clean_effects": 0,
+        "attached_pic": 0,
+        "timed_thumbnails": 0
+      },
+      "tags": {
+        "creation_time": "2026-11-08T10:45:50.000000Z",
+        "language": "eng",
+        "handler_name": "VideoHandle",
+        "vendor_id": "[0][0][0][0]"
+      }
+    }
+  },
+  "threshold": {
+    "rgb_sum": 60,
+    "candidate_changed_pixels": 5,
+    "editor_changed_pixels": 2
+  },
+  "keys": 528,
+  "spaces": 64,
+  "candidate_changes": 376,
+  "editor_changes": 412,
+  "forward_candidate": {
+    "n": 512,
+    "mean_ms": 179.1794644373449,
+    "p50_ms": 166.43669099989347,
+    "p95_ms": 412.1366909998469,
+    "p99_ms": 472.0366909997538
+  },
+  "attributed_candidate": {
+    "n": 376,
+    "mean_ms": 125.13163780835656,
+    "p50_ms": 124.03669099975377,
+    "p95_ms": 258.23669099994004,
+    "p99_ms": 312.33669099980034
+  },
+  "space_to_editor": {
+    "n": 63,
+    "mean_ms": 163.63827830143939,
+    "p50_ms": 138.1366909998469,
+    "p95_ms": 347.83669099980034,
+    "p99_ms": 430.0366909997538
+  },
+  "first_candidate_before_next_key": {
+    "n": 331,
+    "mean_ms": 113.21433450437779,
+    "p50_ms": 110.43669099989347,
+    "p95_ms": 239.73669099994004,
+    "p99_ms": 282.6366909998469
+  },
+  "candidate_key_window_coverage": 0.6268939393939394,
+  "shared_next_candidate_event": 181,
+  "unmatched_keys": 16,
+  "injection_schedule_lateness": {
+    "n": 528,
+    "mean_ms": 25362.795454545456,
+    "p50_ms": 25950,
+    "p95_ms": 47255,
+    "p99_ms": 49256
+  },
+  "actual_key_interval": {
+    "n": 527,
+    "mean_ms": 213.99240986717268,
+    "p50_ms": 207,
+    "p95_ms": 316,
+    "p99_ms": 349
+  },
+  "note": "Attributed means latest-key attribution of visible changes, not isolated engine cost. Unmatched/shared events do not prove dropped input."
+}

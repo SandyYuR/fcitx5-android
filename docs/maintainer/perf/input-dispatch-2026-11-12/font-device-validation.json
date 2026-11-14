@@ -1,0 +1,13 @@
+{
+  "actual_font_testcase": {
+    "name": "replacingTypefaceRemeasuresUnchangedText",
+    "classname": "org.fcitx.fcitx5.android.input.candidates.CandidateTypefaceTest",
+    "time": "0.002"
+  },
+  "device_cases": 51,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "artifact_id": 13916392591,
+  "zip_sha256": "a1ecc01123fa6d0c060bb887cdb62d80b8f7f75ba4464b5b7b5f8a6530d83d57"
+}

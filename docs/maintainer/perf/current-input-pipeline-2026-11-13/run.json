@@ -1,0 +1,21 @@
+{
+  "run_id": 43408540911,
+  "driver": "b070c2b7b0d9a3ca446e444204408f11717dbe2f",
+  "sources": {
+    "baseline": "88a664d46ba82712d5457d86c037629c478b042c",
+    "current": "f02bbaec1c2820545382dab82b3e007e9f2735fe"
+  },
+  "workflow_initial_state": "disabled_manually",
+  "resumed_run_id": 43410655925,
+  "resume_driver": "6b4cf6e8a9ae2043081f227bf8a85962c6cfe07e",
+  "initial_failure": {
+    "phase": "Source verification before emulator/measurement",
+    "reason": "Default depth-one checkout lacked f02bbaec parent commit required for exact test-source hashes",
+    "formal_processes": 0,
+    "profile_processes": 0,
+    "products_rebuilt": false,
+    "quality_repeated": false,
+    "product_artifact": 14028344305,
+    "quality_artifact": 14029665940
+  }
+}

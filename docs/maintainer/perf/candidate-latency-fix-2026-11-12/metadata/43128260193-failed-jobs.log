@@ -1,0 +1,240 @@
+build	Build fixed products and verify candidate JVM tests and APK dependencies	﻿2026-11-12T00:34:56.9733481Z ##[group]Run bash tools/latency-fix-20261112/build.sh "$RUNNER_TEMP/references" "$RUNNER_TEMP/products"
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:56.9733967Z [36;1mbash tools/latency-fix-20261112/build.sh "$RUNNER_TEMP/references" "$RUNNER_TEMP/products"[0m
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0096229Z shell: /usr/bin/bash -e {0}
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0096420Z env:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0096634Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0096947Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0097196Z   MAVEN_ARGS: -ntp
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0097362Z   ANDROID_HOME: /usr/local/lib/android/sdk
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0097563Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0097774Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0097974Z   GRADLE_USER_HOME: /home/runner/.gradle
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0098306Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0098590Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0098929Z   DEVELOCITY_INJECTION_CUSTOM_VALUE: gradle-actions
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0099139Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.0099317Z ##[endgroup]
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.1672601Z Cloning into '/home/runner/work/_temp/candidate-fix-product'...
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.5111425Z done.
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.7993039Z HEAD is now at ac7045e2 测试(候选): 验证关闭角标时不创建额外视图
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.8101057Z Submodule 'native/rime-prelude' (https://github.com/rime/rime-prelude.git) registered for path 'native/rime-prelude'
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:57.8112915Z Cloning into '/home/runner/work/_temp/candidate-fix-product/native/rime-prelude'...
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:58.1592319Z Submodule path 'native/rime-prelude': checked out '082425ea0684bca36474415d4a0e8db9b016487e'
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:34:58.5607114Z Starting a Gradle Daemon (subsequent builds will be faster)
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:04.7620277Z > Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:04.9597874Z > Task :build-logic:convention:compileKotlin FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:04.9601530Z > Task :build-logic:convention:compileJava NO-SOURCE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:04.9602248Z > Task :build-logic:convention:pluginDescriptors
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:04.9602851Z > Task :build-logic:convention:processResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:04.9603346Z > Task :build-logic:convention:classes
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:05.0599654Z > Task :build-logic:convention:jar
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:07.6600884Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:07.6611942Z > Configure project :app
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:07.6612767Z Checking the license for package NDK (Side by side) 28.0.13004108 in /usr/local/lib/android/sdk/licenses
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:07.6613540Z License for package NDK (Side by side) 28.0.13004108 accepted.
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:07.6614160Z Preparing "Install NDK (Side by side) 28.0.13004108 v.28.0.13004108".
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:34.8619625Z "Install NDK (Side by side) 28.0.13004108 v.28.0.13004108" ready.
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:34.8623854Z Installing NDK (Side by side) 28.0.13004108 in /usr/local/lib/android/sdk/ndk/28.0.13004108
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:34.8625081Z "Install NDK (Side by side) 28.0.13004108 v.28.0.13004108" complete.
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:34.9609749Z "Install NDK (Side by side) 28.0.13004108 v.28.0.13004108" finished.
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:36.0595635Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:36.0596642Z > Task :prepareRimeSdk
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:36.0597579Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1794443700074.json
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:36.1232154Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:36.1232998Z BUILD SUCCESSFUL in 37s
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:36.1233567Z 5 actionable tasks: 4 executed, 1 from cache
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:36.1234524Z Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.1/userguide/configuration_cache_enabling.html
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:37.1159687Z > Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:37.1192354Z > Task :build-logic:convention:compileKotlin UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:37.1218622Z > Task :build-logic:convention:compileJava NO-SOURCE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:37.1219912Z > Task :build-logic:convention:pluginDescriptors UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:37.1220531Z > Task :build-logic:convention:processResources UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:37.1221099Z > Task :build-logic:convention:classes UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:37.1221682Z > Task :build-logic:convention:jar UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:38.9115288Z > Task :prepareRimeSdk
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:38.9148904Z > Task :lib:common:preBuild UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:38.9188610Z > Task :lib:common:preDebugBuild UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:38.9192675Z > Task :lib:common:extractDebugSupportedLocales FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:38.9207268Z > Task :lib:common:generateDebugResources FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:38.9255018Z > Task :lib:common:packageDebugResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:38.9262246Z > Task :lib:common:processDebugNavigationResources FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.6159651Z > Task :lib:common:parseDebugLocalResources FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.6160291Z > Task :app:preBuild
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.6160677Z > Task :app:preFxDebugBuild
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.6161082Z > Task :lib:common:generateDebugRFile FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.6161632Z > Task :codegen:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.6162156Z > Task :codegen:compileKotlin FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.6162548Z > Task :codegen:compileJava NO-SOURCE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.6162936Z > Task :codegen:processResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.6163293Z > Task :codegen:classes
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.7120765Z > Task :codegen:jar
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:39.7131690Z > Task :lib:common:compileDebugAidl FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:40.0130074Z > Task :app:dataBindingMergeDependencyArtifactsFxDebug
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:40.0153379Z > Task :app:generateFxDebugResValues
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:43.4159588Z > Task :app:prepareLibraryDefinitionsFxDebug
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:43.5146792Z > Task :app:extractFxDebugSupportedLocales
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:43.5172263Z > Task :app:mapFxDebugSourceSetPaths
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:43.5178717Z > Task :app:generateFxDebugLocaleConfig FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:43.5179462Z > Task :app:generateFxDebugResources FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:44.8139377Z > Task :lib:common:compileDebugKotlin
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:44.8198628Z > Task :lib:common:javaPreCompileDebug FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:45.5146760Z > Task :lib:common:compileDebugJavaWithJavac FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:45.5147738Z > Task :lib:common:bundleLibCompileToJarDebug
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:45.5177608Z > Task :lib:common:generateDebugAssets UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:45.5192035Z > Task :lib:common:mergeDebugAssets
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:45.6115744Z > Task :lib:common:processDebugJavaRes
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:45.6158777Z > Task :lib:common:bundleLibRuntimeToJarDebug
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:47.8119436Z > Task :app:packageFxDebugResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:47.9117713Z > Task :app:processFxDebugNavigationResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:47.9178341Z > Task :app:mergeFxDebugResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:47.9179994Z > Task :app:generateFxDebugBuildConfig
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:47.9180463Z > Task :app:javaPreCompileFxDebug FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:47.9180951Z > Task :app:prepareDirectRimeAssets
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.0123109Z > Task :app:generateDataDescriptor
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.0148838Z > Task :app:generateFxDebugAssets UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1119403Z > Task :app:parseFxDebugLocalResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1126411Z > Task :lib:common:writeDebugAarMetadata
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1137208Z > Task :lib:common:extractDeepLinksDebug FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1137811Z > Task :app:mergeFxDebugAssets
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1138448Z > Task :lib:common:processDebugManifest FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1139039Z > Task :lib:common:mapDebugSourceSetPaths
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1139609Z > Task :lib:common:compileDebugLibraryResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1140143Z > Task :lib:common:mergeDebugJniLibFolders
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1140654Z > Task :lib:common:mergeDebugNativeLibs NO-SOURCE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.1141262Z > Task :lib:common:copyDebugJniLibsProjectOnly
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.2118632Z > Task :app:dataBindingGenBaseClassesFxDebug FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.2119662Z > Task :app:generateFxDebugRFile FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:48.7115684Z > Task :app:compressFxDebugAssets
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:50.1114982Z > Task :app:generateFxDebugGlobalSynthetics
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:58.6139788Z > Task :app:l8DexDesugarLibFxDebug
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:58.8115670Z > Task :app:checkFxDebugDuplicateClasses
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:35:59.7115940Z > Task :app:desugarFxDebugFileDependencies
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:05.0119628Z > Task :app:kspFxDebugKotlin
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:29.7129479Z > Task :app:mergeExtDexFxDebug
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:35.9115067Z > Task :app:mergeLibDexFxDebug
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.0159431Z > Task :app:checkFxDebugAarMetadata
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.1115496Z > Task :app:compileFxDebugNavigationResources FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.1125614Z > Task :app:createFxDebugCompatibleScreenManifests
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.1126423Z > Task :app:extractDeepLinksFxDebug
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.5118312Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.5119295Z > Task :app:processFxDebugMainManifest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.5122914Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:55:5-405:19 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.5130944Z 	application@android:supportsRtl was tagged at AndroidManifest.xml:55 to replace other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.6138927Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.6189197Z > Task :app:processFxDebugManifest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:36.6238959Z > Task :app:processFxDebugManifestForPackage
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:38.0115637Z > Task :app:processFxDebugResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:39.1113906Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:39.1116545Z > Task :app:configureCMakeDebug[x86_64]
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:39.1117190Z C/C++: CMake Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:39.1117726Z C/C++:   Manually-specified variables were not used by the project:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:39.1118383Z C/C++:     PREBUILT_DIR
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:39.1118756Z C/C++:     VERSION_NAME
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:40.6128769Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:40.6189230Z > Task :app:buildCMakeDebug[x86_64][direct-rime]
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:40.6205588Z > Task :app:mergeFxDebugJniLibFolders
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:40.8116048Z > Task :app:mergeFxDebugNativeLibs
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:40.9129465Z > Task :app:stripFxDebugDebugSymbols
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:41.5159931Z > Task :app:validateSigningFxDebug
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:41.5189175Z > Task :app:writeFxDebugAppMetadata
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:41.5198817Z > Task :app:writeFxDebugSigningConfigVersions
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:41.6120717Z > Task :app:mergeFxDebugNativeDebugMetadata NO-SOURCE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:41.6123550Z > Task :app:preFxDebugAndroidTestBuild SKIPPED
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.1130065Z > Task :app:dataBindingMergeDependencyArtifactsFxDebugAndroidTest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.1179289Z > Task :app:generateFxDebugAndroidTestResValues FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.1258648Z > Task :app:generateFxDebugAndroidTestResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.2135384Z > Task :app:mergeFxDebugAndroidTestResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.3140147Z > Task :app:dataBindingGenBaseClassesFxDebugAndroidTest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4150059Z > Task :app:mergeFxDebugAndroidTestManifest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4159318Z > Task :app:processFxDebugAndroidTestManifest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4179488Z > Task :app:generateFxDebugAndroidTestBuildConfig
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4197935Z > Task :app:packageFxDebugAndroidTestResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4209380Z > Task :app:processFxDebugAndroidTestNavigationResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4210068Z > Task :app:parseFxDebugAndroidTestLocalResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4210631Z > Task :app:generateFxDebugAndroidTestRFile
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4211160Z > Task :app:javaPreCompileFxDebugAndroidTest FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4211721Z > Task :app:generateFxDebugAndroidTestAssets UP-TO-DATE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4212232Z > Task :app:mergeFxDebugAndroidTestAssets
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4212725Z > Task :app:compressFxDebugAndroidTestAssets
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.4213304Z > Task :app:generateFxDebugAndroidTestGlobalSynthetics FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.6115853Z > Task :app:checkFxDebugAndroidTestDuplicateClasses
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:44.7119507Z > Task :app:desugarFxDebugAndroidTestFileDependencies
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.3119998Z > Task :app:mergeExtDexFxDebugAndroidTest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.3120750Z > Task :app:mergeLibDexFxDebugAndroidTest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.3121452Z > Task :app:checkFxDebugAndroidTestAarMetadata
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.3122065Z > Task :app:mapFxDebugAndroidTestSourceSetPaths
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.3122706Z > Task :app:compileFxDebugAndroidTestNavigationResources FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.5129380Z > Task :app:processFxDebugAndroidTestResources
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.5189342Z > Task :app:mergeFxDebugAndroidTestJniLibFolders
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.5216667Z > Task :app:mergeFxDebugAndroidTestNativeLibs NO-SOURCE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.5217061Z > Task :app:stripFxDebugAndroidTestDebugSymbols NO-SOURCE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.5217338Z > Task :app:validateSigningFxDebugAndroidTest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.5217723Z > Task :app:writeFxDebugAndroidTestSigningConfigVersions
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.5218303Z > Task :app:preFxDebugUnitTestBuild
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.5218704Z > Task :app:javaPreCompileFxDebugUnitTest FROM-CACHE
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:46.6140015Z > Task :app:packageFxDebugUnitTestForUnitTest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1148676Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1149792Z > Task :app:mergeFxDebugUnitTestManifest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1183872Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:6:5-8:31 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1228277Z 	permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:6 to remove other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1230495Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:10:5-12:31 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1241870Z 	uses-permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:10 to remove other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1243155Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:34:5-39 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1244120Z 	queries was tagged at AndroidManifest.xml:34 to remove other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1245022Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:364:9-366:35 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1246094Z 	activity#com.canhub.cropper.CropImageActivity was tagged at AndroidManifest.xml:364 to remove other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1247122Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:368:9-371:35 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1248318Z 	provider#com.canhub.cropper.CropFileProvider was tagged at AndroidManifest.xml:368 to remove other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1249450Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:374:9-376:35 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1250585Z 	activity#com.journeyapps.barcodescanner.CaptureActivity was tagged at AndroidManifest.xml:374 to remove other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1251612Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:379:9-381:35 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1252641Z 	service#androidx.room.MultiInstanceInvalidationService was tagged at AndroidManifest.xml:379 to remove other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1260931Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:396:13-399:39 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1261596Z 	meta-data#androidx.work.WorkManagerInitializer was tagged at AndroidManifest.xml:396 to remove other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1262159Z /home/runner/work/_temp/candidate-fix-product/app/src/main/AndroidManifest.xml:400:13-403:39 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.1262858Z 	meta-data#splitties.views.dsl.appcompat.experimental.AppCompatViewInstantiatorInjecter was tagged at AndroidManifest.xml:400 to remove other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.2116591Z /home/runner/work/_temp/candidate-fix-product/app/build/intermediates/tmp/manifest/test/fx/debug/tempFile2ProcessTestManifest7588348526555993190.xml:61:5-406:19 Warning:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.2119147Z 	application@android:supportsRtl was tagged at tempFile2ProcessTestManifest7588348526555993190.xml:61 to replace other declarations but no other declaration present
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.2149410Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.2150270Z > Task :app:processFxDebugUnitTestManifest
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:36:52.2153897Z > Task :app:generateFxDebugUnitTestConfig
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:00.3139390Z > Task :app:compileFxDebugKotlin
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7115059Z e: file:///home/runner/work/_temp/candidate-fix-product/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt:132:34 None of the following candidates is applicable:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7115823Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7116471Z fun FrameLayout.lParams(width: Int = ..., height: Int = ..., gravity: Int = ..., initParams: FrameLayout.LayoutParams.() -> Unit = ...): FrameLayout.LayoutParams:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7117435Z   Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7118525Z fun FrameLayout.lParams(width: Int = ..., height: Int = ..., gravity: Int = ..., initParams: FrameLayout.LayoutParams.() -> Unit = ...): FrameLayout.LayoutParams
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7119061Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7119610Z fun LinearLayout.lParams(width: Int = ..., height: Int = ..., initParams: LinearLayout.LayoutParams.() -> Unit = ...): LinearLayout.LayoutParams:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7120691Z   Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7121142Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7121714Z fun LinearLayout.lParams(width: Int = ..., height: Int = ..., initParams: LinearLayout.LayoutParams.() -> Unit = ...): LinearLayout.LayoutParams
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7122244Z > Task :app:compileFxDebugKotlin FAILED
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7122441Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7123117Z fun LinearLayout.lParams(width: Int = ..., height: Int = ..., gravity: Int = ..., weight: Float = ..., initParams: LinearLayout.LayoutParams.() -> Unit = ...): LinearLayout.LayoutParams:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7123875Z   Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7124487Z fun LinearLayout.lParams(width: Int = ..., height: Int = ..., gravity: Int = ..., weight: Float = ..., initParams: LinearLayout.LayoutParams.() -> Unit = ...): LinearLayout.LayoutParams
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7125418Z e: file:///home/runner/work/_temp/candidate-fix-product/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt:132:42 Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7126004Z val View.wrapContent: Int
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7126687Z e: file:///home/runner/work/_temp/candidate-fix-product/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt:132:55 Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7127239Z val View.wrapContent: Int
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7127344Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7127645Z FAILURE: Build failed with an exception.
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7127768Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7127843Z * What went wrong:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7128337Z Execution failed for task ':app:compileFxDebugKotlin' (registered by plugin 'com.android.internal.application').
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7128849Z > A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7129218Z    > Compilation error. See log for more details
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7129351Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7129408Z * Try:
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7129604Z > Run with --stacktrace option to get the stack trace.
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7129877Z > Run with --info or --debug option to get more log output.
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7130194Z > Run with --scan to get full insights from a Build Scan (powered by Develocity).
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7130557Z > Get more help at https://help.gradle.org.
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7130685Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7130763Z BUILD FAILED in 1m 34s
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7131129Z gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1794443736824.json
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7131384Z 
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7131707Z [Incubating] Problems report is available at: file:///home/runner/work/_temp/candidate-fix-product/build/reports/problems/problems-report.html
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.7132160Z 104 actionable tasks: 78 executed, 22 from cache, 4 up-to-date
+build	Build fixed products and verify candidate JVM tests and APK dependencies	2026-11-12T00:37:10.8670421Z ##[error]Process completed with exit code 1.

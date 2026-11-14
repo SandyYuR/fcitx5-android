@@ -1,0 +1,528 @@
+{
+  "verified_at": "2026-11-12T23:52:28.920738+08:00",
+  "artifacts": [
+    {
+      "file": "failed-forward.zip",
+      "artifact_id": 13953530512,
+      "sha256": "ab1a0c059d36e5755891564543bc7794276f6993e7799b2b4914ac1b46774fd0",
+      "bytes": 45772,
+      "original_github_artifact": {
+        "id": 13953530512,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1MzUzMDUxMg==",
+        "name": "latency-study-pilot-forward",
+        "size_in_bytes": 45772,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13953530512",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13953530512/zip",
+        "expired": false,
+        "digest": "sha256:ab1a0c059d36e5755891564543bc7794276f6993e7799b2b4914ac1b46774fd0",
+        "created_at": "2026-11-12T14:22:12Z",
+        "updated_at": "2026-11-12T14:22:12Z",
+        "expires_at": "2026-12-12T14:07:27Z",
+        "workflow_run": {
+          "id": 43233939240,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "80ded2c09b7eb8b6eb44169adcb7e4cdb05356d6"
+        }
+      }
+    },
+    {
+      "file": "failed-reverse.zip",
+      "artifact_id": 13951764275,
+      "sha256": "984d359d857dff9547cbe796f3310171411157a9c51e33b42c2526454874ef0d",
+      "bytes": 45294,
+      "original_github_artifact": {
+        "id": 13951764275,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1MTc2NDI3NQ==",
+        "name": "latency-study-pilot-reverse",
+        "size_in_bytes": 45294,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13951764275",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13951764275/zip",
+        "expired": false,
+        "digest": "sha256:984d359d857dff9547cbe796f3310171411157a9c51e33b42c2526454874ef0d",
+        "created_at": "2026-11-12T14:22:16Z",
+        "updated_at": "2026-11-12T14:22:16Z",
+        "expires_at": "2026-12-12T14:07:27Z",
+        "workflow_run": {
+          "id": 43233939240,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "80ded2c09b7eb8b6eb44169adcb7e4cdb05356d6"
+        }
+      }
+    },
+    {
+      "file": "failed-profile.zip",
+      "artifact_id": 13952401879,
+      "sha256": "c5247907a4b0a8cafec0687f47db890582a87b77de5f22c3a337827f66f8f2c2",
+      "bytes": 1085001,
+      "original_github_artifact": {
+        "id": 13952401879,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1MjQwMTg3OQ==",
+        "name": "latency-study-profile",
+        "size_in_bytes": 1085001,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13952401879",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13952401879/zip",
+        "expired": false,
+        "digest": "sha256:c5247907a4b0a8cafec0687f47db890582a87b77de5f22c3a337827f66f8f2c2",
+        "created_at": "2026-11-12T14:22:36Z",
+        "updated_at": "2026-11-12T14:22:36Z",
+        "expires_at": "2026-12-12T14:07:27Z",
+        "workflow_run": {
+          "id": 43233939240,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "80ded2c09b7eb8b6eb44169adcb7e4cdb05356d6"
+        }
+      }
+    },
+    {
+      "file": "corrected-forward.zip",
+      "artifact_id": 13952878460,
+      "sha256": "d2d25baa785a9f7c9ff85951da2468a56f4f4450cc81a1446934f3e0c0dee59d",
+      "bytes": 49072,
+      "original_github_artifact": {
+        "id": 13952878460,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1Mjg3ODQ2MA==",
+        "name": "latency-study-pilot-forward",
+        "size_in_bytes": 49072,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13952878460",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13952878460/zip",
+        "expired": false,
+        "digest": "sha256:d2d25baa785a9f7c9ff85951da2468a56f4f4450cc81a1446934f3e0c0dee59d",
+        "created_at": "2026-11-12T14:35:45Z",
+        "updated_at": "2026-11-12T14:35:45Z",
+        "expires_at": "2026-12-12T14:25:27Z",
+        "workflow_run": {
+          "id": 43237017744,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "c2be810672b6184228ba76e93aabf8df851f94c5"
+        }
+      }
+    },
+    {
+      "file": "corrected-reverse.zip",
+      "artifact_id": 13954510353,
+      "sha256": "383982d21eff03bd41369e0d7698e4e57e9a10faa0f3708f103f4f23cde5c421",
+      "bytes": 49814,
+      "original_github_artifact": {
+        "id": 13954510353,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1NDUxMDM1Mw==",
+        "name": "latency-study-pilot-reverse",
+        "size_in_bytes": 49814,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13954510353",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13954510353/zip",
+        "expired": false,
+        "digest": "sha256:383982d21eff03bd41369e0d7698e4e57e9a10faa0f3708f103f4f23cde5c421",
+        "created_at": "2026-11-12T14:36:56Z",
+        "updated_at": "2026-11-12T14:36:56Z",
+        "expires_at": "2026-12-12T14:25:27Z",
+        "workflow_run": {
+          "id": 43237017744,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "c2be810672b6184228ba76e93aabf8df851f94c5"
+        }
+      }
+    },
+    {
+      "file": "corrected-profile.zip",
+      "artifact_id": 13953128349,
+      "sha256": "6fb5a0ff5bd04020872bd931c082c480f8670bfa7a22e2e7f203221070594c67",
+      "bytes": 1890871,
+      "original_github_artifact": {
+        "id": 13953128349,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1MzEyODM0OQ==",
+        "name": "latency-study-profile",
+        "size_in_bytes": 1890871,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13953128349",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13953128349/zip",
+        "expired": false,
+        "digest": "sha256:6fb5a0ff5bd04020872bd931c082c480f8670bfa7a22e2e7f203221070594c67",
+        "created_at": "2026-11-12T14:36:43Z",
+        "updated_at": "2026-11-12T14:36:43Z",
+        "expires_at": "2026-12-12T14:25:27Z",
+        "workflow_run": {
+          "id": 43237017744,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "c2be810672b6184228ba76e93aabf8df851f94c5"
+        }
+      }
+    },
+    {
+      "file": "third-forward.zip",
+      "artifact_id": 13953734706,
+      "sha256": "5f1fd7e35434033be5c29895f40c2982bac4fc67c3dcb471b0e5ec5e20175e6b",
+      "bytes": 50116,
+      "original_github_artifact": {
+        "id": 13953734706,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1MzczNDcwNg==",
+        "name": "latency-study-pilot-forward",
+        "size_in_bytes": 50116,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13953734706",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13953734706/zip",
+        "expired": false,
+        "digest": "sha256:5f1fd7e35434033be5c29895f40c2982bac4fc67c3dcb471b0e5ec5e20175e6b",
+        "created_at": "2026-11-12T14:50:45Z",
+        "updated_at": "2026-11-12T14:50:45Z",
+        "expires_at": "2026-12-12T14:39:14Z",
+        "workflow_run": {
+          "id": 43239421223,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "397d9bd970aa70b4de8725b55d5d8e7618f4f936"
+        }
+      }
+    },
+    {
+      "file": "third-reverse.zip",
+      "artifact_id": 13953684685,
+      "sha256": "0e016ab1b0551c219ab9b9e9a8f8a0ed4ba4c69ef024deac48b06625bf29ecf4",
+      "bytes": 50209,
+      "original_github_artifact": {
+        "id": 13953684685,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1MzY4NDY4NQ==",
+        "name": "latency-study-pilot-reverse",
+        "size_in_bytes": 50209,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13953684685",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13953684685/zip",
+        "expired": false,
+        "digest": "sha256:0e016ab1b0551c219ab9b9e9a8f8a0ed4ba4c69ef024deac48b06625bf29ecf4",
+        "created_at": "2026-11-12T14:50:10Z",
+        "updated_at": "2026-11-12T14:50:10Z",
+        "expires_at": "2026-12-12T14:39:14Z",
+        "workflow_run": {
+          "id": 43239421223,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "397d9bd970aa70b4de8725b55d5d8e7618f4f936"
+        }
+      }
+    },
+    {
+      "file": "third-profile.zip",
+      "artifact_id": 13955835130,
+      "sha256": "e637ece71ddd34752e556dc4151cb53592d0972dc775ca81ca7d25c74a53258d",
+      "bytes": 5717,
+      "original_github_artifact": {
+        "id": 13955835130,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1NTgzNTEzMA==",
+        "name": "latency-study-profile",
+        "size_in_bytes": 5717,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13955835130",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13955835130/zip",
+        "expired": false,
+        "digest": "sha256:e637ece71ddd34752e556dc4151cb53592d0972dc775ca81ca7d25c74a53258d",
+        "created_at": "2026-11-12T14:49:33Z",
+        "updated_at": "2026-11-12T14:49:33Z",
+        "expires_at": "2026-12-12T14:39:14Z",
+        "workflow_run": {
+          "id": 43239421223,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "397d9bd970aa70b4de8725b55d5d8e7618f4f936"
+        }
+      }
+    },
+    {
+      "file": "reuse-forward.zip",
+      "artifact_id": 13956136240,
+      "sha256": "baadbddb24c1fce3bf615c5b50844837c92021fa834acc6c7045f7da1f4cba94",
+      "bytes": 5567,
+      "original_github_artifact": {
+        "id": 13956136240,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1NjEzNjI0MA==",
+        "name": "latency-study-pilot-forward",
+        "size_in_bytes": 5567,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13956136240",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13956136240/zip",
+        "expired": false,
+        "digest": "sha256:baadbddb24c1fce3bf615c5b50844837c92021fa834acc6c7045f7da1f4cba94",
+        "created_at": "2026-11-12T14:57:49Z",
+        "updated_at": "2026-11-12T14:57:49Z",
+        "expires_at": "2026-12-12T14:54:56Z",
+        "workflow_run": {
+          "id": 43242149292,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "6b2bcd69cd295006f9d37931550a1c37459f8a72"
+        }
+      }
+    },
+    {
+      "file": "reuse-reverse.zip",
+      "artifact_id": 13954458671,
+      "sha256": "5043d1a9462f3153242aedd9ba8ed9504d0b982812f6e21eda3c1a65d42bcfda",
+      "bytes": 5572,
+      "original_github_artifact": {
+        "id": 13954458671,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1NDQ1ODY3MQ==",
+        "name": "latency-study-pilot-reverse",
+        "size_in_bytes": 5572,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13954458671",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13954458671/zip",
+        "expired": false,
+        "digest": "sha256:5043d1a9462f3153242aedd9ba8ed9504d0b982812f6e21eda3c1a65d42bcfda",
+        "created_at": "2026-11-12T14:56:50Z",
+        "updated_at": "2026-11-12T14:56:50Z",
+        "expires_at": "2026-12-12T14:54:56Z",
+        "workflow_run": {
+          "id": 43242149292,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "6b2bcd69cd295006f9d37931550a1c37459f8a72"
+        }
+      }
+    },
+    {
+      "file": "reuse-profile.zip",
+      "artifact_id": 13955471656,
+      "sha256": "ac1a433ef5d390825fc9144232762cb6144621a79edc5c955133dd7f0e9969c8",
+      "bytes": 5686,
+      "original_github_artifact": {
+        "id": 13955471656,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1NTQ3MTY1Ng==",
+        "name": "latency-study-profile",
+        "size_in_bytes": 5686,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13955471656",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13955471656/zip",
+        "expired": false,
+        "digest": "sha256:ac1a433ef5d390825fc9144232762cb6144621a79edc5c955133dd7f0e9969c8",
+        "created_at": "2026-11-12T14:56:42Z",
+        "updated_at": "2026-11-12T14:56:42Z",
+        "expires_at": "2026-12-12T14:54:56Z",
+        "workflow_run": {
+          "id": 43242149292,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "6b2bcd69cd295006f9d37931550a1c37459f8a72"
+        }
+      }
+    },
+    {
+      "file": "pilot-profile-failure.zip",
+      "artifact_id": 13954334680,
+      "sha256": "90d5e91750dc9422880181e0f3acd35307f0ce2c9d4a69f9ee635867ccf54973",
+      "bytes": 5708,
+      "original_github_artifact": {
+        "id": 13954334680,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1NDMzNDY4MA==",
+        "name": "latency-study-profile",
+        "size_in_bytes": 5708,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13954334680",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13954334680/zip",
+        "expired": false,
+        "digest": "sha256:90d5e91750dc9422880181e0f3acd35307f0ce2c9d4a69f9ee635867ccf54973",
+        "created_at": "2026-11-12T15:01:50Z",
+        "updated_at": "2026-11-12T15:01:50Z",
+        "expires_at": "2026-12-12T15:00:37Z",
+        "workflow_run": {
+          "id": 43243124324,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "fdce09140ef82ff4e7908c24ffb8dcd052f4013b"
+        }
+      }
+    },
+    {
+      "file": "pilot-forward.zip",
+      "artifact_id": 13956770115,
+      "sha256": "90c3a7e0d869195435fba047fc58b220ab99c5b776221d14e1bb29b7ad5e36e6",
+      "bytes": 178941,
+      "original_github_artifact": {
+        "id": 13956770115,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1Njc3MDExNQ==",
+        "name": "latency-study-pilot-forward",
+        "size_in_bytes": 178941,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13956770115",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13956770115/zip",
+        "expired": false,
+        "digest": "sha256:90c3a7e0d869195435fba047fc58b220ab99c5b776221d14e1bb29b7ad5e36e6",
+        "created_at": "2026-11-12T15:04:31Z",
+        "updated_at": "2026-11-12T15:04:31Z",
+        "expires_at": "2026-12-12T15:00:37Z",
+        "workflow_run": {
+          "id": 43243124324,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "fdce09140ef82ff4e7908c24ffb8dcd052f4013b"
+        }
+      }
+    },
+    {
+      "file": "pilot-reverse.zip",
+      "artifact_id": 13955572824,
+      "sha256": "cdf53dc1eb397c57e3c8c956732e9a976e065dd2a209b10118814677ec16a44b",
+      "bytes": 183918,
+      "original_github_artifact": {
+        "id": 13955572824,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1NTU3MjgyNA==",
+        "name": "latency-study-pilot-reverse",
+        "size_in_bytes": 183918,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13955572824",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13955572824/zip",
+        "expired": false,
+        "digest": "sha256:cdf53dc1eb397c57e3c8c956732e9a976e065dd2a209b10118814677ec16a44b",
+        "created_at": "2026-11-12T15:05:23Z",
+        "updated_at": "2026-11-12T15:05:23Z",
+        "expires_at": "2026-12-12T15:00:37Z",
+        "workflow_run": {
+          "id": 43243124324,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "fdce09140ef82ff4e7908c24ffb8dcd052f4013b"
+        }
+      }
+    },
+    {
+      "file": "held-pilot-forward.zip",
+      "artifact_id": 13958445033,
+      "sha256": "dcb75f8db764a6dc6a01b1fab82576d44380b2bb5ecb75aaedd32da8b08c88d9",
+      "bytes": 186272,
+      "original_github_artifact": {
+        "id": 13958445033,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1ODQ0NTAzMw==",
+        "name": "latency-study-pilot-forward",
+        "size_in_bytes": 186272,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13958445033",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13958445033/zip",
+        "expired": false,
+        "digest": "sha256:dcb75f8db764a6dc6a01b1fab82576d44380b2bb5ecb75aaedd32da8b08c88d9",
+        "created_at": "2026-11-12T15:20:07Z",
+        "updated_at": "2026-11-12T15:20:07Z",
+        "expires_at": "2026-12-12T15:13:31Z",
+        "workflow_run": {
+          "id": 43245458506,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "ad981a25e82da1b9249e8f8366931ef25400ad3a"
+        }
+      }
+    },
+    {
+      "file": "held-pilot-reverse.zip",
+      "artifact_id": 13956957504,
+      "sha256": "697c9f726e474259960d6cc5aacb92bc39dd7ff0057b5e93c64ab086cb045e95",
+      "bytes": 181141,
+      "original_github_artifact": {
+        "id": 13956957504,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1Njk1NzUwNA==",
+        "name": "latency-study-pilot-reverse",
+        "size_in_bytes": 181141,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13956957504",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13956957504/zip",
+        "expired": false,
+        "digest": "sha256:697c9f726e474259960d6cc5aacb92bc39dd7ff0057b5e93c64ab086cb045e95",
+        "created_at": "2026-11-12T15:18:55Z",
+        "updated_at": "2026-11-12T15:18:55Z",
+        "expires_at": "2026-12-12T15:13:31Z",
+        "workflow_run": {
+          "id": 43245458506,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "ad981a25e82da1b9249e8f8366931ef25400ad3a"
+        }
+      }
+    },
+    {
+      "file": "held-profile.zip",
+      "artifact_id": 13957390689,
+      "sha256": "a62647a5ad0013fb81b3ab77c5d54003b3076bd136f5fa196778ec1f0d764bb7",
+      "bytes": 10582069,
+      "original_github_artifact": {
+        "id": 13957390689,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1NzM5MDY4OQ==",
+        "name": "latency-study-profile",
+        "size_in_bytes": 10582069,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13957390689",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13957390689/zip",
+        "expired": false,
+        "digest": "sha256:a62647a5ad0013fb81b3ab77c5d54003b3076bd136f5fa196778ec1f0d764bb7",
+        "created_at": "2026-11-12T15:20:23Z",
+        "updated_at": "2026-11-12T15:20:23Z",
+        "expires_at": "2026-12-12T15:13:31Z",
+        "workflow_run": {
+          "id": 43245458506,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "ad981a25e82da1b9249e8f8366931ef25400ad3a"
+        }
+      }
+    },
+    {
+      "file": "formal-forward.zip",
+      "artifact_id": 13958207388,
+      "sha256": "53acb11ffb76fb532fbfc25856ac87e1878a732834a9faeb24564c4a382e86d1",
+      "bytes": 507187,
+      "original_github_artifact": {
+        "id": 13958207388,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1ODIwNzM4OA==",
+        "name": "latency-study-formal-forward",
+        "size_in_bytes": 507187,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13958207388",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13958207388/zip",
+        "expired": false,
+        "digest": "sha256:53acb11ffb76fb532fbfc25856ac87e1878a732834a9faeb24564c4a382e86d1",
+        "created_at": "2026-11-12T15:31:32Z",
+        "updated_at": "2026-11-12T15:31:32Z",
+        "expires_at": "2026-12-12T15:23:05Z",
+        "workflow_run": {
+          "id": 43247190313,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "9b63190fc97408f5960a8a3203a411565e5ccd82"
+        }
+      }
+    },
+    {
+      "file": "formal-reverse.zip",
+      "artifact_id": 13958736904,
+      "sha256": "73af56bdfdbcf79f97c99911f68fe0197a9bd58a686dd414e25f1a67fe051489",
+      "bytes": 503842,
+      "original_github_artifact": {
+        "id": 13958736904,
+        "node_id": "MDg6QXJ0aWZhY3QxMzk1ODczNjkwNA==",
+        "name": "latency-study-formal-reverse",
+        "size_in_bytes": 503842,
+        "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13958736904",
+        "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/13958736904/zip",
+        "expired": false,
+        "digest": "sha256:73af56bdfdbcf79f97c99911f68fe0197a9bd58a686dd414e25f1a67fe051489",
+        "created_at": "2026-11-12T15:31:30Z",
+        "updated_at": "2026-11-12T15:31:30Z",
+        "expires_at": "2026-12-12T15:23:05Z",
+        "workflow_run": {
+          "id": 43247190313,
+          "repository_id": 1303455007,
+          "head_repository_id": 1303455007,
+          "head_branch": "test/pr32-input-phase-20261112",
+          "head_sha": "9b63190fc97408f5960a8a3203a411565e5ccd82"
+        }
+      }
+    }
+  ],
+  "failed_archives_container": "failed-attempts.zip",
+  "source_map": "source-map.json",
+  "cohorts_separate": true
+}

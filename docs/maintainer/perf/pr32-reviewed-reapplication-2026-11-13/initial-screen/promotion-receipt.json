@@ -1,0 +1,8 @@
+{
+  "promoted": false,
+  "pr32_head": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+  "reason": "UI constructor/reset semantics invalidates UI and combined; independent confirmation setup failed before sampling",
+  "tested_processes": 32,
+  "tested_selections": 192,
+  "confirmation_processes": 0
+}

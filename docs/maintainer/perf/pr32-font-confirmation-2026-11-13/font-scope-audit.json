@@ -1,0 +1,28 @@
+{
+  "baseline": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "current": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+  "compared_paths": [
+    "app/src/main",
+    "app/src/fx",
+    "app/src/debug",
+    "app/src/release",
+    "direct-rime",
+    "native",
+    "build-logic",
+    "gradle",
+    "app/build.gradle.kts",
+    "build.gradle.kts",
+    "settings.gradle.kts",
+    "gradle.properties"
+  ],
+  "changed_paths": [
+    "app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt"
+  ],
+  "inserted_lines": 12,
+  "deleted_lines": 0,
+  "previous_source_sha256": "ab29eec94ddb237f8c9925e568c264f8a789ca8a8272bb0aeea060c92273c5dd",
+  "current_source_sha256": "f0721f509f7ac592badf088952b98aa17cf2f75d13d5a8959b320e25ca2f41da",
+  "font_invalidation_patch": "    override fun setTypeface(tf: Typeface?) {\n        val previous = typeface\n        super.setTypeface(tf)\n        if (typeface !== previous) {\n            // TextView's Layout does not own this view's measured bounds or transform.\n            needsMeasureText = true\n            needsCalculateTransform = true\n            requestLayout()\n            invalidate()\n        }\n    }\n\n",
+  "generated_git_version_metadata_can_differ": true,
+  "source_scope_valid": true
+}

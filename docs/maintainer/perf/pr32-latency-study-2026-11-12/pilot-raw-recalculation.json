@@ -1,0 +1,79 @@
+{
+  "samples": 9,
+  "selections": 54,
+  "summary_values_recomputed": 216,
+  "verified": [
+    {
+      "cohort": "latency-study-pilot-forward",
+      "label": "baseline",
+      "path": "latency-study-pilot-forward\\samples\\b01-p01-baseline\\baseline-1.json",
+      "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+      "selections": 6,
+      "metrics_match_summary": true
+    },
+    {
+      "cohort": "latency-study-pilot-forward",
+      "label": "regressed",
+      "path": "latency-study-pilot-forward\\samples\\b01-p02-regressed\\regressed-1.json",
+      "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+      "selections": 6,
+      "metrics_match_summary": true
+    },
+    {
+      "cohort": "latency-study-pilot-forward",
+      "label": "current",
+      "path": "latency-study-pilot-forward\\samples\\b01-p03-current\\current-1.json",
+      "source": "adb6a4e33426333677934ac82f0a19997245556a",
+      "selections": 6,
+      "metrics_match_summary": true
+    },
+    {
+      "cohort": "latency-study-pilot-reverse",
+      "label": "current",
+      "path": "latency-study-pilot-reverse\\samples\\b01-p01-current\\current-1.json",
+      "source": "adb6a4e33426333677934ac82f0a19997245556a",
+      "selections": 6,
+      "metrics_match_summary": true
+    },
+    {
+      "cohort": "latency-study-pilot-reverse",
+      "label": "regressed",
+      "path": "latency-study-pilot-reverse\\samples\\b01-p02-regressed\\regressed-1.json",
+      "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+      "selections": 6,
+      "metrics_match_summary": true
+    },
+    {
+      "cohort": "latency-study-pilot-reverse",
+      "label": "baseline",
+      "path": "latency-study-pilot-reverse\\samples\\b01-p03-baseline\\baseline-1.json",
+      "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+      "selections": 6,
+      "metrics_match_summary": true
+    },
+    {
+      "cohort": "latency-study-profile",
+      "label": "baseline",
+      "path": "latency-study-profile\\samples\\b01-p01-baseline\\baseline-1.json",
+      "source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+      "selections": 6,
+      "metrics_match_summary": true
+    },
+    {
+      "cohort": "latency-study-profile",
+      "label": "regressed",
+      "path": "latency-study-profile\\samples\\b01-p02-regressed\\regressed-1.json",
+      "source": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+      "selections": 6,
+      "metrics_match_summary": true
+    },
+    {
+      "cohort": "latency-study-profile",
+      "label": "current",
+      "path": "latency-study-profile\\samples\\b01-p03-current\\current-1.json",
+      "source": "adb6a4e33426333677934ac82f0a19997245556a",
+      "selections": 6,
+      "metrics_match_summary": true
+    }
+  ]
+}

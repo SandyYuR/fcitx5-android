@@ -1,0 +1,60 @@
+{
+  "code_base": "0f3e334350c183eb4699ef7b7f74d676efc44056",
+  "code_pr_head": "4a87997ac115badf407dc741ffb8d124879a665b",
+  "code_squash_commit": "3e0a870001a1f59ee33bc1e4dd0971b8d37b225d",
+  "one_parent_one_commit": true,
+  "complete_tree_identical": true,
+  "native_sdk_dependencies_unchanged": true,
+  "docs_base": "9337c8c6a1f5cc61a2f2eba56d766bf985c0c539",
+  "docs_before_closeout": "6b489e4c7adfe41286cee4b21ab862ac44d59635",
+  "bundle_prerequisites": [
+    "88a664d46ba82712d5457d86c037629c478b042c",
+    "0f3e334350c183eb4699ef7b7f74d676efc44056"
+  ],
+  "restored_refs": [
+    {
+      "ref": "refs/archive/pr32-squash-source-20261114",
+      "source_sha": "4a87997ac115badf407dc741ffb8d124879a665b",
+      "restored_tree": "45a6c13c43ea4873a1faa2f1917973e1eefc1279",
+      "equal": true
+    },
+    {
+      "ref": "refs/archive/pr35-perf-source-20261114",
+      "source_sha": "a3486b32b483a209eff9ccb069526d5926489c1a",
+      "restored_tree": "dc3a10c51e16793ffdd373745c925c3c14a9e188",
+      "equal": true
+    }
+  ],
+  "driver_snapshot": [
+    {
+      "source": "a3486b32b483a209eff9ccb069526d5926489c1a",
+      "path": ".github/workflows/rime-candidate-perf.yml",
+      "bytes": 6810,
+      "sha256": "b77f77fe1f02d09e106264297addabd5b4385bf47575086e1731bb8a31924fe2"
+    },
+    {
+      "source": "a3486b32b483a209eff9ccb069526d5926489c1a",
+      "path": "tools/input-perf/build-refactor-products.sh",
+      "bytes": 12877,
+      "sha256": "566aaf18f3f99aef0296ee7251f60da601f98172e64f886af67f8de26d3fb9b0"
+    },
+    {
+      "source": "a3486b32b483a209eff9ccb069526d5926489c1a",
+      "path": "tools/input-perf/compare-refactor.py",
+      "bytes": 15664,
+      "sha256": "477bee3e664d5c7995864ce606c6d3ac4bec5b05c8cffd4c362109e399f64e9e"
+    },
+    {
+      "source": "a3486b32b483a209eff9ccb069526d5926489c1a",
+      "path": "tools/input-perf/refactor-build-recovery.json",
+      "bytes": 2378,
+      "sha256": "4b53648e3caba6f54b385b3224a25f994cfbe92378397bc54f07a7198ec9c458"
+    }
+  ],
+  "new_performance_run": false,
+  "cleanup_after_both_merges": [
+    "fix/first-candidate-latency-20261112",
+    "report/wanxiang-retest-20261108",
+    "perf/pr35-default-comparison-20261114"
+  ]
+}

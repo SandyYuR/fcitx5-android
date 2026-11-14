@@ -1,0 +1,45 @@
+[
+  {
+    "apk": "ui-arm64.apk",
+    "elf_build_id": "2052b03fd81a3fde1a57c6ebe201588fe8838e41",
+    "apk_native_sha256": "ab8a620c532c1556762514358f940f2bd876c17b8e5532f288ba082143e4cdaf",
+    "unstripped_native_sha256": "75f1b31bef83a58aeef907f48db9aa0395bd6142096174118105a7e33f562368",
+    "abi": "arm64-v8a",
+    "static_prebuilt_archives": {
+      "librime": {
+        "archive": "librime.a",
+        "objects": 129
+      },
+      "glog": {
+        "archive": "libglog.a",
+        "objects": 5
+      },
+      "marisa": {
+        "archive": "libmarisa.a",
+        "objects": 9
+      },
+      "opencc": {
+        "archive": "libopencc.a",
+        "objects": 19
+      },
+      "yaml-cpp": {
+        "archive": "libyaml-cpp.a",
+        "objects": 24
+      },
+      "leveldb": {
+        "archive": "libleveldb.a",
+        "objects": 34
+      },
+      "lua": {
+        "archive": "liblua_static.a",
+        "objects": 32
+      }
+    },
+    "ndk_archives": {
+      "libunwind.a": 4,
+      "libclang_rt.builtins-aarch64-android.a": 14
+    },
+    "fcitx_cpp_symbols": [],
+    "map_sha256": "4ea1b452808f2b19aa44e4632bf3c6a127fae734feafbc07983e08315e9f8ec1"
+  }
+]

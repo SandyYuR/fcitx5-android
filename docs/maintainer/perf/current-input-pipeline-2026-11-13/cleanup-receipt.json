@@ -1,0 +1,25 @@
+{
+  "checked_utc": "2026-11-13T15:48:59.016615+00:00",
+  "protected_remote_heads": {
+    "docs": "08ffd6f035adead6bf70f90ac7dd1d13baed77c7",
+    "fix/first-candidate-latency-20261112": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+    "fx-rime-only": "88a664d46ba82712d5457d86c037629c478b042c",
+    "refactor/direct-rime-backend-seams": "ae74bcfbb5b10effc21fc544924a310ceb31f66b"
+  },
+  "product_source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+  "review_branch": "perf/input-pipeline-20261113",
+  "review_head": "6b4cf6e8a9ae2043081f227bf8a85962c6cfe07e",
+  "code_worktree_clean": true,
+  "documentation_branch": "report/wanxiang-retest-20261108",
+  "merged": false,
+  "workflow_restored": {
+    "id": 388119728,
+    "state": "disabled_manually"
+  },
+  "history_ci_retained": true,
+  "own_stash_removed": {
+    "sha": "5b026991946037b3c70c30d7a7317a453d2ee819",
+    "backup_sha256": "702f7c7b86073d03fc936f737b3a7018447fda4571b1bf800d1442af01bcce72"
+  },
+  "other_stashes": ""
+}

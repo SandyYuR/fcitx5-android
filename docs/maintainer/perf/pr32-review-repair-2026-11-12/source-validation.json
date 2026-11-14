@@ -1,0 +1,33 @@
+{
+  "normalization": "CRLF to LF only",
+  "harness_compiled_from": "tools/input-perf/CadenceCandidateTapTest.kt",
+  "matched_files": [
+    ".github/workflows/pr.yml",
+    "README.md",
+    "app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt",
+    "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingStateTest.kt",
+    "tools/input-perf/CadenceCandidateTapTest.kt",
+    "tools/input-perf/associate-events.py",
+    "tools/input-perf/run-cadence.py",
+    "tools/input-perf/test_associate_events.py",
+    "tools/input-perf/test_run_cadence.py",
+    "tools/test-direct-rime-frontend.sh"
+  ],
+  "tool_tests": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 25
+  },
+  "verification_base": "10cc633175ce3cb832e2ab098497c34915e291e7",
+  "local_tests": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 77
+  },
+  "code_commit": "adb6a4e33426333677934ac82f0a19997245556a",
+  "local_device_execution": false,
+  "android_source_unchanged_since": "8801309478aa981cf45128df9be6f0e99d260bc8"
+}

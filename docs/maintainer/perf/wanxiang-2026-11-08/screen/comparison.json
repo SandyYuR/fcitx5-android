@@ -1,0 +1,1987 @@
+{
+  "method": "Median of per-run statistics; keys within one run are not independent experimental repeats",
+  "order": [
+    "groundtruth-1-fcitx",
+    "groundtruth-1-direct",
+    "groundtruth-2-direct",
+    "groundtruth-2-fcitx",
+    "steady-r1-fcitx",
+    "steady-r1-direct",
+    "steady-r2-direct",
+    "steady-r2-fcitx",
+    "steady-r3-fcitx",
+    "steady-r3-direct",
+    "fast-direct",
+    "fast-fcitx",
+    "jitter-fcitx",
+    "jitter-direct"
+  ],
+  "measured_keys": 4752,
+  "all_recorded_runs_correct": true,
+  "groups": {
+    "steady": {
+      "fcitx": {
+        "attempted_rounds": 3,
+        "failed_output": [],
+        "failed_analysis": [
+          "steady-r1-fcitx",
+          "steady-r2-fcitx",
+          "steady-r3-fcitx"
+        ],
+        "rounds": 0,
+        "keys": 0,
+        "metrics": {
+          "forward_candidate": {
+            "p50_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p95_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p99_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "mean_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            }
+          },
+          "first_candidate_before_next_key": {
+            "p50_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p95_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p99_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "mean_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            }
+          },
+          "attributed_candidate": {
+            "p50_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p95_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p99_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "mean_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            }
+          },
+          "space_to_editor": {
+            "p50_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p95_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p99_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "mean_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            }
+          }
+        },
+        "typing_cpu_ms": [],
+        "typing_end_pss_kib": [],
+        "candidate_key_window_coverage": [],
+        "spaces": [],
+        "space_detections": []
+      },
+      "direct": {
+        "attempted_rounds": 3,
+        "failed_output": [],
+        "failed_analysis": [],
+        "rounds": 3,
+        "keys": 1584,
+        "metrics": {
+          "forward_candidate": {
+            "p50_ms": {
+              "median": 162.20247699995525,
+              "min": 161.8872970000375,
+              "max": 164.8665350000374,
+              "runs": [
+                164.8665350000374,
+                161.8872970000375,
+                162.20247699995525
+              ]
+            },
+            "p95_ms": {
+              "median": 410.16653499996755,
+              "min": 401.5024770000018,
+              "max": 412.58729699999094,
+              "runs": [
+                410.16653499996755,
+                412.58729699999094,
+                401.5024770000018
+              ]
+            },
+            "p99_ms": {
+              "median": 475.1872970000841,
+              "min": 469.06653499999084,
+              "max": 483.8024770000484,
+              "runs": [
+                469.06653499999084,
+                475.1872970000841,
+                483.8024770000484
+              ]
+            },
+            "mean_ms": {
+              "median": 177.89224533978347,
+              "min": 177.41478238015463,
+              "max": 181.77376156251103,
+              "runs": [
+                181.77376156251103,
+                177.41478238015463,
+                177.89224533978347
+              ]
+            }
+          },
+          "first_candidate_before_next_key": {
+            "p50_ms": {
+              "median": 105.20247699995525,
+              "min": 103.58729699999094,
+              "max": 125.8665350000374,
+              "runs": [
+                125.8665350000374,
+                103.58729699999094,
+                105.20247699995525
+              ]
+            },
+            "p95_ms": {
+              "median": 244.30247700004838,
+              "min": 239.48729700001422,
+              "max": 244.66653499996755,
+              "runs": [
+                244.66653499996755,
+                239.48729700001422,
+                244.30247700004838
+              ]
+            },
+            "p99_ms": {
+              "median": 271.56653499999084,
+              "min": 270.10247700009495,
+              "max": 297.6872970000841,
+              "runs": [
+                271.56653499999084,
+                297.6872970000841,
+                270.10247700009495
+              ]
+            },
+            "mean_ms": {
+              "median": 115.97604021840279,
+              "min": 109.28429399703332,
+              "max": 122.24522818182959,
+              "runs": [
+                122.24522818182959,
+                109.28429399703332,
+                115.97604021840279
+              ]
+            }
+          },
+          "attributed_candidate": {
+            "p50_ms": {
+              "median": 115.60247700009495,
+              "min": 114.68729700008407,
+              "max": 129.06653499999084,
+              "runs": [
+                129.06653499999084,
+                114.68729700008407,
+                115.60247700009495
+              ]
+            },
+            "p95_ms": {
+              "median": 250.16653499996755,
+              "min": 247.00247700000182,
+              "max": 254.3872970000375,
+              "runs": [
+                250.16653499996755,
+                254.3872970000375,
+                247.00247700000182
+              ]
+            },
+            "p99_ms": {
+              "median": 309.4024769999087,
+              "min": 298.1872970000841,
+              "max": 320.4665350000141,
+              "runs": [
+                320.4665350000141,
+                298.1872970000841,
+                309.4024769999087
+              ]
+            },
+            "mean_ms": {
+              "median": 122.5287237191717,
+              "min": 119.50396366670287,
+              "max": 128.71272922573388,
+              "runs": [
+                128.71272922573388,
+                119.50396366670287,
+                122.5287237191717
+              ]
+            }
+          },
+          "space_to_editor": {
+            "p50_ms": {
+              "median": 129.18729700008407,
+              "min": 120.60247700009495,
+              "max": 158.16653499996755,
+              "runs": [
+                158.16653499996755,
+                129.18729700008407,
+                120.60247700009495
+              ]
+            },
+            "p95_ms": {
+              "median": 394.16653499996755,
+              "min": 371.10247700009495,
+              "max": 397.7872970000608,
+              "runs": [
+                394.16653499996755,
+                397.7872970000608,
+                371.10247700009495
+              ]
+            },
+            "p99_ms": {
+              "median": 469.06653499999084,
+              "min": 459.6872970000841,
+              "max": 483.4024769999087,
+              "runs": [
+                469.06653499999084,
+                459.6872970000841,
+                483.4024769999087
+              ]
+            },
+            "mean_ms": {
+              "median": 165.09999541273814,
+              "min": 157.9368520000171,
+              "max": 177.16970960317838,
+              "runs": [
+                177.16970960317838,
+                165.09999541273814,
+                157.9368520000171
+              ]
+            }
+          }
+        },
+        "typing_cpu_ms": [
+          28265,
+          27767,
+          28030
+        ],
+        "typing_end_pss_kib": [
+          399909,
+          399716,
+          400389
+        ],
+        "candidate_key_window_coverage": [
+          0.6666666666666666,
+          0.6306818181818182,
+          0.6590909090909091
+        ],
+        "spaces": [
+          64,
+          64,
+          64
+        ],
+        "space_detections": [
+          63,
+          63,
+          64
+        ]
+      }
+    },
+    "fast": {
+      "fcitx": {
+        "attempted_rounds": 1,
+        "failed_output": [],
+        "failed_analysis": [],
+        "rounds": 1,
+        "keys": 528,
+        "metrics": {
+          "forward_candidate": {
+            "p50_ms": {
+              "median": 154.9436220000498,
+              "min": 154.9436220000498,
+              "max": 154.9436220000498,
+              "runs": [
+                154.9436220000498
+              ]
+            },
+            "p95_ms": {
+              "median": 414.74362200009637,
+              "min": 414.74362200009637,
+              "max": 414.74362200009637,
+              "runs": [
+                414.74362200009637
+              ]
+            },
+            "p99_ms": {
+              "median": 472.74362200009637,
+              "min": 472.74362200009637,
+              "max": 472.74362200009637,
+              "runs": [
+                472.74362200009637
+              ]
+            },
+            "mean_ms": {
+              "median": 178.26061418764266,
+              "min": 178.26061418764266,
+              "max": 178.26061418764266,
+              "runs": [
+                178.26061418764266
+              ]
+            }
+          },
+          "first_candidate_before_next_key": {
+            "p50_ms": {
+              "median": 102.14362200023606,
+              "min": 102.14362200023606,
+              "max": 102.14362200023606,
+              "runs": [
+                102.14362200023606
+              ]
+            },
+            "p95_ms": {
+              "median": 225.64362200023606,
+              "min": 225.64362200023606,
+              "max": 225.64362200023606,
+              "runs": [
+                225.64362200023606
+              ]
+            },
+            "p99_ms": {
+              "median": 315.3436220001895,
+              "min": 315.3436220001895,
+              "max": 315.3436220001895,
+              "runs": [
+                315.3436220001895
+              ]
+            },
+            "mean_ms": {
+              "median": 110.58368224110623,
+              "min": 110.58368224110623,
+              "max": 110.58368224110623,
+              "runs": [
+                110.58368224110623
+              ]
+            }
+          },
+          "attributed_candidate": {
+            "p50_ms": {
+              "median": 111.04362200014293,
+              "min": 111.04362200014293,
+              "max": 111.04362200014293,
+              "runs": [
+                111.04362200014293
+              ]
+            },
+            "p95_ms": {
+              "median": 258.4436220000498,
+              "min": 258.4436220000498,
+              "max": 258.4436220000498,
+              "runs": [
+                258.4436220000498
+              ]
+            },
+            "p99_ms": {
+              "median": 323.9436220000498,
+              "min": 323.9436220000498,
+              "max": 323.9436220000498,
+              "runs": [
+                323.9436220000498
+              ]
+            },
+            "mean_ms": {
+              "median": 121.87912335515598,
+              "min": 121.87912335515598,
+              "max": 121.87912335515598,
+              "runs": [
+                121.87912335515598
+              ]
+            }
+          },
+          "space_to_editor": {
+            "p50_ms": {
+              "median": 126.24362200009637,
+              "min": 126.24362200009637,
+              "max": 126.24362200009637,
+              "runs": [
+                126.24362200009637
+              ]
+            },
+            "p95_ms": {
+              "median": 437.74362200009637,
+              "min": 437.74362200009637,
+              "max": 437.74362200009637,
+              "runs": [
+                437.74362200009637
+              ]
+            },
+            "p99_ms": {
+              "median": 472.24362200009637,
+              "min": 472.24362200009637,
+              "max": 472.24362200009637,
+              "runs": [
+                472.24362200009637
+              ]
+            },
+            "mean_ms": {
+              "median": 157.04997120650174,
+              "min": 157.04997120650174,
+              "max": 157.04997120650174,
+              "runs": [
+                157.04997120650174
+              ]
+            }
+          }
+        },
+        "typing_cpu_ms": [
+          35073
+        ],
+        "typing_end_pss_kib": [
+          393476
+        ],
+        "candidate_key_window_coverage": [
+          0.6287878787878788
+        ],
+        "spaces": [
+          64
+        ],
+        "space_detections": [
+          63
+        ]
+      },
+      "direct": {
+        "attempted_rounds": 1,
+        "failed_output": [],
+        "failed_analysis": [],
+        "rounds": 1,
+        "keys": 528,
+        "metrics": {
+          "forward_candidate": {
+            "p50_ms": {
+              "median": 166.43669099989347,
+              "min": 166.43669099989347,
+              "max": 166.43669099989347,
+              "runs": [
+                166.43669099989347
+              ]
+            },
+            "p95_ms": {
+              "median": 412.1366909998469,
+              "min": 412.1366909998469,
+              "max": 412.1366909998469,
+              "runs": [
+                412.1366909998469
+              ]
+            },
+            "p99_ms": {
+              "median": 472.0366909997538,
+              "min": 472.0366909997538,
+              "max": 472.0366909997538,
+              "runs": [
+                472.0366909997538
+              ]
+            },
+            "mean_ms": {
+              "median": 179.1794644373449,
+              "min": 179.1794644373449,
+              "max": 179.1794644373449,
+              "runs": [
+                179.1794644373449
+              ]
+            }
+          },
+          "first_candidate_before_next_key": {
+            "p50_ms": {
+              "median": 110.43669099989347,
+              "min": 110.43669099989347,
+              "max": 110.43669099989347,
+              "runs": [
+                110.43669099989347
+              ]
+            },
+            "p95_ms": {
+              "median": 239.73669099994004,
+              "min": 239.73669099994004,
+              "max": 239.73669099994004,
+              "runs": [
+                239.73669099994004
+              ]
+            },
+            "p99_ms": {
+              "median": 282.6366909998469,
+              "min": 282.6366909998469,
+              "max": 282.6366909998469,
+              "runs": [
+                282.6366909998469
+              ]
+            },
+            "mean_ms": {
+              "median": 113.21433450437779,
+              "min": 113.21433450437779,
+              "max": 113.21433450437779,
+              "runs": [
+                113.21433450437779
+              ]
+            }
+          },
+          "attributed_candidate": {
+            "p50_ms": {
+              "median": 124.03669099975377,
+              "min": 124.03669099975377,
+              "max": 124.03669099975377,
+              "runs": [
+                124.03669099975377
+              ]
+            },
+            "p95_ms": {
+              "median": 258.23669099994004,
+              "min": 258.23669099994004,
+              "max": 258.23669099994004,
+              "runs": [
+                258.23669099994004
+              ]
+            },
+            "p99_ms": {
+              "median": 312.33669099980034,
+              "min": 312.33669099980034,
+              "max": 312.33669099980034,
+              "runs": [
+                312.33669099980034
+              ]
+            },
+            "mean_ms": {
+              "median": 125.13163780835656,
+              "min": 125.13163780835656,
+              "max": 125.13163780835656,
+              "runs": [
+                125.13163780835656
+              ]
+            }
+          },
+          "space_to_editor": {
+            "p50_ms": {
+              "median": 138.1366909998469,
+              "min": 138.1366909998469,
+              "max": 138.1366909998469,
+              "runs": [
+                138.1366909998469
+              ]
+            },
+            "p95_ms": {
+              "median": 347.83669099980034,
+              "min": 347.83669099980034,
+              "max": 347.83669099980034,
+              "runs": [
+                347.83669099980034
+              ]
+            },
+            "p99_ms": {
+              "median": 430.0366909997538,
+              "min": 430.0366909997538,
+              "max": 430.0366909997538,
+              "runs": [
+                430.0366909997538
+              ]
+            },
+            "mean_ms": {
+              "median": 163.63827830143939,
+              "min": 163.63827830143939,
+              "max": 163.63827830143939,
+              "runs": [
+                163.63827830143939
+              ]
+            }
+          }
+        },
+        "typing_cpu_ms": [
+          27309
+        ],
+        "typing_end_pss_kib": [
+          400868
+        ],
+        "candidate_key_window_coverage": [
+          0.6268939393939394
+        ],
+        "spaces": [
+          64
+        ],
+        "space_detections": [
+          63
+        ]
+      }
+    },
+    "jitter": {
+      "fcitx": {
+        "attempted_rounds": 1,
+        "failed_output": [],
+        "failed_analysis": [
+          "jitter-fcitx"
+        ],
+        "rounds": 0,
+        "keys": 0,
+        "metrics": {
+          "forward_candidate": {
+            "p50_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p95_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p99_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "mean_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            }
+          },
+          "first_candidate_before_next_key": {
+            "p50_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p95_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p99_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "mean_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            }
+          },
+          "attributed_candidate": {
+            "p50_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p95_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p99_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "mean_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            }
+          },
+          "space_to_editor": {
+            "p50_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p95_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "p99_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            },
+            "mean_ms": {
+              "median": null,
+              "min": null,
+              "max": null,
+              "runs": []
+            }
+          }
+        },
+        "typing_cpu_ms": [],
+        "typing_end_pss_kib": [],
+        "candidate_key_window_coverage": [],
+        "spaces": [],
+        "space_detections": []
+      },
+      "direct": {
+        "attempted_rounds": 1,
+        "failed_output": [],
+        "failed_analysis": [],
+        "rounds": 1,
+        "keys": 264,
+        "metrics": {
+          "forward_candidate": {
+            "p50_ms": {
+              "median": 157.87753399973735,
+              "min": 157.87753399973735,
+              "max": 157.87753399973735,
+              "runs": [
+                157.87753399973735
+              ]
+            },
+            "p95_ms": {
+              "median": 393.17753400001675,
+              "min": 393.17753400001675,
+              "max": 393.17753400001675,
+              "runs": [
+                393.17753400001675
+              ]
+            },
+            "p99_ms": {
+              "median": 492.4775339998305,
+              "min": 492.4775339998305,
+              "max": 492.4775339998305,
+              "runs": [
+                492.4775339998305
+              ]
+            },
+            "mean_ms": {
+              "median": 176.1845928233555,
+              "min": 176.1845928233555,
+              "max": 176.1845928233555,
+              "runs": [
+                176.1845928233555
+              ]
+            }
+          },
+          "first_candidate_before_next_key": {
+            "p50_ms": {
+              "median": 112.67753400001675,
+              "min": 112.67753400001675,
+              "max": 112.67753400001675,
+              "runs": [
+                112.67753400001675
+              ]
+            },
+            "p95_ms": {
+              "median": 240.27753399964422,
+              "min": 240.27753399964422,
+              "max": 240.27753399964422,
+              "runs": [
+                240.27753399964422
+              ]
+            },
+            "p99_ms": {
+              "median": 283.87753399973735,
+              "min": 283.87753399973735,
+              "max": 283.87753399973735,
+              "runs": [
+                283.87753399973735
+              ]
+            },
+            "mean_ms": {
+              "median": 115.76223988218014,
+              "min": 115.76223988218014,
+              "max": 115.76223988218014,
+              "runs": [
+                115.76223988218014
+              ]
+            }
+          },
+          "attributed_candidate": {
+            "p50_ms": {
+              "median": 125.37753399973735,
+              "min": 125.37753399973735,
+              "max": 125.37753399973735,
+              "runs": [
+                125.37753399973735
+              ]
+            },
+            "p95_ms": {
+              "median": 249.67753400001675,
+              "min": 249.67753400001675,
+              "max": 249.67753400001675,
+              "runs": [
+                249.67753400001675
+              ]
+            },
+            "p99_ms": {
+              "median": 322.17753400001675,
+              "min": 322.17753400001675,
+              "max": 322.17753400001675,
+              "runs": [
+                322.17753400001675
+              ]
+            },
+            "mean_ms": {
+              "median": 125.40610542840191,
+              "min": 125.40610542840191,
+              "max": 125.40610542840191,
+              "runs": [
+                125.40610542840191
+              ]
+            }
+          },
+          "space_to_editor": {
+            "p50_ms": {
+              "median": 185.47753399983048,
+              "min": 185.47753399983048,
+              "max": 185.47753399983048,
+              "runs": [
+                185.47753399983048
+              ]
+            },
+            "p95_ms": {
+              "median": 387.4775339998305,
+              "min": 387.4775339998305,
+              "max": 387.4775339998305,
+              "runs": [
+                387.4775339998305
+              ]
+            },
+            "p99_ms": {
+              "median": 462.0775339999236,
+              "min": 462.0775339999236,
+              "max": 462.0775339999236,
+              "runs": [
+                462.0775339999236
+              ]
+            },
+            "mean_ms": {
+              "median": 198.68065899983048,
+              "min": 198.68065899983048,
+              "max": 198.68065899983048,
+              "runs": [
+                198.68065899983048
+              ]
+            }
+          }
+        },
+        "typing_cpu_ms": [
+          13627
+        ],
+        "typing_end_pss_kib": [
+          402185
+        ],
+        "candidate_key_window_coverage": [
+          0.6439393939393939
+        ],
+        "spaces": [
+          32
+        ],
+        "space_detections": [
+          32
+        ]
+      }
+    }
+  },
+  "runs": [
+    {
+      "label": "steady-r1-fcitx",
+      "backend": "fcitx",
+      "mode": "touch",
+      "cadence_ms": 160,
+      "keys": 528,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": null,
+      "typing_cpu_ms": 35797,
+      "typing_end_pss_kib": 388345,
+      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": true
+    },
+    {
+      "label": "steady-r1-direct",
+      "backend": "direct",
+      "mode": "touch",
+      "cadence_ms": 160,
+      "keys": 528,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": {
+        "metric": "Device touch DOWN to visible pixel change, aligned by independent editor marker; includes 32ms key hold, IME, editor, rendering and video sampling",
+        "clock": {
+          "method": "median(marker Choreographer frame clock - video PTS), no candidate-derived clock fitting",
+          "offset_ms": 731067.466535,
+          "residual_ms": [
+            -11.366118000005372,
+            6.933867999934591,
+            -1.0221459999447688,
+            8.789507999899797,
+            3.7334939999273047,
+            1.0221459999447688,
+            5.662139999913052,
+            -21.80487400002312,
+            -1.4602220000233501,
+            -14.260235999943689,
+            -8.371249999967404,
+            5.095070000039414
+          ],
+          "start_end_drift_ms": -7.293555999873206
+        },
+        "video": {
+          "width": 1080,
+          "height": 1920,
+          "screen_width": 1080,
+          "screen_height": 1920,
+          "frames": 575,
+          "frame_interval_ms": {
+            "n": 574,
+            "mean_ms": 215.31242682926828,
+            "p50_ms": 194.94399999999956,
+            "p95_ms": 423.22199999999907,
+            "p99_ms": 635.6219999999979
+          },
+          "stream": {
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "90000/1",
+            "avg_frame_rate": "10350000/2225309",
+            "time_base": "1/90000",
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0
+            },
+            "tags": {
+              "creation_time": "2026-11-08T10:30:58.000000Z",
+              "language": "eng",
+              "handler_name": "VideoHandle",
+              "vendor_id": "[0][0][0][0]"
+            }
+          }
+        },
+        "threshold": {
+          "rgb_sum": 60,
+          "candidate_changed_pixels": 5,
+          "editor_changed_pixels": 2
+        },
+        "keys": 528,
+        "spaces": 64,
+        "candidate_changes": 381,
+        "editor_changes": 419,
+        "forward_candidate": {
+          "n": 512,
+          "mean_ms": 181.77376156251103,
+          "p50_ms": 164.8665350000374,
+          "p95_ms": 410.16653499996755,
+          "p99_ms": 469.06653499999084
+        },
+        "attributed_candidate": {
+          "n": 381,
+          "mean_ms": 128.71272922573388,
+          "p50_ms": 129.06653499999084,
+          "p95_ms": 250.16653499996755,
+          "p99_ms": 320.4665350000141
+        },
+        "space_to_editor": {
+          "n": 63,
+          "mean_ms": 177.16970960317838,
+          "p50_ms": 158.16653499996755,
+          "p95_ms": 394.16653499996755,
+          "p99_ms": 469.06653499999084
+        },
+        "first_candidate_before_next_key": {
+          "n": 352,
+          "mean_ms": 122.24522818182959,
+          "p50_ms": 125.8665350000374,
+          "p95_ms": 244.66653499996755,
+          "p99_ms": 271.56653499999084
+        },
+        "candidate_key_window_coverage": 0.6666666666666666,
+        "shared_next_candidate_event": 160,
+        "unmatched_keys": 16,
+        "injection_schedule_lateness": {
+          "n": 528,
+          "mean_ms": 15125.537878787878,
+          "p50_ms": 14708,
+          "p95_ms": 28784,
+          "p99_ms": 29815
+        },
+        "actual_key_interval": {
+          "n": 527,
+          "mean_ms": 216.80834914611006,
+          "p50_ms": 215,
+          "p95_ms": 299,
+          "p99_ms": 339
+        },
+        "note": "Attributed means latest-key attribution of visible changes, not isolated engine cost. Unmatched/shared events do not prove dropped input."
+      },
+      "typing_cpu_ms": 28265,
+      "typing_end_pss_kib": 399909,
+      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": false
+    },
+    {
+      "label": "steady-r2-direct",
+      "backend": "direct",
+      "mode": "touch",
+      "cadence_ms": 160,
+      "keys": 528,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": {
+        "metric": "Device touch DOWN to visible pixel change, aligned by independent editor marker; includes 32ms key hold, IME, editor, rendering and video sampling",
+        "clock": {
+          "method": "median(marker Choreographer frame clock - video PTS), no candidate-derived clock fitting",
+          "offset_ms": 907507.887297,
+          "residual_ms": [
+            -15.427606000099331,
+            13.649713999941014,
+            -3.5386339999968186,
+            4.061019999906421,
+            -0.8276599999517202,
+            0.8276599999517202,
+            5.845033999881707,
+            -9.198980000102893,
+            5.757005999912508,
+            -8.932008000090718,
+            6.011977999936789,
+            -2.1100360000273213
+          ],
+          "start_end_drift_ms": 1.8234849999425933
+        },
+        "video": {
+          "width": 1080,
+          "height": 1920,
+          "screen_width": 1080,
+          "screen_height": 1920,
+          "frames": 585,
+          "frame_interval_ms": {
+            "n": 584,
+            "mean_ms": 210.497698630137,
+            "p50_ms": 189.00000000000006,
+            "p95_ms": 413.46700000000425,
+            "p99_ms": 547.2329999999914
+          },
+          "stream": {
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "90000/1",
+            "avg_frame_rate": "52650000/11065193",
+            "time_base": "1/90000",
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0
+            },
+            "tags": {
+              "creation_time": "2026-11-08T10:33:54.000000Z",
+              "language": "eng",
+              "handler_name": "VideoHandle",
+              "vendor_id": "[0][0][0][0]"
+            }
+          }
+        },
+        "threshold": {
+          "rgb_sum": 60,
+          "candidate_changed_pixels": 5,
+          "editor_changed_pixels": 2
+        },
+        "keys": 528,
+        "spaces": 64,
+        "candidate_changes": 378,
+        "editor_changes": 416,
+        "forward_candidate": {
+          "n": 513,
+          "mean_ms": 177.41478238015463,
+          "p50_ms": 161.8872970000375,
+          "p95_ms": 412.58729699999094,
+          "p99_ms": 475.1872970000841
+        },
+        "attributed_candidate": {
+          "n": 378,
+          "mean_ms": 119.50396366670287,
+          "p50_ms": 114.68729700008407,
+          "p95_ms": 254.3872970000375,
+          "p99_ms": 298.1872970000841
+        },
+        "space_to_editor": {
+          "n": 63,
+          "mean_ms": 165.09999541273814,
+          "p50_ms": 129.18729700008407,
+          "p95_ms": 397.7872970000608,
+          "p99_ms": 459.6872970000841
+        },
+        "first_candidate_before_next_key": {
+          "n": 333,
+          "mean_ms": 109.28429399703332,
+          "p50_ms": 103.58729699999094,
+          "p95_ms": 239.48729700001422,
+          "p99_ms": 297.6872970000841
+        },
+        "candidate_key_window_coverage": 0.6306818181818182,
+        "shared_next_candidate_event": 180,
+        "unmatched_keys": 15,
+        "injection_schedule_lateness": {
+          "n": 528,
+          "mean_ms": 14053.261363636364,
+          "p50_ms": 13907,
+          "p95_ms": 27386,
+          "p99_ms": 28592
+        },
+        "actual_key_interval": {
+          "n": 527,
+          "mean_ms": 214.80265654648957,
+          "p50_ms": 212,
+          "p95_ms": 308,
+          "p99_ms": 354
+        },
+        "note": "Attributed means latest-key attribution of visible changes, not isolated engine cost. Unmatched/shared events do not prove dropped input."
+      },
+      "typing_cpu_ms": 27767,
+      "typing_end_pss_kib": 399716,
+      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": false
+    },
+    {
+      "label": "steady-r2-fcitx",
+      "backend": "fcitx",
+      "mode": "touch",
+      "cadence_ms": 160,
+      "keys": 528,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": null,
+      "typing_cpu_ms": 35201,
+      "typing_end_pss_kib": 390972,
+      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": true
+    },
+    {
+      "label": "steady-r3-fcitx",
+      "backend": "fcitx",
+      "mode": "touch",
+      "cadence_ms": 160,
+      "keys": 528,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": null,
+      "typing_cpu_ms": 35833,
+      "typing_end_pss_kib": 391474,
+      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": true
+    },
+    {
+      "label": "steady-r3-direct",
+      "backend": "direct",
+      "mode": "touch",
+      "cadence_ms": 160,
+      "keys": 528,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": {
+        "metric": "Device touch DOWN to visible pixel change, aligned by independent editor marker; includes 32ms key hold, IME, editor, rendering and video sampling",
+        "clock": {
+          "method": "median(marker Choreographer frame clock - video PTS), no candidate-derived clock fitting",
+          "offset_ms": 1449162.002477,
+          "residual_ms": [
+            4.524551999988034,
+            -5.053127999883145,
+            -5.664807999972254,
+            -18.431487999856472,
+            -0.031168000074103475,
+            6.213151999982074,
+            3.84219600004144,
+            -0.8918180000036955,
+            0.03116799984127283,
+            6.964153999928385,
+            11.831139999907464,
+            -4.947208000114188
+          ],
+          "start_end_drift_ms": 4.478829999919981
+        },
+        "video": {
+          "width": 1080,
+          "height": 1920,
+          "screen_width": 1080,
+          "screen_height": 1920,
+          "frames": 586,
+          "frame_interval_ms": {
+            "n": 585,
+            "mean_ms": 208.8503128205128,
+            "p50_ms": 178.75600000000702,
+            "p95_ms": 410.8889999999974,
+            "p99_ms": 555.9669999999954
+          },
+          "stream": {
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "90000/1",
+            "avg_frame_rate": "26370000/5500277",
+            "time_base": "1/90000",
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0
+            },
+            "tags": {
+              "creation_time": "2026-11-08T10:42:55.000000Z",
+              "language": "eng",
+              "handler_name": "VideoHandle",
+              "vendor_id": "[0][0][0][0]"
+            }
+          }
+        },
+        "threshold": {
+          "rgb_sum": 60,
+          "candidate_changed_pixels": 5,
+          "editor_changed_pixels": 2
+        },
+        "keys": 528,
+        "spaces": 64,
+        "candidate_changes": 381,
+        "editor_changes": 419,
+        "forward_candidate": {
+          "n": 518,
+          "mean_ms": 177.89224533978347,
+          "p50_ms": 162.20247699995525,
+          "p95_ms": 401.5024770000018,
+          "p99_ms": 483.8024770000484
+        },
+        "attributed_candidate": {
+          "n": 381,
+          "mean_ms": 122.5287237191717,
+          "p50_ms": 115.60247700009495,
+          "p95_ms": 247.00247700000182,
+          "p99_ms": 309.4024769999087
+        },
+        "space_to_editor": {
+          "n": 64,
+          "mean_ms": 157.9368520000171,
+          "p50_ms": 120.60247700009495,
+          "p95_ms": 371.10247700009495,
+          "p99_ms": 483.4024769999087
+        },
+        "first_candidate_before_next_key": {
+          "n": 348,
+          "mean_ms": 115.97604021840279,
+          "p50_ms": 105.20247699995525,
+          "p95_ms": 244.30247700004838,
+          "p99_ms": 270.10247700009495
+        },
+        "candidate_key_window_coverage": 0.6590909090909091,
+        "shared_next_candidate_event": 170,
+        "unmatched_keys": 10,
+        "injection_schedule_lateness": {
+          "n": 528,
+          "mean_ms": 14342.52840909091,
+          "p50_ms": 13879,
+          "p95_ms": 27583,
+          "p99_ms": 28535
+        },
+        "actual_key_interval": {
+          "n": 527,
+          "mean_ms": 214.42884250474384,
+          "p50_ms": 210,
+          "p95_ms": 295,
+          "p99_ms": 344
+        },
+        "note": "Attributed means latest-key attribution of visible changes, not isolated engine cost. Unmatched/shared events do not prove dropped input."
+      },
+      "typing_cpu_ms": 28030,
+      "typing_end_pss_kib": 400389,
+      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": false
+    },
+    {
+      "label": "fast-direct",
+      "backend": "direct",
+      "mode": "touch",
+      "cadence_ms": 120,
+      "keys": 528,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": {
+        "metric": "Device touch DOWN to visible pixel change, aligned by independent editor marker; includes 32ms key hold, IME, editor, rendering and video sampling",
+        "clock": {
+          "method": "median(marker Choreographer frame clock - video PTS), no candidate-derived clock fitting",
+          "offset_ms": 1623746.6366909998,
+          "residual_ms": [
+            9.894688000204042,
+            -0.2613259998615831,
+            0.26132600009441376,
+            -5.517021999694407,
+            -3.8617019997909665,
+            8.561284000054002,
+            0.49000800028443336,
+            8.467660000082105,
+            -4.144019999774173,
+            -4.033033999847248,
+            -5.243381999898702,
+            16.311936000129208
+          ],
+          "start_end_drift_ms": -1.771512999664992
+        },
+        "video": {
+          "width": 1080,
+          "height": 1920,
+          "screen_width": 1080,
+          "screen_height": 1920,
+          "frames": 573,
+          "frame_interval_ms": {
+            "n": 572,
+            "mean_ms": 214.03879195804197,
+            "p50_ms": 185.97799999999864,
+            "p95_ms": 438.1780000000077,
+            "p99_ms": 543.9219999999949
+          },
+          "stream": {
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "90000/1",
+            "avg_frame_rate": "10314000/2204333",
+            "time_base": "1/90000",
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0
+            },
+            "tags": {
+              "creation_time": "2026-11-08T10:45:50.000000Z",
+              "language": "eng",
+              "handler_name": "VideoHandle",
+              "vendor_id": "[0][0][0][0]"
+            }
+          }
+        },
+        "threshold": {
+          "rgb_sum": 60,
+          "candidate_changed_pixels": 5,
+          "editor_changed_pixels": 2
+        },
+        "keys": 528,
+        "spaces": 64,
+        "candidate_changes": 376,
+        "editor_changes": 412,
+        "forward_candidate": {
+          "n": 512,
+          "mean_ms": 179.1794644373449,
+          "p50_ms": 166.43669099989347,
+          "p95_ms": 412.1366909998469,
+          "p99_ms": 472.0366909997538
+        },
+        "attributed_candidate": {
+          "n": 376,
+          "mean_ms": 125.13163780835656,
+          "p50_ms": 124.03669099975377,
+          "p95_ms": 258.23669099994004,
+          "p99_ms": 312.33669099980034
+        },
+        "space_to_editor": {
+          "n": 63,
+          "mean_ms": 163.63827830143939,
+          "p50_ms": 138.1366909998469,
+          "p95_ms": 347.83669099980034,
+          "p99_ms": 430.0366909997538
+        },
+        "first_candidate_before_next_key": {
+          "n": 331,
+          "mean_ms": 113.21433450437779,
+          "p50_ms": 110.43669099989347,
+          "p95_ms": 239.73669099994004,
+          "p99_ms": 282.6366909998469
+        },
+        "candidate_key_window_coverage": 0.6268939393939394,
+        "shared_next_candidate_event": 181,
+        "unmatched_keys": 16,
+        "injection_schedule_lateness": {
+          "n": 528,
+          "mean_ms": 25362.795454545456,
+          "p50_ms": 25950,
+          "p95_ms": 47255,
+          "p99_ms": 49256
+        },
+        "actual_key_interval": {
+          "n": 527,
+          "mean_ms": 213.99240986717268,
+          "p50_ms": 207,
+          "p95_ms": 316,
+          "p99_ms": 349
+        },
+        "note": "Attributed means latest-key attribution of visible changes, not isolated engine cost. Unmatched/shared events do not prove dropped input."
+      },
+      "typing_cpu_ms": 27309,
+      "typing_end_pss_kib": 400868,
+      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": false
+    },
+    {
+      "label": "fast-fcitx",
+      "backend": "fcitx",
+      "mode": "touch",
+      "cadence_ms": 120,
+      "keys": 528,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": {
+        "metric": "Device touch DOWN to visible pixel change, aligned by independent editor marker; includes 32ms key hold, IME, editor, rendering and video sampling",
+        "clock": {
+          "method": "median(marker Choreographer frame clock - video PTS), no candidate-derived clock fitting",
+          "offset_ms": 1805420.5436220001,
+          "residual_ms": [
+            7.9578249999322,
+            4.8138109997380525,
+            14.090796999866143,
+            -7.40921700024046,
+            0.3357689999975264,
+            -3.7305790001992136,
+            10.42030299990438,
+            12.675954999867827,
+            -14.924059000099078,
+            -16.647073000203818,
+            -8.002087000058964,
+            -0.33576900023035705
+          ],
+          "start_end_drift_ms": -6.743718000128865
+        },
+        "video": {
+          "width": 1080,
+          "height": 1920,
+          "screen_width": 1080,
+          "screen_height": 1920,
+          "frames": 590,
+          "frame_interval_ms": {
+            "n": 589,
+            "mean_ms": 200.99202037351444,
+            "p50_ms": 178.15599999999776,
+            "p95_ms": 392.9889999999858,
+            "p99_ms": 612.0220000000005
+          },
+          "stream": {
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "90000/1",
+            "avg_frame_rate": "53100000/10656461",
+            "time_base": "1/90000",
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0
+            },
+            "tags": {
+              "creation_time": "2026-11-08T10:48:47.000000Z",
+              "language": "eng",
+              "handler_name": "VideoHandle",
+              "vendor_id": "[0][0][0][0]"
+            }
+          }
+        },
+        "threshold": {
+          "rgb_sum": 60,
+          "candidate_changed_pixels": 5,
+          "editor_changed_pixels": 2
+        },
+        "keys": 528,
+        "spaces": 64,
+        "candidate_changes": 370,
+        "editor_changes": 406,
+        "forward_candidate": {
+          "n": 512,
+          "mean_ms": 178.26061418764266,
+          "p50_ms": 154.9436220000498,
+          "p95_ms": 414.74362200009637,
+          "p99_ms": 472.74362200009637
+        },
+        "attributed_candidate": {
+          "n": 369,
+          "mean_ms": 121.87912335515598,
+          "p50_ms": 111.04362200014293,
+          "p95_ms": 258.4436220000498,
+          "p99_ms": 323.9436220000498
+        },
+        "space_to_editor": {
+          "n": 63,
+          "mean_ms": 157.04997120650174,
+          "p50_ms": 126.24362200009637,
+          "p95_ms": 437.74362200009637,
+          "p99_ms": 472.24362200009637
+        },
+        "first_candidate_before_next_key": {
+          "n": 332,
+          "mean_ms": 110.58368224110623,
+          "p50_ms": 102.14362200023606,
+          "p95_ms": 225.64362200023606,
+          "p99_ms": 315.3436220001895
+        },
+        "candidate_key_window_coverage": 0.6287878787878788,
+        "shared_next_candidate_event": 180,
+        "unmatched_keys": 16,
+        "injection_schedule_lateness": {
+          "n": 528,
+          "mean_ms": 23164.376893939392,
+          "p50_ms": 23203,
+          "p95_ms": 43468,
+          "p99_ms": 45321
+        },
+        "actual_key_interval": {
+          "n": 527,
+          "mean_ms": 206.53510436432637,
+          "p50_ms": 203,
+          "p95_ms": 299,
+          "p99_ms": 354
+        },
+        "note": "Attributed means latest-key attribution of visible changes, not isolated engine cost. Unmatched/shared events do not prove dropped input."
+      },
+      "typing_cpu_ms": 35073,
+      "typing_end_pss_kib": 393476,
+      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": true
+    },
+    {
+      "label": "jitter-fcitx",
+      "backend": "fcitx",
+      "mode": "touch",
+      "cadence_ms": "jitter",
+      "keys": 264,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": null,
+      "typing_cpu_ms": 17570,
+      "typing_end_pss_kib": 396794,
+      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": true
+    },
+    {
+      "label": "jitter-direct",
+      "backend": "direct",
+      "mode": "touch",
+      "cadence_ms": "jitter",
+      "keys": 264,
+      "schedule_text": "jintian tianqi henhao women yiqi shiyong zhongwen shurufa ceshi xingneng houxuan fangan qiehuan shuru zhongguo nihao shenghuo gongzuo xuexi kuaile shijie pengyou shijian wenti fangfa jiandan qingchu wending sudu zhongzhou jintiantianqihenhao womenyiqiceshishurufa ",
+      "output": "今天天气很好我们一起使用中文输入法测试性能候选方案切换输入中国你好生活工作学习快乐世界朋友时间问题方法简单清楚稳定速度纵轴今天天气很好我们以汽车是输入法",
+      "correct": true,
+      "analysis": {
+        "metric": "Device touch DOWN to visible pixel change, aligned by independent editor marker; includes 32ms key hold, IME, editor, rendering and video sampling",
+        "clock": {
+          "method": "median(marker Choreographer frame clock - video PTS), no candidate-derived clock fitting",
+          "offset_ms": 2097684.977534,
+          "residual_ms": [
+            0.9788870001211762,
+            8.31220699986443,
+            -0.04314099997282028,
+            -4.343154999893159,
+            -4.587834999896586,
+            5.357150999829173,
+            -0.5344549999572337,
+            4.421531000174582,
+            -1.1234829993918538,
+            -12.45716300001368,
+            3.3544890000484884,
+            0.04314100043848157
+          ],
+          "start_end_drift_ms": -0.713529999833554
+        },
+        "video": {
+          "width": 1080,
+          "height": 1920,
+          "screen_width": 1080,
+          "screen_height": 1920,
+          "frames": 308,
+          "frame_interval_ms": {
+            "n": 307,
+            "mean_ms": 207.07763192182412,
+            "p50_ms": 170.02199999999945,
+            "p95_ms": 448.1559999999991,
+            "p99_ms": 858.7780000000009
+          },
+          "stream": {
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "90000/1",
+            "avg_frame_rate": "27720000/5723489",
+            "time_base": "1/90000",
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0
+            },
+            "tags": {
+              "creation_time": "2026-11-08T10:52:45.000000Z",
+              "language": "eng",
+              "handler_name": "VideoHandle",
+              "vendor_id": "[0][0][0][0]"
+            }
+          }
+        },
+        "threshold": {
+          "rgb_sum": 60,
+          "candidate_changed_pixels": 5,
+          "editor_changed_pixels": 2
+        },
+        "keys": 264,
+        "spaces": 32,
+        "candidate_changes": 189,
+        "editor_changes": 207,
+        "forward_candidate": {
+          "n": 255,
+          "mean_ms": 176.1845928233555,
+          "p50_ms": 157.87753399973735,
+          "p95_ms": 393.17753400001675,
+          "p99_ms": 492.4775339998305
+        },
+        "attributed_candidate": {
+          "n": 189,
+          "mean_ms": 125.40610542840191,
+          "p50_ms": 125.37753399973735,
+          "p95_ms": 249.67753400001675,
+          "p99_ms": 322.17753400001675
+        },
+        "space_to_editor": {
+          "n": 32,
+          "mean_ms": 198.68065899983048,
+          "p50_ms": 185.47753399983048,
+          "p95_ms": 387.4775339998305,
+          "p99_ms": 462.0775339999236
+        },
+        "first_candidate_before_next_key": {
+          "n": 170,
+          "mean_ms": 115.76223988218014,
+          "p50_ms": 112.67753400001675,
+          "p95_ms": 240.27753399964422,
+          "p99_ms": 283.87753399973735
+        },
+        "candidate_key_window_coverage": 0.6439393939393939,
+        "shared_next_candidate_event": 85,
+        "unmatched_keys": 9,
+        "injection_schedule_lateness": {
+          "n": 264,
+          "mean_ms": 6279.625,
+          "p50_ms": 6384,
+          "p95_ms": 11871,
+          "p99_ms": 12371
+        },
+        "actual_key_interval": {
+          "n": 263,
+          "mean_ms": 206.6615969581749,
+          "p50_ms": 204,
+          "p95_ms": 290,
+          "p99_ms": 334
+        },
+        "note": "Attributed means latest-key attribution of visible changes, not isolated engine cost. Unmatched/shared events do not prove dropped input."
+      },
+      "typing_cpu_ms": 13627,
+      "typing_end_pss_kib": 402185,
+      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "switch_labels": [
+        "万象拼音",
+        "中文 → 英文",
+        "中标 → 英标",
+        "半角 → 全角",
+        "表情开 → 表情关",
+        "翻译关 → 英译中",
+        "上下文开 → 上下文关",
+        "原编码",
+        "简体",
+        "简码开 → 简码关",
+        "有声调",
+        "提示开 → 提示关",
+        "小字集 → 大字集",
+        "词组先 → 单字先",
+        "英文开 → 英文关"
+      ],
+      "model_mapped": true,
+      "fcitx_core_mapped": false
+    }
+  ]
+}

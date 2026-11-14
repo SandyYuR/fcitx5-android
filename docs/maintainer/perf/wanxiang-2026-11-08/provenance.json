@@ -1,0 +1,168 @@
+{
+  "measurement_date": "2026-11-08",
+  "report_date": "2026-11-11",
+  "report_timezone": "Asia/Shanghai",
+  "product_freeze": "2026-11-08 task start",
+  "source_pins": {
+    "fcitx": {
+      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+      "release": "nightly-0.1.3-715-g5fb6bca3-20261021-205826",
+      "asset": {
+        "id": 663773371,
+        "name": "org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+        "size": 11906742,
+        "digest": "sha256:f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
+        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-715-g5fb6bca3-20261021-205826/org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+        "updated_at": "2026-10-21T20:58:32Z"
+      }
+    },
+    "direct": {
+      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "release": "nightly-0.1.3-802-g2e48466e-20261107-112347",
+      "asset": {
+        "id": 720494660,
+        "name": "direct.apk",
+        "size": 10238250,
+        "digest": "sha256:b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
+        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-802-g2e48466e-20261107-112347/direct.apk",
+        "updated_at": "2026-11-07T11:23:53Z"
+      }
+    }
+  },
+  "suites": [
+    {
+      "suite": "candidate",
+      "run_id": 42467967580,
+      "driver_commit": "3ab4f9a3a67c5906701b76352cafc9f030f926c2",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42467967580",
+      "artifacts": [
+        {
+          "id": 13613015344,
+          "name": "nov08-touch-screen-results",
+          "digest": "sha256:13f85beb14d5df5243fe0482b8133d89ed0f5065356c688080a2db7e552f93a8",
+          "created_at": "2026-11-08T09:52:30Z",
+          "expires_at": "2026-12-08T09:37:25Z",
+          "size_in_bytes": 1460931,
+          "role": "not_admitted_in_this_suite"
+        },
+        {
+          "id": 13612711177,
+          "name": "wanxiang-inputs-20261108",
+          "digest": "sha256:323802c41116230b7ca86c7e49e4c46390cfb5f56ebd1bfb28d25cc5df6c5628",
+          "created_at": "2026-11-08T09:39:10Z",
+          "expires_at": "2026-11-22T09:39:05Z",
+          "size_in_bytes": 509821238,
+          "role": "source_inputs_or_builds"
+        },
+        {
+          "id": 13612657065,
+          "name": "nov08-published-release-results",
+          "digest": "sha256:13ab0d3a23faf257ac17223541bd5e0915e75864ef092a0df85b4a3f484bfb6b",
+          "created_at": "2026-11-08T09:43:31Z",
+          "expires_at": "2026-12-08T09:37:25Z",
+          "size_in_bytes": 72564,
+          "role": "not_admitted_in_this_suite"
+        },
+        {
+          "id": 13612587208,
+          "name": "nov08-touch-screen-videos",
+          "digest": "sha256:fb88bfd5bba190a702a26ee9dac574504812b57c2d54d76e74a6bca0eaa1afdf",
+          "created_at": "2026-11-08T09:52:31Z",
+          "expires_at": "2026-11-22T09:52:30Z",
+          "size_in_bytes": 4908141,
+          "role": "not_admitted_in_this_suite"
+        },
+        {
+          "id": 13612178825,
+          "name": "nov08-candidate-results",
+          "digest": "sha256:667499e0f9ffdd6ce461c902d81f81948aea7807315e50e6911ad67bc9879b35",
+          "created_at": "2026-11-08T09:42:30Z",
+          "expires_at": "2026-12-08T09:37:25Z",
+          "size_in_bytes": 116113,
+          "role": "admitted_measurement"
+        }
+      ]
+    },
+    {
+      "suite": "screen",
+      "run_id": 42469711691,
+      "driver_commit": "2981123448ff359b516342f34bddcb8687cc813c",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42469711691",
+      "artifacts": [
+        {
+          "id": 13614251581,
+          "name": "nov08-touch-screen-results",
+          "digest": "sha256:8cb5caa91109308ac7203629e46717cc7b2c31d5d3815b71a714f40ef63f7afe",
+          "created_at": "2026-11-08T10:52:50Z",
+          "expires_at": "2026-12-08T10:02:35Z",
+          "size_in_bytes": 4309210,
+          "role": "admitted_with_clock_rejections_recorded"
+        },
+        {
+          "id": 13613942649,
+          "name": "nov08-touch-screen-videos",
+          "digest": "sha256:c8c7b13a2713222186c8c817699c48beb6206d475c3bafebc5a62bf50539a0ed",
+          "created_at": "2026-11-08T10:52:52Z",
+          "expires_at": "2026-11-22T10:52:50Z",
+          "size_in_bytes": 52183703,
+          "role": "source_video"
+        },
+        {
+          "id": 13613152854,
+          "name": "wanxiang-debug-products-20261108",
+          "digest": "sha256:c99f19c480d7d484ae8e6d7f4228ef36146d4f5d497d0e17caf8f1533b8bd078",
+          "created_at": "2026-11-08T10:14:28Z",
+          "expires_at": "2026-11-22T10:14:25Z",
+          "size_in_bytes": 49334573,
+          "role": "source_inputs_or_builds"
+        },
+        {
+          "id": 13613121689,
+          "name": "wanxiang-inputs-20261108",
+          "digest": "sha256:785e8a54d0b0b6e48fd068c5954e1d68231b4aecd402942993aca3f879d47bec",
+          "created_at": "2026-11-08T10:03:46Z",
+          "expires_at": "2026-11-22T10:03:39Z",
+          "size_in_bytes": 509825334,
+          "role": "source_inputs_or_builds"
+        }
+      ]
+    },
+    {
+      "suite": "release",
+      "run_id": 42490541270,
+      "driver_commit": "3acba36e180cc28efd6ceecdd7342d440e4a9b3d",
+      "url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/42490541270",
+      "artifacts": [
+        {
+          "id": 13622207253,
+          "name": "nov08-published-release-phrase-results",
+          "digest": "sha256:f1be7f853b7976d8d4f9c81a09e29722aecc96bb5d91faeeafe900e303b45c52",
+          "created_at": "2026-11-08T15:09:05Z",
+          "expires_at": "2026-12-08T14:35:16Z",
+          "size_in_bytes": 2283926,
+          "role": "admitted_measurement"
+        },
+        {
+          "id": 13621715453,
+          "name": "wanxiang-inputs-20261108",
+          "digest": "sha256:20a3c9a841fd0fae1817a4720cc1bb4a0f7c92e9b5398a9d2e430385b0c5f8be",
+          "created_at": "2026-11-08T14:36:59Z",
+          "expires_at": "2026-11-22T14:36:56Z",
+          "size_in_bytes": 509825334,
+          "role": "source_inputs_or_builds"
+        },
+        {
+          "id": 13621499426,
+          "name": "nov08-published-release-ni-results",
+          "digest": "sha256:f2bb29abccd1e1cb0b6f5d1f8fc3e1852a963a7d92b5c85ad66fd9a4c0f7c442",
+          "created_at": "2026-11-08T14:56:51Z",
+          "expires_at": "2026-12-08T14:35:16Z",
+          "size_in_bytes": 2148700,
+          "role": "admitted_measurement"
+        }
+      ]
+    }
+  ],
+  "temporary_workflow_original_state": "disabled_manually",
+  "temporary_workflow_final_state": "disabled_manually"
+}

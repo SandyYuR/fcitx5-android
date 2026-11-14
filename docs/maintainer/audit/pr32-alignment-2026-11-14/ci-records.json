@@ -1,0 +1,648 @@
+{
+  "artifacts": [
+    {
+      "id": 14100661003,
+      "name": "direct-rime-frontend-arm64-debug",
+      "size_in_bytes": 23786634,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14100661003",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14100661003/zip",
+      "expired": false,
+      "created_at": "2026-11-14T05:25:00Z",
+      "expires_at": "2026-12-14T05:16:57Z",
+      "updated_at": "2026-11-14T05:25:00Z",
+      "digest": "sha256:1b3a8c0a9556f411158d1dae7de5c8e73578b3782e9bfb02c03dab4309b6107d",
+      "workflow_run": {
+        "id": 43560767684,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "4a87997ac115badf407dc741ffb8d124879a665b"
+      }
+    },
+    {
+      "id": 14100237468,
+      "name": "direct-rime-frontend-android-results",
+      "size_in_bytes": 1329488,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14100237468",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14100237468/zip",
+      "expired": false,
+      "created_at": "2026-11-14T05:23:46Z",
+      "expires_at": "2026-12-14T05:16:57Z",
+      "updated_at": "2026-11-14T05:23:46Z",
+      "digest": "sha256:06c4b9c71c0540fd16fb3d78da268a3e2d5bf3f5fff3921407dd0056626aaf57",
+      "workflow_run": {
+        "id": 43560767684,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "4a87997ac115badf407dc741ffb8d124879a665b"
+      }
+    },
+    {
+      "id": 14100231837,
+      "name": "direct-rime-arm64-debug",
+      "size_in_bytes": 4949306,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14100231837",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14100231837/zip",
+      "expired": false,
+      "created_at": "2026-11-14T05:19:32Z",
+      "expires_at": "2026-12-14T05:16:57Z",
+      "updated_at": "2026-11-14T05:19:32Z",
+      "digest": "sha256:675eb7c0b4d2f43d74d5f05eff1d78736a08747e7b176894b422949e66817cf4",
+      "workflow_run": {
+        "id": 43560767684,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "4a87997ac115badf407dc741ffb8d124879a665b"
+      }
+    },
+    {
+      "id": 14099084657,
+      "name": "direct-rime-android-smoke-results",
+      "size_in_bytes": 404324,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14099084657",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14099084657/zip",
+      "expired": false,
+      "created_at": "2026-11-14T05:19:54Z",
+      "expires_at": "2026-12-14T05:16:57Z",
+      "updated_at": "2026-11-14T05:19:54Z",
+      "digest": "sha256:303525dbbbe1959bf081a18225975de0b1a0ca19e50ca87934e7632b16d120cc",
+      "workflow_run": {
+        "id": 43560767684,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "fix/first-candidate-latency-20261112",
+        "head_sha": "4a87997ac115badf407dc741ffb8d124879a665b"
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "jobs": [
+        {
+          "id": 132343704339,
+          "name": "Debug APK build",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43560767674,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Fetch source code",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Setup Java",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Setup Android environment",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Setup Gradle",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Prepare pinned NDK before configuring the app",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Prepare personal build sources",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Build Debug APK",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Compile the instrumentation-only cadence harness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Android lint",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Reject legacy native dependencies and backend classes",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Run actions/upload-artifact@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Post Setup Gradle",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Post Setup Java",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            },
+            {
+              "name": "Post Fetch source code",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 24
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 25
+            }
+          ]
+        },
+        {
+          "id": 132343704556,
+          "name": "JVM unit tests",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43560767674,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Fetch source code",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Test input performance tools without device access",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Setup Java",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Setup Android environment",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Setup Gradle",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Test SDK integrity and offline recovery",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Prepare pinned NDK before configuring the app",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run JVM unit tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Setup Gradle",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Post Setup Java",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Fetch source code",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "jobs": [
+        {
+          "id": 132343704510,
+          "name": "Full frontend touch and engine tests",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43560767684,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-java@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run android-actions/setup-android@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch only the pinned Rime dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run gradle/actions/setup-gradle@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Enable KVM",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run reactivecircus/android-emulator-runner@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run actions/upload-artifact@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run gradle/actions/setup-gradle@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Post Run actions/setup-java@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 132343704680,
+          "name": "android_smoke",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43560767684,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Fetch pinned submodules",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-java@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run android-actions/setup-android@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run gradle/actions/setup-gradle@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Allow the test runner to use KVM",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run reactivecircus/android-emulator-runner@v2",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run actions/upload-artifact@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Run gradle/actions/setup-gradle@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Post Run actions/setup-java@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 132343704746,
+          "name": "prototype",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43560767684,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Fetch pinned submodules from the configured engine fork",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run actions/setup-java@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run android-actions/setup-android@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run gradle/actions/setup-gradle@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Test native engine safety contract",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify LevelDB open reuse, explicit sync and recovery fallback",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Build isolated APK and run JVM tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Run actions/upload-artifact@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run gradle/actions/setup-gradle@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Post Run actions/setup-java@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        },
+        {
+          "id": 132343704784,
+          "name": "Full frontend ARM64 APK",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43560767684,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-java@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run android-actions/setup-android@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Fetch only the pinned Rime dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Verify Fcitx sources are absent",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run gradle/actions/setup-gradle@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Build the original UI on direct librime and run JVM tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Verify APK dependencies and assets",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Run actions/upload-artifact@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Post Run gradle/actions/setup-gradle@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Post Run actions/setup-java@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            },
+            {
+              "name": "Post Run actions/checkout@v7",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 20
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 21
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

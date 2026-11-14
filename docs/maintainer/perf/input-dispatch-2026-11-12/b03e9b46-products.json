@@ -1,0 +1,19 @@
+{
+  "sources": {
+    "before": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+    "ui": "b03e9b46d0cc615039ace6749b29d8ab47739c37"
+  },
+  "sdk_lock_sha256": {
+    "before": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f",
+    "ui": "6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f"
+  },
+  "protocol": "fixed_cadence_100ms_input_manager_async_cached_letters",
+  "apks": {
+    "before-tests.apk": "9d266fbe9b2da657397ebcd06e057296a46ae7a410d3d24f4220f0e85a6ba0ed",
+    "before.apk": "e6e6dbc3bbf74cb3342a0c08e530990e736299831e03609bbde40894013b5af2",
+    "ui-arm64.apk": "8b240a30fd23721a1840068056bf82228e569dd0cc2effa3de7bdefc163dd308",
+    "ui-tests.apk": "85ae91508a9050da124938d04da02011788b7e386818e7bba0031c08ec56c2fe",
+    "ui.apk": "1aac9c0b2f5d80a9e4438cacd02c22934c9722a243a55b03b890805f801327d5"
+  },
+  "harness_sha256": "eef0b23766b1b8f874183a116f33ef59f9e6604adb04cbaaa832bc33344439fe"
+}

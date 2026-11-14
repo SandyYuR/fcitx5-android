@@ -1,0 +1,537 @@
+From 3c474d1d3e8aa1fdbb92983c6efcf8db5ec82b25 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 21:13:14 +0000
+Subject: [PATCH 1/2] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E7=BB=98=E5=88=B6):=20?=
+ =?UTF-8?q?=E5=A4=8D=E7=94=A8=E6=97=A2=E6=9C=89=E4=BA=A7=E7=89=A9=E6=A0=B8?=
+ =?UTF-8?q?=E6=9F=A5=E5=9B=BE=E5=BD=A2=E7=BC=93=E5=AD=98=E4=B8=8E=E9=A6=96?=
+ =?UTF-8?q?=E8=BD=AE=E7=AD=89=E5=BE=85?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/rime-candidate-perf.yml   | 124 ++--------
+ tools/input-perf/run-render-cache-probe.py  | 236 ++++++++++++++++++++
+ tools/input-perf/test_render_cache_probe.py |  52 +++++
+ 3 files changed, 308 insertions(+), 104 deletions(-)
+ create mode 100644 tools/input-perf/run-render-cache-probe.py
+ create mode 100644 tools/input-perf/test_render_cache_probe.py
+
+diff --git a/.github/workflows/rime-candidate-perf.yml b/.github/workflows/rime-candidate-perf.yml
+index 4c276fb7..5282c2ea 100644
+--- a/.github/workflows/rime-candidate-perf.yml
++++ b/.github/workflows/rime-candidate-perf.yml
+@@ -1,4 +1,4 @@
+-name: 'Input pipeline review: resume exact verified APKs'
++name: 'RenderThread shader-cache diagnosis: exact existing APK'
+ 'on':
+   workflow_dispatch: {}
+ permissions:
+@@ -31,24 +31,13 @@ jobs:
+         merge-multiple: true
+     - name: Verify previously successful product and quality identities
+       run: python3 tools/input-perf/verify-pipeline-reuse.py "$RUNNER_TEMP/study-products" "$RUNNER_TEMP/pipeline-quality"
+-  formal:
++  probe:
+     needs:
+     - reuse
+-    strategy:
+-      fail-fast: false
+-      matrix:
+-        include:
+-        - replica: forward
+-          seed: 2026111361
+-          order: baseline,current
+-        - replica: reverse
+-          seed: 2026111362
+-          order: current,baseline
+     runs-on: ubuntu-22.04
+-    timeout-minutes: 60
++    timeout-minutes: 35
+     env:
+-      STUDY_ORDER: ${{ matrix.order }}
+-      STUDY_SEED: ${{ matrix.seed }}
++      PROBE_SEQUENCE: ${{ matrix.sequence }}
+     steps:
+     - uses: actions/checkout@v7
+       with:
+@@ -78,14 +67,11 @@ jobs:
+       run: 'bash tools/input-perf/build-study-products.sh --verify "$RUNNER_TEMP/study-products" "f02bbaec1c2820545382dab82b3e007e9f2735fe"
+         "$RUNNER_TEMP/study-inputs"
+ 
+-        mkdir -p build/pipeline-formal
++        mkdir -p build/render-cache
+ 
+-        cp "$RUNNER_TEMP/study-products/products.json" "$RUNNER_TEMP/study-products/pipeline-plan.json" "$RUNNER_TEMP/study-products/pipeline-scope.json"
+-        "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/pipeline-formal/
++        lscpu > build/render-cache/host-cpu.txt
+ 
+-        lscpu > build/pipeline-formal/host-cpu.txt
+-
+-        free -m > build/pipeline-formal/host-memory.txt'
++        free -m > build/render-cache/host-memory.txt'
+     - name: Enable KVM on the disposable runner
+       run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+ 
+@@ -99,95 +85,25 @@ jobs:
+         arch: x86_64
+         avd-name: test
+         emulator-port: 5554
+-        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
++        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back
++          none
+         disable-animations: true
+         script: 'bash tools/input-perf/prepare-phase-avd.sh emulator-5554
+ 
+-          adb -s emulator-5554 shell getprop > build/pipeline-formal/device-properties.txt
+-
+-          python3 tools/input-perf/run-phase-study.py --apks "$RUNNER_TEMP/study-products" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip"
++          python3 tools/input-perf/run-render-cache-probe.py --apks "$RUNNER_TEMP/study-products" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip"
+           --fixture-manifest "$RUNNER_TEMP/study-inputs/fixture.manifest.json" --host "$RUNNER_TEMP/study-products/host.apk"
+-          --output build/pipeline-formal/samples --serial emulator-5554 --expected-avd-name test --allow-destructive-reset
+-          --gap-set 100 --comment-set visible --mode formal --order "$STUDY_ORDER" --seed "$STUDY_SEED" --blocks 6'
++          --output build/render-cache/samples --serial emulator-5554 --expected-avd-name test --allow-owned-test-apps
++          --sequence "$PROBE_SEQUENCE"'
+     - uses: actions/upload-artifact@v7
+       if: always()
+       with:
+-        name: pipeline-formal-${{ matrix.replica }}
+-        path: build/pipeline-formal/
+-        retention-days: 30
+-        if-no-files-found: warn
+-  profile:
+-    needs:
+-    - reuse
+-    runs-on: ubuntu-22.04
+-    timeout-minutes: 60
+-    env:
+-      STUDY_ORDER: baseline,current
+-      STUDY_SEED: '2026111363'
+-    steps:
+-    - uses: actions/checkout@v7
+-      with:
+-        fetch-depth: 0
+-    - uses: actions/setup-java@v5
+-      with:
+-        distribution: temurin
+-        java-version: '17'
+-    - uses: android-actions/setup-android@v4
+-      with:
+-        packages: platform-tools
+-    - uses: actions/download-artifact@v6
+-      with:
+-        artifact-ids: '14028344305'
+-        run-id: 43408540911
+-        github-token: ${{ github.token }}
+-        path: ${{ runner.temp }}/study-products
+-        merge-multiple: true
+-    - uses: actions/download-artifact@v6
+-      with:
+-        artifact-ids: '13853652309'
+-        run-id: 43018095886
+-        github-token: ${{ github.token }}
+-        path: ${{ runner.temp }}/study-inputs
+-        merge-multiple: true
+-    - name: Verify exact products and fixture
+-      run: 'bash tools/input-perf/build-study-products.sh --verify "$RUNNER_TEMP/study-products" "f02bbaec1c2820545382dab82b3e007e9f2735fe"
+-        "$RUNNER_TEMP/study-inputs"
+-
+-        mkdir -p build/pipeline-profile
+-
+-        cp "$RUNNER_TEMP/study-products/products.json" "$RUNNER_TEMP/study-products/pipeline-plan.json" "$RUNNER_TEMP/study-products/pipeline-scope.json"
+-        "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/pipeline-profile/
+-
+-        lscpu > build/pipeline-profile/host-cpu.txt
+-
+-        free -m > build/pipeline-profile/host-memory.txt'
+-    - name: Enable KVM on the disposable runner
+-      run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+-
+-        sudo udevadm control --reload-rules
+-
+-        sudo udevadm trigger --name-match=kvm'
+-    - uses: reactivecircus/android-emulator-runner@v2
+-      with:
+-        api-level: 35
+-        target: aosp_atd
+-        arch: x86_64
+-        avd-name: test
+-        emulator-port: 5554
+-        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+-        disable-animations: true
+-        script: 'bash tools/input-perf/prepare-phase-avd.sh emulator-5554
+-
+-          adb -s emulator-5554 shell getprop > build/pipeline-profile/device-properties.txt
+-
+-          python3 tools/input-perf/run-phase-study.py --apks "$RUNNER_TEMP/study-products" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip"
+-          --fixture-manifest "$RUNNER_TEMP/study-inputs/fixture.manifest.json" --host "$RUNNER_TEMP/study-products/host.apk"
+-          --output build/pipeline-profile/samples --serial emulator-5554 --expected-avd-name test --allow-destructive-reset
+-          --gap-set 100 --comment-set visible --mode pilot --order "$STUDY_ORDER" --seed "$STUDY_SEED" --blocks 1 --profile'
+-    - uses: actions/upload-artifact@v7
+-      if: always()
+-      with:
+-        name: pipeline-profile
+-        path: build/pipeline-profile/
++        name: render-cache-${{ matrix.sequence }}
++        path: build/render-cache/
+         retention-days: 30
+         if-no-files-found: warn
++    strategy:
++      fail-fast: false
++      matrix:
++        sequence:
++        - a
++        - b
+diff --git a/tools/input-perf/run-render-cache-probe.py b/tools/input-perf/run-render-cache-probe.py
+new file mode 100644
+index 00000000..e19ab3af
+--- /dev/null
++++ b/tools/input-perf/run-render-cache-probe.py
+@@ -0,0 +1,236 @@
++#!/usr/bin/env python3
++"""Diagnostic only: exact current APK, fresh processes, retained/removed shader files.
++
++This is not a product comparison. Rime learning and other app/host caches persist
++after the one fixture preparation. Only four explicitly named app-owned shader
++files can be removed; neither app data nor databases are cleared between samples.
++"""
++import argparse
++import importlib.util
++import json
++from pathlib import Path
++import re
++import shlex
++import time
++import uuid
++
++
++ROOT = Path(__file__).resolve().parent
++spec = importlib.util.spec_from_file_location('owned_render_probe', ROOT / 'run-isolated-study.py')
++owned = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(owned)
++# Reuse the ownership/restore machinery with this exact, already-built package.
++owned.PACKAGE = PACKAGE = 'org.fcitx.fcitx5.android.fx.rime.debug'
++owned.TEST_PACKAGE = TEST_PACKAGE = PACKAGE + '.test'
++owned.PACKAGES = frozenset((PACKAGE, TEST_PACKAGE, owned.HOST))
++owned.COMPONENT = PACKAGE + '/org.fcitx.fcitx5.android.input.FcitxInputMethodService'
++PROTOCOL = 'external_process_input_manager_phase_v3'
++SOURCE = 'f02bbaec1c2820545382dab82b3e007e9f2735fe'
++MANIFEST_SHA = '9a929c82d6a9f2911fd32d3cf2cfb34cd1d9902703a85f5e9520e974fbf47c1b'
++DRIVER = '/data/local/tmp/pr32-touch-driver.apk'
++CACHE_PATHS = tuple(f'/data/{storage}/0/{PACKAGE}/cache/com.android.{kind}.shaders_cache'
++                    for storage in ('user_de', 'user') for kind in ('skia', 'opengl'))
++
++
++def cache_script(clear=False):
++    paths = ' '.join(shlex.quote(path) for path in CACHE_PATHS)
++    # Refuse links/directories and never recursively remove a cache directory.
++    action = 'rm -- "$cache_file"' if clear else 'sha256sum "$cache_file"; wc -c < "$cache_file"'
++    return (f'for cache_file in {paths}; do '
++            'if [ -L "$cache_file" ]; then exit 72; fi; '
++            'if [ -e "$cache_file" ] && [ ! -f "$cache_file" ]; then exit 73; fi; '
++            f'if [ -f "$cache_file" ]; then {action}; fi; done')
++
++
++CACHE_COMMANDS = {clear: ('shell', 'run-as', PACKAGE, 'sh', '-c', shlex.quote(cache_script(clear)))
++                  for clear in (False, True)}
++
++
++def parse_cache(text):
++    lines = text.splitlines()
++    if len(lines) % 2:
++        raise ValueError('Incomplete shader cache inventory')
++    records = []
++    for index in range(0, len(lines), 2):
++        match = re.fullmatch(r'([a-f0-9]{64})\s+(.+)', lines[index])
++        if not match or match[2] not in CACHE_PATHS or not lines[index + 1].strip().isdigit():
++            raise ValueError('Unexpected shader cache inventory')
++        records.append(dict(path=match[2], sha256=match[1], bytes=int(lines[index + 1])))
++    if len({item['path'] for item in records}) != len(records):
++        raise ValueError('Duplicate shader cache entry')
++    return records
++
++
++class Device(owned.OwnedDevice):
++    driver_owned = False
++
++    def permit(self, parts):
++        p = tuple(map(str, parts))
++        if p in {('shell', 'test', '-e', DRIVER), ('shell', 'sha256sum', DRIVER)}:
++            return
++        if self.active and PACKAGE in self.owned:
++            if p in CACHE_COMMANDS.values():
++                return
++            if p == ('push', str(self.args.host.resolve()), DRIVER) and self.driver_owned:
++                return
++            if p in {('shell', 'chmod', '444', DRIVER), ('shell', 'rm', '--', DRIVER)} and self.driver_owned:
++                return
++        super().permit(parts)
++
++    def inventory(self):
++        return parse_cache(self.call(*CACHE_COMMANDS[False]).stdout)
++
++    def stop_product(self):
++        self.call('shell', 'am', 'force-stop', PACKAGE)
++        deadline = time.monotonic() + 10
++        while self.call('shell', 'pidof', PACKAGE, check=False).stdout.strip():
++            if time.monotonic() >= deadline:
++                raise RuntimeError('Refuse cache mutation while product process is alive')
++            time.sleep(0.05)
++
++
++def preflight(args):
++    if not args.allow_owned_test_apps or not re.fullmatch(r'emulator-\d+', args.serial):
++        raise ValueError('Explicit authorization and emulator serial required')
++    if not re.fullmatch(r'[A-Za-z0-9_.-]+', args.expected_avd_name):
++        raise ValueError('Exact AVD name required')
++    if args.output.exists() and any(args.output.iterdir()):
++        raise ValueError('Preserve previous evidence; output must be empty')
++    if owned.digest(args.apks / 'products.json') != MANIFEST_SHA:
++        raise ValueError('Only the exact previously verified product manifest is accepted')
++    products = json.loads((args.apks / 'products.json').read_text())
++    if (products['sources']['current'] != SOURCE or products['protocol'] != PROTOCOL or
++            products['harness_sha256'] != owned.digest(ROOT / 'CadenceCandidateTapTest.kt')):
++        raise ValueError('Product/probe identity changed')
++    for name, digest in products['apks'].items():
++        if owned.digest(args.apks / name) != digest:
++            raise ValueError('APK hash mismatch: ' + name)
++    if owned.digest(args.host) != products['host_sha256']:
++        raise ValueError('Host APK hash mismatch')
++    fixture = json.loads(args.fixture_manifest.read_text())
++    if fixture['fixture_sha256'] != owned.FIXTURE_SHA256 or owned.digest(args.fixture) != owned.FIXTURE_SHA256:
++        raise ValueError('Fixture identity changed')
++    installs = {str((args.apks / name).resolve()): dict(package=products['packages'][name], sha256=products['apks'][name])
++                for name in ('current.apk', 'current-tests.apk')}
++    if {item['package'] for item in installs.values()} != {PACKAGE, TEST_PACKAGE}:
++        raise ValueError('Unexpected APK packages')
++    installs[str(args.host.resolve())] = dict(package=owned.HOST, sha256=products['host_sha256'])
++    # The pinned hashes reuse the signed APK identity and successful 56-case QA;
++    # the workflow additionally verifies those exact QA records before this job.
++    return products, fixture, installs
++
++
++def run(args):
++    products, fixture, installs = preflight(args)
++    device = Device(args, installs)
++    device.initialize()
++    trace = None
++    samples = []
++    conditions = (['initial-clear', 'keep', 'clear', 'keep'] if args.sequence == 'a'
++                  else ['initial-clear', 'clear', 'keep', 'clear'])
++    plan = dict(diagnostic_only=True, source=SOURCE, conditions=conditions, protocol=PROTOCOL,
++                cache_paths=CACHE_PATHS, traced=True, fixture_sha256=owned.FIXTURE_SHA256,
++                script_sha256=owned.digest(Path(__file__)), fresh_process_each_sample=True,
++                fixture_prepared_once=True, learning_and_other_caches='retained; not a performance ranking',
++                primary='RenderThread sync durations and their overlap with main postAndWait',
++                no_product_rebuild=True, no_warmup_typing=True)
++    owned.save(args.output / 'plan.json', plan)
++    owned.save(args.output / 'products.json', products)
++    owned.save(args.output / 'fixture.manifest.json', fixture)
++    error = None
++    cleanup_errors = []
++    try:
++        device.wake_for_study()
++        if device.call('shell', 'test', '-e', DRIVER, check=False).returncode != 1:
++            raise RuntimeError('Driver path must be absent before this run owns it')
++        device.call('shell', 'setprop', owned.PROPERTY, 'true')
++        device.call('shell', 'settings', 'put', 'secure', 'show_ime_with_hard_keyboard', '1')
++        device.call('shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000')
++        (args.output / 'device-properties.txt').write_text(device.call('shell', 'getprop').stdout)
++        for path in (args.host, args.apks / 'current.apk', args.apks / 'current-tests.apk'):
++            device.install(path)
++        device.driver_owned = True
++        device.call('push', str(args.host.resolve()), DRIVER)
++        device.call('shell', 'chmod', '444', DRIVER)
++        if device.call('shell', 'sha256sum', DRIVER).stdout.split()[0] != products['host_sha256']:
++            raise RuntimeError('Device shell injector hash differs')
++        device.call('shell', 'run-as', PACKAGE, 'mkdir', '-p', 'files')
++        with args.fixture.open('rb') as stream:
++            device.call('exec-in', 'run-as', PACKAGE, 'sh', '-c', 'cat > files/candidate-fixture.zip', stdin=stream, timeout=180)
++        device.instrument('prepare', SOURCE, args.output / 'prepare')
++        for position, condition in enumerate(conditions, 1):
++            output = args.output / f'{position:02d}-{condition}'
++            output.mkdir()
++            prefix = output / 'current'
++            device.call('shell', 'am', 'force-stop', owned.HOST)
++            device.call('shell', 'pm', 'clear', owned.HOST)
++            device.stop_product()
++            before = device.inventory()
++            if condition != 'keep':
++                device.call(*CACHE_COMMANDS[True])
++            pre_replay = device.inventory()
++            if condition != 'keep' and pre_replay:
++                raise RuntimeError('Shader cache removal did not complete')
++            if condition == 'keep' and pre_replay != before:
++                raise RuntimeError('Stopped-process shader cache unexpectedly changed')
++            cache = dict(before=before, pre_replay=pre_replay,
++                         removal_had_nonempty_target=any(item['bytes'] > 0 for item in before) if condition != 'keep' else None)
++            owned.save(output / 'cache.json', cache)
++            remote = '/data/misc/perfetto-traces/pr32-isolated-' + uuid.uuid4().hex + '.perfetto-trace'
++            device.trace_paths.add(remote)
++            config = owned.trace_config()
++            (output / 'trace-config.txt').write_text(config)
++            pid = device.call('shell', 'perfetto', '--background-wait', '--txt', '-c', '-', '-o', remote, input=config).stdout.strip()
++            if not re.fullmatch(r'\d+', pid):
++                raise RuntimeError('Perfetto did not return a PID')
++            device.trace_pids.add(pid)
++            trace = (pid, remote, prefix.with_suffix('.perfetto-trace'))
++            device.instrument('replay', SOURCE, prefix)
++            ime = device.call('shell', 'run-as', PACKAGE, 'cat', 'files/candidate-taps.json').stdout
++            device.call('shell', 'am', 'broadcast', '-n', owned.HOST + '/.BenchControl', '--es', 'command', 'dump')
++            editor = device.call('shell', 'run-as', owned.HOST, 'cat', 'files/candidate-editor.json').stdout
++            raw = dict(ime=json.loads(ime), editor=json.loads(editor))
++            owned.save(prefix.with_suffix('.json'), raw)
++            sample = dict(position=position, condition=condition, source=SOURCE,
++                          raw=str(prefix.with_suffix('.json').relative_to(args.output)),
++                          measurements=owned.study_module().measurements(raw, SOURCE, PROTOCOL))
++            samples.append(sample)
++            owned.save(args.output / 'samples.json', samples)
++            owned.retain_trace(device, *trace)
++            trace = None
++            cache['after_replay'] = device.inventory()
++            owned.save(output / 'cache.json', cache)
++            print(json.dumps(dict(condition=condition, completed=len(samples), cache=cache)), flush=True)
++    except BaseException as caught:
++        error = caught
++        owned.save(args.output / 'failure.json', dict(error=repr(caught), completed=len(samples)))
++        device.retain_failed_raw()
++    finally:
++        if trace:
++            try:
++                owned.retain_trace(device, *trace)
++            except BaseException as caught:
++                cleanup_errors.append(dict(action='retain trace', error=repr(caught)))
++        if device.driver_owned:
++            try:
++                device.call('shell', 'rm', '--', DRIVER)
++                if device.call('shell', 'test', '-e', DRIVER, check=False).returncode != 1:
++                    raise RuntimeError('Owned injector file remains')
++            except BaseException as caught:
++                cleanup_errors.append(dict(action='remove owned injector', error=repr(caught)))
++        cleanup_errors.extend(device.cleanup())
++        owned.save(args.output / 'probe-cleanup.json', dict(errors=cleanup_errors))
++    if error or cleanup_errors:
++        raise RuntimeError(f'Probe failed: {error!r}; cleanup errors: {cleanup_errors!r}') from error
++    owned.save(args.output / 'summary.json', dict(plan=plan, completed_samples=len(samples), selection_count=6 * len(samples)))
++
++
++if __name__ == '__main__':
++    parser = argparse.ArgumentParser(description=__doc__)
++    for option in ('apks', 'fixture', 'fixture-manifest', 'host', 'output'):
++        parser.add_argument('--' + option, type=Path, required=True)
++    parser.add_argument('--serial', required=True)
++    parser.add_argument('--expected-avd-name', required=True)
++    parser.add_argument('--allow-owned-test-apps', action='store_true')
++    parser.add_argument('--sequence', choices=['a', 'b'], required=True)
++    run(parser.parse_args())
+diff --git a/tools/input-perf/test_render_cache_probe.py b/tools/input-perf/test_render_cache_probe.py
+new file mode 100644
+index 00000000..836b0a2a
+--- /dev/null
++++ b/tools/input-perf/test_render_cache_probe.py
+@@ -0,0 +1,52 @@
++"""Validate the diagnostic's file/ownership boundary without contacting a device."""
++import importlib.util
++from pathlib import Path
++from types import SimpleNamespace
++import unittest
++
++spec = importlib.util.spec_from_file_location('render_cache_probe', Path(__file__).with_name('run-render-cache-probe.py'))
++probe = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(probe)
++
++
++class CacheProbeTest(unittest.TestCase):
++    def test_inventory_rejects_truncation_duplicates_and_unexpected_paths(self):
++        path = probe.CACHE_PATHS[0]
++        entry = 'a' * 64 + '  ' + path + '\n123\n'
++        self.assertEqual(probe.parse_cache(entry), [dict(path=path, sha256='a' * 64, bytes=123)])
++        for broken in (entry.splitlines()[0], entry + entry, entry.replace(path, '/data/other/file'),
++                       entry.replace('123', '-1'), entry.replace('a' * 64, 'x' * 64)):
++            with self.subTest(broken=broken), self.assertRaises(ValueError):
++                probe.parse_cache(broken)
++
++    def test_removal_requires_acquired_package_ownership(self):
++        device = probe.Device(SimpleNamespace(host=Path('/tmp/host.apk')), {})
++        for active, owned in ((False, set()), (True, set()), (True, {probe.owned.HOST})):
++            device.active = active
++            device.initial = {'wakefulness': 'Awake'}
++            device.owned = owned
++            with self.subTest(active=active, owned=owned), self.assertRaises(ValueError):
++                device.permit(probe.CACHE_COMMANDS[True])
++        device.owned = {probe.PACKAGE}
++        device.permit(probe.CACHE_COMMANDS[True])
++
++    def test_only_fixed_shader_files_and_owned_injector_are_allowed(self):
++        device = probe.Device(SimpleNamespace(host=Path('/tmp/host.apk')), {})
++        device.active = True
++        device.initial = {'wakefulness': 'Awake'}
++        device.owned = {probe.PACKAGE}
++        for command in (
++            ('shell', 'run-as', probe.PACKAGE, 'rm', '-rf', 'cache'),
++            ('shell', 'run-as', probe.PACKAGE, 'rm', 'files/userdb/LOCK'),
++            ('shell', 'rm', '--', probe.DRIVER),
++        ):
++            with self.subTest(command=command), self.assertRaises(ValueError):
++                device.permit(command)
++        device.driver_owned = True
++        device.permit(('shell', 'rm', '--', probe.DRIVER))
++        with self.assertRaises(ValueError):
++            device.permit(('shell', 'rm', '--', probe.DRIVER + '.other'))
++
++
++if __name__ == '__main__':
++    unittest.main()
+-- 
+2.52.0
+
+
+From a3c9bea60ef409b93e3c506525a3f510b03bb9c6 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 21:21:22 +0000
+Subject: [PATCH 2/2] =?UTF-8?q?=E4=BF=AE=E6=AD=A3(=E8=BF=BD=E8=B8=AA):=20?=
+ =?UTF-8?q?=E4=B8=BA=E7=8B=AC=E7=AB=8B=E9=87=87=E6=A0=B7=E9=85=8D=E7=BD=AE?=
+ =?UTF-8?q?=E5=91=A8=E6=9C=9F=E6=80=A7=E7=94=9F=E4=BA=A7=E8=80=85=E5=88=B7?=
+ =?UTF-8?q?=E6=96=B0?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ tools/input-perf/run-isolated-study.py      | 1 +
+ tools/input-perf/test_render_cache_probe.py | 7 +++++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/tools/input-perf/run-isolated-study.py b/tools/input-perf/run-isolated-study.py
+index 54a47581..032d5ae2 100644
+--- a/tools/input-perf/run-isolated-study.py
++++ b/tools/input-perf/run-isolated-study.py
+@@ -572,6 +572,7 @@ def trace_config():
+ duration_ms: 20000
+ write_into_file: true
+ file_write_period_ms: 1000
++flush_period_ms: 1000
+ data_sources {{ config {{ name: "linux.ftrace" ftrace_config {{
+  ftrace_events: "sched/sched_switch"
+  ftrace_events: "sched/sched_waking"
+diff --git a/tools/input-perf/test_render_cache_probe.py b/tools/input-perf/test_render_cache_probe.py
+index 836b0a2a..e7961187 100644
+--- a/tools/input-perf/test_render_cache_probe.py
++++ b/tools/input-perf/test_render_cache_probe.py
+@@ -10,6 +10,13 @@ spec.loader.exec_module(probe)
+ 
+ 
+ class CacheProbeTest(unittest.TestCase):
++    def test_streaming_trace_has_periodic_producer_flush(self):
++        config = probe.owned.trace_config()
++        self.assertIn('write_into_file: true', config)
++        self.assertIn('file_write_period_ms: 1000', config)
++        self.assertEqual(config.count('flush_period_ms:'), 1)
++        self.assertIn('flush_period_ms: 1000', config)
++
+     def test_inventory_rejects_truncation_duplicates_and_unexpected_paths(self):
+         path = probe.CACHE_PATHS[0]
+         entry = 'a' * 64 + '  ' + path + '\n123\n'
+-- 
+2.52.0
+

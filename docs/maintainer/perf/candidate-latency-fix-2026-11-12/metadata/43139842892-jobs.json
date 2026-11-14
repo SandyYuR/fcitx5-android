@@ -1,0 +1,549 @@
+{
+  "total_count": 4,
+  "jobs": [
+    {
+      "id": 130923902538,
+      "run_id": 43139842892,
+      "workflow_name": "Direct Rime CI",
+      "head_branch": "fix/first-candidate-latency-20261112",
+      "run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/runs/43139842892",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTbElH88AAAAee6w2Sg",
+      "head_sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/jobs/130923902538",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43139842892/job/130923902538",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T02:13:05Z",
+      "started_at": "2026-11-12T02:13:08Z",
+      "completed_at": "2026-11-12T02:17:14Z",
+      "name": "prototype",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T02:13:09Z",
+          "completed_at": "2026-11-12T02:13:12Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T02:13:12Z",
+          "completed_at": "2026-11-12T02:13:13Z"
+        },
+        {
+          "name": "Fetch pinned submodules from the configured engine fork",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T02:13:13Z",
+          "completed_at": "2026-11-12T02:13:14Z"
+        },
+        {
+          "name": "Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T02:13:14Z",
+          "completed_at": "2026-11-12T02:13:14Z"
+        },
+        {
+          "name": "Run android-actions/setup-android@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T02:13:14Z",
+          "completed_at": "2026-11-12T02:13:24Z"
+        },
+        {
+          "name": "Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T02:13:24Z",
+          "completed_at": "2026-11-12T02:13:32Z"
+        },
+        {
+          "name": "Test native engine safety contract",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-12T02:13:32Z",
+          "completed_at": "2026-11-12T02:16:03Z"
+        },
+        {
+          "name": "Verify LevelDB open reuse, explicit sync and recovery fallback",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-12T02:16:03Z",
+          "completed_at": "2026-11-12T02:16:20Z"
+        },
+        {
+          "name": "Build isolated APK and run JVM tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-12T02:16:20Z",
+          "completed_at": "2026-11-12T02:17:08Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-12T02:17:08Z",
+          "completed_at": "2026-11-12T02:17:10Z"
+        },
+        {
+          "name": "Post Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-11-12T02:17:10Z",
+          "completed_at": "2026-11-12T02:17:11Z"
+        },
+        {
+          "name": "Post Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-12T02:17:11Z",
+          "completed_at": "2026-11-12T02:17:11Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-11-12T02:17:11Z",
+          "completed_at": "2026-11-12T02:17:11Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-12T02:17:11Z",
+          "completed_at": "2026-11-12T02:17:11Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/check-runs/130923902538",
+      "labels": [
+        "ubuntu-22.04"
+      ],
+      "runner_id": 1000003757,
+      "runner_name": "GitHub Actions 1000003757",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130923902546,
+      "run_id": 43139842892,
+      "workflow_name": "Direct Rime CI",
+      "head_branch": "fix/first-candidate-latency-20261112",
+      "run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/runs/43139842892",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTbElH88AAAAee6w2Ug",
+      "head_sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/jobs/130923902546",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43139842892/job/130923902546",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T02:13:05Z",
+      "started_at": "2026-11-12T02:13:07Z",
+      "completed_at": "2026-11-12T02:22:40Z",
+      "name": "Full frontend ARM64 APK",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T02:13:08Z",
+          "completed_at": "2026-11-12T02:13:11Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T02:13:11Z",
+          "completed_at": "2026-11-12T02:13:14Z"
+        },
+        {
+          "name": "Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T02:13:14Z",
+          "completed_at": "2026-11-12T02:13:15Z"
+        },
+        {
+          "name": "Run android-actions/setup-android@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T02:13:15Z",
+          "completed_at": "2026-11-12T02:13:26Z"
+        },
+        {
+          "name": "Fetch only the pinned Rime dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T02:13:26Z",
+          "completed_at": "2026-11-12T02:13:26Z"
+        },
+        {
+          "name": "Verify Fcitx sources are absent",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T02:13:26Z",
+          "completed_at": "2026-11-12T02:13:26Z"
+        },
+        {
+          "name": "Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-12T02:13:26Z",
+          "completed_at": "2026-11-12T02:13:34Z"
+        },
+        {
+          "name": "Build the original UI on direct librime and run JVM tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-12T02:13:34Z",
+          "completed_at": "2026-11-12T02:22:32Z"
+        },
+        {
+          "name": "Verify APK dependencies and assets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-12T02:22:32Z",
+          "completed_at": "2026-11-12T02:22:34Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-12T02:22:34Z",
+          "completed_at": "2026-11-12T02:22:37Z"
+        },
+        {
+          "name": "Post Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-11-12T02:22:37Z",
+          "completed_at": "2026-11-12T02:22:37Z"
+        },
+        {
+          "name": "Post Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-12T02:22:37Z",
+          "completed_at": "2026-11-12T02:22:38Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-11-12T02:22:38Z",
+          "completed_at": "2026-11-12T02:22:38Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-11-12T02:22:38Z",
+          "completed_at": "2026-11-12T02:22:38Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/check-runs/130923902546",
+      "labels": [
+        "ubuntu-22.04"
+      ],
+      "runner_id": 1000003758,
+      "runner_name": "GitHub Actions 1000003758",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130923902567,
+      "run_id": 43139842892,
+      "workflow_name": "Direct Rime CI",
+      "head_branch": "fix/first-candidate-latency-20261112",
+      "run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/runs/43139842892",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTbElH88AAAAee6w2Zw",
+      "head_sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/jobs/130923902567",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43139842892/job/130923902567",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T02:13:05Z",
+      "started_at": "2026-11-12T02:13:08Z",
+      "completed_at": "2026-11-12T02:18:48Z",
+      "name": "android_smoke",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T02:13:08Z",
+          "completed_at": "2026-11-12T02:13:12Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T02:13:12Z",
+          "completed_at": "2026-11-12T02:13:13Z"
+        },
+        {
+          "name": "Fetch pinned submodules",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T02:13:13Z",
+          "completed_at": "2026-11-12T02:13:14Z"
+        },
+        {
+          "name": "Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T02:13:14Z",
+          "completed_at": "2026-11-12T02:13:14Z"
+        },
+        {
+          "name": "Run android-actions/setup-android@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T02:13:14Z",
+          "completed_at": "2026-11-12T02:13:25Z"
+        },
+        {
+          "name": "Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T02:13:25Z",
+          "completed_at": "2026-11-12T02:13:33Z"
+        },
+        {
+          "name": "Allow the test runner to use KVM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-12T02:13:33Z",
+          "completed_at": "2026-11-12T02:13:33Z"
+        },
+        {
+          "name": "Run reactivecircus/android-emulator-runner@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-12T02:13:33Z",
+          "completed_at": "2026-11-12T02:18:43Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-12T02:18:43Z",
+          "completed_at": "2026-11-12T02:18:44Z"
+        },
+        {
+          "name": "Post Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-11-12T02:18:44Z",
+          "completed_at": "2026-11-12T02:18:44Z"
+        },
+        {
+          "name": "Post Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-11-12T02:18:44Z",
+          "completed_at": "2026-11-12T02:18:45Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-11-12T02:18:45Z",
+          "completed_at": "2026-11-12T02:18:45Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-12T02:18:45Z",
+          "completed_at": "2026-11-12T02:18:45Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/check-runs/130923902567",
+      "labels": [
+        "ubuntu-22.04"
+      ],
+      "runner_id": 1000003756,
+      "runner_name": "GitHub Actions 1000003756",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 130923902631,
+      "run_id": 43139842892,
+      "workflow_name": "Direct Rime CI",
+      "head_branch": "fix/first-candidate-latency-20261112",
+      "run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/runs/43139842892",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTbElH88AAAAee6w2pw",
+      "head_sha": "986e2c72b52bc8ebb85400a0c3acc8b1e7df93ec",
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/jobs/130923902631",
+      "html_url": "https://github.com/SandyYuR/fcitx5-android/actions/runs/43139842892/job/130923902631",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-12T02:13:05Z",
+      "started_at": "2026-11-12T02:13:07Z",
+      "completed_at": "2026-11-12T02:19:37Z",
+      "name": "Full frontend touch and engine tests",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-12T02:13:08Z",
+          "completed_at": "2026-11-12T02:13:11Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-12T02:13:11Z",
+          "completed_at": "2026-11-12T02:13:13Z"
+        },
+        {
+          "name": "Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-12T02:13:13Z",
+          "completed_at": "2026-11-12T02:13:13Z"
+        },
+        {
+          "name": "Run android-actions/setup-android@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-12T02:13:13Z",
+          "completed_at": "2026-11-12T02:13:19Z"
+        },
+        {
+          "name": "Fetch only the pinned Rime dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-12T02:13:19Z",
+          "completed_at": "2026-11-12T02:13:20Z"
+        },
+        {
+          "name": "Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-12T02:13:20Z",
+          "completed_at": "2026-11-12T02:13:26Z"
+        },
+        {
+          "name": "Enable KVM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-12T02:13:26Z",
+          "completed_at": "2026-11-12T02:13:26Z"
+        },
+        {
+          "name": "Run reactivecircus/android-emulator-runner@v2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-12T02:13:26Z",
+          "completed_at": "2026-11-12T02:19:33Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-12T02:19:33Z",
+          "completed_at": "2026-11-12T02:19:34Z"
+        },
+        {
+          "name": "Post Run gradle/actions/setup-gradle@v6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-11-12T02:19:34Z",
+          "completed_at": "2026-11-12T02:19:34Z"
+        },
+        {
+          "name": "Post Run actions/setup-java@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-11-12T02:19:34Z",
+          "completed_at": "2026-11-12T02:19:34Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-11-12T02:19:34Z",
+          "completed_at": "2026-11-12T02:19:35Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-12T02:19:35Z",
+          "completed_at": "2026-11-12T02:19:35Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/check-runs/130923902631",
+      "labels": [
+        "ubuntu-22.04"
+      ],
+      "runner_id": 1000003759,
+      "runner_name": "GitHub Actions 1000003759",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+# Captured job logs retain their exact bytes.
+*.log -whitespace

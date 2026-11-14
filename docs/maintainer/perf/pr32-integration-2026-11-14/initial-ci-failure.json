@@ -1,0 +1,23 @@
+{
+  "source": "8ee233bc7f75786fc36faff412a89d1a6ccca601",
+  "run": 43551759674,
+  "tests": {
+    "tests": "60",
+    "failures": "1",
+    "errors": "0",
+    "skipped": "0",
+    "time": "69.661",
+    "timestamp": "2026-11-14T03:35:57",
+    "hostname": "localhost"
+  },
+  "failed_cases": [
+    {
+      "name": "statusAreaModeMenuFollowsTouchSwitches",
+      "classname": "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest",
+      "time": "1.916",
+      "failure": "java.lang.AssertionError: Status area must contain the Rime menu entry\nat org.junit.Assert.fail(Assert.java:89)\nat org.junit.Assert.assertTrue(Assert.java:42)\nat org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$statusAreaModeMenuFollowsTouchSwitches$1.invokeSuspend$lambda$6(DirectRimeFrontendTest.kt:1115)\nat org.fcitx.fcitx5.android.core.DirectRimeFrontendTest$statusAreaModeMenuFollowsTouchSwitches$1$$ExternalSyntheticLambda9.run(D8$$SyntheticClass:0)\nat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:487)\nat java.util.concurrent.FutureTask.run(FutureTask.java:264)\nat android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2612)\nat android.os.Handler.handleCallback(Handler.java:959)\nat android.os.Handler.dispatchMessage(Handler.java:100)\nat android.os.Looper.loopOnce(Looper.java:232)\nat android.os.Looper.loop(Looper.java:317)\nat android.app.ActivityThread.main(ActivityThread.java:8705)\nat java.lang.reflect.Method.invoke(Native Method)\nat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:580)\nat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:886)\n"
+    }
+  ],
+  "reason": "StatusAreaWindow.onAttached requests status actions asynchronously before publishing the adapter entries; the test asserted immediately after attachment.",
+  "fix_scope": "Wait for the actual adapter Rime entry with the existing bounded await, then perform the same real taps and mode assertions."
+}

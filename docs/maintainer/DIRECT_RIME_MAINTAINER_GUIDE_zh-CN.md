@@ -90,6 +90,8 @@ pwsh -File D:\GitHub\fx2-rime\build-release.ps1
 
 ## 输入事件链路
 
+首次阅读先看[Rime 直连架构与职责](implementation/direct-rime-architecture.md)，包含完整事件图、状态归属和维护事务；具体修改边界继续由[正确性契约](implementation/correctness-contracts.md)约束。
+
 ```text
 软键盘 / 物理按键
   → FcitxInputMethodService 串行队列（入队前获取 ticket）

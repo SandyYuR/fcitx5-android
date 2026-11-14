@@ -1,0 +1,1232 @@
+From 9a26eb811904d1d353ce165bacdf9d8cfa84de86 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 23:43:18 +0000
+Subject: [PATCH] =?UTF-8?q?=E6=B5=8B=E8=AF=95(=E5=AD=97=E4=BD=93):=20?=
+ =?UTF-8?q?=E9=A2=84=E7=99=BB=E8=AE=B0=E6=92=A4=E4=B8=8B=E5=BF=AB=E8=B7=AF?=
+ =?UTF-8?q?=E5=BE=84=E5=90=8E=E7=9A=84=E4=B8=A4=E7=89=88=E5=AF=B9=E7=85=A7?=
+ =?UTF-8?q?=E4=B8=8E=E5=8F=8D=E5=90=91=E9=AA=8C=E8=AF=81?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .github/workflows/rime-candidate-perf.yml     | 199 ++++--------------
+ .../candidate-perf/host/BenchTouchDriver.java |  95 +++++++++
+ tools/input-perf/CadenceCandidateTapTest.kt   | 105 ++++++---
+ tools/input-perf/build-study-products.sh      |  26 ++-
+ tools/input-perf/font-confirmation-plan.json  |  50 +++++
+ tools/input-perf/prepare-phase-avd.sh         |  13 ++
+ tools/input-perf/run-cadence.py               |  14 +-
+ tools/input-perf/run-font-contract.py         | 149 +++++++++++++
+ tools/input-perf/run-phase-study.py           |  60 ++++++
+ tools/input-perf/run-study.py                 |  35 ++-
+ tools/input-perf/verify-font-scope.py         |  46 ++++
+ 11 files changed, 585 insertions(+), 207 deletions(-)
+ create mode 100644 tools/candidate-perf/host/BenchTouchDriver.java
+ create mode 100644 tools/input-perf/font-confirmation-plan.json
+ create mode 100644 tools/input-perf/prepare-phase-avd.sh
+ create mode 100644 tools/input-perf/run-font-contract.py
+ create mode 100644 tools/input-perf/run-phase-study.py
+ create mode 100644 tools/input-perf/verify-font-scope.py
+
+diff --git a/.github/workflows/rime-candidate-perf.yml b/.github/workflows/rime-candidate-perf.yml
+index c2848484..7ad984d5 100644
+--- a/.github/workflows/rime-candidate-perf.yml
++++ b/.github/workflows/rime-candidate-perf.yml
+@@ -1,48 +1,14 @@
+-name: Candidate latency study
++name: PR32 font-only correctness and latency confirmation
+ on:
+   workflow_dispatch:
+-    inputs:
+-      phase:
+-        description: Build only, calibrate the three sources, or run the predeclared formal blocks
+-        type: choice
+-        options: [build, pilot, formal]
+-        default: pilot
+-      current_ref:
+-        description: Exact 40-character current product commit; never use a moving branch
+-        type: string
+-        required: true
+-        default: adb6a4e33426333677934ac82f0a19997245556a
+-      products_run:
+-        description: Optional existing study product run; source, probe, host and APK hashes must match
+-        type: string
+-        default: ''
+-      recover_driver:
+-        description: Original 40-character driver SHA, only to finish metadata from a failed products_run
+-        type: string
+-        default: ''
+-      seed:
+-        description: Recorded randomization seed; the reverse VM uses seed plus one
+-        type: string
+-        default: '20261112'
+-      blocks:
+-        description: Formal blocks per VM, a multiple of six from 6 to 24; pilot always uses one
+-        type: number
+-        default: 1
+-      profile:
+-        description: Also run a separate traced pilot on another VM; never combine it with untraced samples
+-        type: boolean
+-        default: false
+-
+ permissions:
+   contents: read
+   actions: read
+ concurrency:
+-  group: candidate-latency-study-${{ github.ref }}
++  group: pr32-font-confirmation-${{ github.ref }}
+   cancel-in-progress: false
+-
+ jobs:
+   build:
+-    if: inputs.products_run == '' || inputs.recover_driver != ''
+     runs-on: ubuntu-22.04
+     timeout-minutes: 60
+     steps:
+@@ -57,47 +23,18 @@ jobs:
+         with:
+           packages: platform-tools platforms;android-36 build-tools;36.0.0
+       - uses: gradle/actions/setup-gradle@v6
+-        if: inputs.recover_driver == ''
+-      - name: Validate the failed build identity before recovery
+-        if: inputs.recover_driver != ''
+-        env:
+-          RECOVER_DRIVER: ${{ inputs.recover_driver }}
+-          PRODUCTS_RUN: ${{ inputs.products_run }}
+-          GH_TOKEN: ${{ github.token }}
+-        run: |
+-          python3 - <<'PY'
+-          import json, os, re, urllib.request
+-          driver, run = os.environ['RECOVER_DRIVER'], os.environ['PRODUCTS_RUN']
+-          if not re.fullmatch(r'[0-9a-f]{40}', driver) or not re.fullmatch(r'[0-9]+', run):
+-              raise SystemExit('Recovery requires the original driver SHA and failed product run ID')
+-          request = urllib.request.Request(
+-              f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run}",
+-              headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'User-Agent': 'latency-study'})
+-          with urllib.request.urlopen(request) as response:
+-              record = json.load(response)
+-          if (record['head_sha'] != driver or record['status'] != 'completed' or
+-                  record['conclusion'] != 'failure' or record['path'] != '.github/workflows/rime-candidate-perf.yml'):
+-              raise SystemExit('The identified run is not the expected failed latency product build')
+-          PY
+-      - uses: actions/download-artifact@v6
+-        if: inputs.recover_driver != ''
+         with:
+-          name: latency-study-products
+-          run-id: ${{ inputs.products_run }}
+-          github-token: ${{ github.token }}
+-          path: ${{ runner.temp }}/study-products
+-      - name: Recover metadata without rebuilding the original APKs
+-        if: inputs.recover_driver != ''
+-        env:
+-          CURRENT_REF: ${{ inputs.current_ref }}
+-          RECOVER_DRIVER: ${{ inputs.recover_driver }}
+-          PRODUCTS_RUN: ${{ inputs.products_run }}
+-        run: bash tools/input-perf/build-study-products.sh --recover "$RUNNER_TEMP/study-products" "$CURRENT_REF" "$RECOVER_DRIVER" "$PRODUCTS_RUN"
+-      - name: Build three pinned products and one neutral host
+-        if: inputs.recover_driver == ''
+-        env:
+-          CURRENT_REF: ${{ inputs.current_ref }}
+-        run: bash tools/input-perf/build-study-products.sh "$RUNNER_TEMP/study-products" "$CURRENT_REF"
++          cache-read-only: false
++      - name: Verify the only product change and the frozen plan
++        run: python3 tools/input-perf/verify-font-scope.py "$RUNNER_TEMP/font-scope-audit.json"
++      - name: Build the two pinned products with identical test overlays
++        run: bash tools/input-perf/build-study-products.sh "$RUNNER_TEMP/study-products" "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18"
++      - name: Attach the predeclared scope and source checks
++        if: always()
++        run: |
++          mkdir -p "$RUNNER_TEMP/study-products"
++          cp tools/input-perf/font-confirmation-plan.json "$RUNNER_TEMP/study-products/"
++          cp "$RUNNER_TEMP/font-scope-audit.json" "$RUNNER_TEMP/study-products/"
+       - uses: actions/upload-artifact@v7
+         if: always()
+         with:
+@@ -105,29 +42,23 @@ jobs:
+           path: ${{ runner.temp }}/study-products/
+           retention-days: 30
+           if-no-files-found: warn
+-
+   compare:
+     needs: build
+-    if: always() && !cancelled() && inputs.phase != 'build' && (needs.build.result == 'success' || (needs.build.result == 'skipped' && inputs.products_run != ''))
+     strategy:
+       fail-fast: false
+       matrix:
+         include:
+           - replica: forward
+-            order: baseline,regressed,current
+-            seed_offset: 0
++            order: baseline,current
++            seed: 2026111301
+           - replica: reverse
+-            order: current,regressed,baseline
+-            seed_offset: 1
++            order: current,baseline
++            seed: 2026111302
+     runs-on: ubuntu-22.04
+     timeout-minutes: 60
+     env:
+-      CURRENT_REF: ${{ inputs.current_ref }}
+-      STUDY_MODE: ${{ inputs.phase }}
+       STUDY_ORDER: ${{ matrix.order }}
+-      STUDY_SEED_BASE: ${{ inputs.seed }}
+-      STUDY_SEED_OFFSET: ${{ matrix.seed_offset }}
+-      STUDY_BLOCKS_INPUT: ${{ inputs.blocks }}
++      STUDY_SEED: ${{ matrix.seed }}
+     steps:
+       - uses: actions/checkout@v7
+       - uses: actions/setup-java@v5
+@@ -140,42 +71,22 @@ jobs:
+       - uses: actions/download-artifact@v6
+         with:
+           name: latency-study-products
+-          run-id: ${{ inputs.products_run != '' && inputs.recover_driver == '' && inputs.products_run || github.run_id }}
+-          github-token: ${{ github.token }}
+           path: ${{ runner.temp }}/study-products
+-      - name: Download the existing frozen fixture
+-        uses: actions/download-artifact@v6
++      - uses: actions/download-artifact@v6
+         with:
+           artifact-ids: '13853652309'
+           run-id: 43018095886
+           github-token: ${{ github.token }}
+           path: ${{ runner.temp }}/study-inputs
+           merge-multiple: true
+-      - name: Validate products, fixture and study controls
++      - name: Verify the frozen products and user configuration
+         run: |
+-          bash tools/input-perf/build-study-products.sh --verify "$RUNNER_TEMP/study-products" "$CURRENT_REF" "$RUNNER_TEMP/study-inputs"
+-          python3 - <<'PY'
+-          import os, re
+-          seed = os.environ['STUDY_SEED_BASE']
+-          blocks = os.environ['STUDY_BLOCKS_INPUT']
+-          if not re.fullmatch(r'[0-9]+', seed) or not re.fullmatch(r'[0-9]+', blocks):
+-              raise SystemExit('Seed and blocks must be nonnegative decimal integers')
+-          blocks = 1 if os.environ['STUDY_MODE'] == 'pilot' else int(blocks)
+-          if not 1 <= blocks <= 24:
+-              raise SystemExit('Blocks must be between 1 and 24')
+-          if os.environ['STUDY_MODE'] == 'formal' and blocks % 6:
+-              raise SystemExit('Three-product formal blocks must be a multiple of six')
+-          with open(os.environ['GITHUB_ENV'], 'a') as output:
+-              output.write(f"STUDY_SEED={int(seed) + int(os.environ['STUDY_SEED_OFFSET'])}\n")
+-              output.write(f'STUDY_BLOCKS={blocks}\n')
+-          PY
+-          mkdir -p build/latency-study
+-          cp "$RUNNER_TEMP/study-products/products.json" "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/latency-study/
+-          uname -a > build/latency-study/host-kernel.txt
+-          cat /proc/cpuinfo > build/latency-study/host-cpuinfo.txt
+-          lscpu > build/latency-study/host-lscpu.txt
+-          free -m > build/latency-study/host-memory.txt
+-      - name: Enable KVM
++          bash tools/input-perf/build-study-products.sh --verify "$RUNNER_TEMP/study-products" "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18" "$RUNNER_TEMP/study-inputs"
++          mkdir -p build/font-confirmation
++          cp "$RUNNER_TEMP/study-products/products.json" "$RUNNER_TEMP/study-products/font-confirmation-plan.json" "$RUNNER_TEMP/study-products/font-scope-audit.json" "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/font-confirmation/
++          lscpu > build/font-confirmation/host-cpu.txt
++          free -m > build/font-confirmation/host-memory.txt
++      - name: Enable KVM on the disposable runner
+         run: |
+           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+           sudo udevadm control --reload-rules
+@@ -190,26 +101,20 @@ jobs:
+           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+           disable-animations: true
+           script: |
+-            adb -s emulator-5554 root
+-            adb -s emulator-5554 wait-for-device
+-            adb -s emulator-5554 shell getprop > build/latency-study/device-properties.txt
+-            python3 tools/input-perf/run-study.py --apks "$RUNNER_TEMP/study-products" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --fixture-manifest "$RUNNER_TEMP/study-inputs/fixture.manifest.json" --host "$RUNNER_TEMP/study-products/host.apk" --output build/latency-study/samples --serial emulator-5554 --expected-avd-name test --allow-destructive-reset --mode "$STUDY_MODE" --order "$STUDY_ORDER" --seed "$STUDY_SEED" --blocks "$STUDY_BLOCKS"
++            bash tools/input-perf/prepare-phase-avd.sh emulator-5554
++            adb -s emulator-5554 shell getprop > build/font-confirmation/device-properties.txt
++            python3 tools/input-perf/run-phase-study.py --apks "$RUNNER_TEMP/study-products" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --fixture-manifest "$RUNNER_TEMP/study-inputs/fixture.manifest.json" --host "$RUNNER_TEMP/study-products/host.apk" --output build/font-confirmation/samples --serial emulator-5554 --expected-avd-name test --allow-destructive-reset --gap-set 100 --comment-set visible --mode formal --order "$STUDY_ORDER" --seed "$STUDY_SEED" --blocks 6
+       - uses: actions/upload-artifact@v7
+         if: always()
+         with:
+-          name: latency-study-${{ inputs.phase }}-${{ matrix.replica }}
+-          path: build/latency-study/
++          name: font-confirmation-${{ matrix.replica }}
++          path: build/font-confirmation/
+           retention-days: 30
+           if-no-files-found: warn
+-
+-  profile:
++  font_contracts:
+     needs: build
+-    if: always() && !cancelled() && inputs.profile && inputs.phase != 'build' && (needs.build.result == 'success' || (needs.build.result == 'skipped' && inputs.products_run != ''))
+     runs-on: ubuntu-22.04
+-    timeout-minutes: 60
+-    env:
+-      CURRENT_REF: ${{ inputs.current_ref }}
+-      STUDY_SEED_BASE: ${{ inputs.seed }}
++    timeout-minutes: 30
+     steps:
+       - uses: actions/checkout@v7
+       - uses: actions/setup-java@v5
+@@ -222,34 +127,8 @@ jobs:
+       - uses: actions/download-artifact@v6
+         with:
+           name: latency-study-products
+-          run-id: ${{ inputs.products_run != '' && inputs.recover_driver == '' && inputs.products_run || github.run_id }}
+-          github-token: ${{ github.token }}
+           path: ${{ runner.temp }}/study-products
+-      - uses: actions/download-artifact@v6
+-        with:
+-          artifact-ids: '13853652309'
+-          run-id: 43018095886
+-          github-token: ${{ github.token }}
+-          path: ${{ runner.temp }}/study-inputs
+-          merge-multiple: true
+-      - name: Validate the separate diagnostic inputs
+-        run: |
+-          bash tools/input-perf/build-study-products.sh --verify "$RUNNER_TEMP/study-products" "$CURRENT_REF" "$RUNNER_TEMP/study-inputs"
+-          python3 - <<'PY'
+-          import os, re
+-          seed = os.environ['STUDY_SEED_BASE']
+-          if not re.fullmatch(r'[0-9]+', seed):
+-              raise SystemExit('Seed must be a nonnegative decimal integer')
+-          with open(os.environ['GITHUB_ENV'], 'a') as output:
+-              output.write(f'STUDY_SEED={int(seed) + 2}\n')
+-          PY
+-          mkdir -p build/latency-study-profile
+-          cp "$RUNNER_TEMP/study-products/products.json" "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/latency-study-profile/
+-          uname -a > build/latency-study-profile/host-kernel.txt
+-          cat /proc/cpuinfo > build/latency-study-profile/host-cpuinfo.txt
+-          lscpu > build/latency-study-profile/host-lscpu.txt
+-          free -m > build/latency-study-profile/host-memory.txt
+-      - name: Enable KVM
++      - name: Enable KVM on the separate contract runner
+         run: |
+           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+           sudo udevadm control --reload-rules
+@@ -264,14 +143,12 @@ jobs:
+           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+           disable-animations: true
+           script: |
+-            adb -s emulator-5554 root
+-            adb -s emulator-5554 wait-for-device
+-            adb -s emulator-5554 shell getprop > build/latency-study-profile/device-properties.txt
+-            python3 tools/input-perf/run-study.py --apks "$RUNNER_TEMP/study-products" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --fixture-manifest "$RUNNER_TEMP/study-inputs/fixture.manifest.json" --host "$RUNNER_TEMP/study-products/host.apk" --output build/latency-study-profile/samples --serial emulator-5554 --expected-avd-name test --allow-destructive-reset --mode pilot --order baseline,regressed,current --seed "$STUDY_SEED" --blocks 1 --profile
++            bash tools/input-perf/prepare-phase-avd.sh emulator-5554
++            python3 tools/input-perf/run-font-contract.py --apks "$RUNNER_TEMP/study-products" --output build/font-contracts --serial emulator-5554 --expected-avd-name test --allow-destructive-reset
+       - uses: actions/upload-artifact@v7
+         if: always()
+         with:
+-          name: latency-study-profile
+-          path: build/latency-study-profile/
++          name: font-contracts
++          path: build/font-contracts/
+           retention-days: 30
+           if-no-files-found: warn
+diff --git a/tools/candidate-perf/host/BenchTouchDriver.java b/tools/candidate-perf/host/BenchTouchDriver.java
+new file mode 100644
+index 00000000..299f79fd
+--- /dev/null
++++ b/tools/candidate-perf/host/BenchTouchDriver.java
+@@ -0,0 +1,95 @@
++package io.github.sandyyur.inputbench;
++
++import java.net.ServerSocket;
++import java.net.Socket;
++import java.net.InetAddress;
++import android.util.Log;
++import android.os.Process;
++import android.os.SystemClock;
++import android.view.InputDevice;
++import android.view.InputEvent;
++import android.view.MotionEvent;
++import java.io.BufferedReader;
++import java.io.InputStreamReader;
++import java.io.OutputStreamWriter;
++import java.io.PrintWriter;
++import java.lang.reflect.Method;
++import org.json.JSONArray;
++import org.json.JSONObject;
++
++/** Shell-only experiment driver: never loaded into the IME or shipped in its APK. */
++public final class BenchTouchDriver {
++    private static long now() { return SystemClock.elapsedRealtimeNanos(); }
++
++    private static void waitUntil(long time) {
++        for (;;) {
++            long remaining = time - now();
++            if (remaining <= 0) return;
++            SystemClock.sleep((remaining + 999_999L) / 1_000_000L);
++        }
++    }
++
++    public static void main(String[] args) throws Exception {
++        try { run(args); }
++        catch (Exception error) { Log.e("Pr32TouchDriver", "External input driver failed", error); throw error; }
++    }
++
++    private static void run(String[] args) throws Exception {
++        if (args.length != 1 || !args[0].matches("pr32-touch-[0-9]+"))
++            throw new IllegalArgumentException("Expected a dedicated experiment socket name");
++        Class<?> inputClass = Class.forName("android.hardware.input.InputManagerGlobal");
++        Object input = inputClass.getMethod("getInstance").invoke(null);
++        Method inject = inputClass.getMethod("injectInputEvent", InputEvent.class, int.class);
++        int port = 20000 + Integer.parseInt(args[0].substring("pr32-touch-".length())) % 20000;
++        ServerSocket server = new ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"));
++        server.setSoTimeout(60_000);
++        Socket socket = null;
++        try {
++            socket = server.accept();
++            try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
++             PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true)) {
++            writer.println(new JSONObject().put("pid", Process.myPid()).put("uid", Process.myUid())
++                .put("protocol", "external_input_manager_v1").put("token", args[0]).put("transport", "loopback_tcp")
++                .put("driver_version", 2).put("actual_hold_min_ns", 20_000_000L));
++            String line;
++            while ((line = reader.readLine()) != null) {
++                JSONObject request = new JSONObject(line);
++                JSONArray touches = request.getJSONArray("touches");
++                if (touches.length() < 1 || touches.length() > 2) throw new IllegalArgumentException("Invalid batch");
++                JSONArray results = new JSONArray();
++                for (int index = 0; index < touches.length(); index++) {
++                    JSONObject touch = touches.getJSONObject(index);
++                    long plannedDown = touch.getLong("planned_down_ns");
++                    long plannedUp = touch.getLong("planned_up_ns");
++                    if (plannedUp - plannedDown != 20_000_000L) throw new IllegalArgumentException("Invalid hold");
++                    long downTime = touch.getLong("down_time_ms");
++                    JSONObject result = new JSONObject().put("down_time_ms", downTime).put("key", touch.getString("key"));
++                    long actualDown = 0;
++                    for (int action : new int[]{MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP}) {
++                        // A late DOWN must not compress the intended physical hold to zero.
++                        waitUntil(action == MotionEvent.ACTION_DOWN ? plannedDown : Math.max(plannedUp, actualDown + 20_000_000L));
++                        MotionEvent event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action,
++                            (float)touch.getDouble("x"), (float)touch.getDouble("y"), 0);
++                        event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
++                        boolean down = action == MotionEvent.ACTION_DOWN;
++                        long timestamp = now();
++                        if (down) actualDown = timestamp;
++                        result.put(down ? "inject_down_ns" : "inject_up_ns", timestamp);
++                        try {
++                            if (!Boolean.TRUE.equals(inject.invoke(input, event, 0)))
++                                throw new IllegalStateException("Input injection rejected");
++                        } finally { event.recycle(); }
++                        result.put(down ? "inject_down_return_ns" : "inject_up_return_ns", now());
++                    }
++                    results.put(result);
++                }
++                writer.println(new JSONObject().put("touches", results));
++                if (writer.checkError()) throw new IllegalStateException("Experiment client disconnected");
++            }
++            }
++        } finally {
++            if (socket != null) socket.close();
++            server.close();
++        }
++    }
++}
+diff --git a/tools/input-perf/CadenceCandidateTapTest.kt b/tools/input-perf/CadenceCandidateTapTest.kt
+index 415e28c0..c53cdc47 100644
+--- a/tools/input-perf/CadenceCandidateTapTest.kt
++++ b/tools/input-perf/CadenceCandidateTapTest.kt
+@@ -4,6 +4,13 @@ package org.fcitx.fcitx5.android.core
+ import android.content.Context
+ import android.graphics.Rect
+ import android.os.SystemClock
++import java.net.Socket
++import java.net.InetSocketAddress
++import java.io.BufferedReader
++import java.io.InputStreamReader
++import java.io.OutputStreamWriter
++import java.io.PrintWriter
++import java.util.concurrent.atomic.AtomicReference
+ import android.view.*
+ import android.view.inspector.WindowInspector
+ import androidx.test.platform.app.InstrumentationRegistry
+@@ -31,6 +38,8 @@ class CandidateTapTest {
+     private val ins = InstrumentationRegistry.getInstrumentation()
+     private val ctx = ins.targetContext
+     private val args = InstrumentationRegistry.getArguments()
++    private val gapMs = args.getString("letterGapMs", "100")!!.toLong().also { require(it == 100L || it == 300L) }
++    private val comments = args.getString("commentMode", "visible")!!.also { require(it in listOf("visible", "hidden")) }
+     private fun now() = SystemClock.elapsedRealtimeNanos()
+     private fun shell(command: String) = ins.uiAutomation.executeShellCommand(command).use {
+         java.io.FileInputStream(it.fileDescriptor).bufferedReader().readText().trim()
+@@ -89,7 +98,7 @@ class CandidateTapTest {
+ 
+     private class Target(val view: View, val bounds: Rect)
+ 
+-    private class Touch(val key: String, val target: Target, val plannedDown: Long, val plannedUp: Long) {
++    private class Touch(val key: String, val target: Target, val plannedDown: Long, val plannedUp: Long, val downTime: Long) {
+         // Allocated on the injection thread, before dispatch; the UI only checks this target.
+         val location = IntArray(2)
+         @Volatile var injectDown = 0L
+@@ -149,22 +158,44 @@ class CandidateTapTest {
+         val connection = FcitxDaemon.connect(javaClass.name)
+         val commits = Channel<Pair<String, Long>>(Channel.UNLIMITED)
+         val preedits = Channel<Pair<String, Long>>(Channel.UNLIMITED)
++        val candidates = AtomicReference(emptyArray<CandidateWord>())
+         val collector = launch(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) {
+             connection.runImmediately { eventFlow }.collect {
+                 when (it) {
++                    is FcitxEvent.CandidateListEvent -> candidates.set(it.data.candidates)
++                    is FcitxEvent.PagedCandidateEvent -> candidates.set(it.data.candidates)
+                     is FcitxEvent.CommitStringEvent -> commits.send(it.data.text to now())
+                     is FcitxEvent.InputPanelEvent -> preedits.send(it.data.preedit.toString() to now())
+                     else -> {}
+                 }
+             }
+         }
+-        val inputClass = Class.forName("android.hardware.input.InputManagerGlobal")
+-        val inputManager = inputClass.getMethod("getInstance").invoke(null)
+-        val inject = inputClass.getMethod("injectInputEvent", InputEvent::class.java, Int::class.javaPrimitiveType!!)
++        val socketName = "pr32-touch-${android.os.Process.myPid()}"
++        val driverOutput = ins.uiAutomation.executeShellCommand(
++            "/system/bin/env CLASSPATH=/data/local/tmp/pr32-touch-driver.apk /system/bin/app_process /system/bin io.github.sandyyur.inputbench.BenchTouchDriver $socketName")
++        val port = 20000 + android.os.Process.myPid() % 20000
++        var driverSocket: Socket? = null
+         var wrappedWindow: Window? = null
+         var oldCallback: Window.Callback? = null
+         try {
+             ins.uiAutomation.adoptShellPermissionIdentity("android.permission.INJECT_EVENTS")
++            withTimeout(30_000) {
++                while (driverSocket == null) {
++                    val socket = Socket()
++                    try {
++                        socket.connect(InetSocketAddress("127.0.0.1", port), 200)
++                        socket.soTimeout = 60_000
++                        driverSocket = socket
++                    } catch (error: java.io.IOException) { socket.close(); delay(20) }
++                }
++            }
++            val driverReader = BufferedReader(InputStreamReader(driverSocket!!.inputStream, Charsets.UTF_8))
++            val driverWriter = PrintWriter(OutputStreamWriter(driverSocket!!.outputStream, Charsets.UTF_8), true)
++            val driverIdentity = JSONObject(requireNotNull(driverReader.readLine()))
++            check(driverIdentity.getInt("pid") != android.os.Process.myPid())
++            check(driverIdentity.getString("protocol") == "external_input_manager_v1")
++            check(driverIdentity.getString("token") == socketName)
++            check(driverIdentity.getString("transport") == "loopback_tcp")
+             // No input API warm-up, fake keys, or wait for native readiness in this fresh process.
+             shell("am start -W -n io.github.sandyyur.inputbench/.BenchHost")
+             await("Keyboard visible") { var shown = false; ins.runOnMainSync { shown = find("n") != null }; shown }
+@@ -173,6 +204,11 @@ class CandidateTapTest {
+             connection.runOnReady {
+                 if (currentIme().subMode.icon != "fcitx-rime:wanxiang") activateIme("rime")
+                 setCandidatePagingMode(1)
++                fun flatten(actions: Array<Action>): List<Action> = actions.flatMap { listOf(it) + flatten(it.menu ?: emptyArray()) }
++                val name = if (comments == "hidden") "comment_off" else "tone_hint"
++                val option = flatten(statusArea()).single { it.name == name }
++                activateAction(option.id)
++                check(flatten(statusArea()).single { it.name == name }.isChecked)
+             }
+             val touches = ConcurrentHashMap<Long, Touch>()
+             val letters = HashMap<String, Target>()
+@@ -209,25 +245,31 @@ class CandidateTapTest {
+                     }
+                 }
+             }
+-            fun tap(text: String, target: Target, plannedDown: Long): Touch {
+-                waitUntil(plannedDown)
+-                val down = SystemClock.uptimeMillis()
+-                val touch = Touch(text, target, plannedDown, plannedDown + 20_000_000L)
+-                check(touches.putIfAbsent(down, touch) == null) { "Duplicate touch identity" }
+-                for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
+-                    // A delayed DOWN must retain the intended physical hold instead of
+-                    // immediately chasing an UP deadline that has already passed.
+-                    if (action == MotionEvent.ACTION_UP) waitUntil(maxOf(touch.plannedUp, touch.injectDown + 20_000_000L))
+-                    val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, target.bounds.exactCenterX(), target.bounds.exactCenterY(), 0)
+-                    event.source = InputDevice.SOURCE_TOUCHSCREEN
+-                    if (action == MotionEvent.ACTION_DOWN) touch.injectDown = now() else touch.injectUp = now()
+-                    // Test-only direct asynchronous injection avoids UiAutomationConnection's
+-                    // surface/animation transaction synchronization before DOWN and after UP.
+-                    try { check(inject.invoke(inputManager, event, 0) as Boolean) } finally { event.recycle() }
+-                    if (action == MotionEvent.ACTION_DOWN) touch.downReturned = now() else touch.upReturned = now()
+-                }
++            fun makeTouch(text: String, target: Target, plannedDown: Long): Touch {
++                val downTime = SystemClock.uptimeMillis() + (plannedDown - now()) / 1_000_000L
++                val touch = Touch(text, target, plannedDown, plannedDown + 20_000_000L, downTime)
++                check(touches.putIfAbsent(downTime, touch) == null) { "Duplicate touch identity" }
+                 return touch
+             }
++            fun injectBatch(vararg batch: Touch) {
++                val request = JSONArray()
++                for (touch in batch) request.put(JSONObject()
++                    .put("key", touch.key).put("down_time_ms", touch.downTime)
++                    .put("planned_down_ns", touch.plannedDown).put("planned_up_ns", touch.plannedUp)
++                    .put("x", touch.target.bounds.exactCenterX()).put("y", touch.target.bounds.exactCenterY()))
++                driverWriter.println(JSONObject().put("touches", request))
++                check(!driverWriter.checkError())
++                val result = JSONObject(requireNotNull(driverReader.readLine())).getJSONArray("touches")
++                check(result.length() == batch.size)
++                for ((index, touch) in batch.withIndex()) {
++                    val event = result.getJSONObject(index)
++                    check(event.getLong("down_time_ms") == touch.downTime && event.getString("key") == touch.key)
++                    touch.injectDown = event.getLong("inject_down_ns")
++                    touch.injectUp = event.getLong("inject_up_ns")
++                    touch.downReturned = event.getLong("inject_down_return_ns")
++                    touch.upReturned = event.getLong("inject_up_return_ns")
++                }
++            }
+             fun awaitTouch(touch: Touch) {
+                 check(touch.completed.await(60, TimeUnit.SECONDS)) { "Missing ${touch.key} dispatch" }
+                 check(touch.dispatchDown > 0 && touch.dispatchUp >= touch.dispatchDown && touch.dispatchReturned >= touch.dispatchUp)
+@@ -236,9 +278,10 @@ class CandidateTapTest {
+             val rounds = JSONArray()
+             repeat(6) { round ->
+                 // Six taps in one editor distinguish first-use cost from repeated binding cost.
+-                val plannedN = now() + 20_000_000L
+-                val n = tap("n", letters.getValue("n"), plannedN)
+-                val i = tap("i", letters.getValue("i"), plannedN + 100_000_000L)
++                val plannedN = now() + 50_000_000L
++                val n = makeTouch("n", letters.getValue("n"), plannedN)
++                val i = makeTouch("i", letters.getValue("i"), plannedN + gapMs * 1_000_000L)
++                injectBatch(n, i)
+                 awaitTouch(n); awaitTouch(i)
+                 var preedit: Long? = null
+                 val niReady = withTimeout(60_000) {
+@@ -254,14 +297,19 @@ class CandidateTapTest {
+                 await("Candidate bound") { var found = false; ins.runOnMainSync { found = find("你") != null }; found }
+                 var candidateTarget: Target? = null
+                 ins.runOnMainSync { candidateTarget = target("你") }
+-                val select = tap("你", candidateTarget!!, now() + 5_000_000L)
++                await("Paged candidate metadata delivered") { candidates.get().any { it.text == "你" } }
++                val firstCandidate = candidates.get().first { it.text == "你" }
++                check(firstCandidate.text == "你")
++                check(firstCandidate.comment.isBlank() == (comments == "hidden")) { "Comment fixture did not select the intended rendering path: $firstCandidate" }
++                val select = makeTouch("你", candidateTarget!!, now() + 50_000_000L)
++                injectBatch(select)
+                 awaitTouch(select)
+                 val commit = withTimeout(60_000) { commits.receive() }
+                 assertEquals("你", commit.first)
+                 // Dumping happens AFTER the commit; polling never determines the recorded latency.
+                 shell("am broadcast -n io.github.sandyyur.inputbench/.BenchControl --es command dump")
+                 rounds.put(JSONObject().put("round", round + 1).put("n", n.result()).put("i", i.result()).put("select", select.result())
+-                    .put("ni_ready_ns", niReady).put("preedit_collected_ns", preedit ?: JSONObject.NULL).put("commit_collected_ns", commit.second))
++                    .put("first_candidate_comment", firstCandidate.comment).put("ni_ready_ns", niReady).put("preedit_collected_ns", preedit ?: JSONObject.NULL).put("commit_collected_ns", commit.second))
+             }
+             assertNull(withTimeoutOrNull(250) { commits.receive() })
+             val maps = File("/proc/self/maps").readText()
+@@ -269,12 +317,15 @@ class CandidateTapTest {
+             for (expected in listOf("上下文开", "简码开", "小字集")) assertTrue("Missing $expected: $labels", labels.any { it.startsWith(expected) })
+             assertTrue(maps.contains("wanxiang-lts-zh-hans.gram"))
+             File(ctx.filesDir, "candidate-taps.json").writeText(JSONObject().put("commit", BuildConfig.BUILD_GIT_HASH)
+-                .put("injection_protocol", "fixed_cadence_100ms_input_manager_async_cached_targets_v2")
++                .put("injection_protocol", "external_process_input_manager_phase_v3")
+                 .put("touch_hold_policy", "minimum_20ms_from_actual_injection_down")
++                .put("letter_gap_ms", gapMs).put("comment_mode", comments).put("driver_identity", driverIdentity).put("ime_pid", android.os.Process.myPid())
+                 .put("clock", "SystemClock.elapsedRealtimeNanos, across both Android processes")
+                 .put("model_mapped", true).put("fcitx_core_mapped", maps.contains("libFcitx5Core.so"))
+                 .put("switch_labels", JSONArray(labels)).put("rounds", rounds).toString(2))
+         } finally {
++            driverSocket?.close()
++            driverOutput.close()
+             ins.uiAutomation.dropShellPermissionIdentity()
+             ins.runOnMainSync { wrappedWindow?.callback = oldCallback }
+             collector.cancelAndJoin()
+diff --git a/tools/input-perf/build-study-products.sh b/tools/input-perf/build-study-products.sh
+index 37feeb7f..6741ab24 100644
+--- a/tools/input-perf/build-study-products.sh
++++ b/tools/input-perf/build-study-products.sh
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env bash
+-# Build three exact direct-Rime products with the same test-only cadence probe.
++# Build two exact direct-Rime products with the same test-only cadence probe.
+ # --verify checks an existing product artifact and the original remote fixture.
+ # --recover finalizes metadata for an identified failed build without rebuilding APKs.
+ set -euo pipefail
+@@ -20,7 +20,7 @@ if [ "$mode" = recover ]; then
+     fixture_dir=
+     [[ "$original_driver_ref" =~ ^[0-9a-f]{40}$ ]] && [[ "$failed_build_run" =~ ^[0-9]+$ ]] || { echo 'Recovery requires an exact original driver SHA and numeric failed run ID' >&2; exit 2; }
+     [ -d "$output" ] && [ ! -e "$output/products.json" ] || { echo 'Recovery requires existing partial products without a finalized manifest' >&2; exit 2; }
+-    for revision in 0380d70f16efb6a9946a164821d5cad7118ce4ff 4d77cd79a580a9984130a5653b13f949ec5bc0a9 "$current_ref" "$original_driver_ref"; do
++    for revision in 0380d70f16efb6a9946a164821d5cad7118ce4ff "$current_ref" "$original_driver_ref"; do
+         git -C "$root" fetch --no-recurse-submodules --no-tags origin "$revision"
+     done
+ fi
+@@ -32,21 +32,20 @@ if [ "$mode" = build ]; then
+     output=$(cd "$output" && pwd)
+     [ -z "$(find "$output" -mindepth 1 -maxdepth 1 -print -quit)" ] || { echo 'Product output must be empty' >&2; exit 2; }
+     export BUILD_ABI=x86_64
+-    for revision in 0380d70f16efb6a9946a164821d5cad7118ce4ff 4d77cd79a580a9984130a5653b13f949ec5bc0a9 "$current_ref"; do
++    for revision in 0380d70f16efb6a9946a164821d5cad7118ce4ff "$current_ref"; do
+         git -C "$root" fetch --no-recurse-submodules --no-tags origin "$revision"
+     done
+     python3 - "$root" "$current_ref" <<'PYLOCK'
+ import hashlib, subprocess, sys
+ root, current = sys.argv[1:]
+-for source in ('0380d70f16efb6a9946a164821d5cad7118ce4ff', '4d77cd79a580a9984130a5653b13f949ec5bc0a9', current):
++for source in ('0380d70f16efb6a9946a164821d5cad7118ce4ff', current):
+     lock = subprocess.check_output(['git', '-C', root, 'show', source + ':native/rime-sdk.lock.json'])
+     if hashlib.sha256(lock).hexdigest() != '6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f':
+         raise SystemExit('Product changed the frozen SDK lock: ' + source)
+ PYLOCK
+-    for label in baseline regressed current; do
++    for label in baseline current; do
+         case "$label" in
+             baseline) revision=0380d70f16efb6a9946a164821d5cad7118ce4ff ;;
+-            regressed) revision=4d77cd79a580a9984130a5653b13f949ec5bc0a9 ;;
+             current) revision=$current_ref ;;
+         esac
+         checkout="$runner_temp/latency-study-$label"
+@@ -60,6 +59,13 @@ PYLOCK
+             mkdir -p "$target"
+             cp "$root/tools/input-perf/CadenceCandidateTapTest.kt" "$target/CandidateTapTest.kt"
+             cmp "$root/tools/input-perf/CadenceCandidateTapTest.kt" "$target/CandidateTapTest.kt"
++            # The same two contract classes run against both unmodified products.
++            contracts=app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates
++            mkdir -p "$contracts"
++            for name in CandidateTypefaceTest.kt CandidateRenderingTest.kt; do
++                cp "$root/$contracts/$name" "$contracts/$name"
++                cmp "$root/$contracts/$name" "$contracts/$name"
++            done
+             sha256sum "$target/CandidateTapTest.kt" | awk '{print $1}' > "$output/$label-harness-sha256.txt"
+             # Test instrumentation is the only overlay; never relabel a modified product.
+             git diff --exit-code -- app/src/main direct-rime native build-logic gradle \
+@@ -99,13 +105,13 @@ import zipfile
+ 
+ mode, root_arg, output_arg, current_ref, fixture_arg, original_driver_ref, failed_build_run = sys.argv[1:]
+ root, output = Path(root_arg), Path(output_arg)
+-protocol = 'fixed_cadence_100ms_input_manager_async_cached_targets_v2'
++protocol = 'external_process_input_manager_phase_v3'
+ sources = {
+     'baseline': '0380d70f16efb6a9946a164821d5cad7118ce4ff',
+-    'regressed': '4d77cd79a580a9984130a5653b13f949ec5bc0a9',
+     'current': current_ref,
+ }
+ host_files = (
++    'tools/candidate-perf/host/BenchTouchDriver.java',
+     'tools/candidate-perf/host/BenchHost.java',
+     'tools/candidate-perf/host/BenchControl.java',
+     'tools/candidate-perf/host/AndroidManifest.xml',
+@@ -128,6 +134,8 @@ def git(*args):
+ 
+ harness_hash = digest(root / 'tools/input-perf/CadenceCandidateTapTest.kt')
+ host_hashes = {name: digest(root / name) for name in host_files}
++contract_hashes = {name: digest(root / 'app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates' / name)
++                   for name in ('CandidateTypefaceTest.kt', 'CandidateRenderingTest.kt')}
+ expected_apks = {label + suffix for label in sources for suffix in ('.apk', '-tests.apk')}
+ 
+ if mode == 'recover':
+@@ -186,6 +194,7 @@ if mode in ('build', 'recover'):
+         'sdk_lock_sha256': locks,
+         'protocol': protocol,
+         'harness_sha256': harness_hash,
++        'contract_classes_sha256': contract_hashes,
+         'host_sources_sha256': host_hashes,
+         'host_sha256': digest(output / 'host.apk'),
+         'packages': packages,
+@@ -202,6 +211,7 @@ record = json.loads((output / 'products.json').read_text())
+ require(record['sources'] == sources, 'Product source commits do not match this study')
+ require(record['protocol'] == protocol, 'Product manifest has an incompatible injection protocol')
+ require(record['harness_sha256'] == harness_hash, 'Product probe differs from this workflow checkout')
++require(record['contract_classes_sha256'] == contract_hashes, 'Font contract source changed')
+ require(record['host_sources_sha256'] == host_hashes, 'Neutral host source differs from this workflow checkout')
+ require(record['host_sha256'] == digest(output / 'host.apk'), 'Neutral host APK hash mismatch')
+ require(set(record['apks']) == expected_apks, 'Unexpected or missing product APKs')
+diff --git a/tools/input-perf/font-confirmation-plan.json b/tools/input-perf/font-confirmation-plan.json
+new file mode 100644
+index 00000000..a63cf92c
+--- /dev/null
++++ b/tools/input-perf/font-confirmation-plan.json
+@@ -0,0 +1,50 @@
++{
++  "date_beijing": "2026-11-13",
++  "purpose": "Font cache correctness and final two-product latency confirmation after removing the plain-candidate fast path",
++  "baseline": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
++  "current": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
++  "only_production_change": "AutoScaleTextView.setTypeface cache invalidation, 12 inserted lines",
++  "fixture_run": 43018095886,
++  "fixture_artifact": 13853652309,
++  "wanxiang": "v18.1.10 base + 2026-11-07 LTS; original full-pinyin/context/abbreviation/small-charset YAML",
++  "protocol": "external_process_input_manager_phase_v3",
++  "actual_hold_min_ns": 20000000,
++  "conditions": {
++    "gap_ms": 100,
++    "comments": "visible original scheme configuration",
++    "trace": false
++  },
++  "vms": [
++    {
++      "name": "forward",
++      "order": "baseline,current",
++      "seed": 2026111301
++    },
++    {
++      "name": "reverse",
++      "order": "current,baseline",
++      "seed": 2026111302
++    }
++  ],
++  "blocks_per_vm": 6,
++  "order_balance": "Exactly three ABBA and three BAAB blocks per VM, shuffled using the fixed seed",
++  "planned_fresh_processes": 48,
++  "selections_per_process": 6,
++  "planned_correct_selections": 288,
++  "unit": "One paired observation per four-process block: mean(current pair) minus mean(baseline pair); report each VM separately",
++  "primary": "First actual i injection DOWN to IME window UP",
++  "secondary": [
++    "First candidate window UP to editor InputConnection",
++    "First planned n DOWN to ni event",
++    "All injection lateness and actual holds",
++    "Warm rounds 2-6 as a within-process median, separate from first"
++  ],
++  "correctness": "Separate disposable VM: baseline must fail exactly the unchanged-text/new-typeface-width assertion; current same test and all three candidate pixel/rendering tests must pass",
++  "rules": [
++    "Commit this plan before dispatch",
++    "Keep every valid unfavorable result; never repeat an accepted sample to improve numbers",
++    "Preserve setup failures and exact APK/probe/SDK/signer identities",
++    "No P95, phone, Release, first unbound engine startup or visible-screen latency claims",
++    "Report positive deltas and uncertainty; no post-hoc pass threshold or general speedup claim"
++  ]
++}
+diff --git a/tools/input-perf/prepare-phase-avd.sh b/tools/input-perf/prepare-phase-avd.sh
+new file mode 100644
+index 00000000..85053c02
+--- /dev/null
++++ b/tools/input-perf/prepare-phase-avd.sh
+@@ -0,0 +1,13 @@
++#!/usr/bin/env bash
++# Device setup only; invoke as one emulator-runner script command.
++set -euo pipefail
++serial=${1:?explicit disposable emulator serial required}
++[[ "$serial" =~ ^emulator-[0-9]+$ ]] || { echo 'Expected an explicit test emulator serial' >&2; exit 2; }
++for attempt in 1 2 3 4 5; do
++    timeout 30 adb -s "$serial" wait-for-device
++    if adb -s "$serial" root; then break; fi
++    sleep 1
++done
++timeout 30 adb -s "$serial" wait-for-device
++actual_uid=$(adb -s "$serial" shell id -u | tr -d '\r')
++[[ "$actual_uid" = 0 ]] || { echo "Test AVD did not become root: $actual_uid" >&2; exit 1; }
+diff --git a/tools/input-perf/run-cadence.py b/tools/input-perf/run-cadence.py
+index 93deed2b..7fea2636 100644
+--- a/tools/input-perf/run-cadence.py
++++ b/tools/input-perf/run-cadence.py
+@@ -1,10 +1,10 @@
+ #!/usr/bin/env python3
+ """First candidate tap after fresh process, then five taps in the same editor."""
+ import argparse
+-from touch_timing import validate_touch_hold
+ import hashlib
+ import shutil
+ import json
++from touch_timing import validate_touch_hold
+ import os
+ import re
+ import subprocess
+@@ -59,7 +59,8 @@ class Adb:
+     def instrument(self, package, method, revision):
+         command = self.command('shell', 'am', 'instrument', '--no-hidden-api-checks', '-w', '-r', '-e', 'class',
+                   'org.fcitx.fcitx5.android.core.CandidateTapTest#' + method,
+-                  '-e', 'expectedCommit', revision,
++                  '-e', 'expectedCommit', revision, '-e', 'letterGapMs', os.environ.get('PR32_PHASE_GAP_MS', '100'),
++                  '-e', 'commentMode', os.environ.get('PR32_PHASE_COMMENTS', 'visible'),
+                   package + '.test/androidx.test.runner.AndroidJUnitRunner')
+         process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+         try:
+@@ -123,7 +124,7 @@ def run(args):
+     harness = Path(__file__).with_name('CadenceCandidateTapTest.kt')
+     if hashlib.sha256(harness.read_bytes()).hexdigest() != record['harness_sha256']:
+         raise ValueError('Harness source does not match products.json')
+-    if record['protocol'] != 'fixed_cadence_100ms_input_manager_async_cached_targets_v2':
++    if record['protocol'] != 'external_process_input_manager_phase_v3':
+         raise ValueError('Product manifest must use the cached_targets_v2 harness protocol')
+     for name,sha in record['apks'].items():
+         if Path(name).name != name:
+@@ -180,6 +181,8 @@ def run(args):
+         adb('shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000')
+         adb('install', '-r', args.host)
+         adb('push', args.fixture, '/data/local/tmp/candidate-fixture.zip')
++        adb('push', args.host, '/data/local/tmp/pr32-touch-driver.apk')
++        adb('shell', 'chmod', '444', '/data/local/tmp/pr32-touch-driver.apk')
+         results = {}
+         for label in PRODUCTS:
+             package = packages[label]
+@@ -242,10 +245,11 @@ def run(args):
+                 prefix = args.output / f'{label}-{trial + 1}'
+                 prefix.with_suffix('.instrumentation.txt').write_text(run.stdout + run.stderr)
+                 prefix.with_suffix('.logcat.txt').write_text(adb('logcat', '-d', '-v', 'threadtime').stdout)
++                prefix.with_suffix('.driver-processes.txt').write_text(adb('shell', 'ps', '-A').stdout)
++                prefix.with_suffix('.driver-log.txt').write_text(adb('shell', 'cat /data/local/tmp/pr32-touch-*.log', check=False).stdout)
+                 if not passed:
+                     raise RuntimeError(f'{label} trial {trial + 1} failed')
+                 ime = json.loads(adb('shell', 'run-as', package, 'cat', 'files/candidate-taps.json').stdout)
+-                # Preserve original IME evidence even when the new stimulus policy fails.
+                 prefix.with_suffix('.ime-raw.json').write_text(json.dumps(ime, ensure_ascii=False, indent=2) + '\n')
+                 validate_touch_hold(ime)
+                 # Flush the editor dump AFTER timing; its own callbacks contain the timestamps.
+@@ -255,7 +259,7 @@ def run(args):
+                     raise RuntimeError('Editor did not receive six expected candidate commits')
+                 if ime.get('commit') != revision or ime.get('model_mapped') is not True:
+                     raise RuntimeError('IME result does not match the pinned product/model')
+-                if ime.get('injection_protocol') != 'fixed_cadence_100ms_input_manager_async_cached_targets_v2':
++                if ime.get('injection_protocol') != 'external_process_input_manager_phase_v3':
+                     raise RuntimeError('IME result uses an unexpected injection protocol')
+                 try:
+                     geometry_valid = all(
+diff --git a/tools/input-perf/run-font-contract.py b/tools/input-perf/run-font-contract.py
+new file mode 100644
+index 00000000..bcfe5750
+--- /dev/null
++++ b/tools/input-perf/run-font-contract.py
+@@ -0,0 +1,149 @@
++#!/usr/bin/env python3
++"""Same width regression against two exact APKs, on an authorized disposable AVD.
++
++The baseline must have exactly the known assertion failure; any setup error,
++skip, unrelated failure or unexpected pass is rejected. Current rendering tests
++must all pass. This separate VM is never used for the latency measurements.
++"""
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import re
++import subprocess
++import xml.etree.ElementTree as ET
++
++PACKAGE_PREFIX = 'org.fcitx.fcitx5.android.input.candidates.'
++FONT_TEST = 'replacingTypefaceRemeasuresUnchangedText'
++
++
++def parse_status(text):
++    """Parse AndroidJUnitRunner raw status packets, including stack continuations."""
++    events, packet, last_key = [], {}, None
++    for line in text.splitlines():
++        if line.startswith('INSTRUMENTATION_STATUS: '):
++            field = line.removeprefix('INSTRUMENTATION_STATUS: ')
++            key, sep, value = field.partition('=')
++            if sep:
++                packet[key], last_key = value, key
++        elif line.startswith('INSTRUMENTATION_STATUS_CODE: '):
++            code = int(line.removeprefix('INSTRUMENTATION_STATUS_CODE: '))
++            if code != 1 and packet.get('test') and packet.get('class'):
++                events.append(dict(packet, status_code=code))
++            packet, last_key = {}, None
++        elif line.startswith('INSTRUMENTATION_'):
++            last_key = None
++        elif last_key:
++            packet[last_key] += '\n' + line
++    if 'INSTRUMENTATION_CODE: -1' not in text or 'INSTRUMENTATION_FAILED:' in text:
++        raise ValueError('The instrumentation process did not finish normally')
++    if not events:
++        raise ValueError('No executed test case results')
++    return events
++
++
++def verify_cases(label, events):
++    width = PACKAGE_PREFIX + 'CandidateTypefaceTest'
++    if label == 'baseline':
++        if (len(events) != 1 or events[0]['class'] != width or events[0]['test'] != FONT_TEST or
++                events[0]['status_code'] != -2 or
++                'AssertionError' not in events[0].get('stack', '') or
++                "Unchanged text must use the new font's width" not in events[0].get('stack', '')):
++            raise ValueError('Baseline did not exhibit exactly the expected stale-width assertion')
++        return
++    expected = {(width, FONT_TEST)} | {
++        (PACKAGE_PREFIX + 'CandidateRenderingTest', name) for name in (
++            'plainAndCommentedCandidatesMatchTheOriginalSpanRendering',
++            'plainHighlightKeepsContentColorsAndPixels',
++            'fontRefreshAndBlankCommentTransitionsKeepMetricsAndPixels')}
++    actual = {(case['class'], case['test']) for case in events}
++    if len(events) != 4 or actual != expected or any(case['status_code'] != 0 for case in events):
++        raise ValueError('Current width/pixel contracts were missing, skipped or unsuccessful')
++
++
++def write_xml(path, label, events):
++    suite = ET.Element('testsuite', name='font-contract-' + label, tests=str(len(events)),
++                       failures=str(sum(case['status_code'] == -2 for case in events)),
++                       errors=str(sum(case['status_code'] not in (0, -2) for case in events)), skipped='0')
++    for event in events:
++        case = ET.SubElement(suite, 'testcase', classname=event['class'], name=event['test'])
++        if event['status_code']:
++            ET.SubElement(case, 'failure' if event['status_code'] == -2 else 'error',
++                          message='Expected negative control' if label == 'baseline' else 'Unexpected failure').text = event.get('stack', '')
++    ET.ElementTree(suite).write(path, encoding='utf-8', xml_declaration=True)
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--apks', type=Path, required=True)
++    p.add_argument('--output', type=Path, required=True)
++    p.add_argument('--serial', required=True)
++    p.add_argument('--expected-avd-name', required=True)
++    p.add_argument('--allow-destructive-reset', action='store_true')
++    args = p.parse_args()
++    if not args.allow_destructive_reset or not re.fullmatch(r'emulator-[0-9]+', args.serial):
++        p.error('Explicit disposable emulator authorization is required')
++    if args.output.exists() and any(args.output.iterdir()):
++        p.error('Retain existing evidence; output must be empty')
++    args.output.mkdir(parents=True, exist_ok=True)
++    manifest = json.loads((args.apks / 'products.json').read_text())
++
++    def adb(*command, check=True, timeout=180):
++        result = subprocess.run(['adb', '-s', args.serial, *command], text=True,
++                                capture_output=True, timeout=timeout)
++        if check and result.returncode:
++            raise RuntimeError('ADB failed: ' + repr(command) + '\n' + result.stdout + result.stderr)
++        return result
++
++    actual_avd = adb('emu', 'avd', 'name').stdout.splitlines()[0].strip()
++    if actual_avd != args.expected_avd_name or adb('shell', 'id', '-u').stdout.strip() != '0':
++        raise ValueError('This is not the declared rooted disposable AVD')
++    for name, expected in manifest['apks'].items():
++        if hashlib.sha256((args.apks / name).read_bytes()).hexdigest() != expected:
++            raise ValueError('APK hash mismatch: ' + name)
++    package = manifest['packages']['current.apk']
++    if package != manifest['packages']['baseline.apk'] or not package.endswith('.debug'):
++        raise ValueError('The products do not share the expected debug identity')
++    test_package = package + '.test'
++    for owned in (package, test_package):
++        if adb('shell', 'pm', 'path', owned, check=False).stdout.strip():
++            raise ValueError('Refusing to adopt an already installed package: ' + owned)
++    installed, evidence = set(), {}
++    try:
++        for label in ('baseline', 'current'):
++            for suffix in ('.apk', '-tests.apk'):
++                name = label + suffix
++                adb('install', str(args.apks / name))
++                installed.add(manifest['packages'][name])
++            tests = PACKAGE_PREFIX + 'CandidateTypefaceTest'
++            if label == 'baseline':
++                tests += '#' + FONT_TEST
++            else:
++                tests += ',' + PACKAGE_PREFIX + 'CandidateRenderingTest'
++            result = adb('shell', 'am', 'instrument', '-w', '-r', '-e', 'class', tests,
++                         test_package + '/androidx.test.runner.AndroidJUnitRunner', check=False, timeout=360)
++            raw = result.stdout + result.stderr
++            (args.output / (label + '-instrumentation.txt')).write_text(raw)
++            (args.output / (label + '-logcat.txt')).write_text(adb('logcat', '-d', '-v', 'threadtime').stdout)
++            if result.returncode:
++                raise ValueError('Instrumentation shell failed: ' + label)
++            events = parse_status(raw)
++            write_xml(args.output / (label + '-junit.xml'), label, events)
++            verify_cases(label, events)
++            evidence[label] = dict(source=manifest['sources'][label], cases=events,
++                                   expected_negative_control=label == 'baseline')
++            for owned in (test_package, package):
++                adb('uninstall', owned)
++                installed.remove(owned)
++        (args.output / 'font-contract-summary.json').write_text(json.dumps(
++            dict(status='pass', baseline_expected_assertion_failures=1, current_passed=4,
++                 current_failures_errors_skipped=0, evidence=evidence,
++                 products=manifest, separate_from_latency_vm=True), indent=2) + '\n')
++        print('Verified: baseline expected stale-width failure; current width and 3 pixel contracts pass')
++    finally:
++        for owned in tuple(installed):
++            adb('uninstall', owned, check=False)
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tools/input-perf/run-phase-study.py b/tools/input-perf/run-phase-study.py
+new file mode 100644
+index 00000000..fbc90e34
+--- /dev/null
++++ b/tools/input-perf/run-phase-study.py
+@@ -0,0 +1,60 @@
++#!/usr/bin/env python3
++"""Independent-process injector, two fixed key gaps, and verified comment paths.
++
++Temporary diagnostic study on the explicitly named disposable Actions AVD only.
++Each condition retains its own plan, raw samples and summary. No pooling across gaps.
++"""
++import argparse
++import json
++import os
++from pathlib import Path
++import random
++import subprocess
++import sys
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    for name in ('apks', 'fixture', 'fixture-manifest', 'host', 'output'):
++        parser.add_argument('--' + name, type=Path, required=True)
++    parser.add_argument('--serial', required=True)
++    parser.add_argument('--expected-avd-name', required=True)
++    parser.add_argument('--allow-destructive-reset', action='store_true')
++    parser.add_argument('--mode', choices=['pilot', 'formal'], required=True)
++    parser.add_argument('--order', choices=['baseline,current', 'current,baseline'], required=True)
++    parser.add_argument('--seed', type=int, required=True)
++    parser.add_argument('--blocks', type=int, required=True)
++    parser.add_argument('--profile', action='store_true')
++    parser.add_argument('--gap-set', choices=['all', '100', '300'], default='all')
++    parser.add_argument('--comment-set', choices=['visible', 'all'], default='visible')
++    args = parser.parse_args()
++    if not args.allow_destructive_reset or (args.profile and args.mode != 'pilot'):
++        parser.error('Explicit disposable AVD authorization is required; trace is pilot only')
++    if args.output.exists() and any(args.output.iterdir()):
++        parser.error('Preserve all previous results: output must be empty')
++    gaps = [100, 300] if args.gap_set == 'all' else [int(args.gap_set)]
++    comment_modes = ['visible'] if args.comment_set == 'visible' else ['visible', 'hidden']
++    conditions = [(gap, comments) for gap in gaps for comments in comment_modes]
++    random.Random(args.seed).shuffle(conditions)
++    args.output.mkdir(parents=True, exist_ok=True)
++    plan = dict(seed=args.seed, conditions=conditions, order=args.order, mode=args.mode,
++                blocks=args.blocks, profile=args.profile, gap_set=args.gap_set, comment_set=args.comment_set, injector='independent shell app_process',
++                hypothesis='Only the 12-line typeface cache invalidation differs in product sources',
++                primary='First actual i injection DOWN to window UP; paired products within condition',
++                control='Pinned products with identical SDK, fixture, host, test overlay and shell driver')
++    (args.output / 'phase-plan.json').write_text(json.dumps(plan, indent=2) + '\n')
++    for index, (gap, comments) in enumerate(conditions):
++        output = args.output / f'gap-{gap}-{comments}'
++        command = [sys.executable, str(Path(__file__).with_name('run-study.py'))]
++        for name in ('apks', 'fixture', 'fixture_manifest', 'host', 'serial', 'expected_avd_name', 'mode', 'order', 'blocks'):
++            command.extend(['--' + name.replace('_', '-'), str(getattr(args, name))])
++        command.extend(['--output', str(output), '--seed', str(args.seed + index), '--allow-destructive-reset'])
++        if args.profile:
++            command.append('--profile')
++        environment = dict(os.environ, PR32_PHASE_GAP_MS=str(gap), PR32_PHASE_COMMENTS=comments)
++        print(json.dumps({'condition': output.name, 'traced': args.profile}), flush=True)
++        subprocess.run(command, env=environment, check=True, timeout=2400)
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tools/input-perf/run-study.py b/tools/input-perf/run-study.py
+index 437af4d7..7058148a 100644
+--- a/tools/input-perf/run-study.py
++++ b/tools/input-perf/run-study.py
+@@ -1,7 +1,6 @@
+ #!/usr/bin/env python3
+ """Counterbalanced fresh-process comparisons with a restored fixture per sample."""
+ import argparse
+-from touch_timing import validate_touch_hold
+ import itertools
+ import json
+ from pathlib import Path
+@@ -10,9 +9,10 @@ import re
+ import statistics
+ import subprocess
+ import sys
++from touch_timing import MINIMUM_ACTUAL_HOLD_POLICY, validate_touch_hold
+ 
+ 
+-PROTOCOL = 'fixed_cadence_100ms_input_manager_async_cached_targets_v2'
++PROTOCOL = 'external_process_input_manager_phase_v3'
+ 
+ 
+ def make_plan(labels, mode, blocks, seed):
+@@ -30,8 +30,11 @@ def make_plan(labels, mode, blocks, seed):
+     rng = random.Random(seed)
+     if len(labels) == 2:
+         a, b = labels
+-        return [[a, b, b, a] if rng.randrange(2) == 0 else [b, a, a, b]
+-                for _ in range(blocks)]
++        if blocks % 2:
++            raise ValueError('This confirmation needs equal numbers of ABBA and BAAB blocks')
++        result = [[a, b, b, a], [b, a, a, b]] * (blocks // 2)
++        rng.shuffle(result)
++        return result
+     if blocks % 6:
+         raise ValueError('A formal three-product study needs a multiple of six blocks')
+     # Each complete group of six blocks balances every product's ordinal position.
+@@ -52,13 +55,22 @@ def positive_ns(record, key):
+ 
+ def measurements(data, expected_commit, expected_protocol=PROTOCOL):
+     ime, editor = data['ime'], data['editor']
++    if ime.get('touch_hold_policy') != MINIMUM_ACTUAL_HOLD_POLICY:
++        raise ValueError('This confirmation requires the corrected hold policy')
++    validate_touch_hold(ime)
++    if (ime.get('driver_identity', {}).get('driver_version') != 2 or
++            ime['driver_identity'].get('actual_hold_min_ns') != 20_000_000):
++        raise ValueError('This confirmation requires the corrected external injector')
+     if not re.fullmatch(r'[a-f0-9]{40}', expected_commit) or ime['commit'] != expected_commit:
+         raise ValueError('Sample product does not match its pinned source')
+     if ime['injection_protocol'] != expected_protocol:
+         raise ValueError('Sample protocol does not match the planned harness')
+     if ime.get('model_mapped') is not True or ime.get('fcitx_core_mapped') is not False:
+         raise ValueError('Sample must map the pinned model and use the direct Rime engine')
+-    validate_touch_hold(ime)
++    if ime.get('letter_gap_ms') not in (100, 300) or ime.get('comment_mode') not in ('visible', 'hidden'):
++        raise ValueError('Invalid phase experiment condition')
++    if ime['driver_identity']['pid'] == ime['ime_pid']:
++        raise ValueError('Driver did not run outside the IME process')
+     rounds = ime['rounds']
+     if len(rounds) != 6 or len(editor['commits']) != 6 or editor['text'] != '你' * 6:
+         raise ValueError('A sample must contain exactly six successful selections')
+@@ -66,6 +78,10 @@ def measurements(data, expected_commit, expected_protocol=PROTOCOL):
+     for index, row in enumerate(rounds):
+         if type(row.get('round')) is not int or row['round'] != index + 1:
+             raise ValueError('Sample rounds must be ordered from one through six')
++        if row.get('first_candidate_comment', '').strip() == '' and ime['comment_mode'] == 'visible':
++            raise ValueError('Visible comment experiment has no comment')
++        if row.get('first_candidate_comment', '').strip() and ime['comment_mode'] == 'hidden':
++            raise ValueError('Plain candidate experiment retained a comment')
+         n, i, selected = row['n'], row['i'], row['select']
+         for event, key in ((n, 'n'), (i, 'i'), (selected, '你')):
+             for field in ('planned_down_ns', 'planned_up_ns', 'inject_down_ns', 'inject_up_ns',
+@@ -85,7 +101,7 @@ def measurements(data, expected_commit, expected_protocol=PROTOCOL):
+                     not event['inject_down_ns'] <= event['dispatch_down_ns'] <= event['dispatch_up_ns'] or
+                     not event['inject_up_ns'] <= event['dispatch_up_ns'] <= event['dispatch_return_ns']):
+                 raise ValueError('Incomplete or reversed input timestamps')
+-        if (i['planned_down_ns'] - n['planned_down_ns'] != 100_000_000 or
++        if (i['planned_down_ns'] - n['planned_down_ns'] != ime['letter_gap_ms'] * 1_000_000 or
+                 n['inject_up_ns'] > i['inject_down_ns'] or
+                 i['dispatch_up_ns'] > selected['inject_down_ns']):
+             raise ValueError('Sample does not follow the planned n/i/select sequence')
+@@ -213,6 +229,13 @@ def run(args):
+                     subprocess.run(command, check=True, stdout=log, stderr=subprocess.STDOUT, timeout=1200)
+                 raw_path = output / f'{label}-1.json'
+                 raw = json.loads(raw_path.read_text(encoding='utf-8'))
++                if products.get('host_rebuild'):
++                    if raw['ime']['driver_identity'].get('actual_hold_min_ns') != 20_000_000:
++                        raise ValueError('Corrected injector identity is missing')
++                    for row in raw['ime']['rounds']:
++                        for key in ('n', 'i', 'select'):
++                            if row[key]['inject_up_ns'] - row[key]['inject_down_ns'] < 20_000_000:
++                                raise ValueError('Actual touch hold was compressed despite corrected driver')
+                 sample = {'block': block, 'position': position, 'label': label,
+                           'source': products['sources'][label], 'raw': str(raw_path.relative_to(args.output)),
+                           'measurements': measurements(raw, products['sources'][label], products['protocol'])}
+diff --git a/tools/input-perf/verify-font-scope.py b/tools/input-perf/verify-font-scope.py
+new file mode 100644
+index 00000000..6bc497c1
+--- /dev/null
++++ b/tools/input-perf/verify-font-scope.py
+@@ -0,0 +1,46 @@
++#!/usr/bin/env python3
++"""Refuse a font-only comparison if any other product input changed."""
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++import sys
++
++ROOT = Path(__file__).resolve().parents[2]
++PATH = 'app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt'
++PRODUCT_PATHS = ['app/src/main', 'app/src/fx', 'app/src/debug', 'app/src/release',
++                 'direct-rime', 'native', 'build-logic', 'gradle', 'app/build.gradle.kts',
++                 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties']
++
++
++def git(*args):
++    return subprocess.check_output(['git', '-C', str(ROOT), *args])
++
++
++def main():
++    plan = json.loads((ROOT / 'tools/input-perf/font-confirmation-plan.json').read_text())
++    base, current = plan['baseline'], plan['current']
++    changed = git('diff', '--name-only', base, current, '--', *PRODUCT_PATHS).decode().splitlines()
++    if changed != [PATH]:
++        raise ValueError('The products differ outside the font invalidation: ' + repr(changed))
++    before, after = git('show', base + ':' + PATH), git('show', current + ':' + PATH)
++    start = after.index(b'    override fun setTypeface(tf: Typeface?) {\n')
++    end = after.index(b'    override fun setText(', start)
++    added = after[start:end]
++    if after[:start] + after[end:] != before or len(added.splitlines()) != 12:
++        raise ValueError('The product change is not exactly the 12-line typeface invalidation')
++    if git('show', base + ':native/rime-sdk.lock.json') != git('show', current + ':native/rime-sdk.lock.json'):
++        raise ValueError('Engine lock changed')
++    audit = dict(baseline=base, current=current, compared_paths=PRODUCT_PATHS,
++                 changed_paths=changed, inserted_lines=12, deleted_lines=0,
++                 previous_source_sha256=hashlib.sha256(before).hexdigest(),
++                 current_source_sha256=hashlib.sha256(after).hexdigest(),
++                 font_invalidation_patch=added.decode(),
++                 generated_git_version_metadata_can_differ=True,
++                 source_scope_valid=True)
++    Path(sys.argv[1]).write_text(json.dumps(audit, indent=2) + '\n')
++    print('Verified: exactly the 12-line typeface invalidation differs in product sources')
++
++
++if __name__ == '__main__':
++    main()
+-- 
+2.52.0
+

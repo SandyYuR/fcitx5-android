@@ -1,0 +1,545 @@
+--------- beginning of kernel
+11-11 12:16:11.069     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2853 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+--------- beginning of main
+11-11 12:16:11.020  2854  2854 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-11 12:16:11.030  2854  2854 I AndroidRuntime: Using default boot image
+11-11 12:16:11.030  2854  2854 I AndroidRuntime: Leaving lock profiling enabled
+11-11 12:16:11.034  2854  2854 I app_process: Core platform API reporting enabled, enforcing=false
+11-11 12:16:11.034  2854  2854 I app_process: Using CollectorTypeCMC GC.
+11-11 12:16:11.192     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2857 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:11.154  2854  2854 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-11 12:16:11.315     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2860 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:11.176  2854  2854 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-11 12:16:11.176  2854  2854 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/8/icu") succeeded. 
+11-11 12:16:11.176  2854  2854 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt75l.dat
+11-11 12:16:11.178  2854  2854 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-11 12:16:11.179  2854  2854 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-11 12:16:11.181  2854  2854 W app_process: Unexpected CPU variant for x86: x86_64.
+11-11 12:16:11.181  2854  2854 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-11 12:16:11.198  2854  2854 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-11 12:16:11.198  2854  2854 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-11 12:16:11.200  2854  2854 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+11-11 12:16:11.201   543   973 I ActivityManager: Force stopping org.fcitx.fcitx5.android.fx.rime.debug appid=10141 user=0: start instr
+11-11 12:16:11.202   543   973 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10141, packageName = null, attributionTag = null, token = android.os.Binder@cfeb220, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-11 12:16:11.208   543   812 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+11-11 12:16:11.208   543   812 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10141 package org.fcitx.fcitx5.android.fx.rime.debug isStopped false
+11-11 12:16:11.209   350   350 D Zygote  : Forked child process 2872
+11-11 12:16:11.210   543   578 I ActivityManager: Start proc 2872:org.fcitx.fcitx5.android.fx.rime.debug/u0a141 for added application org.fcitx.fcitx5.android.fx.rime.debug
+11-11 12:16:11.229  2872  2872 I d.fx.rime.debug: Late-enabling -Xcheck:jni
+11-11 12:16:11.241  2872  2872 I d.fx.rime.debug: Using CollectorTypeCMC GC.
+11-11 12:16:11.242  2872  2872 W d.fx.rime.debug: Unexpected CPU variant for x86: x86_64.
+11-11 12:16:11.242  2872  2872 W d.fx.rime.debug: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-11 12:16:11.256   429   446 I adbd    : jdwp connection from 2872
+11-11 12:16:11.261  2872  2872 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-11 12:16:11.284  2872  2872 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[org.fcitx.fcitx5.android.fx.rime.debug]: x86_64, null instrumentation[org.fcitx.fcitx5.android.fx.rime.debug.test]: null, null
+11-11 12:16:11.285  2872  2872 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-11 12:16:11.285  2872  2872 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-11 12:16:11.285  2872  2872 W ziparchive: Unable to open '/data/app/~~bLRS59a_kQdJR2s2Tehu1g==/org.fcitx.fcitx5.android.fx.rime.debug.test-brTnsR1Ax-6kDG6w3Tw_SA==/base.dm': No such file or directory
+11-11 12:16:11.285  2872  2872 W ziparchive: Unable to open '/data/app/~~bLRS59a_kQdJR2s2Tehu1g==/org.fcitx.fcitx5.android.fx.rime.debug.test-brTnsR1Ax-6kDG6w3Tw_SA==/base.dm': No such file or directory
+11-11 12:16:11.436     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2884 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:11.303  2872  2872 W ziparchive: Unable to open '/data/app/~~DizbHOYxwFeDLmfIjydkxA==/org.fcitx.fcitx5.android.fx.rime.debug-CzMlgVJNsAsqTFb89Wq4PA==/base.dm': No such file or directory
+11-11 12:16:11.303  2872  2872 W ziparchive: Unable to open '/data/app/~~DizbHOYxwFeDLmfIjydkxA==/org.fcitx.fcitx5.android.fx.rime.debug-CzMlgVJNsAsqTFb89Wq4PA==/base.dm': No such file or directory
+11-11 12:16:11.562     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2887 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:11.679     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2890 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:11.795     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2893 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:11.653  2872  2872 D nativeloader: Configuring clns-7 for other apk /data/app/~~bLRS59a_kQdJR2s2Tehu1g==/org.fcitx.fcitx5.android.fx.rime.debug.test-brTnsR1Ax-6kDG6w3Tw_SA==/base.apk:/data/app/~~DizbHOYxwFeDLmfIjydkxA==/org.fcitx.fcitx5.android.fx.rime.debug-CzMlgVJNsAsqTFb89Wq4PA==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~bLRS59a_kQdJR2s2Tehu1g==/org.fcitx.fcitx5.android.fx.rime.debug.test-brTnsR1Ax-6kDG6w3Tw_SA==/lib/x86_64:/data/app/~~DizbHOYxwFeDLmfIjydkxA==/org.fcitx.fcitx5.android.fx.rime.debug-CzMlgVJNsAsqTFb89Wq4PA==/lib/x86_64:/data/app/~~bLRS59a_kQdJR2s2Tehu1g==/org.fcitx.fcitx5.android.fx.rime.debug.test-brTnsR1Ax-6kDG6w3Tw_SA==/base.apk!/lib/x86_64:/data/app/~~DizbHOYxwFeDLmfIjydkxA==/org.fcitx.fcitx5.android.fx.rime.debug-CzMlgVJNsAsqTFb89Wq4PA==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/org.fcitx.fcitx5.android.fx.rime.debug
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4f9ffd5 com.android.cts.priv.ctsshim/10129} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e2303ea com.android.uwb.resources/10117} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{11626db com.android.internal.display.cutout.emulation.corner/10044} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ea77578 com.android.internal.display.cutout.emulation.double/10051} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{5e7c451 com.android.healthconnect.controller/10127} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{92574b6 com.android.health.connect.backuprestore/10128} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{94655b7 com.android.virtualmachine.res/10121} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{39a7124 com.android.carrierconfig.auto_generated_rro_vendor__/10055} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d13548d android.slim.overlay/10058} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{70c2642 com.android.systemui.emulation.pixel_3_xl/10032} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ce09653 com.android.systemui.emulation.pixel_4_xl/10041} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{9f7b90 com.android.systemui.emulation.pixel_fold/10011} BLOCKED
+11-11 12:16:11.653   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{cedac89 com.android.providers.telephony.auto_generated_characteristics_rro/10049} BLOCKED
+11-11 12:16:11.654   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{6ba648e com.android.htmlviewer/10096} BLOCKED
+11-11 12:16:11.654   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{bd444af com.android.quicksearchbox/10103} BLOCKED
+11-11 12:16:11.654   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4a8c0bc com.android.networkstack.tethering.emulator/10025} BLOCKED
+11-11 12:16:11.654   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{3fb8845 com.android.internal.emulation.pixel_3a_xl/10006} BLOCKED
+11-11 12:16:11.654   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ffc3b9a com.android.internal.emulation.pixel_6_pro/10020} BLOCKED
+11-11 12:16:11.654   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{baa7ccb com.android.internal.emulation.pixel_7_pro/10028} BLOCKED
+11-11 12:16:11.654   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{99f2ca8 com.android.internal.emulation.pixel_8_pro/10016} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{a5163c1 com.android.internal.emulation.pixel_3a/10046} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{9527766 com.android.internal.emulation.pixel_4a/10052} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7621aa7 com.android.internal.emulation.pixel_6a/10023} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d0e6b54 com.android.internal.emulation.pixel_7a/10005} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{acf7afd com.android.internal.emulation.pixel_8a/10017} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e7ea3f2 com.android.safetycenter.resources/10132} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{10bba43 com.android.simappdialog/10080} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ceb8654 com.android.connectivity.resources/10126} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{41dc9f9 com.android.internal.display.cutout.emulation.hole/10018} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{3cf0d3e com.android.internal.display.cutout.emulation.tall/10012} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{125b79f com.android.modulemetadata/10104} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{efbd0ec com.android.internal.systemui.navbar.threebutton/10022} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d680cb5 com.android.wifi.dialog/10125} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{22abf4a com.android.contacts/10099} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{fb82ebb com.android.camera2/10106} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{f4b0fd8 com.android.internal.ranchu.commonoverlay/10027} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ad9bf31 com.android.internal.systemui.navbar.twobutton/10000} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7dd8616 com.android.settings.intelligence/10098} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{330fb97 com.android.calendar/10109} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{64d5184 com.android.systemui.emulation.pixel_3/10001} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{dda1d6d com.android.systemui.emulation.pixel_4/10021} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{a23eda2 com.android.systemui.emulation.pixel_5/10024} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ffba33 com.android.systemui.emulation.pixel_6/10029} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e1001f0 com.android.systemui.emulation.pixel_7/10038} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d082369 com.android.systemui.emulation.pixel_8/10004} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{37741ee com.android.printspooler/10086} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{bf1c68f com.android.dreams.basic/10091} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{20b4d1c com.android.webview/10101} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ff68d25 com.android.rkpdapp/10137} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{a998efa com.android.internal.emulation.pixel_3/10010} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{c4e3cab com.android.internal.emulation.pixel_4/10053} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b0e1f08 com.android.internal.emulation.pixel_5/10035} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{aa7d6a1 com.android.internal.emulation.pixel_6/10047} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e61a0c6 com.android.internal.emulation.pixel_7/10050} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{db1f887 com.android.internal.emulation.pixel_8/10007} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{dea23b4 android.auto_generated_characteristics_rro/10014} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4ca3bdd com.android.musicfx/10075} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{2470352 com.android.phone.auto_generated_characteristics_rro/10048} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{eab9623 com.android.printservice.recommendation/10093} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{8dfc720 com.android.gallery3d/10105} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{8b3b8d9 com.android.wifi.resources/10123} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7ae029e com.android.theme.font.notoserifsource/10003} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e17717f com.android.internal.display.cutout.emulation.waterfall/10002} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{bca354c com.android.internal.systemui.navbar.transparent/10030} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{61e0995 org.chromium.webview_shell/10100} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ff3aaaa com.android.systemui.emulation.pixel_3a_xl/10034} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{23ba69b com.android.systemui.emulation.pixel_6_pro/10037} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{70b5a38 com.android.systemui.emulation.pixel_7_pro/10013} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4a2aa11 com.android.systemui.emulation.pixel_8_pro/10036} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{339c776 com.android.providers.partnerbookmarks/10088} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{5a41177 com.android.wallpaper.livepicker/10063} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d37e1e4 com.android.cellbroadcastreceiver.module/10118} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{1f6d64d com.android.phone.auto_generated_rro_vendor__/10057} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7f2e502 com.android.apps.tag/10076} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{5be4e13 com.android.appsearch.apk/10115} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{3833850 com.android.internal.emulation.pixel_2_xl/10031} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7e78a49 com.android.internal.emulation.pixel_3_xl/10019} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{72e4f4e com.android.internal.emulation.pixel_4_xl/10042} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{f35b86f com.android.internal.emulation.pixel_fold/10040} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b2a6afe io.github.sandyyur.inputbench/10138} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{6158205 com.android.bookmarkprovider/10085} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{9a4125a com.android.systemui.emulation.pixel_3a/10033} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{40f6c8b com.android.systemui.emulation.pixel_4a/10054} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{c25c168 com.android.systemui.emulation.pixel_6a/10045} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b713981 com.android.systemui.emulation.pixel_7a/10039} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{980fa26 com.android.systemui.emulation.pixel_8a/10015} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{98bdfaa com.android.cts.ctsshim/10130} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7864667 com.android.connectivity.resources.goldfish.overlay/10059} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{8498c14 com.android.music/10102} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b76ecbd com.android.hotspot2.osulogin/10124} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4f292b2 com.android.companiondevicemanager.auto_generated_characteristics_rro/10043} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ba6e203 com.android.internal.systemui.navbar.gestural/10026} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{3d5580 com.android.deskclock/10108} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b2a97b9 com.android.bluetoothmidiservice/10084} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d7327fe com.android.captiveportallogin/10097} BLOCKED
+11-11 12:16:11.655   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{cab9b5f android.auto_generated_rro_vendor__/10056} BLOCKED
+11-11 12:16:11.665  2872  2872 V GraphicsEnvironment: Currently set values for:
+11-11 12:16:11.665  2872  2872 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-11 12:16:11.665  2872  2872 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-11 12:16:11.665  2872  2872 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+11-11 12:16:11.665  2872  2872 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-11 12:16:11.668  2872  2872 W ziparchive: Unable to open '/data/app/~~bLRS59a_kQdJR2s2Tehu1g==/org.fcitx.fcitx5.android.fx.rime.debug.test-brTnsR1Ax-6kDG6w3Tw_SA==/base.dm': No such file or directory
+11-11 12:16:11.668  2872  2872 W ziparchive: Unable to open '/data/app/~~bLRS59a_kQdJR2s2Tehu1g==/org.fcitx.fcitx5.android.fx.rime.debug.test-brTnsR1Ax-6kDG6w3Tw_SA==/base.dm': No such file or directory
+11-11 12:16:11.682  2872  2872 W ziparchive: Unable to open '/data/app/~~DizbHOYxwFeDLmfIjydkxA==/org.fcitx.fcitx5.android.fx.rime.debug-CzMlgVJNsAsqTFb89Wq4PA==/base.dm': No such file or directory
+11-11 12:16:11.683  2872  2872 W ziparchive: Unable to open '/data/app/~~DizbHOYxwFeDLmfIjydkxA==/org.fcitx.fcitx5.android.fx.rime.debug-CzMlgVJNsAsqTFb89Wq4PA==/base.dm': No such file or directory
+11-11 12:16:11.916     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2898 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:12.039     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2901 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4f9ffd5 com.android.cts.priv.ctsshim/10129} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e2303ea com.android.uwb.resources/10117} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{11626db com.android.internal.display.cutout.emulation.corner/10044} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ea77578 com.android.internal.display.cutout.emulation.double/10051} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{5e7c451 com.android.healthconnect.controller/10127} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{92574b6 com.android.health.connect.backuprestore/10128} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{94655b7 com.android.virtualmachine.res/10121} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{39a7124 com.android.carrierconfig.auto_generated_rro_vendor__/10055} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d13548d android.slim.overlay/10058} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{70c2642 com.android.systemui.emulation.pixel_3_xl/10032} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ce09653 com.android.systemui.emulation.pixel_4_xl/10041} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{9f7b90 com.android.systemui.emulation.pixel_fold/10011} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{cedac89 com.android.providers.telephony.auto_generated_characteristics_rro/10049} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{6ba648e com.android.htmlviewer/10096} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{bd444af com.android.quicksearchbox/10103} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4a8c0bc com.android.networkstack.tethering.emulator/10025} BLOCKED
+11-11 12:16:11.999   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{3fb8845 com.android.internal.emulation.pixel_3a_xl/10006} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ffc3b9a com.android.internal.emulation.pixel_6_pro/10020} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{baa7ccb com.android.internal.emulation.pixel_7_pro/10028} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{99f2ca8 com.android.internal.emulation.pixel_8_pro/10016} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{a5163c1 com.android.internal.emulation.pixel_3a/10046} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{9527766 com.android.internal.emulation.pixel_4a/10052} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7621aa7 com.android.internal.emulation.pixel_6a/10023} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d0e6b54 com.android.internal.emulation.pixel_7a/10005} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{acf7afd com.android.internal.emulation.pixel_8a/10017} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e7ea3f2 com.android.safetycenter.resources/10132} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{10bba43 com.android.simappdialog/10080} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ceb8654 com.android.connectivity.resources/10126} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{41dc9f9 com.android.internal.display.cutout.emulation.hole/10018} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{3cf0d3e com.android.internal.display.cutout.emulation.tall/10012} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{125b79f com.android.modulemetadata/10104} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{efbd0ec com.android.internal.systemui.navbar.threebutton/10022} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d680cb5 com.android.wifi.dialog/10125} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{22abf4a com.android.contacts/10099} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{fb82ebb com.android.camera2/10106} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{f4b0fd8 com.android.internal.ranchu.commonoverlay/10027} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ad9bf31 com.android.internal.systemui.navbar.twobutton/10000} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7dd8616 com.android.settings.intelligence/10098} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{330fb97 com.android.calendar/10109} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{64d5184 com.android.systemui.emulation.pixel_3/10001} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{dda1d6d com.android.systemui.emulation.pixel_4/10021} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{a23eda2 com.android.systemui.emulation.pixel_5/10024} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ffba33 com.android.systemui.emulation.pixel_6/10029} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e1001f0 com.android.systemui.emulation.pixel_7/10038} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d082369 com.android.systemui.emulation.pixel_8/10004} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{37741ee com.android.printspooler/10086} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{bf1c68f com.android.dreams.basic/10091} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{20b4d1c com.android.webview/10101} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ff68d25 com.android.rkpdapp/10137} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{a998efa com.android.internal.emulation.pixel_3/10010} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{c4e3cab com.android.internal.emulation.pixel_4/10053} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b0e1f08 com.android.internal.emulation.pixel_5/10035} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{aa7d6a1 com.android.internal.emulation.pixel_6/10047} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e61a0c6 com.android.internal.emulation.pixel_7/10050} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{db1f887 com.android.internal.emulation.pixel_8/10007} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{dea23b4 android.auto_generated_characteristics_rro/10014} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4ca3bdd com.android.musicfx/10075} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{2470352 com.android.phone.auto_generated_characteristics_rro/10048} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{eab9623 com.android.printservice.recommendation/10093} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{8dfc720 com.android.gallery3d/10105} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{8b3b8d9 com.android.wifi.resources/10123} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7ae029e com.android.theme.font.notoserifsource/10003} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{e17717f com.android.internal.display.cutout.emulation.waterfall/10002} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{bca354c com.android.internal.systemui.navbar.transparent/10030} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{61e0995 org.chromium.webview_shell/10100} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ff3aaaa com.android.systemui.emulation.pixel_3a_xl/10034} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{23ba69b com.android.systemui.emulation.pixel_6_pro/10037} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{70b5a38 com.android.systemui.emulation.pixel_7_pro/10013} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4a2aa11 com.android.systemui.emulation.pixel_8_pro/10036} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{339c776 com.android.providers.partnerbookmarks/10088} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{5a41177 com.android.wallpaper.livepicker/10063} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d37e1e4 com.android.cellbroadcastreceiver.module/10118} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{1f6d64d com.android.phone.auto_generated_rro_vendor__/10057} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7f2e502 com.android.apps.tag/10076} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{5be4e13 com.android.appsearch.apk/10115} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{3833850 com.android.internal.emulation.pixel_2_xl/10031} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7e78a49 com.android.internal.emulation.pixel_3_xl/10019} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{72e4f4e com.android.internal.emulation.pixel_4_xl/10042} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{f35b86f com.android.internal.emulation.pixel_fold/10040} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b2a6afe io.github.sandyyur.inputbench/10138} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{6158205 com.android.bookmarkprovider/10085} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{9a4125a com.android.systemui.emulation.pixel_3a/10033} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{40f6c8b com.android.systemui.emulation.pixel_4a/10054} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{c25c168 com.android.systemui.emulation.pixel_6a/10045} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b713981 com.android.systemui.emulation.pixel_7a/10039} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{980fa26 com.android.systemui.emulation.pixel_8a/10015} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{98bdfaa com.android.cts.ctsshim/10130} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{7864667 com.android.connectivity.resources.goldfish.overlay/10059} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{8498c14 com.android.music/10102} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b76ecbd com.android.hotspot2.osulogin/10124} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{4f292b2 com.android.companiondevicemanager.auto_generated_characteristics_rro/10043} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{ba6e203 com.android.internal.systemui.navbar.gestural/10026} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{3d5580 com.android.deskclock/10108} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{b2a97b9 com.android.bluetoothmidiservice/10084} BLOCKED
+11-11 12:16:12.000   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{d7327fe com.android.captiveportallogin/10097} BLOCKED
+11-11 12:16:12.001   543   978 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{cab9b5f android.auto_generated_rro_vendor__/10056} BLOCKED
+11-11 12:16:12.015  2872  2872 I AndroidJUnitRunner: newApplication org.fcitx.fcitx5.android.FcitxApplication
+11-11 12:16:12.166     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2904 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:12.074  2872  2872 I AndroidJUnitRunner: onCreate Bundle[mParcelledData.dataSize=264]
+11-11 12:16:12.075  2872  2872 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-11 12:16:12.121  2872  2872 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-11 12:16:12.122  2872  2907 D AndroidJUnitRunner: onStart is called.
+11-11 12:16:12.140  2872  2872 D [main] FcitxApplication: isDirectBootMode=false
+11-11 12:16:12.292     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2909 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:12.174  2872  2872 D [main] FcitxApplication: Last pid is 2764. Set it to current pid: 2872
+11-11 12:16:12.417     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2922 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:12.284   349   393 I netd    : tetherGetStats() -> {[]} <0.47ms>
+11-11 12:16:12.285  2872  2907 I InstrConnection: Could not send broadcast or register receiver (isolatedProcess?)
+11-11 12:16:12.302  2872  2907 I TestRunner: run started: 1 tests
+11-11 12:16:12.303  2872  2907 I TestRunner: started: replay(org.fcitx.fcitx5.android.core.CandidateTapTest)
+11-11 12:16:12.318  2872  2907 D [Instr: androidx.test.runner.AndroidJUnitRunner] FcitxDaemon: FcitxDaemon start fcitx
+11-11 12:16:12.333  2872  2924 I FcitxColdStart: font preload keys=0 duration=70ms
+11-11 12:16:12.338  2872  2928 D [rime-main] DataManager: Using device protected storage
+11-11 12:16:12.340  2872  2907 I UiAutomation: Initialized for user 0 on display 0
+11-11 12:16:12.342   543   973 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-11 12:16:12.343   543   973 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+11-11 12:16:12.343   543   973 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-11 12:16:12.344   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:16:12.344   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:16:12.345   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:16:12.345   543   543 D BatterySaverPolicy: accessibility changed to true, updating policy.
+11-11 12:16:12.348  2872  2929 V UiAutomation: Init UiAutomation@6675473[id=4, displayId=0, flags=0]
+11-11 12:16:12.361  2872  2928 D [rime-main] DataManager: Hierarchy created
+11-11 12:16:12.362   543   978 W ActivityTaskManager: callingPackage for (uid=2000, pid=2935) has no WPC
+11-11 12:16:12.363   543   978 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+11-11 12:16:12.363   543   978 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10138, packageName = null, attributionTag = null, token = android.os.Binder@cfeb220, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-11 12:16:12.363   543   978 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+11-11 12:16:12.364   543   978 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+11-11 12:16:12.366   543   978 V SplashScreenExceptionList: SplashScreen checking exception for package io.github.sandyyur.inputbench (target sdk:28) -> false
+11-11 12:16:12.368   543   978 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} with LAUNCH_MULTIPLE from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+11-11 12:16:12.368   543   569 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10138, packageName = null, attributionTag = null, token = android.os.Binder@cfeb220, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-11 12:16:12.371   543   623 I AppsFilter: interaction: PackageSetting{9f906b9 org.fcitx.fcitx5.android.fx.rime.debug.test/10142} -> PackageSetting{a36e7ce io.github.sandyyur.inputbench/10138} BLOCKED
+11-11 12:16:12.371   543   623 I AppsFilter: interaction: PackageSetting{9cd1fa5 org.fcitx.fcitx5.android.fx.rime.debug/10141} -> PackageSetting{a36e7ce io.github.sandyyur.inputbench/10138} BLOCKED
+11-11 12:16:12.380   350   350 D Zygote  : Forked child process 2938
+11-11 12:16:12.381  2872  2928 D [rime-main] DataManager: Synced
+11-11 12:16:12.381  2872  2928 I RimeLifecycle: startup phase=assets duration_ms=44
+11-11 12:16:12.382   543   812 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+11-11 12:16:12.382   543   812 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10138 package io.github.sandyyur.inputbench isStopped false
+11-11 12:16:12.392   543   578 I ActivityManager: Start proc 2938:io.github.sandyyur.inputbench/u0a138 for next-top-activity {io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}
+11-11 12:16:12.399  2872  2928 I RimeLifecycle: startup phase=config duration_ms=17
+11-11 12:16:12.407   420   487 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-11 12:16:12.551     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2939 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:16:12.424  2872  2928 D nativeloader: Load /data/app/~~DizbHOYxwFeDLmfIjydkxA==/org.fcitx.fcitx5.android.fx.rime.debug-CzMlgVJNsAsqTFb89Wq4PA==/lib/x86_64/libdirect-rime.so using ns clns-7 from class loader (caller=/data/app/~~DizbHOYxwFeDLmfIjydkxA==/org.fcitx.fcitx5.android.fx.rime.debug-CzMlgVJNsAsqTFb89Wq4PA==/base.apk!classes6.dex): ok
+11-11 12:16:12.429  2938  2938 I yyur.inputbench: Late-enabling -Xcheck:jni
+11-11 12:16:12.448  2872  2928 I RimeLifecycle: startup phase=native duration_ms=48
+11-11 12:16:12.452  2938  2938 I yyur.inputbench: Using CollectorTypeCMC GC.
+11-11 12:16:12.452  2938  2938 W yyur.inputbench: Unexpected CPU variant for x86: x86_64.
+11-11 12:16:12.452  2938  2938 W yyur.inputbench: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-11 12:16:12.482   429   446 I adbd    : jdwp connection from 2938
+11-11 12:16:12.494  2938  2938 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-11 12:16:12.523  2938  2938 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:16:12.525  1104  1104 I InputAttributes: InputType.TYPE_NULL is specified
+11-11 12:16:12.525  2938  2938 W ziparchive: Unable to open '/data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/base.dm': No such file or directory
+11-11 12:16:12.525  2938  2938 W ziparchive: Unable to open '/data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/base.dm': No such file or directory
+11-11 12:16:12.526  2938  2938 D nativeloader: Configuring clns-7 for other apk /data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/base.apk. target_sdk_version=28, uses_libraries=, library_path=/data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/io.github.sandyyur.inputbench
+11-11 12:16:12.529  1104  1220 I LatinIME:LogUtils: Dictionary info: dictionary = userunigram. ; version = 1794399372 ; date = ?
+11-11 12:16:12.529  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.532  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.533  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.533  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.533  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.533  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.534   543   650 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+11-11 12:16:12.535  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.535  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.535  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.535  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.535  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.535  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.535  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.536  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.537  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.538  2938  2938 V GraphicsEnvironment: Currently set values for:
+11-11 12:16:12.538  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.539  2938  2938 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-11 12:16:12.539  2938  2938 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-11 12:16:12.539  2938  2938 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+11-11 12:16:12.539  2938  2938 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-11 12:16:12.539  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.539  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.539  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.539  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.539  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.539  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.539  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.543  1104  1104 W SubtypeLocaleUtils: KeyboardLayoutSet not found, use QWERTY: locale= extraValue=
+11-11 12:16:12.560   543   569 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:16:12.571   543   569 W PermissionService: getPermissionFlags: Unknown user -1
+11-11 12:16:12.573   543   569 W PermissionService: getPermissionFlags: Unknown user -1
+11-11 12:16:12.595  2938  2938 D CompatChangeReporter: Compat change id reported: 37756858; UID 10138; state: ENABLED
+11-11 12:16:12.617  2938  2938 W HWUI    : Unknown dataspace 0
+11-11 12:16:12.628   543   623 D CoreBackPreview: Window{f1f8463 u0 io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@1dc75de, mPriority=0, mIsAnimationCallback=false}
+11-11 12:16:12.634  2938  2968 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+11-11 12:16:12.634  2938  2968 I EGL_emulation: Opening libGLESv2_emulation.so
+11-11 12:16:12.642  2938  2968 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-11 12:16:12.657   146   146 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-11 12:16:12.658  2938  2968 I Gralloc4: mapper 4.x is not supported
+11-11 12:16:12.798     0     0 I servicemanager: Caller(pid=2938,uid=10138,sid=u:r:untrusted_app_27:s0:c138,c256,c512,c768) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+11-11 12:16:12.943  2938  2938 I ImeTracker: io.github.sandyyur.inputbench:3ca203a4: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+11-11 12:16:12.944   543   566 W ziparchive: Unable to open '/data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/base.dm': No such file or directory
+11-11 12:16:12.945   543   566 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost for user 0: +581ms
+11-11 12:16:12.946  2938  2938 I ImeTracker: io.github.sandyyur.inputbench:3ca203a4: onFailed at PHASE_CLIENT_VIEW_SERVED
+11-11 12:16:12.946  2938  2938 W InputMethodManager: Ignoring showSoftInput() as view=io.github.sandyyur.inputbench.BenchHost$1{d1dd72a VFED..CL. .F...... 0,0-320,640 aid=1073741824} is not served.
+11-11 12:16:12.958   985   985 D VRI[EmptyHomeActivity]: visibilityChanged oldVisibility=true newVisibility=false
+11-11 12:16:12.979   543   656 W InputManager-JNI: Input channel object '121152f InputMethod (client)' was disposed without first being removed with the input manager!
+11-11 12:16:12.985   543   623 W WindowManager: Cannot find window which accessibility connection is added to
+11-11 12:16:12.986   543   656 I ImeTracker: io.github.sandyyur.inputbench:24886005: onRequestShow at ORIGIN_SERVER reason SHOW_STATE_ALWAYS_VISIBLE fromUser false
+11-11 12:16:12.986   543   623 W WindowManager: Failed looking up window session=Session{454853c 1104:u0a10107} callers=com.android.server.wm.WindowManagerService.removeClientToken:2058 com.android.server.wm.Session.remove:274 android.view.IWindowSession$Stub.onTransact:685 
+11-11 12:16:12.988  1104  1104 W WindowTokenClientController: Can't find attached WindowTokenClient for android.window.WindowTokenClient@e327ec7
+11-11 12:16:13.002  2872  2872 D WindowTokenClient: Only apply configuration update to Resources because shouldReportConfigChange is false. context=org.fcitx.fcitx5.android.input.FcitxInputMethodService@836e7a2, config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, display ID=0
+11-11 12:16:13.002  2872  2872 D WindowTokenClient: android.window.WindowTokenClient.onConfigurationChanged:161 android.window.WindowTokenClientController.onWindowContextTokenAttached:197 android.window.WindowTokenClientController.attachToDisplayArea:116 android.window.WindowContextController.attachToDisplayArea:108 android.window.WindowProviderService.attachBaseContext:218 
+11-11 12:16:13.003  2872  2872 I FcitxColdStart: service.onCreate begin
+11-11 12:16:13.003  2872  2872 D [main] FcitxDaemon: FcitxDaemon start fcitx
+11-11 12:16:13.007  2872  2872 I FcitxVoiceInput: registered floating voice receiver actions=android.content.IntentFilter@f636f25
+11-11 12:16:13.025  2872  2872 I FcitxColdStart: service.onCreate duration=22ms
+11-11 12:16:13.033  2872  2872 W HWUI    : Unknown dataspace 0
+11-11 12:16:13.043  2872  2872 D WindowTokenClient: Configuration not dispatch to IME because configuration is up to date. Current config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, reported config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, updated config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, updated display ID=0
+11-11 12:16:13.043  2872  2872 D WindowTokenClient: Configuration not dispatch to IME because configuration is up to date. Current config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, reported config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, updated config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, updated display ID=0
+11-11 12:16:13.049  2872  2872 D [main] FcitxInputMethodService: onBindInput: uid=10138 pkg=io.github.sandyyur.inputbench
+11-11 12:16:13.050  2872  2872 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:16:13.054  2872  2920 D [DefaultDispatcher-worker-4] DirectRimeBackend: Ignoring an unavailable input method subtype
+11-11 12:16:13.069  2872  2872 D [main] FcitxInputMethodService: onStartInput: initialSel=[0,0], restarting=false
+11-11 12:16:13.069  2872  2872 I RimeLifecycle: input_binding generation=1 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-11 12:16:13.075  2872  2872 I FcitxColdStart: service.onCreateInputView begin
+11-11 12:16:13.237  2872  2928 I RimeLifecycle: bind generation=1 duration_ms=166 ready=true usable=true direct=false no_learning=false created=1 reused=0 native_begin_us=163513 restore_us=7 publish_us=2281
+11-11 12:16:13.250  2872  2872 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=94ms
+11-11 12:16:13.265  2872  2872 I FcitxColdStart: KeyboardWindow.onCreateView duration=110ms
+11-11 12:16:13.268  2872  2872 D [main] InputWindowManager: Attach org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+11-11 12:16:13.301  2872  2872 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=9ms
+11-11 12:16:13.366  2938  2951 I yyur.inputbench: Compiler allocated 4219KB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
+11-11 12:16:13.390  2872  2872 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=66ms
+11-11 12:16:13.395  2872  2872 D [main] InputView: InputView init: theme=MaterialLight, isCustom=false, enableBlur=false
+11-11 12:16:13.420  2872  2876 I d.fx.rime.debug: Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
+11-11 12:16:13.459  2872  2872 I FcitxColdStart: replaceInputView duration=380ms
+11-11 12:16:13.465  2872  2872 I FcitxColdStart: service.onCreateInputView duration=390ms
+11-11 12:16:13.465  2872  2872 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:16:13.465  2872  2872 D [main] FcitxInputMethodService: onStartInputView: restarting=false
+11-11 12:16:13.471  2872  2872 D [main] InputWindowManager: Skip attaching org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+11-11 12:16:13.484  2872  2872 D [main] InputWindowManager: Detach org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+11-11 12:16:13.485  2872  2872 D [main] InputWindowManager: Attach org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+11-11 12:16:13.509  2872  2876 I d.fx.rime.debug: Compiler allocated 4219KB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
+11-11 12:16:13.760   420   468 W ServiceManagerCppClient: Permission failure: android.permission.ACCESS_SURFACE_FLINGER from uid=10141 pid=0
+11-11 12:16:13.760   420   468 D PermissionCache: checking android.permission.ACCESS_SURFACE_FLINGER for uid=10141 => denied (256 us)
+11-11 12:16:13.760   420   468 W ServiceManagerCppClient: Permission failure: android.permission.ROTATE_SURFACE_FLINGER from uid=10141 pid=0
+11-11 12:16:13.760   420   468 D PermissionCache: checking android.permission.ROTATE_SURFACE_FLINGER for uid=10141 => denied (168 us)
+11-11 12:16:13.760   420   468 W ServiceManagerCppClient: Permission failure: android.permission.INTERNAL_SYSTEM_WINDOW from uid=10141 pid=0
+11-11 12:16:13.760   420   468 D PermissionCache: checking android.permission.INTERNAL_SYSTEM_WINDOW for uid=10141 => denied (172 us)
+11-11 12:16:13.760   420   487 W ServiceManagerCppClient: Permission failure: android.permission.INTERNAL_SYSTEM_WINDOW from uid=10141 pid=2872
+11-11 12:16:13.760   420   487 D PermissionCache: checking android.permission.INTERNAL_SYSTEM_WINDOW for uid=10141 => denied (158 us)
+11-11 12:16:13.782  2872  2978 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+11-11 12:16:13.783  2872  2978 I EGL_emulation: Opening libGLESv2_emulation.so
+11-11 12:16:13.788  2872  2978 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-11 12:16:13.802   146   146 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-11 12:16:13.802  2872  2978 I Gralloc4: mapper 4.x is not supported
+11-11 12:16:13.943     0     0 I servicemanager: Caller(pid=2872,uid=10141,sid=u:r:untrusted_app:s0:c141,c256,c512,c768) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+11-11 12:16:13.815  2872  2872 D [main] KawaiiBarRowLayout: KawaiiBarRow: mode=scroll viewport=240 content=288 children=6
+11-11 12:16:14.074  2938  2951 I yyur.inputbench: Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
+11-11 12:16:14.380   543   973 W ServiceManagerCppClient: Permission failure: android.permission.ACCESS_SURFACE_FLINGER from uid=10141 pid=0
+11-11 12:16:14.380   543   973 D PermissionCache: checking android.permission.ACCESS_SURFACE_FLINGER for uid=10141 => denied (104 us)
+11-11 12:16:14.380   543   973 W ServiceManagerCppClient: Permission failure: android.permission.ROTATE_SURFACE_FLINGER from uid=10141 pid=0
+11-11 12:16:14.380   543   973 D PermissionCache: checking android.permission.ROTATE_SURFACE_FLINGER for uid=10141 => denied (26 us)
+11-11 12:16:14.381   543   973 W ServiceManagerCppClient: Permission failure: android.permission.INTERNAL_SYSTEM_WINDOW from uid=10141 pid=0
+11-11 12:16:14.381   543   973 D PermissionCache: checking android.permission.INTERNAL_SYSTEM_WINDOW for uid=10141 => denied (13 us)
+11-11 12:16:14.383  2938  2938 D InsetsController: show(ime(), fromIme=true)
+11-11 12:16:14.392  2872  2882 I HWUI    : Davey! duration=1333ms; Flags=1, FrameTimelineVsyncId=4725, IntendedVsync=124243345298, Vsync=124676678614, InputEventId=0, HandleInputStart=124692299656, AnimationStart=124692300648, PerformTraversalsStart=124692301058, DrawStart=125018924167, FrameDeadline=124260011964, FrameInterval=124691545759, FrameStartTime=16666666, SyncQueued=125032967934, SyncStart=125033252178, IssueDrawCommandsStart=125035421132, SwapBuffers=125374199024, FrameCompleted=125576910608, DequeueBufferDuration=1530105, QueueBufferDuration=193009, GpuCompleted=125576910608, SwapBuffersCompleted=125568441995, DisplayPresentTime=24206994032033853, CommandSubmissionCompleted=125374199024, 
+11-11 12:16:14.394  2938  2968 D EGL_emulation: app_time_stats: avg=727.84ms min=64.53ms max=1391.15ms count=2
+11-11 12:16:14.404  2938  2983 W InteractionJankMonitor: Initializing without READ_DEVICE_CONFIG permission. enabled=true, interval=1, missedFrameThreshold=3, frameTimeThreshold=64, package=io.github.sandyyur.inputbench
+11-11 12:16:14.415  2938  2938 I ImeTracker: io.github.sandyyur.inputbench:24886005: onShown
+11-11 12:16:14.447  2872  2872 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=47ms
+11-11 12:16:14.475  2872  2872 I Choreographer: Skipped 58 frames!  The application may be doing too much work on its main thread.
+11-11 12:16:14.525  2872  2882 I HWUI    : Davey! duration=1016ms; Flags=0, FrameTimelineVsyncId=4755, IntendedVsync=124693345280, Vsync=125660011908, InputEventId=0, HandleInputStart=125663892918, AnimationStart=125663894069, PerformTraversalsStart=125664160406, DrawStart=125694399266, FrameDeadline=125610011910, FrameInterval=125663689207, FrameStartTime=16666666, SyncQueued=125697602353, SyncStart=125697624404, IssueDrawCommandsStart=125698900085, SwapBuffers=125703504427, FrameCompleted=125710177350, DequeueBufferDuration=1665418, QueueBufferDuration=170337, GpuCompleted=125710177350, SwapBuffersCompleted=125707133860, DisplayPresentTime=9007435481546804, CommandSubmissionCompleted=125703504427, 
+11-11 12:16:14.550   416  2698 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:16:14.551   543   973 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:16:14.671   543   978 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:16:14.688   416   518 D AudioFlinger: mixer(0x75040a87d8e0) throttle end: throttle time(45)
+11-11 12:16:14.824   416   518 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:16:14.896   416  2698 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:16:14.897   543   978 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:16:14.917  2872  2913 I RimeInputTiming: select_queue generation=1 ordinal=1 service_wait_us=484
+11-11 12:16:14.927  2872  2872 D [main] CursorTracker: current: [0,0]; predictionCount=1
+11-11 12:16:14.927  2872  2872 I RimeInputTiming: commit generation=1 ordinal=1 event_wait_us=769 service_commit_us=739 request_result=REQUEST_ACCEPTED
+11-11 12:16:14.946   543   771 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:16:14.947   543   771 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:16:14.952  2872  2872 D [main] FcitxInputMethodService: onUpdateSelection: old=[0,0] new=[1,1] cand=[-1,-1]
+11-11 12:16:14.962   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:16:14.978   416  2698 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:16:14.980   543   771 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:16:15.139   543   978 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:16:15.141   416   518 D AudioFlinger: mixer(0x75040a87d8e0) throttle end: throttle time(31)
+11-11 12:16:15.143   416   518 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:16:15.165   416   518 D AudioFlinger: mixer(0x75040a87d8e0) throttle end: throttle time(9)
+11-11 12:16:15.211   543   978 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:16:15.234  2872  2925 I RimeInputTiming: select_queue generation=1 ordinal=2 service_wait_us=813
+11-11 12:16:15.236  2872  2872 D [main] CursorTracker: current: [1,1]; predictionCount=1
+11-11 12:16:15.237  2872  2872 I RimeInputTiming: commit generation=1 ordinal=2 event_wait_us=537 service_commit_us=1705 request_result=REQUEST_ACCEPTED
+11-11 12:16:15.254  2872  2872 D [main] FcitxInputMethodService: onUpdateSelection: old=[1,1] new=[2,2] cand=[-1,-1]
+11-11 12:16:15.258   543   623 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:16:15.258   543   623 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:16:15.261   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:16:15.277   416  2698 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:16:15.278   543   623 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:16:15.335   543   910 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:16:15.370   543  1520 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-11 12:16:15.411   543   623 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:16:15.435  2872  2872 D [main] CursorTracker: current: [2,2]; predictionCount=1
+11-11 12:16:15.439  2872  2872 D [main] FcitxInputMethodService: onUpdateSelection: old=[2,2] new=[3,3] cand=[-1,-1]
+11-11 12:16:15.445  2938  2968 D EGL_emulation: app_time_stats: avg=261.91ms min=14.25ms max=689.90ms count=4
+11-11 12:16:15.458   543   973 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:16:15.460   543   973 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:16:15.480   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:16:15.494   543   978 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:16:15.537  2872  2978 D EGL_emulation: app_time_stats: avg=36.74ms min=2.27ms max=153.41ms count=29
+11-11 12:16:15.562   543   973 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:16:15.627   543   978 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:16:15.652  2872  2872 D [main] CursorTracker: current: [3,3]; predictionCount=1
+11-11 12:16:15.656  2872  2872 D [main] FcitxInputMethodService: onUpdateSelection: old=[3,3] new=[4,4] cand=[-1,-1]
+11-11 12:16:15.674   543   973 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:16:15.674   543   973 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:16:15.674   543   577 D OomAdjuster: Not killing cached processes
+11-11 12:16:15.677   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:16:15.695   543   910 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:16:15.761   543   973 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:16:15.827   543   973 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:16:15.852  2872  2872 D [main] CursorTracker: current: [4,4]; predictionCount=1
+11-11 12:16:15.859  2872  2872 D [main] FcitxInputMethodService: onUpdateSelection: old=[4,4] new=[5,5] cand=[-1,-1]
+11-11 12:16:15.880   543   910 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:16:15.881   543   910 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:16:15.882   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:16:15.895   543   910 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:16:15.955   543   771 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:16:16.027   543   771 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:16:16.051  2872  2872 D [main] CursorTracker: current: [5,5]; predictionCount=1
+11-11 12:16:16.064  2872  2872 D [main] FcitxInputMethodService: onUpdateSelection: old=[5,5] new=[6,6] cand=[-1,-1]
+11-11 12:16:16.078   543   910 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:16:16.078   543   910 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:16:16.080   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:16:16.139   416   518 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:16:16.230   416   518 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:16:16.347  2872  2907 I TestRunner: finished: replay(org.fcitx.fcitx5.android.core.CandidateTapTest)
+11-11 12:16:16.349  2872  2907 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-11 12:16:16.353   543   910 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-11 12:16:16.353   543   910 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-11 12:16:16.353   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:16:16.354   543   978 I ActivityManager: Force stopping org.fcitx.fcitx5.android.fx.rime.debug appid=10141 user=0: finished inst
+11-11 12:16:16.356   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:16:16.359  2854  2854 I app_process: System.exit called, status: 0
+11-11 12:16:16.359  2854  2854 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:16:16.359   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:16:16.359   543   543 D BatterySaverPolicy: accessibility changed to false, updating policy.
+11-11 12:16:16.500     0     0 I binder  : 543:978 ioctl 400c620e 762df67b7354 returned -11
+11-11 12:16:16.503     0     0 I binder  : 543:978 ioctl 400c620e 762df67b7354 returned -11
+11-11 12:16:16.360   543   978 E ActivityManager: Unable to freeze binder for 2872: -11
+11-11 12:16:16.361   543   567 D DisplayManagerService: Drop pending events for gone uid 10141
+11-11 12:16:16.362   543   978 I ActivityManager: Killing 2872:org.fcitx.fcitx5.android.fx.rime.debug/u0a141 (adj 0): stop org.fcitx.fcitx5.android.fx.rime.debug due to finished inst
+11-11 12:16:16.363   543   785 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:16:16.363   543   785 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:16:16.363   543   785 D InetDiagMessage: Destroyed live tcp sockets for uids={10141} in 0ms
+11-11 12:16:16.364   543   785 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:16:16.364   543   785 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:16:16.364   543   785 D InetDiagMessage: Destroyed live tcp sockets for uids={20141} in 0ms
+11-11 12:16:16.372   349   393 I netd    : tetherGetStats() -> {[]} <0.45ms>

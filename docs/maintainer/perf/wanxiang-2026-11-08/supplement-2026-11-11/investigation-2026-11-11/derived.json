@@ -1,0 +1,3489 @@
+{
+  "method": "Traced attribution only; individual ordered timestamps, not subtracted percentiles.",
+  "candidate": [
+    {
+      "process": 1,
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 65337911617,
+        "up_ns": 65372569058,
+        "injection_up_ns": 65368242116,
+        "end_ns": 65444161168,
+        "total_up_ms": 71.59211,
+        "core_calls": 1,
+        "core_wall_ms": 58.030256,
+        "core_cpu_ms": 19.004993,
+        "snapshot_ms": 0.623962,
+        "core_first_after_up_ms": 11.667354,
+        "after_native_to_endpoint_ms": 1.8945,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 82408,
+          "ts": 65384236412,
+          "dur": 58030256,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 306,
+          "tid": 2100,
+          "thread_name": "rime-main",
+          "pid": 2034,
+          "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+        },
+        "core_thread_state_ms": {
+          "Running": 19.004993,
+          "R": 2.711494,
+          "D": 35.860737,
+          "R+": 0.453032
+        }
+      },
+      "warm_n_cpu": {
+        "n": 5,
+        "median": 2.983579,
+        "min": 2.309533,
+        "max": 5.40948
+      },
+      "first_n_system_cpu": [
+        {
+          "tid": "405",
+          "thread": "binder:397_1",
+          "pid": "397",
+          "process": "/vendor/bin/hw/android.hardware.graphics.composer3-service.ranchu",
+          "priority": "97",
+          "cpu_ms": "41.490341"
+        },
+        {
+          "tid": "2114",
+          "thread": "RenderThread",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "110",
+          "cpu_ms": "29.758158"
+        },
+        {
+          "tid": "2100",
+          "thread": "rime-main",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "116",
+          "cpu_ms": "18.930444"
+        },
+        {
+          "tid": "0",
+          "thread": "swapper",
+          "pid": "0",
+          "process": "[NULL]",
+          "priority": "120",
+          "cpu_ms": "11.665812"
+        },
+        {
+          "tid": "2038",
+          "thread": "Jit thread pool",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "129",
+          "cpu_ms": "6.172354"
+        },
+        {
+          "tid": "446",
+          "thread": "traced_probes",
+          "pid": "446",
+          "process": "/system/bin/traced_probes",
+          "priority": "120",
+          "cpu_ms": "1.298649"
+        },
+        {
+          "tid": "419",
+          "thread": "surfaceflinger",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.997436"
+        },
+        {
+          "tid": "2068",
+          "thread": "roidJUnitRunner",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "112",
+          "cpu_ms": "0.657327"
+        },
+        {
+          "tid": "520",
+          "thread": "AudioOut_D",
+          "pid": "415",
+          "process": "/system/bin/audioserver",
+          "priority": "101",
+          "cpu_ms": "0.544446"
+        },
+        {
+          "tid": "44",
+          "thread": "kworker/u5:0",
+          "pid": "44",
+          "process": "kworker/u5:0",
+          "priority": "100",
+          "cpu_ms": "0.506452"
+        },
+        {
+          "tid": "2034",
+          "thread": "d.fx.rime.debug",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "110",
+          "cpu_ms": "0.481988"
+        },
+        {
+          "tid": "27",
+          "thread": "kworker/1:0",
+          "pid": "27",
+          "process": "kworker/1:0",
+          "priority": "120",
+          "cpu_ms": "0.366357"
+        },
+        {
+          "tid": "2154",
+          "thread": "binder:358_2",
+          "pid": "358",
+          "process": "/vendor/bin/hw/android.hardware.audio.service",
+          "priority": "104",
+          "cpu_ms": "0.335114"
+        },
+        {
+          "tid": "58",
+          "thread": "kworker/u4:2",
+          "pid": "58",
+          "process": "kworker/u4:2",
+          "priority": "120",
+          "cpu_ms": "0.214239"
+        },
+        {
+          "tid": "1270",
+          "thread": "binder:358_2",
+          "pid": "358",
+          "process": "/vendor/bin/hw/android.hardware.audio.service",
+          "priority": "104",
+          "cpu_ms": "0.196084"
+        },
+        {
+          "tid": "486",
+          "thread": "binder:419_3",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "98",
+          "cpu_ms": "0.194432"
+        },
+        {
+          "tid": "620",
+          "thread": "binder:481_2",
+          "pid": "481",
+          "process": "media.metrics",
+          "priority": "120",
+          "cpu_ms": "0.183421"
+        },
+        {
+          "tid": "2104",
+          "thread": "binder:2034_3",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.174154"
+        },
+        {
+          "tid": "483",
+          "thread": "BckgrndExec HP",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.146213"
+        },
+        {
+          "tid": "2075",
+          "thread": "DefaultDispatch",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.143317"
+        },
+        {
+          "tid": "447",
+          "thread": "traced",
+          "pid": "447",
+          "process": "/system/bin/traced",
+          "priority": "120",
+          "cpu_ms": "0.141223"
+        },
+        {
+          "tid": "380",
+          "thread": "android.hardwar",
+          "pid": "370",
+          "process": "/vendor/bin/hw/android.hardware.sensors-service.multihal",
+          "priority": "120",
+          "cpu_ms": "0.139789"
+        },
+        {
+          "tid": "486",
+          "thread": "binder:419_3",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.122819"
+        },
+        {
+          "tid": "471",
+          "thread": "TimerDispatch",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.118020"
+        },
+        {
+          "tid": "461",
+          "thread": "_thread",
+          "pid": "397",
+          "process": "/vendor/bin/hw/android.hardware.graphics.composer3-service.ranchu",
+          "priority": "120",
+          "cpu_ms": "0.116047"
+        },
+        {
+          "tid": "2151",
+          "thread": "SoundPool_2",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "104",
+          "cpu_ms": "0.096359"
+        },
+        {
+          "tid": "443",
+          "thread": "surfaceflinger",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.091220"
+        },
+        {
+          "tid": "2100",
+          "thread": "rime-main",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.074549"
+        },
+        {
+          "tid": "1175",
+          "thread": "binder:545_C",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "112",
+          "cpu_ms": "0.065833"
+        },
+        {
+          "tid": "16",
+          "thread": "rcu_preempt",
+          "pid": "16",
+          "process": "rcu_preempt",
+          "priority": "98",
+          "cpu_ms": "0.063228"
+        },
+        {
+          "tid": "26",
+          "thread": "ksoftirqd/1",
+          "pid": "26",
+          "process": "ksoftirqd/1",
+          "priority": "120",
+          "cpu_ms": "0.061012"
+        },
+        {
+          "tid": "206",
+          "thread": "kworker/u5:2",
+          "pid": "206",
+          "process": "kworker/u5:2",
+          "priority": "100",
+          "cpu_ms": "0.059111"
+        },
+        {
+          "tid": "1506",
+          "thread": "binder:415_4",
+          "pid": "415",
+          "process": "/system/bin/audioserver",
+          "priority": "104",
+          "cpu_ms": "0.057707"
+        },
+        {
+          "tid": "2031",
+          "thread": "binder:2016_1",
+          "pid": "2016",
+          "process": "app_process",
+          "priority": "112",
+          "cpu_ms": "0.043671"
+        },
+        {
+          "tid": "2147",
+          "thread": "GPU completion",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "110",
+          "cpu_ms": "0.040886"
+        },
+        {
+          "tid": "1346",
+          "thread": "binder:545_D",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "120",
+          "cpu_ms": "0.040847"
+        },
+        {
+          "tid": "2138",
+          "thread": "DefaultExecutor",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.032921"
+        },
+        {
+          "tid": "551",
+          "thread": "kworker/0:3H",
+          "pid": "551",
+          "process": "kworker/0:3H",
+          "priority": "100",
+          "cpu_ms": "0.031688"
+        },
+        {
+          "tid": "2152",
+          "thread": "AudioTrack",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "104",
+          "cpu_ms": "0.030167"
+        },
+        {
+          "tid": "15",
+          "thread": "ksoftirqd/0",
+          "pid": "15",
+          "process": "ksoftirqd/0",
+          "priority": "120",
+          "cpu_ms": "0.029363"
+        },
+        {
+          "tid": "178",
+          "thread": "kworker/0:2",
+          "pid": "178",
+          "process": "kworker/0:2",
+          "priority": "120",
+          "cpu_ms": "0.025518"
+        },
+        {
+          "tid": "475",
+          "thread": "RegSampIdle",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.021240"
+        },
+        {
+          "tid": "25",
+          "thread": "migration/1",
+          "pid": "25",
+          "process": "migration/1",
+          "priority": "0",
+          "cpu_ms": "0.016611"
+        },
+        {
+          "tid": "2150",
+          "thread": "binder:2034_3",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.013045"
+        },
+        {
+          "tid": "477",
+          "thread": "surfaceflinger",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.010990"
+        },
+        {
+          "tid": "841",
+          "thread": "binder:830_3",
+          "pid": "830",
+          "process": "/vendor/bin/hw/android.hardware.biometrics.fingerprint-service.ranchu",
+          "priority": "120",
+          "cpu_ms": "0.010970"
+        },
+        {
+          "tid": "1651",
+          "thread": "binder:545_F",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "120",
+          "cpu_ms": "0.010909"
+        },
+        {
+          "tid": "474",
+          "thread": "RegionSampling",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.008827"
+        },
+        {
+          "tid": "2055",
+          "thread": "Profile Saver",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "129",
+          "cpu_ms": "0.007715"
+        },
+        {
+          "tid": "472",
+          "thread": "app",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.007634"
+        },
+        {
+          "tid": "1174",
+          "thread": "binder:545_B",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "120",
+          "cpu_ms": "0.004178"
+        },
+        {
+          "tid": "2140",
+          "thread": "binder:2034_5",
+          "pid": "2034",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.003837"
+        },
+        {
+          "tid": "909",
+          "thread": "binder:545_8",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "120",
+          "cpu_ms": "0.003155"
+        },
+        {
+          "tid": "486",
+          "thread": "binder:419_3",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.002685"
+        }
+      ],
+      "input_waits_over_8ms": [
+        {
+          "round": 1,
+          "key": "i",
+          "start_ns": 65474956452,
+          "end_ns": 65493123718,
+          "wait_ms": 18.167266,
+          "overlap": [
+            {
+              "id": "83399",
+              "ts": "65463654469",
+              "dur": "29349005",
+              "name": "Choreographer#doFrame 953",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "16.639392"
+            },
+            {
+              "id": "83400",
+              "ts": "65463661201",
+              "dur": "29334819",
+              "name": "traversal",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "16.625206"
+            },
+            {
+              "id": "83463",
+              "ts": "65466768131",
+              "dur": "23148268",
+              "name": "layout",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "12.159904"
+            },
+            {
+              "id": "83464",
+              "ts": "65466905036",
+              "dur": "22932136",
+              "name": "RV OnLayout",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "11.943772"
+            },
+            {
+              "id": "83684",
+              "ts": "65477531305",
+              "dur": "406287",
+              "name": "RV onCreateViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.406287"
+            },
+            {
+              "id": "83685",
+              "ts": "65477974361",
+              "dur": "259253",
+              "name": "RV onBindViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.259253"
+            },
+            {
+              "id": "83744",
+              "ts": "65480274451",
+              "dur": "381741",
+              "name": "RV onCreateViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.381741"
+            },
+            {
+              "id": "83754",
+              "ts": "65480748304",
+              "dur": "219089",
+              "name": "RV onBindViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.219089"
+            },
+            {
+              "id": "83785",
+              "ts": "65482171196",
+              "dur": "71823",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.007604"
+            },
+            {
+              "id": "83792",
+              "ts": "65482398700",
+              "dur": "406266",
+              "name": "RV onCreateViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.406266"
+            },
+            {
+              "id": "83797",
+              "ts": "65482839240",
+              "dur": "263932",
+              "name": "RV onBindViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.206776"
+            },
+            {
+              "id": "83799",
+              "ts": "65482987987",
+              "dur": "65783",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.008627"
+            },
+            {
+              "id": "83841",
+              "ts": "65484293592",
+              "dur": "1583",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.001583"
+            },
+            {
+              "id": "83846",
+              "ts": "65484349015",
+              "dur": "74289",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.022993"
+            },
+            {
+              "id": "83849",
+              "ts": "65484536986",
+              "dur": "544835",
+              "name": "RV onCreateViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.472179"
+            },
+            {
+              "id": "83855",
+              "ts": "65484776331",
+              "dur": "1704",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.001704"
+            },
+            {
+              "id": "83857",
+              "ts": "65484781411",
+              "dur": "81081",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.008425"
+            },
+            {
+              "id": "83868",
+              "ts": "65485120483",
+              "dur": "173473",
+              "name": "RV onBindViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.173473"
+            },
+            {
+              "id": "83894",
+              "ts": "65486523207",
+              "dur": "1743",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.001743"
+            },
+            {
+              "id": "83898",
+              "ts": "65486629174",
+              "dur": "821060",
+              "name": "RV onCreateViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.517084"
+            },
+            {
+              "id": "83901",
+              "ts": "65486640505",
+              "dur": "82397",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.007916"
+            },
+            {
+              "id": "83905",
+              "ts": "65487043409",
+              "dur": "66281",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.011262"
+            },
+            {
+              "id": "83910",
+              "ts": "65487155625",
+              "dur": "63168",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.005881"
+            },
+            {
+              "id": "83922",
+              "ts": "65487485850",
+              "dur": "174165",
+              "name": "RV onBindViewHolder type=0x0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.174165"
+            },
+            {
+              "id": "83961",
+              "ts": "65488766997",
+              "dur": "46477",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.020929"
+            },
+            {
+              "id": "83965",
+              "ts": "65488865040",
+              "dur": "1102",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.001102"
+            },
+            {
+              "id": "83993",
+              "ts": "65489620988",
+              "dur": "21681",
+              "name": "VerifyClass org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateComponent$$ExternalSyntheticLambda2",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.021681"
+            },
+            {
+              "id": "84024",
+              "ts": "65490490048",
+              "dur": "2866",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.002866"
+            },
+            {
+              "id": "84026",
+              "ts": "65490499996",
+              "dur": "97525",
+              "name": "Lock contention on Jit code cache (owner tid: 2038)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.009368"
+            },
+            {
+              "id": "84027",
+              "ts": "65490722223",
+              "dur": "2203126",
+              "name": "draw-VRI[InputMethod]",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "1.156567"
+            },
+            {
+              "id": "84029",
+              "ts": "65490779520",
+              "dur": "1728882",
+              "name": "Record View#draw()",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "1.056681"
+            },
+            {
+              "id": "84051",
+              "ts": "65491841119",
+              "dur": "41477",
+              "name": "Choreographer#scheduleVsyncLocked",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.041477"
+            },
+            {
+              "id": "84060",
+              "ts": "65492092447",
+              "dur": "2665",
+              "name": "computePalette",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.002665"
+            },
+            {
+              "id": "84061",
+              "ts": "65492473036",
+              "dur": "1452",
+              "name": "computePalette",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.001452"
+            },
+            {
+              "id": "84062",
+              "ts": "65492486821",
+              "dur": "832",
+              "name": "computePalette",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.000832"
+            },
+            {
+              "id": "84063",
+              "ts": "65492512450",
+              "dur": "409873",
+              "name": "postAndWait",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.035515"
+            },
+            {
+              "id": "84083",
+              "ts": "65493024604",
+              "dur": "721",
+              "name": "receiveMessage(inputChannel=9592f34 InputMethod (client), seq=0x10, type=MOTION)",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.000721"
+            },
+            {
+              "id": "84085",
+              "ts": "65493069106",
+              "dur": "1739411",
+              "name": "dispatchInputEvent MotionEvent ACTION_UP deviceId=-1 source=0x1002 historySize=0",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.893635"
+            },
+            {
+              "id": "84086",
+              "ts": "65493072553",
+              "dur": "1362",
+              "name": "processInputEventForCompatibility",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.001362"
+            },
+            {
+              "id": "84088",
+              "ts": "65493092931",
+              "dur": "1714494",
+              "name": "deliverInputEvent src=0x1002 eventTimeNano=65474000000 id=0xfd1b81f7",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.868718"
+            },
+            {
+              "id": "84089",
+              "ts": "65493099853",
+              "dur": "4339",
+              "name": "EarlyPostImeInputStage id=0xfd1b81f7",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.004339"
+            },
+            {
+              "id": "84090",
+              "ts": "65493109963",
+              "dur": "951",
+              "name": "NativePostImeInputStage id=0xfd1b81f7",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.000951"
+            },
+            {
+              "id": "84091",
+              "ts": "65493116024",
+              "dur": "813676",
+              "name": "ViewPostImeInputStage id=0xfd1b81f7",
+              "utid": "204",
+              "tid": "2034",
+              "thread": "d.fx.rime.debug",
+              "pid": "2034",
+              "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+              "cpu_ms": "0.813676"
+            }
+          ]
+        }
+      ],
+      "select_inject_to_dispatch": {
+        "n": 6,
+        "median": 0.5605645,
+        "min": 0.433728,
+        "max": 0.757852
+      }
+    },
+    {
+      "process": 2,
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 85537779943,
+        "up_ns": 85563339647,
+        "injection_up_ns": 85562654661,
+        "end_ns": 85640446102,
+        "total_up_ms": 77.106455,
+        "core_calls": 1,
+        "core_wall_ms": 58.885898,
+        "core_cpu_ms": 20.100281,
+        "snapshot_ms": 0.698773,
+        "core_first_after_up_ms": 5.000495,
+        "after_native_to_endpoint_ms": 13.220062,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 80589,
+          "ts": 85568340142,
+          "dur": 58885898,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 278,
+          "tid": 2397,
+          "thread_name": "rime-main",
+          "pid": 2345,
+          "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+        },
+        "core_thread_state_ms": {
+          "Running": 20.100281,
+          "R": 38.734381,
+          "R+": 0.051236
+        }
+      },
+      "warm_n_cpu": {
+        "n": 5,
+        "median": 2.962381,
+        "min": 2.279077,
+        "max": 4.888949
+      },
+      "first_n_system_cpu": [
+        {
+          "tid": "2450",
+          "thread": "RenderThread",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "110",
+          "cpu_ms": "45.385986"
+        },
+        {
+          "tid": "405",
+          "thread": "binder:397_1",
+          "pid": "397",
+          "process": "/vendor/bin/hw/android.hardware.graphics.composer3-service.ranchu",
+          "priority": "97",
+          "cpu_ms": "38.452487"
+        },
+        {
+          "tid": "2397",
+          "thread": "rime-main",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "116",
+          "cpu_ms": "10.075653"
+        },
+        {
+          "tid": "2397",
+          "thread": "rime-main",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "10.024628"
+        },
+        {
+          "tid": "2349",
+          "thread": "Jit thread pool",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "129",
+          "cpu_ms": "4.559303"
+        },
+        {
+          "tid": "0",
+          "thread": "swapper",
+          "pid": "0",
+          "process": "[NULL]",
+          "priority": "120",
+          "cpu_ms": "2.435048"
+        },
+        {
+          "tid": "446",
+          "thread": "traced_probes",
+          "pid": "446",
+          "process": "/system/bin/traced_probes",
+          "priority": "120",
+          "cpu_ms": "1.356337"
+        },
+        {
+          "tid": "419",
+          "thread": "surfaceflinger",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "1.073541"
+        },
+        {
+          "tid": "2380",
+          "thread": "roidJUnitRunner",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "112",
+          "cpu_ms": "0.574469"
+        },
+        {
+          "tid": "2345",
+          "thread": "d.fx.rime.debug",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "110",
+          "cpu_ms": "0.547228"
+        },
+        {
+          "tid": "520",
+          "thread": "AudioOut_D",
+          "pid": "415",
+          "process": "/system/bin/audioserver",
+          "priority": "101",
+          "cpu_ms": "0.300175"
+        },
+        {
+          "tid": "486",
+          "thread": "binder:419_3",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "98",
+          "cpu_ms": "0.283740"
+        },
+        {
+          "tid": "27",
+          "thread": "kworker/1:0",
+          "pid": "27",
+          "process": "kworker/1:0",
+          "priority": "120",
+          "cpu_ms": "0.190916"
+        },
+        {
+          "tid": "2409",
+          "thread": "yyur.inputbench",
+          "pid": "2409",
+          "process": "<pre-initialized>",
+          "priority": "110",
+          "cpu_ms": "0.183332"
+        },
+        {
+          "tid": "447",
+          "thread": "traced",
+          "pid": "447",
+          "process": "/system/bin/traced",
+          "priority": "120",
+          "cpu_ms": "0.181468"
+        },
+        {
+          "tid": "1174",
+          "thread": "binder:545_B",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "120",
+          "cpu_ms": "0.176668"
+        },
+        {
+          "tid": "2462",
+          "thread": "binder:358_2",
+          "pid": "358",
+          "process": "/vendor/bin/hw/android.hardware.audio.service",
+          "priority": "104",
+          "cpu_ms": "0.167642"
+        },
+        {
+          "tid": "486",
+          "thread": "binder:419_3",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.132586"
+        },
+        {
+          "tid": "450",
+          "thread": "logcat",
+          "pid": "450",
+          "process": "/system/bin/logcat",
+          "priority": "130",
+          "cpu_ms": "0.125252"
+        },
+        {
+          "tid": "2356",
+          "thread": "binder:2345_3",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.123922"
+        },
+        {
+          "tid": "471",
+          "thread": "TimerDispatch",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.114544"
+        },
+        {
+          "tid": "461",
+          "thread": "_thread",
+          "pid": "397",
+          "process": "/vendor/bin/hw/android.hardware.graphics.composer3-service.ranchu",
+          "priority": "120",
+          "cpu_ms": "0.111570"
+        },
+        {
+          "tid": "483",
+          "thread": "BckgrndExec HP",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.104396"
+        },
+        {
+          "tid": "1270",
+          "thread": "binder:358_2",
+          "pid": "358",
+          "process": "/vendor/bin/hw/android.hardware.audio.service",
+          "priority": "104",
+          "cpu_ms": "0.094020"
+        },
+        {
+          "tid": "545",
+          "thread": "system_server",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "118",
+          "cpu_ms": "0.076444"
+        },
+        {
+          "tid": "380",
+          "thread": "android.hardwar",
+          "pid": "370",
+          "process": "/vendor/bin/hw/android.hardware.sensors-service.multihal",
+          "priority": "120",
+          "cpu_ms": "0.072134"
+        },
+        {
+          "tid": "1346",
+          "thread": "binder:545_D",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "112",
+          "cpu_ms": "0.064932"
+        },
+        {
+          "tid": "620",
+          "thread": "binder:481_2",
+          "pid": "481",
+          "process": "media.metrics",
+          "priority": "120",
+          "cpu_ms": "0.060873"
+        },
+        {
+          "tid": "16",
+          "thread": "rcu_preempt",
+          "pid": "16",
+          "process": "rcu_preempt",
+          "priority": "98",
+          "cpu_ms": "0.059712"
+        },
+        {
+          "tid": "472",
+          "thread": "app",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.054700"
+        },
+        {
+          "tid": "2460",
+          "thread": "SoundPool_3",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "104",
+          "cpu_ms": "0.053840"
+        },
+        {
+          "tid": "2344",
+          "thread": "binder:2328_2",
+          "pid": "2328",
+          "process": "app_process",
+          "priority": "112",
+          "cpu_ms": "0.049822"
+        },
+        {
+          "tid": "633",
+          "thread": "SensorService",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "89",
+          "cpu_ms": "0.047718"
+        },
+        {
+          "tid": "381",
+          "thread": "android.hardwar",
+          "pid": "370",
+          "process": "/vendor/bin/hw/android.hardware.sensors-service.multihal",
+          "priority": "120",
+          "cpu_ms": "0.041166"
+        },
+        {
+          "tid": "569",
+          "thread": "android.ui",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "118",
+          "cpu_ms": "0.041117"
+        },
+        {
+          "tid": "157",
+          "thread": "logd.writer",
+          "pid": "144",
+          "process": "/system/bin/logd",
+          "priority": "130",
+          "cpu_ms": "0.040455"
+        },
+        {
+          "tid": "178",
+          "thread": "kworker/0:2",
+          "pid": "178",
+          "process": "kworker/0:2",
+          "priority": "120",
+          "cpu_ms": "0.038942"
+        },
+        {
+          "tid": "2447",
+          "thread": "DefaultExecutor",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.038141"
+        },
+        {
+          "tid": "443",
+          "thread": "surfaceflinger",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.035176"
+        },
+        {
+          "tid": "439",
+          "thread": "binder:419_2",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.028213"
+        },
+        {
+          "tid": "1506",
+          "thread": "binder:415_4",
+          "pid": "415",
+          "process": "/system/bin/audioserver",
+          "priority": "104",
+          "cpu_ms": "0.027642"
+        },
+        {
+          "tid": "2152",
+          "thread": "AudioTrack",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "104",
+          "cpu_ms": "0.024265"
+        },
+        {
+          "tid": "2456",
+          "thread": "GPU completion",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "110",
+          "cpu_ms": "0.023293"
+        },
+        {
+          "tid": "475",
+          "thread": "RegSampIdle",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.019947"
+        },
+        {
+          "tid": "26",
+          "thread": "ksoftirqd/1",
+          "pid": "26",
+          "process": "ksoftirqd/1",
+          "priority": "120",
+          "cpu_ms": "0.018214"
+        },
+        {
+          "tid": "456",
+          "thread": "logd.reader.per",
+          "pid": "144",
+          "process": "/system/bin/logd",
+          "priority": "130",
+          "cpu_ms": "0.014347"
+        },
+        {
+          "tid": "58",
+          "thread": "kworker/u4:2",
+          "pid": "58",
+          "process": "kworker/u4:2",
+          "priority": "120",
+          "cpu_ms": "0.011401"
+        },
+        {
+          "tid": "477",
+          "thread": "surfaceflinger",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.011161"
+        },
+        {
+          "tid": "2367",
+          "thread": "Profile Saver",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "129",
+          "cpu_ms": "0.009298"
+        },
+        {
+          "tid": "474",
+          "thread": "RegionSampling",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.009007"
+        },
+        {
+          "tid": "2459",
+          "thread": "binder:2345_2",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.008495"
+        },
+        {
+          "tid": "486",
+          "thread": "binder:419_3",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.007914"
+        },
+        {
+          "tid": "2355",
+          "thread": "binder:2345_2",
+          "pid": "2345",
+          "process": "org.fcitx.fcitx5.android.fx.rime.debug",
+          "priority": "120",
+          "cpu_ms": "0.005500"
+        },
+        {
+          "tid": "909",
+          "thread": "binder:545_8",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "120",
+          "cpu_ms": "0.003016"
+        }
+      ],
+      "input_waits_over_8ms": [],
+      "select_inject_to_dispatch": {
+        "n": 6,
+        "median": 0.6055655,
+        "min": 0.471568,
+        "max": 0.731806
+      }
+    },
+    {
+      "process": 3,
+      "first_n": {
+        "phase": "single_editor",
+        "round": 1,
+        "kind": "n",
+        "start_ns": 106236636253,
+        "up_ns": 106263792011,
+        "injection_up_ns": 106263206304,
+        "end_ns": 106323987076,
+        "total_up_ms": 60.195065,
+        "core_calls": 1,
+        "core_wall_ms": 52.795514,
+        "core_cpu_ms": 17.537946,
+        "snapshot_ms": 0.801484,
+        "core_first_after_up_ms": 5.511343,
+        "after_native_to_endpoint_ms": 1.888208,
+        "selected_native_wall_ms": 0.0,
+        "longest_core": {
+          "id": 77493,
+          "ts": 106269303354,
+          "dur": 52795514,
+          "name": "rime.direct.process_key",
+          "parent_id": "[NULL]",
+          "utid": 274,
+          "tid": 2705,
+          "thread_name": "rime-main",
+          "pid": 2653,
+          "process_name": "zygote64"
+        },
+        "core_thread_state_ms": {
+          "Running": 17.537946,
+          "R+": 0.107741,
+          "R": 35.149827
+        }
+      },
+      "warm_n_cpu": {
+        "n": 5,
+        "median": 2.816539,
+        "min": 2.364736,
+        "max": 5.025253
+      },
+      "first_n_system_cpu": [
+        {
+          "tid": "2744",
+          "thread": "RenderThread",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "110",
+          "cpu_ms": "41.252932"
+        },
+        {
+          "tid": "405",
+          "thread": "binder:397_1",
+          "pid": "397",
+          "process": "/vendor/bin/hw/android.hardware.graphics.composer3-service.ranchu",
+          "priority": "97",
+          "cpu_ms": "31.018288"
+        },
+        {
+          "tid": "2705",
+          "thread": "rime-main",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "116",
+          "cpu_ms": "14.766773"
+        },
+        {
+          "tid": "2735",
+          "thread": "Jit thread pool",
+          "pid": "2721",
+          "process": "io.github.sandyyur.inputbench",
+          "priority": "129",
+          "cpu_ms": "8.470637"
+        },
+        {
+          "tid": "2705",
+          "thread": "rime-main",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "120",
+          "cpu_ms": "2.771173"
+        },
+        {
+          "tid": "2657",
+          "thread": "Jit thread pool",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "129",
+          "cpu_ms": "1.348311"
+        },
+        {
+          "tid": "446",
+          "thread": "traced_probes",
+          "pid": "446",
+          "process": "/system/bin/traced_probes",
+          "priority": "120",
+          "cpu_ms": "1.101614"
+        },
+        {
+          "tid": "419",
+          "thread": "surfaceflinger",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.935253"
+        },
+        {
+          "tid": "2653",
+          "thread": "d.fx.rime.debug",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "110",
+          "cpu_ms": "0.630054"
+        },
+        {
+          "tid": "2688",
+          "thread": "roidJUnitRunner",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "112",
+          "cpu_ms": "0.575442"
+        },
+        {
+          "tid": "1032",
+          "thread": "binder:419_5",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "98",
+          "cpu_ms": "0.274401"
+        },
+        {
+          "tid": "447",
+          "thread": "traced",
+          "pid": "447",
+          "process": "/system/bin/traced",
+          "priority": "120",
+          "cpu_ms": "0.188500"
+        },
+        {
+          "tid": "520",
+          "thread": "AudioOut_D",
+          "pid": "415",
+          "process": "/system/bin/audioserver",
+          "priority": "101",
+          "cpu_ms": "0.186508"
+        },
+        {
+          "tid": "2721",
+          "thread": "yyur.inputbench",
+          "pid": "2721",
+          "process": "io.github.sandyyur.inputbench",
+          "priority": "110",
+          "cpu_ms": "0.159307"
+        },
+        {
+          "tid": "471",
+          "thread": "TimerDispatch",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.141174"
+        },
+        {
+          "tid": "450",
+          "thread": "logcat",
+          "pid": "450",
+          "process": "/system/bin/logcat",
+          "priority": "130",
+          "cpu_ms": "0.119983"
+        },
+        {
+          "tid": "2694",
+          "thread": "DefaultDispatch",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "120",
+          "cpu_ms": "0.107741"
+        },
+        {
+          "tid": "2770",
+          "thread": "binder:358_2",
+          "pid": "358",
+          "process": "/vendor/bin/hw/android.hardware.audio.service",
+          "priority": "104",
+          "cpu_ms": "0.107670"
+        },
+        {
+          "tid": "483",
+          "thread": "BckgrndExec HP",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.104835"
+        },
+        {
+          "tid": "2757",
+          "thread": "binder:2653_5",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "120",
+          "cpu_ms": "0.095627"
+        },
+        {
+          "tid": "168",
+          "thread": "kworker/1:2",
+          "pid": "168",
+          "process": "kworker/1:2",
+          "priority": "120",
+          "cpu_ms": "0.085760"
+        },
+        {
+          "tid": "461",
+          "thread": "_thread",
+          "pid": "397",
+          "process": "/vendor/bin/hw/android.hardware.graphics.composer3-service.ranchu",
+          "priority": "120",
+          "cpu_ms": "0.083908"
+        },
+        {
+          "tid": "1032",
+          "thread": "binder:419_5",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.082151"
+        },
+        {
+          "tid": "1270",
+          "thread": "binder:358_2",
+          "pid": "358",
+          "process": "/vendor/bin/hw/android.hardware.audio.service",
+          "priority": "104",
+          "cpu_ms": "0.074420"
+        },
+        {
+          "tid": "545",
+          "thread": "system_server",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "118",
+          "cpu_ms": "0.070512"
+        },
+        {
+          "tid": "569",
+          "thread": "android.ui",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "118",
+          "cpu_ms": "0.062346"
+        },
+        {
+          "tid": "2768",
+          "thread": "SoundPool_4",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "104",
+          "cpu_ms": "0.061083"
+        },
+        {
+          "tid": "1346",
+          "thread": "binder:545_D",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "112",
+          "cpu_ms": "0.058651"
+        },
+        {
+          "tid": "1055",
+          "thread": "binder:481_5",
+          "pid": "481",
+          "process": "media.metrics",
+          "priority": "120",
+          "cpu_ms": "0.054191"
+        },
+        {
+          "tid": "472",
+          "thread": "app",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "97",
+          "cpu_ms": "0.052258"
+        },
+        {
+          "tid": "633",
+          "thread": "SensorService",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "89",
+          "cpu_ms": "0.052217"
+        },
+        {
+          "tid": "2764",
+          "thread": "GPU completion",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "110",
+          "cpu_ms": "0.048350"
+        },
+        {
+          "tid": "2756",
+          "thread": "DefaultExecutor",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "120",
+          "cpu_ms": "0.042870"
+        },
+        {
+          "tid": "2651",
+          "thread": "binder:2639_1",
+          "pid": "2639",
+          "process": "app_process",
+          "priority": "112",
+          "cpu_ms": "0.036518"
+        },
+        {
+          "tid": "178",
+          "thread": "kworker/0:2",
+          "pid": "178",
+          "process": "kworker/0:2",
+          "priority": "120",
+          "cpu_ms": "0.035417"
+        },
+        {
+          "tid": "2758",
+          "thread": "binder:2721_5",
+          "pid": "2721",
+          "process": "io.github.sandyyur.inputbench",
+          "priority": "120",
+          "cpu_ms": "0.034434"
+        },
+        {
+          "tid": "16",
+          "thread": "rcu_preempt",
+          "pid": "16",
+          "process": "rcu_preempt",
+          "priority": "98",
+          "cpu_ms": "0.032251"
+        },
+        {
+          "tid": "381",
+          "thread": "android.hardwar",
+          "pid": "370",
+          "process": "/vendor/bin/hw/android.hardware.sensors-service.multihal",
+          "priority": "120",
+          "cpu_ms": "0.030968"
+        },
+        {
+          "tid": "443",
+          "thread": "surfaceflinger",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.029755"
+        },
+        {
+          "tid": "157",
+          "thread": "logd.writer",
+          "pid": "144",
+          "process": "/system/bin/logd",
+          "priority": "130",
+          "cpu_ms": "0.029063"
+        },
+        {
+          "tid": "618",
+          "thread": "binder:545_5",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "120",
+          "cpu_ms": "0.027311"
+        },
+        {
+          "tid": "2760",
+          "thread": "HWC release",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "110",
+          "cpu_ms": "0.025858"
+        },
+        {
+          "tid": "2729",
+          "thread": "binder:415_5",
+          "pid": "415",
+          "process": "/system/bin/audioserver",
+          "priority": "104",
+          "cpu_ms": "0.025659"
+        },
+        {
+          "tid": "475",
+          "thread": "RegSampIdle",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.024457"
+        },
+        {
+          "tid": "2152",
+          "thread": "AudioTrack",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "104",
+          "cpu_ms": "0.022792"
+        },
+        {
+          "tid": "456",
+          "thread": "logd.reader.per",
+          "pid": "144",
+          "process": "/system/bin/logd",
+          "priority": "130",
+          "cpu_ms": "0.014838"
+        },
+        {
+          "tid": "474",
+          "thread": "RegionSampling",
+          "pid": "419",
+          "process": "/system/bin/surfaceflinger",
+          "priority": "120",
+          "cpu_ms": "0.010950"
+        },
+        {
+          "tid": "2743",
+          "thread": "Profile Saver",
+          "pid": "2721",
+          "process": "io.github.sandyyur.inputbench",
+          "priority": "129",
+          "cpu_ms": "0.009107"
+        },
+        {
+          "tid": "2767",
+          "thread": "binder:2653_3",
+          "pid": "2653",
+          "process": "zygote64",
+          "priority": "120",
+          "cpu_ms": "0.006502"
+        },
+        {
+          "tid": "1454",
+          "thread": "adbd",
+          "pid": "1320",
+          "process": "/apex/com.android.adbd/bin/adbd",
+          "priority": "120",
+          "cpu_ms": "0.005510"
+        },
+        {
+          "tid": "2524",
+          "thread": "binder:545_14",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "120",
+          "cpu_ms": "0.002584"
+        },
+        {
+          "tid": "562",
+          "thread": "binder:545_2",
+          "pid": "545",
+          "process": "system_server",
+          "priority": "120",
+          "cpu_ms": "0.002114"
+        }
+      ],
+      "input_waits_over_8ms": [
+        {
+          "round": 1,
+          "key": "i",
+          "start_ns": 106448293947,
+          "end_ns": 106457151571,
+          "wait_ms": 8.857624,
+          "overlap": [
+            {
+              "id": "79895",
+              "ts": "106363864753",
+              "dur": "87862642",
+              "name": "Choreographer#doFrame 3539",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.399587"
+            },
+            {
+              "id": "79899",
+              "ts": "106363911541",
+              "dur": "87807408",
+              "name": "traversal",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.344353"
+            },
+            {
+              "id": "79907",
+              "ts": "106364136190",
+              "dur": "87576548",
+              "name": "draw-VRI[InputMethod]",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.119333"
+            },
+            {
+              "id": "79909",
+              "ts": "106364233220",
+              "dur": "87473627",
+              "name": "postAndWait",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.016412"
+            },
+            {
+              "id": "80021",
+              "ts": "106451769583",
+              "dur": "17543",
+              "name": "MSG_SYSTEM_GESTURE_EXCLUSION_CHANGED",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.017543"
+            },
+            {
+              "id": "80022",
+              "ts": "106452004772",
+              "dur": "73437",
+              "name": "MSG_SYSTEM_GESTURE_EXCLUSION_CHANGED",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.068708"
+            },
+            {
+              "id": "80138",
+              "ts": "106456901366",
+              "dur": "1061",
+              "name": "receiveMessage(inputChannel=dbaa189 InputMethod (client), seq=0xa6, type=MOTION)",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.001061"
+            },
+            {
+              "id": "80142",
+              "ts": "106457083284",
+              "dur": "3633088",
+              "name": "dispatchInputEvent MotionEvent ACTION_UP deviceId=-1 source=0x1002 historySize=0",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "1.332101"
+            },
+            {
+              "id": "80143",
+              "ts": "106457087763",
+              "dur": "1663",
+              "name": "processInputEventForCompatibility",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.001663"
+            },
+            {
+              "id": "80145",
+              "ts": "106457111978",
+              "dur": "3603512",
+              "name": "deliverInputEvent src=0x1002 eventTimeNano=106448000000 id=0xe06a0733",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "1.302525"
+            },
+            {
+              "id": "80146",
+              "ts": "106457118991",
+              "dur": "9157",
+              "name": "EarlyPostImeInputStage id=0xe06a0733",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.009157"
+            },
+            {
+              "id": "80147",
+              "ts": "106457133969",
+              "dur": "1022",
+              "name": "NativePostImeInputStage id=0xe06a0733",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "0.001022"
+            },
+            {
+              "id": "80148",
+              "ts": "106457140261",
+              "dur": "3535856",
+              "name": "ViewPostImeInputStage id=0xe06a0733",
+              "utid": "191",
+              "tid": "2653",
+              "thread": "d.fx.rime.debug",
+              "pid": "2653",
+              "process": "zygote64",
+              "cpu_ms": "1.234869"
+            }
+          ]
+        }
+      ],
+      "select_inject_to_dispatch": {
+        "n": 6,
+        "median": 0.542095,
+        "min": 0.42993,
+        "max": 0.651023
+      }
+    }
+  ],
+  "debug_repeat": {
+    "ni": {
+      "fresh": {
+        "total_up_ms": {
+          "n": 16,
+          "median": 4.2945925,
+          "min": 2.947233,
+          "max": 8.724156
+        },
+        "core_wall_ms": {
+          "n": 16,
+          "median": 0.332276,
+          "min": 0.278763,
+          "max": 3.574758
+        },
+        "core_cpu_ms": {
+          "n": 16,
+          "median": 0.329071,
+          "min": 0.278763,
+          "max": 3.455263
+        },
+        "snapshot_ms": {
+          "n": 16,
+          "median": 0.021523,
+          "min": 0.020049,
+          "max": 0.029772
+        },
+        "selected_rounds": {
+          "1": {
+            "phase": "fresh",
+            "round": 1,
+            "kind": "select",
+            "start_ns": 73306379296,
+            "up_ns": 73352467617,
+            "injection_up_ns": 73352467617,
+            "end_ns": 73359885665,
+            "total_up_ms": 7.418048,
+            "core_calls": 1,
+            "core_wall_ms": 1.144965,
+            "core_cpu_ms": 0.888652,
+            "snapshot_ms": 0.022187,
+            "core_first_after_up_ms": 3.51633,
+            "after_native_to_endpoint_ms": 2.731752,
+            "selected_native_wall_ms": 1.177688,
+            "longest_core": {
+              "id": 56475,
+              "ts": 73355983947,
+              "dur": 1144965,
+              "name": "rime.direct.action_core",
+              "parent_id": "56474",
+              "utid": 279,
+              "tid": 2290,
+              "thread_name": "rime-main",
+              "pid": 2201,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.888652,
+              "R": 0.159285,
+              "R+": 0.097028
+            }
+          },
+          "4": {
+            "phase": "fresh",
+            "round": 4,
+            "kind": "select",
+            "start_ns": 77712487765,
+            "up_ns": 77750299925,
+            "injection_up_ns": 77750299925,
+            "end_ns": 77754408087,
+            "total_up_ms": 4.108162,
+            "core_calls": 1,
+            "core_wall_ms": 0.300203,
+            "core_cpu_ms": 0.300203,
+            "snapshot_ms": 0.021181,
+            "core_first_after_up_ms": 2.828077,
+            "after_native_to_endpoint_ms": 0.955649,
+            "selected_native_wall_ms": 0.332207,
+            "longest_core": {
+              "id": 67668,
+              "ts": 77753128002,
+              "dur": 300203,
+              "name": "rime.direct.action_core",
+              "parent_id": "67667",
+              "utid": 279,
+              "tid": 2290,
+              "thread_name": "rime-main",
+              "pid": 2201,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.300203
+            }
+          },
+          "8": {
+            "phase": "fresh",
+            "round": 8,
+            "kind": "select",
+            "start_ns": 83507494740,
+            "up_ns": 83549693597,
+            "injection_up_ns": 83549693597,
+            "end_ns": 83556728553,
+            "total_up_ms": 7.034956,
+            "core_calls": 1,
+            "core_wall_ms": 3.574758,
+            "core_cpu_ms": 3.455263,
+            "snapshot_ms": 0.0227,
+            "core_first_after_up_ms": 1.650749,
+            "after_native_to_endpoint_ms": 1.783087,
+            "selected_native_wall_ms": 3.608136,
+            "longest_core": {
+              "id": 78929,
+              "ts": 83551344346,
+              "dur": 3574758,
+              "name": "rime.direct.action_core",
+              "parent_id": "78928",
+              "utid": 279,
+              "tid": 2290,
+              "thread_name": "rime-main",
+              "pid": 2201,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 3.455263,
+              "R": 0.119495
+            }
+          },
+          "16": {
+            "phase": "fresh",
+            "round": 16,
+            "kind": "select",
+            "start_ns": 95063079692,
+            "up_ns": 95099868084,
+            "injection_up_ns": 95099868084,
+            "end_ns": 95103509651,
+            "total_up_ms": 3.641567,
+            "core_calls": 1,
+            "core_wall_ms": 1.007723,
+            "core_cpu_ms": 1.007723,
+            "snapshot_ms": 0.021319,
+            "core_first_after_up_ms": 1.518959,
+            "after_native_to_endpoint_ms": 1.090638,
+            "selected_native_wall_ms": 1.039444,
+            "longest_core": {
+              "id": 98061,
+              "ts": 95101387043,
+              "dur": 1007723,
+              "name": "rime.direct.action_core",
+              "parent_id": "98060",
+              "utid": 279,
+              "tid": 2290,
+              "thread_name": "rime-main",
+              "pid": 2201,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 1.007723
+            }
+          }
+        },
+        "max_core": {
+          "phase": "fresh",
+          "round": 8,
+          "kind": "select",
+          "start_ns": 83507494740,
+          "up_ns": 83549693597,
+          "injection_up_ns": 83549693597,
+          "end_ns": 83556728553,
+          "total_up_ms": 7.034956,
+          "core_calls": 1,
+          "core_wall_ms": 3.574758,
+          "core_cpu_ms": 3.455263,
+          "snapshot_ms": 0.0227,
+          "core_first_after_up_ms": 1.650749,
+          "after_native_to_endpoint_ms": 1.783087,
+          "selected_native_wall_ms": 3.608136,
+          "longest_core": {
+            "id": 78929,
+            "ts": 83551344346,
+            "dur": 3574758,
+            "name": "rime.direct.action_core",
+            "parent_id": "78928",
+            "utid": 279,
+            "tid": 2290,
+            "thread_name": "rime-main",
+            "pid": 2201,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+          },
+          "core_thread_state_ms": {
+            "Running": 3.455263,
+            "R": 0.119495
+          }
+        },
+        "max_total": {
+          "phase": "fresh",
+          "round": 9,
+          "kind": "select",
+          "start_ns": 84964429272,
+          "up_ns": 85001145539,
+          "injection_up_ns": 85001145539,
+          "end_ns": 85009869695,
+          "total_up_ms": 8.724156,
+          "core_calls": 1,
+          "core_wall_ms": 1.416794,
+          "core_cpu_ms": 0.477674,
+          "snapshot_ms": 0.029772,
+          "core_first_after_up_ms": 5.587054,
+          "after_native_to_endpoint_ms": 1.686675,
+          "selected_native_wall_ms": 1.458757,
+          "longest_core": {
+            "id": 81348,
+            "ts": 85006732593,
+            "dur": 1416794,
+            "name": "rime.direct.action_core",
+            "parent_id": "81347",
+            "utid": 279,
+            "tid": 2290,
+            "thread_name": "rime-main",
+            "pid": 2201,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+          },
+          "core_thread_state_ms": {
+            "Running": 0.477674,
+            "R": 0.93912
+          }
+        }
+      },
+      "rebind": {
+        "total_up_ms": {
+          "n": 16,
+          "median": 2.9217355,
+          "min": 2.546876,
+          "max": 3.736267
+        },
+        "core_wall_ms": {
+          "n": 16,
+          "median": 0.3103635,
+          "min": 0.273384,
+          "max": 0.557066
+        },
+        "core_cpu_ms": {
+          "n": 16,
+          "median": 0.30064199999999996,
+          "min": 0.273384,
+          "max": 0.372563
+        },
+        "snapshot_ms": {
+          "n": 16,
+          "median": 0.021436,
+          "min": 0.020469,
+          "max": 0.033653
+        },
+        "selected_rounds": {
+          "1": {
+            "phase": "rebind",
+            "round": 1,
+            "kind": "select",
+            "start_ns": 99424633031,
+            "up_ns": 99466639714,
+            "injection_up_ns": 99466639714,
+            "end_ns": 99469437908,
+            "total_up_ms": 2.798194,
+            "core_calls": 1,
+            "core_wall_ms": 0.273384,
+            "core_cpu_ms": 0.273384,
+            "snapshot_ms": 0.021207,
+            "core_first_after_up_ms": 1.667962,
+            "after_native_to_endpoint_ms": 0.832951,
+            "selected_native_wall_ms": 0.304779,
+            "longest_core": {
+              "id": 109161,
+              "ts": 99468307676,
+              "dur": 273384,
+              "name": "rime.direct.action_core",
+              "parent_id": "109160",
+              "utid": 279,
+              "tid": 2290,
+              "thread_name": "rime-main",
+              "pid": 2201,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.273384
+            }
+          },
+          "4": {
+            "phase": "rebind",
+            "round": 4,
+            "kind": "select",
+            "start_ns": 103750629056,
+            "up_ns": 103783291375,
+            "injection_up_ns": 103783291375,
+            "end_ns": 103786223342,
+            "total_up_ms": 2.931967,
+            "core_calls": 1,
+            "core_wall_ms": 0.306342,
+            "core_cpu_ms": 0.306342,
+            "snapshot_ms": 0.022487,
+            "core_first_after_up_ms": 1.667882,
+            "after_native_to_endpoint_ms": 0.932471,
+            "selected_native_wall_ms": 0.33892,
+            "longest_core": {
+              "id": 116174,
+              "ts": 103784959257,
+              "dur": 306342,
+              "name": "rime.direct.action_core",
+              "parent_id": "116173",
+              "utid": 279,
+              "tid": 2290,
+              "thread_name": "rime-main",
+              "pid": 2201,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.306342
+            }
+          },
+          "8": {
+            "phase": "rebind",
+            "round": 8,
+            "kind": "select",
+            "start_ns": 109537180523,
+            "up_ns": 109566906977,
+            "injection_up_ns": 109566906977,
+            "end_ns": 109569735278,
+            "total_up_ms": 2.828301,
+            "core_calls": 1,
+            "core_wall_ms": 0.325772,
+            "core_cpu_ms": 0.303649,
+            "snapshot_ms": 0.021493,
+            "core_first_after_up_ms": 1.641642,
+            "after_native_to_endpoint_ms": 0.836327,
+            "selected_native_wall_ms": 0.357572,
+            "longest_core": {
+              "id": 124984,
+              "ts": 109568548619,
+              "dur": 325772,
+              "name": "rime.direct.action_core",
+              "parent_id": "124983",
+              "utid": 279,
+              "tid": 2290,
+              "thread_name": "rime-main",
+              "pid": 2201,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.303649,
+              "R": 0.022123
+            }
+          },
+          "16": {
+            "phase": "rebind",
+            "round": 16,
+            "kind": "select",
+            "start_ns": 121069148023,
+            "up_ns": 121099686535,
+            "injection_up_ns": 121099686535,
+            "end_ns": 121103378713,
+            "total_up_ms": 3.692178,
+            "core_calls": 1,
+            "core_wall_ms": 0.459447,
+            "core_cpu_ms": 0.372563,
+            "snapshot_ms": 0.023065,
+            "core_first_after_up_ms": 2.33309,
+            "after_native_to_endpoint_ms": 0.87343,
+            "selected_native_wall_ms": 0.496134,
+            "longest_core": {
+              "id": 142259,
+              "ts": 121102019625,
+              "dur": 459447,
+              "name": "rime.direct.action_core",
+              "parent_id": "142257",
+              "utid": 279,
+              "tid": 2290,
+              "thread_name": "rime-main",
+              "pid": 2201,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.372563,
+              "R": 0.086884
+            }
+          }
+        },
+        "max_core": {
+          "phase": "rebind",
+          "round": 14,
+          "kind": "select",
+          "start_ns": 118200893883,
+          "up_ns": 118233231809,
+          "injection_up_ns": 118233231809,
+          "end_ns": 118236277015,
+          "total_up_ms": 3.045206,
+          "core_calls": 1,
+          "core_wall_ms": 0.557066,
+          "core_cpu_ms": 0.300996,
+          "snapshot_ms": 0.022365,
+          "core_first_after_up_ms": 1.549267,
+          "after_native_to_endpoint_ms": 0.913831,
+          "selected_native_wall_ms": 0.5902,
+          "longest_core": {
+            "id": 137957,
+            "ts": 118234781076,
+            "dur": 557066,
+            "name": "rime.direct.action_core",
+            "parent_id": "137956",
+            "utid": 279,
+            "tid": 2290,
+            "thread_name": "rime-main",
+            "pid": 2201,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+          },
+          "core_thread_state_ms": {
+            "Running": 0.300996,
+            "R": 0.25607
+          }
+        },
+        "max_total": {
+          "phase": "rebind",
+          "round": 2,
+          "kind": "select",
+          "start_ns": 100875595454,
+          "up_ns": 100916072870,
+          "injection_up_ns": 100916072870,
+          "end_ns": 100919809137,
+          "total_up_ms": 3.736267,
+          "core_calls": 1,
+          "core_wall_ms": 0.29424,
+          "core_cpu_ms": 0.29424,
+          "snapshot_ms": 0.022619,
+          "core_first_after_up_ms": 2.141318,
+          "after_native_to_endpoint_ms": 1.275146,
+          "selected_native_wall_ms": 0.32707,
+          "longest_core": {
+            "id": 111538,
+            "ts": 100918214188,
+            "dur": 294240,
+            "name": "rime.direct.action_core",
+            "parent_id": "111537",
+            "utid": 279,
+            "tid": 2290,
+            "thread_name": "rime-main",
+            "pid": 2201,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+          },
+          "core_thread_state_ms": {
+            "Running": 0.29424
+          }
+        }
+      }
+    },
+    "phrase": {
+      "fresh": {
+        "total_up_ms": {
+          "n": 16,
+          "median": 3.7021995,
+          "min": 2.634182,
+          "max": 6.489584
+        },
+        "core_wall_ms": {
+          "n": 16,
+          "median": 0.412781,
+          "min": 0.315191,
+          "max": 2.356822
+        },
+        "core_cpu_ms": {
+          "n": 16,
+          "median": 0.369749,
+          "min": 0.315191,
+          "max": 2.32752
+        },
+        "snapshot_ms": {
+          "n": 16,
+          "median": 0.0225855,
+          "min": 0.020647,
+          "max": 0.06516
+        },
+        "selected_rounds": {
+          "1": {
+            "phase": "fresh",
+            "round": 1,
+            "kind": "select",
+            "start_ns": 131530807237,
+            "up_ns": 131568428902,
+            "injection_up_ns": 131568428902,
+            "end_ns": 131574918486,
+            "total_up_ms": 6.489584,
+            "core_calls": 1,
+            "core_wall_ms": 0.851842,
+            "core_cpu_ms": 0.851842,
+            "snapshot_ms": 0.022479,
+            "core_first_after_up_ms": 2.184123,
+            "after_native_to_endpoint_ms": 3.427732,
+            "selected_native_wall_ms": 0.885626,
+            "longest_core": {
+              "id": 63248,
+              "ts": 131570613025,
+              "dur": 851842,
+              "name": "rime.direct.action_core",
+              "parent_id": "63247",
+              "utid": 290,
+              "tid": 2573,
+              "thread_name": "rime-main",
+              "pid": 2478,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.851842
+            }
+          },
+          "4": {
+            "phase": "fresh",
+            "round": 4,
+            "kind": "select",
+            "start_ns": 139959147130,
+            "up_ns": 140000227577,
+            "injection_up_ns": 140000227577,
+            "end_ns": 140006002207,
+            "total_up_ms": 5.77463,
+            "core_calls": 1,
+            "core_wall_ms": 2.356822,
+            "core_cpu_ms": 2.32752,
+            "snapshot_ms": 0.022692,
+            "core_first_after_up_ms": 2.141646,
+            "after_native_to_endpoint_ms": 1.249658,
+            "selected_native_wall_ms": 2.390609,
+            "longest_core": {
+              "id": 90631,
+              "ts": 140002369223,
+              "dur": 2356822,
+              "name": "rime.direct.action_core",
+              "parent_id": "90630",
+              "utid": 290,
+              "tid": 2573,
+              "thread_name": "rime-main",
+              "pid": 2478,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 2.32752,
+              "R": 0.029302
+            }
+          },
+          "8": {
+            "phase": "fresh",
+            "round": 8,
+            "kind": "select",
+            "start_ns": 151139574386,
+            "up_ns": 151182949372,
+            "injection_up_ns": 151182949372,
+            "end_ns": 151187038994,
+            "total_up_ms": 4.089622,
+            "core_calls": 1,
+            "core_wall_ms": 0.327011,
+            "core_cpu_ms": 0.327011,
+            "snapshot_ms": 0.022712,
+            "core_first_after_up_ms": 1.58604,
+            "after_native_to_endpoint_ms": 2.150802,
+            "selected_native_wall_ms": 0.360195,
+            "longest_core": {
+              "id": 120933,
+              "ts": 151184535412,
+              "dur": 327011,
+              "name": "rime.direct.action_core",
+              "parent_id": "120932",
+              "utid": 290,
+              "tid": 2573,
+              "thread_name": "rime-main",
+              "pid": 2478,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.327011
+            }
+          },
+          "16": {
+            "phase": "fresh",
+            "round": 16,
+            "kind": "select",
+            "start_ns": 173465720516,
+            "up_ns": 173499778838,
+            "injection_up_ns": 173499778838,
+            "end_ns": 173502436146,
+            "total_up_ms": 2.657308,
+            "core_calls": 1,
+            "core_wall_ms": 0.438804,
+            "core_cpu_ms": 0.360698,
+            "snapshot_ms": 0.021186,
+            "core_first_after_up_ms": 1.367384,
+            "after_native_to_endpoint_ms": 0.8267,
+            "selected_native_wall_ms": 0.470391,
+            "longest_core": {
+              "id": 179408,
+              "ts": 173501146222,
+              "dur": 438804,
+              "name": "rime.direct.action_core",
+              "parent_id": "179407",
+              "utid": 290,
+              "tid": 2573,
+              "thread_name": "rime-main",
+              "pid": 2478,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.360698,
+              "R": 0.078106
+            }
+          }
+        },
+        "max_core": {
+          "phase": "fresh",
+          "round": 4,
+          "kind": "select",
+          "start_ns": 139959147130,
+          "up_ns": 140000227577,
+          "injection_up_ns": 140000227577,
+          "end_ns": 140006002207,
+          "total_up_ms": 5.77463,
+          "core_calls": 1,
+          "core_wall_ms": 2.356822,
+          "core_cpu_ms": 2.32752,
+          "snapshot_ms": 0.022692,
+          "core_first_after_up_ms": 2.141646,
+          "after_native_to_endpoint_ms": 1.249658,
+          "selected_native_wall_ms": 2.390609,
+          "longest_core": {
+            "id": 90631,
+            "ts": 140002369223,
+            "dur": 2356822,
+            "name": "rime.direct.action_core",
+            "parent_id": "90630",
+            "utid": 290,
+            "tid": 2573,
+            "thread_name": "rime-main",
+            "pid": 2478,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+          },
+          "core_thread_state_ms": {
+            "Running": 2.32752,
+            "R": 0.029302
+          }
+        },
+        "max_total": {
+          "phase": "fresh",
+          "round": 1,
+          "kind": "select",
+          "start_ns": 131530807237,
+          "up_ns": 131568428902,
+          "injection_up_ns": 131568428902,
+          "end_ns": 131574918486,
+          "total_up_ms": 6.489584,
+          "core_calls": 1,
+          "core_wall_ms": 0.851842,
+          "core_cpu_ms": 0.851842,
+          "snapshot_ms": 0.022479,
+          "core_first_after_up_ms": 2.184123,
+          "after_native_to_endpoint_ms": 3.427732,
+          "selected_native_wall_ms": 0.885626,
+          "longest_core": {
+            "id": 63248,
+            "ts": 131570613025,
+            "dur": 851842,
+            "name": "rime.direct.action_core",
+            "parent_id": "63247",
+            "utid": 290,
+            "tid": 2573,
+            "thread_name": "rime-main",
+            "pid": 2478,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+          },
+          "core_thread_state_ms": {
+            "Running": 0.851842
+          }
+        }
+      },
+      "rebind": {
+        "total_up_ms": {
+          "n": 16,
+          "median": 2.833165,
+          "min": 2.575743,
+          "max": 3.788235
+        },
+        "core_wall_ms": {
+          "n": 16,
+          "median": 0.352672,
+          "min": 0.309698,
+          "max": 0.557378
+        },
+        "core_cpu_ms": {
+          "n": 16,
+          "median": 0.345415,
+          "min": 0.309698,
+          "max": 0.557378
+        },
+        "snapshot_ms": {
+          "n": 16,
+          "median": 0.021097,
+          "min": 0.020154,
+          "max": 0.02334
+        },
+        "selected_rounds": {
+          "1": {
+            "phase": "rebind",
+            "round": 1,
+            "kind": "select",
+            "start_ns": 179113844647,
+            "up_ns": 179150708104,
+            "injection_up_ns": 179150708104,
+            "end_ns": 179154496339,
+            "total_up_ms": 3.788235,
+            "core_calls": 1,
+            "core_wall_ms": 0.344374,
+            "core_cpu_ms": 0.344374,
+            "snapshot_ms": 0.020919,
+            "core_first_after_up_ms": 2.316016,
+            "after_native_to_endpoint_ms": 1.103704,
+            "selected_native_wall_ms": 0.376085,
+            "longest_core": {
+              "id": 194780,
+              "ts": 179153024120,
+              "dur": 344374,
+              "name": "rime.direct.action_core",
+              "parent_id": "194779",
+              "utid": 290,
+              "tid": 2573,
+              "thread_name": "rime-main",
+              "pid": 2478,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.344374
+            }
+          },
+          "4": {
+            "phase": "rebind",
+            "round": 4,
+            "kind": "select",
+            "start_ns": 187459598721,
+            "up_ns": 187500315863,
+            "injection_up_ns": 187500315863,
+            "end_ns": 187503714195,
+            "total_up_ms": 3.398332,
+            "core_calls": 1,
+            "core_wall_ms": 0.317186,
+            "core_cpu_ms": 0.317186,
+            "snapshot_ms": 0.020724,
+            "core_first_after_up_ms": 2.042528,
+            "after_native_to_endpoint_ms": 1.015005,
+            "selected_native_wall_ms": 0.35205,
+            "longest_core": {
+              "id": 216465,
+              "ts": 187502358391,
+              "dur": 317186,
+              "name": "rime.direct.action_core",
+              "parent_id": "216464",
+              "utid": 290,
+              "tid": 2573,
+              "thread_name": "rime-main",
+              "pid": 2478,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.317186
+            }
+          },
+          "8": {
+            "phase": "rebind",
+            "round": 8,
+            "kind": "select",
+            "start_ns": 198640692594,
+            "up_ns": 198683228457,
+            "injection_up_ns": 198683228457,
+            "end_ns": 198686096378,
+            "total_up_ms": 2.867921,
+            "core_calls": 1,
+            "core_wall_ms": 0.31056,
+            "core_cpu_ms": 0.31056,
+            "snapshot_ms": 0.020154,
+            "core_first_after_up_ms": 1.698013,
+            "after_native_to_endpoint_ms": 0.836428,
+            "selected_native_wall_ms": 0.340522,
+            "longest_core": {
+              "id": 245333,
+              "ts": 198684926470,
+              "dur": 310560,
+              "name": "rime.direct.action_core",
+              "parent_id": "245332",
+              "utid": 290,
+              "tid": 2573,
+              "thread_name": "rime-main",
+              "pid": 2478,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.31056
+            }
+          },
+          "16": {
+            "phase": "rebind",
+            "round": 16,
+            "kind": "select",
+            "start_ns": 220933076349,
+            "up_ns": 220966487686,
+            "injection_up_ns": 220966487686,
+            "end_ns": 220969216582,
+            "total_up_ms": 2.728896,
+            "core_calls": 1,
+            "core_wall_ms": 0.404441,
+            "core_cpu_ms": 0.404441,
+            "snapshot_ms": 0.022433,
+            "core_first_after_up_ms": 1.347244,
+            "after_native_to_endpoint_ms": 0.951229,
+            "selected_native_wall_ms": 0.437636,
+            "longest_core": {
+              "id": 302884,
+              "ts": 220967834930,
+              "dur": 404441,
+              "name": "rime.direct.action_core",
+              "parent_id": "302883",
+              "utid": 290,
+              "tid": 2573,
+              "thread_name": "rime-main",
+              "pid": 2478,
+              "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+            },
+            "core_thread_state_ms": {
+              "Running": 0.404441
+            }
+          }
+        },
+        "max_core": {
+          "phase": "rebind",
+          "round": 9,
+          "kind": "select",
+          "start_ns": 201441946101,
+          "up_ns": 201483938289,
+          "injection_up_ns": 201483938289,
+          "end_ns": 201487580891,
+          "total_up_ms": 3.642602,
+          "core_calls": 1,
+          "core_wall_ms": 0.557378,
+          "core_cpu_ms": 0.557378,
+          "snapshot_ms": 0.021863,
+          "core_first_after_up_ms": 2.018685,
+          "after_native_to_endpoint_ms": 1.041627,
+          "selected_native_wall_ms": 0.600734,
+          "longest_core": {
+            "id": 252771,
+            "ts": 201485956974,
+            "dur": 557378,
+            "name": "rime.direct.action_core",
+            "parent_id": "252770",
+            "utid": 290,
+            "tid": 2573,
+            "thread_name": "rime-main",
+            "pid": 2478,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+          },
+          "core_thread_state_ms": {
+            "Running": 0.557378
+          }
+        },
+        "max_total": {
+          "phase": "rebind",
+          "round": 1,
+          "kind": "select",
+          "start_ns": 179113844647,
+          "up_ns": 179150708104,
+          "injection_up_ns": 179150708104,
+          "end_ns": 179154496339,
+          "total_up_ms": 3.788235,
+          "core_calls": 1,
+          "core_wall_ms": 0.344374,
+          "core_cpu_ms": 0.344374,
+          "snapshot_ms": 0.020919,
+          "core_first_after_up_ms": 2.316016,
+          "after_native_to_endpoint_ms": 1.103704,
+          "selected_native_wall_ms": 0.376085,
+          "longest_core": {
+            "id": 194780,
+            "ts": 179153024120,
+            "dur": 344374,
+            "name": "rime.direct.action_core",
+            "parent_id": "194779",
+            "utid": 290,
+            "tid": 2573,
+            "thread_name": "rime-main",
+            "pid": 2478,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime.debug"
+          },
+          "core_thread_state_ms": {
+            "Running": 0.344374
+          }
+        }
+      }
+    }
+  },
+  "release_control": {
+    "fresh": {
+      "total_up_ms": {
+        "n": 16,
+        "median": 3.6167740000000004,
+        "min": 2.726773,
+        "max": 12.217897
+      },
+      "core_wall_ms": {
+        "n": 16,
+        "median": 1.7719645,
+        "min": 1.466061,
+        "max": 10.162702
+      },
+      "core_cpu_ms": {
+        "n": 16,
+        "median": 1.664533,
+        "min": 1.445709,
+        "max": 9.530563
+      },
+      "snapshot_ms": {
+        "n": 16,
+        "median": 0.0419075,
+        "min": 0.037516,
+        "max": 0.125038
+      },
+      "selected_rounds": {
+        "1": {
+          "phase": "fresh",
+          "round": 1,
+          "kind": "select",
+          "start_ns": 125512031833,
+          "up_ns": 125553057483,
+          "injection_up_ns": 125553057483,
+          "end_ns": 125565275380,
+          "total_up_ms": 12.217897,
+          "core_calls": 1,
+          "core_wall_ms": 10.162702,
+          "core_cpu_ms": 9.530563,
+          "snapshot_ms": 0.125038,
+          "core_first_after_up_ms": 1.410868,
+          "after_native_to_endpoint_ms": 0.493761,
+          "selected_native_wall_ms": 10.371786,
+          "longest_core": {
+            "id": 10455,
+            "ts": 125554468351,
+            "dur": 10162702,
+            "name": "rime.direct.action_core",
+            "parent_id": "10454",
+            "utid": 166,
+            "tid": 5008,
+            "thread_name": "rime-main",
+            "pid": 4959,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime"
+          },
+          "core_thread_state_ms": {
+            "Running": 9.530563,
+            "R": 0.104868,
+            "R+": 0.527271
+          }
+        },
+        "4": {
+          "phase": "fresh",
+          "round": 4,
+          "kind": "select",
+          "start_ns": 129852437550,
+          "up_ns": 129884151901,
+          "injection_up_ns": 129884151901,
+          "end_ns": 129888003001,
+          "total_up_ms": 3.8511,
+          "core_calls": 1,
+          "core_wall_ms": 1.946181,
+          "core_cpu_ms": 1.677287,
+          "snapshot_ms": 0.040631,
+          "core_first_after_up_ms": 1.458759,
+          "after_native_to_endpoint_ms": 0.401483,
+          "selected_native_wall_ms": 2.010467,
+          "longest_core": {
+            "id": 16836,
+            "ts": 129885610660,
+            "dur": 1946181,
+            "name": "rime.direct.action_core",
+            "parent_id": "16834",
+            "utid": 166,
+            "tid": 5008,
+            "thread_name": "rime-main",
+            "pid": 4959,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime"
+          },
+          "core_thread_state_ms": {
+            "Running": 1.677287,
+            "R": 0.046174,
+            "D": 0.22272
+          }
+        },
+        "8": {
+          "phase": "fresh",
+          "round": 8,
+          "kind": "select",
+          "start_ns": 135607565319,
+          "up_ns": 135655035956,
+          "injection_up_ns": 135655035956,
+          "end_ns": 135660730628,
+          "total_up_ms": 5.694672,
+          "core_calls": 1,
+          "core_wall_ms": 2.193111,
+          "core_cpu_ms": 1.69916,
+          "snapshot_ms": 0.042033,
+          "core_first_after_up_ms": 1.263136,
+          "after_native_to_endpoint_ms": 2.191585,
+          "selected_native_wall_ms": 2.69859,
+          "longest_core": {
+            "id": 24864,
+            "ts": 135656299092,
+            "dur": 2193111,
+            "name": "rime.direct.action_core",
+            "parent_id": "24849",
+            "utid": 166,
+            "tid": 5008,
+            "thread_name": "rime-main",
+            "pid": 4959,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime"
+          },
+          "core_thread_state_ms": {
+            "Running": 1.69916,
+            "R": 0.493951
+          }
+        },
+        "16": {
+          "phase": "fresh",
+          "round": 16,
+          "kind": "select",
+          "start_ns": 147223957599,
+          "up_ns": 147268571928,
+          "injection_up_ns": 147268571928,
+          "end_ns": 147271443903,
+          "total_up_ms": 2.871975,
+          "core_calls": 1,
+          "core_wall_ms": 1.508664,
+          "core_cpu_ms": 1.508664,
+          "snapshot_ms": 0.041782,
+          "core_first_after_up_ms": 0.907772,
+          "after_native_to_endpoint_ms": 0.409389,
+          "selected_native_wall_ms": 1.575395,
+          "longest_core": {
+            "id": 40426,
+            "ts": 147269479700,
+            "dur": 1508664,
+            "name": "rime.direct.action_core",
+            "parent_id": "40425",
+            "utid": 166,
+            "tid": 5008,
+            "thread_name": "rime-main",
+            "pid": 4959,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime"
+          },
+          "core_thread_state_ms": {
+            "Running": 1.508664
+          }
+        }
+      },
+      "max_core": {
+        "phase": "fresh",
+        "round": 1,
+        "kind": "select",
+        "start_ns": 125512031833,
+        "up_ns": 125553057483,
+        "injection_up_ns": 125553057483,
+        "end_ns": 125565275380,
+        "total_up_ms": 12.217897,
+        "core_calls": 1,
+        "core_wall_ms": 10.162702,
+        "core_cpu_ms": 9.530563,
+        "snapshot_ms": 0.125038,
+        "core_first_after_up_ms": 1.410868,
+        "after_native_to_endpoint_ms": 0.493761,
+        "selected_native_wall_ms": 10.371786,
+        "longest_core": {
+          "id": 10455,
+          "ts": 125554468351,
+          "dur": 10162702,
+          "name": "rime.direct.action_core",
+          "parent_id": "10454",
+          "utid": 166,
+          "tid": 5008,
+          "thread_name": "rime-main",
+          "pid": 4959,
+          "process_name": "org.fcitx.fcitx5.android.fx.rime"
+        },
+        "core_thread_state_ms": {
+          "Running": 9.530563,
+          "R": 0.104868,
+          "R+": 0.527271
+        }
+      },
+      "max_total": {
+        "phase": "fresh",
+        "round": 1,
+        "kind": "select",
+        "start_ns": 125512031833,
+        "up_ns": 125553057483,
+        "injection_up_ns": 125553057483,
+        "end_ns": 125565275380,
+        "total_up_ms": 12.217897,
+        "core_calls": 1,
+        "core_wall_ms": 10.162702,
+        "core_cpu_ms": 9.530563,
+        "snapshot_ms": 0.125038,
+        "core_first_after_up_ms": 1.410868,
+        "after_native_to_endpoint_ms": 0.493761,
+        "selected_native_wall_ms": 10.371786,
+        "longest_core": {
+          "id": 10455,
+          "ts": 125554468351,
+          "dur": 10162702,
+          "name": "rime.direct.action_core",
+          "parent_id": "10454",
+          "utid": 166,
+          "tid": 5008,
+          "thread_name": "rime-main",
+          "pid": 4959,
+          "process_name": "org.fcitx.fcitx5.android.fx.rime"
+        },
+        "core_thread_state_ms": {
+          "Running": 9.530563,
+          "R": 0.104868,
+          "R+": 0.527271
+        }
+      }
+    },
+    "rebind": {
+      "total_up_ms": {
+        "n": 16,
+        "median": 3.0727915,
+        "min": 2.519642,
+        "max": 4.103339
+      },
+      "core_wall_ms": {
+        "n": 16,
+        "median": 1.4750640000000002,
+        "min": 1.375485,
+        "max": 1.769526
+      },
+      "core_cpu_ms": {
+        "n": 16,
+        "median": 1.4509880000000002,
+        "min": 1.375485,
+        "max": 1.749355
+      },
+      "snapshot_ms": {
+        "n": 16,
+        "median": 0.038798,
+        "min": 0.036836,
+        "max": 0.196165
+      },
+      "selected_rounds": {
+        "1": {
+          "phase": "rebind",
+          "round": 1,
+          "kind": "select",
+          "start_ns": 152445706687,
+          "up_ns": 152484062826,
+          "injection_up_ns": 152484062826,
+          "end_ns": 152487054976,
+          "total_up_ms": 2.99215,
+          "core_calls": 1,
+          "core_wall_ms": 1.574052,
+          "core_cpu_ms": 1.525067,
+          "snapshot_ms": 0.038918,
+          "core_first_after_up_ms": 0.956896,
+          "after_native_to_endpoint_ms": 0.418137,
+          "selected_native_wall_ms": 1.64561,
+          "longest_core": {
+            "id": 50492,
+            "ts": 152485019722,
+            "dur": 1574052,
+            "name": "rime.direct.action_core",
+            "parent_id": "50491",
+            "utid": 166,
+            "tid": 5008,
+            "thread_name": "rime-main",
+            "pid": 4959,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime"
+          },
+          "core_thread_state_ms": {
+            "Running": 1.525067,
+            "R": 0.048985
+          }
+        },
+        "4": {
+          "phase": "rebind",
+          "round": 4,
+          "kind": "select",
+          "start_ns": 156751957035,
+          "up_ns": 156784413465,
+          "injection_up_ns": 156784413465,
+          "end_ns": 156787479641,
+          "total_up_ms": 3.066176,
+          "core_calls": 1,
+          "core_wall_ms": 1.769526,
+          "core_cpu_ms": 1.593122,
+          "snapshot_ms": 0.038137,
+          "core_first_after_up_ms": 0.856295,
+          "after_native_to_endpoint_ms": 0.397852,
+          "selected_native_wall_ms": 1.829966,
+          "longest_core": {
+            "id": 56132,
+            "ts": 156785269760,
+            "dur": 1769526,
+            "name": "rime.direct.action_core",
+            "parent_id": "56131",
+            "utid": 166,
+            "tid": 5008,
+            "thread_name": "rime-main",
+            "pid": 4959,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime"
+          },
+          "core_thread_state_ms": {
+            "Running": 1.593122,
+            "R": 0.032474,
+            "D": 0.14393
+          }
+        },
+        "8": {
+          "phase": "rebind",
+          "round": 8,
+          "kind": "select",
+          "start_ns": 162489684795,
+          "up_ns": 162519561803,
+          "injection_up_ns": 162519561803,
+          "end_ns": 162522880999,
+          "total_up_ms": 3.319196,
+          "core_calls": 1,
+          "core_wall_ms": 1.451078,
+          "core_cpu_ms": 1.437477,
+          "snapshot_ms": 0.038318,
+          "core_first_after_up_ms": 1.291428,
+          "after_native_to_endpoint_ms": 0.533766,
+          "selected_native_wall_ms": 1.601803,
+          "longest_core": {
+            "id": 63321,
+            "ts": 162520853231,
+            "dur": 1451078,
+            "name": "rime.direct.action_core",
+            "parent_id": "63320",
+            "utid": 166,
+            "tid": 5008,
+            "thread_name": "rime-main",
+            "pid": 4959,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime"
+          },
+          "core_thread_state_ms": {
+            "Running": 1.437477,
+            "R": 0.013601
+          }
+        },
+        "16": {
+          "phase": "rebind",
+          "round": 16,
+          "kind": "select",
+          "start_ns": 173970604605,
+          "up_ns": 174001243742,
+          "injection_up_ns": 174001243742,
+          "end_ns": 174004677836,
+          "total_up_ms": 3.434094,
+          "core_calls": 1,
+          "core_wall_ms": 1.749355,
+          "core_cpu_ms": 1.749355,
+          "snapshot_ms": 0.041802,
+          "core_first_after_up_ms": 1.231128,
+          "after_native_to_endpoint_ms": 0.407061,
+          "selected_native_wall_ms": 1.814153,
+          "longest_core": {
+            "id": 77605,
+            "ts": 174002474870,
+            "dur": 1749355,
+            "name": "rime.direct.action_core",
+            "parent_id": "77604",
+            "utid": 166,
+            "tid": 5008,
+            "thread_name": "rime-main",
+            "pid": 4959,
+            "process_name": "org.fcitx.fcitx5.android.fx.rime"
+          },
+          "core_thread_state_ms": {
+            "Running": 1.749355
+          }
+        }
+      },
+      "max_core": {
+        "phase": "rebind",
+        "round": 4,
+        "kind": "select",
+        "start_ns": 156751957035,
+        "up_ns": 156784413465,
+        "injection_up_ns": 156784413465,
+        "end_ns": 156787479641,
+        "total_up_ms": 3.066176,
+        "core_calls": 1,
+        "core_wall_ms": 1.769526,
+        "core_cpu_ms": 1.593122,
+        "snapshot_ms": 0.038137,
+        "core_first_after_up_ms": 0.856295,
+        "after_native_to_endpoint_ms": 0.397852,
+        "selected_native_wall_ms": 1.829966,
+        "longest_core": {
+          "id": 56132,
+          "ts": 156785269760,
+          "dur": 1769526,
+          "name": "rime.direct.action_core",
+          "parent_id": "56131",
+          "utid": 166,
+          "tid": 5008,
+          "thread_name": "rime-main",
+          "pid": 4959,
+          "process_name": "org.fcitx.fcitx5.android.fx.rime"
+        },
+        "core_thread_state_ms": {
+          "Running": 1.593122,
+          "R": 0.032474,
+          "D": 0.14393
+        }
+      },
+      "max_total": {
+        "phase": "rebind",
+        "round": 7,
+        "kind": "select",
+        "start_ns": 161054768987,
+        "up_ns": 161084430522,
+        "injection_up_ns": 161084430522,
+        "end_ns": 161088533861,
+        "total_up_ms": 4.103339,
+        "core_calls": 1,
+        "core_wall_ms": 1.499781,
+        "core_cpu_ms": 1.430477,
+        "snapshot_ms": 0.039279,
+        "core_first_after_up_ms": 0.82594,
+        "after_native_to_endpoint_ms": 1.734083,
+        "selected_native_wall_ms": 1.560271,
+        "longest_core": {
+          "id": 61615,
+          "ts": 161085256462,
+          "dur": 1499781,
+          "name": "rime.direct.action_core",
+          "parent_id": "61614",
+          "utid": 166,
+          "tid": 5008,
+          "thread_name": "rime-main",
+          "pid": 4959,
+          "process_name": "org.fcitx.fcitx5.android.fx.rime"
+        },
+        "core_thread_state_ms": {
+          "Running": 1.430477,
+          "R": 0.069304
+        }
+      }
+    }
+  }
+}

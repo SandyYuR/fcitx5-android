@@ -1,0 +1,13 @@
+{
+  "before_source": "fd3b65ec",
+  "latest_index_change": "6fa9fb0642203dbd494b8ae51fd2c9da934201a6",
+  "reason": "A later dated scope note changed index.md without updating its checksum. Preserve original index and manifest, update only index checksum; the other66 entries and all original result archives are unchanged.",
+  "mismatches": [
+    {
+      "directory": "input-dispatch-2026-11-12",
+      "file": "index.md",
+      "expected": "35cf67b012d5ddcf227dd7a5199934453260a348221faf2dc200466fba5b611d",
+      "actual": "8904fba87a24e42a1b98adad5ee1695f1816e378b2c4d8250c38b779aef98469"
+    }
+  ]
+}

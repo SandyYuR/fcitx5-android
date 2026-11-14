@@ -1,0 +1,1507 @@
+--------- beginning of main
+11-11 12:58:14.246   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:14.246   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:14.257   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:14.257   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 203
+11-11 12:58:14.272   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:14.285   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(5)
+11-11 12:58:14.348   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:14.348   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:14.402   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:14.402   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:14.428 22564 22564 D [main] CursorTracker: current: [105,105]; predictionCount=1
+11-11 12:58:14.446   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:14.454   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:14.454   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+--------- beginning of system
+11-11 12:58:14.459   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:14.473 22649 22666 D EGL_emulation: app_time_stats: avg=1806.09ms min=1806.09ms max=1806.09ms count=1
+11-11 12:58:14.476 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[105,105] new=[107,107] cand=[-1,-1]
+11-11 12:58:14.531 22564 22669 D EGL_emulation: app_time_stats: avg=54.54ms min=7.40ms max=110.02ms count=15
+11-11 12:58:14.547   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:14.555   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:14.555   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:14.661   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:14.661   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:14.740   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:14.741   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:14.765   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:14.765   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:14.806   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:14.806   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:14.826   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:14.885   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(8)
+11-11 12:58:14.898   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:14.898   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:15.059   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:15.059   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:15.084   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:15.170   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:15.171   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:15.173   434  7385 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-11 12:58:15.181   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:15.181   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 204
+11-11 12:58:15.182   434  1599 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:15.236   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(18)
+11-11 12:58:15.239   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:15.276   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:15.277   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:15.383   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:15.383   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:15.494   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:15.494   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:15.534   434  1599 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-11 12:58:15.562   434  1599 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:15.563   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:15.568 22564 22669 D EGL_emulation: app_time_stats: avg=58.90ms min=19.51ms max=118.55ms count=15
+11-11 12:58:15.582   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(21)
+11-11 12:58:15.600   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:15.600   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:15.612   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:15.622 22564 22564 D [main] CursorTracker: current: [107,107]; predictionCount=1
+11-11 12:58:15.636   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:15.661 22649 22666 D EGL_emulation: app_time_stats: avg=1187.43ms min=1187.43ms max=1187.43ms count=1
+11-11 12:58:15.671   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:15.681 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[107,107] new=[109,109] cand=[-1,-1]
+11-11 12:58:15.683   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:15.683   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:15.685   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:15.707   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:15.707   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:15.744   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(12)
+11-11 12:58:15.790   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:15.791   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:15.818   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:15.818   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:15.902   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:15.911   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:15.921   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:15.921   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.030   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.030   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.031   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:16.032   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:16.095   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(24)
+11-11 12:58:16.131   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.132   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.183   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:16.239   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.240   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.343   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.343   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.378   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:16.429   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:16.430   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:16.447   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.447   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.520   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(17)
+11-11 12:58:16.556   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(2)
+11-11 12:58:16.571   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.571   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.574 22564 22669 D EGL_emulation: app_time_stats: avg=61.38ms min=9.95ms max=103.20ms count=14
+11-11 12:58:16.621   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:16.660   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(13)
+11-11 12:58:16.676   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.676   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.779   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.779   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.799   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:16.805   512 22756 D BufferPoolAccessor2.0: bufferpool2 0x747c022e7a68 : 2(6220800 size) total buffers - 1(3110400 size) used buffers - 335/337 (recycle/alloc) - 10/337 (fetch/transfer)
+11-11 12:58:16.814   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:16.814   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:16.885   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.885   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:16.892   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(12)
+11-11 12:58:16.987   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:16.987   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:17.042   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:17.095   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:17.095   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:17.220   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:17.221   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:17.221   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:17.281   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:17.283   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:17.314   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(36)
+11-11 12:58:17.325   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:17.325   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:17.364   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(20)
+11-11 12:58:17.431   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:17.431   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:17.528   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:17.535   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:17.535   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:17.550   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:17.567   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:17.578 22564 22669 D EGL_emulation: app_time_stats: avg=58.78ms min=10.33ms max=104.31ms count=15
+11-11 12:58:17.624 22564 22564 D [main] CursorTracker: current: [109,109]; predictionCount=1
+11-11 12:58:17.656   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:17.656   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:17.657   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:17.698 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[109,109] new=[111,111] cand=[-1,-1]
+11-11 12:58:17.703   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:17.704   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:17.705 22649 22666 D EGL_emulation: app_time_stats: avg=2044.35ms min=2044.35ms max=2044.35ms count=1
+11-11 12:58:17.740   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(43)
+11-11 12:58:17.779   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:17.779   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:17.813   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:17.850   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:17.860   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:17.901   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:17.902   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:18.007   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:18.008   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:18.008   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:18.111   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:18.115   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:18.128   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:18.129   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:18.202   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(33)
+11-11 12:58:18.215   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:18.215   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:18.287   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:18.313   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:18.319   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:18.319   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:18.471   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:18.472   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:18.472   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:18.520   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:18.520   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:18.580   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:18.580   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:18.595 22564 22669 D EGL_emulation: app_time_stats: avg=59.79ms min=6.16ms max=121.34ms count=14
+11-11 12:58:18.634   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(27)
+11-11 12:58:18.706   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:18.707   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:18.796   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:18.807   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:18.807   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:18.828   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:18.828   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:18.943   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:18.943   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.048   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.048   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.053   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:19.152   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.152   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.205   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:19.255   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.255   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.264   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:19.264   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:19.267   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(46)
+11-11 12:58:19.347 22564 22564 D [main] CursorTracker: current: [111,111]; predictionCount=1
+11-11 12:58:19.358   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:19.362   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.362   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.373 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[111,111] new=[113,113] cand=[-1,-1]
+11-11 12:58:19.381   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(5)
+11-11 12:58:19.388 22649 22666 D EGL_emulation: app_time_stats: avg=1679.21ms min=1679.21ms max=1679.21ms count=1
+11-11 12:58:19.463   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.463   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.524   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:19.524   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:19.524   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:19.563   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(11)
+11-11 12:58:19.567   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.568   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.625   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:19.641   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:19.664 22564 22669 D EGL_emulation: app_time_stats: avg=58.34ms min=7.75ms max=178.29ms count=14
+11-11 12:58:19.671   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.671   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.778   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.781   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.825   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:19.883   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.883   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:19.902   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:19.903   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:19.975   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(36)
+11-11 12:58:19.987   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:19.987   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.102   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:20.104   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:20.104   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.188   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:20.195   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:20.202   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(15)
+11-11 12:58:20.207   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:20.207   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.314   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:20.315   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.373   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:20.417   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:20.417   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.446   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:20.451   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:20.519   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:20.519   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.544   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(8)
+11-11 12:58:20.602   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:20.602   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:20.619   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(15)
+11-11 12:58:20.623   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:20.623   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.666   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(14)
+11-11 12:58:20.666   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:20.713 22564 22669 D EGL_emulation: app_time_stats: avg=62.00ms min=27.19ms max=120.79ms count=14
+11-11 12:58:20.745   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:20.746   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.765 22564 22564 D [main] CursorTracker: current: [113,113]; predictionCount=1
+11-11 12:58:20.782 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[113,113] new=[115,115] cand=[-1,-1]
+11-11 12:58:20.816   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:20.847   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:20.847   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.855   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:20.855   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:20.870   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:20.932 22649 22666 D EGL_emulation: app_time_stats: avg=1544.56ms min=1544.56ms max=1544.56ms count=1
+11-11 12:58:20.956   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:20.956   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:20.980   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(11)
+11-11 12:58:21.059   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:21.060   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:21.064   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:21.134   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:21.163   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:21.163   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:21.170   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:21.172   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:21.278   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:21.278   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:21.359   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:21.379   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:21.380   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:21.484   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:21.484   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:21.525   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:21.587   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:21.588   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:21.642   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:21.646   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:21.683   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(13)
+11-11 12:58:21.691   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:21.692   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:21.722 22564 22669 D EGL_emulation: app_time_stats: avg=61.89ms min=24.52ms max=161.42ms count=14
+11-11 12:58:21.796   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:21.796   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:21.838   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:21.838   512 22756 D BufferPoolAccessor2.0: bufferpool2 0x747c022e7a68 : 2(6220800 size) total buffers - 1(3110400 size) used buffers - 357/359 (recycle/alloc) - 10/359 (fetch/transfer)
+11-11 12:58:21.904   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:21.904   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:21.904   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.008   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:22.008   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.034   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:22.115   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:22.115   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.175   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:22.175   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:22.209   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(10)
+11-11 12:58:22.239   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:22.245   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.346   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:22.355   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:22.355   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.355   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:22.388   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:22.462   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:22.462   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.512 22564 22564 D [main] CursorTracker: current: [115,115]; predictionCount=1
+11-11 12:58:22.564   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:22.566   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.566   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:22.608   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:22.608 22649 22666 D EGL_emulation: app_time_stats: avg=1676.11ms min=1676.11ms max=1676.11ms count=1
+11-11 12:58:22.646 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[115,115] new=[117,117] cand=[-1,-1]
+11-11 12:58:22.679   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:22.680   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.684   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:22.685   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:22.741 22564 22669 D EGL_emulation: app_time_stats: avg=68.82ms min=17.04ms max=127.02ms count=13
+11-11 12:58:22.802   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:22.802   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.928   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:22.928   921   971 W Looper  : Slow dispatch took 63ms wmshell.main h=android.os.Handler c=com.android.wm.shell.common.DisplayController$DisplayWindowListenerImpl$$ExternalSyntheticLambda3@356a320 m=0
+11-11 12:58:22.937   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:22.938   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:22.961   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:22.964   434  7385 W APM::AudioOutputDescriptor: setClientActive(PortId: 178 SessionId: 1489 Uid: 1000 Stream: 1): ignored active: 1, current stream count 1
+11-11 12:58:22.974   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:22.974   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:22.979   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(11)
+11-11 12:58:23.031   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(16)
+11-11 12:58:23.039   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.039   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:23.104   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:23.147   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.147   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:23.248   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.248   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:23.288   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:23.288   434   539 W APM_AudioPolicyManager: stopOutput() refcount is already 0
+11-11 12:58:23.313   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:23.314   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:23.337   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(5)
+11-11 12:58:23.351   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.351   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:23.412   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(18)
+11-11 12:58:23.456   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.456   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:23.487   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:23.559   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.559   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:23.632   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:23.649   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(5)
+11-11 12:58:23.663   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.664   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:23.747   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(5)
+11-11 12:58:23.767   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.768   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:23.774 22564 22669 D EGL_emulation: app_time_stats: avg=60.33ms min=12.01ms max=121.34ms count=14
+11-11 12:58:23.814   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:23.871   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.871   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:23.904   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:23.906   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:23.913   500   637 D AudioAnalytics: gc(1700, 2000): log size:1700 item map size:11, item map items:1700
+11-11 12:58:23.929 22564 22564 D [main] CursorTracker: current: [117,117]; predictionCount=1
+11-11 12:58:23.956   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:23.975   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:23.975   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:24.001 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[117,117] new=[119,119] cand=[-1,-1]
+11-11 12:58:24.001 22649 22666 D EGL_emulation: app_time_stats: avg=1393.02ms min=1393.02ms max=1393.02ms count=1
+11-11 12:58:24.087   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:24.087   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:24.116   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:24.116   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:24.135   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:24.165   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(10)
+11-11 12:58:24.193   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:24.195   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:24.226   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:24.244   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:24.307   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:24.308   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:24.415   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:24.416   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:24.424   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:24.449   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:24.449   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:24.483   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(36)
+11-11 12:58:24.531   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:24.531   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:24.635   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:24.637   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:24.651   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:24.656   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(11)
+11-11 12:58:24.759   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:24.760   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:24.811   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:24.826   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:24.826   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:24.839 22564 22669 D EGL_emulation: app_time_stats: avg=56.57ms min=22.25ms max=99.67ms count=15
+11-11 12:58:24.847   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(8)
+11-11 12:58:24.863   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:24.863   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:24.967   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:24.967   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:25.071   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:25.071   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:25.096   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:25.136   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:25.136   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:25.181   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(8)
+11-11 12:58:25.181   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:25.188   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:25.312   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:25.312   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:25.314   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:25.368   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(9)
+11-11 12:58:25.399   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(2)
+11-11 12:58:25.422   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:25.422   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:25.468   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:25.528   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:25.528   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:25.605   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:25.610   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:25.637   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:25.637   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:25.697   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:25.767   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:25.767   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:25.774   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:25.775 22564 22564 D [main] CursorTracker: current: [119,119]; predictionCount=1
+11-11 12:58:25.775   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:25.801   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:25.808 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[119,119] new=[121,121] cand=[-1,-1]
+11-11 12:58:25.818   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(26)
+11-11 12:58:25.820   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:25.854 22649 22666 D EGL_emulation: app_time_stats: avg=1853.05ms min=1853.05ms max=1853.05ms count=1
+11-11 12:58:25.911 22564 22669 D EGL_emulation: app_time_stats: avg=60.65ms min=20.06ms max=107.87ms count=14
+11-11 12:58:25.932   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:25.932   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.009   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:26.019   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:26.035   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:26.035   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.120   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:26.121   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:26.158   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:26.158   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.158   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(4)
+11-11 12:58:26.185   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(4)
+11-11 12:58:26.262   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:26.262   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.310   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:26.363   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:26.363   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.481   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:26.482   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:26.482   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.514   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:26.514   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:26.557   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(42)
+11-11 12:58:26.583   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:26.583   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.687   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:26.688   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.715   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:26.779   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:26.785   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:26.791   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:26.791   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.903   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:26.903   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:26.944 22564 22669 D EGL_emulation: app_time_stats: avg=61.34ms min=22.78ms max=107.58ms count=14
+11-11 12:58:26.961   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:27.004   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.004   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:27.112   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.112   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:27.149   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:27.166   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:27.166   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:27.217   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.217   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:27.322   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(24)
+11-11 12:58:27.334   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.334   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:27.427   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:27.430   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:27.448   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.448   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:27.424   512 22756 D BufferPoolAccessor2.0: bufferpool2 0x747c022e7a68 : 2(6220800 size) total buffers - 1(3110400 size) used buffers - 378/380 (recycle/alloc) - 10/380 (fetch/transfer)
+11-11 12:58:27.458   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:27.536 22564 22564 D [main] CursorTracker: current: [121,121]; predictionCount=1
+11-11 12:58:27.546 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[121,121] new=[123,123] cand=[-1,-1]
+11-11 12:58:27.554   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.554   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:27.585   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:27.638 22649 22666 D EGL_emulation: app_time_stats: avg=1783.78ms min=1783.78ms max=1783.78ms count=1
+11-11 12:58:27.648   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:27.655   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.656   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:27.684   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:27.686   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:27.687   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(20)
+11-11 12:58:27.719   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(7)
+11-11 12:58:27.761   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.761   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:27.864   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.864   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:27.873   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:27.875   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:27.895   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:27.895   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:27.973 22564 22669 D EGL_emulation: app_time_stats: avg=55.64ms min=18.25ms max=115.10ms count=14
+11-11 12:58:27.981   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:27.981   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.086   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:28.087   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.186   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:28.192   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:28.192   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.257   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(29)
+11-11 12:58:28.303   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:28.303   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.312   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:28.407   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:28.407   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.485   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:28.511   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:28.511   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.532   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:28.533   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:28.597   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(14)
+11-11 12:58:28.611   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:28.611   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.720   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:28.720   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.765   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:28.788   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:28.788   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:28.827   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:28.827   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.917 22564 22564 D [main] CursorTracker: current: [123,123]; predictionCount=1
+11-11 12:58:28.936   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:28.937   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:28.938   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:28.948 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[123,123] new=[125,125] cand=[-1,-1]
+11-11 12:58:28.979 22564 22669 D EGL_emulation: app_time_stats: avg=61.90ms min=19.67ms max=155.06ms count=14
+11-11 12:58:29.014 22649 22666 D EGL_emulation: app_time_stats: avg=1375.20ms min=1375.20ms max=1375.20ms count=1
+11-11 12:58:29.042   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:29.042   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:29.052   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:29.052   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:29.069   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:29.154   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:29.154   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:29.197   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:29.200   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:29.209   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(45)
+11-11 12:58:29.247   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(1)
+11-11 12:58:29.266   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:29.266   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:29.376   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:29.381   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:29.441   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:29.445   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:29.445   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:29.481   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:29.481   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:29.577   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:29.589   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:29.589   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:29.676   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(50)
+11-11 12:58:29.703   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:29.703   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:29.777   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:29.796   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:29.796   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:29.803   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:29.803   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:29.915   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:29.915   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:29.975   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:29.979   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(53)
+11-11 12:58:30.017   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.017   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:30.081 22564 22669 D EGL_emulation: app_time_stats: avg=71.18ms min=41.31ms max=111.46ms count=13
+11-11 12:58:30.119   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.119   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:30.119   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:30.188   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:30.188   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:30.221   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(21)
+11-11 12:58:30.230   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.230   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:30.312 22564 22564 D [main] CursorTracker: current: [125,125]; predictionCount=1
+11-11 12:58:30.339   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.339   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:30.347 22649 22666 D EGL_emulation: app_time_stats: avg=1311.15ms min=1311.15ms max=1311.15ms count=1
+11-11 12:58:30.379   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:30.398   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:30.419   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:30.419   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:30.420 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[125,125] new=[127,127] cand=[-1,-1]
+11-11 12:58:30.440   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.440   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:30.467   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(31)
+11-11 12:58:30.544   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:30.545   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.545   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:30.600   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:30.609   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:30.671   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.671   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:30.754   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:30.761   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(8)
+11-11 12:58:30.772   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.772   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:30.889   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.889   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:30.943   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:30.997   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:30.997   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:31.047   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:31.047   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:31.069   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:31.103   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:31.103   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:31.172 22564 22669 D EGL_emulation: app_time_stats: avg=66.06ms min=24.93ms max=97.21ms count=15
+11-11 12:58:31.188   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:31.213   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:31.213   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:31.319   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:31.319   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:31.361   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:31.431   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:31.438   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:31.482   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:31.482   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:31.551   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:31.551   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:31.598   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:31.614   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(26)
+11-11 12:58:31.648   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:31.648   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:31.687   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(12)
+11-11 12:58:31.792   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:31.792   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:31.793   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:31.907   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:31.907   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:31.963   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:31.963   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:31.992   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(7)
+11-11 12:58:32.020   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.020   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:32.106 22564 22564 D [main] CursorTracker: current: [127,127]; predictionCount=1
+11-11 12:58:32.113 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[127,127] new=[129,129] cand=[-1,-1]
+11-11 12:58:32.142   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.142   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:32.173 22564 22669 D EGL_emulation: app_time_stats: avg=56.08ms min=4.11ms max=94.83ms count=15
+11-11 12:58:32.183   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:32.196 22649 22666 D EGL_emulation: app_time_stats: avg=1845.25ms min=1845.25ms max=1845.25ms count=1
+11-11 12:58:32.211   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:32.244   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:32.244   567  2490 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:32.245   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.245   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:32.372   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.372   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:32.436   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:32.465   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:32.471   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.471   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:32.471   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(27)
+11-11 12:58:32.513   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(14)
+11-11 12:58:32.575   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.575   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:32.641   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:32.670   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:32.672   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:32.681   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.681   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:32.762   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(22)
+11-11 12:58:32.785   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.785   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:32.829   512 22756 D BufferPoolAccessor2.0: bufferpool2 0x747c022e7a68 : 2(6220800 size) total buffers - 1(3110400 size) used buffers - 399/401 (recycle/alloc) - 11/401 (fetch/transfer)
+11-11 12:58:32.845 22564 22569 I d.fx.rime.debug: Background concurrent mark compact GC freed 7968KB AllocSpace bytes, 0(0B) LOS objects, 49% free, 8029KB/15MB, paused 304us,3.360ms total 215.478ms
+11-11 12:58:32.890   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.890   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:32.892   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:32.921   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(10)
+11-11 12:58:32.991   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:32.991   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:33.041   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:33.100   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:33.100   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:33.182 22564 22669 D EGL_emulation: app_time_stats: avg=66.66ms min=24.21ms max=131.98ms count=13
+11-11 12:58:33.197   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:33.197   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:33.208   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:33.208   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:33.275   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(22)
+11-11 12:58:33.339   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:33.339   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:33.440   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:33.444   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:33.444   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:33.472   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(11)
+11-11 12:58:33.554   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:33.554   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:33.613   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:33.673   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:33.673   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:33.694   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:33.697   567   585 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:33.718   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(22)
+11-11 12:58:33.780   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:33.780   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:33.890   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:33.890   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:33.892   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:33.897   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:33.898   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:33.913 22564 22564 D [main] CursorTracker: current: [129,129]; predictionCount=1
+11-11 12:58:33.928   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(21)
+11-11 12:58:33.962   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(4)
+11-11 12:58:33.964   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:33.982 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[129,129] new=[131,131] cand=[-1,-1]
+11-11 12:58:33.996   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(2)
+11-11 12:58:33.998 22649 22666 D EGL_emulation: app_time_stats: avg=1802.08ms min=1802.08ms max=1802.08ms count=1
+11-11 12:58:34.020   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.020   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.104   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:34.104   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:34.124   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.124   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.129   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:34.153   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(17)
+11-11 12:58:34.229   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.229   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.239   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:34.241   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:34.258 22564 22669 D EGL_emulation: app_time_stats: avg=54.74ms min=22.79ms max=89.05ms count=16
+11-11 12:58:34.337   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.337   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.424   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:34.439   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.439   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.544   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.544   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.572   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:34.648   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.648   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.745   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:34.752   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.753   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.817   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:34.817   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:34.863   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(15)
+11-11 12:58:34.876   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.876   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.979   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:34.980   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:34.998   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:35.061   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:35.061   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:35.086   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:35.086   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:35.110   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(22)
+11-11 12:58:35.205   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:35.205   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:35.296   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:35.312   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:35.312   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:35.319 22564 22669 D EGL_emulation: app_time_stats: avg=70.02ms min=20.43ms max=127.76ms count=14
+11-11 12:58:35.326   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:35.327   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:35.445   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:35.445   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:35.549   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:35.549   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:35.576   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:35.587   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:35.597   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:35.599   500 18218 D AudioAnalytics: gc(1700, 2000): log size:1700 item map size:11, item map items:1700
+11-11 12:58:35.653   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(34)
+11-11 12:58:35.657   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:35.657   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:35.666 22564 22564 D [main] CursorTracker: current: [131,131]; predictionCount=1
+11-11 12:58:35.751   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:35.753 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[131,131] new=[133,133] cand=[-1,-1]
+11-11 12:58:35.765   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:35.765   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:35.769 22649 22666 D EGL_emulation: app_time_stats: avg=1770.31ms min=1770.31ms max=1770.31ms count=1
+11-11 12:58:35.832   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:35.832   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:35.871   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:35.871   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:35.928   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:35.941   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(21)
+11-11 12:58:35.995   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:35.995   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.033   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:36.077   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:36.095   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:36.095   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.199   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:36.199   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.223   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:36.295   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:36.295   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:36.307   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:36.307   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.395 22564 22669 D EGL_emulation: app_time_stats: avg=56.18ms min=30.52ms max=118.83ms count=16
+11-11 12:58:36.411   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:36.411   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.451   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:36.516   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:36.517   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.636   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:36.636   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.652   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:36.740   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:36.746   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.790   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:36.796   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 205
+11-11 12:58:36.825   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(8)
+11-11 12:58:36.849   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:36.849   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.861 22564 22564 D [main] CursorTracker: current: [133,133]; predictionCount=1
+11-11 12:58:36.888   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:36.890 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[133,133] new=[135,135] cand=[-1,-1]
+11-11 12:58:36.939 22649 22666 D EGL_emulation: app_time_stats: avg=1170.27ms min=1170.27ms max=1170.27ms count=1
+11-11 12:58:36.959   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:36.959   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:36.970   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:36.970   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:37.001   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:37.027   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(16)
+11-11 12:58:37.091   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:37.091   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:37.129   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:37.132   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:37.196   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:37.196   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:37.310   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:37.310   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:37.310   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:37.368   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:37.369   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:37.394   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(7)
+11-11 12:58:37.411   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:37.411   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:37.437 22564 22669 D EGL_emulation: app_time_stats: avg=55.18ms min=8.70ms max=88.00ms count=15
+11-11 12:58:37.500   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:37.516   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:37.516   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:37.581   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(7)
+11-11 12:58:37.587   434  7385 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-11 12:58:37.589   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:37.589   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 206
+11-11 12:58:37.589   434  1738 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:37.627   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(5)
+11-11 12:58:37.628   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:37.633   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:37.688   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:37.739   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:37.739   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:37.779   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 206
+11-11 12:58:37.797   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(27)
+11-11 12:58:37.850   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:37.850   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:37.955   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:37.955   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:37.956   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:38.062   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:38.062   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:38.137   434 15329 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:38.137   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 206
+11-11 12:58:38.161   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(1)
+11-11 12:58:38.164   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:38.165   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:38.268   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:38.268   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:38.314   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 206
+11-11 12:58:38.333   512 22756 D BufferPoolAccessor2.0: bufferpool2 0x747c022e7a68 : 2(6220800 size) total buffers - 1(3110400 size) used buffers - 421/423 (recycle/alloc) - 12/423 (fetch/transfer)
+11-11 12:58:38.373   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:38.373   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:38.453 22564 22669 D EGL_emulation: app_time_stats: avg=70.25ms min=34.58ms max=127.57ms count=13
+11-11 12:58:38.483   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:38.483   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:38.500   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:38.588   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:38.588   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:38.606   434 15329 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:38.607   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 206
+11-11 12:58:38.663   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(13)
+11-11 12:58:38.712   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:38.712   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:38.830   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:38.831   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:38.842   434 15329 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-11 12:58:38.845   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:38.846   567  1628 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 207
+11-11 12:58:38.853   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(11)
+11-11 12:58:38.890   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:38.895   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(13)
+11-11 12:58:38.896   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:38.932   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:38.932   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:38.990 22564 22564 D [main] CursorTracker: current: [135,135]; predictionCount=1
+11-11 12:58:39.016   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:39.032 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[135,135] new=[137,137] cand=[-1,-1]
+11-11 12:58:39.035 22649 22666 D EGL_emulation: app_time_stats: avg=2095.40ms min=2095.40ms max=2095.40ms count=1
+11-11 12:58:39.048   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.048   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.082   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:39.137   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:39.137   567  1628 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:39.151   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.151   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.220   434  7385 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-11 12:58:39.224   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:39.231   567  1628 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:39.256   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.256   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.294   434  7385 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:39.296   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:39.360   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.360   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.407   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:39.465   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.465   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.493   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:39.568   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.568   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.569 22564 22669 D EGL_emulation: app_time_stats: avg=68.22ms min=20.52ms max=124.77ms count=14
+11-11 12:58:39.579   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:39.584   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:39.594   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(15)
+11-11 12:58:39.635   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(13)
+11-11 12:58:39.672   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.672   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.771   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:39.782   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.782   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.856   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:39.862   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:39.884   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.884   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.994   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:39.994   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:39.994   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(1)
+11-11 12:58:40.089   567  1628 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:40.099   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:40.099   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:40.204   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:40.204   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:40.279   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:40.311   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:40.311   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:40.337   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:40.337   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:40.351   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(41)
+11-11 12:58:40.410   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(18)
+11-11 12:58:40.411   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:40.412   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:40.462   567  1628 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:40.516   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:40.516   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:40.517   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:40.638   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:40.657   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:40.657   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:40.711 22564 22669 D EGL_emulation: app_time_stats: avg=61.72ms min=21.11ms max=179.25ms count=15
+11-11 12:58:40.746   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:40.746   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:40.763   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:40.763   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:40.871   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:40.871   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:40.975   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:40.975   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.021   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:41.034   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:41.034   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:41.054   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(18)
+11-11 12:58:41.085   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:41.085   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.115   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(8)
+11-11 12:58:41.201   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:41.201   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.306   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:41.311   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:41.311   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.374   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(40)
+11-11 12:58:41.418   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:41.418   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.440   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:41.459   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:41.460   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:41.486   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(8)
+11-11 12:58:41.520   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:41.520   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.627   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:41.628   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.669   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(4)
+11-11 12:58:41.720   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:41.727   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:41.727   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.754 22564 22669 D EGL_emulation: app_time_stats: avg=65.09ms min=25.10ms max=115.90ms count=14
+11-11 12:58:41.835   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:41.835   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.939   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:41.939   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:41.944   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:41.945   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:41.945   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:42.053   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:42.053   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:42.134   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:42.179   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:42.179   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:42.179   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(31)
+11-11 12:58:42.225   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(12)
+11-11 12:58:42.305   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:42.305   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:42.309   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:42.350   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:42.367   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:42.413   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:42.413   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:42.508   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:42.518   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:42.518   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:42.564   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(10)
+11-11 12:58:42.643   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:42.643   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:42.663   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:42.747   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:42.747   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:42.795 22564 22669 D EGL_emulation: app_time_stats: avg=61.31ms min=22.17ms max=142.20ms count=14
+11-11 12:58:42.855   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:42.855   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:42.961   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:42.961   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:42.979   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:42.979   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:42.987   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(11)
+11-11 12:58:43.072   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:43.072   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:43.117   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:43.140   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(7)
+11-11 12:58:43.178   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:43.178   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:43.293   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:43.299   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:43.299   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:43.330   434  7385 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:43.330   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 208
+11-11 12:58:43.366   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(15)
+11-11 12:58:43.406   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:43.406   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:43.508   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:43.508   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:43.555   434  7385 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-11 12:58:43.560   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:43.561   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:43.561   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 209
+11-11 12:58:43.566   434  1738 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:43.639   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:43.639   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:43.639   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(9)
+11-11 12:58:43.652 22564 22564 D [main] CursorTracker: current: [137,137]; predictionCount=1
+11-11 12:58:43.662 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[137,137] new=[143,143] cand=[-1,-1]
+11-11 12:58:43.695   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:43.737   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:43.737   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:43.738 22649 22666 D EGL_emulation: app_time_stats: avg=4702.78ms min=4702.78ms max=4702.78ms count=1
+11-11 12:58:43.795   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:43.814   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:43.819   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:43.831   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(7)
+11-11 12:58:43.843   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:43.843   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:43.844 22564 22669 D EGL_emulation: app_time_stats: avg=68.80ms min=22.37ms max=126.17ms count=14
+11-11 12:58:43.944   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:43.944   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.017   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:44.054   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:44.054   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.060   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:44.061   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:44.062   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:44.114   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(16)
+11-11 12:58:44.160   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:44.160   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.163   512 22756 D BufferPoolAccessor2.0: bufferpool2 0x747c022e7a68 : 2(6220800 size) total buffers - 1(3110400 size) used buffers - 441/443 (recycle/alloc) - 12/443 (fetch/transfer)
+11-11 12:58:44.177   567  2320 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:44.263   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:44.264   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.340   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:44.370   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:44.370   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.454   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:44.454   567  1628 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:44.484   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:44.484   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.590   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:44.590   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.652   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:44.653   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:44.656   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:44.661   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(23)
+11-11 12:58:44.693   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(4)
+11-11 12:58:44.700   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:44.700   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.812   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:44.813   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.848   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:44.895   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:44.910   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:44.917   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:44.917   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:44.924 22564 22669 D EGL_emulation: app_time_stats: avg=59.53ms min=9.73ms max=106.75ms count=15
+11-11 12:58:45.020   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.020   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:45.023   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:45.062   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(3)
+11-11 12:58:45.127   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.127   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:45.197   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:45.232   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.232   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:45.244   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:45.244   567  1053 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:45.335   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.335   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:45.443   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.444   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:45.464   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:45.470   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:45.491   567  1628 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:45.533   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(2)
+11-11 12:58:45.547   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.547   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:45.651   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.651   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:45.713   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:45.757   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.757   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:45.848   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:45.868   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.868   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:45.920   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:45.921   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:45.951 22564 22669 D EGL_emulation: app_time_stats: avg=51.48ms min=12.05ms max=120.79ms count=16
+11-11 12:58:45.963   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(35)
+11-11 12:58:45.972   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:45.972   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:46.091   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:46.091   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:46.111   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:46.166   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(12)
+11-11 12:58:46.210   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:46.210   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:46.299   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:46.312   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:46.340   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:46.483   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:46.483   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:46.492   567   567 W Looper  : Slow dispatch took 256ms main h=android.os.Handler c=com.android.server.vibrator.VibratorFrameworkStatsLogger$$ExternalSyntheticLambda2@a7bf7cc m=0
+11-11 12:58:46.492   567   567 W Looper  : Slow delivery took 257ms main h=com.android.server.power.Notifier$NotifierHandler c=null m=7
+11-11 12:58:46.492   567   567 W Looper  : Drained
+11-11 12:58:46.505   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:46.509   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:46.541   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(8)
+11-11 12:58:46.565   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(5)
+11-11 12:58:46.587   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:46.587   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:46.696   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:46.696   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:46.736   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:46.803   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:46.803   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:46.871   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:46.909   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:46.909   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:46.922   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:46.922   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:46.953   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(21)
+11-11 12:58:47.003 22564 22669 D EGL_emulation: app_time_stats: avg=59.49ms min=28.25ms max=128.58ms count=15
+11-11 12:58:47.015   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:47.016   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:47.039   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(2)
+11-11 12:58:47.072   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:47.124   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:47.124   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:47.228   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:47.228   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:47.242   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:47.335   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:47.335   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:47.344   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:47.344   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:47.470   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:47.470   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:47.560   567  1628 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:47.572   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:47.572   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:47.630   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(29)
+11-11 12:58:47.683   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:47.684   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:47.693   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:47.734   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:47.734   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:47.735   500  9493 D AudioAnalytics: gc(1700, 2000): log size:1700 item map size:13, item map items:1700
+11-11 12:58:47.792   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:47.792   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:47.877   567  1259 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:47.892   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:47.892   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:47.946   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(1)
+11-11 12:58:48.000   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.000   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:48.038   567   660 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 178
+11-11 12:58:48.046 22564 22669 D EGL_emulation: app_time_stats: avg=61.23ms min=18.58ms max=105.71ms count=15
+11-11 12:58:48.125   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.126   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:48.259   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.259   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:48.315   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:48.362   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.362   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:48.364   434  1738 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:58:48.369   567  2392 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 209
+11-11 12:58:48.376   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(14)
+11-11 12:58:48.440 22564 22564 D [main] CursorTracker: current: [143,143]; predictionCount=1
+11-11 12:58:48.452   434   547 D AudioFlinger: mixer(0x70505a85b8e0) throttle end: throttle time(6)
+11-11 12:58:48.463   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.464   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:48.471 22564 22564 D [main] FcitxInputMethodService: onUpdateSelection: old=[143,143] new=[152,152] cand=[-1,-1]
+11-11 12:58:48.501 22649 22666 D EGL_emulation: app_time_stats: avg=4723.38ms min=4723.38ms max=4723.38ms count=1
+11-11 12:58:48.518   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={Rect(0, 1113 - 1080, 1920)}
+11-11 12:58:48.574   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.575   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:48.592   434   547 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:58:48.675   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.675   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:48.779   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.780   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:48.883   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.884   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:48.987   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:48.988   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:49.091   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:49.091   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:49.195   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:49.195   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:49.299   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:49.299   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:49.403   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:49.403   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:49.507   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:49.507   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+--------- beginning of kernel
+11-11 12:58:49.800     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-11 12:58:49.611   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:49.611   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:49.715   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:49.715   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:49.819   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:49.819   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:49.888 22649 22666 D EGL_emulation: app_time_stats: avg=1386.48ms min=1386.48ms max=1386.48ms count=1
+11-11 12:58:49.923   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:58:49.923   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:58:49.930   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:49.930   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:49.942   512 22756 D BufferPoolAccessor2.0: bufferpool2 0x747c022e7a68 : 2(6220800 size) total buffers - 1(3110400 size) used buffers - 475/477 (recycle/alloc) - 13/476 (fetch/transfer)
+11-11 12:58:50.027   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.027   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:50.131   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.131   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:50.242   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.242   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:50.252   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:58:50.252   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:58:50.343   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.344   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:50.447   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.447   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:50.554   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.554   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:50.581   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:58:50.581   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:58:50.655   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.655   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:50.759   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.759   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:50.863   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.863   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:50.906 22649 22666 D EGL_emulation: app_time_stats: avg=339.28ms min=331.67ms max=346.53ms count=3
+11-11 12:58:50.932   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:58:50.932   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:58:50.968   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:50.968   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:51.071   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:51.071   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:51.175   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:51.175   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:51.262   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:58:51.263   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:58:51.304   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:51.304   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:51.407   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:51.407   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:51.454   376  1435 D android.hardware.audio@7.1-impl.ranchu: threadLoop: entering standby, frames: 59016384
+11-11 12:58:51.511   376 22784 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:58:51.511   376 22784 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:58:51.614   921   971 D ShellBackPreview: Finishing gesture with event action: 1
+11-11 12:58:51.614   921   971 D ShellBackPreview: onGestureFinished called while no gesture is started
+11-11 12:58:52.802   567  1628 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:58:52.803   567  1628 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:58:52.805   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:58:52.921 22564 22578 I TestRunner: finished: replay(org.fcitx.fcitx5.android.core.ScreenFixtureTest)
+11-11 12:58:52.923 22564 22578 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-11 12:58:52.933   567  1628 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-11 12:58:52.933   567  1628 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.934   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.935   567   567 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:58:52.935   567   567 D BatterySaverPolicy: accessibility changed to false, updating policy.
+11-11 12:58:52.935   567  2392 I ActivityManager: Force stopping org.fcitx.fcitx5.android.fx.rime.debug appid=10240 user=0: finished inst
+11-11 12:58:52.936 22552 22552 I app_process: System.exit called, status: 0
+11-11 12:58:52.936 22552 22552 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:58:53.128     0     0 I binder  : 567:2392 ioctl 400c620e 7e51a508f574 returned -11
+11-11 12:58:53.129     0     0 I binder  : 567:2392 ioctl 400c620e 7e51a508f574 returned -11
+11-11 12:58:52.945   567  2392 E ActivityManager: Unable to freeze binder for 22564: -11
+11-11 12:58:52.945   567  2392 I ActivityManager: Killing 22564:org.fcitx.fcitx5.android.fx.rime.debug/u0a240 (adj 0): stop org.fcitx.fcitx5.android.fx.rime.debug due to finished inst
+11-11 12:58:52.945   567   590 D DisplayManagerService: Drop pending events for gone uid 10240
+11-11 12:58:52.948  1497  2869 I AiAiEcho: Settings changed for uri: content://settings/secure/accessibility_enabled
+11-11 12:58:52.949  1497  1707 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-11 12:58:52.949  1497  1707 I AiAiEcho: EchoTargets: 
+11-11 12:58:52.949  1497  1707 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 12:58:52.949  1497  1707 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:58:52.949  1497  1707 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:58:52.950  1497  1707 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-11 12:58:52.950  1497  1707 I AiAiEcho: Predicting[0]:  [CONTEXT sampling_count=5 ]
+11-11 12:58:52.950  1497  1707 I AiAiEcho: EchoTargets: 
+11-11 12:58:52.950  1497  1707 I AiAiEcho: Filtered by AiAi flag check: 
+11-11 12:58:52.950  1497  1707 I AiAiEcho: [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:58:52.950  1497  1707 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata:  [CONTEXT ratelimit_period="10 SECONDS" ]
+11-11 12:58:52.950  1497  1707 I AiAiEcho: #remoteViewsTwiddler: feature disabled.
+11-11 12:58:52.950   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:58:52.950  1497  1707 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-11 12:58:52.950  1497  1707 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-11 12:58:52.951  1187  1187 D SsBaseTemplateCard: No text view can be set up
+11-11 12:58:52.951  1187  1187 D SsBaseTemplateCard: Passed-in item info is null
+11-11 12:58:52.951  1187  1187 D SsBaseTemplateCard: Passed-in item info is null
+11-11 12:58:52.951  1187  1187 D SsBaseTemplateCard: Passed-in item info is null
+11-11 12:58:52.951  1187  1187 I SsBaseTemplateCard: Secondary card pane is null
+11-11 12:58:52.951   921   921 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-11 12:58:52.956   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:58:52.956   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={10240} in 8ms
+11-11 12:58:52.965   367   398 I netd    : tetherGetStats() -> {[]} <0.35ms>
+11-11 12:58:53.010   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:58:53.016   567   842 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:58:53.034   567   842 D InetDiagMessage: Destroyed live tcp sockets for uids={20240} in 77ms
+11-11 12:58:53.048   567   567 W Looper  : Slow dispatch took 101ms main h=android.app.ActivityThread$H c=android.app.LoadedApk$ServiceDispatcher$RunConnection@5ac5df7 m=0
+11-11 12:58:53.076   447   447 I adbd    : Remote process closed the socket (on MSG_PEEK)
+11-11 12:58:53.077   567   603 I libprocessgroup: Removed cgroup /sys/fs/cgroup/uid_10240/pid_22564
+11-11 12:58:53.077   368   368 I Zygote  : Process 22564 exited due to signal 9 (Killed)
+11-11 12:58:53.079   567  1261 V ActivityManager: Got obituary of 22564:org.fcitx.fcitx5.android.fx.rime.debug
+11-11 12:58:53.080   567  1259 D ActivityManager: freezer override set to true
+11-11 12:58:53.080   567  2328 I WindowManager: WIN DEATH: Window{23141ab u0 InputMethod}
+11-11 12:58:53.081   567  1259 D ActivityManager: sync unfroze 2888 com.google.android.settings.intelligence for 19
+11-11 12:58:53.081   567  1259 D ActivityManager: sync unfroze 1105 com.android.settings for 19
+11-11 12:58:53.081   567  1259 D ActivityManager: sync unfroze 2059 com.google.android.as.oss for 19
+11-11 12:58:53.081   567  1259 D ActivityManager: sync unfroze 2287 com.google.android.apps.wallpaper for 19
+11-11 12:58:53.081   567  1259 D ActivityManager: sync unfroze 8354 com.google.android.configupdater for 19
+11-11 12:58:53.081   567  2328 W InputManager-JNI: Input channel object '23141ab InputMethod (client)' was disposed without first being removed with the input manager!
+11-11 12:58:53.267     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:58:53.268     0     0 I binder  : undelivered transaction 1531639, process died.
+11-11 12:58:53.270     0     0 I binder  : undelivered transaction 1531670, process died.
+11-11 12:58:53.272     0     0 I binder  : 2328:567 cannot find target node
+11-11 12:58:53.273     0     0 I binder  : undelivered transaction 1531671, process died.
+11-11 12:58:53.273     0     0 I binder  : 567:2328 transaction async to 0:0 failed 1531708/29189/-22, size 60-0 line 3344
+11-11 12:58:53.086   567  2328 E IPCThreadState: Binder transaction failure. id: 1531708, BR_*: 29189, error: -22 (Invalid argument)
+11-11 12:58:53.086   567  2328 W ActivityManager: pid 567 system sent binder code 13 with flags 1 to frozen apps and got error -32
+11-11 12:58:53.089   921   971 D WindowManagerShell: onKeepClearAreasChanged: restricted={}, unrestricted={}
+11-11 12:58:53.092   567  1259 D ActivityManager: sync unfroze 13938 com.android.externalstorage for 19
+11-11 12:58:53.092   567  1259 D ActivityManager: sync unfroze 1771 com.google.android.partnersetup for 19
+11-11 12:58:53.092   567  1259 D ActivityManager: sync unfroze 1731 android.process.media for 19
+11-11 12:58:53.092   567  1259 D ActivityManager: sync unfroze 1798 com.android.keychain for 19
+11-11 12:58:53.092   567  1259 D ActivityManager: sync unfroze 2373 com.google.android.packageinstaller for 19
+11-11 12:58:53.093   567  1259 D ActivityManager: sync unfroze 1965 com.google.android.apps.wellbeing for 19
+11-11 12:58:53.093   567  1259 D ActivityManager: sync unfroze 922 com.google.android.permissioncontroller for 19
+11-11 12:58:53.093   567  1259 D ActivityManager: sync unfroze 2806 com.google.android.ext.services for 19
+11-11 12:58:53.093   567  1259 D ActivityManager: sync unfroze 1847 android.process.acore for 19
+11-11 12:58:53.093   567  1259 D ActivityManager: sync unfroze 1745 com.google.android.gms.persistent for 19
+11-11 12:58:53.094   567  1259 D ActivityManager: sync unfroze 2129 com.google.android.documentsui for 19
+11-11 12:58:53.094   567  1259 D ActivityManager: sync unfroze 1347 com.google.android.inputmethod.latin for 19
+11-11 12:58:53.094   567   592 W ActivityManager: setHasOverlayUi called on unknown pid: 22564
+11-11 12:58:53.097  2129  2129 I ProvidersCache: Updating roots due to change on user 0at content://com.android.providers.media.documents/root
+11-11 12:58:53.106  2129  2129 I ProvidersCache: Updating roots due to change on user 0at content://com.android.providers.media.documents/root
+11-11 12:58:53.107  2129  2129 I ProvidersCache: Updating roots due to change on user 0at content://com.android.providers.media.documents/root
+11-11 12:58:53.114 22649 22666 D EGL_emulation: app_time_stats: avg=735.25ms min=333.55ms max=1524.76ms count=3
+11-11 12:58:53.134   444   444 E BpTransactionCompletedListener: Failed to transact (-32)
+11-11 12:58:53.160   567  1259 D ActivityManager: freezer override set to false
+11-11 12:58:53.167  1347  1787 W GoogleApiManager: The service for hic is not available: him{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:58:53.167  1347  1347 I AppBase : AppBase.onTrimMemory():412 onTrimMemory(): 40
+11-11 12:58:53.167  1347  1347 I KeyboardDefCache: MemoryFileCache$1.onTrimMemory():126 clearMemory() for trim memory: 40
+11-11 12:58:53.167  1347  1347 I KeyboardDefCache: MemoryFileCache.clearMemory():410 evictAll()
+11-11 12:58:53.212  1187  1729 D EGL_emulation: app_time_stats: avg=22825.03ms min=20.21ms max=136796.06ms count=6
+11-11 12:58:53.307 24047 24047 W BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+11-11 12:58:53.308 24047 24047 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+11-11 12:58:53.519     0     0 I servicemanager: Caller(pid=24047,uid=2000,sid=u:r:shell:s0) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+11-11 12:58:53.359   156   156 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-11 12:58:53.362 24047 24051 I Gralloc4: mapper 4.x is not supported
+11-11 12:58:53.544   567  1628 I ActivityManager: Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+11-11 12:58:53.546   567  2328 W JobInfo : Job 'com.google.android.providers.media.module/com.android.providers.media.MediaService#-300' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+11-11 12:58:53.546   567  1628 I ActivityManager: Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+11-11 12:58:53.548   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:58:53.548  1483  1978 I MediaProvider: Begin Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+11-11 12:58:53.744     0     0 W audit   : audit_lost=182 audit_rate_limit=5 audit_backlog_limit=64
+11-11 12:58:53.746     0     0 E audit   : rate limit exceeded
+11-11 12:58:53.544  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:504): avc:  denied  { search } for  comm=4173796E635461736B202331 name="tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+11-11 12:58:53.568  1483  1978 W ModernMediaScanner: Failed to visit /data/local/tmp/screen-after.png: java.nio.file.AccessDeniedException: /data/local/tmp/screen-after.png
+11-11 12:58:53.569  1483  1978 I MediaProvider: Scanned internal due to REASON_DEMAND, found 0 items in 15ms, 0 inserts 0 updates 0 deletes
+11-11 12:58:53.569  1483  1978 I MediaProvider: End Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+11-11 12:58:53.552  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:505): avc:  denied  { getattr } for  comm=4173796E635461736B202331 path="/data/local/tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+11-11 12:58:53.552  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:506): avc:  denied  { search } for  comm=4173796E635461736B202331 name="tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+11-11 12:58:53.552  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:507): avc:  denied  { getattr } for  comm=4173796E635461736B202331 path="/data/local/tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+11-11 12:58:53.552  1483  1483 W com.google.android.providers.media.module: type=1400 audit(0.0:508): avc:  denied  { search } for  comm=4173796E635461736B202331 name="tmp" dev="dm-46" ino=65538 scontext=u:r:mediaprovider_app:s0:c198,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0 app=com.google.android.providers.media.module
+11-11 12:58:53.680 22746 22764 I MPEG4Writer: setStartTimestampUs: 2527303052
+11-11 12:58:53.680 22746 22765 I MPEG4Writer: setStartTimestampUs: 2527303052
+11-11 12:58:53.680 22746 22746 D MPEG4Writer: reset()
+11-11 12:58:53.680 22746 22746 D MPEG4Writer: Video track stopping. Stop source
+11-11 12:58:53.680 22746 22746 D MPEG4Writer: Video track source stopping
+11-11 12:58:53.680 22746 22746 D MPEG4Writer: Video track source stopped
+11-11 12:58:53.680 22746 22763 V MediaWriter: Track event err/info msg:101, trackId:1, type:1000,val:-1011
+11-11 12:58:53.681 22746 22763 I MPEG4Writer: Received total/0-length (492/0) buffers and encoded 492 frames. - Video
+11-11 12:58:53.681 22746 22764 V MediaWriter: Track event err/info msg:101, trackId:2, type:1000,val:-1011
+11-11 12:58:53.681 22746 22764 W MPEG4Writer: 0-duration samples found: 1
+11-11 12:58:53.681 22746 22764 I MPEG4Writer: Received total/0-length (1/0) buffers and encoded 1 frames. - Metadata
+11-11 12:58:53.681 22746 22765 V MediaWriter: Track event err/info msg:101, trackId:3, type:1000,val:-1011
+11-11 12:58:53.681 22746 22765 W MPEG4Writer: 0-duration samples found: 1
+11-11 12:58:53.681 22746 22765 I MPEG4Writer: Received total/0-length (1/0) buffers and encoded 1 frames. - Metadata
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Video track stopped. Status:0. Stop source
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Metadata track stopping. Stop source
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Metadata track source stopping
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Metadata track source stopped
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Metadata track stopped. Status:0. Stop source
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Metadata track stopping. Stop source
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Metadata track source stopping
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Metadata track source stopped
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Metadata track stopped. Status:0. Stop source
+11-11 12:58:53.681 22746 22746 D MPEG4Writer: Duration from tracks range is [0, 126854205] us
+11-11 12:58:53.681 22746 22761 D MPEG4Writer: 0 chunks are written in the last batch
+11-11 12:58:53.682 22746 22746 D MPEG4Writer: WriterThread stopped. Status:0
+11-11 12:58:53.682 22746 22746 I MPEG4Writer: Adjust the moov start time from 2527303052 us -> 2527303052 us
+11-11 12:58:53.682 22746 22746 I MPEG4Writer: The mp4 file will not be streamable.
+11-11 12:58:53.682 22746 22746 I MPEG4Writer: MOOV atom was written to the file
+11-11 12:58:53.682 22746 22746 D MPEG4Writer: release()
+11-11 12:58:53.682 22746 22746 D MPEG4Writer: ftruncate mPreAllocateFileEndOffset:5084060 mOffset:5082639 mMdatEndOffset:5073444 diff:1421
+11-11 12:58:53.685 22746 22746 D MPEG4Writer: final fsync() takes 2 ms, file size 5082639
+11-11 12:58:53.685 22746 22746 D MPEG4Writer: MP4WtrCtrlHlpLooper stopped
+11-11 12:58:53.685 22746 22746 D MPEG4Writer: Top 5 write durations(microseconds): #1:58 #2:91 #3:118 #4:3228 #5:223207
+11-11 12:58:53.688 22746 22751 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-11 12:58:53.689   512   949 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-11 12:58:53.689   512   949 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-11 12:58:53.700   567  1628 I ActivityManager: Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+11-11 12:58:53.701   567  1628 I ActivityManager: Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+11-11 12:58:53.705   567  2328 W JobInfo : Job 'com.google.android.providers.media.module/com.android.providers.media.MediaService#-300' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+11-11 12:58:53.707  1483  1978 I MediaProvider: Begin Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+11-11 12:58:53.707   567   589 I ActivityManager: Broadcast completed: result=0
+11-11 12:58:53.714 22746 22759 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-11 12:58:53.717 22746 22746 D ScreenRecord: success
+11-11 12:58:53.718 22746 22746 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-11 12:58:53.719 22746 22746 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-11 12:58:53.719   512   949 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x747c022e7a68 cached: 0/0M, 0/0% in use; allocs: 492, 100% recycled; transfers: 492, 97% unfetched
+11-11 12:58:53.739  1483  1978 I MediaProvider: End Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaService }
+11-11 12:58:53.744  1483  1568 D WM-SystemJobScheduler: Scheduling work ID 0548f349-08f3-4156-8f3d-125ba60c7e82Job ID 29

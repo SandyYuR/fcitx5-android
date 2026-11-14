@@ -1,0 +1,916 @@
+--------- beginning of main
+11-11 12:26:08.034  1209  1209 I chatty  : uid=1000(system) com.android.settings expire 1 line
+11-11 12:26:08.574  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:08.906  6228  6381 D ProfileInstaller: Skipping profile installation for org.fcitx.fcitx5.android.fx.rime
+11-11 12:26:09.114  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:09.387   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:26:09.387  6339  6351 I Gralloc4: mapper 4.x is not supported
+11-11 12:26:09.390  6339  6351 D HostConnection: createUnique: call
+11-11 12:26:09.391  6339  6351 D HostConnection: HostConnection::get() New Host Connection established 0x732adcab6450, tid 6351
+11-11 12:26:09.398  6339  6351 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:09.403  6339  6383 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:26:09.404  6339  6383 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:26:09.405  6339  6383 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:26:09.415  6339  6383 D HostConnection: HostConnection::get() New Host Connection established 0x732adcab6510, tid 6383
+11-11 12:26:09.425  6339  6383 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:09.426   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:26:09.427  6339  6383 D EGL_emulation: eglCreateContext: 0x732accad3240: maj 3 min 0 rcv 3
+11-11 12:26:09.428  6339  6383 D EGL_emulation: eglMakeCurrent: 0x732accad3240: ver 3 0 (tinfo 0x732a6cae6280) (first time)
+--------- beginning of system
+11-11 12:26:09.542   492   521 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@c58a4ad
+11-11 12:26:09.543  6352  6374 V UiAutomation: Init UiAutomation@de92449[id=-1, flags=0]
+11-11 12:26:09.546   492  2809 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: finished inst
+11-11 12:26:09.547   492  2809 I ActivityManager: Killing 6352:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to finished inst
+11-11 12:26:09.548   492  2809 W ActivityTaskManager: Force removing ActivityRecord{ce77c2e u0 io.github.sandyyur.inputbench/.BenchHost t35 f}}: app died, no saved state
+11-11 12:26:09.553   285   285 I Zygote  : Process 6352 exited due to signal 9 (Killed)
+11-11 12:26:09.556   412   412 I perfetto: probes_producer.cc:329  Producer stop (id=20)
+--------- beginning of kernel
+11-11 12:26:09.797     0     0 I binder  : release 6352:6373 transaction 311776 out, still active
+11-11 12:26:09.801     0     0 W perfetto: disabled ftrace
+11-11 12:26:09.803     0     0 I binder  : 492:2809 transaction failed 29189/0, size 4-0 line 2985
+11-11 12:26:09.804     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:26:09.806     0     0 I binder  : send failed reply for transaction 311776, target dead
+11-11 12:26:09.557   412   412 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-11 12:26:09.557   413   413 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:26:09.558   413   413 I perfetto: ng_service_impl.cc:1948 Tracing session 20 ended, total sessions:0
+11-11 12:26:09.565   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 6352
+11-11 12:26:09.810     0     0 I binder  : undelivered transaction 311801, process died.
+11-11 12:26:09.568  6339  6339 I app_process: System.exit called, status: 0
+11-11 12:26:09.568  6339  6339 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:26:09.571  1209  1209 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:26:09.574  1209  1209 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:26:09.594   492   534 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 6352 in 46ms
+11-11 12:26:09.609  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:26:09.622  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:09.870     0     0 I binder  : 6228:6228 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:26:09.629  6228  6228 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:26:09.629  6228  6228 I RimeLifecycle: input_binding generation=10 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:26:09.641  1209  6044 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:26:09.642  1209  6044 D BatteryInfo: time for getBatteryInfo: 1ms
+11-11 12:26:09.642  1209  6044 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 1ms
+11-11 12:26:09.643  6024  6061 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:26:09.643  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:09.643  6024  6061 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:26:09.644  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:09.644  6024  6061 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:26:09.646  1209  1253 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:26:09.647  6024  6050 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:26:09.647  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 3
+11-11 12:26:09.647  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:09.647   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:26:09.647  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:09.648   492  2966 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 0
+11-11 12:26:09.655   492   526 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-11 12:26:09.655  6024  6061 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6024_3 identical 5 lines
+11-11 12:26:09.655  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:09.656  1209  6044 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:26:09.656   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-11 12:26:09.663   285   285 D Zygote  : Forked child process 6392
+11-11 12:26:09.666   492   533 I ActivityManager: Start proc 6392:io.github.sandyyur.inputbench/u0a167 for pre-top-activity {io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}
+11-11 12:26:09.686  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:26:09.687  6392  6392 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-11 12:26:09.694  6392  6392 I yyur.inputbenc: Unquickening 12 vdex files!
+11-11 12:26:09.694  6392  6392 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:26:09.698  1797  1807 I adbd    : jdwp connection from 6392
+11-11 12:26:09.699   413   413 I perfetto: ing_service_impl.cc:758 Configured tracing session 21, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-11 12:26:09.699   412   412 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=21)
+11-11 12:26:09.701  1209  1259 D BatteryInfo: time for getStats: 129ms
+11-11 12:26:09.701  1209  1259 D BatteryInfo: time for regular BatteryInfo: 0ms
+11-11 12:26:09.701  1209  1259 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:26:09.709  1209  1209 D BatteryInfo: time for callback: 0ms
+11-11 12:26:09.720   412   412 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-11 12:26:09.962     0     0 W perfetto: enabled ftrace
+11-11 12:26:09.727  6392  6392 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:26:09.730   693   837 D EglHelper: createEglContext start
+11-11 12:26:09.731  1209  6044 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:26:09.731  1209  6044 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:26:09.731  1209  6044 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 0ms
+11-11 12:26:09.735   693   837 D EGL_emulation: eglCreateContext: 0x7f3a2452e4b0: maj 3 min 0 rcv 3
+11-11 12:26:09.735   693   837 D EglHelper: createEglContext done
+11-11 12:26:09.735   693   837 D EglHelper: createEglSurface start
+11-11 12:26:09.739   693   837 D EglHelper: createEglSurface done
+11-11 12:26:09.739  6392  6392 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:26:09.740  6392  6392 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:26:09.754  6392  6419 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:26:09.757  6392  6419 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:26:09.760  6392  6419 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:26:09.793  6392  6417 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a4fd0, tid 6417
+11-11 12:26:10.001  6392  6417 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:10.011   492  6021 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a7c10, tid 6021
+11-11 12:26:10.014   492  6021 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:10.015   492  6021 D EGL_emulation: eglCreateContext: 0x7f3a245596f0: maj 3 min 0 rcv 3
+11-11 12:26:10.015   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:26:10.016   492  6021 D EGL_emulation: eglMakeCurrent: 0x7f3a245596f0: ver 3 0 (tinfo 0x7f39c4607eb0) (first time)
+11-11 12:26:10.017  6392  6417 D EGL_emulation: eglCreateContext: 0x7f3a244bbb20: maj 3 min 0 rcv 3
+11-11 12:26:10.018  6392  6417 D EGL_emulation: eglMakeCurrent: 0x7f3a244bbb20: ver 3 0 (tinfo 0x7f39c44f5a10) (first time)
+11-11 12:26:10.025   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:26:10.025  6392  6417 I Gralloc4: mapper 4.x is not supported
+11-11 12:26:10.025  6392  6417 D HostConnection: createUnique: call
+11-11 12:26:10.025  6392  6417 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a3f50, tid 6417
+11-11 12:26:10.118  6392  6417 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:10.130  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:10.422  6389  6399 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:10.423   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:26:10.440   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:26:10.440  6228  6228 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:26:10.443   492   531 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +769ms
+11-11 12:26:10.461  6228  6228 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:26:10.461  6228  6228 I RimeLifecycle: input_binding generation=13 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-11 12:26:10.461  6228  6228 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:26:10.595   492  2366 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: from pid 6441
+11-11 12:26:10.595   492  2366 I ActivityManager: Killing 6392:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to from pid 6441
+11-11 12:26:10.595   492  2366 W ActivityTaskManager: Force removing ActivityRecord{4c83e1a u0 io.github.sandyyur.inputbench/.BenchHost t36 f}}: app died, no saved state
+11-11 12:26:10.606  1209  1209 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:26:10.606   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 6392
+11-11 12:26:10.607  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:26:10.608  1209  1209 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:26:10.609   285   285 I Zygote  : Process 6392 exited due to signal 9 (Killed)
+11-11 12:26:10.844     0     0 I binder  : undelivered transaction 314268, process died.
+11-11 12:26:10.632  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:10.640   492   534 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 6392 in 44ms
+11-11 12:26:10.653  1209  1259 D BatteryInfo: time for getStats: 47ms
+11-11 12:26:10.653  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:26:10.654  1209  1259 D BatteryInfo: time for regular BatteryInfo: 1ms
+11-11 12:26:10.656  1209  1259 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:26:10.658   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:26:10.662  1209  1209 D BatteryInfo: time for callback: 0ms
+11-11 12:26:10.908     0     0 I binder  : 6228:6228 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:26:10.671   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:10.671   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:10.676  1209  6025 D BatteryTipLoader: BatteryInfoLoader post query: 3ms
+11-11 12:26:10.676  1209  6025 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:26:10.676  1209  6025 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 3ms
+11-11 12:26:10.677  6228  6228 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:26:10.677  6228  6228 I RimeLifecycle: input_binding generation=16 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:26:10.680   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:10.680   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:10.693   492  1082 I ActivityManager: Force stopping org.fcitx.fcitx5.android.fx.rime appid=10172 user=0: from pid 6446
+11-11 12:26:10.693   492  1082 I ActivityManager: Killing 6228:org.fcitx.fcitx5.android.fx.rime/u0a172 (adj 200): stop org.fcitx.fcitx5.android.fx.rime due to from pid 6446
+11-11 12:26:10.695  6024  6061 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:26:10.695  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:10.695  6024  6061 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:26:10.695  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:10.695  6024  6061 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:26:10.699  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:26:10.703  6446  6449 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:10.705  1209  6371 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:26:10.705  6024  6050 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:26:10.705  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 9
+11-11 12:26:10.706  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:10.708  6024  6061 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6024_3 identical 3 lines
+11-11 12:26:10.708  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:10.711   693   749 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:26:10.711  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:10.712  6024  6061 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6024_3 identical 1 line
+11-11 12:26:10.712  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:10.712  1209  6025 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:26:10.713  1437  1437 I GoogleInputMethodService: GoogleInputMethodService.initializeKeyboardTheme():1171 Apply keyboard theme: theme_border_stylesheet_googleblue_materiallight_assets:theme_package_metadata_google_blue_light.binarypb_port
+11-11 12:26:10.713   693  2977 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:26:10.713   693  2977 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:26:10.713  1209  6044 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:26:10.713  1209  6044 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:26:10.713  1209  6044 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 0ms
+11-11 12:26:10.714  1437  1437 I KeyboardModeManager: KeyboardModeManager.initializeKeyboardModeFromPreferences():258 Initialize with keyboard mode: 1 and previous keyboard mode: 1
+11-11 12:26:10.716   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:10.717   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:10.717  1437  1437 I GoogleInputMethodService: GoogleInputMethodService.initializeKeyboardTheme():1171 Apply keyboard theme: theme_border_stylesheet_googleblue_materiallight_assets:theme_package_metadata_google_blue_light.binarypb_port
+11-11 12:26:10.720   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:10.720   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:10.731   492   583 W InputDispatcher: channel '7d212d6 InputMethod (server)' ~ Consumer closed input channel or an error occurred.  events=0x9
+11-11 12:26:10.732   492   583 E InputDispatcher: channel '7d212d6 InputMethod (server)' ~ Channel is unrecoverably broken and will be disposed!
+11-11 12:26:10.736  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:26:10.739  1437  6136 I NetworkInfoNotification: NetworkInfoNotification$Listener.onReceive():84 onNetworkAvailable: networkState = NON_METERED, isAirplaneModeOn = false
+11-11 12:26:10.739  1437  6135 I JapaneseMozcExtension: JapaneseMozcExtension.onCreateServiceInternal():74 onCreateServiceInternal()
+11-11 12:26:10.742  1437  6142 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():89 parseKeyboardGroupDef() 2132148419 -> extension_emoji_search_extension_view_m2 : WaitTime = 1 ms : RunTime = 0 ms
+11-11 12:26:10.743  1437  6142 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():89 parseKeyboardGroupDef() 2132148420 -> extension_emoji_search_keyboards_emojipicker15_m2 : WaitTime = 1 ms : RunTime = 0 ms
+11-11 12:26:10.745   492  2366 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc com.google.android.inputmethod.latin
+11-11 12:26:10.747   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:10.747   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:10.990     0     0 I binder_alloc: 6228: binder_alloc_buf, no vma
+11-11 12:26:10.992     0     0 I binder  : 492:2366 transaction failed 29189/-3, size 60-0 line 3226
+11-11 12:26:10.749  1437  6142 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():89 parseKeyboardGroupDef() 2132148425 -> extension_maestro_keyboards : WaitTime = 3 ms : RunTime = 0 ms
+11-11 12:26:10.750  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:26:10.751  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:26:10.752  6450  6452 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:10.759  1437  1708 W MetricsManager: MetricsManager.addProcessorImpl():484 Processor bxb@6ed0f66 already exists.
+11-11 12:26:10.999     0     0 I binder  : undelivered transaction 315137, process died.
+11-11 12:26:10.745   492  2366 I chatty  : uid=1000(system) Binder:492_1C identical 1 line
+11-11 12:26:10.745   492  2366 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc com.google.android.inputmethod.latin
+11-11 12:26:10.761   492   527 W WindowManager: Failed to deliver inset state change w=Window{7d212d6 u0 InputMethod}
+11-11 12:26:10.761   492   527 W WindowManager: android.os.DeadObjectException
+11-11 12:26:10.761   492   527 W WindowManager: 	at android.os.BinderProxy.transactNative(Native Method)
+11-11 12:26:10.761   492   527 W WindowManager: 	at android.os.BinderProxy.transact(BinderProxy.java:540)
+11-11 12:26:10.761   492   527 W WindowManager: 	at android.view.IWindow$Stub$Proxy.insetsChanged(IWindow.java:739)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowState.notifyInsetsChanged(WindowState.java:3655)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.InsetsStateController.lambda$new$0(InsetsStateController.java:75)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.-$$Lambda$InsetsStateController$sIYEJIR4ztgffCLMi5Z1RvdxyYs.accept(Unknown Source:2)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer$ForAllWindowsConsumerWrapper.apply(WindowContainer.java:1984)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer$ForAllWindowsConsumerWrapper.apply(WindowContainer.java:1974)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowState.applyInOrderWithImeWindows(WindowState.java:4643)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowState.forAllWindows(WindowState.java:4542)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer.forAllWindows(WindowContainer.java:1302)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer.forAllWindows(WindowContainer.java:1302)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.DisplayContent$ImeContainer.forAllWindowForce(DisplayContent.java:4515)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.DisplayContent.forAllImeWindows(DisplayContent.java:2342)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowState.applyImeWindowsIfNeeded(WindowState.java:4632)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowState.applyInOrderWithImeWindows(WindowState.java:4642)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowState.forAllWindows(WindowState.java:4542)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer.forAllWindows(WindowContainer.java:1302)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.ActivityRecord.forAllWindowsUnchecked(ActivityRecord.java:3628)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.ActivityRecord.forAllWindows(ActivityRecord.java:3623)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer.forAllWindows(WindowContainer.java:1302)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer.forAllWindows(WindowContainer.java:1302)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.TaskDisplayArea.forAllWindows(TaskDisplayArea.java:488)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer.forAllWindows(WindowContainer.java:1302)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer.forAllWindows(WindowContainer.java:1302)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer.forAllWindows(WindowContainer.java:1302)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowContainer.forAllWindows(WindowContainer.java:1319)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.InsetsStateController.notifyInsetsChanged(InsetsStateController.java:452)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.InsetsStateController.onPostLayout(InsetsStateController.java:258)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.DisplayContent.applySurfaceChangesTransaction(DisplayContent.java:3946)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.RootWindowContainer.applySurfaceChangesTransaction(RootWindowContainer.java:1068)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.RootWindowContainer.performSurfacePlacementNoTrace(RootWindowContainer.java:845)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.RootWindowContainer.performSurfacePlacement(RootWindowContainer.java:802)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowSurfacePlacer.performSurfacePlacementLoop(WindowSurfacePlacer.java:178)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowSurfacePlacer.performSurfacePlacement(WindowSurfacePlacer.java:127)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowSurfacePlacer.performSurfacePlacement(WindowSurfacePlacer.java:116)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.wm.WindowSurfacePlacer$Traverser.run(WindowSurfacePlacer.java:58)
+11-11 12:26:10.761   492   527 W WindowManager: 	at android.os.Handler.handleCallback(Handler.java:938)
+11-11 12:26:10.761   492   527 W WindowManager: 	at android.os.Handler.dispatchMessage(Handler.java:99)
+11-11 12:26:10.761   492   527 W WindowManager: 	at android.os.Looper.loop(Looper.java:223)
+11-11 12:26:10.761   492   527 W WindowManager: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+11-11 12:26:10.761   492   527 W WindowManager: 	at com.android.server.ServiceThread.run(ServiceThread.java:44)
+11-11 12:26:10.762   492  2368 I WindowManager: WIN DEATH: Window{7d212d6 u0 InputMethod}
+11-11 12:26:10.762   492  2368 W InputDispatcher: Attempted to unregister already unregistered input channel '7d212d6 InputMethod (server)'
+11-11 12:26:10.765  1437  1437 I MaestroExtensionImpl: MaestroExtensionImpl.connectToAssistantIfAvailable():412 connectToAssistantIfAvailable() : Creating integration client.
+11-11 12:26:10.766  1437  2031 E ActivityThread: Failed to find provider info for com.google.android.googlequicksearchbox.GsaPublicContentProvider
+11-11 12:26:10.766   285   285 I Zygote  : Process 6228 exited due to signal 9 (Killed)
+11-11 12:26:10.766  1437  2031 W AssistantConfig: appIntegrationDataInBase64 is null
+11-11 12:26:10.770   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 6228
+11-11 12:26:10.780  6454  6457 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:10.780   492   534 I libprocessgroup: Successfully killed process cgroup uid 10172 pid 6228 in 86ms
+11-11 12:26:10.795   492   492 W InputMethodManagerService: Illegal subtype state: old subtype = null, new subtype = android.view.inputmethod.InputMethodSubtype@4145211d
+11-11 12:26:10.796  6458  6461 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:10.798   492  2372 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10172; state: DISABLED
+11-11 12:26:10.799   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10172; state: ENABLED
+11-11 12:26:10.807   285   285 D Zygote  : Forked child process 6463
+11-11 12:26:10.809   693  2977 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:26:10.809   492   533 I ActivityManager: Start proc 6463:org.fcitx.fcitx5.android.fx.rime/u0a172 for service {org.fcitx.fcitx5.android.fx.rime/org.fcitx.fcitx5.android.input.FcitxInputMethodService}
+11-11 12:26:10.814  6463  6463 W android.fx.rim: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:26:10.815  1437  1437 W KeyboardModeManager: KeyboardModeManager.setInputView():302 setInputView() : inputView = null
+11-11 12:26:10.822  1437  6335 I JapaneseMozcExtension: JapaneseMozcExtension.onDestroyServiceInternal():81 onDestroyServiceInternal()
+11-11 12:26:10.828  1437  1437 W AssistantIntegClient: #unbindService(): calling unbindService when service is unbound.
+11-11 12:26:10.846  6470  6472 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:10.861  6463  6463 I ndk_translation: Initialized NDK translation (aarch64), version 0.2.2
+11-11 12:26:10.908  6478  6478 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-11 12:26:10.910  6478  6478 I AndroidRuntime: Using default boot image
+11-11 12:26:10.910  6478  6478 I AndroidRuntime: Leaving lock profiling enabled
+11-11 12:26:10.911  6478  6478 I app_process: Core platform API reporting enabled, enforcing=false
+11-11 12:26:10.927  1797  1807 I adbd    : jdwp connection from 6463
+11-11 12:26:10.933  6463  6463 I android.fx.rim: The ClassLoaderContext is a special shared library.
+11-11 12:26:10.941  6463  6463 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-11 12:26:10.941  6463  6463 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-11 12:26:10.949  6478  6478 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-11 12:26:10.949  6478  6478 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-11 12:26:10.952  6478  6478 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:26:10.952  6478  6478 I app_process: The ClassLoaderContext is a special shared library.
+11-11 12:26:10.963  6463  6463 I FcitxColdStart: service.onCreate begin
+11-11 12:26:10.972  6478  6478 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-11 12:26:10.974  6478  6478 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-11 12:26:10.975   492  1748 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: start instr
+11-11 12:26:10.976   492  1748 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-11 12:26:10.976   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-11 12:26:10.980   285   285 D Zygote  : Forked child process 6517
+11-11 12:26:10.980   492   533 I ActivityManager: Start proc 6517:io.github.sandyyur.inputbench/u0a167 for added application io.github.sandyyur.inputbench
+11-11 12:26:10.981  6463  6463 I FcitxVoiceInput: registered floating voice receiver actions=android.content.IntentFilter@1398ed4
+11-11 12:26:10.985  6517  6517 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-11 12:26:10.992  6517  6517 I yyur.inputbenc: Unquickening 12 vdex files!
+11-11 12:26:10.992  6517  6517 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:26:10.992  6463  6463 I FcitxColdStart: service.onCreate duration=29ms
+11-11 12:26:10.995  6463  6509 I RimeLifecycle: startup phase=assets duration_ms=17
+11-11 12:26:10.996  6463  6506 I FcitxColdStart: font preload keys=0 duration=24ms
+11-11 12:26:11.000  6463  6509 I RimeLifecycle: startup phase=config duration_ms=5
+11-11 12:26:11.014  1797  1807 I adbd    : jdwp connection from 6517
+11-11 12:26:11.025   492  1748 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-11 12:26:11.027  6517  6517 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:26:11.031  6517  6517 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:26:11.031  6517  6517 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:26:11.032  6463  6509 W linker  : Warning: "/data/app/~~zIE6-6tgi-YAJ38SznCONw==/org.fcitx.fcitx5.android.fx.rime-5tHelv7yKlmfNXPeJsGnGw==/lib/arm64/libc++_shared.so" unused DT entry: unknown processor-specific (type 0x70000001 arg 0x0) (ignoring)
+11-11 12:26:11.037  6463  6463 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:26:11.039  6463  6463 I RimeLifecycle: input_binding generation=1 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:26:11.045  6517  6543 V UiAutomation: Init UiAutomation@de92449[id=13, flags=0]
+11-11 12:26:11.026   492  1748 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-11 12:26:11.047   492  2366 I ActivityTaskManager: START u0 {flg=0x18000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 10167
+11-11 12:26:11.047   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:26:11.087  6517  6551 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:26:11.087  6517  6551 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:26:11.090  6517  6551 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:26:11.097  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:26:11.126  6517  6548 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a2bd0, tid 6548
+11-11 12:26:11.128  6517  6548 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:11.129   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:26:11.132  6517  6548 D EGL_emulation: eglCreateContext: 0x7f3a244eb640: maj 3 min 0 rcv 3
+11-11 12:26:11.133  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:11.133  6517  6548 D EGL_emulation: eglMakeCurrent: 0x7f3a244eb640: ver 3 0 (tinfo 0x7f39c44f62e0) (first time)
+11-11 12:26:11.142   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:26:11.142  6517  6548 I Gralloc4: mapper 4.x is not supported
+11-11 12:26:11.156  6517  6548 D HostConnection: createUnique: call
+11-11 12:26:11.156  6517  6548 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a22d0, tid 6548
+11-11 12:26:11.163  6517  6548 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:11.238   492  6021 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a5390, tid 6021
+11-11 12:26:11.311   492  6021 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:11.314   492  6021 D EGL_emulation: eglCreateContext: 0x7f3a24549050: maj 3 min 0 rcv 3
+11-11 12:26:11.390   492  6021 D EGL_emulation: eglMakeCurrent: 0x7f3a24549050: ver 3 0 (tinfo 0x7f39c4607eb0) (first time)
+11-11 12:26:11.503   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:26:11.503   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:26:11.508   492   531 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +454ms
+11-11 12:26:11.526  6463  6463 I FcitxColdStart: service.onCreateInputView begin
+11-11 12:26:11.635  6463  6463 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=80ms
+11-11 12:26:11.641  6463  6463 I FcitxColdStart: KeyboardWindow.onCreateView duration=85ms
+11-11 12:26:11.648  6463  6463 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=2ms
+11-11 12:26:11.648  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:11.672  6463  6463 I FcitxColdStart: replaceInputView duration=146ms
+11-11 12:26:11.673  6463  6463 I FcitxColdStart: service.onCreateInputView duration=147ms
+11-11 12:26:11.673  6463  6463 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:26:11.686  6463  6463 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:26:11.686  6463  6463 I RimeLifecycle: input_binding generation=4 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-11 12:26:11.686  6463  6463 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:26:11.688  6463  6484 I android.fx.rim: Compiler allocated 5241KB to compile void org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard.reloadLayout()
+11-11 12:26:11.715  6463  6529 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:26:11.716  6463  6529 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:26:11.720  6463  6529 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:26:11.733  6463  6529 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a5690, tid 6529
+11-11 12:26:11.735  6463  6529 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:11.737   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:26:11.738  6463  6529 D EGL_emulation: eglCreateContext: 0x7f3a24588500: maj 3 min 0 rcv 3
+11-11 12:26:11.738  6463  6529 D EGL_emulation: eglMakeCurrent: 0x7f3a24588500: ver 3 0 (tinfo 0x7f39c458cc40) (first time)
+11-11 12:26:11.746   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:26:11.746  6463  6529 I Gralloc4: mapper 4.x is not supported
+11-11 12:26:11.747  6463  6529 D HostConnection: createUnique: call
+11-11 12:26:11.748  6463  6529 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a5d50, tid 6529
+11-11 12:26:11.761  6463  6529 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:11.884   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:26:11.889   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:11.889   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:11.891   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:11.891   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:11.896   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:11.897   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:11.899   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:11.899   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:12.188  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:12.347  6463  6529 I OpenGLRenderer: Davey! duration=813ms; Flags=1, IntendedVsync=717060917730, Vsync=717210917724, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=717222092085, AnimationStart=717222092847, PerformTraversalsStart=717222093007, DrawStart=717289551172, SyncQueued=717292942797, SyncStart=717293462947, IssueDrawCommandsStart=717293819432, SwapBuffers=717802511504, FrameCompleted=717874788490, DequeueBufferDuration=1654470, QueueBufferDuration=272038, GpuCompleted=2563467345148232566, 
+11-11 12:26:12.360  6463  6463 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=12ms
+11-11 12:26:12.377  6463  6463 I Choreographer: Skipped 40 frames!  The application may be doing too much work on its main thread.
+11-11 12:26:12.576   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:12.576   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:12.724  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:13.804  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 2 lines
+11-11 12:26:14.334  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:14.476   413   413 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:26:14.704   412   412 I perfetto: probes_producer.cc:329  Producer stop (id=21)
+11-11 12:26:14.706   412   412 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-11 12:26:14.706   413   413 I perfetto: ng_service_impl.cc:1948 Tracing session 21 ended, total sessions:0
+11-11 12:26:14.949     0     0 W perfetto: disabled ftrace
+11-11 12:26:14.874  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:15.186  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:26:15.404  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:15.944  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:16.254  6463  6557 D ProfileInstaller: Skipping profile installation for org.fcitx.fcitx5.android.fx.rime
+11-11 12:26:16.484  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:24.534  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 15 lines
+11-11 12:26:25.074  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:25.184  1437  1476 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.shutdownVoiceInternal():95 shutdownVoiceInternal()
+11-11 12:26:25.604  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:28.391     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=300000 cc=10 chg=a
+11-11 12:26:36.844  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 21 lines
+11-11 12:26:37.384  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:37.613  6463  6509 I RimeLifecycle: startup phase=native duration_ms=26613
+11-11 12:26:37.924  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:38.464  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 1 line
+11-11 12:26:39.004  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:39.283  6463  6509 I RimeLifecycle: bind generation=4 duration_ms=1320 ready=true usable=true direct=false no_learning=false created=1 reused=0 native_begin_us=1312937 restore_us=5 publish_us=5699
+11-11 12:26:39.324  6463  6463 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=31ms
+11-11 12:26:39.383  6463  6484 I android.fx.rim: Compiler allocated 5355KB to compile void org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard.reloadLayout()
+11-11 12:26:39.544  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:40.074  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 1 line
+11-11 12:26:40.584  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:40.970   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:40.970   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:40.970   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:40.971   336  6560 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:40.972   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:40.972   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:40.972   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:41.071   336  6560 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:41.071   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:41.104   375   448 D AudioFlinger: mixer(0x778ccf9b9040) throttle end: throttle time(33)
+11-11 12:26:41.124  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:41.221   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:41.221   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:41.221   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:41.223   336  6563 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:41.323   336  6563 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:41.324   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:41.664  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:41.770   492  1748 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:42.204  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:42.293   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:26:42.293  6478  6530 I Gralloc4: mapper 4.x is not supported
+11-11 12:26:42.296  6478  6530 D HostConnection: createUnique: call
+11-11 12:26:42.296  6478  6530 D HostConnection: HostConnection::get() New Host Connection established 0x70788485b510, tid 6530
+11-11 12:26:42.308  6478  6530 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:42.314  6478  6564 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:26:42.314  6478  6564 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:26:42.315  6478  6564 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:26:42.325  6478  6564 D HostConnection: HostConnection::get() New Host Connection established 0x70788485bc90, tid 6564
+11-11 12:26:42.327  6478  6564 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:42.328   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:26:42.329  6478  6564 D EGL_emulation: eglCreateContext: 0x707874871d70: maj 3 min 0 rcv 3
+11-11 12:26:42.330  6478  6564 D EGL_emulation: eglMakeCurrent: 0x707874871d70: ver 3 0 (tinfo 0x707814882430) (first time)
+11-11 12:26:42.421   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:42.421   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:42.421   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:42.422   336  6565 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:42.434   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:42.448  6463  6504 I RimeInputTiming: select_queue generation=4 ordinal=1 service_wait_us=374
+11-11 12:26:42.462  6463  6463 I RimeInputTiming: commit generation=4 ordinal=1 event_wait_us=176 service_commit_us=150 request_result=REQUEST_ACCEPTED
+11-11 12:26:42.613   336  6565 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:42.617   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:42.668   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:42.668   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:42.668   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:42.670   336  6566 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:42.744  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:42.770   336  6566 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:42.771   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:42.818   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:42.818   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:42.818   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:42.820   336  6567 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:42.920   336  6567 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:42.922   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:43.284  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:43.385   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:43.794  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:43.886   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:43.886   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:43.886   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:43.886   336  6568 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:43.894   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:43.912  6463  6504 I RimeInputTiming: select_queue generation=4 ordinal=2 service_wait_us=229
+11-11 12:26:43.916  6463  6463 I RimeInputTiming: commit generation=4 ordinal=2 event_wait_us=332 service_commit_us=99 request_result=REQUEST_ACCEPTED
+11-11 12:26:43.987   336  6568 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:43.987   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:44.135   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:44.135   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:44.135   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:44.137   336  6570 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:44.237   336  6570 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:44.237   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:44.287   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:44.288   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:44.288   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:44.288   336  6571 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:44.337  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:44.389   336  6571 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:44.389   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:44.846   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:44.866  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:45.354   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:45.354   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:45.354   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:45.356   336  6572 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:45.376   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:45.405  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:45.456   336  6572 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:45.457   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:45.603   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:45.603   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:45.604   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:45.604   336  6573 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:45.704   336  6573 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:45.704   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:45.753   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:45.753   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:45.754   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:45.754   336  6574 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:45.854   336  6574 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:45.854   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:45.944  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:46.306   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:46.461  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:46.821   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:46.821   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:46.821   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:46.821   336  6575 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:46.822   492  1748 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:46.921   336  6575 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:46.921   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:46.999  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:47.070   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:47.071   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:47.071   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:47.071   336  6576 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:47.171   336  6576 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:47.172   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:47.219   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:47.219   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:47.219   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:47.220   336  6577 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:47.320   336  6577 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:47.320   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:47.535  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:47.767   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:48.044  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:48.286   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:48.286   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:48.286   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:48.286   336  6578 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:48.298   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:48.386   336  6578 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:48.387   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:48.535   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:48.535   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:48.535   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:48.537   336  6579 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:48.588  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:48.637   336  6579 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:48.637   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:48.687   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:48.688   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:48.688   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:48.688   336  6580 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:48.789   336  6580 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:48.789   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:49.117  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:49.250   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:49.654  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:49.751   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:49.751   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:49.751   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:49.752   336  6581 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:49.759   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:49.852   336  6581 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:49.852   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:49.985   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:49.985   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:49.985   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:49.987   336  6582 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:50.087   336  6582 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:50.089   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:50.137   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:50.137   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:50.137   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:50.137   336  6583 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:50.194  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:50.238   336  6583 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:50.238   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:50.688   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:50.704  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:51.203   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:51.203   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:51.204   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:51.204   336  6584 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:51.205   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:51.247  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:51.304   336  6584 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:51.304   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:51.454   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:51.454   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:51.454   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:51.456   336  6585 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:51.556   336  6585 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:51.556   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:51.603   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:51.603   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:51.604   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:51.604   336  6586 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:51.705   336  6586 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:51.705   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:51.787  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:52.149   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:52.326  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:52.671   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:52.671   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:52.671   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:52.672   336  6587 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:52.680   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:52.772   336  6587 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:52.772   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:52.846  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:52.927   492  2153 I ActivityTaskManager: START u0 {act=android.settings.SETTINGS cmp=com.android.settings/.homepage.SettingsHomepageActivity} from uid 10167
+11-11 12:26:52.927   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:26:52.959   693   837 D EglHelper: createEglContext start
+11-11 12:26:52.962   693   837 D EGL_emulation: eglCreateContext: 0x7f3a24531210: maj 3 min 0 rcv 3
+11-11 12:26:52.962   693   837 D EglHelper: createEglContext done
+11-11 12:26:52.962   693   837 D EglHelper: createEglSurface start
+11-11 12:26:52.964  1209  1209 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:26:52.972  1209  1209 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:26:52.975   693   837 D EglHelper: createEglSurface done
+11-11 12:26:52.996   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:26:53.005   492  6021 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a9050, tid 6021
+11-11 12:26:53.007   492  6021 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:53.009   492  6021 D EGL_emulation: eglCreateContext: 0x7f3a2456ca40: maj 3 min 0 rcv 3
+11-11 12:26:53.009  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:26:53.010   492  6021 D EGL_emulation: eglMakeCurrent: 0x7f3a2456ca40: ver 3 0 (tinfo 0x7f39c4607eb0) (first time)
+11-11 12:26:53.014   709   783 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:26:53.076  1209  6025 D BatteryTipLoader: BatteryInfoLoader post query: 9ms
+11-11 12:26:53.076  1209  6025 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:26:53.076  1209  6025 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 9ms
+11-11 12:26:53.126  1209  1259 D BatteryInfo: time for getStats: 161ms
+11-11 12:26:53.132  1209  1259 D BatteryInfo: time for regular BatteryInfo: 6ms
+11-11 12:26:53.132  1209  1259 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:26:53.138  1209  1209 D BatteryInfo: time for callback: 0ms
+11-11 12:26:53.155  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:26:53.156  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:53.156  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:26:53.156  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:53.156  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:26:53.160  1209  6588 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:26:53.160  6024  6050 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:26:53.160  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 2
+11-11 12:26:53.160  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:53.161  6024  6308 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6024_4 identical 6 lines
+11-11 12:26:53.161  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:26:53.161  1209  6044 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:26:53.233   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:53.264   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/com.android.settings/30/com.android.settings.homepage.SettingsHomepageActivity/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:26:53.290   709   766 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:26:53.335  6463  6463 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:26:53.335  6463  6463 I RimeLifecycle: input_binding generation=7 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:26:53.349  6463  6509 I RimeLifecycle: binding_inactive generation=7 native_create=false
+11-11 12:26:53.360   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:53.360   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:53.380  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:53.387  1209  6025 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:26:53.387  1209  6025 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:26:53.387  1209  6025 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 0ms
+11-11 12:26:53.556   492  2367 I ActivityTaskManager: START u0 {flg=0x18000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 10167
+11-11 12:26:53.556   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:26:53.557   413   413 I perfetto: ing_service_impl.cc:758 Configured tracing session 22, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-11 12:26:53.558   412   412 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=22)
+11-11 12:26:53.560   492  1904 W ActivityTaskManager: Tried to set launchTime (0) < mLastActivityLaunchTime (716582)
+11-11 12:26:53.582   412   412 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-11 12:26:53.826     0     0 W perfetto: enabled ftrace
+11-11 12:26:53.590  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:26:53.625   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:26:53.626   492   531 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +67ms
+11-11 12:26:53.626   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:26:53.639  6463  6509 I RimeLifecycle: binding_inactive generation=8 native_create=false
+11-11 12:26:53.641  6463  6463 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:26:53.641  6463  6463 I RimeLifecycle: input_binding generation=10 input_type=655361 ime_options=1375731718 needs_rime=true restarting=false
+11-11 12:26:53.641  6463  6463 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:26:53.646  6463  6509 I RimeLifecycle: bind generation=10 duration_ms=4 ready=true usable=true direct=false no_learning=false created=0 reused=1 native_begin_us=2111 restore_us=3 publish_us=1916
+11-11 12:26:53.705   492  6021 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a9410, tid 6021
+11-11 12:26:53.707   492  6021 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:26:53.710   492  6021 D EGL_emulation: eglCreateContext: 0x7f3a2456e510: maj 3 min 0 rcv 3
+11-11 12:26:53.711   492  6021 D EGL_emulation: eglMakeCurrent: 0x7f3a2456e510: ver 3 0 (tinfo 0x7f39c4607eb0) (first time)
+11-11 12:26:53.858   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:26:53.862   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:53.862   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:53.864   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:53.864   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:53.905   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:26:53.905   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:26:53.920  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:54.994  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 2 lines
+11-11 12:26:55.525  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:55.769   492  2368 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:55.938   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:55.938   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:55.939   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:55.939   336  6596 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:55.940   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:55.940   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:55.987   375   448 D AudioFlinger: mixer(0x778ccf9b9040) throttle end: throttle time(33)
+11-11 12:26:56.039   336  6596 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:56.041   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:56.064  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:56.087   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:56.087   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:56.087   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:56.088   336  6598 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:56.188   336  6598 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:56.190   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:56.604  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:56.705   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:57.145  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:57.171   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:57.171   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:57.171   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:57.171   336  6599 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:57.180   492  2368 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:57.197  6463  6495 I RimeInputTiming: select_queue generation=10 ordinal=1 service_wait_us=397
+11-11 12:26:57.200  6463  6463 I RimeInputTiming: commit generation=10 ordinal=1 event_wait_us=464 service_commit_us=121 request_result=REQUEST_ACCEPTED
+11-11 12:26:57.271   336  6599 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:57.272   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:57.421   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:57.421   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:57.421   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:57.421   336  6601 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:57.521   336  6601 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:57.522   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:57.569   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:57.569   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:57.569   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:57.571   336  6602 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:57.671   336  6602 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:57.671   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:57.686  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:58.188   492  2368 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:58.221  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:58.562   412   412 I perfetto: probes_producer.cc:329  Producer stop (id=22)
+11-11 12:26:58.562   413   413 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:26:58.562   413   413 I perfetto: ng_service_impl.cc:1948 Tracing session 22 ended, total sessions:0
+11-11 12:26:58.807     0     0 W perfetto: disabled ftrace
+11-11 12:26:58.564   412   412 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-11 12:26:58.637   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:58.637   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:58.637   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:58.638   336  6603 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:58.641   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:58.663  6463  6508 I RimeInputTiming: select_queue generation=10 ordinal=2 service_wait_us=214
+11-11 12:26:58.674  6463  6463 I RimeInputTiming: commit generation=10 ordinal=2 event_wait_us=7698 service_commit_us=72 request_result=REQUEST_ACCEPTED
+11-11 12:26:58.738   336  6603 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:58.738   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:58.754  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:58.885   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:58.885   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:58.887   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:58.887   336  6604 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:58.987   336  6604 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:58.988   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:59.036   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:26:59.036   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:59.037   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:26:59.037   336  6605 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:26:59.137   336  6605 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:26:59.139   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:26:59.261  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:26:59.649   492  2368 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:26:59.802  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:00.001   693   693 D KeyguardClockSwitch: Updating clock: 1227
+11-11 12:27:00.103   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:00.103   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:00.104   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:00.104   336  6606 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:00.105   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:00.204   336  6606 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:00.204   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:00.335  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:00.354   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:00.354   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:00.355   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:00.355   336  6607 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:00.455   336  6607 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:00.455   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:00.503   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:00.503   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:00.503   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:00.503   336  6608 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:00.603   336  6608 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:00.604   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:00.864  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:01.109   492  2368 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:01.366  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:01.567   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:01.567   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:01.568   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:01.571   336  6609 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:01.585   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:01.672   336  6609 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:01.672   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:01.804   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:01.804   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:01.805   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:01.805   336  6610 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:01.904  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:01.905   336  6610 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:01.905   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:01.953   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:01.953   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:01.954   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:01.954   336  6611 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:02.054   336  6611 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:02.055   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:02.444  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:02.571   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:02.957  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:03.019   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:03.020   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:03.020   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:03.021   336  6612 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:03.023   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:03.121   336  6612 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:03.121   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:03.271   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:03.271   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:03.271   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:03.271   336  6613 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:03.372   336  6613 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:03.372   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:03.420   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:03.420   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:03.420   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:03.421   336  6614 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:03.496  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:03.521   336  6614 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:03.521   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:04.004  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:04.031   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:04.484   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:04.484   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:04.484   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:04.486   492  1904 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:04.487   336  6615 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:04.544  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:04.587   336  6615 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:04.587   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:04.720   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:04.721   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:04.721   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:04.721   336  6616 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:04.821   336  6616 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:04.821   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:04.870   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:04.870   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:04.870   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:04.870   336  6617 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:04.970   336  6617 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:04.972   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:05.084  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:05.469   492  1917 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:05.591  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:05.937   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:05.937   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:05.937   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:05.937   336  6618 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:05.945   492  2367 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:06.037   336  6618 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:06.038   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:06.111  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:06.187   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:06.187   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:06.187   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:06.187   336  6619 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:06.288   336  6619 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:06.288   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:06.338   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:06.338   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:06.338   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:06.339   336  6620 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:06.439   336  6620 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:06.440   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:06.616  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:06.952   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:07.149  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:07.403   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:27:07.403   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:07.403   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:27:07.404   336  6621 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:27:07.405   492  2153 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:27:07.504   336  6621 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:27:07.504   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:27:07.657   492  2153 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@7bf30a5
+11-11 12:27:07.658  6517  6543 V UiAutomation: Init UiAutomation@de92449[id=-1, flags=0]
+11-11 12:27:07.661   492  1917 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: finished inst
+11-11 12:27:07.661   492  1917 I ActivityManager: Killing 6517:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to finished inst
+11-11 12:27:07.661   492  1917 W ActivityTaskManager: Force removing ActivityRecord{a609876 u0 io.github.sandyyur.inputbench/.BenchHost t38 f}}: app died, no saved state
+11-11 12:27:07.664   492  1917 W ActivityTaskManager: Force removing ActivityRecord{aac9646 u0 io.github.sandyyur.inputbench/.BenchHost t37 f}}: app died, no saved state
+11-11 12:27:07.920     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:27:07.922     0     0 I binder  : undelivered transaction 336945, process died.
+11-11 12:27:07.924     0     0 I binder  : undelivered transaction 336871, process died.
+11-11 12:27:07.681  6478  6478 I app_process: System.exit called, status: 0
+11-11 12:27:07.681  6478  6478 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:27:07.681   285   285 I Zygote  : Process 6517 exited due to signal 9 (Killed)
+11-11 12:27:07.682   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 6517
+11-11 12:27:07.682   492  1917 W WindowManager: Cannot find window which accessibility connection is added to
+11-11 12:27:07.690  6463  6509 I RimeLifecycle: binding_inactive generation=11 native_create=false
+11-11 12:27:07.691  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:27:07.693  1209  1209 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:27:07.696  1209  1209 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:27:07.704   492   534 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 6517 in 42ms
+11-11 12:27:07.952     0     0 D logd    : logdr: UID=0 GID=0 PID=6624 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-11 12:27:07.725   709   788 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:27:07.740  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:27:07.743  1209  6044 D BatteryTipLoader: BatteryInfoLoader post query: 1ms
+11-11 12:27:07.743  1209  6044 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:27:07.743  1209  6044 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 1ms
+11-11 12:27:07.759  6024  6061 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:27:07.760  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:27:07.760  6024  6061 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:27:07.994     0     0 I binder  : 6463:6463 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:27:07.762  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:27:07.762  6024  6061 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:27:07.768  1209  6588 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:27:07.768  6024  6050 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:27:07.768  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 4
+11-11 12:27:07.768  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:27:07.769  6024  6061 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6024_3 identical 5 lines
+11-11 12:27:07.769  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:27:07.769  6463  6463 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:27:07.769  6463  6463 I RimeLifecycle: input_binding generation=13 input_type=0 ime_options=0 needs_rime=false restarting=false
+11-11 12:27:07.770  6024  6061 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:27:07.770  6463  6509 I RimeLifecycle: binding_inactive generation=13 native_create=false
+11-11 12:27:07.770  1209  6044 D LegacySuggestCardCtrl: Loaded suggests: 0

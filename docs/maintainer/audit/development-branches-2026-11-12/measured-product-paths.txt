@@ -1,0 +1,7 @@
+M	app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateIndexBadgeTest.kt
+A	app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
+M	app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt
+M	app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt
+M	app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+M	app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
+M	app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt

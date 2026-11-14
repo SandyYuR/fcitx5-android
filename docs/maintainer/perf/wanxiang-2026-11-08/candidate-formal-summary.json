@@ -1,0 +1,118 @@
+{
+  "fcitx": {
+    "n_dispatch_up_to_preedit_collector": {
+      "first_trials_ms": [
+        54.02514,
+        46.73077,
+        39.702475
+      ],
+      "first_median_ms": 46.73077,
+      "warm_trial_medians_ms": [
+        12.711597,
+        13.372221,
+        13.275011
+      ],
+      "warm_median_ms": 13.275011
+    },
+    "ime_dispatch_up_to_editor_input_connection": {
+      "first_trials_ms": [
+        15.752838,
+        13.033026,
+        7.316453
+      ],
+      "first_median_ms": 13.033026,
+      "warm_trial_medians_ms": [
+        7.451588,
+        3.441935,
+        3.625038
+      ],
+      "warm_median_ms": 3.625038
+    },
+    "ime_dispatch_up_to_editor_change": {
+      "first_trials_ms": [
+        27.480483,
+        19.48002,
+        19.545685
+      ],
+      "first_median_ms": 19.545685,
+      "warm_trial_medians_ms": [
+        8.414371,
+        4.258647,
+        4.339674
+      ],
+      "warm_median_ms": 4.339674
+    },
+    "ime_dispatch_up_to_editor_draw": {
+      "first_trials_ms": [
+        28.981097,
+        34.254729,
+        32.645758
+      ],
+      "first_median_ms": 32.645758,
+      "warm_trial_medians_ms": [
+        21.08235,
+        6.690401,
+        20.340548
+      ],
+      "warm_median_ms": 20.340548
+    }
+  },
+  "after": {
+    "n_dispatch_up_to_preedit_collector": {
+      "first_trials_ms": [
+        52.4423,
+        45.159199,
+        42.690318
+      ],
+      "first_median_ms": 45.159199,
+      "warm_trial_medians_ms": [
+        6.093528,
+        4.728512,
+        7.005917
+      ],
+      "warm_median_ms": 6.093528
+    },
+    "ime_dispatch_up_to_editor_input_connection": {
+      "first_trials_ms": [
+        17.392575,
+        9.68863,
+        12.462226
+      ],
+      "first_median_ms": 12.462226,
+      "warm_trial_medians_ms": [
+        3.387695,
+        2.682609,
+        2.499748
+      ],
+      "warm_median_ms": 2.682609
+    },
+    "ime_dispatch_up_to_editor_change": {
+      "first_trials_ms": [
+        25.810385,
+        12.539948,
+        15.499869
+      ],
+      "first_median_ms": 15.499869,
+      "warm_trial_medians_ms": [
+        4.326874,
+        3.49204,
+        3.277719
+      ],
+      "warm_median_ms": 3.49204
+    },
+    "ime_dispatch_up_to_editor_draw": {
+      "first_trials_ms": [
+        41.463106,
+        25.019638,
+        22.024308
+      ],
+      "first_median_ms": 25.019638,
+      "warm_trial_medians_ms": [
+        10.61902,
+        9.263902,
+        9.94052
+      ],
+      "warm_median_ms": 9.94052
+    }
+  }
+}

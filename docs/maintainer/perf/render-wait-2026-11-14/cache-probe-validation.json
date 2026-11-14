@@ -1,0 +1,191 @@
+{
+  "run_id": 43508740045,
+  "product_rebuilt": false,
+  "driver": "3c474d1d3e8aa1fdbb92983c6efcf8db5ec82b25",
+  "cache_contrast_valid": false,
+  "cache_contrast_reason": "No inventoried HWUI shader disk cache file existed in either VM before or after any replay; no actual cache deletion or retention contrast.",
+  "trace_strict_passes": 0,
+  "trace_strict_failures": 8,
+  "trace_config_fix": "a3c9bea6; locally tested only, not rerun on device",
+  "completed_processes": 8,
+  "correct_selections": 48,
+  "device_restore_verified": true,
+  "samples": [
+    {
+      "vm": "a",
+      "sample": "01-initial-clear",
+      "source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+      "raw_sha256": "b344a47821ca36eb24cd6a47b338561ef7bb684620d4899c55a56e648f2ca81f",
+      "correct_selections": 6,
+      "cache_files_before": 0,
+      "cache_files_after": 0,
+      "cache_intervention_effective": false,
+      "trace_strict_validation": false,
+      "trace_config_error": [
+        {
+          "name": "config_write_into_file_no_flush",
+          "idx": "[NULL]",
+          "severity": "error",
+          "value": "1"
+        }
+      ],
+      "event_thread_coverage_complete": true,
+      "first_i_actual_down_to_window_up_ms": 42.601194,
+      "first_i_actual_up_to_window_up_ms": 20.788948
+    },
+    {
+      "vm": "a",
+      "sample": "02-keep",
+      "source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+      "raw_sha256": "e374b1df4032eaaba2fb9ecf79184ce836be39ea17c7069b48fd367cad48d9a6",
+      "correct_selections": 6,
+      "cache_files_before": 0,
+      "cache_files_after": 0,
+      "cache_intervention_effective": false,
+      "trace_strict_validation": false,
+      "trace_config_error": [
+        {
+          "name": "config_write_into_file_no_flush",
+          "idx": "[NULL]",
+          "severity": "error",
+          "value": "1"
+        }
+      ],
+      "event_thread_coverage_complete": true,
+      "first_i_actual_down_to_window_up_ms": 47.238667,
+      "first_i_actual_up_to_window_up_ms": 22.52616
+    },
+    {
+      "vm": "a",
+      "sample": "03-clear",
+      "source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+      "raw_sha256": "44a5ce9592d0098758fe7d01116a733735509e65da48cd28acc09967413ae0d7",
+      "correct_selections": 6,
+      "cache_files_before": 0,
+      "cache_files_after": 0,
+      "cache_intervention_effective": false,
+      "trace_strict_validation": false,
+      "trace_config_error": [
+        {
+          "name": "config_write_into_file_no_flush",
+          "idx": "[NULL]",
+          "severity": "error",
+          "value": "1"
+        }
+      ],
+      "event_thread_coverage_complete": true,
+      "first_i_actual_down_to_window_up_ms": 31.591723,
+      "first_i_actual_up_to_window_up_ms": 10.828952
+    },
+    {
+      "vm": "a",
+      "sample": "04-keep",
+      "source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+      "raw_sha256": "8daec8c7945265388e6048e18bf60e70fd67f57fc115e74cacc075231059def8",
+      "correct_selections": 6,
+      "cache_files_before": 0,
+      "cache_files_after": 0,
+      "cache_intervention_effective": false,
+      "trace_strict_validation": false,
+      "trace_config_error": [
+        {
+          "name": "config_write_into_file_no_flush",
+          "idx": "[NULL]",
+          "severity": "error",
+          "value": "1"
+        }
+      ],
+      "event_thread_coverage_complete": true,
+      "first_i_actual_down_to_window_up_ms": 30.803001,
+      "first_i_actual_up_to_window_up_ms": 10.267433
+    },
+    {
+      "vm": "b",
+      "sample": "01-initial-clear",
+      "source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+      "raw_sha256": "92d9df6da0bb9eab1bfc9f8fbb8e3f62d713cb10b1452b54de3760a9cd700350",
+      "correct_selections": 6,
+      "cache_files_before": 0,
+      "cache_files_after": 0,
+      "cache_intervention_effective": false,
+      "trace_strict_validation": false,
+      "trace_config_error": [
+        {
+          "name": "config_write_into_file_no_flush",
+          "idx": "[NULL]",
+          "severity": "error",
+          "value": "1"
+        }
+      ],
+      "event_thread_coverage_complete": true,
+      "first_i_actual_down_to_window_up_ms": 23.925357,
+      "first_i_actual_up_to_window_up_ms": 3.476774
+    },
+    {
+      "vm": "b",
+      "sample": "02-clear",
+      "source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+      "raw_sha256": "f724bef767c445985b3ce887b5cb172a91b55a5c24bfa5f40040242307d5069e",
+      "correct_selections": 6,
+      "cache_files_before": 0,
+      "cache_files_after": 0,
+      "cache_intervention_effective": false,
+      "trace_strict_validation": false,
+      "trace_config_error": [
+        {
+          "name": "config_write_into_file_no_flush",
+          "idx": "[NULL]",
+          "severity": "error",
+          "value": "1"
+        }
+      ],
+      "event_thread_coverage_complete": true,
+      "first_i_actual_down_to_window_up_ms": 97.122674,
+      "first_i_actual_up_to_window_up_ms": 76.634975
+    },
+    {
+      "vm": "b",
+      "sample": "03-keep",
+      "source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+      "raw_sha256": "898cdca3651c5859cd79289f25a6933832c7e446dcb5bbd7414186fe9662dacb",
+      "correct_selections": 6,
+      "cache_files_before": 0,
+      "cache_files_after": 0,
+      "cache_intervention_effective": false,
+      "trace_strict_validation": false,
+      "trace_config_error": [
+        {
+          "name": "config_write_into_file_no_flush",
+          "idx": "[NULL]",
+          "severity": "error",
+          "value": "1"
+        }
+      ],
+      "event_thread_coverage_complete": true,
+      "first_i_actual_down_to_window_up_ms": 22.330836,
+      "first_i_actual_up_to_window_up_ms": 1.526437
+    },
+    {
+      "vm": "b",
+      "sample": "04-clear",
+      "source": "f02bbaec1c2820545382dab82b3e007e9f2735fe",
+      "raw_sha256": "e484eb43b49911b7951c824aca15f0bce32eb103361022aee8a2dd1da0cf1d03",
+      "correct_selections": 6,
+      "cache_files_before": 0,
+      "cache_files_after": 0,
+      "cache_intervention_effective": false,
+      "trace_strict_validation": false,
+      "trace_config_error": [
+        {
+          "name": "config_write_into_file_no_flush",
+          "idx": "[NULL]",
+          "severity": "error",
+          "value": "1"
+        }
+      ],
+      "event_thread_coverage_complete": true,
+      "first_i_actual_down_to_window_up_ms": 22.988253,
+      "first_i_actual_up_to_window_up_ms": 2.166092
+    }
+  ]
+}

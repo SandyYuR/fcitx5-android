@@ -1,0 +1,1350 @@
+[
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime",
+    "mtime_ns": "1794399480000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang.custom.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_abbrev.schema.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang.schema.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_abbrev_t9.schema.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/default.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_mixedcode.schema.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/README.md",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_english.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_symbols.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_english.schema.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_reverse.dict.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/weasel.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_algebra.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom_phrase.dict.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/user.yaml",
+    "mtime_ns": "1794399468000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_t9.schema.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_phrase.schema.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_t9i.schema.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/version.txt",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang-lts-zh-hans.gram",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/AGENTS.md",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_mixedcode.dict.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_abbrev.dict.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_reverse.schema.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_phrase_t9.schema.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang_abbrev_t9.dict.yaml",
+    "mtime_ns": "1794399290000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom",
+    "mtime_ns": "1794399295000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom\/wanxiang_english.custom.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom\/wanxiang_phrase.custom.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom\/赞赏.jpg",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom\/wanxiang.custom.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom\/wanxiang_mixedcode.custom.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom\/wanxiang_reverse.custom.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom\/万象键位映射.jpg",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/custom\/wanxiang_abbrev.custom.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts",
+    "mtime_ns": "1794399295000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/en.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/t9_abbrev.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/mingren.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/duoyin.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/abbrev.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/cuoyin.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/diming.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/jichu.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/yiren.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/mixed.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/dicts\/zi.dict.yaml",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua",
+    "mtime_ns": "1794399295000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang",
+    "mtime_ns": "1794399295000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/librime.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_sequence.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/context_reorder.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_symbols.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_tips.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/userdb.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/bit.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/shijian.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_calculator.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/charset_filter.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/force_upper_aux.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/unicode_conversion.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/version_display.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/auto_phrase.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/key_binder.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/partial_commit.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/random_tools.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_lookup.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/wanxiang.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/set_schema.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/input_statistics.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_replacer.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/number_conversion.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_filter.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/custom_phrase.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_processor.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_english.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/wanxiang\/super_comment_preedit.lua",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data",
+    "mtime_ns": "1794399295000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data\/others.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data\/en_abbrev.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data\/sentence.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data\/codex_emoji.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data\/codex_sym.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data\/charset.reverse.bin",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data\/tips_show.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data\/english_chinese.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/lua\/data\/chaifen.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc",
+    "mtime_ns": "1794399295000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang_s2tw.json",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang_emoji.json",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang_s2t.json",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang_s2hk.json",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang",
+    "mtime_ns": "1794399295000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang\/STCharacters.ocd2",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang\/Custom_STPhrases.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang\/TWVariants.ocd2",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang\/STPhrases.ocd2",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang\/Custom_Emoji.txt",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang\/emoji.ocd2",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/opencc\/wanxiang\/HKVariants.ocd2",
+    "mtime_ns": "1794399289000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/installation.yaml",
+    "mtime_ns": "1794399299000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build",
+    "mtime_ns": "1794399471000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/default.yaml",
+    "mtime_ns": "1794399299000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang.schema.yaml",
+    "mtime_ns": "1794399301000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/tips.userdb",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/tips.userdb\/LOG",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/tips.userdb\/LOCK",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/tips.userdb\/000003.log",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/tips.userdb\/CURRENT",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/tips.userdb\/MANIFEST-000002",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_mixedcode.schema.yaml",
+    "mtime_ns": "1794399302000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_reverse.schema.yaml",
+    "mtime_ns": "1794399302000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_english.schema.yaml",
+    "mtime_ns": "1794399304000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_abbrev.schema.yaml",
+    "mtime_ns": "1794399304000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_phrase.schema.yaml",
+    "mtime_ns": "1794399305000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/custom_phrase.table.bin",
+    "mtime_ns": "1794399305000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/custom_phrase.reverse.bin",
+    "mtime_ns": "1794399305000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_phrase.prism.bin",
+    "mtime_ns": "1794399305000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_reverse.table.bin",
+    "mtime_ns": "1794399314000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_reverse.reverse.bin",
+    "mtime_ns": "1794399315000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_reverse.prism.bin",
+    "mtime_ns": "1794399335000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_mixedcode.table.bin",
+    "mtime_ns": "1794399335000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_mixedcode.reverse.bin",
+    "mtime_ns": "1794399335000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_mixedcode.prism.bin",
+    "mtime_ns": "1794399339000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang.table.bin",
+    "mtime_ns": "1794399375000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang.reverse.bin",
+    "mtime_ns": "1794399375000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang.prism.bin",
+    "mtime_ns": "1794399379000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_abbrev.table.bin",
+    "mtime_ns": "1794399379000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_abbrev.reverse.bin",
+    "mtime_ns": "1794399380000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_abbrev.prism.bin",
+    "mtime_ns": "1794399380000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_english.table.bin",
+    "mtime_ns": "1794399381000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_english.reverse.bin",
+    "mtime_ns": "1794399381000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/wanxiang_english.prism.bin",
+    "mtime_ns": "1794399468000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/replacer.userdb",
+    "mtime_ns": "1794399475000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/replacer.userdb\/LOG",
+    "mtime_ns": "1794399475000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/replacer.userdb\/LOCK",
+    "mtime_ns": "1794399471000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/replacer.userdb\/000004.log",
+    "mtime_ns": "1794399478000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/replacer.userdb\/CURRENT",
+    "mtime_ns": "1794399471000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/replacer.userdb\/MANIFEST-000002",
+    "mtime_ns": "1794399475000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/build\/replacer.userdb\/000005.ldb",
+    "mtime_ns": "1794399475000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/sequence.userdb",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/sequence.userdb\/LOG",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/sequence.userdb\/LOCK",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/sequence.userdb\/000003.log",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/sequence.userdb\/CURRENT",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/sequence.userdb\/MANIFEST-000002",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang.userdb",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang.userdb\/LOG",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang.userdb\/LOCK",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang.userdb\/000003.log",
+    "mtime_ns": "1794399483000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang.userdb\/CURRENT",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/wanxiang.userdb\/MANIFEST-000002",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/stats.userdb",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/stats.userdb\/LOG",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/stats.userdb\/LOCK",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/stats.userdb\/000003.log",
+    "mtime_ns": "1794399483000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/stats.userdb\/CURRENT",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/stats.userdb\/MANIFEST-000002",
+    "mtime_ns": "1794399470000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/en.userdb",
+    "mtime_ns": "1794399471000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/en.userdb\/LOG",
+    "mtime_ns": "1794399471000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/en.userdb\/LOCK",
+    "mtime_ns": "1794399471000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/en.userdb\/000003.log",
+    "mtime_ns": "1794399483000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/en.userdb\/CURRENT",
+    "mtime_ns": "1794399471000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/en.userdb\/MANIFEST-000002",
+    "mtime_ns": "1794399471000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/context_reorder.userdb",
+    "mtime_ns": "1794399480000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/context_reorder.userdb\/LOG",
+    "mtime_ns": "1794399480000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/context_reorder.userdb\/LOCK",
+    "mtime_ns": "1794399480000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/context_reorder.userdb\/000003.log",
+    "mtime_ns": "1794399483000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/context_reorder.userdb\/CURRENT",
+    "mtime_ns": "1794399480000000000"
+  },
+  {
+    "path": "\/sdcard\/Android\/data\/org.fcitx.fcitx5.android.fx.rime\/files\/data\/rime\/context_reorder.userdb\/MANIFEST-000002",
+    "mtime_ns": "1794399480000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/addon",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/addon\/androidfrontend.conf",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/addon\/clipboard.conf",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/addon\/notifications.conf",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/addon\/rime.conf",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/ar_DZ",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/as_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/ast_ES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/az_AZ",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/be_BY",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/bg_BG",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/bn_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/cat_ES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/cs_CZ",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/de_CH",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/de_DE",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/el_CY",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/el_GR",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/en_GB",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/en_US",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/en_ZA",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/es_ES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/es_GT",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/es_MX",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/fr_BE",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/fr_CH",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/fr_FR",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/gl_ES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/gu_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/he_IL",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/hi_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/id_ID",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/it_IT",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/ja_JP",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/kn_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/ko_KR",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/mai_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/ml_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/mr_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/nl_NL",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/or_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/pa_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/pl_PL",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/pt_BR",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/pt_PT",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/ru_RU",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/sd_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/sk_SK",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/ta_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/te_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/ur_IN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/zh_CN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/zh_HK",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/default\/zh_TW",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/inputmethod",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/inputmethod\/rime.conf",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/unicode",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/fcitx5\/unicode\/charselectdata",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ca",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ca\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ca\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ca\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/da",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/da\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/da\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/da\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/de",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/de\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/de\/LC_MESSAGES\/fcitx5-android.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/de\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/de\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/es",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/es\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/es\/LC_MESSAGES\/fcitx5-android.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/es\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/fr",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/fr\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/fr\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/fr\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/he",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/he\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/he\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/he\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ja",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ja\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ja\/LC_MESSAGES\/fcitx5-android.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ja\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ja\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ka",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ka\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ka\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ka\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ko",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ko\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ko\/LC_MESSAGES\/fcitx5-android.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ko\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ko\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ru",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ru\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ru\/LC_MESSAGES\/fcitx5-android.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ru\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/ru\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/sv",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/sv\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/sv\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/sv\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/tr",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/tr\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/tr\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/vi",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/vi\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/vi\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/vi\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_CN",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_CN\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_CN\/LC_MESSAGES\/fcitx5-android.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_CN\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_CN\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_TW",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_TW\/LC_MESSAGES",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_TW\/LC_MESSAGES\/fcitx5-android.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_TW\/LC_MESSAGES\/fcitx5-rime.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/locale\/zh_TW\/LC_MESSAGES\/fcitx5.mo",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/HKVariants.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/HKVariantsRev.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/HKVariantsRevPhrases.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/JPShinjitaiCharacters.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/JPShinjitaiPhrases.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/JPVariants.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/JPVariantsRev.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/STCharacters.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/STPhrases.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/TSCharacters.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/TSPhrases.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/TWPhrases.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/TWPhrasesRev.ocd2",
+    "mtime_ns": "1794399297000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/TWVariants.ocd2",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/TWVariantsRev.ocd2",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/TWVariantsRevPhrases.ocd2",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/hk2s.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/hk2t.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/jp2t.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/s2hk.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/s2t.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/s2tw.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/s2twp.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/t2hk.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/t2jp.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/t2s.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/t2tw.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/tw2s.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/tw2sp.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/opencc\/tw2t.json",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/rime-data",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/rime-data\/default.yaml",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/rime-data\/key_bindings.yaml",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/rime-data\/punctuation.yaml",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/usr\/share\/rime-data\/symbols.yaml",
+    "mtime_ns": "1794399298000000000"
+  },
+  {
+    "path": "\/data\/user_de\/0\/org.fcitx.fcitx5.android.fx.rime\/descriptor.json",
+    "mtime_ns": "1794399298000000000"
+  }
+]

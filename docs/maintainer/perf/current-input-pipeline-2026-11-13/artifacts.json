@@ -1,0 +1,101 @@
+{
+  "build_quality_run": 43408540911,
+  "sampling_run": 43410655925,
+  "artifacts": [
+    {
+      "id": 14029665940,
+      "name": "pipeline-quality",
+      "size_in_bytes": 450055,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14029665940",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14029665940/zip",
+      "expired": false,
+      "created_at": "2026-11-13T10:35:07Z",
+      "expires_at": "2026-12-13T10:21:58Z",
+      "updated_at": "2026-11-13T10:35:07Z",
+      "digest": "sha256:f38dda774fc9d3338aa09ee3fd72821ce9e173d192126107ae406b61041b4df5",
+      "workflow_run": {
+        "id": 43408540911,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/input-pipeline-20261113",
+        "head_sha": "b070c2b7b0d9a3ca446e444204408f11717dbe2f"
+      }
+    },
+    {
+      "id": 14028344305,
+      "name": "latency-study-products",
+      "size_in_bytes": 47642408,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14028344305",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14028344305/zip",
+      "expired": false,
+      "created_at": "2026-11-13T10:32:20Z",
+      "expires_at": "2026-12-13T10:21:58Z",
+      "updated_at": "2026-11-13T10:32:20Z",
+      "digest": "sha256:8ebac8fc67e6db07b0596ff3011e0d218846b7018429526e61a6474737586e50",
+      "workflow_run": {
+        "id": 43408540911,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/input-pipeline-20261113",
+        "head_sha": "b070c2b7b0d9a3ca446e444204408f11717dbe2f"
+      }
+    },
+    {
+      "id": 14030576493,
+      "name": "pipeline-formal-reverse",
+      "size_in_bytes": 1056083,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14030576493",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14030576493/zip",
+      "expired": false,
+      "created_at": "2026-11-13T10:56:59Z",
+      "expires_at": "2026-12-13T10:38:42Z",
+      "updated_at": "2026-11-13T10:56:59Z",
+      "digest": "sha256:e85af287356622714eb2a68ec428e092164aa0f20a322799fa160085869a532a",
+      "workflow_run": {
+        "id": 43410655925,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/input-pipeline-20261113",
+        "head_sha": "6b4cf6e8a9ae2043081f227bf8a85962c6cfe07e"
+      }
+    },
+    {
+      "id": 14029693970,
+      "name": "pipeline-formal-forward",
+      "size_in_bytes": 1045063,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14029693970",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14029693970/zip",
+      "expired": false,
+      "created_at": "2026-11-13T10:52:31Z",
+      "expires_at": "2026-12-13T10:38:42Z",
+      "updated_at": "2026-11-13T10:52:31Z",
+      "digest": "sha256:e0d6658c14f7f9b0764e3ab319d75499e119508aa305855fcc1081995de36457",
+      "workflow_run": {
+        "id": 43410655925,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/input-pipeline-20261113",
+        "head_sha": "6b4cf6e8a9ae2043081f227bf8a85962c6cfe07e"
+      }
+    },
+    {
+      "id": 14029147875,
+      "name": "pipeline-profile",
+      "size_in_bytes": 5295330,
+      "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14029147875",
+      "archive_download_url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/artifacts/14029147875/zip",
+      "expired": false,
+      "created_at": "2026-11-13T10:42:37Z",
+      "expires_at": "2026-12-13T10:38:42Z",
+      "updated_at": "2026-11-13T10:42:37Z",
+      "digest": "sha256:441a8fbe76ba0c658c1457602a7971e1376c88417a010484a3157f957c91e359",
+      "workflow_run": {
+        "id": 43410655925,
+        "repository_id": 1303455007,
+        "head_repository_id": 1303455007,
+        "head_branch": "perf/input-pipeline-20261113",
+        "head_sha": "6b4cf6e8a9ae2043081f227bf8a85962c6cfe07e"
+      }
+    }
+  ]
+}

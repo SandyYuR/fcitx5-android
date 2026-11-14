@@ -1,0 +1,127 @@
+From 2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 16:31:51 +0000
+Subject: [PATCH] =?UTF-8?q?=E8=B0=83=E6=95=B4(=E5=80=99=E9=80=89):=20?=
+ =?UTF-8?q?=E6=92=A4=E4=B8=8B=E6=9C=AA=E9=AA=8C=E6=94=B6=E7=9A=84=E6=97=A0?=
+ =?UTF-8?q?=E6=B3=A8=E9=87=8A=E9=AB=98=E4=BA=AE=E5=BF=AB=E8=B7=AF=E5=BE=84?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../android/input/candidates/CandidateRenderingTest.kt |  7 +++----
+ .../fcitx5/android/input/candidates/CandidateItemUi.kt | 10 +---------
+ .../input/candidates/CandidateRenderingStateTest.kt    |  9 ++++-----
+ 3 files changed, 8 insertions(+), 18 deletions(-)
+
+diff --git a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
+index 1bf57b53..fae2ee74 100644
+--- a/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
++++ b/app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingTest.kt
+@@ -56,7 +56,7 @@ class CandidateRenderingTest {
+         }
+     }
+ 
+-    @Test fun plainHighlightRetainsTextAndItsMeasuredLayout() = withWindow { host ->
++    @Test fun plainHighlightKeepsContentColorsAndPixels() = withWindow { host ->
+         for (theme in listOf(ThemePreset.MaterialLight, ThemePreset.MaterialDark)) {
+             val fixture = createFixture(host, theme, overflow = true)
+             try {
+@@ -68,8 +68,7 @@ class CandidateRenderingTest {
+                     assertFalse(fixture.text.isLayoutRequested)
+                     for (active in listOf(true, false, true)) {
+                         fixture.ui.setActive(active)
+-                        assertSame(original, fixture.text.text)
+-                        assertFalse("Highlight must not invalidate unchanged text metrics", fixture.text.isLayoutRequested)
++                        assertEquals(original.toString(), fixture.text.text.toString())
+                         assertEquals(
+                             if (active) theme.genericActiveForegroundColor else theme.candidateTextColor,
+                             fixture.text.currentTextColor,
+@@ -99,7 +98,7 @@ class CandidateRenderingTest {
+                 fixture.text.textSize,
+                 0.01f,
+             )
+-            assertSame(original, fixture.text.text)
++            assertEquals(original.toString(), fixture.text.text.toString())
+             assertTrue("Changing fonts must still invalidate text metrics", fixture.text.isLayoutRequested)
+             assertOriginalRendering(fixture, plain, active = false)
+             assertNotEquals("The font fixture must change natural width", oldWidth, fixture.text.measuredWidth)
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+index 8b3f9e40..8d9fb8f9 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/CandidateItemUi.kt
+@@ -251,7 +251,6 @@ class CandidateItemUi(
+     fun refreshConfiguredFont(fontOverride: Typeface? = font) {
+         applyConfiguredTypeface(fontOverride)
+         applyConfiguredTextSize()
+-        if (candidate.comment.isBlank()) return
+         val commentTypeface = cachedCommentFont ?: FontProviders.resolveCommentTypeface(text.typeface)
+         val signature = commentTypeface to FontProviders.commentFontSizePx(ctx)
+         if (signature != renderedCommentSignature) {
+@@ -270,8 +269,7 @@ class CandidateItemUi(
+     fun setActive(active: Boolean) {
+         if (this.active != active) {
+             this.active = active
+-            // Plain candidates use currentTextColor; only comment spans need rebuilding.
+-            if (candidate.comment.isNotBlank()) renderCandidate()
++            renderCandidate()
+         }
+         text.setTextColor(if (this.active) theme.genericActiveForegroundColor else theme.candidateTextColor)
+         refreshIndexBadgeColor()
+@@ -308,12 +306,6 @@ class CandidateItemUi(
+ 
+     private fun renderCandidate() {
+         val fg = if (active) theme.genericActiveForegroundColor else theme.candidateTextColor
+-        if (candidate.comment.isBlank()) {
+-            renderedCommentSignature = null
+-            text.setTextColor(fg)
+-            text.text = candidate.text
+-            return
+-        }
+         val altFg = if (active) theme.genericActiveForegroundColor else theme.candidateCommentColor
+         val commentTypeface = cachedCommentFont ?: FontProviders.resolveCommentTypeface(text.typeface)
+         val commentSizePx = FontProviders.commentFontSizePx(ctx)
+diff --git a/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingStateTest.kt b/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingStateTest.kt
+index 3c11b696..f5618d3f 100644
+--- a/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingStateTest.kt
++++ b/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingStateTest.kt
+@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
+ @RunWith(RobolectricTestRunner::class)
+ @Config(sdk = [23, 28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
+ class CandidateRenderingStateTest {
+-    @Test fun plainHighlightChangesColorWithoutInvalidatingTextLayout() = fixture { ui, text ->
++    @Test fun plainHighlightKeepsTextAndUpdatesColors() = fixture { ui, text ->
+         for (comment in listOf("", " \t\n")) {
+             ui.updateCandidate(CandidateWord("1", "candidate", comment))
+             layout(ui)
+@@ -33,8 +33,7 @@ class CandidateRenderingStateTest {
+             assertFalse(text.isLayoutRequested)
+             for (active in listOf(true, false, true)) {
+                 ui.setActive(active)
+-                assertSame("Highlight must retain the displayed text", original, text.text)
+-                assertFalse("Only the color changed; text geometry is still valid", text.isLayoutRequested)
++                assertEquals("Highlight must retain the displayed content", original.toString(), text.text.toString())
+                 assertEquals(
+                     if (active) ui.theme.genericActiveForegroundColor else ui.theme.candidateTextColor,
+                     text.currentTextColor,
+@@ -63,7 +62,7 @@ class CandidateRenderingStateTest {
+         }
+     }
+ 
+-    @Test fun plainFontRefreshStillInvalidatesMetricsWithoutReplacingText() = fixture { ui, text ->
++    @Test fun plainFontRefreshInvalidatesMetricsAndKeepsContent() = fixture { ui, text ->
+         ui.updateCandidate(CandidateWord("1", "MMMMMMMM", ""))
+         layout(ui)
+         val original = text.text
+@@ -71,7 +70,7 @@ class CandidateRenderingStateTest {
+         ui.refreshConfiguredFont()
+         assertEquals(Typeface.SERIF, text.typeface)
+         assertEquals(28f * text.resources.displayMetrics.scaledDensity, text.textSize, 0.01f)
+-        assertSame(original, text.text)
++        assertEquals(original.toString(), text.text.toString())
+         assertTrue("Font and size changes must still remeasure", text.isLayoutRequested)
+     }
+ 
+-- 
+2.52.0
+

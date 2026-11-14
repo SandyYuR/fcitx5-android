@@ -1,0 +1,430 @@
+From cc8c26015e6d67d3d5cfc7ba880db8205891dde7 Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 06:09:53 +0000
+Subject: [PATCH 1/2] =?UTF-8?q?=E4=BC=98=E5=8C=96(=E5=80=99=E9=80=89):=20?=
+ =?UTF-8?q?=E5=9C=A8=E4=B8=8A=E6=BB=91=E9=80=89=E5=AD=97=E6=97=B6=E6=89=8D?=
+ =?UTF-8?q?=E6=8B=86=E5=88=86=E5=AD=97=E5=BD=A2=E7=B0=87?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../java/org/fcitx/fcitx5/android/input/BaseInputView.kt  | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt
+index 701b27ba..7f53dc17 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt
+@@ -146,7 +146,6 @@ abstract class BaseInputView(
+         resolveIndex: () -> Int
+     ) {
+         candidateAnchorOwners[view] = Any()
+-        val characters = text.candidateCharacters()
+         var gestureCancelled = false
+         var popup: CandidateCharacterPopup? = null
+         // 本次按住是否已经选定方向（上滑弹字窗 / 下滑弹菜单）；选定后不再改向。
+@@ -189,7 +188,12 @@ abstract class BaseInputView(
+                         directionLocked -> true
+ 
+                         // 向上滑：弹单字窗
+-                        event.totalY < 0 && characters.isNotEmpty() -> {
++                        event.totalY < 0 -> {
++                            // Ordinary candidate binding/taps do not need Unicode segmentation.
++                            // Resolve the displayed binding's text only when this gesture opens
++                            // the character picker; subsequent moves reuse the popup below.
++                            val characters = text.candidateCharacters()
++                            if (characters.isEmpty()) return@OnGestureListener false
+                             directionLocked = true
+                             popup = CandidateCharacterPopup(view, characters, theme).also {
+                                 candidateCharacterPopup = it
+-- 
+2.52.0
+
+
+From f02bbaec1c2820545382dab82b3e007e9f2735fe Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 06:10:05 +0000
+Subject: [PATCH 2/2] =?UTF-8?q?=E4=BF=AE=E5=A4=8D(=E5=80=99=E9=80=89):=20?=
+ =?UTF-8?q?=E6=8C=89=E6=8E=A5=E6=94=B6=E8=83=BD=E5=8A=9B=E5=88=86=E5=8F=91?=
+ =?UTF-8?q?=E5=88=86=E9=A1=B5=E5=BF=AB=E7=85=A7=E5=B9=B6=E7=A7=BB=E9=99=A4?=
+ =?UTF-8?q?=E8=B6=85=E6=97=B6=E4=BB=B2=E8=A3=81?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../android/core/DirectRimeFrontendTest.kt    | 110 ++++++++++++++++++
+ .../fcitx/fcitx5/android/input/InputView.kt   |   6 +-
+ .../input/broadcast/InputBroadcastReceiver.kt |   7 +-
+ .../input/broadcast/InputBroadcaster.kt       |  10 +-
+ .../HorizontalCandidateComponent.kt           |  26 +----
+ .../input/broadcast/CandidateBroadcastTest.kt |  91 +++++++++++++++
+ 6 files changed, 220 insertions(+), 30 deletions(-)
+ create mode 100644 app/src/test/java/org/fcitx/fcitx5/android/input/broadcast/CandidateBroadcastTest.kt
+
+diff --git a/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt b/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt
+index 21db0c26..6dc1c856 100644
+--- a/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt
++++ b/app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt
+@@ -2071,4 +2071,114 @@ end
+             if (!enabled) shell("ime disable $component")
+         }
+     }
++    /** Real IME view: mode changes are ordered data, and splitting belongs to the hold gesture. */
++    @Test fun candidateDeliveryAndCharacterGestureKeepTheirDisplayedBinding(): Unit = runBlocking {
++        val component = "${context.packageName}/org.fcitx.fcitx5.android.input.FcitxInputMethodService"
++        val previous = shell("settings get secure default_input_method")
++        val previousHardKeyboard = shell("settings get secure show_ime_with_hard_keyboard")
++        val enabled = component in shell("ime list -s")
++        val prefs = AppPrefs.getInstance()
++        val oldFloating = prefs.candidates.mode.getValue()
++        val oldLayout = prefs.keyboard.textKeyboardLayoutProfile.getValue()
++        val oldHold = prefs.keyboard.longPressDelay.getValue()
++        var activity: RimeImportActivity? = null
++        var view: InputView? = null
++        fun descendants(root: View): Sequence<View> = sequence {
++            yield(root)
++            if (root is ViewGroup) for (i in 0 until root.childCount) yieldAll(descendants(root.getChildAt(i)))
++        }
++        try {
++            shell("settings put secure show_ime_with_hard_keyboard 1")
++            instrumentation.runOnMainSync {
++                prefs.candidates.mode.setValue(FloatingCandidatesMode.Disabled)
++                prefs.keyboard.textKeyboardLayoutProfile.setValue("default")
++                prefs.keyboard.longPressDelay.setValue(300)
++            }
++            shell("ime enable $component"); shell("ime set $component")
++            activity = instrumentation.startActivitySync(Intent(context, RimeImportActivity::class.java)
++                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as RimeImportActivity
++            val editor = activity!!.findViewById<EditText>(R.id.direct_rime_test_editor)
++            instrumentation.runOnMainSync {
++                editor.inputType = InputType.TYPE_CLASS_TEXT
++                editor.requestFocus()
++                (context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager)
++                    .showSoftInput(editor, InputMethodManager.SHOW_IMPLICIT)
++            }
++            await("Visible input view") {
++                instrumentation.runOnMainSync {
++                    view = WindowInspector.getGlobalWindowViews().asSequence().flatMap(::descendants)
++                        .filterIsInstance<InputView>().firstOrNull { it.isShown && it.service.isInputViewShown }
++                }
++                view != null
++            }
++            connection.runOnReady { sendKey('n'); sendKey('i') }
++            val horizontalField = InputView::class.java.getDeclaredField("horizontalCandidate").apply { isAccessible = true }
++            fun horizontal() = horizontalField.get(view) as org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateComponent
++            await("Visible Chinese candidate") {
++                var found = false
++                instrumentation.runOnMainSync { found = horizontal().adapter.candidates.any { it.text == "你" } }
++                found
++            }
++            instrumentation.runOnMainSync {
++                val input = requireNotNull(view)
++                input.handleEvents = false // No engine events may race these synthetic presentation fixtures.
++                val deliver = InputView::class.java.getDeclaredMethod("handleFcitxEvent", FcitxEvent::class.java)
++                    .apply { isAccessible = true }
++                val page = FcitxEvent.PagedCandidateEvent.Data(
++                    arrayOf(CandidateWord("1", "输入é𠀀", "")), 0,
++                    FcitxEvent.PagedCandidateEvent.LayoutHint.NotSet, false, false)
++                deliver.invoke(input, FcitxEvent.PagedCandidateEvent(page))
++                val list = FcitxEvent.CandidateListEvent.Data(-1, arrayOf(CandidateWord("1", "列表", "")))
++                deliver.invoke(input, FcitxEvent.CandidateListEvent(list))
++                assertSame("A true list event must not be suppressed within 500 ms", list.candidates, horizontal().adapter.candidates)
++                deliver.invoke(input, FcitxEvent.PagedCandidateEvent(page))
++                assertSame(page.candidates, horizontal().adapter.candidates)
++            }
++            instrumentation.waitForIdleSync()
++            var root: org.fcitx.fcitx5.android.input.keyboard.CustomGestureView? = null
++            await("Displayed fixture holder") {
++                instrumentation.runOnMainSync {
++                    root = (horizontal().view.findViewHolderForAdapterPosition(0)
++                        as? org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder)?.ui?.root
++                }
++                root != null
++            }
++            val popupField = org.fcitx.fcitx5.android.input.BaseInputView::class.java
++                .getDeclaredField("candidateCharacterPopup").apply { isAccessible = true }
++            fun touch(action: Int, y: Float, down: Long) = instrumentation.runOnMainSync {
++                val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, root!!.width / 2f, y, 0)
++                try { root!!.dispatchTouchEvent(event) } finally { event.recycle() }
++            }
++            val down = SystemClock.uptimeMillis()
++            touch(MotionEvent.ACTION_DOWN, root!!.height / 2f, down)
++            delay(350)
++            touch(MotionEvent.ACTION_MOVE, -40f, down)
++            instrumentation.runOnMainSync {
++                val popup = requireNotNull(popupField.get(view))
++                val characters = popup.javaClass.getDeclaredField("characters").apply { isAccessible = true }.get(popup)
++                assertEquals(listOf("输", "入", "é", "𠀀"), characters)
++                assertTrue((popup as org.fcitx.fcitx5.android.input.candidates.CandidateCharacterPopup).isShowing)
++            }
++            touch(MotionEvent.ACTION_CANCEL, -40f, down)
++            instrumentation.runOnMainSync {
++                assertNull(popupField.get(view))
++                assertEquals("Cancelling a picker must not commit a character", "", editor.text.toString())
++                view!!.unbindCandidateGesture(root!!)
++                assertNull(root!!.onGestureListener)
++            }
++        } finally {
++            instrumentation.runOnMainSync {
++                view?.handleEvents = true
++                activity?.finish()
++                prefs.keyboard.longPressDelay.setValue(oldHold)
++                prefs.keyboard.textKeyboardLayoutProfile.setValue(oldLayout)
++                prefs.candidates.mode.setValue(oldFloating)
++            }
++            if (previous.isNotBlank() && previous != "null") shell("ime set $previous")
++            if (previousHardKeyboard == "null") shell("settings delete secure show_ime_with_hard_keyboard")
++            else shell("settings put secure show_ime_with_hard_keyboard $previousHardKeyboard")
++            if (!enabled) shell("ime disable $component")
++        }
++    }
++
+ }
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt
+index 79e01406..3f670ee4 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt
+@@ -3747,10 +3747,8 @@ class InputView(
+                 broadcaster.onCandidateUpdate(it.data)
+             }
+             is FcitxEvent.PagedCandidateEvent -> {
+-                // Keep legacy candidate listeners alive even in paged mode.
+-                broadcaster.onCandidateUpdate(
+-                    FcitxEvent.CandidateListEvent.Data(total = -1, candidates = it.data.candidates)
+-                )
++                // Paging-aware receivers consume the complete snapshot; the broadcaster
++                // adapts it once for components that only need the list.
+                 broadcaster.onPagedCandidateUpdate(it.data)
+             }
+             is FcitxEvent.ClientPreeditEvent -> {
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcastReceiver.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcastReceiver.kt
+index 7f501f13..90046746 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcastReceiver.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcastReceiver.kt
+@@ -30,8 +30,6 @@ interface InputBroadcastReceiver {
+ 
+     fun onCandidateUpdate(data: CandidateListEvent.Data) {}
+ 
+-    fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data) {}
+-
+     fun onStatusAreaUpdate(actions: Array<Action>) {}
+ 
+     fun onSelectionUpdate(start: Int, end: Int) {}
+@@ -45,3 +43,8 @@ interface InputBroadcastReceiver {
+     fun onReturnKeyDrawableUpdate(@DrawableRes resourceId: Int) {}
+ 
+ }
++
++/** Consume the complete page instead of its list-only compatibility presentation. */
++interface PagedCandidateReceiver : InputBroadcastReceiver {
++    fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data)
++}
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcaster.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcaster.kt
+index a1e44d80..b8fc5f09 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcaster.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcaster.kt
+@@ -19,7 +19,7 @@ import org.mechdancer.dependency.ScopeEvent
+ import org.fcitx.fcitx5.android.input.dependency.InputUniqueComponent
+ import java.util.concurrent.ConcurrentLinkedQueue
+ 
+-class InputBroadcaster : InputUniqueComponent<InputBroadcaster>(InputBroadcaster::class), Dependent, InputBroadcastReceiver {
++class InputBroadcaster : InputUniqueComponent<InputBroadcaster>(InputBroadcaster::class), Dependent, PagedCandidateReceiver {
+ 
+     private val receivers = ConcurrentLinkedQueue<InputBroadcastReceiver>()
+ 
+@@ -60,7 +60,13 @@ class InputBroadcaster : InputUniqueComponent<InputBroadcaster>(InputBroadcaster
+     }
+ 
+     override fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data) {
+-        receivers.forEach { it.onPagedCandidateUpdate(data) }
++        // One event per receiver, with one shared adaptation for list-only components.
++        // A paging receiver must not render a synthetic first-page/highlight state first.
++        val list = CandidateListEvent.Data(total = -1, candidates = data.candidates)
++        receivers.forEach {
++            if (it is PagedCandidateReceiver) it.onPagedCandidateUpdate(data)
++            else it.onCandidateUpdate(list)
++        }
+     }
+ 
+     override fun onStatusAreaUpdate(actions: Array<Action>) {
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
+index f695fab8..ee326e6d 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt
+@@ -7,7 +7,6 @@ package org.fcitx.fcitx5.android.input.candidates.horizontal
+ 
+ import android.graphics.Typeface
+ import android.os.Looper
+-import android.os.SystemClock
+ import android.text.TextPaint
+ import android.util.TypedValue
+ import android.view.inputmethod.EditorInfo
+@@ -36,7 +35,7 @@ import org.fcitx.fcitx5.android.core.FcitxEvent.PagedCandidateEvent
+ import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.BooleanKey.ExpandedCandidatesEmpty
+ import org.fcitx.fcitx5.android.input.bar.ExpandButtonStateMachine.TransitionEvent.ExpandedCandidatesUpdated
+ import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
+-import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
++import org.fcitx.fcitx5.android.input.broadcast.PagedCandidateReceiver
+ import org.fcitx.fcitx5.android.input.AutoScaleTextView
+ import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeContent
+ import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgePosition
+@@ -60,7 +59,7 @@ import splitties.dimensions.dp
+ import kotlin.math.max
+ 
+ class HorizontalCandidateComponent :
+-    UniqueViewComponent<HorizontalCandidateComponent, RecyclerView>(HorizontalCandidateComponent::class), InputBroadcastReceiver {
++    UniqueViewComponent<HorizontalCandidateComponent, RecyclerView>(HorizontalCandidateComponent::class), PagedCandidateReceiver {
+ 
+     private val context by manager.context()
+     private val service by manager.inputMethodService()
+@@ -178,8 +177,6 @@ class HorizontalCandidateComponent :
+     private var lastPagedCursor = -1
+     private var lastPagedHasPrev = false
+     private var lastPagedData: PagedCandidateEvent.Data? = null
+-    private var pagedCandidateFlowActive = false
+-    private var lastPagedEventUptimeMs = 0L
+     private var lastRenderedCandidatesSnapshot: Array<CandidateWord> = emptyArray()
+     private var lastRenderedActiveIndex = Int.MIN_VALUE
+ 
+@@ -215,8 +212,6 @@ class HorizontalCandidateComponent :
+ 
+     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
+         // New input session should not inherit paged-candidate flow state from previous one.
+-        pagedCandidateFlowActive = false
+-        lastPagedEventUptimeMs = 0L
+         lastPagedData = null
+         // 新会话（含 Rime 重启、切换输入法）的 generation 必须前进：否则即使新会话的候选
+         // 内容与旧会话完全一样，(offset, generation) 也会与上次相同而被去重吞掉，展开面板
+@@ -589,19 +584,8 @@ class HorizontalCandidateComponent :
+     }
+ 
+     override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
+-        if (pagedCandidateFlowActive && data.total == -1) {
+-            val now = SystemClock.uptimeMillis()
+-            // Keep preferring paged events only when they are still arriving.
+-            // If paged stream is stale (e.g. engine/plugin restarted), fallback to legacy list updates.
+-            if (now - lastPagedEventUptimeMs <= 500L) {
+-                pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
+-                pendingLegacyCandidateUpdate = null
+-                return
+-            }
+-            pagedCandidateFlowActive = false
+-            lastPagedData = null
+-            pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
+-        }
++        // This is an actual list-mode snapshot, not a duplicate of a paged event.
++        // Switching modes must take effect immediately, even within the same frame.
+         lastPagedData = null
+         lastRenderedCandidatesSnapshot = emptyArray()
+         lastRenderedActiveIndex = Int.MIN_VALUE
+@@ -624,8 +608,6 @@ class HorizontalCandidateComponent :
+     }
+ 
+     override fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data) {
+-        pagedCandidateFlowActive = true
+-        lastPagedEventUptimeMs = SystemClock.uptimeMillis()
+         pendingLegacyCandidateUpdate?.let(view::removeCallbacks)
+         pendingLegacyCandidateUpdate = null
+         val candidates = data.candidates
+diff --git a/app/src/test/java/org/fcitx/fcitx5/android/input/broadcast/CandidateBroadcastTest.kt b/app/src/test/java/org/fcitx/fcitx5/android/input/broadcast/CandidateBroadcastTest.kt
+new file mode 100644
+index 00000000..ff2f15ea
+--- /dev/null
++++ b/app/src/test/java/org/fcitx/fcitx5/android/input/broadcast/CandidateBroadcastTest.kt
+@@ -0,0 +1,91 @@
++/* SPDX-License-Identifier: LGPL-2.1-or-later */
++package org.fcitx.fcitx5.android.input.broadcast
++
++import org.fcitx.fcitx5.android.core.CandidateActionContext
++import org.fcitx.fcitx5.android.core.CandidateSelectionTarget
++import org.fcitx.fcitx5.android.core.CandidateWord
++import org.fcitx.fcitx5.android.core.FcitxEvent.CandidateListEvent
++import org.fcitx.fcitx5.android.core.FcitxEvent.PagedCandidateEvent
++import org.fcitx.fcitx5.android.input.dependency.InputUniqueComponent
++import org.junit.Assert.*
++import org.junit.Test
++import org.mechdancer.dependency.DynamicScope
++import org.mechdancer.dependency.plusAssign
++
++class CandidateBroadcastTest {
++    private class Paged : InputUniqueComponent<Paged>(Paged::class), PagedCandidateReceiver {
++        val events = mutableListOf<Any>()
++        override fun onCandidateUpdate(data: CandidateListEvent.Data) { events += data }
++        override fun onPagedCandidateUpdate(data: PagedCandidateEvent.Data) { events += data }
++    }
++    private class ListOnly : InputUniqueComponent<ListOnly>(ListOnly::class), InputBroadcastReceiver {
++        val events = mutableListOf<CandidateListEvent.Data>()
++        override fun onCandidateUpdate(data: CandidateListEvent.Data) { events += data }
++    }
++    private class AnotherList : InputUniqueComponent<AnotherList>(AnotherList::class), InputBroadcastReceiver {
++        var last: CandidateListEvent.Data? = null
++        override fun onCandidateUpdate(data: CandidateListEvent.Data) { last = data }
++    }
++    private class Fixture {
++        val broadcaster = InputBroadcaster()
++        val paged = Paged()
++        val list = ListOnly()
++        val another = AnotherList()
++        val scope = DynamicScope().apply {
++            this += broadcaster; this += paged; this += list; this += another
++        }
++    }
++    private fun page(version: Long = 1) = PagedCandidateEvent.Data(
++        arrayOf(CandidateWord("k", "词", "注释").apply {
++            selectionTarget = CandidateSelectionTarget(CandidateActionContext(7, version), 9, false)
++        }), 0, PagedCandidateEvent.LayoutHint.NotSet, true, true
++    )
++
++    @Test fun pageHasOneDeliveryPerReceiverWithCompleteSelectionMetadata() {
++        val f = Fixture()
++        val page = page()
++        f.broadcaster.onPagedCandidateUpdate(page)
++        assertEquals(1, f.paged.events.size)
++        assertSame(page, f.paged.events.single())
++        assertEquals(1, f.list.events.size)
++        assertSame(page.candidates, f.list.events.single().candidates)
++        assertEquals(-1, f.list.events.single().total)
++        assertSame(f.list.events.single(), f.another.last)
++        assertEquals(page.candidates[0].selectionTarget, f.another.last!!.candidates[0].selectionTarget)
++    }
++
++    @Test fun switchingToAListAndBackHasNoTimeBasedSuppressionOrSyntheticHighlight() {
++        val f = Fixture()
++        val first = page()
++        val list = CandidateListEvent.Data(4, arrayOf(CandidateWord("1", "新词", "")))
++        val second = page(2)
++        f.broadcaster.onPagedCandidateUpdate(first)
++        f.broadcaster.onCandidateUpdate(list)
++        f.broadcaster.onPagedCandidateUpdate(second)
++        assertEquals(listOf(first, list, second), f.paged.events)
++        assertEquals(3, f.list.events.size)
++        assertSame(list, f.list.events[1])
++        assertSame(second.candidates, f.list.events[2].candidates)
++    }
++
++    @Test fun emptyPageClearsBothPagingAndListOnlyComponents() {
++        val f = Fixture()
++        f.broadcaster.onPagedCandidateUpdate(page())
++        f.broadcaster.onPagedCandidateUpdate(PagedCandidateEvent.Data.Empty)
++        assertEquals(2, f.paged.events.size)
++        assertSame(PagedCandidateEvent.Data.Empty, f.paged.events.last())
++        assertTrue(f.list.events.last().candidates.isEmpty())
++    }
++
++    @Test fun identicalPresentationStillDeliversTheNewSelectionVersion() {
++        val f = Fixture()
++        val old = page(1)
++        val fresh = page(2)
++        assertEquals(old, fresh)
++        f.broadcaster.onPagedCandidateUpdate(old)
++        f.broadcaster.onPagedCandidateUpdate(fresh)
++        assertSame(fresh, f.paged.events.last())
++        assertSame(fresh.candidates, f.list.events.last().candidates)
++        assertEquals(2, f.list.events.size)
++    }
++}
+-- 
+2.52.0
+

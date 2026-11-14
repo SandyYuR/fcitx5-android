@@ -1,0 +1,74 @@
+{
+  "date_beijing": "2026-11-13",
+  "purpose": "Whole input-chain review: on-demand character segmentation and exactly-once candidate dispatch",
+  "sources": {
+    "baseline": "88a664d46ba82712d5457d86c037629c478b042c",
+    "current": "f02bbaec1c2820545382dab82b3e007e9f2735fe"
+  },
+  "production_files": [
+    "app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcastReceiver.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/InputBroadcaster.kt",
+    "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt"
+  ],
+  "kept": [
+    "latest default engine management, CharacterStyle rendering and fonts (PR32 font change is not included)",
+    "native SDK and real key/release processing",
+    "ordered owner/commit/session gates and learned dictionary semantics",
+    "candidate selection identities and gesture timing",
+    "original Wanxiang YAML/model"
+  ],
+  "fixture_run": 43018095886,
+  "fixture_artifact": 13853652309,
+  "fixture": "Wanxiang18.1.10base+2026-11-07LTS full-pinyin/context/abbrev/small-charset original YAML",
+  "protocol": "external_process_input_manager_phase_v3",
+  "gap_ms": 100,
+  "minimum_actual_hold_ns": 20000000,
+  "trace_in_formal": false,
+  "formal": {
+    "vms": 2,
+    "blocks_per_vm": 6,
+    "block": "Three ABBA and three BAAB blocks per VM, shuffled by the frozen seed",
+    "orders": [
+      "baseline,current",
+      "current,baseline"
+    ],
+    "seeds": [
+      2026111361,
+      2026111362
+    ],
+    "processes": 48,
+    "selections": 288,
+    "unit": "Within-block mean current minus mean baseline; 6 independent paired block observations per VM; keep VMs separate"
+  },
+  "profile": {
+    "vms": 1,
+    "order": "baseline,current",
+    "seed": 2026111363,
+    "processes": 2,
+    "selections": 12,
+    "separate_from_formal": true,
+    "diagnostics": "Same ordinary Debug APK, INPUT_DIAGNOSTICS=false; platform/UI/RenderThread traces only, not native per-key timing."
+  },
+  "interpretation": {
+    "cold_metrics": [
+      "i_injected_down_to_dispatch_up_ms",
+      "select_dispatch_up_to_ic_ms"
+    ],
+    "stable_speedup": "A cold metric negative paired median and >=5/6 faster blocks in BOTH VMs; neither cold metric positive median BOTH VMs; no warm metric positive median and >=4/6 slower BOTH VMs",
+    "regression_signal": "A cold metric positive paired median and >=4/6 slower blocks in BOTH VMs; report absolute deltas and all raw signs, no exclusion of adverse samples",
+    "decision": "Correctness fixes and eliminated work are reported separately from end-to-end speed. If no stable speedup, do not claim one. Do not merge or overwrite PR32 code automatically; preserve exact reviewed work on one branch for review.",
+    "limits": "Not a formal noninferiority test. No phone/ARM/Release/throughput/P95 claims; first i ends at IME window UP, selection ends at IC entry."
+  },
+  "quality_classes": [
+    "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest",
+    "org.fcitx.fcitx5.android.ui.main.log.LogExportTest",
+    "org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapterViewTest",
+    "org.fcitx.fcitx5.android.ui.main.MaterialSettingsPagesTest",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeTest",
+    "org.fcitx.fcitx5.android.input.candidates.CandidateOverflowTest"
+  ],
+  "excluded_device_case": "org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#diagnoseColdCandidateCore",
+  "baseline_correction": "Before any build/sample: moved the two product commits from stale PR32 base to actual remote default 88a664d4; native engine management remains intact. No old-base samples exist."
+}

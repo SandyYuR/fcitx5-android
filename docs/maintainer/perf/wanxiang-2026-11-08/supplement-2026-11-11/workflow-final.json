@@ -1,0 +1,12 @@
+{
+  "id": 387536957,
+  "node_id": "W_kwDOTbElH84XGVg9",
+  "name": "Wanxiang touch and screen comparison",
+  "path": ".github/workflows/wanxiang-screen-perf.yml",
+  "state": "disabled_manually",
+  "created_at": "2026-10-17T10:03:28.000Z",
+  "updated_at": "2026-11-11T13:12:34.000Z",
+  "url": "https://api.github.com/repos/SandyYuR/fcitx5-android/actions/workflows/387536957",
+  "html_url": "https://github.com/SandyYuR/fcitx5-android/blob/fx-rime-only/.github/workflows/wanxiang-screen-perf.yml",
+  "badge_url": "https://github.com/SandyYuR/fcitx5-android/workflows/Wanxiang%20touch%20and%20screen%20comparison/badge.svg"
+}

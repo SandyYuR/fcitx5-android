@@ -1,0 +1,77 @@
+{
+  "source_commit": "8bf492c8",
+  "mismatches": [
+    {
+      "file": "evidence.json",
+      "recorded": "255f83e14470fbc7bcbcbd90d7720b2d85234b1ebce04b6546ece6aedfd0eb03",
+      "actual": "2113c5e0cc15fca87cbdff837f2bc4c377c69a7a198ecfa58f077158983403c1",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    },
+    {
+      "file": "formal-all-process-values.csv",
+      "recorded": "2af890ab10c9bf7e438940de228a3c95189cc12b35da30cb0cb266f994d68e49",
+      "actual": "259d1c8f1cfe45f8202388c1337449247074ce54611f3186acbea2c093b1f8d1",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    },
+    {
+      "file": "formal-paired-first-raw.json",
+      "recorded": "726a0bacc3088a4b4e8958327c297821b9af0b892dba5ce1ae8792abac40daab",
+      "actual": "e959dbda58a75a7bc9bd018b1f17f79005ff436265a6574cd47a87933578f4f8",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    },
+    {
+      "file": "formal-plan-before-dispatch.json",
+      "recorded": "f4d0d1ef34dff8e56a3dd17f3d7aced0225ef079048bcdf55cc5eefcc2aef258",
+      "actual": "24fc65a5a779cd26a95e957837e518b49d053f9ab8a842367ec8041cbac27c2a",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    },
+    {
+      "file": "formal-raw-recalculation.json",
+      "recorded": "90f4d35f2e552bfff7541c967e362a20a1ce9a77e48f492146f47d10acc7582d",
+      "actual": "3d59e779b9f34425042d2cbddda65e8b17d52d1a056ec4da9e39a50c713d5e4c",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    },
+    {
+      "file": "injection-clock-validation.json",
+      "recorded": "b634113a74e67e558ac6fe6fffaed494ebf481c577ba6b0d0a2763010291836d",
+      "actual": "82b261c7972d2e2eb1b2473d7f8cf5ae8861b214c33d02c988d6d34dd2caf2f9",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    },
+    {
+      "file": "local-clock-rejection-minimal.json",
+      "recorded": "22ce078ece35a3be4f5cf17b17f2f5c1d3dcf7e2b5baaaa1c36b6d20a07d3341",
+      "actual": "19de5d480088b82268b9ab9b93d034312d4186783a494588771efb1a81f20364",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    },
+    {
+      "file": "pilot-raw-recalculation.json",
+      "recorded": "ce20bd3aef0b01c78ec0585d0d504f84a4580872b572a66d650074fac1f92e2f",
+      "actual": "8b6b57d5672d15685b44c8f149641e57736200eedc8c4976c35f5761d47416c0",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    },
+    {
+      "file": "pilot-summary-compact.csv",
+      "recorded": "a1a2b454bf9dbf81c1e6e4f36a72f383af99127688b8d281621c27ab3d1ed7f5",
+      "actual": "8c15f818066155641fcba742efa805df92049e389ab2e641498b391fa26c1b96",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    },
+    {
+      "file": "summary.json",
+      "recorded": "c67560cfc5a740ef4f388eaf116b2236587b4fe57ef1cdbfde7609d4f9170e38",
+      "actual": "2b8b12a210b488e5806d247e93698edd90e29d494fa35d8f8b1412bdb0eb2305",
+      "original_digest_matches_CRLF": true,
+      "change": "Only line endings were normalized by Git; original CRLF digest retained here"
+    }
+  ],
+  "raw_artifact_zip_changed": false,
+  "numeric_values_changed": false
+}

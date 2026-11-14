@@ -1,0 +1,20 @@
+{
+  "baseline": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "current": "e8bc4fe70a5f23bbe56b8e2607580d786e4ff1c1",
+  "default_at_start": "88a664d46ba82712d5457d86c037629c478b042c",
+  "runtime_change": false,
+  "conditions": {
+    "gap_ms": [
+      100,
+      300
+    ],
+    "comment_mode": [
+      "visible",
+      "hidden"
+    ]
+  },
+  "pilot": "2 untraced VMs, each condition one fresh process/product; no stable performance acceptance from pilot alone",
+  "profile": "1 independent VM, same 4 conditions and 2 products, traces separate",
+  "fixture": "Existing43018095886 artifact13853652309, unchanged v18.1.10base Nov7LTS originalYAML",
+  "note": "Current production inputs match prior formal adb6a4e3; new independent injection and verified comments only in test overlay"
+}

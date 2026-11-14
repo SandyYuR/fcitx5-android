@@ -1,0 +1,180 @@
+From 38555944c2c365d85af8fd73c693ec6182e4d86f Mon Sep 17 00:00:00 2001
+From: SandyYuR <SandyYuR@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 15:24:18 +0000
+Subject: [PATCH] =?UTF-8?q?=E4=BF=AE=E5=A4=8D(=E6=B5=8B=E8=AF=95):=20?=
+ =?UTF-8?q?=E4=BF=9D=E6=8C=81=E8=BF=9F=E5=88=B0=E6=8C=89=E9=94=AE=E7=9A=84?=
+ =?UTF-8?q?=E5=AE=9E=E9=99=85=E8=A7=A6=E6=91=B8=E6=97=B6=E9=95=BF=E5=B9=B6?=
+ =?UTF-8?q?=E6=A0=A1=E9=AA=8C=E9=87=87=E6=A0=B7=E7=AD=96=E7=95=A5?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ README.md                                   |  2 +-
+ tools/input-perf/CadenceCandidateTapTest.kt |  5 ++-
+ tools/input-perf/run-cadence.py             |  4 ++
+ tools/input-perf/run-study.py               |  2 +
+ tools/input-perf/test_touch_timing.py       | 43 +++++++++++++++++++++
+ tools/input-perf/touch_timing.py            | 22 +++++++++++
+ 6 files changed, 76 insertions(+), 2 deletions(-)
+ create mode 100644 tools/input-perf/test_touch_timing.py
+ create mode 100644 tools/input-perf/touch_timing.py
+
+diff --git a/README.md b/README.md
+index 4988465d..deb7e88f 100644
+--- a/README.md
++++ b/README.md
+@@ -67,7 +67,7 @@ Windows 使用 `gradlew.bat` 和可用的 Python；没有 Bash 时，执行 `git
+ 
+ 已有候选/连续选词探针的事件 JSON 与 Perfetto trace 可用 `python3 tools/input-perf/associate-events.py --help` 查看逐事件归因用法。工具逐事件核对 trace 范围、进程和线程状态覆盖，缺失数据不会当作有效的零 CPU；失败仍保留 SQL、调度与 JSON。带 trace 的归因与无 trace 性能对照分别报告。
+ 
+-固定节拍探针为 `tools/input-perf/CadenceCandidateTapTest.kt`（复制到 androidTest 中的 `CandidateTapTest.kt`），通过测试专用 InputManager 异步注入，分别记录计划、实际提交及窗口接收时间。v2 提前缓存目标 View 与坐标，窗口回调只检查该目标的位置和附着状态，不再递归搜索整个视图树。固定的是计划节拍，注入线程迟到仍须独立报告。它仅用于 API 35 一次性调试模拟器，不进入产品 APK。`python3 tools/input-perf/run-cadence.py --help` 列出来源清单、夹具摘要、执行顺序和独立 trace 参数；分析时使用 `associate-events.py --kind cadence`，不为可合并的中间编码伪造引擎终点。
++固定节拍探针为 `tools/input-perf/CadenceCandidateTapTest.kt`（复制到 androidTest 中的 `CandidateTapTest.kt`），通过测试专用 InputManager 异步注入，分别记录计划、实际提交及窗口接收时间。v2 提前缓存目标 View 与坐标，窗口回调只检查该目标的位置和附着状态，不再递归搜索整个视图树。固定的是计划节拍，注入线程迟到仍须独立报告。实际保持时长从注入 DOWN 起至少 20ms，DOWN 迟到不会压缩触摸；新样本声明保持策略并单独校验，失败也保留原始 IME 数据。旧记录按其原始探针摘要和策略解释，不能直接作为当前探针的重测结果。它仅用于 API 35 一次性调试模拟器，不进入产品 APK。`python3 tools/input-perf/run-cadence.py --help` 列出来源清单、夹具摘要、执行顺序和独立 trace 参数；分析时使用 `associate-events.py --kind cadence`，不为可合并的中间编码伪造引擎终点。
+ 
+ 运行器要求显式传入 `--serial`、`--expected-avd-name` 和 `--allow-destructive-reset`，在设备身份核对完成前不会写设备。该协议会卸载 Debug 包并清空其数据，只能用于已获准清空的一次性测试 AVD，不能直接用于保留日常数据的模拟手机；缺少重置选项会直接退出。所有 ADB 命令绑定同一序列号，不采用环境默认设备。v2 产物清单必须使用 `fixed_cadence_100ms_input_manager_async_cached_targets_v2` 协议和本次探针摘要；旧 `cached_letters` 数据仍可分析，但不能混作本次测量。
+ 
+diff --git a/tools/input-perf/CadenceCandidateTapTest.kt b/tools/input-perf/CadenceCandidateTapTest.kt
+index 114d9f90..415e28c0 100644
+--- a/tools/input-perf/CadenceCandidateTapTest.kt
++++ b/tools/input-perf/CadenceCandidateTapTest.kt
+@@ -215,7 +215,9 @@ class CandidateTapTest {
+                 val touch = Touch(text, target, plannedDown, plannedDown + 20_000_000L)
+                 check(touches.putIfAbsent(down, touch) == null) { "Duplicate touch identity" }
+                 for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
+-                    if (action == MotionEvent.ACTION_UP) waitUntil(touch.plannedUp)
++                    // A delayed DOWN must retain the intended physical hold instead of
++                    // immediately chasing an UP deadline that has already passed.
++                    if (action == MotionEvent.ACTION_UP) waitUntil(maxOf(touch.plannedUp, touch.injectDown + 20_000_000L))
+                     val event = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, target.bounds.exactCenterX(), target.bounds.exactCenterY(), 0)
+                     event.source = InputDevice.SOURCE_TOUCHSCREEN
+                     if (action == MotionEvent.ACTION_DOWN) touch.injectDown = now() else touch.injectUp = now()
+@@ -268,6 +270,7 @@ class CandidateTapTest {
+             assertTrue(maps.contains("wanxiang-lts-zh-hans.gram"))
+             File(ctx.filesDir, "candidate-taps.json").writeText(JSONObject().put("commit", BuildConfig.BUILD_GIT_HASH)
+                 .put("injection_protocol", "fixed_cadence_100ms_input_manager_async_cached_targets_v2")
++                .put("touch_hold_policy", "minimum_20ms_from_actual_injection_down")
+                 .put("clock", "SystemClock.elapsedRealtimeNanos, across both Android processes")
+                 .put("model_mapped", true).put("fcitx_core_mapped", maps.contains("libFcitx5Core.so"))
+                 .put("switch_labels", JSONArray(labels)).put("rounds", rounds).toString(2))
+diff --git a/tools/input-perf/run-cadence.py b/tools/input-perf/run-cadence.py
+index 68eb5c47..93deed2b 100644
+--- a/tools/input-perf/run-cadence.py
++++ b/tools/input-perf/run-cadence.py
+@@ -1,6 +1,7 @@
+ #!/usr/bin/env python3
+ """First candidate tap after fresh process, then five taps in the same editor."""
+ import argparse
++from touch_timing import validate_touch_hold
+ import hashlib
+ import shutil
+ import json
+@@ -244,6 +245,9 @@ def run(args):
+                 if not passed:
+                     raise RuntimeError(f'{label} trial {trial + 1} failed')
+                 ime = json.loads(adb('shell', 'run-as', package, 'cat', 'files/candidate-taps.json').stdout)
++                # Preserve original IME evidence even when the new stimulus policy fails.
++                prefix.with_suffix('.ime-raw.json').write_text(json.dumps(ime, ensure_ascii=False, indent=2) + '\n')
++                validate_touch_hold(ime)
+                 # Flush the editor dump AFTER timing; its own callbacks contain the timestamps.
+                 adb('shell', 'am', 'broadcast', '-n', host + '/.BenchControl', '--es', 'command', 'dump')
+                 editor = json.loads(adb('shell', 'run-as', host, 'cat', 'files/candidate-editor.json').stdout)
+diff --git a/tools/input-perf/run-study.py b/tools/input-perf/run-study.py
+index d113b1ba..437af4d7 100644
+--- a/tools/input-perf/run-study.py
++++ b/tools/input-perf/run-study.py
+@@ -1,6 +1,7 @@
+ #!/usr/bin/env python3
+ """Counterbalanced fresh-process comparisons with a restored fixture per sample."""
+ import argparse
++from touch_timing import validate_touch_hold
+ import itertools
+ import json
+ from pathlib import Path
+@@ -57,6 +58,7 @@ def measurements(data, expected_commit, expected_protocol=PROTOCOL):
+         raise ValueError('Sample protocol does not match the planned harness')
+     if ime.get('model_mapped') is not True or ime.get('fcitx_core_mapped') is not False:
+         raise ValueError('Sample must map the pinned model and use the direct Rime engine')
++    validate_touch_hold(ime)
+     rounds = ime['rounds']
+     if len(rounds) != 6 or len(editor['commits']) != 6 or editor['text'] != '你' * 6:
+         raise ValueError('A sample must contain exactly six successful selections')
+diff --git a/tools/input-perf/test_touch_timing.py b/tools/input-perf/test_touch_timing.py
+new file mode 100644
+index 00000000..2b795c55
+--- /dev/null
++++ b/tools/input-perf/test_touch_timing.py
+@@ -0,0 +1,43 @@
++"""Reject a declared 20ms stimulus that was compressed by a late DOWN."""
++import copy
++import unittest
++from touch_timing import MINIMUM_ACTUAL_HOLD_POLICY, validate_touch_hold
++
++
++class TouchHoldTest(unittest.TestCase):
++    def sample(self):
++        event = {'inject_down_ns': 1_000_000_000, 'inject_up_ns': 1_020_000_000}
++        return {'touch_hold_policy': MINIMUM_ACTUAL_HOLD_POLICY,
++                'rounds': [{key: copy.copy(event) for key in ('n', 'i', 'select')}]}
++
++    def test_late_down_keeps_a_valid_twenty_ms_hold(self):
++        data = self.sample()
++        for event in data['rounds'][0].values():
++            event.update(planned_down_ns=900_000_000, planned_up_ns=920_000_000)
++        self.assertTrue(validate_touch_hold(data))
++
++    def test_compressed_hold_is_rejected_for_every_touch(self):
++        for key in ('n', 'i', 'select'):
++            with self.subTest(key=key):
++                data = self.sample()
++                data['rounds'][0][key]['inject_up_ns'] = 1_000_795_796
++                with self.assertRaisesRegex(ValueError, 'actual hold'):
++                    validate_touch_hold(data)
++
++    def test_legacy_sample_does_not_acquire_the_new_guarantee(self):
++        self.assertFalse(validate_touch_hold({'rounds': []}))
++
++    def test_unknown_policy_is_rejected(self):
++        with self.assertRaisesRegex(ValueError, 'Unknown'):
++            validate_touch_hold({'touch_hold_policy': 'unrecognized'})
++
++    def test_declared_policy_requires_observed_touches(self):
++        with self.assertRaisesRegex(ValueError, 'observed'):
++            validate_touch_hold({'touch_hold_policy': MINIMUM_ACTUAL_HOLD_POLICY, 'rounds': []})
++
++    def test_missing_or_noninteger_timestamp_is_rejected(self):
++        for value in (None, True, 1.0):
++            data = self.sample()
++            data['rounds'][0]['i']['inject_down_ns'] = value
++            with self.assertRaises(ValueError):
++                validate_touch_hold(data)
+diff --git a/tools/input-perf/touch_timing.py b/tools/input-perf/touch_timing.py
+new file mode 100644
+index 00000000..a2e3ccae
+--- /dev/null
++++ b/tools/input-perf/touch_timing.py
+@@ -0,0 +1,22 @@
++"""Touch-shape validation; legacy evidence remains readable with its recorded policy."""
++
++MINIMUM_ACTUAL_HOLD_POLICY = 'minimum_20ms_from_actual_injection_down'
++MINIMUM_HOLD_NS = 20_000_000
++
++
++def validate_touch_hold(ime):
++    policy = ime.get('touch_hold_policy')
++    if policy is None:
++        return False  # Legacy sample; its immutable harness hash identifies its semantics.
++    if policy != MINIMUM_ACTUAL_HOLD_POLICY:
++        raise ValueError('Unknown touch hold policy')
++    rounds = ime.get('rounds')
++    if not isinstance(rounds, list) or not rounds:
++        raise ValueError('Declared touch hold policy requires observed touch records')
++    for index, row in enumerate(rounds, 1):
++        for key in ('n', 'i', 'select'):
++            event = row.get(key, {})
++            down, up = event.get('inject_down_ns'), event.get('inject_up_ns')
++            if type(down) is not int or type(up) is not int or down <= 0 or up - down < MINIMUM_HOLD_NS:
++                raise ValueError(f'Round {index} {key}: actual hold was shorter than the declared 20ms minimum')
++    return True
+-- 
+2.52.0
+

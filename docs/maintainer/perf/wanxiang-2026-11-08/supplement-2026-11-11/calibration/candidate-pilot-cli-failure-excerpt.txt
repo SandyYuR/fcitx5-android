@@ -1,0 +1,6 @@
+Source job: 130508605718
+Selected original job log lines; this is an excerpt, not the full log.
+2026-11-11T11:59:52.2837369Z   script: python3 tools/wanxiang-20261111/candidate.py --apks "$RUNNER_TEMP/debug-products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/inputs/candidate-host/host.apk" --output build/nov11-candidate --pilot
+2026-11-11T11:59:52.3529226Z python3 tools/wanxiang-20261111/candidate.py --apks "$RUNNER_TEMP/debug-products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/inputs/candidate-host/host.apk" --output build/nov11-candidate --pilot
+2026-11-11T12:00:55.6483819Z [command]/usr/bin/sh -c python3 tools/wanxiang-20261111/candidate.py --apks "$RUNNER_TEMP/debug-products" --fixture "$RUNNER_TEMP/inputs/fixture.zip" --host "$RUNNER_TEMP/inputs/candidate-host/host.apk" --output build/nov11-candidate --pilot
+2026-11-11T12:00:55.7053942Z candidate.py: error: unrecognized arguments: --pilot

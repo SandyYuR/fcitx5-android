@@ -1,0 +1,810 @@
+--------- beginning of kernel
+11-11 12:15:35.185     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2477 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+--------- beginning of main
+11-11 12:15:35.096  2478  2478 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-11 12:15:35.099  2478  2478 I AndroidRuntime: Using default boot image
+11-11 12:15:35.099  2478  2478 I AndroidRuntime: Leaving lock profiling enabled
+11-11 12:15:35.102  2478  2478 I app_process: Core platform API reporting enabled, enforcing=false
+11-11 12:15:35.102  2478  2478 I app_process: Using CollectorTypeCMC GC.
+11-11 12:15:35.154  2478  2478 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-11 12:15:35.303     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2481 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:35.162  2478  2478 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-11 12:15:35.162  2478  2478 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/8/icu") succeeded. 
+11-11 12:15:35.162  2478  2478 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt75l.dat
+11-11 12:15:35.162  2478  2478 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-11 12:15:35.163  2478  2478 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-11 12:15:35.164  2478  2478 W app_process: Unexpected CPU variant for x86: x86_64.
+11-11 12:15:35.164  2478  2478 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-11 12:15:35.179  2478  2478 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-11 12:15:35.179  2478  2478 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-11 12:15:35.181  2478  2478 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+11-11 12:15:35.182   543  1076 I ActivityManager: Force stopping org.fcitx.fcitx5.android.fx.rime.debug appid=10139 user=0: start instr
+11-11 12:15:35.183   543  1076 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10139, packageName = null, attributionTag = null, token = android.os.Binder@cfeb220, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-11 12:15:35.185   543   812 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+11-11 12:15:35.185   543   812 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10139 package org.fcitx.fcitx5.android.fx.rime.debug isStopped false
+11-11 12:15:35.191   350   350 D Zygote  : Forked child process 2494
+11-11 12:15:35.192   543   578 I ActivityManager: Start proc 2494:org.fcitx.fcitx5.android.fx.rime.debug/u0a139 for added application org.fcitx.fcitx5.android.fx.rime.debug
+11-11 12:15:35.213  2494  2494 I d.fx.rime.debug: Late-enabling -Xcheck:jni
+11-11 12:15:35.225  2494  2494 I d.fx.rime.debug: Using CollectorTypeCMC GC.
+11-11 12:15:35.225  2494  2494 W d.fx.rime.debug: Unexpected CPU variant for x86: x86_64.
+11-11 12:15:35.225  2494  2494 W d.fx.rime.debug: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-11 12:15:35.245   429   446 I adbd    : jdwp connection from 2494
+11-11 12:15:35.251  2494  2494 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-11 12:15:35.275  2494  2494 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[org.fcitx.fcitx5.android.fx.rime.debug]: x86_64, null instrumentation[org.fcitx.fcitx5.android.fx.rime.debug.test]: null, null
+11-11 12:15:35.276  2494  2494 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-11 12:15:35.276  2494  2494 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-11 12:15:35.277  2494  2494 W ziparchive: Unable to open '/data/app/~~rWntH5y0BZLFxWRIN2fqjA==/org.fcitx.fcitx5.android.fx.rime.debug.test-tikud_w-jHdkvTNCvCm6-A==/base.dm': No such file or directory
+11-11 12:15:35.277  2494  2494 W ziparchive: Unable to open '/data/app/~~rWntH5y0BZLFxWRIN2fqjA==/org.fcitx.fcitx5.android.fx.rime.debug.test-tikud_w-jHdkvTNCvCm6-A==/base.dm': No such file or directory
+11-11 12:15:35.425     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2506 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:35.291  2494  2494 W ziparchive: Unable to open '/data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/base.dm': No such file or directory
+11-11 12:15:35.291  2494  2494 W ziparchive: Unable to open '/data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/base.dm': No such file or directory
+11-11 12:15:35.558     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2509 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:35.675     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2512 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4f9ffd5 com.android.cts.priv.ctsshim/10129} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e2303ea com.android.uwb.resources/10117} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{11626db com.android.internal.display.cutout.emulation.corner/10044} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ea77578 com.android.internal.display.cutout.emulation.double/10051} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{5e7c451 com.android.healthconnect.controller/10127} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{92574b6 com.android.health.connect.backuprestore/10128} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{94655b7 com.android.virtualmachine.res/10121} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{39a7124 com.android.carrierconfig.auto_generated_rro_vendor__/10055} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d13548d android.slim.overlay/10058} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{70c2642 com.android.systemui.emulation.pixel_3_xl/10032} BLOCKED
+11-11 12:15:35.603   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ce09653 com.android.systemui.emulation.pixel_4_xl/10041} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{9f7b90 com.android.systemui.emulation.pixel_fold/10011} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{cedac89 com.android.providers.telephony.auto_generated_characteristics_rro/10049} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{6ba648e com.android.htmlviewer/10096} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{bd444af com.android.quicksearchbox/10103} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4a8c0bc com.android.networkstack.tethering.emulator/10025} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{3fb8845 com.android.internal.emulation.pixel_3a_xl/10006} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ffc3b9a com.android.internal.emulation.pixel_6_pro/10020} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{baa7ccb com.android.internal.emulation.pixel_7_pro/10028} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{99f2ca8 com.android.internal.emulation.pixel_8_pro/10016} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{a5163c1 com.android.internal.emulation.pixel_3a/10046} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{9527766 com.android.internal.emulation.pixel_4a/10052} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7621aa7 com.android.internal.emulation.pixel_6a/10023} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d0e6b54 com.android.internal.emulation.pixel_7a/10005} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{acf7afd com.android.internal.emulation.pixel_8a/10017} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e7ea3f2 com.android.safetycenter.resources/10132} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{10bba43 com.android.simappdialog/10080} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{790e8c0 com.android.connectivity.resources/10126} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{41dc9f9 com.android.internal.display.cutout.emulation.hole/10018} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{3cf0d3e com.android.internal.display.cutout.emulation.tall/10012} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{125b79f com.android.modulemetadata/10104} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{efbd0ec com.android.internal.systemui.navbar.threebutton/10022} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d680cb5 com.android.wifi.dialog/10125} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{22abf4a com.android.contacts/10099} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{fb82ebb com.android.camera2/10106} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{f4b0fd8 com.android.internal.ranchu.commonoverlay/10027} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ad9bf31 com.android.internal.systemui.navbar.twobutton/10000} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7dd8616 com.android.settings.intelligence/10098} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{330fb97 com.android.calendar/10109} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{64d5184 com.android.systemui.emulation.pixel_3/10001} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{dda1d6d com.android.systemui.emulation.pixel_4/10021} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{a23eda2 com.android.systemui.emulation.pixel_5/10024} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ffba33 com.android.systemui.emulation.pixel_6/10029} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e1001f0 com.android.systemui.emulation.pixel_7/10038} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d082369 com.android.systemui.emulation.pixel_8/10004} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{37741ee com.android.printspooler/10086} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{bf1c68f com.android.dreams.basic/10091} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{20b4d1c com.android.webview/10101} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ff68d25 com.android.rkpdapp/10137} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{a998efa com.android.internal.emulation.pixel_3/10010} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{c4e3cab com.android.internal.emulation.pixel_4/10053} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{b0e1f08 com.android.internal.emulation.pixel_5/10035} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{aa7d6a1 com.android.internal.emulation.pixel_6/10047} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e61a0c6 com.android.internal.emulation.pixel_7/10050} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{db1f887 com.android.internal.emulation.pixel_8/10007} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{dea23b4 android.auto_generated_characteristics_rro/10014} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4ca3bdd com.android.musicfx/10075} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{2470352 com.android.phone.auto_generated_characteristics_rro/10048} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{eab9623 com.android.printservice.recommendation/10093} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{8dfc720 com.android.gallery3d/10105} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{8b3b8d9 com.android.wifi.resources/10123} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7ae029e com.android.theme.font.notoserifsource/10003} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e17717f com.android.internal.display.cutout.emulation.waterfall/10002} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{bca354c com.android.internal.systemui.navbar.transparent/10030} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{61e0995 org.chromium.webview_shell/10100} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ff3aaaa com.android.systemui.emulation.pixel_3a_xl/10034} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{23ba69b com.android.systemui.emulation.pixel_6_pro/10037} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{70b5a38 com.android.systemui.emulation.pixel_7_pro/10013} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4a2aa11 com.android.systemui.emulation.pixel_8_pro/10036} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{339c776 com.android.providers.partnerbookmarks/10088} BLOCKED
+11-11 12:15:35.604   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{5a41177 com.android.wallpaper.livepicker/10063} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d37e1e4 com.android.cellbroadcastreceiver.module/10118} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{1f6d64d com.android.phone.auto_generated_rro_vendor__/10057} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7f2e502 com.android.apps.tag/10076} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{5be4e13 com.android.appsearch.apk/10115} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{3833850 com.android.internal.emulation.pixel_2_xl/10031} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7e78a49 com.android.internal.emulation.pixel_3_xl/10019} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{72e4f4e com.android.internal.emulation.pixel_4_xl/10042} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{f35b86f com.android.internal.emulation.pixel_fold/10040} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{6158205 com.android.bookmarkprovider/10085} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{9a4125a com.android.systemui.emulation.pixel_3a/10033} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{40f6c8b com.android.systemui.emulation.pixel_4a/10054} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{c25c168 com.android.systemui.emulation.pixel_6a/10045} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{b713981 com.android.systemui.emulation.pixel_7a/10039} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{980fa26 com.android.systemui.emulation.pixel_8a/10015} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{98bdfaa com.android.cts.ctsshim/10130} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7864667 com.android.connectivity.resources.goldfish.overlay/10059} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{8498c14 com.android.music/10102} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{b76ecbd com.android.hotspot2.osulogin/10124} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4f292b2 com.android.companiondevicemanager.auto_generated_characteristics_rro/10043} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ba6e203 com.android.internal.systemui.navbar.gestural/10026} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{3d5580 com.android.deskclock/10108} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{b2a97b9 com.android.bluetoothmidiservice/10084} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d7327fe com.android.captiveportallogin/10097} BLOCKED
+11-11 12:15:35.605   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{cab9b5f android.auto_generated_rro_vendor__/10056} BLOCKED
+11-11 12:15:35.605  2494  2494 D nativeloader: Configuring clns-7 for other apk /data/app/~~rWntH5y0BZLFxWRIN2fqjA==/org.fcitx.fcitx5.android.fx.rime.debug.test-tikud_w-jHdkvTNCvCm6-A==/base.apk:/data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~rWntH5y0BZLFxWRIN2fqjA==/org.fcitx.fcitx5.android.fx.rime.debug.test-tikud_w-jHdkvTNCvCm6-A==/lib/x86_64:/data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/lib/x86_64:/data/app/~~rWntH5y0BZLFxWRIN2fqjA==/org.fcitx.fcitx5.android.fx.rime.debug.test-tikud_w-jHdkvTNCvCm6-A==/base.apk!/lib/x86_64:/data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/org.fcitx.fcitx5.android.fx.rime.debug
+11-11 12:15:35.614  2494  2494 V GraphicsEnvironment: Currently set values for:
+11-11 12:15:35.614  2494  2494 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-11 12:15:35.614  2494  2494 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-11 12:15:35.614  2494  2494 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+11-11 12:15:35.614  2494  2494 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-11 12:15:35.618  2494  2494 W ziparchive: Unable to open '/data/app/~~rWntH5y0BZLFxWRIN2fqjA==/org.fcitx.fcitx5.android.fx.rime.debug.test-tikud_w-jHdkvTNCvCm6-A==/base.dm': No such file or directory
+11-11 12:15:35.618  2494  2494 W ziparchive: Unable to open '/data/app/~~rWntH5y0BZLFxWRIN2fqjA==/org.fcitx.fcitx5.android.fx.rime.debug.test-tikud_w-jHdkvTNCvCm6-A==/base.dm': No such file or directory
+11-11 12:15:35.628  2494  2494 W ziparchive: Unable to open '/data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/base.dm': No such file or directory
+11-11 12:15:35.628  2494  2494 W ziparchive: Unable to open '/data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/base.dm': No such file or directory
+11-11 12:15:35.792     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2516 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:35.909     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2519 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:36.027     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2522 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4f9ffd5 com.android.cts.priv.ctsshim/10129} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e2303ea com.android.uwb.resources/10117} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{11626db com.android.internal.display.cutout.emulation.corner/10044} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ea77578 com.android.internal.display.cutout.emulation.double/10051} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{5e7c451 com.android.healthconnect.controller/10127} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{92574b6 com.android.health.connect.backuprestore/10128} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{94655b7 com.android.virtualmachine.res/10121} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{39a7124 com.android.carrierconfig.auto_generated_rro_vendor__/10055} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d13548d android.slim.overlay/10058} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{70c2642 com.android.systemui.emulation.pixel_3_xl/10032} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ce09653 com.android.systemui.emulation.pixel_4_xl/10041} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{9f7b90 com.android.systemui.emulation.pixel_fold/10011} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{cedac89 com.android.providers.telephony.auto_generated_characteristics_rro/10049} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{6ba648e com.android.htmlviewer/10096} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{bd444af com.android.quicksearchbox/10103} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4a8c0bc com.android.networkstack.tethering.emulator/10025} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{3fb8845 com.android.internal.emulation.pixel_3a_xl/10006} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ffc3b9a com.android.internal.emulation.pixel_6_pro/10020} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{baa7ccb com.android.internal.emulation.pixel_7_pro/10028} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{99f2ca8 com.android.internal.emulation.pixel_8_pro/10016} BLOCKED
+11-11 12:15:35.915   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{a5163c1 com.android.internal.emulation.pixel_3a/10046} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{9527766 com.android.internal.emulation.pixel_4a/10052} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7621aa7 com.android.internal.emulation.pixel_6a/10023} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d0e6b54 com.android.internal.emulation.pixel_7a/10005} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{acf7afd com.android.internal.emulation.pixel_8a/10017} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e7ea3f2 com.android.safetycenter.resources/10132} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{10bba43 com.android.simappdialog/10080} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{790e8c0 com.android.connectivity.resources/10126} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{41dc9f9 com.android.internal.display.cutout.emulation.hole/10018} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{3cf0d3e com.android.internal.display.cutout.emulation.tall/10012} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{125b79f com.android.modulemetadata/10104} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{efbd0ec com.android.internal.systemui.navbar.threebutton/10022} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d680cb5 com.android.wifi.dialog/10125} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{22abf4a com.android.contacts/10099} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{fb82ebb com.android.camera2/10106} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{f4b0fd8 com.android.internal.ranchu.commonoverlay/10027} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ad9bf31 com.android.internal.systemui.navbar.twobutton/10000} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7dd8616 com.android.settings.intelligence/10098} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{330fb97 com.android.calendar/10109} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{64d5184 com.android.systemui.emulation.pixel_3/10001} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{dda1d6d com.android.systemui.emulation.pixel_4/10021} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{a23eda2 com.android.systemui.emulation.pixel_5/10024} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ffba33 com.android.systemui.emulation.pixel_6/10029} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e1001f0 com.android.systemui.emulation.pixel_7/10038} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d082369 com.android.systemui.emulation.pixel_8/10004} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{37741ee com.android.printspooler/10086} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{bf1c68f com.android.dreams.basic/10091} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{20b4d1c com.android.webview/10101} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ff68d25 com.android.rkpdapp/10137} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{a998efa com.android.internal.emulation.pixel_3/10010} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{c4e3cab com.android.internal.emulation.pixel_4/10053} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{b0e1f08 com.android.internal.emulation.pixel_5/10035} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{aa7d6a1 com.android.internal.emulation.pixel_6/10047} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e61a0c6 com.android.internal.emulation.pixel_7/10050} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{db1f887 com.android.internal.emulation.pixel_8/10007} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{dea23b4 android.auto_generated_characteristics_rro/10014} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4ca3bdd com.android.musicfx/10075} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{2470352 com.android.phone.auto_generated_characteristics_rro/10048} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{eab9623 com.android.printservice.recommendation/10093} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{8dfc720 com.android.gallery3d/10105} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{8b3b8d9 com.android.wifi.resources/10123} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7ae029e com.android.theme.font.notoserifsource/10003} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{e17717f com.android.internal.display.cutout.emulation.waterfall/10002} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{bca354c com.android.internal.systemui.navbar.transparent/10030} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{61e0995 org.chromium.webview_shell/10100} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ff3aaaa com.android.systemui.emulation.pixel_3a_xl/10034} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{23ba69b com.android.systemui.emulation.pixel_6_pro/10037} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{70b5a38 com.android.systemui.emulation.pixel_7_pro/10013} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4a2aa11 com.android.systemui.emulation.pixel_8_pro/10036} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{339c776 com.android.providers.partnerbookmarks/10088} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{5a41177 com.android.wallpaper.livepicker/10063} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d37e1e4 com.android.cellbroadcastreceiver.module/10118} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{1f6d64d com.android.phone.auto_generated_rro_vendor__/10057} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7f2e502 com.android.apps.tag/10076} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{5be4e13 com.android.appsearch.apk/10115} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{3833850 com.android.internal.emulation.pixel_2_xl/10031} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7e78a49 com.android.internal.emulation.pixel_3_xl/10019} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{72e4f4e com.android.internal.emulation.pixel_4_xl/10042} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{f35b86f com.android.internal.emulation.pixel_fold/10040} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{6158205 com.android.bookmarkprovider/10085} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{9a4125a com.android.systemui.emulation.pixel_3a/10033} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{40f6c8b com.android.systemui.emulation.pixel_4a/10054} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{c25c168 com.android.systemui.emulation.pixel_6a/10045} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{b713981 com.android.systemui.emulation.pixel_7a/10039} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{980fa26 com.android.systemui.emulation.pixel_8a/10015} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{98bdfaa com.android.cts.ctsshim/10130} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{7864667 com.android.connectivity.resources.goldfish.overlay/10059} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{8498c14 com.android.music/10102} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{b76ecbd com.android.hotspot2.osulogin/10124} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{4f292b2 com.android.companiondevicemanager.auto_generated_characteristics_rro/10043} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{ba6e203 com.android.internal.systemui.navbar.gestural/10026} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{3d5580 com.android.deskclock/10108} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{b2a97b9 com.android.bluetoothmidiservice/10084} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{d7327fe com.android.captiveportallogin/10097} BLOCKED
+11-11 12:15:35.916   543  2209 I AppsFilter: interaction: PackageSetting{5c58cba org.fcitx.fcitx5.android.fx.rime.debug/10139} -> PackageSetting{cab9b5f android.auto_generated_rro_vendor__/10056} BLOCKED
+11-11 12:15:35.924  2494  2494 I AndroidJUnitRunner: newApplication org.fcitx.fcitx5.android.FcitxApplication
+11-11 12:15:35.967  2494  2494 I AndroidJUnitRunner: onCreate Bundle[mParcelledData.dataSize=264]
+11-11 12:15:35.968  2494  2494 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-11 12:15:36.150     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2525 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:36.021  2494  2494 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-11 12:15:36.022  2494  2528 D AndroidJUnitRunner: onStart is called.
+11-11 12:15:36.032  2494  2494 D [main] FcitxApplication: isDirectBootMode=false
+11-11 12:15:36.064  2494  2494 D [main] FcitxApplication: Last pid is 2255. Set it to current pid: 2494
+11-11 12:15:36.269     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2537 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:36.242  2494  2528 I InstrConnection: Could not send broadcast or register receiver (isolatedProcess?)
+11-11 12:15:36.391     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2545 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:36.248   349   393 I netd    : tetherGetStats() -> {[]} <0.34ms>
+11-11 12:15:36.253  2494  2541 I FcitxColdStart: font preload keys=0 duration=45ms
+11-11 12:15:36.256  2494  2528 I TestRunner: run started: 1 tests
+11-11 12:15:36.257  2494  2528 I TestRunner: started: replay(org.fcitx.fcitx5.android.core.CandidateTapTest)
+11-11 12:15:36.278  2494  2528 D nativeloader: Load /data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/lib/x86_64/libnative-lib.so using ns clns-7 from class loader (caller=/data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/base.apk!classes8.dex): ok
+11-11 12:15:36.283  2494  2528 D [Instr: androidx.test.runner.AndroidJUnitRunner] FcitxDaemon: FcitxDaemon start fcitx
+11-11 12:15:36.284  2494  2528 D [Instr: androidx.test.runner.AndroidJUnitRunner] FcitxDispatcher: FcitxDispatcher start()
+11-11 12:15:36.287  2494  2548 D [fcitx-main] FcitxDispatcher$start: nativeStartup()
+11-11 12:15:36.288  2494  2548 D [fcitx-main] DataManager: Using device protected storage
+11-11 12:15:36.294  2494  2528 I UiAutomation: Initialized for user 0 on display 0
+11-11 12:15:36.296   543  1076 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-11 12:15:36.296   543  1076 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+11-11 12:15:36.297   543  1076 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-11 12:15:36.298   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:15:36.298   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:15:36.300   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:15:36.300   543   543 D BatterySaverPolicy: accessibility changed to true, updating policy.
+11-11 12:15:36.302  2494  2549 V UiAutomation: Init UiAutomation@1b6eabc[id=3, displayId=0, flags=0]
+11-11 12:15:36.318   543  1076 W ActivityTaskManager: callingPackage for (uid=2000, pid=2555) has no WPC
+11-11 12:15:36.319   543  1076 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+11-11 12:15:36.320   543  1076 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10138, packageName = null, attributionTag = null, token = android.os.Binder@cfeb220, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-11 12:15:36.321   543  1076 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+11-11 12:15:36.321   543  1076 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+11-11 12:15:36.328   543  1076 V SplashScreenExceptionList: SplashScreen checking exception for package io.github.sandyyur.inputbench (target sdk:28) -> false
+11-11 12:15:36.329   543  1076 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} with LAUNCH_MULTIPLE from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+11-11 12:15:36.330   543   569 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10138, packageName = null, attributionTag = null, token = android.os.Binder@cfeb220, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-11 12:15:36.331   543  1223 I AppsFilter: interaction: PackageSetting{4038d37 org.fcitx.fcitx5.android.fx.rime.debug.test/10140} -> PackageSetting{b10772f io.github.sandyyur.inputbench/10138} BLOCKED
+11-11 12:15:36.336   543   812 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+11-11 12:15:36.336   543   812 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10138 package io.github.sandyyur.inputbench isStopped false
+11-11 12:15:36.340   350   350 D Zygote  : Forked child process 2558
+11-11 12:15:36.341  2494  2548 D [fcitx-main] DataManager: Hierarchy created
+11-11 12:15:36.345   543   578 I ActivityManager: Start proc 2558:io.github.sandyyur.inputbench/u0a138 for next-top-activity {io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}
+11-11 12:15:36.360  2494  2548 D [fcitx-main] DataManager: Synced
+11-11 12:15:36.361  2558  2558 I yyur.inputbench: Late-enabling -Xcheck:jni
+11-11 12:15:36.514     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2559 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:36.377  2494  2548 D [fcitx-main] Fcitx$dispatcher: Starting fcitx with:
+11-11 12:15:36.377  2494  2548 D [fcitx-main] Fcitx$dispatcher: locale=en_US:en
+11-11 12:15:36.377  2494  2548 D [fcitx-main] Fcitx$dispatcher: dataDir=/data/user_de/0/org.fcitx.fcitx5.android.fx.rime.debug
+11-11 12:15:36.377  2494  2548 D [fcitx-main] Fcitx$dispatcher: nativeLibDir=/data/app/~~mb3_h2I0vDyBpRzc-5N8EQ==/org.fcitx.fcitx5.android.fx.rime.debug-qa8ypXq60f_fm3lb6a8iFg==/lib/x86_64
+11-11 12:15:36.379  2558  2558 I yyur.inputbench: Using CollectorTypeCMC GC.
+11-11 12:15:36.380  2558  2558 W yyur.inputbench: Unexpected CPU variant for x86: x86_64.
+11-11 12:15:36.380  2558  2558 W yyur.inputbench: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-11 12:15:36.381  2494  2548 I fcitx5  : native-lib.cpp:531] Starting...
+11-11 12:15:36.381  2494  2548 I fcitx5  : instance.cpp:669] Starting fcitx5 5.1.23
+11-11 12:15:36.382  2494  2548 I fcitx5  : instance.cpp:1448] Override Enabled Addons: {}
+11-11 12:15:36.382  2494  2548 I fcitx5  : instance.cpp:1449] Override Disabled Addons: {}
+11-11 12:15:36.385  2494  2548 I fcitx5  : addonmanager.cpp:208] Loaded addon clipboard
+11-11 12:15:36.385  2494  2548 I fcitx5  : addonmanager.cpp:208] Loaded addon androidfrontend
+11-11 12:15:36.386  2494  2548 E fcitx5  : instance.cpp:1458] Couldn't find keyboard-us
+11-11 12:15:36.386  2494  2548 I fcitx5  : addonmanager.cpp:208] Loaded addon notifications
+11-11 12:15:36.386  2494  2548 I fcitx5  : native-lib.cpp:709] Setting up callback
+11-11 12:15:36.388  2494  2548 D [fcitx-main] Fcitx$JNI: Handling ReadyEvent
+11-11 12:15:36.388  2494  2548 I fcitx5  : native-lib.cpp:723] Finishing startup
+11-11 12:15:36.405   429   446 I adbd    : jdwp connection from 2558
+11-11 12:15:36.410  2558  2558 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-11 12:15:36.426  1104  1104 I InputAttributes: InputType.TYPE_NULL is specified
+11-11 12:15:36.427   543   650 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+11-11 12:15:36.436  2558  2558 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:15:36.436  2558  2558 W ziparchive: Unable to open '/data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/base.dm': No such file or directory
+11-11 12:15:36.437  2558  2558 W ziparchive: Unable to open '/data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/base.dm': No such file or directory
+11-11 12:15:36.439   543   569 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:15:36.440  2558  2558 D nativeloader: Configuring clns-7 for other apk /data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/base.apk. target_sdk_version=28, uses_libraries=, library_path=/data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/io.github.sandyyur.inputbench
+11-11 12:15:36.448  2558  2558 V GraphicsEnvironment: Currently set values for:
+11-11 12:15:36.449  2558  2558 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-11 12:15:36.449  2558  2558 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-11 12:15:36.449  2558  2558 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+11-11 12:15:36.449  2558  2558 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-11 12:15:36.482  2558  2558 D CompatChangeReporter: Compat change id reported: 37756858; UID 10138; state: ENABLED
+11-11 12:15:36.506  2558  2558 W HWUI    : Unknown dataspace 0
+11-11 12:15:36.509   420   432 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-11 12:15:36.525   543  2209 D CoreBackPreview: Window{2665d46 u0 io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@111825d, mPriority=0, mIsAnimationCallback=false}
+11-11 12:15:36.533  2558  2588 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+11-11 12:15:36.534  2558  2588 I EGL_emulation: Opening libGLESv2_emulation.so
+11-11 12:15:36.543  2558  2588 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-11 12:15:36.697     0     0 I servicemanager: Caller(pid=2558,uid=10138,sid=u:r:untrusted_app_27:s0:c138,c256,c512,c768) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+11-11 12:15:36.556   146   146 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-11 12:15:36.556  2558  2588 I Gralloc4: mapper 4.x is not supported
+11-11 12:15:36.835  2558  2571 I yyur.inputbench: Compiler allocated 4219KB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
+11-11 12:15:36.859  2558  2558 I ImeTracker: io.github.sandyyur.inputbench:248b435b: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+11-11 12:15:36.860  2558  2558 I ImeTracker: io.github.sandyyur.inputbench:248b435b: onFailed at PHASE_CLIENT_VIEW_SERVED
+11-11 12:15:36.860  2558  2558 W InputMethodManager: Ignoring showSoftInput() as view=io.github.sandyyur.inputbench.BenchHost$1{d1dd72a VFED..CL. .F...... 0,0-320,640 aid=1073741824} is not served.
+11-11 12:15:36.862   543   566 W ziparchive: Unable to open '/data/app/~~nRjOfg_3HmhYkhWsHq9vaA==/io.github.sandyyur.inputbench-cBF8arVZmgLZ3Iln_OjS2Q==/base.dm': No such file or directory
+11-11 12:15:36.862   543   566 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost for user 0: +542ms
+11-11 12:15:36.874   985   985 D VRI[EmptyHomeActivity]: visibilityChanged oldVisibility=true newVisibility=false
+11-11 12:15:36.898   543   656 W InputManager-JNI: Input channel object '346595a InputMethod (client)' was disposed without first being removed with the input manager!
+11-11 12:15:36.900   543  1076 W WindowManager: Cannot find window which accessibility connection is added to
+11-11 12:15:36.902   543  1076 W WindowManager: Failed looking up window session=Session{454853c 1104:u0a10107} callers=com.android.server.wm.WindowManagerService.removeClientToken:2058 com.android.server.wm.Session.remove:274 android.view.IWindowSession$Stub.onTransact:685 
+11-11 12:15:36.902  1104  1104 W WindowTokenClientController: Can't find attached WindowTokenClient for android.window.WindowTokenClient@a54a5df
+11-11 12:15:36.905   543   656 I ImeTracker: io.github.sandyyur.inputbench:e8643a62: onRequestShow at ORIGIN_SERVER reason SHOW_STATE_ALWAYS_VISIBLE fromUser false
+11-11 12:15:36.921  2494  2494 D WindowTokenClient: Only apply configuration update to Resources because shouldReportConfigChange is false. context=org.fcitx.fcitx5.android.input.FcitxInputMethodService@d26f2c0, config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, display ID=0
+11-11 12:15:36.921  2494  2494 D WindowTokenClient: android.window.WindowTokenClient.onConfigurationChanged:161 android.window.WindowTokenClientController.onWindowContextTokenAttached:197 android.window.WindowTokenClientController.attachToDisplayArea:116 android.window.WindowContextController.attachToDisplayArea:108 android.window.WindowProviderService.attachBaseContext:218 
+11-11 12:15:36.921  2494  2494 I FcitxColdStart: service.onCreate begin
+11-11 12:15:36.927  2494  2494 I FcitxVoiceInput: registered floating voice receiver actions=android.content.IntentFilter@2e460bb
+11-11 12:15:36.948  2494  2494 I FcitxColdStart: service.onCreate duration=27ms
+11-11 12:15:36.953  2494  2494 W HWUI    : Unknown dataspace 0
+11-11 12:15:36.962  2494  2494 D WindowTokenClient: Configuration not dispatch to IME because configuration is up to date. Current config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, reported config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, updated config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, updated display ID=0
+11-11 12:15:36.962  2494  2494 D WindowTokenClient: Configuration not dispatch to IME because configuration is up to date. Current config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, reported config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, updated config={1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h640dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mMaxBounds=Rect(0, 0 - 320, 640) mDisplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.8 fontWeightAdjustment=0}, updated display ID=0
+11-11 12:15:36.964  2494  2494 D [main] FcitxInputMethodService: onBindInput: uid=10138 pkg=io.github.sandyyur.inputbench
+11-11 12:15:36.965  2494  2494 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:15:36.977  2494  2494 D [main] FcitxInputMethodService: onStartInput: initialSel=[0,0], restarting=false
+11-11 12:15:36.978  2494  2494 I FcitxColdStart: service.onCreateInputView begin
+11-11 12:15:37.212  2494  2498 I d.fx.rime.debug: Compiler allocated 4219KB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
+11-11 12:15:37.390  2494  2548 I fcitx5  : rimeengine.cpp:1288] Loaded data dir profiles: 2, external=0
+11-11 12:15:37.391   358  1442 D android.hardware.audio@7.1-impl.ranchu: threadLoop: entering standby, frames: 602752
+11-11 12:15:37.392  2494  2548 I fcitx5  : rimeengine.cpp:519] Rime reloadConfig()
+11-11 12:15:37.392  2494  2548 I fcitx5  : rimeengine.cpp:739] Rime updateConfig(): restartRime(fullcheck=false)
+11-11 12:15:37.392  2494  2548 I fcitx5  : rimeengine.cpp:744] Rime restartRime(): begin, fullcheck=0, constructed=0, factoryRegistered=0
+11-11 12:15:37.392  2494  2548 I fcitx5  : rimeengine.cpp:751] Rime restartRime(): finalize()
+11-11 12:15:37.393  2494  2548 I fcitx5  : rimeengine.cpp:444] Rime Start: fullcheck=0, currentDataDir=candidate-bench
+11-11 12:15:37.393  2494  2548 I fcitx5  : rimeengine.cpp:489] Rime Start: firstRun setup()
+11-11 12:15:37.393  2494  2548 I fcitx5  : rimeengine.cpp:493] Rime Start: initialize()
+11-11 12:15:37.398  2494  2548 I fcitx5  : rimeengine.cpp:497] Rime Start: maintenanceMode=0
+11-11 12:15:37.398  2494  2548 I fcitx5  : rimeengine.cpp:758] Rime restartRime(): re-register input context property
+11-11 12:15:37.523  2494  2548 I fcitx5  : rimeengine.cpp:769] Rime restartRime(): end
+11-11 12:15:37.523  2494  2548 I fcitx5  : addonmanager.cpp:208] Loaded addon rime
+11-11 12:15:37.561  2558  2571 I yyur.inputbench: Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
+11-11 12:15:37.670  2494  2494 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=56ms
+11-11 12:15:37.684  2494  2494 I FcitxColdStart: KeyboardWindow.onCreateView duration=72ms
+11-11 12:15:37.693  2494  2494 D [main] InputWindowManager: Attach org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+11-11 12:15:37.716  2494  2494 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=4ms
+11-11 12:15:37.722  2494  2494 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:37.732  2494  2494 D [main] InputView: InputView init: theme=MaterialLight, isCustom=false, enableBlur=false
+11-11 12:15:37.759  2494  2494 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:37.771  2494  2494 I FcitxColdStart: replaceInputView duration=792ms
+11-11 12:15:37.775  2494  2494 I FcitxColdStart: service.onCreateInputView duration=797ms
+11-11 12:15:37.775  2494  2494 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:15:37.775  2494  2494 D [main] FcitxInputMethodService: onStartInputView: restarting=false
+11-11 12:15:37.782  2494  2494 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:37.782  2494  2494 D [main] InputWindowManager: Skip attaching org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+11-11 12:15:37.788  2494  2494 D [main] InputWindowManager: Detach org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+11-11 12:15:37.788  2494  2494 D [main] InputWindowManager: Attach org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+11-11 12:15:37.799  2494  2494 I Choreographer: Skipped 49 frames!  The application may be doing too much work on its main thread.
+11-11 12:15:37.863  2494  2498 I d.fx.rime.debug: Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
+11-11 12:15:37.956  2494  2598 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+11-11 12:15:37.957  2494  2598 I EGL_emulation: Opening libGLESv2_emulation.so
+11-11 12:15:37.960  2494  2598 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-11 12:15:37.974   146   146 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-11 12:15:37.974  2494  2598 I Gralloc4: mapper 4.x is not supported
+11-11 12:15:38.116     0     0 I servicemanager: Caller(pid=2494,uid=10139,sid=u:r:untrusted_app:s0:c139,c256,c512,c768) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+11-11 12:15:38.003  2494  2494 D [main] KawaiiBarRowLayout: KawaiiBarRow: mode=scroll viewport=240 content=288 children=6
+11-11 12:15:38.010  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{ffb9c7c V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.010  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fe376f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.010  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{bb79905 V.ED..... ......ID 2,28-30,43 #fffffe} during layout: running second layout pass
+11-11 12:15:38.010  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{360db8b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ca9dd5a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ba40468 V.ED..... ......ID 2,28-30,43 #fffffd} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e987526 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e9dc081 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{bffa567 V.ED..... ......ID 2,28-30,43 #fffffc} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{264e3bd V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4e8ff14 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{386bdb2 V.ED..... ......ID 2,28-30,43 #fffffb} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{2e0f880 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.011  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7d73103 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{880feb9 V.ED..... ......ID 2,28-30,43 #fffffa} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d11da5f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{89f02fe V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{59d1cac V.ED..... ......ID 2,28-30,43 #fffff9} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{164510a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ba9cd75 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{23bd7b V.ED..... ......ID 2,28-30,43 #fffff8} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{56cbf1 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b155798 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{47e73d6 V.ED..... ......ID 2,28-30,43 #fffff7} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6d45544 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ea6b657 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fb362d V.ED..... ......ID 2,28-30,43 #fffff6} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{bf660f3 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{945f762 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.012  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{86381b0 V.ED..... ......ID 2,28-30,43 #fffff5} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{b8c194f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{21027ae V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c7708dc V.ED..... ......ID 2,28-30,43 #ffffea} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{f3b10ba V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{989fde5 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{51afb6b V.ED..... ......ID 2,28-30,43 #ffffe9} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6e19361 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4d9d6c8 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6f97e86 V.ED..... ......ID 2,28-30,43 #ffffe8} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{3199774 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e6be347 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5c3049d V.ED..... ......ID 2,28-30,43 #ffffe7} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6f96ce3 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ddefd12 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1f2b6e0 V.ED..... ......ID 2,28-30,43 #ffffe6} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{c2bd85e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.013  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9504d99 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.014  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{14bf43f V.ED..... ......ID 2,28-30,43 #ffffe5} during layout: running second layout pass
+11-11 12:15:38.014  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{acf2a55 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.014  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{97c610c V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.014  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{bd91c6a V.ED..... ......ID 2,28-30,43 #ffffe4} during layout: running second layout pass
+11-11 12:15:38.015  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a1481f8 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.015  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{615955b V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{82516d1 V.ED..... ......ID 2,28-30,43 #ffffe3} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d0e2c37 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b649536 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a0bc5a4 V.ED..... ......ID 2,28-30,43 #ffffe2} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{2119810 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{78f54d3 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a32cf09 V.ED..... ......ID 2,28-30,43 #ffffd8} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{8f06b2f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cad150e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{460253c V.ED..... ......ID 2,28-30,43 #ffffd7} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{da9741a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b052c5 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.016  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8a28b4b V.ED..... ......ID 2,28-30,43 #ffffd6} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{1c85641 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{aa85928 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3dab7e6 V.ED..... ......ID 2,28-30,43 #ffffd5} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6bddfd4 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a0c9127 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b03157d V.ED..... ......ID 2,28-30,43 #ffffd4} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{62718c3 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c8a6c72 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2032540 V.ED..... ......ID 2,28-30,43 #ffffd3} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e0eddbe V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{308c79 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.017  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2d87e1f V.ED..... ......ID 2,28-30,43 #ffffd2} during layout: running second layout pass
+11-11 12:15:38.427  1104  1104 I LatinIME: Timeout waiting for dictionary load
+11-11 12:15:38.453  2558  2558 D InsetsController: show(ime(), fromIme=true)
+11-11 12:15:38.459  2558  2588 D EGL_emulation: app_time_stats: avg=801.94ms min=57.95ms max=1545.94ms count=2
+11-11 12:15:38.460  2494  2504 I HWUI    : Davey! duration=1477ms; Flags=1, FrameTimelineVsyncId=3287, IntendedVsync=88160013408, Vsync=88976680042, InputEventId=0, HandleInputStart=88988578877, AnimationStart=88988585540, PerformTraversalsStart=88988588947, DrawStart=89232487390, FrameDeadline=88176680074, FrameInterval=88987434883, FrameStartTime=16666666, SyncQueued=89244173648, SyncStart=89244437087, IssueDrawCommandsStart=89244930407, SwapBuffers=89491560753, FrameCompleted=89637957417, DequeueBufferDuration=1098019, QueueBufferDuration=15718837, GpuCompleted=89636343816, SwapBuffersCompleted=89637957417, DisplayPresentTime=72904454231359566, CommandSubmissionCompleted=89491560753, 
+11-11 12:15:38.462  2558  2603 W InteractionJankMonitor: Initializing without READ_DEVICE_CONFIG permission. enabled=true, interval=1, missedFrameThreshold=3, frameTimeThreshold=64, package=io.github.sandyyur.inputbench
+11-11 12:15:38.477  2558  2558 I ImeTracker: io.github.sandyyur.inputbench:e8643a62: onShown
+11-11 12:15:38.514  2494  2494 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=62ms
+11-11 12:15:38.527  2494  2494 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:38.535  2494  2494 I Choreographer: Skipped 42 frames!  The application may be doing too much work on its main thread.
+11-11 12:15:38.566  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{dde65a5 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6c1379c V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{d47bd7a V.ED..... ......ID 2,28-30,43 #ffffb0} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9783188 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9a3092b V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e74b721 V.ED..... ......ID 2,28-30,43 #ffffaf} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{cc70d07 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c043746 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{122de34 V.ED..... ......ID 2,28-30,43 #ffffae} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9bc81d2 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{bc4a45d V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f3d72a3 V.ED..... ......ID 2,28-30,43 #ffffad} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{c2c2959 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{329a9a0 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{73ce91e V.ED..... ......ID 2,28-30,43 #ffffac} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{10fbfcc V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f2a95ff V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3ed0215 V.ED..... ......ID 2,28-30,43 #ffffab} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e9c931b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.567  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3ca792a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f5f0cb8 V.ED..... ......ID 2,28-30,43 #ffffaa} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{beefdf6 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fa8aa91 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{86745f7 V.ED..... ......ID 2,28-30,43 #ffffa9} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a9c5ecd V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f543c64 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9050382 V.ED..... ......ID 2,28-30,43 #ffffa8} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{74abad0 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6c04a93 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c9d1ac9 V.ED..... ......ID 2,28-30,43 #ffffa7} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5e8b3fc V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{79afcef V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{bd39a85 V.ED..... ......ID 2,28-30,43 #ffff9c} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{ac4790b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a0b80da V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c0b13e8 V.ED..... ......ID 2,28-30,43 #ffff9b} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{730d0a6 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e385a01 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5bf9ae7 V.ED..... ......ID 2,28-30,43 #ffff9a} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6cf953d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9718694 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.568  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{95132 V.ED..... ......ID 2,28-30,43 #ffff99} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{82a7800 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{960fe83 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{aa54839 V.ED..... ......ID 2,28-30,43 #ffff98} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{52affdf V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9774e7e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2bf142c V.ED..... ......ID 2,28-30,43 #ffff97} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{235d48a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9892ef5 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{469bafb V.ED..... ......ID 2,28-30,43 #ffff96} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{68ac571 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{11f4718 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7a4af56 V.ED..... ......ID 2,28-30,43 #ffff95} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{84dbcc4 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{10f0bd7 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c3547ad V.ED..... ......ID 2,28-30,43 #ffff94} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{88bb1a9 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8cbe130 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{552532e V.ED..... ......ID 2,28-30,43 #ffff8a} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{7c5e05c V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cf99ecf V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cc4bf65 V.ED..... ......ID 2,28-30,43 #ffff89} during layout: running second layout pass
+11-11 12:15:38.569  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{39b58eb V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f34743a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{efea648 V.ED..... ......ID 2,28-30,43 #ffff88} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{3e59a06 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cc6ece1 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{45498c7 V.ED..... ......ID 2,28-30,43 #ffff87} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a64761d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f7bdef4 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{315092 V.ED..... ......ID 2,28-30,43 #ffff86} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{2f1f660 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e77fa63 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8575719 V.ED..... ......ID 2,28-30,43 #ffff85} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9e5d9bf V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fe3de V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.570  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7f0188c V.ED..... ......ID 2,28-30,43 #ffff84} during layout: running second layout pass
+11-11 12:15:38.626  2494  2599 I HWUI    : Davey! duration=799ms; Flags=0, FrameTimelineVsyncId=3325, IntendedVsync=89010013374, Vsync=89710013346, InputEventId=0, HandleInputStart=89725518587, AnimationStart=89725519419, PerformTraversalsStart=89725748146, DrawStart=89777148395, FrameDeadline=89660013348, FrameInterval=89723827231, FrameStartTime=16666666, SyncQueued=89783662611, SyncStart=89783754092, IssueDrawCommandsStart=89784142166, SwapBuffers=89790440620, FrameCompleted=89809760313, DequeueBufferDuration=2379430, QueueBufferDuration=392582, GpuCompleted=89809760313, SwapBuffersCompleted=89796247376, DisplayPresentTime=144115222452437076, CommandSubmissionCompleted=89790440620, 
+11-11 12:15:38.652  2494  2548 D [fcitx-main] Fcitx$JNI: Handling IMChangeEvent(data=InputMethodEntry(uniqueName=rime, name=Rime, icon=fcitx-rime, nativeName=, label=ㄓ, languageCode=zh, addon=rime, isConfigurable=true, subMode=InputMethodSubMode(name=万象拼音, label=万象拼音, icon=fcitx-rime:wanxiang)))
+11-11 12:15:38.658  2494  2548 D [fcitx-main] Fcitx$JNI: Handling StatusAreaEvent(data=Data(actions=[Action(id=1, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-im, icon=fcitx_rime_im, shortText=万象拼音, longText=万象拼音, menu=[Action(id=6, isSeparator=false, isCheckable=false, isChecked=false, name=$6, icon=, shortText=Latin Mode, longText=, menu=null), Action(id=7, isSeparator=false, isCheckable=false, isChecked=false, name=$7, icon=, shortText=万象拼音, longText=wanxiang, menu=null), Action(id=2, isSeparator=true, isCheckable=false, isChecked=false, name=fcitx-rime-separator, icon=, shortText=, longText=, menu=null), Action(id=3, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx://multiselect/addon/rime/schema-selector?option=Items&min=1, icon=fcitx_rime_schema_selector, shortText=Schema Selector, longText=, menu=null), Action(id=4, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-deploy, icon=fcitx_rime_deploy, shortText=Deploy, longText=, menu=null), Action(id=5, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-sync, icon=fcitx_rime_sync, shortText=Synchronize, longText=, menu=null)]), Action(id=8, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-ascii_mode, icon=, shortText=中文 → 英文, longText=, menu=null), Action(id=9, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-ascii_punct, icon=, shortText=中标 → 英标, longText=, menu=null), Action(id=10, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-full_shape, icon=, shortText=半角 → 全角, longText=, menu=null), Action(id=11, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-emoji, icon=, shortText=表情开 → 表情关, longText=, menu=null), Action(id=12, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-english_chinese, icon=, shortText=翻译关 → 英译中, longText=, menu=null), Action(id=13, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-context_reorder, icon=, shortText=上下文开 → 上下文关, longText=, menu=null), Action(id=17, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-select-raw_input, icon=, shortText=原编码, longText=, menu=[Action(id=14, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-raw_input, icon=, shortText=原编码, longText=, menu=null), Action(id=15, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-tone_display, icon=, shortText=有声调, longText=, menu=null), Action(id=16, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-full_pinyin, icon=, shortText=无声调, longText=, menu=null)]), Action(id=22, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-select-s2s, icon=, shortText=简体, longText=, menu=[Action(id=18, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-s2s, icon=, shortText=简体, longText=, menu=null), Action(id=19, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-s2t, icon=, shortText=通繁, longText=, menu=null), Action(id=20, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-s2hk, icon=, shortText=港繁, longText=, menu=null), Action(id=21, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-s2tw, icon=, shortText=臺繁, longText=, menu=null)]), Action(id=23, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-abbrev, icon=, shortText=简码开 → 简码关, longText=, menu=null), Action(id=27, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-select-comment_off, icon=, shortText=有声调, longText=, menu=[Action(id=24, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-comment_off, icon=, shortText=注释关, longText=, menu=null), Action(id=25, isSepa
+11-11 12:15:38.658  2494  2548 D [fcitx-main] Fcitx$JNI: ), Action(id=26, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-toneless_hint, icon=, shortText=无声调, longText=, menu=null)]), Action(id=28, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-super_tips, icon=, shortText=提示开 → 提示关, longText=, menu=null), Action(id=29, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-charset_filter, icon=, shortText=小字集 → 大字集, longText=, menu=null), Action(id=30, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-char_priority, icon=, shortText=词组先 → 单字先, longText=, menu=null), Action(id=31, isSeparator=false, isCheckable=false, isChecked=false, name=fcitx-rime-wanxiang-english, icon=, shortText=英文开 → 英文关, longText=, menu=null)], im=InputMethodEntry(uniqueName=rime, name=Rime, icon=fcitx-rime, nativeName=, label=ㄓ, languageCode=zh, addon=rime, isConfigurable=true, subMode=InputMethodSubMode(name=万象拼音, label=万象拼音, icon=fcitx-rime:wanxiang))))
+11-11 12:15:38.659  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[], cursorIndex=-1, layoutHint=NotSet, hasPrev=false, hasNext=false))
+11-11 12:15:38.690  2494  2494 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=28ms
+11-11 12:15:38.696  2494  2494 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:15:38.707  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[], cursorIndex=-1, layoutHint=NotSet, hasPrev=false, hasNext=false))
+11-11 12:15:38.729  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{ace1fb7 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{42626b6 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5f77324 V.ED..... ......ID 2,28-30,43 #ffff76} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{665f842 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1492e8d V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1b0053 V.ED..... ......ID 2,28-30,43 #ffff75} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{7a72689 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8ca9d90 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6df568e V.ED..... ......ID 2,28-30,43 #ffff74} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{16402bc V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{94b4eaf V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9d2a245 V.ED..... ......ID 2,28-30,43 #ffff73} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a8826cb V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{27e4d9a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3cc8ea8 V.ED..... ......ID 2,28-30,43 #ffff72} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6e3a966 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f801dc1 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{77064a7 V.ED..... ......ID 2,28-30,43 #ffff71} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d2fd4fd V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9afed54 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8f0f5f2 V.ED..... ......ID 2,28-30,43 #ffff70} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9c88ac0 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4b4a443 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{529c3f9 V.ED..... ......ID 2,28-30,43 #ffff6f} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{773419f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8147f3e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a0b92ec V.ED..... ......ID 2,28-30,43 #ffff6e} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a55514a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c39a6b5 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e5458bb V.ED..... ......ID 2,28-30,43 #ffff6d} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d1f3816 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e2af931 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{65c597 V.ED..... ......ID 2,28-30,43 #ffff62} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e04f76d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7535384 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6cebfa2 V.ED..... ......ID 2,28-30,43 #ffff61} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{67423f0 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{db72433 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.730  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e069d69 V.ED..... ......ID 2,28-30,43 #ffff60} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{db5d08f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4fd33ee V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{98f8f1c V.ED..... ......ID 2,28-30,43 #ffff5f} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{38ca0fa V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b62a725 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{748e6ab V.ED..... ......ID 2,28-30,43 #ffff5e} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9bb90a1 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3948108 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{873d2c6 V.ED..... ......ID 2,28-30,43 #ffff5d} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{574a5b4 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ead4287 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a5f95dd V.ED..... ......ID 2,28-30,43 #ffff5c} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5118023 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4a5552 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b906920 V.ED..... ......ID 2,28-30,43 #ffff5b} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{794749e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b44b2d9 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5f1fb7f V.ED..... ......ID 2,28-30,43 #ffff5a} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e34d09b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ccf3caa V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6ee3c38 V.ED..... ......ID 2,28-30,43 #ffff50} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{73c7976 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{518e411 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{905db77 V.ED..... ......ID 2,28-30,43 #ffff4f} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{c96b04d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{566e3e4 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e6eb702 V.ED..... ......ID 2,28-30,43 #ffff4e} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{ca05a50 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e72b813 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5ab0449 V.ED..... ......ID 2,28-30,43 #ffff4d} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{fc6c26f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e95414e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7b8cb7c V.ED..... ......ID 2,28-30,43 #ffff4c} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{588245a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5969c05 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{da7168b V.ED..... ......ID 2,28-30,43 #ffff4b} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{ae9f381 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3852368 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:15:38.731  2494  2494 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4942c26 V.ED..... ......ID 2,28-30,43 #ffff4a} during layout: running second layout pass
+11-11 12:15:38.768   416   437 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:15:38.768   543  1203 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:15:38.815   416   518 D AudioFlinger: mixer(0x75040a87d8e0) throttle end: throttle time(33)
+11-11 12:15:38.861  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=n, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:38.863  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=年, comment=nián, spaceBetweenComment=true), CandidateWord(label=3 , text=呢, comment=ne, spaceBetweenComment=true), CandidateWord(label=4 , text=能, comment=néng, spaceBetweenComment=true), CandidateWord(label=5 , text=那, comment=nà, spaceBetweenComment=true), CandidateWord(label=6 , text=念, comment=niàn, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:38.898   543  2431 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:15:39.012   416   518 D AudioFlinger: mixer(0x75040a87d8e0) throttle end: throttle time(22)
+11-11 12:15:39.030  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=ni, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=ni, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=2, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:39.032  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=泥, comment=ní, spaceBetweenComment=true), CandidateWord(label=3 , text=拟, comment=nǐ, spaceBetweenComment=true), CandidateWord(label=4 , text=腻, comment=nì, spaceBetweenComment=true), CandidateWord(label=5 , text=逆, comment=nì, spaceBetweenComment=true), CandidateWord(label=6 , text=尼, comment=ní, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:39.053   543  1076 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:15:39.065   416   518 D AudioFlinger: mixer(0x75040a87d8e0) throttle end: throttle time(4)
+11-11 12:15:39.149  2494  2548 D [fcitx-main] Fcitx$JNI: Handling CommitStringEvent(data=Data(text=你, cursor=-1))
+11-11 12:15:39.150  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=, auxUp=, auxDown=, tabs=[], auxBarActions=[]))
+11-11 12:15:39.150  2494  2494 D [main] CursorTracker: current: [0,0]; predictionCount=1
+11-11 12:15:39.150  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[], cursorIndex=-1, layoutHint=NotSet, hasPrev=false, hasNext=false))
+11-11 12:15:39.155  2494  2494 D [main] FcitxInputMethodService: onUpdateSelection: old=[0,0] new=[1,1] cand=[-1,-1]
+11-11 12:15:39.155   416   518 D AudioFlinger: mixer(0x75040a87d8e0) throttle end: throttle time(10)
+11-11 12:15:39.178   543  1076 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:15:39.178   543  1076 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:15:39.179   543   577 D OomAdjuster: Not killing cached processes
+11-11 12:15:39.185   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:15:39.288   416   518 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:15:39.348   543  1520 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-11 12:15:39.350   416   437 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:15:39.350   543  2209 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:15:39.386  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=n, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:39.387  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=年, comment=nián, spaceBetweenComment=true), CandidateWord(label=3 , text=呢, comment=ne, spaceBetweenComment=true), CandidateWord(label=4 , text=能, comment=néng, spaceBetweenComment=true), CandidateWord(label=5 , text=那, comment=nà, spaceBetweenComment=true), CandidateWord(label=6 , text=念, comment=niàn, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:39.419   416   437 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:15:39.419   543  1076 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:15:39.443   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:39.444   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:39.466  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=ni, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=ni, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=2, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:39.467  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=泥, comment=ní, spaceBetweenComment=true), CandidateWord(label=3 , text=拟, comment=nǐ, spaceBetweenComment=true), CandidateWord(label=4 , text=腻, comment=nì, spaceBetweenComment=true), CandidateWord(label=5 , text=逆, comment=nì, spaceBetweenComment=true), CandidateWord(label=6 , text=尼, comment=ní, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:39.483   543  1203 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:15:39.510  2494  2548 D [fcitx-main] Fcitx$JNI: Handling CommitStringEvent(data=Data(text=你, cursor=-1))
+11-11 12:15:39.511  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=, auxUp=, auxDown=, tabs=[], auxBarActions=[]))
+11-11 12:15:39.511  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[], cursorIndex=-1, layoutHint=NotSet, hasPrev=false, hasNext=false))
+11-11 12:15:39.511  2494  2494 D [main] CursorTracker: current: [1,1]; predictionCount=1
+11-11 12:15:39.515  2494  2494 D [main] FcitxInputMethodService: onUpdateSelection: old=[1,1] new=[2,2] cand=[-1,-1]
+11-11 12:15:39.533  2558  2588 D EGL_emulation: app_time_stats: avg=357.89ms min=19.68ms max=860.84ms count=3
+11-11 12:15:39.542   543  2209 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:15:39.543   543  2209 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:15:39.544   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:15:39.547   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:39.547   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:39.562   543  2209 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:15:39.598  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=n, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:39.599  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=年, comment=nián, spaceBetweenComment=true), CandidateWord(label=3 , text=呢, comment=ne, spaceBetweenComment=true), CandidateWord(label=4 , text=能, comment=néng, spaceBetweenComment=true), CandidateWord(label=5 , text=那, comment=nà, spaceBetweenComment=true), CandidateWord(label=6 , text=念, comment=niàn, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:39.621   543  2431 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:15:39.621  2494  2598 D EGL_emulation: app_time_stats: avg=47.37ms min=1.59ms max=178.34ms count=23
+11-11 12:15:39.651   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:39.652   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:39.656  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=ni, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=ni, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=2, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:39.656  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=泥, comment=ní, spaceBetweenComment=true), CandidateWord(label=3 , text=拟, comment=nǐ, spaceBetweenComment=true), CandidateWord(label=4 , text=腻, comment=nì, spaceBetweenComment=true), CandidateWord(label=5 , text=逆, comment=nì, spaceBetweenComment=true), CandidateWord(label=6 , text=尼, comment=ní, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:39.712   543  1076 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:15:39.721   543  1530 I DeviceLockControllerConnectorImpl: Unbinding DeviceLockControllerService
+11-11 12:15:39.737  2494  2548 D [fcitx-main] Fcitx$JNI: Handling CommitStringEvent(data=Data(text=你, cursor=-1))
+11-11 12:15:39.737  2494  2494 D [main] CursorTracker: current: [2,2]; predictionCount=1
+11-11 12:15:39.744  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=, auxUp=, auxDown=, tabs=[], auxBarActions=[]))
+11-11 12:15:39.746  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[], cursorIndex=-1, layoutHint=NotSet, hasPrev=false, hasNext=false))
+11-11 12:15:39.747  2494  2494 D [main] FcitxInputMethodService: onUpdateSelection: old=[2,2] new=[3,3] cand=[-1,-1]
+11-11 12:15:39.758   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:39.758   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:39.758   543  1203 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:15:39.759   543  1203 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:15:39.777   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:15:39.794   543  1203 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:15:39.830  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=n, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:39.831  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=年, comment=nián, spaceBetweenComment=true), CandidateWord(label=3 , text=呢, comment=ne, spaceBetweenComment=true), CandidateWord(label=4 , text=能, comment=néng, spaceBetweenComment=true), CandidateWord(label=5 , text=那, comment=nà, spaceBetweenComment=true), CandidateWord(label=6 , text=念, comment=niàn, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:39.859   543  1203 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:15:39.860   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:39.860   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:39.900  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=ni, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=ni, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=2, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:39.902  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=泥, comment=ní, spaceBetweenComment=true), CandidateWord(label=3 , text=拟, comment=nǐ, spaceBetweenComment=true), CandidateWord(label=4 , text=腻, comment=nì, spaceBetweenComment=true), CandidateWord(label=5 , text=逆, comment=nì, spaceBetweenComment=true), CandidateWord(label=6 , text=尼, comment=ní, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:39.920   416   619 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-11 12:15:39.922   416   619 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:15:39.922   543  1076 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 18
+11-11 12:15:39.945  2494  2548 D [fcitx-main] Fcitx$JNI: Handling CommitStringEvent(data=Data(text=你, cursor=-1))
+11-11 12:15:39.946  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=, auxUp=, auxDown=, tabs=[], auxBarActions=[]))
+11-11 12:15:39.946  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[], cursorIndex=-1, layoutHint=NotSet, hasPrev=false, hasNext=false))
+11-11 12:15:39.946  2494  2494 D [main] CursorTracker: current: [3,3]; predictionCount=1
+11-11 12:15:39.950  2494  2494 D [main] FcitxInputMethodService: onUpdateSelection: old=[3,3] new=[4,4] cand=[-1,-1]
+11-11 12:15:39.963   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:39.963   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:39.974   543  2431 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:15:39.974   543  2431 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:15:39.977   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:15:39.993   543  2431 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:15:39.995   416   518 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:15:40.029  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=n, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:40.029  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=年, comment=nián, spaceBetweenComment=true), CandidateWord(label=3 , text=呢, comment=ne, spaceBetweenComment=true), CandidateWord(label=4 , text=能, comment=néng, spaceBetweenComment=true), CandidateWord(label=5 , text=那, comment=nà, spaceBetweenComment=true), CandidateWord(label=6 , text=念, comment=niàn, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:40.052   543  1203 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 18
+11-11 12:15:40.067   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:40.067   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:40.087  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=ni, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=ni, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=2, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:40.092  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=泥, comment=ní, spaceBetweenComment=true), CandidateWord(label=3 , text=拟, comment=nǐ, spaceBetweenComment=true), CandidateWord(label=4 , text=腻, comment=nì, spaceBetweenComment=true), CandidateWord(label=5 , text=逆, comment=nì, spaceBetweenComment=true), CandidateWord(label=6 , text=尼, comment=ní, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:40.144   543  1076 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:15:40.168  2494  2548 D [fcitx-main] Fcitx$JNI: Handling CommitStringEvent(data=Data(text=你, cursor=-1))
+11-11 12:15:40.168  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=, auxUp=, auxDown=, tabs=[], auxBarActions=[]))
+11-11 12:15:40.168  2494  2494 D [main] CursorTracker: current: [4,4]; predictionCount=1
+11-11 12:15:40.168  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[], cursorIndex=-1, layoutHint=NotSet, hasPrev=false, hasNext=false))
+11-11 12:15:40.173  2494  2494 D [main] FcitxInputMethodService: onUpdateSelection: old=[4,4] new=[5,5] cand=[-1,-1]
+11-11 12:15:40.176   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:40.176   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:40.189   543  1076 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:15:40.190   543  1076 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:15:40.193   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:15:40.211   416   437 D audioserver: logFgsApiBegin: FGS Logger Transaction failed, -129
+11-11 12:15:40.211   543  1223 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:15:40.245   416   518 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:15:40.247  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=n, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:40.248  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=年, comment=nián, spaceBetweenComment=true), CandidateWord(label=3 , text=呢, comment=ne, spaceBetweenComment=true), CandidateWord(label=4 , text=能, comment=néng, spaceBetweenComment=true), CandidateWord(label=5 , text=那, comment=nà, spaceBetweenComment=true), CandidateWord(label=6 , text=念, comment=niàn, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:40.275   543  2431 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 16
+11-11 12:15:40.279   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:40.279   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:40.314  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=ni, auxUp=, auxDown=, tabs=[CandidateAction(id=0, text=ni, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=1, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false), CandidateAction(id=2, text=n, isSeparator=false, icon=, isCheckable=true, isChecked=false)], auxBarActions=[]))
+11-11 12:15:40.316  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[CandidateWord(label=1 , text=你, comment=nǐ+, spaceBetweenComment=true), CandidateWord(label=2 , text=泥, comment=ní, spaceBetweenComment=true), CandidateWord(label=3 , text=拟, comment=nǐ, spaceBetweenComment=true), CandidateWord(label=4 , text=腻, comment=nì, spaceBetweenComment=true), CandidateWord(label=5 , text=逆, comment=nì, spaceBetweenComment=true), CandidateWord(label=6 , text=尼, comment=ní, spaceBetweenComment=true)], cursorIndex=0, layoutHint=NotSet, hasPrev=false, hasNext=true))
+11-11 12:15:40.333   543  2209 W AS.PlaybackActivityMon: No piid assigned for invalid/internal port id 17
+11-11 12:15:40.364  2494  2548 D [fcitx-main] Fcitx$JNI: Handling CommitStringEvent(data=Data(text=你, cursor=-1))
+11-11 12:15:40.365  2494  2494 D [main] CursorTracker: current: [5,5]; predictionCount=1
+11-11 12:15:40.367  2494  2548 D [fcitx-main] Fcitx$JNI: Handling InputPanelEvent(data=Data(preedit=, auxUp=, auxDown=, tabs=[], auxBarActions=[]))
+11-11 12:15:40.367  2494  2548 D [fcitx-main] Fcitx$JNI: Handling PagedCandidateEvent(data=Data(candidates=[], cursorIndex=-1, layoutHint=NotSet, hasPrev=false, hasNext=false))
+11-11 12:15:40.367  2494  2494 D [main] FcitxInputMethodService: onUpdateSelection: old=[5,5] new=[6,6] cand=[-1,-1]
+11-11 12:15:40.383   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:40.384   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:40.393   543  2209 I ActivityManager: Broadcasting: Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }
+11-11 12:15:40.394   543  2209 I ActivityManager: Enqueued broadcast Intent { flg=0x400000 cmp=io.github.sandyyur.inputbench/.BenchControl (has extras) }: 0
+11-11 12:15:40.396   543   566 I ActivityManager: Broadcast completed: result=0
+11-11 12:15:40.471   416   518 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:15:40.487   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:40.487   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:40.562   416   518 D audioserver: logFgsApiEnd: FGS Logger Transaction failed, -129
+11-11 12:15:40.591   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:40.591   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:40.662  2494  2528 I TestRunner: finished: replay(org.fcitx.fcitx5.android.core.CandidateTapTest)
+11-11 12:15:40.664  2494  2528 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-11 12:15:40.670   543  1223 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-11 12:15:40.670   543  1223 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-11 12:15:40.670   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:15:40.670   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:15:40.671   543   543 W IPCThreadState: Sending oneway calls to frozen process.
+11-11 12:15:40.671   543   543 D BatterySaverPolicy: accessibility changed to false, updating policy.
+11-11 12:15:40.673   543  2431 I ActivityManager: Force stopping org.fcitx.fcitx5.android.fx.rime.debug appid=10139 user=0: finished inst
+11-11 12:15:40.673  2478  2478 I app_process: System.exit called, status: 0
+11-11 12:15:40.673  2478  2478 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:15:40.819     0     0 I binder  : 543:2431 ioctl 400c620e 762df72b6354 returned -11
+11-11 12:15:40.821     0     0 I binder  : 543:2431 ioctl 400c620e 762df72b6354 returned -11
+11-11 12:15:40.678   543  2431 E ActivityManager: Unable to freeze binder for 2494: -11
+11-11 12:15:40.679   543   567 D DisplayManagerService: Drop pending events for gone uid 10139
+11-11 12:15:40.681   543   785 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:15:40.681   543  2431 I ActivityManager: Killing 2494:org.fcitx.fcitx5.android.fx.rime.debug/u0a139 (adj 0): stop org.fcitx.fcitx5.android.fx.rime.debug due to finished inst
+11-11 12:15:40.684   543   785 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:15:40.685   543   785 D InetDiagMessage: Destroyed live tcp sockets for uids={10139} in 5ms
+11-11 12:15:40.685   543   785 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-11 12:15:40.685   543   785 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-11 12:15:40.685   543   785 D InetDiagMessage: Destroyed live tcp sockets for uids={20139} in 0ms
+11-11 12:15:40.692   349   393 I netd    : tetherGetStats() -> {[]} <0.39ms>
+11-11 12:15:40.695   358  2607 W android.hardware.audio@7.1-impl.ranchu: pcmWrite:259 pcm_writei failed with 'cannot read/write stream data: I/O error' (-1)
+11-11 12:15:40.696   358  2607 E android.hardware.audio@7.1-impl.ranchu: pcmWrite:260 failure: -1
+11-11 12:15:40.862     0     0 I logd    : logdr: UID=2000 GID=2000 PID=2665 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-11 12:15:40.862     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:15:40.865     0     0 I binder  : undelivered transaction 96415, process died.

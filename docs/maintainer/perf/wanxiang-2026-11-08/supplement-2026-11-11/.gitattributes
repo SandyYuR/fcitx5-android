@@ -1,0 +1,5 @@
+# Preserve captured bytes, including logcat trailing spaces; lint authored Markdown.
+*.txt -whitespace
+*.tsv -whitespace
+*.json -whitespace
+*.yaml -whitespace

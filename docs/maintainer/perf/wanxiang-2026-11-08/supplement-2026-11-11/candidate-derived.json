@@ -1,0 +1,316 @@
+{
+  "candidate": {
+    "fcitx": {
+      "processes": 3,
+      "selections": 18,
+      "metrics": {
+        "injection_up_to_ime_dispatch": {
+          "first": {
+            "n": 3,
+            "median": 58.664227,
+            "min": 54.176513,
+            "max": 62.930335
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 0.650043,
+            "min": 0.646727,
+            "max": 0.699717
+          }
+        },
+        "ime_dispatch_up_to_commit_collector": {
+          "first": {
+            "n": 3,
+            "median": 13.942018,
+            "min": 13.03721,
+            "max": 16.756109
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 5.062443,
+            "min": 4.087915,
+            "max": 6.914567
+          }
+        },
+        "ime_dispatch_up_to_editor_input_connection": {
+          "first": {
+            "n": 3,
+            "median": 18.610817,
+            "min": 14.134597,
+            "max": 19.389123
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 6.054128,
+            "min": 5.508199,
+            "max": 8.213129
+          }
+        },
+        "ime_dispatch_up_to_editor_change": {
+          "first": {
+            "n": 3,
+            "median": 21.280592,
+            "min": 16.433457,
+            "max": 44.66682
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 10.615062,
+            "min": 6.986454,
+            "max": 11.203827
+          }
+        },
+        "ime_dispatch_up_to_editor_draw": {
+          "first": {
+            "n": 3,
+            "median": 28.189565,
+            "min": 27.931634,
+            "max": 54.806316
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 20.540943,
+            "min": 20.206779,
+            "max": 20.660805
+          }
+        },
+        "ime_touch_up_handler": {
+          "first": {
+            "n": 3,
+            "median": 3.371462,
+            "min": 2.112169,
+            "max": 4.249497
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 1.309945,
+            "min": 1.091197,
+            "max": 1.376097
+          }
+        },
+        "n_dispatch_up_to_preedit_collector": {
+          "first": {
+            "n": 3,
+            "median": 74.737018,
+            "min": 69.238033,
+            "max": 88.748847
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 17.745218,
+            "min": 16.09001,
+            "max": 18.206862
+          }
+        }
+      }
+    },
+    "direct": {
+      "processes": 3,
+      "selections": 18,
+      "metrics": {
+        "injection_up_to_ime_dispatch": {
+          "first": {
+            "n": 3,
+            "median": 0.569603,
+            "min": 0.542853,
+            "max": 0.635917
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 0.64907,
+            "min": 0.576185,
+            "max": 0.681872
+          }
+        },
+        "ime_dispatch_up_to_commit_collector": {
+          "first": {
+            "n": 3,
+            "median": 3.751872,
+            "min": 3.70271,
+            "max": 10.194551
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 2.631581,
+            "min": 2.522547,
+            "max": 2.752587
+          }
+        },
+        "ime_dispatch_up_to_editor_input_connection": {
+          "first": {
+            "n": 3,
+            "median": 4.748371,
+            "min": 4.544532,
+            "max": 11.591047
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 3.211744,
+            "min": 3.02066,
+            "max": 3.741111
+          }
+        },
+        "ime_dispatch_up_to_editor_change": {
+          "first": {
+            "n": 3,
+            "median": 10.997103,
+            "min": 6.983945,
+            "max": 26.406745
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 4.053295,
+            "min": 3.847183,
+            "max": 4.52837
+          }
+        },
+        "ime_dispatch_up_to_editor_draw": {
+          "first": {
+            "n": 3,
+            "median": 25.012018,
+            "min": 22.973091,
+            "max": 40.127249
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 11.805932,
+            "min": 8.299261,
+            "max": 12.528633
+          }
+        },
+        "ime_touch_up_handler": {
+          "first": {
+            "n": 3,
+            "median": 1.439707,
+            "min": 1.248301,
+            "max": 1.871392
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 1.161708,
+            "min": 1.049628,
+            "max": 1.226308
+          }
+        },
+        "n_dispatch_up_to_preedit_collector": {
+          "first": {
+            "n": 3,
+            "median": 32.205413,
+            "min": 23.26741,
+            "max": 33.031083
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 10.208258,
+            "min": 7.710862,
+            "max": 12.301019
+          }
+        }
+      }
+    },
+    "current": {
+      "processes": 3,
+      "selections": 18,
+      "metrics": {
+        "injection_up_to_ime_dispatch": {
+          "first": {
+            "n": 3,
+            "median": 0.599329,
+            "min": 0.467743,
+            "max": 56.751866
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 0.661434,
+            "min": 0.629655,
+            "max": 0.695017
+          }
+        },
+        "ime_dispatch_up_to_commit_collector": {
+          "first": {
+            "n": 3,
+            "median": 6.024222,
+            "min": 4.069214,
+            "max": 17.868738
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 2.980121,
+            "min": 2.575677,
+            "max": 3.001898
+          }
+        },
+        "ime_dispatch_up_to_editor_input_connection": {
+          "first": {
+            "n": 3,
+            "median": 6.970939,
+            "min": 4.591478,
+            "max": 11.898147
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 3.588746,
+            "min": 3.249924,
+            "max": 3.819852
+          }
+        },
+        "ime_dispatch_up_to_editor_change": {
+          "first": {
+            "n": 3,
+            "median": 9.467167,
+            "min": 7.039887,
+            "max": 33.719648
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 4.463109,
+            "min": 4.098739,
+            "max": 4.995836
+          }
+        },
+        "ime_dispatch_up_to_editor_draw": {
+          "first": {
+            "n": 3,
+            "median": 10.666315,
+            "min": 8.673936,
+            "max": 41.623227
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 11.026477,
+            "min": 8.187459,
+            "max": 13.653088
+          }
+        },
+        "ime_touch_up_handler": {
+          "first": {
+            "n": 3,
+            "median": 1.497314,
+            "min": 1.467809,
+            "max": 4.057952
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 1.20059,
+            "min": 1.086978,
+            "max": 1.200968
+          }
+        },
+        "n_dispatch_up_to_preedit_collector": {
+          "first": {
+            "n": 3,
+            "median": 72.199353,
+            "min": 32.636214,
+            "max": 82.622167
+          },
+          "warm_per_process_medians": {
+            "n": 3,
+            "median": 7.356802,
+            "min": 5.474276,
+            "max": 8.419591
+          }
+        }
+      }
+    }
+  }
+}

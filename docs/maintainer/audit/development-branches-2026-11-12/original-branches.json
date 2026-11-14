@@ -1,0 +1,71 @@
+{
+  "default_source": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+  "archives": [
+    {
+      "branch": "fix/first-candidate-latency-20261112",
+      "sha": "4d77cd79a580a9984130a5653b13f949ec5bc0a9",
+      "base": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+      "source_zip": "measured-product-source.zip",
+      "source_sha256": "fc43aad15b6aba409caf6c0edcba7885b753f205b4ad328fce3550632fac1725",
+      "source_bytes": 3508211,
+      "commit_series": "measured-product-commits.mbox.txt",
+      "commit_series_sha256": "84506e013c9b8a54e7db4f6f8446822f050f8ac5a1d32613833eece2191e6e8c",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    },
+    {
+      "branch": "perf/wanxiang-latest-20261108",
+      "sha": "178d5128a43b7949edb68d0f6e5fa98e8eb5c85c",
+      "base": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "source_zip": "wanxiang-20261108-source.zip",
+      "source_sha256": "5392ced9f3364ae0b056e28a36ccfe43409a7cdb7bfd8b4a440cb6dac07c4e35",
+      "source_bytes": 3496324,
+      "commit_series": "wanxiang-20261108-commits.mbox.txt",
+      "commit_series_sha256": "cf5b2fcb849635a98924443e5b38940ce060ac776d16d5768fbe338666f34d9f",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    },
+    {
+      "branch": "perf/wanxiang-current-20261111",
+      "sha": "1c050540ea95f5afe3674d438d1d3d04a9736e3c",
+      "base": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "source_zip": "wanxiang-20261111-source.zip",
+      "source_sha256": "46ffb2b79cdf092717322b0afd4349d9ed91841819a905a94365b11d36ca6cde",
+      "source_bytes": 3548251,
+      "commit_series": "wanxiang-20261111-commits.mbox.txt",
+      "commit_series_sha256": "d4d23b78339b4ea81de7bc9a377e9a6e71e26198be7a16f38667a5162ba79c47",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    },
+    {
+      "branch": "perf/investigate-input-latency-20261111",
+      "sha": "c780cf55ea2b23770bc2bbe8d063082d780fa7b2",
+      "base": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+      "source_zip": "latency-investigation-20261111-source.zip",
+      "source_sha256": "390e26a53dd93237592b9e1b3cc5c73e23575bb1650680a7d490260233170095",
+      "source_bytes": 3540253,
+      "commit_series": "latency-investigation-20261111-commits.mbox.txt",
+      "commit_series_sha256": "326e8eb86dcf9151084a236f6b934358ce4aaa2922076664c472a3992ac37b27",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    },
+    {
+      "branch": "perf/first-candidate-fix-20261112",
+      "sha": "baf8d60ba0bd938dddb7fa2199e4493264b9a9c4",
+      "base": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+      "source_zip": "candidate-fix-20261112-source.zip",
+      "source_sha256": "da166a683d3e25a40ceb2161e0fd2ec49f5a439bb50cb95eaad1345e84e1f24d",
+      "source_bytes": 3533587,
+      "commit_series": "candidate-fix-20261112-commits.mbox.txt",
+      "commit_series_sha256": "ff306934c14dd62c6f67b8e8d0bffdb2a1db8611cfab143a7742d17e7f1b3859",
+      "gitlinks": [
+        "160000 commit 082425ea0684bca36474415d4a0e8db9b016487e\tnative/rime-prelude"
+      ]
+    }
+  ],
+  "note": "Complete tracked source snapshots and own commit patch series before cleanup; generated SDK/APK/model/video and untracked user data are excluded. Gitlinks are recorded, not recursively archived."
+}

@@ -1,0 +1,23 @@
+{
+  "prerequisite": "2e86e2ecbac1a6d4b28a59fc80b0f81fffdf5b18",
+  "prerequisite_fetch_depth": 1,
+  "restored_in_independent_bare_repository": true,
+  "sources": {
+    "ui": {
+      "source": "06b3979f16c2c008d587814648e6a2308b6571a8",
+      "restored_archive_sha256": "7c019ffd0de33e4f2a19c77faa93d45382c07498fdf4109bde89887b69fa2c3a"
+    },
+    "priority": {
+      "source": "0abc33d64d036c3cbdbe45a3b1f603f1c3f2817e",
+      "restored_archive_sha256": "7638f27a7f976a0f4d06df4a72ddf0d4c488a284af3cb06d215d05e561de23df"
+    },
+    "combined": {
+      "source": "25d2b499aed815392d914ac29e5368f05cad3f00",
+      "restored_archive_sha256": "fb6c329cc73fe699dd88316aa25024215953e57fa7214b5bb6971b524f7223d1"
+    },
+    "driver": {
+      "source": "2240c6fe84bf541f40fe2d9a55ba08fa9ee4375d",
+      "restored_archive_sha256": "5813f2e9367305089bd0bfeb1ffc6d695e17779f7d2a9678ab6e6e839fd87565"
+    }
+  }
+}

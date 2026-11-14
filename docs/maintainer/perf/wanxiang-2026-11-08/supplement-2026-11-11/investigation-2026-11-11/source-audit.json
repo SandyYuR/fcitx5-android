@@ -1,0 +1,50 @@
+[
+  {
+    "repository": "SandyYuR/librime",
+    "commit": "b5561910d9eba97a273e09e7996535679b730032",
+    "path": "src/rime/dict/user_dictionary.cc",
+    "start_line": 949,
+    "end_line": 963,
+    "sha256": "a584a0642fdd6737846755a4aea1d822241fc5f56ecc45847b11bbfce7d72309",
+    "excerpt": "bool UserDictionary::NewTransactionForCommit(const Context& context) {\n  auto db = As<Transactional>(db_);\n  if (!db)\n    return false;\n  if (context.commit_id() && db->in_transaction() &&\n      cache_state_->transaction_context == &context &&\n      cache_state_->transaction_commit_id == context.commit_id()) {\n    cache_state_->transaction_participants.insert(this);\n    return true;\n  }\n  if (!NewTransaction())\n    return false;\n  cache_state_->transaction_context = &context;\n  cache_state_->transaction_commit_id = context.commit_id();\n  cache_state_->transaction_participants.insert(this);",
+    "url": "https://github.com/SandyYuR/librime/blob/b5561910d9eba97a273e09e7996535679b730032/src/rime/dict/user_dictionary.cc#L949"
+  },
+  {
+    "repository": "SandyYuR/librime",
+    "commit": "b5561910d9eba97a273e09e7996535679b730032",
+    "path": "src/rime/dict/user_dictionary.cc",
+    "start_line": 1004,
+    "end_line": 1015,
+    "sha256": "a584a0642fdd6737846755a4aea1d822241fc5f56ecc45847b11bbfce7d72309",
+    "excerpt": "bool UserDictionary::CommitPendingTransaction() {\n  auto db = As<Transactional>(db_);\n  if (db && db->in_transaction()) {\n    bool committed = db->CommitTransaction();\n    if (!db->in_transaction()) {\n      cache_state_->transaction_context = nullptr;\n      cache_state_->transaction_commit_id = 0;\n      cache_state_->transaction_participants.clear();\n#if !RIME_USER_DICT_CACHE_ENABLED\n      pending_.clear();\n#endif\n    }",
+    "url": "https://github.com/SandyYuR/librime/blob/b5561910d9eba97a273e09e7996535679b730032/src/rime/dict/user_dictionary.cc#L1004"
+  },
+  {
+    "repository": "SandyYuR/librime",
+    "commit": "b5561910d9eba97a273e09e7996535679b730032",
+    "path": "src/rime/dict/level_db.cc",
+    "start_line": 105,
+    "end_line": 109,
+    "sha256": "8a16b02739036d332c2cbcff1984722a96f806d8de13992756f7b34f6368680c",
+    "excerpt": "  bool CommitBatch() {\n    auto status = ptr->Write(leveldb::WriteOptions(), &batch);\n    return status.ok();\n  }\n};",
+    "url": "https://github.com/SandyYuR/librime/blob/b5561910d9eba97a273e09e7996535679b730032/src/rime/dict/level_db.cc#L105"
+  },
+  {
+    "repository": "SandyYuR/librime",
+    "commit": "b5561910d9eba97a273e09e7996535679b730032",
+    "path": "downstream/android/sources.lock.json",
+    "start_line": 68,
+    "end_line": 89,
+    "sha256": "8781b4aed5db3df21ee42fc1766d7320b1f729a43f21b7bf11ff1ffd3e6f9561",
+    "excerpt": "    \"lua\": {\n      \"repository\": \"https://www.lua.org/\",\n      \"url\": \"https://www.lua.org/ftp/lua-5.4.9.tar.gz\",\n      \"patches\": [\n        {\n          \"file\": \"lua.patch\",\n          \"sha256\": \"74c866a6d8d7bb9a57a800de39c3c7f0db5952fc6a74ca541f2af2633257609c\"\n        }\n      ],\n      \"sha256\": \"2335b6c582a52654f94612bf10d2f4672805d05329aa6568b1d8cd9e5c6fb8e6\",\n      \"version\": \"5.4.9\"\n    },\n    \"librime-lua\": {\n      \"repository\": \"https://github.com/hchunhui/librime-lua\",\n      \"commit\": \"6da5d6cedb853380ed1b5b9b6979cb1a9c028353\",\n      \"url\": \"https://codeload.github.com/hchunhui/librime-lua/tar.gz/6da5d6cedb853380ed1b5b9b6979cb1a9c028353\",\n      \"patches\": [\n        {\n          \"file\": \"librime-lua.patch\",\n          \"sha256\": \"478710509011e5977346239244bfdc79d8a956945e4187d8ff75d518876f0aeb\"\n        }\n      ],",
+    "url": "https://github.com/SandyYuR/librime/blob/b5561910d9eba97a273e09e7996535679b730032/downstream/android/sources.lock.json#L68"
+  },
+  {
+    "source_archive": "rime-wanxiang v18.1.10 base",
+    "archive_sha256": "ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
+    "path": "lua/wanxiang/super_processor.lua",
+    "sha256": "ebb2c5f61d914d609240f8d31afac47db4e9609d2b17e65fbeba1704578726f9",
+    "default_excerpt": "    env.enable_backspace_limit = true\n    env.enable_seg_loop = true\n    env.enable_tone_fallback = true\n    env.enable_limit_repeated = true\n    env.enable_predict_space = true\n    env.pending_predict_space = false\n    env.max_repeat = 8\n    env.max_segments = 40\n    env.sc_first_key = nil\n    env.sc_last_key = nil",
+    "usage_excerpt": "-- [Limit Repeated] 重复输入限制\nlocal function handle_limit_repeat(key, env, ctx)\n    if not env.enable_limit_repeated then return false end\n\n    local kc = key.keycode\n    if not (kc >= 0x61 and kc <= 0x7A) then return false end\n\n    local cand = ctx:get_selected_candidate()\n    local preedit = cand and (cand.preedit or cand:get_genuine().preedit) or \"\"\n    local segs = 1\n    for _ in preedit:gmatch(\"[%'%s]\") do segs = segs + 1 end\n\n    local ch = string.char(kc)\n    local input = ctx.input or \"\"\n    local nxt = input .. ch\n    local last, rep_n = tail_rep(nxt)\n\n    if last:match(INITIALS) and rep_n > env.max_repeat then\n        prompt(ctx, \" 〔已超最大重复声母〕\")\n        return true\n    end\n\n    if segs >= env.max_segments then\n        prompt(ctx, \" 〔已超最大输入长度〕\")\n        return true\n    end"
+  }
+]

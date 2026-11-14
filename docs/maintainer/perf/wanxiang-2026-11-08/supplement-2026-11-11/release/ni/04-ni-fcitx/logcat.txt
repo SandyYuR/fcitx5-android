@@ -1,0 +1,1298 @@
+--------- beginning of main
+11-11 12:48:29.688  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:30.027 12091 12133 I fcitx5  : rimeengine.cpp:769] Rime restartRime(): end
+11-11 12:48:30.030 12091 12133 I fcitx5  : addonmanager.cpp:208] Loaded addon rime
+11-11 12:48:30.156 12091 12091 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=18ms
+11-11 12:48:30.158 12091 12091 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4d9c23d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fc44794 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2147a32 V.ED..... ......ID 2,28-30,43 #ffff76} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{7684900 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{49f7383 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3a54539 V.ED..... ......ID 2,28-30,43 #ffff75} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e5bc4df V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b8c077e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{688f52c V.ED..... ......ID 2,28-30,43 #ffff74} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{35d1d8a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f0bfbf5 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{61cffb V.ED..... ......ID 2,28-30,43 #ffff73} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5ed6271 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e263818 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e778856 V.ED..... ......ID 2,28-30,43 #ffff72} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d52bdc4 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cf370d7 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ba4b4ad V.ED..... ......ID 2,28-30,43 #ffff71} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e944373 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{efbd3e2 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f9ff230 V.ED..... ......ID 2,28-30,43 #ffff70} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6874c2e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{404eea9 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a65a3cf V.ED..... ......ID 2,28-30,43 #ffff6f} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{314cc65 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{64a015c V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{13ffd3a V.ED..... ......ID 2,28-30,43 #ffff6e} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{823d748 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c42adeb V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c8ac9e1 V.ED..... ......ID 2,28-30,43 #ffff6d} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4431ff4 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{89c3dc7 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f09231d V.ED..... ......ID 2,28-30,43 #ffff62} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{14ef63 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{504f992 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{36c4760 V.ED..... ......ID 2,28-30,43 #ffff61} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{8f51cde V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{719d419 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{dd1ebf V.ED..... ......ID 2,28-30,43 #ffff60} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5ea98d5 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{43e798c V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{93228ea V.ED..... ......ID 2,28-30,43 #ffff5f} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e1fa278 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1cee7db V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7c8ed51 V.ED..... ......ID 2,28-30,43 #ffff5e} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{34a26b7 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.178 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{681e9b6 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6e86e24 V.ED..... ......ID 2,28-30,43 #ffff5d} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{63aeb42 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{65e0d8d V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1d07753 V.ED..... ......ID 2,28-30,43 #ffff5c} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{2aaf589 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7504890 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a90798e V.ED..... ......ID 2,28-30,43 #ffff5b} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a195dbc V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{66135af V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2c46145 V.ED..... ......ID 2,28-30,43 #ffff5a} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{f4eccc1 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1fc99a8 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5362c66 V.ED..... ......ID 2,28-30,43 #ffff50} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{255a854 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{67c2ba7 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cba73fd V.ED..... ......ID 2,28-30,43 #ffff4f} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{635db43 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{d68a8f2 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{68ef5c0 V.ED..... ......ID 2,28-30,43 #ffff4e} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{7d4623e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c3f52f9 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{550e89f V.ED..... ......ID 2,28-30,43 #ffff4d} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9925b5 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{44dadec V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9b0644a V.ED..... ......ID 2,28-30,43 #ffff4c} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{45dbcd8 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9e56fbb V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2836831 V.ED..... ......ID 2,28-30,43 #ffff4b} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9714c97 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2987b16 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e5dce84 V.ED..... ......ID 2,28-30,43 #ffff4a} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{88dbfa1 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4a60c08 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:48:30.179 12091 12091 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c43d5c6 V.ED..... ......ID 2,28-36,43 #ffff42} during layout: running second layout pass
+11-11 12:48:30.229  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:30.236 12091 12108 I android.fx.rim: Compiler allocated 4942KB to compile void org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard.reloadLayout()
+11-11 12:48:30.766  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:31.014   412   412 I perfetto: probes_producer.cc:329  Producer stop (id=57)
+11-11 12:48:31.014   413   413 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:48:31.014   413   413 I perfetto: ng_service_impl.cc:1948 Tracing session 57 ended, total sessions:1
+--------- beginning of system
+11-11 12:48:31.014   421 12044 I iorapd  : Perfetto TraceBuffer saved to file: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/raw_traces/1794401311014646463.perfetto_trace.pb
+11-11 12:48:31.084   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:48:31.084 12137 12149 I Gralloc4: mapper 4.x is not supported
+11-11 12:48:31.088 12137 12149 D HostConnection: createUnique: call
+11-11 12:48:31.088 12137 12149 D HostConnection: HostConnection::get() New Host Connection established 0x72fb2f291590, tid 12149
+11-11 12:48:31.096 12137 12149 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:31.103 12137 12186 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:48:31.104 12137 12186 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:48:31.105 12137 12186 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:48:31.114 12137 12186 D HostConnection: HostConnection::get() New Host Connection established 0x72fb2f2917d0, tid 12186
+11-11 12:48:31.117 12137 12186 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:31.117   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:48:31.118 12137 12186 D EGL_emulation: eglCreateContext: 0x72fb1f2aa240: maj 3 min 0 rcv 3
+11-11 12:48:31.119 12137 12186 D EGL_emulation: eglMakeCurrent: 0x72fb1f2aa240: ver 3 0 (tinfo 0x72fabf2b42e0) (first time)
+11-11 12:48:31.231   492  2966 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@f9b950a
+11-11 12:48:31.232 12150 12172 V UiAutomation: Init UiAutomation@de92449[id=-1, flags=0]
+11-11 12:48:31.237   492  2966 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: finished inst
+11-11 12:48:31.237   492  2966 I ActivityManager: Killing 12150:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to finished inst
+11-11 12:48:31.237   492  2966 W ActivityTaskManager: Force removing ActivityRecord{71b8a2d u0 io.github.sandyyur.inputbench/.BenchHost t90 f}}: app died, no saved state
+11-11 12:48:31.243  1209  1209 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:48:31.245  1209  1209 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:48:31.248   285   285 I Zygote  : Process 12150 exited due to signal 9 (Killed)
+11-11 12:48:31.251 12137 12137 I app_process: System.exit called, status: 0
+11-11 12:48:31.251 12137 12137 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:48:31.258   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 12150
+--------- beginning of kernel
+11-11 12:48:31.493     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:48:31.501     0     0 I binder  : undelivered transaction 778041, process died.
+11-11 12:48:31.504     0     0 I binder  : undelivered transaction 777996, process died.
+11-11 12:48:31.277  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:31.280   492   534 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 12150 in 42ms
+11-11 12:48:31.288  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:48:31.304   492   538 D KernelCpuUidUserSysTimeReader: Removing uids 10180-10180
+11-11 12:48:31.542     0     0 I binder  : 12091:12091 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:48:31.310  1209  6044 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:48:31.310  1209  6044 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:48:31.310  1209  6044 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 0ms
+11-11 12:48:31.311  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:48:31.311  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:48:31.311  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:48:31.311  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:48:31.311  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:48:31.313 12091 12091 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:48:31.316  1209  1242 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:48:31.316  6024 11863 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:48:31.317  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 4
+11-11 12:48:31.317  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:48:31.318  6024  6308 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6024_4 identical 6 lines
+11-11 12:48:31.318  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:48:31.318  1209  6044 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:48:31.331   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:48:31.332   492   999 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 0
+11-11 12:48:31.335   492   526 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-11 12:48:31.335   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-11 12:48:31.346  1209  6025 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:48:31.347  1209  6025 D BatteryInfo: time for getBatteryInfo: 1ms
+11-11 12:48:31.347  1209  6025 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 1ms
+11-11 12:48:31.360   285   285 D Zygote  : Forked child process 12194
+11-11 12:48:31.360   492   533 I ActivityManager: Start proc 12194:io.github.sandyyur.inputbench/u0a167 for pre-top-activity {io.github.sandyyur.inputbench/io.github.sandyyur.inputbench.BenchHost}
+11-11 12:48:31.364  1209  1259 D BatteryInfo: time for getStats: 121ms
+11-11 12:48:31.364  1209  1259 D BatteryInfo: time for regular BatteryInfo: 0ms
+11-11 12:48:31.365  1209  1259 D BatteryInfo: time for getBatteryInfo: 1ms
+11-11 12:48:31.365  1209  1209 D BatteryInfo: time for callback: 0ms
+11-11 12:48:31.370  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:48:31.372 12194 12194 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-11 12:48:31.380 12194 12194 I yyur.inputbenc: Unquickening 12 vdex files!
+11-11 12:48:31.380 12194 12194 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:48:31.382   413   413 I perfetto: ing_service_impl.cc:758 Configured tracing session 59, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:2, uid:1071 session name: ""
+11-11 12:48:31.383   412   412 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=59)
+11-11 12:48:31.387  1797  1807 I adbd    : jdwp connection from 12194
+11-11 12:48:31.412 12194 12194 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:48:31.416 12194 12194 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:48:31.416 12194 12194 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:48:31.429 12194 12222 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:48:31.431 12194 12222 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:48:31.432 12194 12222 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:48:31.460 12194 12220 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a4fd0, tid 12220
+11-11 12:48:31.462 12194 12220 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:31.462   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:48:31.463 12194 12220 D EGL_emulation: eglCreateContext: 0x7f3a244bc0a0: maj 3 min 0 rcv 3
+11-11 12:48:31.464 12194 12220 D EGL_emulation: eglMakeCurrent: 0x7f3a244bc0a0: ver 3 0 (tinfo 0x7f39c44f8da0) (first time)
+11-11 12:48:31.473   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:48:31.473 12194 12220 I Gralloc4: mapper 4.x is not supported
+11-11 12:48:31.473 12194 12220 D HostConnection: createUnique: call
+11-11 12:48:31.474 12194 12220 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a3f50, tid 12220
+11-11 12:48:31.481   492  6021 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344ad910, tid 6021
+11-11 12:48:31.486   492  6021 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:31.487   492  6021 D EGL_emulation: eglCreateContext: 0x7f3a2457e420: maj 3 min 0 rcv 3
+11-11 12:48:31.488   492  6021 D EGL_emulation: eglMakeCurrent: 0x7f3a2457e420: ver 3 0 (tinfo 0x7f39c4607eb0) (first time)
+11-11 12:48:31.498 12194 12220 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:31.778  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:31.836   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:48:31.837 12191 12196 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:48:31.838   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:48:31.848   492   531 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +504ms
+11-11 12:48:31.939 12091 12091 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:48:31.940 12091 12091 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:31.950 12091 12091 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:48:31.950 12091 12091 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:48:31.950 12091 12091 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:32.022 12091 12091 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:32.076 12233 12235 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:48:32.101   492   999 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: from pid 12244
+11-11 12:48:32.101   492   999 I ActivityManager: Killing 12194:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to from pid 12244
+11-11 12:48:32.102   492   999 W ActivityTaskManager: Force removing ActivityRecord{24fd73e u0 io.github.sandyyur.inputbench/.BenchHost t91 f}}: app died, no saved state
+11-11 12:48:32.106   285   285 I Zygote  : Process 12194 exited due to signal 9 (Killed)
+11-11 12:48:32.109  1209  1209 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:48:32.352     0     0 I binder  : undelivered transaction 780374, process died.
+11-11 12:48:32.112   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 12194
+11-11 12:48:32.113  1209  1209 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:48:32.116  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:48:32.146   492   534 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 12194 in 44ms
+11-11 12:48:32.147   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:48:32.157  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:48:32.166  1209  6044 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:48:32.166  1209  6044 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:48:32.166  1209  6044 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 0ms
+11-11 12:48:32.167  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:48:32.167  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:48:32.167  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:48:32.167  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:48:32.167  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:48:32.410     0     0 I binder  : 12091:12091 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:48:32.173  1209  6588 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:48:32.174  6024 11863 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:48:32.174  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 1
+11-11 12:48:32.174  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:48:32.175  6024  6308 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6024_4 identical 6 lines
+11-11 12:48:32.175  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:48:32.175  1209  6044 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:48:32.176 12091 12091 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:48:32.178   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:32.178   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:32.181   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:32.181   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:32.193   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:32.193   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:32.194   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:32.194   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:32.214   492  1917 I ActivityManager: Force stopping org.fcitx.fcitx5.android.fx.rime appid=10183 user=0: from pid 12249
+11-11 12:48:32.214   492  1917 I ActivityManager: Killing 12091:org.fcitx.fcitx5.android.fx.rime/u0a183 (adj 200): stop org.fcitx.fcitx5.android.fx.rime due to from pid 12249
+11-11 12:48:32.215  1209  1259 D BatteryInfo: time for getStats: 104ms
+11-11 12:48:32.219  1029  1029 D CarrierSvcBindHelper: No carrier app for: 0
+11-11 12:48:32.221  1209  1259 D BatteryInfo: time for regular BatteryInfo: 6ms
+11-11 12:48:32.224  1209  1259 D BatteryInfo: time for getBatteryInfo: 3ms
+11-11 12:48:32.225  1437  1437 I GoogleInputMethodService: GoogleInputMethodService.initializeKeyboardTheme():1171 Apply keyboard theme: theme_border_stylesheet_googleblue_materiallight_assets:theme_package_metadata_google_blue_light.binarypb_port
+11-11 12:48:32.227  1437  1437 I KeyboardModeManager: KeyboardModeManager.initializeKeyboardModeFromPreferences():258 Initialize with keyboard mode: 1 and previous keyboard mode: 1
+11-11 12:48:32.228  1209  1209 D BatteryInfo: time for callback: 0ms
+11-11 12:48:32.232   693  1272 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:48:32.234   693   898 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:48:32.234   693   898 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:48:32.234  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:48:32.234  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:48:32.239  1209  6044 D BatteryTipLoader: BatteryInfoLoader post query: 4ms
+11-11 12:48:32.240  1209  6044 D BatteryInfo: time for getBatteryInfo: 1ms
+11-11 12:48:32.240  1209  6044 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 5ms
+11-11 12:48:32.243  1437  1437 I GoogleInputMethodService: GoogleInputMethodService.initializeKeyboardTheme():1171 Apply keyboard theme: theme_border_stylesheet_googleblue_materiallight_assets:theme_package_metadata_google_blue_light.binarypb_port
+11-11 12:48:32.248  1437 11939 I NetworkInfoNotification: NetworkInfoNotification$Listener.onReceive():84 onNetworkAvailable: networkState = NON_METERED, isAirplaneModeOn = false
+11-11 12:48:32.248  1437 11938 I JapaneseMozcExtension: JapaneseMozcExtension.onCreateServiceInternal():74 onCreateServiceInternal()
+11-11 12:48:32.258   492   999 I WindowManager: WIN DEATH: Window{8f8c9db u0 InputMethod}
+11-11 12:48:32.258   492   999 W InputDispatcher: Attempted to unregister already unregistered input channel '8f8c9db InputMethod (server)'
+11-11 12:48:32.258   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 12091
+11-11 12:48:32.261 12252 12254 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:48:32.503     0     0 I binder  : undelivered transaction 781324, process died.
+11-11 12:48:32.262   285   285 I Zygote  : Process 12091 exited due to signal 9 (Killed)
+11-11 12:48:32.262   492   534 I libprocessgroup: Successfully killed process cgroup uid 10183 pid 12091 in 46ms
+11-11 12:48:32.266  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:48:32.266  1437 11944 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():89 parseKeyboardGroupDef() 2132148419 -> extension_emoji_search_extension_view_m2 : WaitTime = 10 ms : RunTime = 0 ms
+11-11 12:48:32.267   492  1748 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc com.google.android.inputmethod.latin
+11-11 12:48:32.273  1437 11945 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():89 parseKeyboardGroupDef() 2132148420 -> extension_emoji_search_keyboards_emojipicker15_m2 : WaitTime = 1 ms : RunTime = 8 ms
+11-11 12:48:32.278  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:32.279  1437  1708 W MetricsManager: MetricsManager.addProcessorImpl():484 Processor bxb@e879a46 already exists.
+11-11 12:48:32.279   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:32.279   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:32.281  1437 11944 I KeyboardGroupDefParser: KeyboardGroupDefParser.parseKeyboardGroupDef():89 parseKeyboardGroupDef() 2132148425 -> extension_maestro_keyboards : WaitTime = 0 ms : RunTime = 0 ms
+11-11 12:48:32.287  1437  1437 I MaestroExtensionImpl: MaestroExtensionImpl.connectToAssistantIfAvailable():412 connectToAssistantIfAvailable() : Creating integration client.
+11-11 12:48:32.267   492  1748 I chatty  : uid=1000(system) Binder:492_10 identical 1 line
+11-11 12:48:32.267   492  1748 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc com.google.android.inputmethod.latin
+11-11 12:48:32.287  1437  2031 E ActivityThread: Failed to find provider info for com.google.android.googlequicksearchbox.GsaPublicContentProvider
+11-11 12:48:32.288  1437  2031 W AssistantConfig: appIntegrationDataInBase64 is null
+11-11 12:48:32.304 12260 12263 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:48:32.305   492  2372 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10183; state: DISABLED
+11-11 12:48:32.305   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10183; state: ENABLED
+11-11 12:48:32.308  1437  1437 W KeyboardModeManager: KeyboardModeManager.setInputView():302 setInputView() : inputView = null
+11-11 12:48:32.310   285   285 D Zygote  : Forked child process 12264
+11-11 12:48:32.311   492   533 I ActivityManager: Start proc 12264:org.fcitx.fcitx5.android.fx.rime/u0a183 for service {org.fcitx.fcitx5.android.fx.rime/org.fcitx.fcitx5.android.input.FcitxInputMethodService}
+11-11 12:48:32.311  1437  1437 W AssistantIntegClient: #unbindService(): calling unbindService when service is unbound.
+11-11 12:48:32.311  1437 12097 I JapaneseMozcExtension: JapaneseMozcExtension.onDestroyServiceInternal():81 onDestroyServiceInternal()
+11-11 12:48:32.312   492   492 W InputMethodManagerService: Illegal subtype state: old subtype = null, new subtype = android.view.inputmethod.InputMethodSubtype@4145211d
+11-11 12:48:32.317 12264 12264 W android.fx.rim: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:48:32.320   693   744 D KeyguardViewMediator: setKeyguardEnabled(true)
+11-11 12:48:32.340 12264 12264 I ndk_translation: Initialized NDK translation (aarch64), version 0.2.2
+11-11 12:48:32.348 12272 12275 I cmd     : oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:48:32.419 12280 12280 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-11 12:48:32.421 12280 12280 I AndroidRuntime: Using default boot image
+11-11 12:48:32.421 12280 12280 I AndroidRuntime: Leaving lock profiling enabled
+11-11 12:48:32.422 12280 12280 I app_process: Core platform API reporting enabled, enforcing=false
+11-11 12:48:32.425  1797  1807 I adbd    : jdwp connection from 12264
+11-11 12:48:32.430 12264 12264 I android.fx.rim: The ClassLoaderContext is a special shared library.
+11-11 12:48:32.437 12264 12264 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-11 12:48:32.437 12264 12264 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-11 12:48:32.473 12280 12280 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-11 12:48:32.473 12280 12280 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt66l.dat
+11-11 12:48:32.476 12280 12280 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:48:32.476 12280 12280 I app_process: The ClassLoaderContext is a special shared library.
+11-11 12:48:32.482 12280 12280 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-11 12:48:32.483 12264 12264 I FcitxColdStart: service.onCreate begin
+11-11 12:48:32.484 12280 12280 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-11 12:48:32.486   492  2366 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: start instr
+11-11 12:48:32.487   492  2366 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10167; state: DISABLED
+11-11 12:48:32.487   492   533 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10167; state: DISABLED
+11-11 12:48:32.491   285   285 D Zygote  : Forked child process 12322
+11-11 12:48:32.491   492   533 I ActivityManager: Start proc 12322:io.github.sandyyur.inputbench/u0a167 for added application io.github.sandyyur.inputbench
+11-11 12:48:32.493 12322 12322 I yyur.inputbenc: Late-enabling -Xcheck:jni
+11-11 12:48:32.494 12264 12305 I FcitxColdStart: font preload keys=0 duration=28ms
+11-11 12:48:32.501 12322 12322 I yyur.inputbenc: Unquickening 12 vdex files!
+11-11 12:48:32.501 12322 12322 W yyur.inputbenc: Unexpected CPU variant for X86 using defaults: x86_64
+11-11 12:48:32.504  1797  1807 I adbd    : jdwp connection from 12322
+11-11 12:48:32.509 12264 12264 W linker  : Warning: "/data/app/~~t_o_atfjk2Aoe9qlTVj7oQ==/org.fcitx.fcitx5.android.fx.rime-hVSZgezkxModebtm52D3nA==/lib/arm64/libc++_shared.so" unused DT entry: unknown processor-specific (type 0x70000001 arg 0x0) (ignoring)
+11-11 12:48:32.518 12322 12322 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-11 12:48:32.522 12322 12322 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:48:32.522 12322 12322 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-11 12:48:32.530 12322 12342 V UiAutomation: Init UiAutomation@de92449[id=35, flags=0]
+11-11 12:48:32.532 12264 12264 I FcitxVoiceInput: registered floating voice receiver actions=android.content.IntentFilter@bcc1fc9
+11-11 12:48:32.536 12264 12264 I FcitxColdStart: service.onCreate duration=53ms
+11-11 12:48:32.539   492  2372 I ActivityTaskManager: START u0 {flg=0x18000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 10167
+11-11 12:48:32.539   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:48:32.570  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:48:32.571 12264 12343 I fcitx5  : native-lib.cpp:531] Starting...
+11-11 12:48:32.575   492  1921 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-11 12:48:32.579 12264 12264 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:48:32.582 12322 12350 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:48:32.586 12322 12350 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:48:32.600 12322 12350 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:48:32.622 12322 12348 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a5690, tid 12348
+11-11 12:48:32.624 12322 12348 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:32.625   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:48:32.626 12322 12348 D EGL_emulation: eglCreateContext: 0x7f3a244d3490: maj 3 min 0 rcv 3
+11-11 12:48:32.626 12322 12348 D EGL_emulation: eglMakeCurrent: 0x7f3a244d3490: ver 3 0 (tinfo 0x7f39c44f99a0) (first time)
+11-11 12:48:32.636 12264 12343 I fcitx5  : instance.cpp:669] Starting fcitx5 5.1.23
+11-11 12:48:32.636   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:48:32.636 12322 12348 I Gralloc4: mapper 4.x is not supported
+11-11 12:48:32.672 12264 12343 I fcitx5  : instance.cpp:1448] Override Enabled Addons: {}
+11-11 12:48:32.672 12264 12343 I fcitx5  : instance.cpp:1449] Override Disabled Addons: {}
+11-11 12:48:32.672 12322 12348 D HostConnection: createUnique: call
+11-11 12:48:32.673 12322 12348 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a5d50, tid 12348
+11-11 12:48:32.679 12322 12348 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:32.693   492  6021 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a55d0, tid 6021
+11-11 12:48:32.780  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:32.812   492  6021 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:32.876 12264 12343 I fcitx5  : addonmanager.cpp:208] Loaded addon clipboard
+11-11 12:48:32.909 12264 12343 I fcitx5  : addonmanager.cpp:208] Loaded addon androidfrontend
+11-11 12:48:32.918   492  6021 D EGL_emulation: eglCreateContext: 0x7f3a24513650: maj 3 min 0 rcv 3
+11-11 12:48:32.919   492  6021 D EGL_emulation: eglMakeCurrent: 0x7f3a24513650: ver 3 0 (tinfo 0x7f39c4607eb0) (first time)
+11-11 12:48:32.920   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:48:32.925   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:48:32.926   492   531 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +379ms
+11-11 12:48:32.942 12264 12264 I FcitxColdStart: service.onCreateInputView begin
+11-11 12:48:33.035 12264 12343 E fcitx5  : instance.cpp:1458] Couldn't find keyboard-us
+11-11 12:48:33.039 12264 12343 I fcitx5  : addonmanager.cpp:208] Loaded addon notifications
+11-11 12:48:33.040 12264 12343 I fcitx5  : native-lib.cpp:709] Setting up callback
+11-11 12:48:33.060 12264 12343 I fcitx5  : native-lib.cpp:723] Finishing startup
+11-11 12:48:33.070   412   412 I perfetto: probes_producer.cc:329  Producer stop (id=58)
+11-11 12:48:33.070   413   413 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:48:33.071   413   413 I perfetto: ng_service_impl.cc:1948 Tracing session 58 ended, total sessions:1
+11-11 12:48:33.182 12264 12264 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=32ms
+11-11 12:48:33.187 12264 12264 I FcitxColdStart: KeyboardWindow.onCreateView duration=38ms
+11-11 12:48:33.199 12264 12264 I FcitxColdStart: NumberRow.reloadLayout rows=1 duration=2ms
+11-11 12:48:33.202 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:33.217 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:33.222 12264 12264 I FcitxColdStart: replaceInputView duration=280ms
+11-11 12:48:33.223 12264 12264 I FcitxColdStart: service.onCreateInputView duration=281ms
+11-11 12:48:33.223 12264 12264 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:48:33.224 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:33.234 12264 12264 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:48:33.234 12264 12264 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:48:33.235 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:33.306 12264 12346 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:48:33.307 12264 12346 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:48:33.308 12264 12346 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:48:33.320  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:33.323 12264 12346 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a2150, tid 12346
+11-11 12:48:33.325 12264 12346 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:33.326   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:48:33.327 12264 12346 D EGL_emulation: eglCreateContext: 0x7f3a244c6180: maj 3 min 0 rcv 3
+11-11 12:48:33.327 12264 12346 D EGL_emulation: eglMakeCurrent: 0x7f3a244c6180: ver 3 0 (tinfo 0x7f39c45099f0) (first time)
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{cbcb3e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{43ebff9 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ea69d9f V.ED..... ......ID 2,28-30,43 #fffffe} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{da262b5 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8f1beec V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5355d4a V.ED..... ......ID 2,28-30,43 #fffffd} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{db1ddd8 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b6174bb V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3637531 V.ED..... ......ID 2,28-30,43 #fffffc} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{728a197 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3f40416 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f52ff84 V.ED..... ......ID 2,28-30,43 #fffffb} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4244ba2 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{449336d V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3cbc033 V.ED..... ......ID 2,28-30,43 #fffffa} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a529969 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cc28ff0 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1f7fee V.ED..... ......ID 2,28-30,43 #fffff9} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{458bb1c V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6782c8f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6726325 V.ED..... ......ID 2,28-30,43 #fffff8} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{fd502ab V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c87acfa V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fc46d08 V.ED..... ......ID 2,28-30,43 #fffff7} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4139ec6 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c0b0ca1 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9df1e87 V.ED..... ......ID 2,28-30,43 #fffff6} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{82ad1dd V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2b751b4 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{41ae152 V.ED..... ......ID 2,28-30,43 #fffff5} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{87aed9 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{851d520 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5e1c09e V.ED..... ......ID 2,28-30,43 #ffffea} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{b4f234c V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{203577f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{63b5f95 V.ED..... ......ID 2,28-30,43 #ffffe9} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{fffec9b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a548aa V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4f12838 V.ED..... ......ID 2,28-30,43 #ffffe8} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{674576 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{83f6011 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{266b777 V.ED..... ......ID 2,28-30,43 #ffffe7} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{1a8ec4d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{eac8fe4 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{d7a4302 V.ED..... ......ID 2,28-30,43 #ffffe6} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{294c650 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3055413 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fa50049 V.ED..... ......ID 2,28-30,43 #ffffe5} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e71e6f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cd8d4e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{687f77c V.ED..... ......ID 2,28-30,43 #ffffe4} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{f9305a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b345805 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{671328b V.ED..... ......ID 2,28-30,43 #ffffe3} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{2a76f81 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e1b0f68 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{409f826 V.ED..... ......ID 2,28-30,43 #ffffe2} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{20d70b2 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{eda82bd V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3bb6803 V.ED..... ......ID 2,28-30,43 #ffffd8} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{318db9 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5ce6380 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{45de5fe V.ED..... ......ID 2,28-30,43 #ffffd7} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{17637ac V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{882815f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f544c75 V.ED..... ......ID 2,28-30,43 #ffffd6} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{f77d47b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.335 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{dae640a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ae52298 V.ED..... ......ID 2,28-30,43 #ffffd5} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6d6b6d6 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{daa3af1 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4a53d57 V.ED..... ......ID 2,28-30,43 #ffffd4} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{196952d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b55d044 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c5f6a62 V.ED..... ......ID 2,28-30,43 #ffffd3} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{301acb0 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{d657f3 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.336 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a745729 V.ED..... ......ID 2,28-30,43 #ffffd2} during layout: running second layout pass
+11-11 12:48:33.338   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:48:33.338 12264 12346 I Gralloc4: mapper 4.x is not supported
+11-11 12:48:33.338 12264 12346 D HostConnection: createUnique: call
+11-11 12:48:33.339 12264 12346 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a43d0, tid 12346
+11-11 12:48:33.345 12264 12346 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:48:33.350 12264 12286 I android.fx.rim: Compiler allocated 4673KB to compile void org.fcitx.fcitx5.android.input.keyboard.BaseKeyboard.reloadLayout()
+11-11 12:48:32.575   492  1921 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw320dp w320dp h616dp 160dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 320, 640) mAppBounds=Rect(0, 0 - 320, 640) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} s.9} unchanged for IME proc org.fcitx.fcitx5.android.fx.rime
+11-11 12:48:33.431   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:48:33.466   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:33.466   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:33.469   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:33.469   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:33.516   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:33.516   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:33.517   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:33.518   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:33.770 12264 12346 I OpenGLRenderer: Davey! duration=819ms; Flags=1, IntendedVsync=2058477554216, Vsync=2058760887538, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=2058769496634, AnimationStart=2058769497244, PerformTraversalsStart=2058769497405, DrawStart=2058890637525, SyncQueued=2058892406629, SyncStart=2058893055631, IssueDrawCommandsStart=2058898150537, SwapBuffers=2059227392101, FrameCompleted=2059297812790, DequeueBufferDuration=3003690, QueueBufferDuration=4630949, GpuCompleted=2563467345148232566, 
+11-11 12:48:33.806 12264 12264 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=35ms
+11-11 12:48:33.812 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:33.842 12264 12343 I fcitx5  : rimeengine.cpp:1288] Loaded data dir profiles: 1, external=0
+11-11 12:48:33.846 12264 12264 I Choreographer: Skipped 35 frames!  The application may be doing too much work on its main thread.
+11-11 12:48:33.862  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a0507c8 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e20506b V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9337061 V.ED..... ......ID 2,28-30,43 #ffffb0} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{af18847 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{32a9786 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e46d874 V.ED..... ......ID 2,28-30,43 #ffffaf} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e88a612 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7d5b19d V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6b461e3 V.ED..... ......ID 2,28-30,43 #ffffae} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e60ca99 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{93307e0 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{847115e V.ED..... ......ID 2,28-30,43 #ffffad} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{2f0c20c V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a41393f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cea7755 V.ED..... ......ID 2,28-30,43 #ffffac} during layout: running second layout pass
+11-11 12:48:33.886 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{99a2a5b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{eee56a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cedf2f8 V.ED..... ......ID 2,28-30,43 #ffffab} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{68dee36 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{52833d1 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cc71137 V.ED..... ......ID 2,28-30,43 #ffffaa} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4ab3c0d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f8b46a4 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{842b7c2 V.ED..... ......ID 2,28-30,43 #ffffa9} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6882910 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a7189d3 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6dc8c09 V.ED..... ......ID 2,28-30,43 #ffffa8} during layout: running second layout pass
+11-11 12:48:33.887 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{40f02f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6888e0e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{82ec63c V.ED..... ......ID 2,28-30,43 #ffffa7} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4f6604b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c437d1a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3400a28 V.ED..... ......ID 2,28-30,43 #ffff9c} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{c8c50e6 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{84cb341 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{48b627 V.ED..... ......ID 2,28-30,43 #ffff9b} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{1f0427d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f9fa0d4 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{13c9572 V.ED..... ......ID 2,28-30,43 #ffff9a} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{dbff640 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4808dc3 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{d438979 V.ED..... ......ID 2,28-30,43 #ffff99} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5d4431f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{63a96be V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ce366c V.ED..... ......ID 2,28-30,43 #ffff98} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d8560ca V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fea4435 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b83f23b V.ED..... ......ID 2,28-30,43 #ffff97} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{c07eeb1 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f9e4d58 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{800bf96 V.ED..... ......ID 2,28-30,43 #ffff96} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{856e704 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6b57717 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{87bc4ed V.ED..... ......ID 2,28-30,43 #ffff95} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{b106db3 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f013f22 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2dd6f70 V.ED..... ......ID 2,28-30,43 #ffff94} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e02129c V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{51a320f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{935a4a5 V.ED..... ......ID 2,28-30,43 #ffff8a} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a51e02b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9f907a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{36bbc88 V.ED..... ......ID 2,28-30,43 #ffff89} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{8863a46 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{180e621 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f0c5407 V.ED..... ......ID 2,28-30,43 #ffff88} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4e4c35d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e441934 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fdbb4d2 V.ED..... ......ID 2,28-30,43 #ffff87} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a394a0 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e1029a3 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{af3859 V.ED..... ......ID 2,28-30,43 #ffff86} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{df1bcff V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b9c4c1e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3bd5acc V.ED..... ......ID 2,28-30,43 #ffff85} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{23d0c2a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f120115 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:33.888 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2f2a1b V.ED..... ......ID 2,28-30,43 #ffff84} during layout: running second layout pass
+11-11 12:48:33.894 12264 12343 I fcitx5  : rimeengine.cpp:519] Rime reloadConfig()
+11-11 12:48:33.895 12264 12343 I fcitx5  : rimeengine.cpp:739] Rime updateConfig(): restartRime(fullcheck=false)
+11-11 12:48:33.896 12264 12343 I fcitx5  : rimeengine.cpp:744] Rime restartRime(): begin, fullcheck=0, constructed=0, factoryRegistered=0
+11-11 12:48:33.897 12264 12343 I fcitx5  : rimeengine.cpp:751] Rime restartRime(): finalize()
+11-11 12:48:33.938 12264 12343 I fcitx5  : rimeengine.cpp:444] Rime Start: fullcheck=0, currentDataDir=rime
+11-11 12:48:33.945 12264 12343 I fcitx5  : rimeengine.cpp:489] Rime Start: firstRun setup()
+11-11 12:48:33.949 12264 12343 I fcitx5  : rimeengine.cpp:493] Rime Start: initialize()
+11-11 12:48:34.030   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:48:34.030   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:48:34.185 12264 12343 I fcitx5  : rimeengine.cpp:497] Rime Start: maintenanceMode=1
+11-11 12:48:34.186 12264 12343 I fcitx5  : rimeengine.cpp:758] Rime restartRime(): re-register input context property
+11-11 12:48:34.400  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:34.940  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:35.092 12264 12343 I fcitx5  : rimeengine.cpp:769] Rime restartRime(): end
+11-11 12:48:35.094 12264 12343 I fcitx5  : addonmanager.cpp:208] Loaded addon rime
+11-11 12:48:35.202 12264 12264 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=26ms
+11-11 12:48:35.205 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4d9c23d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fc44794 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2147a32 V.ED..... ......ID 2,28-30,43 #ffff76} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{7684900 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{49f7383 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3a54539 V.ED..... ......ID 2,28-30,43 #ffff75} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e5bc4df V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b8c077e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{688f52c V.ED..... ......ID 2,28-30,43 #ffff74} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{35d1d8a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f0bfbf5 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{61cffb V.ED..... ......ID 2,28-30,43 #ffff73} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5ed6271 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e263818 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e778856 V.ED..... ......ID 2,28-30,43 #ffff72} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d52bdc4 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cf370d7 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ba4b4ad V.ED..... ......ID 2,28-30,43 #ffff71} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e944373 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{efbd3e2 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f9ff230 V.ED..... ......ID 2,28-30,43 #ffff70} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6874c2e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{404eea9 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a65a3cf V.ED..... ......ID 2,28-30,43 #ffff6f} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{314cc65 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{64a015c V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{13ffd3a V.ED..... ......ID 2,28-30,43 #ffff6e} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{823d748 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c42adeb V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c8ac9e1 V.ED..... ......ID 2,28-30,43 #ffff6d} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4431ff4 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{89c3dc7 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f09231d V.ED..... ......ID 2,28-30,43 #ffff62} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{14ef63 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{504f992 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{36c4760 V.ED..... ......ID 2,28-30,43 #ffff61} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{8f51cde V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{719d419 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{dd1ebf V.ED..... ......ID 2,28-30,43 #ffff60} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5ea98d5 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{43e798c V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{93228ea V.ED..... ......ID 2,28-30,43 #ffff5f} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e1fa278 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1cee7db V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7c8ed51 V.ED..... ......ID 2,28-30,43 #ffff5e} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{34a26b7 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{681e9b6 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6e86e24 V.ED..... ......ID 2,28-30,43 #ffff5d} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{63aeb42 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{65e0d8d V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1d07753 V.ED..... ......ID 2,28-30,43 #ffff5c} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{2aaf589 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7504890 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a90798e V.ED..... ......ID 2,28-30,43 #ffff5b} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a195dbc V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{66135af V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2c46145 V.ED..... ......ID 2,28-30,43 #ffff5a} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{f4eccc1 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1fc99a8 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5362c66 V.ED..... ......ID 2,28-30,43 #ffff50} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{255a854 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{67c2ba7 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{cba73fd V.ED..... ......ID 2,28-30,43 #ffff4f} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{635db43 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{d68a8f2 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{68ef5c0 V.ED..... ......ID 2,28-30,43 #ffff4e} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{7d4623e V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c3f52f9 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{550e89f V.ED..... ......ID 2,28-30,43 #ffff4d} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9925b5 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{44dadec V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9b0644a V.ED..... ......ID 2,28-30,43 #ffff4c} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{45dbcd8 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9e56fbb V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2836831 V.ED..... ......ID 2,28-30,43 #ffff4b} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9714c97 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2987b16 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e5dce84 V.ED..... ......ID 2,28-30,43 #ffff4a} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{88dbfa1 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4a60c08 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:48:35.249 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c43d5c6 V.ED..... ......ID 2,28-36,43 #ffff42} during layout: running second layout pass
+11-11 12:48:35.474  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:36.004  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:36.383   412   412 I perfetto: probes_producer.cc:329  Producer stop (id=59)
+11-11 12:48:36.384   413   413 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:48:36.389   412   412 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-11 12:48:36.390   413   413 I perfetto: ng_service_impl.cc:1948 Tracing session 59 ended, total sessions:0
+11-11 12:48:36.391   421 12195 I iorapd  : Perfetto TraceBuffer saved to file: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/raw_traces/1794401316390788590.perfetto_trace.pb
+11-11 12:48:36.632     0     0 W perfetto: disabled ftrace
+11-11 12:48:36.535  1437  1784 W GoogleApiManager: The service for hod is not available: hol{statusCode=SERVICE_DISABLED, resolution=null, message=null}
+11-11 12:48:36.544  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:45.684  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 17 lines
+11-11 12:48:46.224  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:46.604  1437  1476 I VoiceInputManagerWrapper: VoiceInputManagerWrapper.shutdownVoiceInternal():95 shutdownVoiceInternal()
+11-11 12:48:46.764  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:48:59.094  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 23 lines
+11-11 12:48:59.634  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:00.018   693   693 D KeyguardClockSwitch: Updating clock: 1249
+11-11 12:49:00.172  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:01.784  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 3 lines
+11-11 12:49:02.324  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:02.802 12264 12264 I FcitxColdStart: TextKeyboard.reloadLayout rows=4 duration=17ms
+11-11 12:49:02.805 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a9ab208 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4b53bab V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4c6da1 V.ED..... ......ID 2,28-30,43 #ffff3b} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{f09e787 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{577ebc6 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{52ce6b4 V.ED..... ......ID 2,28-30,43 #ffff3a} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{bf6fe52 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5a142dd V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f137523 V.ED..... ......ID 2,28-30,43 #ffff39} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d742fd9 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{50bba20 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{be2ad9e V.ED..... ......ID 2,28-30,43 #ffff38} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a42584c V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{69e407f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{beef095 V.ED..... ......ID 2,28-30,43 #ffff37} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{de0659b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a4805aa V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{862ad38 V.ED..... ......ID 2,28-30,43 #ffff36} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{df8d276 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{41b0111 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{55c077 V.ED..... ......ID 2,28-30,43 #ffff35} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{61d9d4d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{83164e4 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{717a002 V.ED..... ......ID 2,28-30,43 #ffff34} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{811eb50 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b5bed13 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{533c149 V.ED..... ......ID 2,28-30,43 #ffff33} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a8e476f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{363ba4e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7326c7c V.ED..... ......ID 2,28-30,43 #ffff32} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{de1eb8b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b452d5a V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{777d468 V.ED..... ......ID 2,28-30,43 #ffff27} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{398c526 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{12d5081 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{581b567 V.ED..... ......ID 2,28-30,43 #ffff26} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{65d73bd V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{229cf14 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3c0db2 V.ED..... ......ID 2,28-30,43 #ffff25} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{b5ec880 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f6a4103 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b728eb9 V.ED..... ......ID 2,28-30,43 #ffff24} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{2c5ea5f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{35952fe V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{27ecac V.ED..... ......ID 2,28-30,43 #ffff23} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{573a10a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4245d75 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{508cd7b V.ED..... ......ID 2,28-30,43 #ffff22} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{dea5bf1 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b7d2798 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{232c3d6 V.ED..... ......ID 2,28-30,43 #ffff21} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{de92544 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4ccc657 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c37c62d V.ED..... ......ID 2,28-30,43 #ffff20} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{66d70f3 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5ef4762 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3f551b0 V.ED..... ......ID 2,28-30,43 #ffff1f} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{755d8dc V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{e64294f V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{dc88de5 V.ED..... ......ID 2,28-30,43 #ffff15} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{5640b6b V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{dbe60ba V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{6d5a6c8 V.ED..... ......ID 2,28-30,43 #ffff14} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{261ce86 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{8792361 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{235f347 V.ED..... ......ID 2,28-30,43 #ffff13} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{143949d V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1026774 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f7c4d12 V.ED..... ......ID 2,28-30,43 #ffff12} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{d9886e0 V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5547ce3 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{449dd99 V.ED..... ......ID 2,28-30,43 #ffff11} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{248043f V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{24e285e V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1af310c V.ED..... ......ID 2,28-30,43 #ffff10} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9d06c6a V.E...... ......ID 0,0-32,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3d1ba55 V.ED..... ......ID 0,0-32,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2c2a55b V.ED..... ......ID 2,28-30,43 #ffff0f} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{6e6f53c V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9107b2f V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:02.829 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{776e2c5 V.ED..... ......ID 2,28-36,43 #ffff07} during layout: running second layout pass
+11-11 12:49:02.864  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:03.914  1209  1209 I chatty  : uid=1000(system) com.android.settings identical 2 lines
+11-11 12:49:04.454  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:04.455   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:04.455   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:04.455   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:04.455   336 12363 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:04.458   492   999 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:04.458   492   999 I chatty  : uid=1000(system) Binder:492_8 identical 1 line
+11-11 12:49:04.458   492   999 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:04.556   336 12363 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:04.556   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:04.638   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:04.638   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:04.638   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:04.643   336 12366 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:04.657   375   448 D AudioFlinger: mixer(0x778ccf9b9040) throttle end: throttle time(34)
+11-11 12:49:04.744   336 12366 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:04.744   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:04.984  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:05.524  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:05.699   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device manifest.
+11-11 12:49:05.699 12280 12321 I Gralloc4: mapper 4.x is not supported
+11-11 12:49:05.702 12280 12321 D HostConnection: createUnique: call
+11-11 12:49:05.702 12280 12321 D HostConnection: HostConnection::get() New Host Connection established 0x7db4f8803990, tid 12321
+11-11 12:49:05.708 12280 12321 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:49:05.717 12280 12367 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-11 12:49:05.718 12280 12367 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-11 12:49:05.718 12280 12367 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-11 12:49:05.728 12280 12367 D HostConnection: HostConnection::get() New Host Connection established 0x7db4f8803b10, tid 12367
+11-11 12:49:05.730 12280 12367 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:49:05.731   162   162 I hwservicemanager: getTransport: Cannot find entry android.hardware.configstore@1.0::ISurfaceFlingerConfigs/default in either framework or device manifest.
+11-11 12:49:05.732 12280 12367 D EGL_emulation: eglCreateContext: 0x7db4e88147c0: maj 3 min 0 rcv 3
+11-11 12:49:05.733 12280 12367 D EGL_emulation: eglMakeCurrent: 0x7db4e88147c0: ver 3 0 (tinfo 0x7db488826c20) (first time)
+11-11 12:49:05.821   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:05.821   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:05.821   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:05.822   336 12368 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:05.892 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{33c23a2 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:05.892 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{3f96b6d V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:05.892 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4c2b833 V.ED..... ......ID 2,28-36,43 #ffff00} during layout: running second layout pass
+11-11 12:49:05.930   336 12368 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:05.931   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:06.054  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:06.086   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:06.087   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:06.087   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:06.087   336 12369 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:06.187   336 12369 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:06.188   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:06.237   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:06.237   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:06.237   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:06.237   336 12370 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:06.338   336 12370 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:06.338   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:06.575  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:07.104  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:07.305   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:07.305   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:07.305   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:07.305   336 12371 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:07.361 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{707bd41 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:07.361 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f38fc28 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:07.361 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{b3b92e6 V.ED..... ......ID 2,28-36,43 #fffeff} during layout: running second layout pass
+11-11 12:49:07.405   336 12371 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:07.406   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:07.553   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:07.553   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:07.553   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:07.553   336 12372 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:07.634  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:07.653   336 12372 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:07.654   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:07.702   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:07.703   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:07.703   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:07.704   336 12373 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:07.804   336 12373 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:07.804   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:08.166  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:08.688  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:08.771   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:08.771   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:08.771   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:08.771   336 12374 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:08.827 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{b6a058c V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:08.827 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a8f5abf V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:08.827 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{1d34d5 V.ED..... ......ID 2,28-36,43 #fffefe} during layout: running second layout pass
+11-11 12:49:08.871   336 12374 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:08.871   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:09.019   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:09.019   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:09.019   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:09.019   336 12375 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:09.120   336 12375 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:09.120   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:09.172   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:09.172   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:09.172   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:09.174   336 12376 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:09.228  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:09.274   336 12376 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:09.274   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:09.766  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:10.253   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:10.254   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:10.254   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:10.254   336 12377 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:10.305  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:10.309 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{8792ef3 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:10.309 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9fb3d62 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:10.309 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{ad937b0 V.ED..... ......ID 2,28-36,43 #fffefd} during layout: running second layout pass
+11-11 12:49:10.354   336 12377 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:10.354   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:10.503   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:10.504   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:10.504   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:10.504   336 12378 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:10.604   336 12378 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:10.604   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:10.654   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:10.654   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:10.654   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:10.654   336 12379 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:10.755   336 12379 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:10.755   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:10.844  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:11.384  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:11.721   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:11.721   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:11.721   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:11.721   336 12380 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:11.778 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{45120a6 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:11.778 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{567ea01 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:11.778 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{4e1aae7 V.ED..... ......ID 2,28-36,43 #fffefc} during layout: running second layout pass
+11-11 12:49:11.821   336 12380 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:11.822   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:11.897  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:11.969   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:11.969   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:11.969   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:11.969   336 12381 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:12.070   336 12381 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:12.070   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:12.119   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:12.119   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:12.120   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:12.120   336 12382 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:12.220   336 12382 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:12.220   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:12.407  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:12.927  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:13.188   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:13.188   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:13.188   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:13.188   336 12383 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:13.245 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{4ffe595 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:13.245 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{bda014c V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:13.245 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f2656aa V.ED..... ......ID 2,28-36,43 #fffefb} during layout: running second layout pass
+11-11 12:49:13.289   336 12383 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:13.289   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:13.435   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:13.435   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:13.435   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:13.437   336 12384 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:13.464  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:13.537   336 12384 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:13.538   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:13.587   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:13.587   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:13.587   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:13.587   336 12385 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:13.687   336 12385 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:13.688   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:14.004  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:14.544  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:14.653   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:14.653   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:14.655   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:14.655   336 12387 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:14.710 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9050770 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:14.710 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{93765b3 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:14.710 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{87ae9 V.ED..... ......ID 2,28-36,43 #fffefa} during layout: running second layout pass
+11-11 12:49:14.755   336 12387 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:14.755   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:14.901   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:14.901   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:14.901   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:14.903   336 12388 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:15.003   336 12388 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:15.003   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:15.054   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:15.054   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:15.054   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:15.054   336 12389 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:15.084  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:15.155   336 12389 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:15.155   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:15.622  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:16.119   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:16.119   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:16.120   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:16.120   336 12390 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:16.161  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:16.177 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{3db45a7 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:16.177 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{2996e66 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:16.177 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{9bfba54 V.ED..... ......ID 2,28-36,43 #fffef9} during layout: running second layout pass
+11-11 12:49:16.220   336 12390 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:16.220   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:16.375   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:49:16.375   492  1917 I ActivityTaskManager: START u0 {act=android.settings.SETTINGS cmp=com.android.settings/.homepage.SettingsHomepageActivity} from uid 10167
+11-11 12:49:16.392   693   837 D EglHelper: createEglContext start
+11-11 12:49:16.394   492  6021 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344ad3d0, tid 6021
+11-11 12:49:16.396   492  6021 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:49:16.397   492  6021 D EGL_emulation: eglCreateContext: 0x7f3a2452f530: maj 3 min 0 rcv 3
+11-11 12:49:16.398   693   837 D EGL_emulation: eglCreateContext: 0x7f3a24528d60: maj 3 min 0 rcv 3
+11-11 12:49:16.398   693   837 D EglHelper: createEglContext done
+11-11 12:49:16.398   693   837 D EglHelper: createEglSurface start
+11-11 12:49:16.398   492  6021 D EGL_emulation: eglMakeCurrent: 0x7f3a2452f530: ver 3 0 (tinfo 0x7f39c4607eb0) (first time)
+11-11 12:49:16.413   693   837 D EglHelper: createEglSurface done
+11-11 12:49:16.424  1209  1209 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:49:16.427  1209  1209 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:49:16.556   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:49:16.571  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:49:16.571  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:49:16.572  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:16.572  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:49:16.577  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:16.577  6024  6308 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:49:16.595  1209  6025 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:49:16.596  1209  6025 D BatteryInfo: time for getBatteryInfo: 1ms
+11-11 12:49:16.596  1209  6025 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 1ms
+11-11 12:49:16.597  1209  6093 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:49:16.597   709   791 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:49:16.598  6024 11863 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:49:16.598  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 18
+11-11 12:49:16.604  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:16.605  6024  6308 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6024_4 identical 6 lines
+11-11 12:49:16.605  6024  6308 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:16.605  1209  6044 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:49:16.649  1209  6025 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:49:16.649  1209  6025 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:49:16.649  1209  6025 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 0ms
+11-11 12:49:16.660  1209  1259 D BatteryInfo: time for getStats: 234ms
+11-11 12:49:16.662  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:16.663  1209  1259 D BatteryInfo: time for regular BatteryInfo: 0ms
+11-11 12:49:16.663  1209  1259 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:49:16.663  1209  1209 D BatteryInfo: time for callback: 0ms
+11-11 12:49:16.683   709   790 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:49:16.696 12264 12264 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:49:16.771   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/com.android.settings/30/com.android.settings.homepage.SettingsHomepageActivity/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:49:16.778   693   732 I ndroid.systemu: NativeAlloc concurrent copying GC freed 106338(4855KB) AllocSpace objects, 4(80KB) LOS objects, 49% free, 8196KB/16MB, paused 25us total 356.588ms
+11-11 12:49:16.793   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:49:16.794   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:16.813 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:49:17.164  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:17.298   492  2809 I ActivityTaskManager: START u0 {flg=0x18000000 cmp=io.github.sandyyur.inputbench/.BenchHost} from uid 10167
+11-11 12:49:17.298   492   526 D EventSequenceValidator: inc AccIntentStartedEvents to 2
+11-11 12:49:17.299   413   413 I perfetto: ing_service_impl.cc:758 Configured tracing session 60, #sources:1, duration:5000 ms, #buffers:1, total buffer size:4096 KB, total sessions:1, uid:1071 session name: ""
+11-11 12:49:17.299   412   412 I perfetto: probes_producer.cc:230  Ftrace setup (target_buf=60)
+11-11 12:49:17.303   492  2809 W ActivityTaskManager: Tried to set launchTime (0) < mLastActivityLaunchTime (2058071)
+11-11 12:49:17.310   412   412 I perfetto: ftrace_procfs.cc:176    enabled ftrace
+11-11 12:49:17.553     0     0 W perfetto: enabled ftrace
+11-11 12:49:17.357  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:49:17.361   492   526 D EventSequenceValidator: dec AccIntentStartedEvents to 1
+11-11 12:49:17.361   492   531 D ArtManagerInternalImpl: /data/misc/iorapd/io.github.sandyyur.inputbench/0/io.github.sandyyur.inputbench.BenchHost/compiled_traces/compiled_trace.pb doesn't exist
+11-11 12:49:17.363   492   531 I ActivityTaskManager: Displayed io.github.sandyyur.inputbench/.BenchHost: +61ms
+11-11 12:49:17.393 12264 12264 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:49:17.393 12264 12264 I FcitxColdStart: service.onStartInputView restarting=false
+11-11 12:49:17.394 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:49:17.459 12264 12264 I FcitxVoiceInput: refreshVoiceButton showVoice=false preferred= subtype=false plugin=false 
+11-11 12:49:17.463   492  6021 D HostConnection: HostConnection::get() New Host Connection established 0x7f3a344a7e50, tid 6021
+11-11 12:49:17.471   492  6021 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_null_optional_strings ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_YUV_Cache ANDROID_EMU_vulkan_ignored_handles ANDROID_EMU_has_shared_slots_host_memory_allocator ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_read_color_buffer_dma ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-11 12:49:17.473   492  6021 D EGL_emulation: eglCreateContext: 0x7f3a24550110: maj 3 min 0 rcv 3
+11-11 12:49:17.474   492  6021 D EGL_emulation: eglMakeCurrent: 0x7f3a24550110: ver 3 0 (tinfo 0x7f39c4607eb0) (first time)
+11-11 12:49:17.601   492   492 W NotificationHistory: Attempted to add notif for locked/gone/disabled user 0
+11-11 12:49:17.604   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:49:17.604   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:17.608   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:49:17.608   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:17.610   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:49:17.610   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:17.642   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: -1|android|8|null|1000
+11-11 12:49:17.642   693   693 D InterruptionStateProvider: No heads up: no huns
+11-11 12:49:17.696  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:18.050   492  2809 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:18.234  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:18.774  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:19.223   492  1082 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:19.282  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:19.620   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:19.620   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:19.621   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:19.621   336 12399 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:19.622   492  1082 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:19.622   492  1082 I system_server: oneway function results will be dropped but finished with status OK and parcel size 4
+11-11 12:49:19.623   429   435 D AudioAnalytics: gc(1700, 2000): log size:1700 item map size:2, item map items:1700
+11-11 12:49:19.721   336 12399 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:19.721   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:19.770   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:19.770   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:19.771   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:19.771   336 12401 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:19.800   375   448 D AudioFlinger: mixer(0x778ccf9b9040) throttle end: throttle time(33)
+11-11 12:49:19.822  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:19.871   336 12401 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:19.871   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:20.349  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:20.853   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:20.854   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:20.854   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:20.854   336 12402 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:20.888  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:20.909 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{428f879 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:20.909 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a29c140 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:20.909 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{7bcd9be V.ED..... ......ID 2,28-36,43 #fffef8} during layout: running second layout pass
+11-11 12:49:20.954   336 12402 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:20.954   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:21.104   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:21.104   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:21.105   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:21.105   336 12403 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:21.205   336 12403 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:21.205   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:21.253   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:21.253   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:21.253   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:21.254   336 12404 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:21.354   336 12404 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:21.354   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:21.429  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:21.936  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:22.304   412   412 I perfetto: probes_producer.cc:329  Producer stop (id=60)
+11-11 12:49:22.306   412   412 I perfetto: ftrace_procfs.cc:183    disabled ftrace
+11-11 12:49:22.306   413   413 E libc    : The property "ro.build.fingerprint" has a value with length 92 that is too large for __system_property_get()/__system_property_read(); use __system_property_read_callback() instead.
+11-11 12:49:22.306   413   413 I perfetto: ng_service_impl.cc:1948 Tracing session 60 ended, total sessions:0
+11-11 12:49:22.550     0     0 W perfetto: disabled ftrace
+11-11 12:49:22.320   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:22.320   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:22.320   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:22.322   336 12405 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:22.372 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{f544324 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:22.373 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{f5c2fb7 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:22.373 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{52dbe8d V.ED..... ......ID 2,28-36,43 #fffef7} during layout: running second layout pass
+11-11 12:49:22.422   336 12405 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:22.422   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:22.475  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:22.568   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:22.568   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:22.568   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:22.569   336 12406 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:22.670   336 12406 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:22.670   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:22.720   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:22.720   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:22.721   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:22.721   336 12407 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:22.821   336 12407 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:22.821   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:23.014  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:23.554  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:23.784   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:23.785   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:23.785   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:23.786   336 12408 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:23.841 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a3c66b V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:23.841 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{18c27ba V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:23.841 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{df245c8 V.ED..... ......ID 2,28-36,43 #fffef6} during layout: running second layout pass
+11-11 12:49:23.886   336 12408 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:23.886   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:24.037   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:24.037   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:24.037   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:24.037   336 12409 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:24.094  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:24.137   336 12409 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:24.137   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:24.187   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:24.187   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:24.187   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:24.188   336 12410 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:24.288   336 12410 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:24.288   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:24.634  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:25.144  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:25.252   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:25.252   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:25.252   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:25.253   336 12411 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:25.304 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{a8b5f7e V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:25.304 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{c2afd39 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:25.304 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{de43cdf V.ED..... ......ID 2,28-36,43 #fffef5} during layout: running second layout pass
+11-11 12:49:25.353   336 12411 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:25.353   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:25.503   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:25.503   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:25.504   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:25.504   336 12412 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:25.604   336 12412 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:25.604   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:25.652   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:25.652   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:25.653   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:25.653   336 12413 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:25.687  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:25.753   336 12413 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:25.754   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:26.207  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:26.722   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:26.722   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:26.723   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:26.723   336 12414 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:26.742  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:26.776 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{8aec74d V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:26.776 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{704f6e4 V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:26.776 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{5b28202 V.ED..... ......ID 2,28-36,43 #fffef4} during layout: running second layout pass
+11-11 12:49:26.823   336 12414 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:26.823   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:26.971   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:26.971   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:26.972   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:26.972   336 12415 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:27.072   336 12415 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:27.073   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:27.120   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:27.120   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:27.120   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:27.121   336 12416 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:27.221   336 12416 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:27.221   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:27.282  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:28.391     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=300000 cc=10 chg=a
+11-11 12:49:27.790  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:28.186   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:28.186   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:28.186   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:28.187   336 12417 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:28.238 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{9f54d88 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:28.238 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{fb3152b V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:28.238 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a41a321 V.ED..... ......ID 2,28-36,43 #fffef3} during layout: running second layout pass
+11-11 12:49:28.287   336 12417 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:28.287   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:28.326  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:28.435   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:28.435   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:28.435   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:28.437   336 12418 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:28.537   336 12418 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:28.538   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:28.585   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:28.585   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:28.585   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:28.586   336 12419 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:28.687   336 12419 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:28.687   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:28.866  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:29.398  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:29.654   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:29.654   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:29.654   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:29.654   336 12420 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:29.705 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{e76f9f V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:29.705 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{724a53e V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:29.705 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{a8728ec V.ED..... ......ID 2,28-36,43 #fffef2} during layout: running second layout pass
+11-11 12:49:29.755   336 12420 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:29.755   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:29.903   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:29.903   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:29.903   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:29.903   336 12421 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:29.936  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:30.003   336 12421 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:30.004   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:30.053   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:30.053   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:30.054   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:30.054   336 12422 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:30.154   336 12422 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:30.154   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:30.454  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:30.988  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:31.120   336   336 I android.hardware.vibrator-service.example: Vibrator reporting capabilities
+11-11 12:49:31.120   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:31.120   336   336 I android.hardware.vibrator-service.example: Vibrator perform
+11-11 12:49:31.120   336 12423 I android.hardware.vibrator-service.example: Starting perform on another thread
+11-11 12:49:31.173 12264 12264 W View    : requestLayout() improperly called by androidx.constraintlayout.widget.ConstraintLayout{7bc7bc2 V.E...... ......ID 0,0-38,48} during layout: running second layout pass
+11-11 12:49:31.173 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{aa1900d V.ED..... ......ID 0,0-38,31} during layout: running second layout pass
+11-11 12:49:31.173 12264 12264 W View    : requestLayout() improperly called by org.fcitx.fcitx5.android.input.AutoScaleTextView{301fdd3 V.ED..... ......ID 2,28-36,43 #fffef1} during layout: running second layout pass
+11-11 12:49:31.220   336 12423 I android.hardware.vibrator-service.example: Notifying perform complete
+11-11 12:49:31.221   336   336 I android.hardware.vibrator-service.example: Vibrator off
+11-11 12:49:31.376   492  1921 W WindowManager: removeWindowToken: Attempted to remove non-existing token: android.os.Binder@14a53fd
+11-11 12:49:31.376 12322 12342 V UiAutomation: Init UiAutomation@de92449[id=-1, flags=0]
+11-11 12:49:31.379   492  1082 I ActivityManager: Force stopping io.github.sandyyur.inputbench appid=10167 user=0: finished inst
+11-11 12:49:31.379   492  1082 I ActivityManager: Killing 12322:io.github.sandyyur.inputbench/u0a167 (adj 0): stop io.github.sandyyur.inputbench due to finished inst
+11-11 12:49:31.380   492  1082 W ActivityTaskManager: Force removing ActivityRecord{4fc67ff u0 io.github.sandyyur.inputbench/.BenchHost t93 f}}: app died, no saved state
+11-11 12:49:31.382   492  1082 W ActivityTaskManager: Force removing ActivityRecord{48cdb16 u0 io.github.sandyyur.inputbench/.BenchHost t92 f}}: app died, no saved state
+11-11 12:49:31.384 12280 12280 I app_process: System.exit called, status: 0
+11-11 12:49:31.384 12280 12280 I AndroidRuntime: VM exiting with result code 0.
+11-11 12:49:31.388   492   809 W WindowManager: Cannot find window which accessibility connection is added to
+11-11 12:49:31.398   285   285 I Zygote  : Process 12322 exited due to signal 9 (Killed)
+11-11 12:49:31.640     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:49:31.641     0     0 I binder  : undelivered transaction 802173, process died.
+11-11 12:49:31.643     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-11 12:49:31.646     0     0 I binder  : undelivered transaction 802151, process died.
+11-11 12:49:31.404  1209  1209 W ContextualCardManager: Legacy suggestion contextual card enabled, skipping contextual cards.
+11-11 12:49:31.406  1209  1209 D AvatarViewMixin: Feature disabled by config. Skipping
+11-11 12:49:31.651     0     0 I binder  : undelivered transaction 802080, process died.
+11-11 12:49:31.409   492   526 W ActivityManager: setHasOverlayUi called on unknown pid: 12322
+11-11 12:49:31.425   492   534 I libprocessgroup: Successfully killed process cgroup uid 10167 pid 12322 in 45ms
+11-11 12:49:31.690     0     0 D logd    : logdr: UID=0 GID=0 PID=12427 n tail=0 logMask=99 pid=0 start=0ns timeout=0ns
+11-11 12:49:31.455  1209  1209 D ControllerRendererPool: Controller is already there.
+11-11 12:49:31.456   709   786 I UserPackageInfos: updating UserPackageInfosLiveData for user 0
+11-11 12:49:31.716     0     0 I binder  : 12264:12264 transaction failed 29189/-22, size 96-0 line 3053
+11-11 12:49:31.490  1209  1209 D FallbackHome: User unlocked but no home; let's hope someone enables one soon?
+11-11 12:49:31.506 12264 12264 I FcitxColdStart: service.onStartInput restarting=false
+11-11 12:49:31.511  1209  1259 D BatteryInfo: time for getStats: 106ms
+11-11 12:49:31.521  1209  6044 D BatteryTipLoader: BatteryInfoLoader post query: 1ms
+11-11 12:49:31.521  1209  6044 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:49:31.521  1209  6044 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 1ms
+11-11 12:49:31.521  6024  6042 D SuggestionParser: Day 0 for com.android.settings.suggested.category.DEFERRED_SETUP
+11-11 12:49:31.522  6024  6042 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:31.522  6024  6042 D SuggestionParser: Day 0 for com.android.settings.suggested.category.HIGH_PRIORITY
+11-11 12:49:31.522  6024  6042 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:31.522  6024  6042 D SuggestionParser: Day 0 for com.android.settings.suggested.category.FIRST_IMPRESSION
+11-11 12:49:31.525  1209  6371 D SugstStatusProvider: Suggestion com.android.settings/com.android.settings.notification.zen.ZenSuggestionActivity complete: true
+11-11 12:49:31.525  6024 11863 D CandidateSuggestionFilter: Suggestion state result Bundle[{candidate_is_complete=true}]
+11-11 12:49:31.525  6024  6042 D CandidateSuggestionFilter: filterCandidates duration: 2
+11-11 12:49:31.525  6024  6042 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:31.526  6024  6042 I chatty  : uid=10111(com.android.settings.intelligence) Binder:6024_1 identical 6 lines
+11-11 12:49:31.526  6024  6042 D CandidateSuggestionFilter: filterCandidates duration: 0
+11-11 12:49:31.526  1209  6044 D LegacySuggestCardCtrl: Loaded suggests: 0
+11-11 12:49:31.530  1209  1259 D BatteryInfo: time for regular BatteryInfo: 19ms
+11-11 12:49:31.534  1209  1259 D BatteryInfo: time for getBatteryInfo: 1ms
+11-11 12:49:31.536  1209  1209 D BatteryInfo: time for callback: 0ms
+11-11 12:49:31.542  1209  6025 D BatteryTipLoader: BatteryInfoLoader post query: 0ms
+11-11 12:49:31.542  1209  6025 D BatteryInfo: time for getBatteryInfo: 0ms
+11-11 12:49:31.542  1209  6025 D BatteryTipLoader: BatteryInfoLoader.loadInBackground: 0ms
+11-11 12:49:31.544   709   766 I UserPackageInfos: updating UserPackageInfosLiveData for user 0

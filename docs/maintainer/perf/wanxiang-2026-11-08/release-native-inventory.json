@@ -1,0 +1,72 @@
+{
+  "fcitx": {
+    "apk_sha256": "f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
+    "libraries": [
+      {
+        "path": "lib/arm64-v8a/libFcitx5Config.so",
+        "bytes": 196304,
+        "sha256": "41efe8f612856ed57980c94aceb4d756d80cad835d97588355dc3708d84ea32f"
+      },
+      {
+        "path": "lib/arm64-v8a/libFcitx5Core.so",
+        "bytes": 986880,
+        "sha256": "1f6d025d8db6d604a95039e4e530135e7dc53810e1c46a24b65bf38bd64ac20c"
+      },
+      {
+        "path": "lib/arm64-v8a/libFcitx5Utils.so",
+        "bytes": 812176,
+        "sha256": "33b93770504e54d25a69e9054f8de3cb1a8fd69f2fa3fcce18ad5d34ba1c4d71"
+      },
+      {
+        "path": "lib/arm64-v8a/libandroidfrontend.so",
+        "bytes": 129800,
+        "sha256": "7f56cdd2d302f467c47a8e81ecfeb06cfd90dd17d3530691048fe0a1e485296f"
+      },
+      {
+        "path": "lib/arm64-v8a/libandroidnotification.so",
+        "bytes": 58912,
+        "sha256": "4d1bd684b724e26537c8939feac02a388d429b4186c519000622fddce7c67ead"
+      },
+      {
+        "path": "lib/arm64-v8a/libc++_shared.so",
+        "bytes": 1253544,
+        "sha256": "b17919df195f29b0a238468c04171b93cedcdffbe0d30cdc634327cf7f7889bc"
+      },
+      {
+        "path": "lib/arm64-v8a/libclipboard.so",
+        "bytes": 99840,
+        "sha256": "ff2a9d3c5f1e77bc09e61a265053cd3bf921e7798f3229d328feb0eac2a9bd88"
+      },
+      {
+        "path": "lib/arm64-v8a/libnative-lib.so",
+        "bytes": 369448,
+        "sha256": "b6cfae5097dcf558d30624954e19dc5df2f7a4fa408d400a184a38ec13b04e7c"
+      },
+      {
+        "path": "lib/arm64-v8a/librime.so",
+        "bytes": 5323536,
+        "sha256": "942c28d36ba2a90742519dff6f249c548051ba782d38c9b9524797533ccffc6b"
+      }
+    ]
+  },
+  "direct": {
+    "apk_sha256": "b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
+    "libraries": [
+      {
+        "path": "lib/arm64-v8a/libc++_shared.so",
+        "bytes": 1253544,
+        "sha256": "b17919df195f29b0a238468c04171b93cedcdffbe0d30cdc634327cf7f7889bc"
+      },
+      {
+        "path": "lib/arm64-v8a/libdirect-rime.so",
+        "bytes": 4359752,
+        "sha256": "66ca469738471259ac542f996af4960768d609f209fbbe6f603ca7a9bd88ca0e"
+      },
+      {
+        "path": "lib/arm64-v8a/libquickjs.so",
+        "bytes": 790688,
+        "sha256": "53c9987c219fa171415445d3f9b927a88c8c12646789a701351afd749c1c1da9"
+      }
+    ]
+  }
+}

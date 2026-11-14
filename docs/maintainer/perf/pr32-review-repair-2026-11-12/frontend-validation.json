@@ -1,0 +1,30 @@
+{
+  "code_commit": "8801309478aa981cf45128df9be6f0e99d260bc8",
+  "run_id": 43164464845,
+  "artifact_id": 13918709948,
+  "sha256": "15c678f2ef694aa99a9378067864dcbbec0e218a913fff340b822d8cec957b4d",
+  "reports": [
+    "outputs/androidTest-results/connected/debug/flavors/fx/TEST-test(AVD) - 15-_app-fx.xml"
+  ],
+  "tests": 54,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "new_cases": [
+    {
+      "name": "plainHighlightRetainsTextAndItsMeasuredLayout",
+      "classname": "org.fcitx.fcitx5.android.input.candidates.CandidateRenderingTest",
+      "time": "0.129"
+    },
+    {
+      "name": "plainAndCommentedCandidatesMatchTheOriginalSpanRendering",
+      "classname": "org.fcitx.fcitx5.android.input.candidates.CandidateRenderingTest",
+      "time": "0.127"
+    },
+    {
+      "name": "fontRefreshAndBlankCommentTransitionsKeepMetricsAndPixels",
+      "classname": "org.fcitx.fcitx5.android.input.candidates.CandidateRenderingTest",
+      "time": "0.128"
+    }
+  ]
+}

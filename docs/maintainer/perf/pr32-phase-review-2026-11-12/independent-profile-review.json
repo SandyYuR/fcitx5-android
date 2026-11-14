@@ -1,0 +1,38 @@
+[
+  {
+    "label": "baseline",
+    "valid": true,
+    "wait_ms": 43.510483,
+    "cpu_ms": {
+      "main": 0.247451,
+      "render": 38.573315,
+      "owner": 0.0
+    },
+    "main_postAndWait_overlap_ms": 43.267979,
+    "caveat": "Separate profile VM only, never mixed with untraced formal values"
+  },
+  {
+    "label": "regressed",
+    "valid": true,
+    "wait_ms": 38.721628,
+    "cpu_ms": {
+      "main": 1.15929,
+      "render": 35.048805,
+      "owner": 0.0
+    },
+    "main_postAndWait_overlap_ms": 34.725842,
+    "caveat": "Separate profile VM only, never mixed with untraced formal values"
+  },
+  {
+    "label": "current",
+    "valid": true,
+    "wait_ms": 14.788257,
+    "cpu_ms": {
+      "main": 1.382192,
+      "render": 3.247872,
+      "owner": 0.0
+    },
+    "main_postAndWait_overlap_ms": 12.028427,
+    "caveat": "Separate profile VM only, never mixed with untraced formal values"
+  }
+]

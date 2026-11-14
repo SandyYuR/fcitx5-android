@@ -1,0 +1,232 @@
+[
+  {
+    "case": "100-baseline",
+    "window_up_to_ic_ms": 7.681528,
+    "thread_evidence": {
+      "main": {
+        "utid": 196,
+        "state_covered_ns": 7681528,
+        "interval_ns": 7681528,
+        "running_ns": 1759481,
+        "sched_cpu_ns": 1759481,
+        "complete": true,
+        "cpu_ms": 1.759481,
+        "state_ms": {
+          "Running": 1.759481,
+          "S": 5.291252,
+          "R": 0.351032,
+          "R+": 0.279763
+        }
+      },
+      "render": {
+        "utid": 345,
+        "state_covered_ns": 7681528,
+        "interval_ns": 7681528,
+        "running_ns": 34344,
+        "sched_cpu_ns": 34344,
+        "complete": true,
+        "cpu_ms": 0.034344,
+        "state_ms": {
+          "S": 7.582724,
+          "R": 0.06446,
+          "Running": 0.034344
+        }
+      },
+      "owner": {
+        "utid": 272,
+        "state_covered_ns": 7681528,
+        "interval_ns": 7681528,
+        "running_ns": 2004831,
+        "sched_cpu_ns": 2004831,
+        "complete": true,
+        "cpu_ms": 2.004831,
+        "state_ms": {
+          "S": 3.191938,
+          "R": 0.394288,
+          "Running": 2.004831,
+          "R+": 0.041921,
+          "D": 2.04855
+        }
+      }
+    },
+    "action_cores": [
+      {
+        "wall_ms": 3.61006,
+        "cpu_ms": 1.44728
+      }
+    ]
+  },
+  {
+    "case": "100-current",
+    "window_up_to_ic_ms": 11.929378,
+    "thread_evidence": {
+      "main": {
+        "utid": 210,
+        "state_covered_ns": 11929378,
+        "interval_ns": 11929378,
+        "running_ns": 2870779,
+        "sched_cpu_ns": 2870779,
+        "complete": true,
+        "cpu_ms": 2.870779,
+        "state_ms": {
+          "Running": 2.870779,
+          "R": 2.318504,
+          "R+": 0.748989,
+          "S": 5.991106
+        }
+      },
+      "render": {
+        "utid": 370,
+        "state_covered_ns": 11929378,
+        "interval_ns": 11929378,
+        "running_ns": 1404500,
+        "sched_cpu_ns": 1404500,
+        "complete": true,
+        "cpu_ms": 1.4045,
+        "state_ms": {
+          "S": 7.713377,
+          "R": 2.704733,
+          "Running": 1.4045,
+          "R+": 0.106768
+        }
+      },
+      "owner": {
+        "utid": 282,
+        "state_covered_ns": 11929378,
+        "interval_ns": 11929378,
+        "running_ns": 2119615,
+        "sched_cpu_ns": 2119615,
+        "complete": true,
+        "cpu_ms": 2.119615,
+        "state_ms": {
+          "S": 6.13392,
+          "R": 0.601989,
+          "Running": 2.119615,
+          "R+": 0.278802,
+          "D": 2.795052
+        }
+      }
+    },
+    "action_cores": [
+      {
+        "wall_ms": 5.085332,
+        "cpu_ms": 1.534062
+      }
+    ]
+  },
+  {
+    "case": "300-baseline",
+    "window_up_to_ic_ms": 8.80628,
+    "thread_evidence": {
+      "main": {
+        "utid": 242,
+        "state_covered_ns": 8806280,
+        "interval_ns": 8806280,
+        "running_ns": 2154651,
+        "sched_cpu_ns": 2154651,
+        "complete": true,
+        "cpu_ms": 2.154651,
+        "state_ms": {
+          "Running": 2.154651,
+          "R+": 1.081219,
+          "S": 5.533212,
+          "R": 0.037198
+        }
+      },
+      "render": {
+        "utid": 417,
+        "state_covered_ns": 8806280,
+        "interval_ns": 8806280,
+        "running_ns": 17272,
+        "sched_cpu_ns": 17272,
+        "complete": true,
+        "cpu_ms": 0.017272,
+        "state_ms": {
+          "S": 7.550496,
+          "R": 1.238512,
+          "Running": 0.017272
+        }
+      },
+      "owner": {
+        "utid": 316,
+        "state_covered_ns": 8806280,
+        "interval_ns": 8806280,
+        "running_ns": 1931465,
+        "sched_cpu_ns": 1931465,
+        "complete": true,
+        "cpu_ms": 1.931465,
+        "state_ms": {
+          "S": 4.681233,
+          "R": 0.373352,
+          "Running": 1.931465,
+          "D": 1.623923,
+          "R+": 0.196307
+        }
+      }
+    },
+    "action_cores": [
+      {
+        "wall_ms": 3.057837,
+        "cpu_ms": 1.273928
+      }
+    ]
+  },
+  {
+    "case": "300-current",
+    "window_up_to_ic_ms": 10.652365,
+    "thread_evidence": {
+      "main": {
+        "utid": 201,
+        "state_covered_ns": 10652365,
+        "interval_ns": 10652365,
+        "running_ns": 2257053,
+        "sched_cpu_ns": 2257053,
+        "complete": true,
+        "cpu_ms": 2.257053,
+        "state_ms": {
+          "Running": 2.257053,
+          "R+": 0.53039,
+          "S": 6.868844,
+          "R": 0.996078
+        }
+      },
+      "render": {
+        "utid": 351,
+        "state_covered_ns": 10652365,
+        "interval_ns": 10652365,
+        "running_ns": 3107139,
+        "sched_cpu_ns": 3107139,
+        "complete": true,
+        "cpu_ms": 3.107139,
+        "state_ms": {
+          "S": 6.763394,
+          "R": 0.357339,
+          "Running": 3.107139,
+          "R+": 0.424493
+        }
+      },
+      "owner": {
+        "utid": 275,
+        "state_covered_ns": 10652365,
+        "interval_ns": 10652365,
+        "running_ns": 2322506,
+        "sched_cpu_ns": 2322506,
+        "complete": true,
+        "cpu_ms": 2.322506,
+        "state_ms": {
+          "S": 2.710611,
+          "R": 0.61938,
+          "Running": 2.322506,
+          "R+": 0.842803,
+          "D": 4.157065
+        }
+      }
+    },
+    "action_cores": [
+      {
+        "wall_ms": 7.08208,
+        "cpu_ms": 1.691918
+      }
+    ]
+  }
+]

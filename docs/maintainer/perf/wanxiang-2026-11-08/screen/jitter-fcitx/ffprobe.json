@@ -1,0 +1,994 @@
+{
+  "frames": [
+    {
+      "best_effort_timestamp_time": "0.000000"
+    },
+    {
+      "best_effort_timestamp_time": "2.031156"
+    },
+    {
+      "best_effort_timestamp_time": "2.348111"
+    },
+    {
+      "best_effort_timestamp_time": "2.680733"
+    },
+    {
+      "best_effort_timestamp_time": "3.026067"
+    },
+    {
+      "best_effort_timestamp_time": "3.379111"
+    },
+    {
+      "best_effort_timestamp_time": "3.727389"
+    },
+    {
+      "best_effort_timestamp_time": "4.677144"
+    },
+    {
+      "best_effort_timestamp_time": "4.750089"
+    },
+    {
+      "best_effort_timestamp_time": "4.864211"
+    },
+    {
+      "best_effort_timestamp_time": "4.915389"
+    },
+    {
+      "best_effort_timestamp_time": "5.000156"
+    },
+    {
+      "best_effort_timestamp_time": "5.025144"
+    },
+    {
+      "best_effort_timestamp_time": "5.137156"
+    },
+    {
+      "best_effort_timestamp_time": "5.240556"
+    },
+    {
+      "best_effort_timestamp_time": "5.258089"
+    },
+    {
+      "best_effort_timestamp_time": "5.382144"
+    },
+    {
+      "best_effort_timestamp_time": "5.447133"
+    },
+    {
+      "best_effort_timestamp_time": "5.463989"
+    },
+    {
+      "best_effort_timestamp_time": "5.583144"
+    },
+    {
+      "best_effort_timestamp_time": "5.666756"
+    },
+    {
+      "best_effort_timestamp_time": "5.752289"
+    },
+    {
+      "best_effort_timestamp_time": "5.764711"
+    },
+    {
+      "best_effort_timestamp_time": "5.865111"
+    },
+    {
+      "best_effort_timestamp_time": "5.964189"
+    },
+    {
+      "best_effort_timestamp_time": "6.059144"
+    },
+    {
+      "best_effort_timestamp_time": "6.092078"
+    },
+    {
+      "best_effort_timestamp_time": "6.123111"
+    },
+    {
+      "best_effort_timestamp_time": "6.190222"
+    },
+    {
+      "best_effort_timestamp_time": "6.258156"
+    },
+    {
+      "best_effort_timestamp_time": "6.347211"
+    },
+    {
+      "best_effort_timestamp_time": "6.448467"
+    },
+    {
+      "best_effort_timestamp_time": "6.501111"
+    },
+    {
+      "best_effort_timestamp_time": "6.793389"
+    },
+    {
+      "best_effort_timestamp_time": "6.880011"
+    },
+    {
+      "best_effort_timestamp_time": "7.375056"
+    },
+    {
+      "best_effort_timestamp_time": "7.596100"
+    },
+    {
+      "best_effort_timestamp_time": "7.784022"
+    },
+    {
+      "best_effort_timestamp_time": "7.957344"
+    },
+    {
+      "best_effort_timestamp_time": "8.064344"
+    },
+    {
+      "best_effort_timestamp_time": "8.187133"
+    },
+    {
+      "best_effort_timestamp_time": "8.470178"
+    },
+    {
+      "best_effort_timestamp_time": "8.713844"
+    },
+    {
+      "best_effort_timestamp_time": "8.780089"
+    },
+    {
+      "best_effort_timestamp_time": "8.969078"
+    },
+    {
+      "best_effort_timestamp_time": "9.314011"
+    },
+    {
+      "best_effort_timestamp_time": "9.432156"
+    },
+    {
+      "best_effort_timestamp_time": "9.530267"
+    },
+    {
+      "best_effort_timestamp_time": "9.779167"
+    },
+    {
+      "best_effort_timestamp_time": "9.835256"
+    },
+    {
+      "best_effort_timestamp_time": "9.927011"
+    },
+    {
+      "best_effort_timestamp_time": "10.102011"
+    },
+    {
+      "best_effort_timestamp_time": "10.315067"
+    },
+    {
+      "best_effort_timestamp_time": "10.411156"
+    },
+    {
+      "best_effort_timestamp_time": "10.485889"
+    },
+    {
+      "best_effort_timestamp_time": "10.701589"
+    },
+    {
+      "best_effort_timestamp_time": "10.744044"
+    },
+    {
+      "best_effort_timestamp_time": "10.868056"
+    },
+    {
+      "best_effort_timestamp_time": "10.940011"
+    },
+    {
+      "best_effort_timestamp_time": "11.080933"
+    },
+    {
+      "best_effort_timestamp_time": "11.231944"
+    },
+    {
+      "best_effort_timestamp_time": "11.360667"
+    },
+    {
+      "best_effort_timestamp_time": "11.640556"
+    },
+    {
+      "best_effort_timestamp_time": "11.723056"
+    },
+    {
+      "best_effort_timestamp_time": "12.038156"
+    },
+    {
+      "best_effort_timestamp_time": "12.244756"
+    },
+    {
+      "best_effort_timestamp_time": "12.396111"
+    },
+    {
+      "best_effort_timestamp_time": "12.474111"
+    },
+    {
+      "best_effort_timestamp_time": "12.589111"
+    },
+    {
+      "best_effort_timestamp_time": "12.747978"
+    },
+    {
+      "best_effort_timestamp_time": "13.290433"
+    },
+    {
+      "best_effort_timestamp_time": "13.439222"
+    },
+    {
+      "best_effort_timestamp_time": "13.732422"
+    },
+    {
+      "best_effort_timestamp_time": "13.983978"
+    },
+    {
+      "best_effort_timestamp_time": "14.139444"
+    },
+    {
+      "best_effort_timestamp_time": "14.515033"
+    },
+    {
+      "best_effort_timestamp_time": "14.642989"
+    },
+    {
+      "best_effort_timestamp_time": "14.745056"
+    },
+    {
+      "best_effort_timestamp_time": "14.918122"
+    },
+    {
+      "best_effort_timestamp_time": "15.062144"
+    },
+    {
+      "best_effort_timestamp_time": "15.216022"
+    },
+    {
+      "best_effort_timestamp_time": "15.311100"
+    },
+    {
+      "best_effort_timestamp_time": "15.486933"
+    },
+    {
+      "best_effort_timestamp_time": "15.604667"
+    },
+    {
+      "best_effort_timestamp_time": "15.856033"
+    },
+    {
+      "best_effort_timestamp_time": "16.116044"
+    },
+    {
+      "best_effort_timestamp_time": "16.504011"
+    },
+    {
+      "best_effort_timestamp_time": "16.633700"
+    },
+    {
+      "best_effort_timestamp_time": "16.778956"
+    },
+    {
+      "best_effort_timestamp_time": "17.090544"
+    },
+    {
+      "best_effort_timestamp_time": "17.157989"
+    },
+    {
+      "best_effort_timestamp_time": "17.375067"
+    },
+    {
+      "best_effort_timestamp_time": "17.417989"
+    },
+    {
+      "best_effort_timestamp_time": "17.877189"
+    },
+    {
+      "best_effort_timestamp_time": "18.069022"
+    },
+    {
+      "best_effort_timestamp_time": "18.270911"
+    },
+    {
+      "best_effort_timestamp_time": "18.607811"
+    },
+    {
+      "best_effort_timestamp_time": "18.676267"
+    },
+    {
+      "best_effort_timestamp_time": "18.842067"
+    },
+    {
+      "best_effort_timestamp_time": "18.891644"
+    },
+    {
+      "best_effort_timestamp_time": "19.052144"
+    },
+    {
+      "best_effort_timestamp_time": "19.417156"
+    },
+    {
+      "best_effort_timestamp_time": "19.542878"
+    },
+    {
+      "best_effort_timestamp_time": "19.776978"
+    },
+    {
+      "best_effort_timestamp_time": "19.927956"
+    },
+    {
+      "best_effort_timestamp_time": "20.003833"
+    },
+    {
+      "best_effort_timestamp_time": "20.162444"
+    },
+    {
+      "best_effort_timestamp_time": "20.403978"
+    },
+    {
+      "best_effort_timestamp_time": "20.504367"
+    },
+    {
+      "best_effort_timestamp_time": "20.770300"
+    },
+    {
+      "best_effort_timestamp_time": "20.899989"
+    },
+    {
+      "best_effort_timestamp_time": "21.197833"
+    },
+    {
+      "best_effort_timestamp_time": "21.365033"
+    },
+    {
+      "best_effort_timestamp_time": "21.478222"
+    },
+    {
+      "best_effort_timestamp_time": "21.570122"
+    },
+    {
+      "best_effort_timestamp_time": "21.817589"
+    },
+    {
+      "best_effort_timestamp_time": "22.047678"
+    },
+    {
+      "best_effort_timestamp_time": "22.144156"
+    },
+    {
+      "best_effort_timestamp_time": "22.240300"
+    },
+    {
+      "best_effort_timestamp_time": "22.352656"
+    },
+    {
+      "best_effort_timestamp_time": "22.425333"
+    },
+    {
+      "best_effort_timestamp_time": "22.676889"
+    },
+    {
+      "best_effort_timestamp_time": "22.832644"
+    },
+    {
+      "best_effort_timestamp_time": "22.902189"
+    },
+    {
+      "best_effort_timestamp_time": "23.178922"
+    },
+    {
+      "best_effort_timestamp_time": "23.410400"
+    },
+    {
+      "best_effort_timestamp_time": "23.727922"
+    },
+    {
+      "best_effort_timestamp_time": "24.073289"
+    },
+    {
+      "best_effort_timestamp_time": "24.225867"
+    },
+    {
+      "best_effort_timestamp_time": "24.371133"
+    },
+    {
+      "best_effort_timestamp_time": "24.605911"
+    },
+    {
+      "best_effort_timestamp_time": "24.692867"
+    },
+    {
+      "best_effort_timestamp_time": "24.814422"
+    },
+    {
+      "best_effort_timestamp_time": "25.193900"
+    },
+    {
+      "best_effort_timestamp_time": "25.253900"
+    },
+    {
+      "best_effort_timestamp_time": "25.411900"
+    },
+    {
+      "best_effort_timestamp_time": "25.538556"
+    },
+    {
+      "best_effort_timestamp_time": "25.667867"
+    },
+    {
+      "best_effort_timestamp_time": "25.844978"
+    },
+    {
+      "best_effort_timestamp_time": "26.067044"
+    },
+    {
+      "best_effort_timestamp_time": "26.458022"
+    },
+    {
+      "best_effort_timestamp_time": "26.661000"
+    },
+    {
+      "best_effort_timestamp_time": "27.005878"
+    },
+    {
+      "best_effort_timestamp_time": "27.195867"
+    },
+    {
+      "best_effort_timestamp_time": "27.504944"
+    },
+    {
+      "best_effort_timestamp_time": "27.778089"
+    },
+    {
+      "best_effort_timestamp_time": "27.874178"
+    },
+    {
+      "best_effort_timestamp_time": "28.156844"
+    },
+    {
+      "best_effort_timestamp_time": "28.362078"
+    },
+    {
+      "best_effort_timestamp_time": "28.429889"
+    },
+    {
+      "best_effort_timestamp_time": "28.588956"
+    },
+    {
+      "best_effort_timestamp_time": "28.828911"
+    },
+    {
+      "best_effort_timestamp_time": "29.026867"
+    },
+    {
+      "best_effort_timestamp_time": "29.230878"
+    },
+    {
+      "best_effort_timestamp_time": "29.556889"
+    },
+    {
+      "best_effort_timestamp_time": "29.842000"
+    },
+    {
+      "best_effort_timestamp_time": "29.951978"
+    },
+    {
+      "best_effort_timestamp_time": "30.243656"
+    },
+    {
+      "best_effort_timestamp_time": "30.311056"
+    },
+    {
+      "best_effort_timestamp_time": "30.523167"
+    },
+    {
+      "best_effort_timestamp_time": "30.740811"
+    },
+    {
+      "best_effort_timestamp_time": "30.795389"
+    },
+    {
+      "best_effort_timestamp_time": "30.987844"
+    },
+    {
+      "best_effort_timestamp_time": "31.171444"
+    },
+    {
+      "best_effort_timestamp_time": "31.313489"
+    },
+    {
+      "best_effort_timestamp_time": "31.437867"
+    },
+    {
+      "best_effort_timestamp_time": "31.642822"
+    },
+    {
+      "best_effort_timestamp_time": "31.903900"
+    },
+    {
+      "best_effort_timestamp_time": "32.072967"
+    },
+    {
+      "best_effort_timestamp_time": "32.322811"
+    },
+    {
+      "best_effort_timestamp_time": "32.494956"
+    },
+    {
+      "best_effort_timestamp_time": "32.704767"
+    },
+    {
+      "best_effort_timestamp_time": "32.975611"
+    },
+    {
+      "best_effort_timestamp_time": "33.434022"
+    },
+    {
+      "best_effort_timestamp_time": "33.557967"
+    },
+    {
+      "best_effort_timestamp_time": "33.969000"
+    },
+    {
+      "best_effort_timestamp_time": "34.090978"
+    },
+    {
+      "best_effort_timestamp_time": "34.292800"
+    },
+    {
+      "best_effort_timestamp_time": "34.714800"
+    },
+    {
+      "best_effort_timestamp_time": "34.858844"
+    },
+    {
+      "best_effort_timestamp_time": "34.892844"
+    },
+    {
+      "best_effort_timestamp_time": "35.087733"
+    },
+    {
+      "best_effort_timestamp_time": "35.524844"
+    },
+    {
+      "best_effort_timestamp_time": "35.670889"
+    },
+    {
+      "best_effort_timestamp_time": "35.969789"
+    },
+    {
+      "best_effort_timestamp_time": "36.183844"
+    },
+    {
+      "best_effort_timestamp_time": "36.356956"
+    },
+    {
+      "best_effort_timestamp_time": "36.453011"
+    },
+    {
+      "best_effort_timestamp_time": "36.591578"
+    },
+    {
+      "best_effort_timestamp_time": "36.625867"
+    },
+    {
+      "best_effort_timestamp_time": "36.677144"
+    },
+    {
+      "best_effort_timestamp_time": "36.753844"
+    },
+    {
+      "best_effort_timestamp_time": "36.883789"
+    },
+    {
+      "best_effort_timestamp_time": "37.313122"
+    },
+    {
+      "best_effort_timestamp_time": "37.385344"
+    },
+    {
+      "best_effort_timestamp_time": "37.702578"
+    },
+    {
+      "best_effort_timestamp_time": "37.809789"
+    },
+    {
+      "best_effort_timestamp_time": "37.985367"
+    },
+    {
+      "best_effort_timestamp_time": "38.193856"
+    },
+    {
+      "best_effort_timestamp_time": "38.361267"
+    },
+    {
+      "best_effort_timestamp_time": "38.513756"
+    },
+    {
+      "best_effort_timestamp_time": "38.601800"
+    },
+    {
+      "best_effort_timestamp_time": "38.904267"
+    },
+    {
+      "best_effort_timestamp_time": "39.005489"
+    },
+    {
+      "best_effort_timestamp_time": "39.034256"
+    },
+    {
+      "best_effort_timestamp_time": "39.083800"
+    },
+    {
+      "best_effort_timestamp_time": "39.324767"
+    },
+    {
+      "best_effort_timestamp_time": "39.659856"
+    },
+    {
+      "best_effort_timestamp_time": "39.843944"
+    },
+    {
+      "best_effort_timestamp_time": "39.938867"
+    },
+    {
+      "best_effort_timestamp_time": "40.118700"
+    },
+    {
+      "best_effort_timestamp_time": "40.259778"
+    },
+    {
+      "best_effort_timestamp_time": "40.416878"
+    },
+    {
+      "best_effort_timestamp_time": "40.599822"
+    },
+    {
+      "best_effort_timestamp_time": "40.690767"
+    },
+    {
+      "best_effort_timestamp_time": "40.872778"
+    },
+    {
+      "best_effort_timestamp_time": "40.994511"
+    },
+    {
+      "best_effort_timestamp_time": "41.094778"
+    },
+    {
+      "best_effort_timestamp_time": "41.306411"
+    },
+    {
+      "best_effort_timestamp_time": "41.613800"
+    },
+    {
+      "best_effort_timestamp_time": "41.830333"
+    },
+    {
+      "best_effort_timestamp_time": "42.166933"
+    },
+    {
+      "best_effort_timestamp_time": "42.204811"
+    },
+    {
+      "best_effort_timestamp_time": "42.420533"
+    },
+    {
+      "best_effort_timestamp_time": "42.668889"
+    },
+    {
+      "best_effort_timestamp_time": "42.924733"
+    },
+    {
+      "best_effort_timestamp_time": "43.029878"
+    },
+    {
+      "best_effort_timestamp_time": "43.251000"
+    },
+    {
+      "best_effort_timestamp_time": "43.436800"
+    },
+    {
+      "best_effort_timestamp_time": "43.494022"
+    },
+    {
+      "best_effort_timestamp_time": "43.759789"
+    },
+    {
+      "best_effort_timestamp_time": "43.952267"
+    },
+    {
+      "best_effort_timestamp_time": "44.212889"
+    },
+    {
+      "best_effort_timestamp_time": "44.499700"
+    },
+    {
+      "best_effort_timestamp_time": "44.584978"
+    },
+    {
+      "best_effort_timestamp_time": "44.735844"
+    },
+    {
+      "best_effort_timestamp_time": "44.913833"
+    },
+    {
+      "best_effort_timestamp_time": "45.357267"
+    },
+    {
+      "best_effort_timestamp_time": "45.502722"
+    },
+    {
+      "best_effort_timestamp_time": "45.777711"
+    },
+    {
+      "best_effort_timestamp_time": "45.852733"
+    },
+    {
+      "best_effort_timestamp_time": "46.043800"
+    },
+    {
+      "best_effort_timestamp_time": "46.156511"
+    },
+    {
+      "best_effort_timestamp_time": "46.438689"
+    },
+    {
+      "best_effort_timestamp_time": "46.586811"
+    },
+    {
+      "best_effort_timestamp_time": "46.694789"
+    },
+    {
+      "best_effort_timestamp_time": "46.739789"
+    },
+    {
+      "best_effort_timestamp_time": "46.900900"
+    },
+    {
+      "best_effort_timestamp_time": "47.011733"
+    },
+    {
+      "best_effort_timestamp_time": "47.165044"
+    },
+    {
+      "best_effort_timestamp_time": "47.329711"
+    },
+    {
+      "best_effort_timestamp_time": "47.434289"
+    },
+    {
+      "best_effort_timestamp_time": "47.718678"
+    },
+    {
+      "best_effort_timestamp_time": "47.920856"
+    },
+    {
+      "best_effort_timestamp_time": "48.112767"
+    },
+    {
+      "best_effort_timestamp_time": "48.314978"
+    },
+    {
+      "best_effort_timestamp_time": "48.472878"
+    },
+    {
+      "best_effort_timestamp_time": "48.608767"
+    },
+    {
+      "best_effort_timestamp_time": "48.668856"
+    },
+    {
+      "best_effort_timestamp_time": "48.803678"
+    },
+    {
+      "best_effort_timestamp_time": "48.946711"
+    },
+    {
+      "best_effort_timestamp_time": "49.087556"
+    },
+    {
+      "best_effort_timestamp_time": "49.365744"
+    },
+    {
+      "best_effort_timestamp_time": "49.467656"
+    },
+    {
+      "best_effort_timestamp_time": "49.671933"
+    },
+    {
+      "best_effort_timestamp_time": "49.850411"
+    },
+    {
+      "best_effort_timestamp_time": "49.898667"
+    },
+    {
+      "best_effort_timestamp_time": "50.008900"
+    },
+    {
+      "best_effort_timestamp_time": "50.298633"
+    },
+    {
+      "best_effort_timestamp_time": "50.556733"
+    },
+    {
+      "best_effort_timestamp_time": "50.680744"
+    },
+    {
+      "best_effort_timestamp_time": "50.833833"
+    },
+    {
+      "best_effort_timestamp_time": "50.981789"
+    },
+    {
+      "best_effort_timestamp_time": "51.279811"
+    },
+    {
+      "best_effort_timestamp_time": "51.494978"
+    },
+    {
+      "best_effort_timestamp_time": "51.629678"
+    },
+    {
+      "best_effort_timestamp_time": "51.872700"
+    },
+    {
+      "best_effort_timestamp_time": "52.107633"
+    },
+    {
+      "best_effort_timestamp_time": "52.335378"
+    },
+    {
+      "best_effort_timestamp_time": "52.437633"
+    },
+    {
+      "best_effort_timestamp_time": "52.592589"
+    },
+    {
+      "best_effort_timestamp_time": "52.748678"
+    },
+    {
+      "best_effort_timestamp_time": "52.864678"
+    },
+    {
+      "best_effort_timestamp_time": "52.995656"
+    },
+    {
+      "best_effort_timestamp_time": "53.272611"
+    },
+    {
+      "best_effort_timestamp_time": "53.648622"
+    },
+    {
+      "best_effort_timestamp_time": "53.812633"
+    },
+    {
+      "best_effort_timestamp_time": "54.155778"
+    },
+    {
+      "best_effort_timestamp_time": "54.482411"
+    },
+    {
+      "best_effort_timestamp_time": "54.759000"
+    },
+    {
+      "best_effort_timestamp_time": "55.075600"
+    },
+    {
+      "best_effort_timestamp_time": "55.310811"
+    },
+    {
+      "best_effort_timestamp_time": "55.453722"
+    },
+    {
+      "best_effort_timestamp_time": "55.672622"
+    },
+    {
+      "best_effort_timestamp_time": "55.934700"
+    },
+    {
+      "best_effort_timestamp_time": "56.346456"
+    },
+    {
+      "best_effort_timestamp_time": "56.802689"
+    },
+    {
+      "best_effort_timestamp_time": "57.236567"
+    },
+    {
+      "best_effort_timestamp_time": "57.662522"
+    },
+    {
+      "best_effort_timestamp_time": "57.821256"
+    },
+    {
+      "best_effort_timestamp_time": "58.105622"
+    },
+    {
+      "best_effort_timestamp_time": "58.614378"
+    },
+    {
+      "best_effort_timestamp_time": "58.986544"
+    },
+    {
+      "best_effort_timestamp_time": "59.445556"
+    },
+    {
+      "best_effort_timestamp_time": "59.776622"
+    },
+    {
+      "best_effort_timestamp_time": "60.118633"
+    },
+    {
+      "best_effort_timestamp_time": "60.193689"
+    },
+    {
+      "best_effort_timestamp_time": "60.485556"
+    },
+    {
+      "best_effort_timestamp_time": "60.819567"
+    },
+    {
+      "best_effort_timestamp_time": "61.234656"
+    },
+    {
+      "best_effort_timestamp_time": "61.461511"
+    },
+    {
+      "best_effort_timestamp_time": "61.587033"
+    },
+    {
+      "best_effort_timestamp_time": "61.682622"
+    },
+    {
+      "best_effort_timestamp_time": "64.144056"
+    },
+    {
+      "best_effort_timestamp_time": "64.154611"
+    },
+    {
+      "best_effort_timestamp_time": "64.300622"
+    },
+    {
+      "best_effort_timestamp_time": "64.328678"
+    },
+    {
+      "best_effort_timestamp_time": "64.435844"
+    },
+    {
+      "best_effort_timestamp_time": "64.446800"
+    },
+    {
+      "best_effort_timestamp_time": "64.496278"
+    }
+  ],
+  "programs": [],
+  "streams": [
+    {
+      "width": 1080,
+      "height": 1920,
+      "r_frame_rate": "90000/1",
+      "avg_frame_rate": "14400000/2904559",
+      "time_base": "1/90000",
+      "disposition": {
+        "default": 1,
+        "dub": 0,
+        "original": 0,
+        "comment": 0,
+        "lyrics": 0,
+        "karaoke": 0,
+        "forced": 0,
+        "hearing_impaired": 0,
+        "visual_impaired": 0,
+        "clean_effects": 0,
+        "attached_pic": 0,
+        "timed_thumbnails": 0
+      },
+      "tags": {
+        "creation_time": "2026-11-08T10:50:50.000000Z",
+        "language": "eng",
+        "handler_name": "VideoHandle",
+        "vendor_id": "[0][0][0][0]"
+      }
+    }
+  ]
+}

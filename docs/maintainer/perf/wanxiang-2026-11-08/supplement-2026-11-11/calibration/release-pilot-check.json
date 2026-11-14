@@ -1,0 +1,17 @@
+{
+  "fcitx": {
+    "options_verified": true,
+    "exact_commits_verified": true,
+    "calibration_text": "你早上好"
+  },
+  "direct": {
+    "options_verified": true,
+    "exact_commits_verified": true,
+    "calibration_text": "你早上好"
+  },
+  "current": {
+    "options_verified": true,
+    "exact_commits_verified": true,
+    "calibration_text": "你早上好"
+  }
+}

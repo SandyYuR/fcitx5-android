@@ -1,0 +1,25 @@
+{
+  "samples": 36,
+  "selections": 216,
+  "summary_statistics_checked": 144,
+  "records": [
+    {
+      "vm": "forward",
+      "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+      "samples": 18,
+      "selections": 108,
+      "complete_balanced_orders": true,
+      "matches_predispatch_sources_apks_probe_seed": true,
+      "metrics_match_summary": true
+    },
+    {
+      "vm": "reverse",
+      "cpu_model": "AMD EPYC 7763 64-Core Processor",
+      "samples": 18,
+      "selections": 108,
+      "complete_balanced_orders": true,
+      "matches_predispatch_sources_apks_probe_seed": true,
+      "metrics_match_summary": true
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "products": {
+    "fcitx": {
+      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+      "release": "nightly-0.1.3-715-g5fb6bca3-20261021-205826",
+      "asset": {
+        "id": 663773371,
+        "name": "org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+        "size": 11906742,
+        "digest": "sha256:f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
+        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-715-g5fb6bca3-20261021-205826/org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+        "updated_at": "2026-10-21T20:58:32Z"
+      }
+    },
+    "direct": {
+      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "release": "nightly-0.1.3-802-g2e48466e-20261107-112347",
+      "asset": {
+        "id": 720494660,
+        "name": "direct.apk",
+        "size": 10238250,
+        "digest": "sha256:b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
+        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-802-g2e48466e-20261107-112347/direct.apk",
+        "updated_at": "2026-11-07T11:23:53Z"
+      }
+    }
+  },
+  "harness": {
+    "CandidateTapTest.kt": "48bed3d958ecc8175dd576096d40d01aa3b4aa65909a90846617eb9a57cfce85",
+    "ScreenFixtureTest.kt": "8b5eb8e2bf5cc9e2116c8acb96fb66662283050a5b4e1719567c07fe570540c4"
+  },
+  "apks": {
+    "direct-tests.apk": "83d1f6dd9b13c8f932649ed5182d7de370d43ad99b7ba3164e48c10d14dbdd89",
+    "direct.apk": "641e2ddfd778f8bf87c02b9c0175f1f1490ecda5257f9e84031b7bf5c110ceaf",
+    "fcitx-tests.apk": "1d12c08e9746101848eae9e03da6d16713a8e4c4414fb509963868b89f8f6e04",
+    "fcitx.apk": "2ad70e9255701dd089bb8507b5f51edba9f260b51b7dc402bca6f89e7c0dbd14"
+  }
+}
