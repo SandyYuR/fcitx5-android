@@ -12,6 +12,18 @@
 | `direct-rime/src/engine/java/`、`direct-rime/src/main/cpp/` | 引擎接口、快照和 JNI，主应用与诊断模块共用 |
 | `native/rime-sdk.lock.json`、`native/rime-prelude` | 固定引擎 SDK 来源及唯一的共享预设子模块 |
 
+直连后端位于 `app/src/main/java/org/fcitx/fcitx5/android/core/`。`DirectRimeBackend` 保留唯一 native owner、实时 Binding／Snapshot／started、输入 epoch、keyGate 与事件交付；展示缓存及发布版本由 `DirectRimePublicationState` 持有。
+
+| 职责 | 当前入口 |
+| --- | --- |
+| 管理命令解码／profile 操作 | `DirectRimeManagementCommands`、`DirectRimeProfileOperations` |
+| 展示转换／菜单／发布缓存／提示 | `DirectRimePresentation`、`DirectRimeStatusMenu`、`DirectRimePublicationState`、`DirectRimeStatusHintScheduler` |
+| 引擎激活／槽切换 | `DirectRimeEngineOperations` |
+| 更新准备／维护与绑定恢复 | `DirectRimeMaintenanceFiles`、`DirectRimeMaintenanceCoordinator` |
+| 候选／音节目标与光标校验 | `DirectRimeInteractionTargets` |
+
+改动先从真实 API／服务调用定位职责类与测试，沿用既有 owner、dispatcher 和 scope。职责类不得建立可独立更新的实时绑定、native 快照或输入门控副本；保留动态状态读取、generation／native revision／candidateVersion／tabsRevision 各自的校验、取消恢复及事件交付顺序。
+
 完整手册在 `docs` 分支，使用独立 worktree 或[文档站][manual]，不在代码分支新建 `docs/`。fork 使用上游文档时核对代码差异；本仓库不依赖维护者私有脚本。
 
 ## 开始修改前
