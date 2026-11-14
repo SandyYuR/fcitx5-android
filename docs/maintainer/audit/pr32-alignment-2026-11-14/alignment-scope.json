@@ -1,0 +1,23 @@
+{
+  "base": "0f3e334350c183eb4699ef7b7f74d676efc44056",
+  "head": "4a87997ac115badf407dc741ffb8d124879a665b",
+  "code_rebase": "already up to date",
+  "code_ancestor": "aafc6d583f2096bc26ae621d7cc18bd627ae22d2",
+  "application_sources_unchanged": true,
+  "changed_files": [
+    "AGENTS.md"
+  ],
+  "agents_bytes": 8771,
+  "agents_source_sha256": "855474050a65800c7ba3bc5a61890c7e117a863f81c376a742ccd04276e2abb5",
+  "guidance_sources": [
+    "https://agents.md/",
+    "https://learn.chatgpt.com/docs/agent-configuration/agents-md"
+  ],
+  "documentation_base": "9337c8c6a1f5cc61a2f2eba56d766bf985c0c539",
+  "documentation_auto_merge_tree": "545529eff1c4268f30bab9a366d9fe15f3bf23c7",
+  "documentation_rebased_tree_before_manual_edits": "545529eff1c4268f30bab9a366d9fe15f3bf23c7",
+  "docs_old_head": "30c880b1df5a892ae151415370e52430561cf3e8",
+  "docs_replay_head": "bed42f0d8434ff68b59500ac871f4748567d2c38",
+  "replayed_commits": 20,
+  "range_diff_all_equal": true
+}
