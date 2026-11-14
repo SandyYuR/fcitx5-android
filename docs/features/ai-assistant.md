@@ -8,10 +8,27 @@ AI 助手已于 2026-11-05 合入默认分支 `fx-rime-only`。本页描述内�
 在「设置 → 键盘 → 工具栏 → 编辑按钮」中，点击 **Kawaii Bar（顶行）的「＋」→ AI 助手 → 保存**。
 也可以从「可选按钮」区点击 AI 助手，选择加入 Kawaii Bar 或 Status Area（状态区）。
 动作 ID 为 `ai_assistant`，设置页和运行时共用同一份可配置动作目录。
-默认布局不被改动。短按打开；助手已显示时再次短按同一 AI 按钮会关闭，取消未完成请求并恢复原应用的临时预览。长按进入助手设置。默认图标是 Google Material Symbols
+默认布局不被改动。短按打开当前选用的助手；助手已显示时再次短按同一 AI 按钮会关闭，取消未完成请求并恢复原应用的临时预览。长按进入当前助手的设置。默认图标是 Google Material Symbols
 的 `auto_awesome`（Outlined / 24px，Apache-2.0），支持 `toolbar.ai_assistant` 图标主题槽。
 
+## 选择和修改助手
+
+打开 **设置 → 便捷功能 → JS 插件设置 → AI 按钮使用的助手**，可以选择内置助手，也可以选择已导入插件提供的 App。一个插件提供多个 App 时分别列出；纯语音插件不会进入此列表。短按 AI 按钮运行所选助手，长按配置它所属的插件。删除所选插件，或升级后不再提供所选 App 时，输入法清除失效选择并回退到内置助手；之后重新导入同 ID 插件也不会自动复活旧选择。
+
+要修改内置助手的逻辑，无需重新打包输入法：
+
+1. 打开 **JS 插件设置 → AI 助手 → 导出源码**，保存当前使用的 `.js` 文件。
+2. 修改脚本，保留插件 ID `llm-assistant` 及需要继续使用的 App ID `llm_assistant`。
+3. 回到该插件的设置，选择 **导入替换**，核对名称、版本、能力和网络主机后确认。替换不要求提高版本号；相同字段 ID 对应的设置和密钥保留，旧授权会撤销并在使用时重新核对。
+4. 自定义版本会持续生效，输入法升级不会自动切回内置脚本。需要切回时，在该插件设置选择 **恢复内置**。
+
+也可以给自己的插件使用不同 ID，通过列表的 **导入插件…** 安装，再将它选为 AI 按钮使用的助手。不同插件的设置、密钥和授权互相独立。
+
+源码导出只包含当前脚本，不附带宿主保存的设置、授权或密钥；自行写进源码的内容会原样导出。导入替换使用本地文件，不会自动从网络检查或下载 JS 更新。
+
 ## 配置和使用
+
+以下参数、界面和发送流程对应内置助手；自定义插件的字段和操作由其脚本决定。
 
 1. 打开「设置 → 便捷功能 → JS 插件设置 → AI 助手」，也可长按 AI 按钮。
    「设置 → 输入与候选 → 语音输入 → JS 插件设置」仍保留，两个入口打开同一页面。
@@ -89,7 +106,7 @@ Chat Completions 同样检查 `finish_reason` 和 `refusal`，不会把达到长
 6. 请求不跟随重定向。因此中转站返回跳转时，不会把文本或密钥自动转发给另一个地址。
    模型查询 `/models` 与文本请求使用同一目标主机和协议认证方式。
 
-脚本内置在 APK 的 `assets/bundled/js-apps/llm-assistant.js` 中，也保留 JS 导入机制。
+默认脚本位于 APK 的 `assets/bundled/js-apps/llm-assistant.js`，可从插件设置导出并明确替换。
 后续在本输入法中换中转站地址只需改设置，无需编辑 JS 或重新打包 APK。
 本适配版依赖 App 的动态端点授权，不能直接用于只允许静态 `hosts` 声明的原版 Foxy。
 
@@ -101,11 +118,11 @@ Chat Completions 同样检查 `finish_reason` 和 `refusal`，不会把达到长
 
 内置脚本合入用户提供的 `llm-assistant-1.23.js` 新增用途和三种语言文案，
 适配版本为 `1.23.3-fx`。保留三协议和动态端点，补齐生成、回复、确认与失败的完整状态处理。
-内置助手优先于历史同 ID 导入记录，已有设置和密钥继续沿用；外部文件不能再覆盖内置保留 ID。
+没有主动替换时，内置助手继续优先于历史同 ID 导入记录，已有设置和密钥沿用。只有从插件设置确认的同 ID 替换才会启用自定义版本；普通“导入插件…”仍保护内置 ID，防止误覆盖。
 
 本次实现针对上述 LLM 插件，支持以上三种协议的非流式文本请求。
 尚不覆盖 Foxy 文档中的所有功能：JS App 的 SSE/WebSocket、旧版 flat fields/buttons 布局、
-任意 `js.*` 布局命令和多应用选择器未实现。未加入图像输入、多轮对话和工具执行。
+任意 `js.*` 布局命令仍未实现。已注册的 App 可通过助手选择设置，或在“编辑按钮”中从“JS 工具”模板绑定成直达动作。未加入图像输入、多轮对话和工具执行。
 
 协议参考：[Anthropic Messages](https://platform.claude.com/docs/en/api/messages/create)、
 [Anthropic API 版本](https://platform.claude.com/docs/en/api/versioning)、
@@ -117,7 +134,8 @@ Chat Completions 同样检查 `finish_reason` 和 `refusal`，不会把达到长
 ./gradlew -PbuildABI=arm64-v8a :app:testFxDebugUnitTest \
   --tests 'org.fcitx.fcitx5.android.input.voice.js.*' \
   --tests 'org.fcitx.fcitx5.android.input.bar.*' \
-  --tests 'org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.ButtonsCustomizerPersistenceTest' \
+  --tests 'org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.ButtonsCustomizerAiButtonTest' \
+  --tests 'org.fcitx.fcitx5.android.ui.main.JsPluginManagementUiTest' \
   :app:assembleFxDebug
 ```
 
@@ -126,4 +144,4 @@ Chat Completions 同样检查 `finish_reason` 和 `refusal`，不会把达到长
 另有 Android 原生图形渲染检查，覆盖浅色/深色布局、编辑区高度、Material 按钮和选择项；
 窗口测试覆盖无背景遮罩、不抢焦点、拖动边界、拖动后输入、编辑手势及较高键盘下的布局。
 另有实际原生按钮、生产 QuickJS 回调、模拟 HTTP 与真实文本编辑器输入连接的流程测试，覆盖发送、只读回复、确认上屏、失败保留和取消恢复；三协议均检查无结果时的旧 `confirm` 事件和旧回复失效。
-测试环境无 Android 设备，也无模型服务的 API 密钥；未进行真机 UI 和真实模型请求验证。
+本轮固定验证范围与实际结果见 [JS 插件工具整合记录](/maintainer/changes/2026-11-13-js-plugin-tools)。其中 `rime` AVD 的结果属于模拟手机设备回归，不代表物理真机；真实模型服务仍需使用各自账号与密钥另行验证。
