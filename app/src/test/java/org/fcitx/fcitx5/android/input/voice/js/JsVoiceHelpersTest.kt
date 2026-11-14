@@ -4,6 +4,7 @@ package org.fcitx.fcitx5.android.input.voice.js
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.nio.ByteBuffer
@@ -34,6 +35,17 @@ class JsVoiceHelpersTest {
         assertFalse(JsVoiceHelpers.isAllowedUrl("wss://evil.example.com/x", hosts))
         assertFalse(JsVoiceHelpers.isAllowedUrl("wss://dashscope.aliyuncs.com@evil.example.com/x", hosts))
         assertFalse(JsVoiceHelpers.isAllowedUrl("https://dashscope.aliyuncs.com.evil.example.com/", hosts))
+    }
+
+    @Test
+    fun authorizeHostAcceptsUrlsAndBareHosts() {
+        assertEquals("dashscope.aliyuncs.com",
+            JsVoiceHelpers.authorizeHost("wss://dashscope.aliyuncs.com/api-ws/v1/inference"))
+        assertEquals("dashscope.aliyuncs.com", JsVoiceHelpers.authorizeHost("dashscope.aliyuncs.com"))
+        assertEquals("dashscope.aliyuncs.com", JsVoiceHelpers.authorizeHost("https://dashscope.aliyuncs.com."))
+        assertNull(JsVoiceHelpers.authorizeHost("ws://dashscope.aliyuncs.com/x"))
+        assertNull(JsVoiceHelpers.authorizeHost("not a host"))
+        assertNull(JsVoiceHelpers.authorizeHost(""))
     }
 
     @Test

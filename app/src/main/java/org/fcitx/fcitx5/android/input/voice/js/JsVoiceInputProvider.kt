@@ -334,6 +334,7 @@ internal object JsVoiceStubNatives {
         val binary = JsVoiceBinary()
         fun decode(value: String) = binary.decode(value)
         js.function("__n_locale") { locale }
+        js.function("__n_wsAuthorize") { throw IllegalStateException("network is not available here") }
         js.function("__n_wsConnect") { throw IllegalStateException("network is not available here") }
         js.function("__n_wsWaitOpen") { null }
         js.function("__n_wsSend") { null }
@@ -411,6 +412,7 @@ internal class JsVoiceNet(
             policy.requireApproval()
             encode(JsVoiceCrypto.hmacSha1(text(args, 0), text(args, 1), secretFor))
         }
+        js.asyncFunction("__n_wsAuthorize") { args -> policy.authorize(text(args, 0)) }
         js.function("__n_wsConnect") { args ->
             connect(
                 url = text(args, 0),

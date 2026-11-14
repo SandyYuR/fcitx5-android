@@ -53,6 +53,17 @@ internal object JsVoiceHelpers {
         return parsed.takeIf { it.username.isEmpty() && it.password.isEmpty() }
     }
 
+    /**
+     * foxy.websocket.authorize 接受完整 wss:// 地址或裸主机名两种写法；两种都要归一到同一个主机名，
+     * 否则插件写 "api.example.com" 会被当成未声明主机。
+     */
+    fun authorizeHost(value: String): String? {
+        val text = value.trim()
+        if (text.isEmpty()) return null
+        val parsed = if ("://" in text) secureUrl(text) else ("https://" + text).toHttpUrlOrNull()
+        return parsed?.takeIf { it.username.isEmpty() && it.password.isEmpty() }?.host?.trimEnd('.')
+    }
+
     fun gzip(data: ByteArray): ByteArray {
         val bytes = ByteArrayOutputStream()
         GZIPOutputStream(bytes).use { it.write(data) }

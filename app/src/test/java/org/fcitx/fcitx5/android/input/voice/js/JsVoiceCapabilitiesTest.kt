@@ -31,7 +31,7 @@ class JsVoiceCapabilitiesTest {
             // 尚未实现的能力必须报 false，否则插件会走进不存在的分支。
             assertFalse(caps["http"]!!.jsonObject["stream"]!!.jsonPrimitive.boolean)
             assertFalse(caps["http"]!!.jsonObject["cancelStream"]!!.jsonPrimitive.boolean)
-            assertFalse(caps["websocket"]!!.jsonObject["authorize"]!!.jsonPrimitive.boolean)
+            assertTrue(caps["websocket"]!!.jsonObject["authorize"]!!.jsonPrimitive.boolean)
             assertFalse(caps["websocket"]!!.jsonObject["onMessage"]!!.jsonPrimitive.boolean)
             assertTrue(caps["settings"] is JsonNull)
         } finally { js.close() }

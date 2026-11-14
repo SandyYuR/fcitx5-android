@@ -91,6 +91,8 @@ var foxy = {
     ended: function () { __events.push({ ended: true }); }
   },
   websocket: {
+    // connect 是同步的，插件必须先 await authorize 拿到主机授权；返回 false 表示用户拒绝。
+    authorize: function (url) { return __n_wsAuthorize(__str(url)); },
     connect: function (url, secretField, authHeader, authPrefix, headersJson) {
       return __native.wsConnect(
         __str(url), __str(secretField), __str(authHeader), __str(authPrefix), __str(headersJson));
@@ -152,7 +154,7 @@ var foxy = {
     credentials: { list: true },
     voice: { ready: true, partial: true, final: true, error: true, ended: true },
     websocket: {
-      authorize: false, connect: true, waitOpen: true, send: true, sendBinary: true,
+      authorize: true, connect: true, waitOpen: true, send: true, sendBinary: true,
       sendGzipFrame: true, close: true, onMessage: false, onBinary: false, onError: false, onClose: false
     },
     http: {

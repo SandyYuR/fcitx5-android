@@ -197,19 +197,7 @@ internal object JsApps {
                     val options = Json.parseToJsonElement(args[0].toString()).jsonObject
                     val policy = JsAppEndpointPolicy(spec.hosts, settings)
                     val host = policy.checkUrl(options.text("url")).host.trimEnd('.')
-                    if (host !in JsVoiceHostPermissions.approvedHosts(spec.id)) {
-                        val approved = withContext(Dispatchers.Main.immediate) {
-                            ensureCurrent()
-                            dialog.confirm(service.getString(R.string.js_voice_network_title),
-                                service.getString(R.string.js_app_endpoint_message, host),
-                                service.getString(R.string.js_app_allow), service.getString(android.R.string.cancel))
-                        }
-                        check(approved) { "Network permission denied" }
-                        synchronized(this@Session) {
-                            ensureCurrent()
-                            JsVoiceHostPermissions.approve(spec.id, JsVoiceHostPermissions.approvedHosts(spec.id) + host)
-                        }
-                    }
+                    check(approveHost(host)) { "Network permission denied" }
                     JsAppHttp(checkUrl = { url ->
                         requirePermission("network.request")
                         val parsed = policy.checkUrl(url)
@@ -219,6 +207,17 @@ internal object JsApps {
                         require(fields.any { it.key == key && it.isSecret }) { "Undeclared credential" }
                         JsVoiceSettingsStore.secret(spec.id, key)
                     }).request(options)
+                }
+                // foxy.websocket.authorize：App 的 WebSocket 连接是同步的，插件必须在 connect 前先拿到
+                // 主机授权。返回 true/false 让插件自己决定要不要继续，而不是在这里抛错。
+                engine.asyncFunction("__n_wsAuthorize") { args ->
+                    requirePermission("network.request")
+                    val host = JsVoiceHelpers.authorizeHost(args.getOrNull(0).toString())
+                        ?: throw IllegalArgumentException("Invalid WebSocket host")
+                    require(JsAppEndpointPolicy(spec.hosts, settings).allows(host)) {
+                        "Endpoint must be declared or configured in plugin settings"
+                    }
+                    approveHost(host)
                 }
                 engine.asyncFunction("__n_appUi") { args -> withContext(Dispatchers.Main.immediate) {
                     ensureCurrent()
@@ -275,6 +274,26 @@ internal object JsApps {
                 catch (error: Exception) { if (!closed) dialog.showError(error.message.orEmpty()) }
                 finally { working = false; if (!closed) dialog.setBusy(false) }
             }
+        }
+
+        /**
+         * 同一插件的主机授权对所有 App 共享：用户在这里点过允许，别的 App 的同一主机不再重复弹窗。
+         * 用户拒绝时返回 false，由调用方决定是抛错还是让插件降级。
+         */
+        private suspend fun approveHost(host: String): Boolean {
+            if (host in JsVoiceHostPermissions.approvedHosts(spec.id)) return true
+            val approved = withContext(Dispatchers.Main.immediate) {
+                ensureCurrent()
+                dialog.confirm(service.getString(R.string.js_voice_network_title),
+                    service.getString(R.string.js_app_endpoint_message, host),
+                    service.getString(R.string.js_app_allow), service.getString(android.R.string.cancel))
+            }
+            if (!approved) return false
+            synchronized(this@Session) {
+                ensureCurrent()
+                JsVoiceHostPermissions.approve(spec.id, JsVoiceHostPermissions.approvedHosts(spec.id) + host)
+            }
+            return true
         }
 
         fun requirePermission(permission: String) {
