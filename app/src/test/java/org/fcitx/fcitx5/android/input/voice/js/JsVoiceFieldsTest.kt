@@ -108,4 +108,16 @@ class JsVoiceFieldsTest {
         values["auth"] = "legacy"
         assertEquals(mapOf("resource" to "big-hours"), JsVoiceFields.defaultsAfterChange(dependentFields, "auth", values))
     }
+
+    @Test
+    fun onlyDeclaredOrdinaryFieldsAreWritableFromJavaScript() {
+        val fields = JsVoiceFields.parse(declaration)
+        assertTrue(JsVoiceFields.writable(fields, "mode"))
+        assertTrue(JsVoiceFields.writable(fields, "stripPunctuation"))
+        // 密钥项：值只在宿主侧解密使用，插件不能覆盖。
+        assertFalse(JsVoiceFields.writable(fields, "apiKey"))
+        // 未声明的键：写进去只会变成没人读的垃圾。
+        assertFalse(JsVoiceFields.writable(fields, "notDeclared"))
+        assertFalse(JsVoiceFields.writable(emptyList(), "mode"))
+    }
 }

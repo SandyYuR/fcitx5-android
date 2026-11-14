@@ -31,6 +31,9 @@ var __native = {
   hmacSha1Base64: __n_hmacSha1Base64
 };
 function __str(value) { return value === undefined || value === null ? "" : String(value); }
+// 只有宿主真的能落盘时才挂 foxy.settings：设置页用的占位宿主没有 __n_appSettings，
+// 挂一个必定抛错的函数会让插件误以为能存。
+var __hasSettings = typeof __n_appSettings === "function";
 var foxy = {
   locale: __native.locale(),
   plugin: {
@@ -52,15 +55,34 @@ var foxy = {
     commit: function (text) { return __n_appEditor("commit", __str(text)); }
   },
   credentials: { list: function () { return JSON.parse(__n_appCredentials()); } },
-  ui: { dialog: {
-    show: function (spec) { return spec; },
-    update: function (spec) { return __n_appUi("update", JSON.stringify(spec)); },
-    setValue: function (id, value) { return __n_appUi("setValue", JSON.stringify({id: id, value: value})); },
-    setEnabled: function (id, enabled) { return __n_appUi("setEnabled", JSON.stringify({id: id, enabled: enabled})); },
-    setLoading: function (loading) { return __n_appUi("setLoading", JSON.stringify({loading: loading})); },
-    setError: function (message) { return __n_appUi("setError", JSON.stringify({message: message})); },
-    close: function () { return __n_appUi("close", "{}"); }
-  } },
+  ui: {
+    text: function (key, label, defaultValue, settings) {
+      __fields.push(__field("text", key, label, defaultValue, settings, null)); return defaultValue;
+    },
+    secret: function (key, label, settings) {
+      __fields.push(__field("secret", key, label, "", settings, null)); return "";
+    },
+    select: function (key, label, options, defaultValue, settings) {
+      __fields.push(__field("select", key, label, defaultValue, settings, __options(options)));
+      return defaultValue;
+    },
+    switch: function (key, label, defaultValue, settings) {
+      __fields.push(__field("switch", key, label, defaultValue === true ? "true" : "false", settings, null));
+      return defaultValue;
+    },
+    number: function (key, label, defaultValue, settings) {
+      __fields.push(__field("number", key, label, defaultValue, settings, null)); return defaultValue;
+    },
+    dialog: {
+      show: function (spec) { return spec; },
+      update: function (spec) { return __n_appUi("update", JSON.stringify(spec)); },
+      setValue: function (id, value) { return __n_appUi("setValue", JSON.stringify({id: id, value: value})); },
+      setEnabled: function (id, enabled) { return __n_appUi("setEnabled", JSON.stringify({id: id, enabled: enabled})); },
+      setLoading: function (loading) { return __n_appUi("setLoading", JSON.stringify({loading: loading})); },
+      setError: function (message) { return __n_appUi("setError", JSON.stringify({message: message})); },
+      close: function () { return __n_appUi("close", "{}"); }
+    }
+  },
   voice: {
     ready: function () { __events.push({ ready: true }); },
     partial: function (text) { __events.push({ partial: String(text) }); },
@@ -109,7 +131,47 @@ var foxy = {
       return __native.sliceBase64(__str(b64), __str(offset), __str(length));
     },
     gunzipUtf8: function (b64) { return __native.gunzipUtf8(__str(b64)); }
+  },
+  // Foxy 的 foxy.capabilities 直接暴露原生桥对象；这里给一张按同样形状组织的白名单，
+  // 让插件用 `if (foxy.capabilities.http.stream)` 这类探测拿到正确结果，同时不把 __n_* 内部入口
+  // 固化成公开 API。新增一项能力时同步改这里，否则插件会以为它不存在。
+  capabilities: {
+    locale: true,
+    plugin: { register: true },
+    app: { register: true, sleep: true },
+    ui: {
+      text: true, secret: true, select: true, switch: true, number: true,
+      dialog: {
+        show: true, update: true, setValue: true, setEnabled: true,
+        setLoading: true, setError: true, close: true
+      }
+    },
+    editor: {
+      getSelection: true, getText: true, setComposition: true, clearComposition: true, commit: true
+    },
+    credentials: { list: true },
+    voice: { ready: true, partial: true, final: true, error: true, ended: true },
+    websocket: {
+      authorize: false, connect: true, waitOpen: true, send: true, sendBinary: true,
+      sendGzipFrame: true, close: true, onMessage: false, onBinary: false, onError: false, onClose: false
+    },
+    http: {
+      request: true, post: true, supportsConfiguredEndpoints: true,
+      stream: false, cancelStream: false, onChunk: false, onEnd: false, onError: false
+    },
+    audio: { wavBase64: true },
+    crypto: { hmacSha1Base64: true },
+    binary: {
+      concatBase64: true, utf8Base64: true, base64Utf8: true, byteLength: true,
+      readUInt8: true, readInt32BE: true, sliceBase64: true, gunzipUtf8: true
+    },
+    settings: __hasSettings ? { set: true } : null
   }
+};
+// foxy 原版只在原生桥带 settings 时才挂这个对象，缺省时属性根本不存在（不是 null）；
+// 差别在 typeof 上，所以这里也照做，而不是在字面量里写 null。
+if (__hasSettings) foxy.settings = {
+  set: function (key, value) { return __n_appSettings(__str(key), __str(value)); }
 };
 
 function __field(kind, key, label, defaultValue, settings, options) {
@@ -145,30 +207,8 @@ function __options(list) {
 // yields an empty list rather than breaking the settings screen.
 function __describe(locale) {
   __fields = [];
-  var ui = {
-    text: function (key, label, defaultValue, settings) {
-      __fields.push(__field("text", key, label, defaultValue, settings, null));
-      return defaultValue;
-    },
-    secret: function (key, label, settings) {
-      __fields.push(__field("secret", key, label, "", settings, null));
-      return "";
-    },
-    select: function (key, label, options, defaultValue, settings) {
-      __fields.push(__field("select", key, label, defaultValue, settings, __options(options)));
-      return defaultValue;
-    },
-    switch: function (key, label, defaultValue, settings) {
-      __fields.push(__field("switch", key, label, defaultValue === true ? "true" : "false", settings, null));
-      return defaultValue;
-    },
-    number: function (key, label, defaultValue, settings) {
-      __fields.push(__field("number", key, label, defaultValue, settings, null));
-      return defaultValue;
-    }
-  };
   try {
-    if (__plugin && typeof __plugin.configure === "function") __plugin.configure(ui, __str(locale));
+    if (__plugin && typeof __plugin.configure === "function") __plugin.configure(foxy.ui, __str(locale));
   } catch (e) {
     __fields = [];
   }

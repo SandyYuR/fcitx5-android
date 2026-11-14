@@ -81,6 +81,15 @@ internal object JsVoiceFields {
         )
     }
 
+    /**
+     * `foxy.settings.set` 能写哪些键：只有插件自己声明过的普通项。
+     *
+     * 密钥项永远不可写——它的值只在宿主建立连接时解密使用，插件不该有机会覆盖；
+     * 未声明的键也不接受，否则插件能往偏好文件里塞任意键值。
+     */
+    fun writable(fields: List<JsVoiceField>, key: String): Boolean =
+        fields.any { it.key == key && !it.isSecret }
+
     /** 递归判断 `visibleWhen`：`{key,value}` 与 `{all:[...]}` 两种形态。 */
     fun isVisible(field: JsVoiceField, values: Map<String, String>): Boolean =
         matches(field.visibleWhen, values)

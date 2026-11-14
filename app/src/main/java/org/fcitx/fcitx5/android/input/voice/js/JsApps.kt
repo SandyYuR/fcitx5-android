@@ -182,6 +182,16 @@ internal object JsApps {
                     requirePermission("credentials.list")
                     JsonArray(configuredSecrets.map(::JsonPrimitive)).toString()
                 }
+                engine.function("__n_appSettings") { args ->
+                    val key = args.getOrNull(0).toString()
+                    val value = args.getOrNull(1)?.toString().orEmpty()
+                    // 只允许写插件自己声明过的普通项：密钥只在宿主侧解密使用，插件不该有机会覆盖它；
+                    // 未声明的键写进去也只会变成没人读的垃圾，所以直接拒绝而不是静默接受。
+                    require(JsVoiceFields.writable(fields, key)) { "Undeclared setting: $key" }
+                    JsVoiceSettingsStore.setValue(spec.id, key, value)
+                    synchronized(this@Session) { settings = settings + (key to value) }
+                    null
+                }
                 engine.asyncFunction("__n_appHttp") { args ->
                     requirePermission("network.request")
                     val options = Json.parseToJsonElement(args[0].toString()).jsonObject
