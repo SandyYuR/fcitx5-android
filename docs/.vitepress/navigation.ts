@@ -98,7 +98,10 @@ const maintenance = [
     { text: '文档维护与分类约定', link: '/maintainer/documentation' },
   ] },
   { text: '代码与文档对照', collapsed: false, items: [
-      { text: 'JS 插件工具整合 · 2026-11-13', link: '/maintainer/changes/2026-11-13-js-plugin-tools' },
+    { text: '后端职责分批拆分 · 2026-11-14', link: '/maintainer/changes/2026-11-14-direct-rime-responsibility-splits' },
+    { text: '后端发布状态拆分 · 2026-11-14', link: '/maintainer/changes/2026-11-14-direct-rime-publication-state' },
+    { text: '后端展示与维护重构 · 2026-11-13', link: '/maintainer/changes/2026-11-13-direct-rime-backend-seams' },
+    { text: 'JS 插件工具整合 · 2026-11-13', link: '/maintainer/changes/2026-11-13-js-plugin-tools' },
     { text: '万象 EVO 方案排查 · 2026-11-12', link: '/maintainer/changes/2026-11-12-evo-profile-diagnosis' },
     { text: '提交分类整理 · 2026-11-07', link: '/maintainer/changes/2026-11-07-history-squash' },
     { text: '引擎同步与输入修复 · 2026-11-06', link: '/maintainer/changes/2026-11-06-engine-input-fixes' },
@@ -125,6 +128,7 @@ const maintenance = [
   { text: '中州鹅 · 历史与证据', collapsed: true, items: [
     { text: '直连版历史阅读路线', link: '/maintainer/history/' },
     { text: '全部验证与性能记录', link: '/maintainer/evidence' },
+    { text: '2026-11-14 职责拆分性能对照', link: '/maintainer/history/direct-rime-refactor-performance-2026-11-14' },
     { text: '2026-11-10 输入链路可靠性与优化', link: '/maintainer/history/input-reliability-2026-11-10' },
     { text: '2026-11-06 直连层与同类项目审阅', link: '/maintainer/history/direct-rime-review-2026-11-06' },
     { text: '2026-10-31 审阅修复', link: '/maintainer/history/review-fixes-2026-10-31' },

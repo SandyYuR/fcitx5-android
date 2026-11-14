@@ -1,0 +1,3 @@
+# Preserve verified evidence bytes and SHA-256 on every checkout platform.
+*.json -text -whitespace
+*.zip -text

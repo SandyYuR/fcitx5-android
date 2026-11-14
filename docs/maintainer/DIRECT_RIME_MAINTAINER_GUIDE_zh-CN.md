@@ -21,6 +21,32 @@
 当前只有 `native/rime-prelude` 一个子模块；引擎改为下载固定版本的 SDK。旧 `lib/fcitx5`、`plugin/rime`、`app/src/main/cpp` 已移除；本地遗留的未跟踪目录不属于构建输入。
 代码分支不放 `docs/`；站点、协议和报告统一在 `docs` 分支。
 
+### 直连后端的职责划分
+
+下表的 Kotlin 路径相对 `app/src/main/java/org/fcitx/fcitx5/android/`。后续职责的分批拆分见[2026-11-14 分批核对](changes/2026-11-14-direct-rime-responsibility-splits.md)；发布状态拆分的固定源码与验证记录见[2026-11-14 发布状态核对](changes/2026-11-14-direct-rime-publication-state.md)，此前展示与文件事务提取的当次事实保留在[2026-11-13 后端重构核对](changes/2026-11-13-direct-rime-backend-seams.md)。
+
+| 组件 | 职责与调用边界 |
+| --- | --- |
+| `core/DirectRimeBackend` | 持有单一 native owner、输入绑定与 generation、唯一 started、本次 Snapshot、启动错误及 keyGate／events；保留启动／停止与薄维护入口，提供原 enter／leave 屏障、实际状态事件、方案刷新及绑定读写回调，执行 native 命令并交付输入批次 |
+| `core/DirectRimeMaintenanceCoordinator<B>` | 唯一持有维护 Mutex，编排 owner 维护操作、激活结果及绑定恢复；通过固定 Owner 访问后端当次状态和实际动作，private Binding 保持在 Backend，不增加 owner／scope／线程或实时状态副本 |
+| `core/DirectRimeInteractionTargets` | 仅保存 Owner 引用，动态判定动作上下文、owner 内 revision 与候选分页版本，同步编排显式光标校验及既有位置映射；Snapshot、代次与展示状态仍从 Backend 读取，raw input／act 9／光标恢复事件仍由 Backend 回调执行 |
+| `core/DirectRimeEngineOperations` | 在原 owner 上同步协调引擎配置、槽切换、维护停止／重启及激活结果；持有 activeSelection、newActivation、维护 pending selection 和 Handler／watchdog，惰性取得实际 Repository／shared，透过 Owner 访问后端唯一 started／快照／启动错误 |
+| `core/DirectRimePublicationState` | 持有四类前端展示缓存、已发布 generation、候选版本及候选事件缓存；在 owner 上登记候选目标、构造有序输入发布批次、清空绑定展示及更新提示过期面板；不可用面板保留既有启动回调的同步更新方式 |
+| `core/DirectRimeStatusHintScheduler` | 在原 engineScope／owner 上协调提示文本、提示 generation、Job 与 `StatusHintLifetime`；保留首次呈现及兜底寿命、替换／清理顺序，过期只调用后端提供的纯面板回调 |
+| `core/DirectRimeStatusMenu` | 组装状态菜单并解码动作 ID；命令交回后端在 owner 上执行 |
+| `core/DirectRimePresentation` | 将本次 Snapshot 转为 preedit、panel、带版本的音节标签及候选展示值；不调用 native、不发布事件 |
+| `core/DirectRimeManagementCommands` | 解码 Profile、方案导入和方案列表管理请求的字段；保留只读命令头部及分支字段的原读取时点，交回既有维护入口执行 |
+| `core/DirectRimeProfileOperations` | 在后端既有维护 owner 上同步协调工作目录管理、mutation lease、错误登记及导入注册／切换／失败恢复；调用实际 Config／Repository，停止和重启回调由后端提供 |
+| `core/DirectRimeMaintenanceFiles` | 在 owner 上、停机前核对高级设置／自定义更新／万象更新任务，生成包含目标、payload 和策略的安装计划 |
+| `data/RimeProfileUpdateInstaller` | 共用停机、资源安装及失败恢复流程；停止和重启回调由后端提供，保留外部引擎启动守卫与 watchdog |
+| `data/RimeProfileImportTransaction` | 负责方案 ZIP 的路径检查、暂存解压、目录安装与登记前失败清理；登记、切换和失败恢复由 `DirectRimeProfileOperations` 协调，重启沿用后端回调 |
+
+发布状态、展示转换与菜单命令解码不取得输入会话所有权。`DirectRimePublicationState` 接收后端已校验的本次结果与展示上下文，不调用 Native、不创建线程、不直接写事件队列；完整输入批次和候选版本转换在现有单一 owner 上执行，后端调用 `events.offer`。启动时同步 `onStarting` 可以在调用线程更新 volatile 不可用面板；这条既有生命周期路径不推进候选版本。资源更新与方案导入的取消边界分别见[正确性契约](implementation/correctness-contracts.md#资源维护与方案导入)。
+
+引擎运行协调器复用原 Store 的授权、绑定保护和启动守卫，没有运行标志、Snapshot、native session 或 scope 副本。Backend 保留 startupStage 的 assets／config／native 顺序和输入实时状态；维护流程及恢复时点由 `DirectRimeMaintenanceCoordinator` 控制，enter／leave 的实际旗标、同步代次和 keyGate 仍由 Backend 回调执行。既有停止／重启薄委托 `DirectRimeEngineOperations`；槽切换规则见[引擎运行协调](implementation/correctness-contracts.md#引擎运行协调)，Mutex、取消及绑定恢复见[维护与绑定恢复协调](implementation/correctness-contracts.md#维护与绑定恢复协调)。
+
+交互目标组件复用 Backend 的动态 Owner 投影，保留候选显示版本、native revision、音节 tabsRevision 和 inputSession 的不同检查；原短路及重复代次读取不合并成一次捕获。索引、全局分页、交互 admission、诊断／统计、实际 Native 调用及最后的新快照门仍在 Backend；目标判定和同步光标分支见[交互目标校验与光标操作](implementation/correctness-contracts.md#交互目标校验与光标操作)。
+
 ## 构建与安装
 
 工具版本由 `build-logic/convention/src/main/kotlin/Versions.kt` 及构建配置决定。当前使用 Java 17、SDK 36、NDK `28.0.13004108`、CMake `3.31.6`，最低 Android 6.0 / API 23。
@@ -213,6 +239,8 @@ Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/a
 性能工具分别位于 `tools/input-perf/`、`tools/candidate-perf/` 和 `tools/screen-perf/`。复现前核对比较版本、方案、模型、ABI、构建类型、设备、输入速度和计时区间。
 相同文件名的远端模型也可能换过内容，应按原报告哈希找匹配夹具，不能跳过检查。
 手动触发性能 workflow、上传日志或设备数据前取得明确授权。
+
+[2026-11-14 职责拆分性能对照](history/direct-rime-refactor-performance-2026-11-14.md)固定默认产品与拆分产品，在两组 Actions Debug 模拟器测量候选点击及 Backend 工作负载；保留对象分配增加与延迟波动的信号和边界，不将职责移动或行数变化写成提速结论。
 
 日常构建的 `RimeLifecycle bind` 记录每次绑定的总耗时，以及 `native_begin_us`、`publish_us` 和会话 `created`/`reused` 计数。前者包含 native 创建或复用会话、由 Rime 恢复方案/开关和读取初始快照，后者记录前端发布与绑定门控处理；前端快照回放已移除，不再输出单独的 `restore_us`。单位为微秒，总计 `duration_ms` 为毫秒，不包括进入 owner 前的排队。`ready` 表示 native 方案可用，`usable` 表示此编辑器可以收键，`direct` 标识直接输入。`binding_key wait_ms` 是按键在绑定期间的等待时间，`delivered=true` 表示延后交付，不能据此归为丢键。
 

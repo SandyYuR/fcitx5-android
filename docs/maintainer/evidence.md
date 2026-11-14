@@ -1163,3 +1163,19 @@
 - <a href="/fcitx5-android/maintainer/perf/2026-10-19-cold-io/validation.json" download>validation.json</a>
 
 :::
+
+### perf/2026-11-14-refactor-comparison
+
+说明：[直连后端职责拆分性能对照](/maintainer/history/direct-rime-refactor-performance-2026-11-14)
+
+::: details 原始文件（7 个）
+
+- <a href="/fcitx5-android/maintainer/perf/2026-11-14-refactor-comparison/forward-results.zip" download>forward-results.zip</a>
+- <a href="/fcitx5-android/maintainer/perf/2026-11-14-refactor-comparison/reverse-results.zip" download>reverse-results.zip</a>
+- <a href="/fcitx5-android/maintainer/perf/2026-11-14-refactor-comparison/products.json" download>products.json</a>
+- <a href="/fcitx5-android/maintainer/perf/2026-11-14-refactor-comparison/fixture.manifest.json" download>fixture.manifest.json</a>
+- <a href="/fcitx5-android/maintainer/perf/2026-11-14-refactor-comparison/download-verification.json" download>download-verification.json</a>
+- <a href="/fcitx5-android/maintainer/perf/2026-11-14-refactor-comparison/recalculation.json" download>recalculation.json</a>
+- <a href="/fcitx5-android/maintainer/perf/2026-11-14-refactor-comparison/evidence.json" download>evidence.json</a>
+
+:::

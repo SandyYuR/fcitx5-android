@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-11",
+  "wanxiang_tag": "v18.1.10",
+  "base": {
+    "id": 720692646,
+    "name": "rime-wanxiang-base.zip",
+    "size": 25394477,
+    "digest": "sha256:ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
+    "browser_download_url": "https://github.com/amzxyz/rime-wanxiang/releases/download/v18.1.10/rime-wanxiang-base.zip",
+    "updated_at": "2026-11-07T12:47:31Z"
+  },
+  "model": {
+    "id": 719554076,
+    "name": "wanxiang-lts-zh-hans.gram",
+    "size": 418080812,
+    "digest": "sha256:769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a",
+    "browser_download_url": "https://github.com/amzxyz/rime-wanxiang-data/releases/download/LTS/wanxiang-lts-zh-hans.gram",
+    "updated_at": "2026-11-07T04:08:51Z"
+  },
+  "products": {
+    "fcitx": {
+      "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+      "release": "nightly-0.1.3-715-g5fb6bca3-20261021-205826",
+      "asset": {
+        "id": 663773371,
+        "name": "org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+        "size": 11906742,
+        "digest": "sha256:f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
+        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-715-g5fb6bca3-20261021-205826/org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+        "updated_at": "2026-10-21T20:58:32Z"
+      }
+    },
+    "direct": {
+      "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+      "release": "nightly-0.1.3-802-g2e48466e-20261107-112347",
+      "asset": {
+        "id": 720494660,
+        "name": "direct.apk",
+        "size": 10238250,
+        "digest": "sha256:b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
+        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-802-g2e48466e-20261107-112347/direct.apk",
+        "updated_at": "2026-11-07T11:23:53Z"
+      }
+    },
+    "current": {
+      "commit": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+      "release_commit": "090a43e1485b9a6d76a28a31a6503c41e3e3db29",
+      "release": "nightly-0.1.3-823-g090a43e1-20261110-142502",
+      "asset": {
+        "id": 731714993,
+        "name": "direct.apk",
+        "size": 10120461,
+        "digest": "sha256:0a96e27c8ee355e862bcf391804b55d22546062ebc9625ec91a397c8c22dca67",
+        "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-823-g090a43e1-20261110-142502/direct.apk",
+        "updated_at": "2026-11-10T14:25:09Z"
+      },
+      "runtime_equivalence": {
+        "changed_paths": [
+          "AGENTS.md",
+          "DESIGN.md",
+          "README.md"
+        ],
+        "verified_identical_paths": [
+          "app",
+          "direct-rime",
+          "native",
+          "build-logic",
+          "gradle",
+          "settings.gradle.kts",
+          "build.gradle.kts",
+          "gradle.properties"
+        ],
+        "note": "Default HEAD differs from the signed official APK only by documentation; do not relabel the APK commit."
+      }
+    }
+  },
+  "original_config_sha256": {
+    "wanxiang.custom.yaml": "42bf76351ceb6f2db87396ae13edf9d9914712a065a61cdf74c66c52900c1319",
+    "user.yaml": "dd82ae3dc637e850446eb6e4170d916bb3d628b08d85572096c6b4c62ccb9a57"
+  },
+  "comparison_order": [
+    "fcitx",
+    "direct",
+    "current"
+  ],
+  "verified_downloads": {
+    "base": {
+      "file": "upstream-base.zip",
+      "sha256": "ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
+      "asset_id": 720692646
+    },
+    "model": {
+      "file": "wanxiang-lts-zh-hans.gram",
+      "sha256": "769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a",
+      "asset_id": 719554076
+    },
+    "fcitx": {
+      "file": "fcitx.apk",
+      "sha256": "f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
+      "asset_id": 663773371
+    },
+    "direct": {
+      "file": "direct.apk",
+      "sha256": "b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
+      "asset_id": 720494660
+    },
+    "current": {
+      "file": "current.apk",
+      "sha256": "0a96e27c8ee355e862bcf391804b55d22546062ebc9625ec91a397c8c22dca67",
+      "asset_id": 731714993
+    }
+  },
+  "fixture_sha256": "333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f",
+  "restored_model_source": null,
+  "runtime_user_sha256": "ac3b6b2da6ebc3318a35c2c2ff2a2e903a6247fa5d05dbcabb6db9462936e74f",
+  "runtime_adjustment": "Only add context_reorder: true to the saved user options, as in the original comparison."
+}
