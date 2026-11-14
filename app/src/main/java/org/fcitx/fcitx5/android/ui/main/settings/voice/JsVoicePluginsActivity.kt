@@ -26,7 +26,11 @@ class JsVoicePluginsActivity : SettingsUiActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.settings_container, JsVoicePluginsFragment())
+                .replace(R.id.settings_container, JsVoicePluginsFragment().apply {
+                    arguments = Bundle().apply {
+                        putString(EXTRA_TARGET_PLUGIN_ID, intent.getStringExtra(EXTRA_TARGET_PLUGIN_ID))
+                    }
+                })
                 .commit()
         }
     }
@@ -37,6 +41,10 @@ class JsVoicePluginsActivity : SettingsUiActivity() {
     }
 
     companion object {
-        fun intent(context: Context): Intent = Intent(context, JsVoicePluginsActivity::class.java)
+        internal const val EXTRA_TARGET_PLUGIN_ID = "target_plugin_id"
+
+        fun intent(context: Context, targetPluginId: String? = null): Intent =
+            Intent(context, JsVoicePluginsActivity::class.java)
+                .putExtra(EXTRA_TARGET_PLUGIN_ID, targetPluginId)
     }
 }

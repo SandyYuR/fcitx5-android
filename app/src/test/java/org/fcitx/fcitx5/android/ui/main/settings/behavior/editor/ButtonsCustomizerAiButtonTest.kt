@@ -14,6 +14,8 @@ import org.fcitx.fcitx5.android.input.config.ButtonsLayoutConfig
 import org.fcitx.fcitx5.android.input.config.ConfigProvider
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
+import org.fcitx.fcitx5.android.input.voice.js.JsAppButtonBinding
+import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.ButtonsCustomizerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.ButtonsCustomizerActivity.ListItem
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.ButtonsCustomizerActivity.Section
@@ -38,6 +40,11 @@ import java.io.File
 @Config(sdk = [23, 35], qualifiers = "zh-rCN", application = FcitxApplication::class,
     shadows = [EditorApplicationShadow::class])
 class ButtonsCustomizerAiButtonTest {
+    private val translationButtonId = requireNotNull(
+        JsAppButtonBinding.encode("js:youdao-free-translate", "youdao_translate")
+    )
+    private val translationLabel: String
+        get() = JsVoiceProviders.specOf("js:youdao-free-translate")!!.apps.single().label
     private lateinit var original: ConfigProvider
     private lateinit var file: File
     private val controllers = mutableListOf<ActivityController<ButtonsCustomizerActivity>>()
@@ -90,41 +97,82 @@ class ButtonsCustomizerAiButtonTest {
         return holder!!.itemView
     }
 
-    private fun addFromPlus(section: Section) {
+    private fun addFromPlus(section: Section, actionId: String = "ai_assistant",
+        labelRes: Int = R.string.ai_assistant, expectedLabel: String = "AI 助手") {
         val activity = open()
-        assertEquals("AI 助手", activity.getString(R.string.ai_assistant))
+        assertEquals(expectedLabel, activity.getString(labelRes))
         card(activity) {
             if (section == Section.KawaiiBar) it is ListItem.AddButtonPlaceholder
             else it is ListItem.StatusAreaAddButtonPlaceholder
         }.performClick()
         val popup = ShadowPopupMenu.getLatestPopupMenu()
         assertNotNull(popup)
-        val ai = (0 until popup.menu.size()).map { popup.menu.getItem(it) }
-            .singleOrNull { it.title == activity.getString(R.string.ai_assistant) }
-        assertNotNull("AI assistant must appear in the actual + menu", ai)
-        assertTrue(shadowOf(popup).onMenuItemClickListener.onMenuItemClick(ai!!))
+        val action = (0 until popup.menu.size()).map { popup.menu.getItem(it) }
+            .singleOrNull { it.title == activity.getString(labelRes) }
+        assertNotNull("$actionId must appear in the actual + menu", action)
+        assertTrue(shadowOf(popup).onMenuItemClickListener.onMenuItemClick(action!!))
         popup.dismiss()
-        saveAndReopen(activity, section)
+        saveAndReopen(activity, section, actionId)
     }
 
-    private fun saveAndReopen(activity: ButtonsCustomizerActivity, section: Section) {
-        assertEquals(ConfigurableButton("ai_assistant"), items(activity).filterIsInstance<ListItem.ButtonItem>()
-            .single { it.button.id == "ai_assistant" && it.section == section }.button)
-        assertFalse(items(activity).filterIsInstance<ListItem.AddButtonItem>().any { it.buttonDef.id == "ai_assistant" })
+    private fun chooseTranslation(activity: ButtonsCustomizerActivity) {
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        assertEquals(
+            activity.getString(R.string.js_tools_select_title),
+            dialog.findViewById<android.widget.TextView>(androidx.appcompat.R.id.alertTitle)!!.text,
+        )
+        val index = (0 until dialog.listView.adapter.count).first {
+            dialog.listView.adapter.getItem(it).toString().contains("js:youdao-free-translate")
+        }
+        dialog.listView.performItemClick(null, index, index.toLong())
+    }
+
+    private fun saveAndReopen(activity: ButtonsCustomizerActivity, section: Section,
+        actionId: String = "ai_assistant", expectedLabel: String? = null) {
+        val button = items(activity).filterIsInstance<ListItem.ButtonItem>()
+            .single { it.button.id == actionId && it.section == section }.button
+        if (expectedLabel == null) assertEquals(ConfigurableButton(actionId), button)
+        else assertEquals(expectedLabel, button.label)
+        assertFalse(items(activity).filterIsInstance<ListItem.AddButtonItem>().any { it.buttonDef.id == actionId })
         val menu = MenuBuilder(activity)
         activity.onCreateOptionsMenu(menu)
         assertTrue(activity.onOptionsItemSelected(menu.getItem(0)))
         val saved = Json.decodeFromString<ButtonsLayoutConfig>(file.readText())
         val target = if (section == Section.KawaiiBar) saved.kawaiiBarButtons else saved.statusAreaButtons
-        assertEquals(1, target.count { it.id == "ai_assistant" })
+        assertEquals(1, target.count { it.id == actionId })
         val reopened = open()
         assertEquals(1, items(reopened).filterIsInstance<ListItem.ButtonItem>()
-            .count { it.button.id == "ai_assistant" && it.section == section })
+            .count { it.button.id == actionId && it.section == section })
     }
 
     @Test fun toolbarPlusOffersAiAndPersistsItAfterReopening() = addFromPlus(Section.KawaiiBar)
 
     @Test fun statusAreaPlusOffersAiAndPersistsItAfterReopening() = addFromPlus(Section.StatusArea)
+
+    @Test fun toolbarPlusBindsAConcreteJsAppAndPersistsItAfterReopening() {
+        val activity = open()
+        card(activity) { it is ListItem.AddButtonPlaceholder }.performClick()
+        val popup = ShadowPopupMenu.getLatestPopupMenu()!!
+        val template = (0 until popup.menu.size()).map { popup.menu.getItem(it) }
+            .single { it.title == activity.getString(R.string.js_tools) }
+        assertTrue(shadowOf(popup).onMenuItemClickListener.onMenuItemClick(template))
+        chooseTranslation(activity)
+        popup.dismiss()
+        assertFalse(items(activity).filterIsInstance<ListItem.ButtonItem>().any { it.button.id == "js_tools" })
+        saveAndReopen(activity, Section.KawaiiBar, translationButtonId, translationLabel)
+    }
+
+    @Test fun statusAreaPlusBindsAConcreteJsAppAndPersistsItAfterReopening() {
+        val activity = open()
+        card(activity) { it is ListItem.StatusAreaAddButtonPlaceholder }.performClick()
+        val popup = ShadowPopupMenu.getLatestPopupMenu()!!
+        val template = (0 until popup.menu.size()).map { popup.menu.getItem(it) }
+            .single { it.title == activity.getString(R.string.js_tools) }
+        assertTrue(shadowOf(popup).onMenuItemClickListener.onMenuItemClick(template))
+        chooseTranslation(activity)
+        popup.dismiss()
+        saveAndReopen(activity, Section.StatusArea, translationButtonId, translationLabel)
+    }
 
     @Test fun availableAiCardLetsTheUserChooseTheToolbar() {
         val activity = open()
@@ -133,5 +181,39 @@ class ButtonsCustomizerAiButtonTest {
         assertEquals(activity.getString(R.string.kawaii_bar_section), dialog.listView.adapter.getItem(0))
         dialog.listView.performItemClick(null, 0, 0)
         saveAndReopen(activity, Section.KawaiiBar)
+    }
+
+    @Test fun availableJsToolsCardLetsTheUserChooseTheStatusArea() {
+        val activity = open()
+        card(activity) { it is ListItem.AddButtonItem && it.buttonDef.id == "js_tools" }.performClick()
+        chooseTranslation(activity)
+        val sectionDialog = ShadowDialog.getLatestDialog() as AlertDialog
+        assertEquals(activity.getString(R.string.status_area_section), sectionDialog.listView.adapter.getItem(1))
+        sectionDialog.listView.performItemClick(null, 1, 1)
+        assertFalse(items(activity).filterIsInstance<ListItem.ButtonItem>().any { it.button.id == "js_tools" })
+        saveAndReopen(activity, Section.StatusArea, translationButtonId, translationLabel)
+    }
+
+    @Test fun oldGenericJsToolsButtonRebindsInPlaceAndKeepsItsVisualCustomization() {
+        val old = ConfigurableButton(
+            id = "js_tools",
+            icon = "ic_baseline_language_24",
+            text = "译",
+        )
+        file.writeText(Json.encodeToString(ButtonsLayoutConfig.default().copy(
+            kawaiiBarButtons = listOf(old),
+        )))
+        val activity = open()
+        card(activity) {
+            it is ListItem.ButtonItem && it.button.id == "js_tools" && it.section == Section.KawaiiBar
+        }.performClick()
+        chooseTranslation(activity)
+
+        val rebound = items(activity).filterIsInstance<ListItem.ButtonItem>()
+            .single { it.button.id == translationButtonId }.button
+        assertEquals("ic_baseline_language_24", rebound.icon)
+        assertEquals("译", rebound.text)
+        assertEquals(translationLabel, rebound.label)
+        assertFalse(items(activity).filterIsInstance<ListItem.ButtonItem>().any { it.button.id == "js_tools" })
     }
 }

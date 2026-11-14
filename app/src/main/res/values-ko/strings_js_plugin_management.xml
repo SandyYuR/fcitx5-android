@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="js_app_preferred">AI 버튼에서 사용할 도우미</string>
+    <string name="js_app_selection_failed">이 도구는 더 이상 사용할 수 없습니다. 다시 선택하세요.</string>
+    <string name="js_plugin_export">소스 내보내기</string>
+    <string name="js_plugin_export_summary">현재 JavaScript 소스를 저장합니다. 저장된 설정과 API 키는 포함되지 않습니다.</string>
+    <string name="js_plugin_export_success">플러그인 소스를 내보냈습니다.</string>
+    <string name="js_plugin_replace">대체 파일 가져오기</string>
+    <string name="js_plugin_replace_summary">수정한 .js 파일로 이 플러그인을 대체하고 설정과 API 키를 유지합니다.</string>
+    <string name="js_plugin_replace_builtin_message">버전 번호가 같아도 이 버전으로 내장 플러그인을 대체합니다. 앱을 업데이트해도 대체 버전이 유지됩니다. 플러그인 설정에서 내장 버전으로 복원할 수 있습니다.</string>
+    <string name="js_plugin_replace_permissions">기존 권한은 초기화됩니다. 이번 확인으로 위에 표시된 네트워크 호스트를 허용합니다. 앱 기능과 다른 호스트에 대한 권한은 사용 시 다시 요청합니다.</string>
+    <string name="js_plugin_import_wrong_id">%1$s의 소스 파일을 선택하세요. 이 파일은 다른 플러그인의 파일입니다.</string>
+    <string name="js_plugin_import_incompatible">대체 파일은 이 플러그인의 음성 기능과 기존 앱 항목을 유지해야 합니다. 다른 도구는 플러그인 목록에서 가져오세요.</string>
+    <string name="js_plugin_source_builtin">소스: 내장</string>
+    <string name="js_plugin_source_custom">소스: 사용자 지정 대체 버전</string>
+    <string name="js_plugin_source_imported">소스: 가져온 파일</string>
+    <string name="js_plugin_source_failed">플러그인 소스를 업데이트하지 못했습니다: %1$s</string>
+    <string name="js_plugin_restore">내장 버전 복원</string>
+    <string name="js_plugin_restore_summary">이 앱에 포함된 버전을 사용하고 설정과 API 키를 유지합니다.</string>
+    <string name="js_plugin_restore_message">내장 버전을 다시 사용하시겠습니까? 가져온 소스, 설정과 API 키는 유지됩니다. 필요한 권한은 사용 시 다시 요청합니다.</string>
+    <string name="js_plugin_restored">내장 플러그인을 복원했습니다.</string>
+    <string name="js_voice_import_post_install_failed">플러그인을 설치했지만 권한 또는 플러그인 목록을 새로 고치지 못했습니다: %1$s. 플러그인 페이지를 다시 열고 권한을 확인하세요.</string>
+</resources>

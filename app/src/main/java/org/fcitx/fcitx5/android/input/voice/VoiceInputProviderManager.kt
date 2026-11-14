@@ -315,6 +315,34 @@ object VoiceInputProviderManager {
     fun isActive(): Boolean =
         floatingFallbackActive || sessionActive || activeCallback != null || activeCapture != null
 
+    /**
+     * End only the in-process provider instance whose source is about to change.
+     *
+     * Plugin storage runs on an IO dispatcher, while voice teardown owns main-thread IME state.
+     * Capture the currently registered instance before posting so a newly registered provider
+     * with the same ID cannot be stopped by a delayed invalidation task.
+     */
+    fun invalidateProvider(id: String) {
+        val invalidated = VoiceInputProviderRegistry.get(id)?.provider ?: return
+        ContextCompat.getMainExecutor(appContext).execute {
+            if (activeProviderId != id || activeProvider !== invalidated) return@execute
+            val callback = activeCallback
+            if (callback == null) {
+                stop(appContext)
+            } else {
+                runCatching {
+                    callback.onError(
+                        VoiceInputIpc.ErrorCodes.NOT_AVAILABLE,
+                        appContext.getString(org.fcitx.fcitx5.android.R.string.voice_error_disconnected),
+                    )
+                }.onFailure {
+                    Timber.w(it, "invalidate voice provider")
+                    stop(appContext)
+                }
+            }
+        }
+    }
+
     // Toggle helper for UI buttons that should "stop if running, start otherwise".
     // Returns true if a new session was started, false if the previous one was stopped.
     fun toggle(

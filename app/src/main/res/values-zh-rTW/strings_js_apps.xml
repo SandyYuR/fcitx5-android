@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ai_assistant">AI 助手</string>
+    <string name="js_tools">JS 工具</string>
+    <string name="js_tools_select_title">選擇這個按鈕要開啟的 JS 應用程式</string>
+    <string name="js_tools_select_hint">請在「編輯按鈕」中重新選擇具體的 JS 應用程式。</string>
+    <string name="js_app_shortcut_missing">這個 JS 應用程式已不存在，請重新設定按鈕。</string>
+    <string name="js_app_shortcut_password">密碼輸入框中不可使用 JS 應用程式。</string>
+    <string name="youdao_free_translate">翻譯（免金鑰）</string>
     <string name="js_app_none">請先匯入 JS 應用外掛。</string>
     <string name="js_app_password">密碼輸入框中不可使用 AI 助手。</string>
     <string name="js_app_permission_message">是否允許此外掛使用以下能力？\n\n%1$s\n\n可在外掛設定中撤銷授權。</string>

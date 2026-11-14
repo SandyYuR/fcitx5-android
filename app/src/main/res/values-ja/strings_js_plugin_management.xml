@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="js_app_preferred">AI ボタンで使うアシスタント</string>
+    <string name="js_app_selection_failed">このツールは利用できなくなりました。選び直してください。</string>
+    <string name="js_plugin_export">ソースコードをエクスポート</string>
+    <string name="js_plugin_export_summary">現在の JavaScript ソースコードを保存します。保存済みの設定や API キーは含まれません。</string>
+    <string name="js_plugin_export_success">プラグインのソースコードをエクスポートしました。</string>
+    <string name="js_plugin_replace">置き換え用ファイルをインポート</string>
+    <string name="js_plugin_replace_summary">変更した .js ファイルでこのプラグインを置き換えます。設定と API キーは保持されます。</string>
+    <string name="js_plugin_replace_builtin_message">バージョン番号が同じでも、このバージョンで内蔵プラグインを置き換えます。アプリを更新しても置き換えたバージョンが使われます。プラグインの設定で内蔵版に戻せます。</string>
+    <string name="js_plugin_replace_permissions">既存の権限はリセットされます。この確認では上記のネットワークホストへの接続を許可します。アプリの機能や他のホストへの接続は、使用時に改めて確認します。</string>
+    <string name="js_plugin_import_wrong_id">%1$s のソースファイルを選択してください。このファイルは別のプラグインのものです。</string>
+    <string name="js_plugin_import_incompatible">置き換え用ファイルは、このプラグインの音声機能と既存のアプリ項目を保持する必要があります。別のツールはプラグイン一覧からインポートしてください。</string>
+    <string name="js_plugin_source_builtin">ソース：内蔵版</string>
+    <string name="js_plugin_source_custom">ソース：カスタム置き換え版</string>
+    <string name="js_plugin_source_imported">ソース：インポート済み</string>
+    <string name="js_plugin_source_failed">プラグインのソースコードを更新できませんでした：%1$s</string>
+    <string name="js_plugin_restore">内蔵版に戻す</string>
+    <string name="js_plugin_restore_summary">このアプリに含まれるバージョンを使います。設定と API キーは保持されます。</string>
+    <string name="js_plugin_restore_message">内蔵版を再び使いますか？インポートしたソースコード、設定、API キーは保持されます。必要な権限は使用時に改めて確認します。</string>
+    <string name="js_plugin_restored">内蔵プラグインに戻しました。</string>
+    <string name="js_voice_import_post_install_failed">プラグインはインストールされましたが、権限またはプラグイン一覧を更新できませんでした：%1$s。プラグインのページを開き直し、権限を確認してください。</string>
+</resources>

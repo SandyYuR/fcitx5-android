@@ -89,6 +89,8 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val splitKeyboardMigrated = bool("split_keyboard_migrated", false)
         val lastShareReceiveDirectory = string("last_share_receive_directory", "")
         val lastShareReceiveDirectoryRemembered = bool("last_share_receive_directory_remembered", false)
+        // A single provider/app pair keeps selection atomic and stays in the existing app backup.
+        val preferredJsApp = string("preferred_js_app", "")
     }
 
     inner class Advanced : ManagedPreferenceCategory(R.string.advanced, sharedPreferences) {

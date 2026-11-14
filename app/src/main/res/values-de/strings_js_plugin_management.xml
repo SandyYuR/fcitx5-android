@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="js_app_preferred">Assistent für die KI-Schaltfläche</string>
+    <string name="js_app_selection_failed">Dieses Werkzeug ist nicht mehr verfügbar. Wählen Sie es erneut aus.</string>
+    <string name="js_plugin_export">Quellcode exportieren</string>
+    <string name="js_plugin_export_summary">Den aktuell verwendeten JavaScript-Quellcode ohne gespeicherte Einstellungen oder API-Schlüssel speichern.</string>
+    <string name="js_plugin_export_success">Plugin-Quellcode exportiert.</string>
+    <string name="js_plugin_replace">Ersatz importieren</string>
+    <string name="js_plugin_replace_summary">Dieses Plugin durch eine geänderte .js-Datei ersetzen und seine Einstellungen und API-Schlüssel beibehalten.</string>
+    <string name="js_plugin_replace_builtin_message">Diese Version ersetzt das integrierte Plugin, auch bei unveränderter Versionsnummer. Ihre eigene Version bleibt nach App-Updates aktiv. Sie können die integrierte Version in den Plugin-Einstellungen wiederherstellen.</string>
+    <string name="js_plugin_replace_permissions">Bestehende Berechtigungen werden zurückgesetzt. Diese Bestätigung erlaubt die aufgeführten Netzwerkhosts; Berechtigungen für App-Funktionen und weitere Hosts werden bei der Nutzung abgefragt.</string>
+    <string name="js_plugin_import_wrong_id">Wählen Sie eine Quellcodedatei für %1$s. Diese Datei gehört zu einem anderen Plugin.</string>
+    <string name="js_plugin_import_incompatible">Der Ersatz muss die Sprachfunktion und die bestehenden App-Einträge dieses Plugins beibehalten. Importieren Sie ein anderes Werkzeug stattdessen über die Plugin-Liste.</string>
+    <string name="js_plugin_source_builtin">Quellcode: integriert</string>
+    <string name="js_plugin_source_custom">Quellcode: benutzerdefinierter Ersatz</string>
+    <string name="js_plugin_source_imported">Quellcode: importiert</string>
+    <string name="js_plugin_source_failed">Plugin-Quellcode konnte nicht aktualisiert werden: %1$s</string>
+    <string name="js_plugin_restore">Integrierte Version wiederherstellen</string>
+    <string name="js_plugin_restore_summary">Die mit dieser App gelieferte Version verwenden und Einstellungen und API-Schlüssel beibehalten.</string>
+    <string name="js_plugin_restore_message">Wieder die integrierte Version verwenden? Ihr importierter Quellcode, Ihre Einstellungen und API-Schlüssel bleiben erhalten. Erforderliche Berechtigungen werden bei der Nutzung erneut abgefragt.</string>
+    <string name="js_plugin_restored">Integriertes Plugin wiederhergestellt.</string>
+    <string name="js_voice_import_post_install_failed">Das Plugin wurde installiert, aber die Berechtigungen oder die Plugin-Liste konnten nicht aktualisiert werden: %1$s. Öffnen Sie die Plugin-Seite erneut und prüfen Sie die Berechtigungen.</string>
+</resources>

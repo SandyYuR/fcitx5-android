@@ -50,6 +50,7 @@ import org.fcitx.fcitx5.android.input.bar.KawaiiBarStateMachine.TransitionEvent.
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarStateMachine.TransitionEvent.ExtendedWindowAttached
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarStateMachine.TransitionEvent.PreeditUpdated
 import org.fcitx.fcitx5.android.input.action.ButtonAction
+import org.fcitx.fcitx5.android.input.action.JsAppButtonAction
 import org.fcitx.fcitx5.android.input.action.executeMacroSteps
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarStateMachine.TransitionEvent.WindowDetached
 import org.fcitx.fcitx5.android.input.bar.ui.CandidateUi
@@ -498,6 +499,17 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 org.fcitx.fcitx5.android.input.voice.js.JsApps.configure(service)
                 true
             }
+            setOnLongClickListener("js_tools") {
+                restoreVirtualKeyboardMode()
+                ButtonAction.fromId("js_tools")?.onLongPress(
+                    context = context,
+                    service = service,
+                    fcitx = fcitx,
+                    windowManager = windowManager,
+                    view = it
+                )
+                true
+            }
             setOnLongClickListener("voice_input") {
                 restoreVirtualKeyboardMode()
                 ButtonAction.fromId("voice_input")?.onLongPress(
@@ -719,10 +731,20 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             } else {
                 // Restore the built-in behavior, or clear the listener entirely for an id with
                 // no known action (a leftover custom_N button whose macro was deleted).
+                val action = ButtonAction.fromId(button.id)
                 ui.buttonsUi.setOnClickListener(
                     button.id,
-                    ButtonAction.fromId(button.id)?.let { defaultActionClickListener(it) }
+                    action?.let { defaultActionClickListener(it) }
                 )
+                // Static long-press actions are installed above. Dynamic JS App IDs are only
+                // known after reading the saved layout, so bind them while iterating that layout.
+                if (action is JsAppButtonAction && action.hasLongPress) {
+                    ui.buttonsUi.setOnLongClickListener(button.id) { view ->
+                        restoreVirtualKeyboardMode()
+                        action.onLongPress(context, service, fcitx, windowManager, view)
+                        true
+                    }
+                }
             }
         }
     }

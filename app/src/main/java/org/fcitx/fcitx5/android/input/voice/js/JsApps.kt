@@ -3,6 +3,8 @@ package org.fcitx.fcitx5.android.input.voice.js
 
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import androidx.lifecycle.lifecycleScope
 import com.dokar.quickjs.QuickJs
@@ -15,6 +17,7 @@ import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardSearchController
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginSettingsActivity
+import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
 import org.fcitx.fcitx5.android.utils.appContext
 import org.fcitx.fcitx5.android.utils.toast
 import java.util.Locale
@@ -34,37 +37,86 @@ internal object JsAppPermissions {
 
 /** App capabilities share plugin source/settings, but never enter the voice provider registry. */
 internal object JsApps {
-    private var activeSession: Session? = null
-    private fun apps() = JsVoiceProviders.all().flatMap { spec -> spec.apps.map { spec to it } }
-    private fun preferred() = apps().firstOrNull { it.second.id == "llm_assistant" } ?: apps().firstOrNull()
+    @Volatile private var activeSession: Session? = null
+    private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
+    private fun preferred() = JsAppSelection.preferred()
+
+    /** Called before source/permission writes; safe while the store holds its IO lock. */
+    fun onPluginSourceChanging(pluginId: String) {
+        activeSession?.takeIf { it.spec.id == pluginId }?.invalidateSource()
+    }
+
+    /** Reconcile only after the catalog has rebuilt, outside the store's write lock. */
+    fun onPluginsChanged() {
+        activeSession?.invalidateSource()
+        JsAppSelection.reconcile()
+    }
 
     fun configure(context: Context) {
         val spec = preferred()?.first ?: return
-        context.startActivity(JsVoicePluginSettingsActivity.intent(context, spec.id).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) })
+        configure(context, spec.id)
+    }
+
+    fun configure(context: Context, pluginId: String) {
+        val intent = if (JsVoiceProviders.specOf(pluginId) != null) {
+            JsVoicePluginSettingsActivity.intent(context, pluginId)
+        } else {
+            context.toast(R.string.js_app_shortcut_missing)
+            JsVoicePluginsActivity.intent(context)
+        }
+        context.startActivity(intent.apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) })
     }
 
     fun toggle(service: FcitxInputMethodService) {
-        val current = activeSession
-        if (current != null && current.service === service && !current.closed && current.dialog.isShowing) {
-            current.dialog.dismiss()
-        } else open(service)
+        val (spec, app) = preferred() ?: run { service.toast(R.string.js_app_none); return }
+        toggleTarget(service, spec.id, app.id, R.string.js_app_password)
     }
 
-    fun open(service: FcitxInputMethodService) {
+    fun toggleExact(service: FcitxInputMethodService, pluginId: String, appId: String) {
+        toggleTarget(service, pluginId, appId, R.string.js_app_shortcut_password)
+    }
+
+    private fun toggleTarget(service: FcitxInputMethodService, pluginId: String, appId: String,
+        passwordMessage: Int) {
+        val current = activeSession
+        if (current != null && current.service === service && current.spec.id == pluginId &&
+            current.app.id == appId && !current.closed && current.dialog.isShowing) {
+            current.dialog.dismiss()
+            return
+        }
+        openTarget(service, pluginId, appId, passwordMessage)
+    }
+
+    fun openExact(service: FcitxInputMethodService, pluginId: String, appId: String) {
+        openTarget(service, pluginId, appId, R.string.js_app_shortcut_password)
+    }
+
+    private fun openTarget(service: FcitxInputMethodService, pluginId: String, appId: String,
+        passwordMessage: Int) {
+        val spec = JsVoiceProviders.specOf(pluginId)
+        val app = spec?.apps?.firstOrNull { it.id == appId }
+        if (spec == null || app == null) {
+            service.toast(R.string.js_app_shortcut_missing)
+            return
+        }
+        if (!prepare(service, passwordMessage)) return
+        Session(service, spec, app).start()
+    }
+
+    private fun prepare(service: FcitxInputMethodService, passwordMessage: Int): Boolean {
         // No plugin editor access from password fields, even after a previous grant.
-        val type = service.currentInputEditorInfo?.inputType ?: return
+        val type = service.currentInputEditorInfo?.inputType ?: return false
         val variation = type and InputType.TYPE_MASK_VARIATION
         val kind = type and InputType.TYPE_MASK_CLASS
         if ((kind == InputType.TYPE_CLASS_TEXT && variation in setOf(InputType.TYPE_TEXT_VARIATION_PASSWORD,
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD, InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD)) ||
             (kind == InputType.TYPE_CLASS_NUMBER && variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD)) {
-            service.toast(R.string.js_app_password); return
+            service.toast(passwordMessage); return false
         }
         if (VoiceInputProviderManager.isActive()) VoiceInputProviderManager.stop(service)
         ClipboardSearchController.stop()
         service.jsAppDismiss?.invoke()
-        val (spec, app) = preferred() ?: run { service.toast(R.string.js_app_none); return }
-        Session(service, spec, app).start()
+        return true
     }
 
     private class Session(
@@ -78,6 +130,7 @@ internal object JsApps {
         val locale = Locale.getDefault().toLanguageTag()
         var js: QuickJs? = null
         @Volatile var closed = false
+        @Volatile private var sourceCurrent = true
         var working = false
         val editor = connection?.let { JsAppEditor(it, {
             !closed && token?.isCurrent() == true && service.applicationInputConnection === connection
@@ -104,7 +157,10 @@ internal object JsApps {
                                 service.getString(R.string.js_app_allow), service.getString(android.R.string.cancel))) {
                             dialog.dismiss(); return@launch
                         }
-                        JsAppPermissions.grant(spec.id, app.id, app.permissions)
+                        synchronized(this@Session) {
+                            ensureCurrent()
+                            JsAppPermissions.grant(spec.id, app.id, app.permissions)
+                        }
                     }
                     initialize()
                     event("open", JsonObject(emptyMap()))
@@ -139,7 +195,10 @@ internal object JsApps {
                                 service.getString(R.string.js_app_allow), service.getString(android.R.string.cancel))
                         }
                         check(approved) { "Network permission denied" }
-                        JsVoiceHostPermissions.approve(spec.id, JsVoiceHostPermissions.approvedHosts(spec.id) + host)
+                        synchronized(this@Session) {
+                            ensureCurrent()
+                            JsVoiceHostPermissions.approve(spec.id, JsVoiceHostPermissions.approvedHosts(spec.id) + host)
+                        }
                     }
                     JsAppHttp(checkUrl = { url ->
                         requirePermission("network.request")
@@ -177,7 +236,7 @@ internal object JsApps {
         }
 
         fun event(name: String, values: JsonObject) {
-            if (closed) return
+            if (closed || !sourceCurrent) return
             if (working) {
                 if (name in setOf("close", "cancel")) dialog.dismiss()
                 return
@@ -209,23 +268,34 @@ internal object JsApps {
         }
 
         fun requirePermission(permission: String) {
-            check(!closed && permission in app.permissions && permission in JsAppPermissions.granted(spec.id, app.id)) { "Permission denied: $permission" }
+            check(!closed && sourceCurrent && permission in app.permissions && permission in JsAppPermissions.granted(spec.id, app.id)) { "Permission denied: $permission" }
         }
         fun ensureCurrent() {
-            check(!closed && token?.isCurrent() == true && service.applicationInputConnection === connection) { "Editor session ended" }
+            check(!closed && sourceCurrent && token?.isCurrent() == true && service.applicationInputConnection === connection) { "Editor session ended" }
+        }
+        fun invalidateSource() {
+            synchronized(this) { sourceCurrent = false }
+            scope.cancel()
+            // Keep editor ownership intact until close restores any temporary composition.
+            mainHandler.post {
+                dialog.dismiss()
+                close()
+            }
         }
         fun close() {
             if (closed) return
             editor?.clearPreview()
             closed = true
-            if (activeSession === this) activeSession = null
-            service.jsAppInputConnection = null
-            service.jsAppDismiss = null
+            if (activeSession === this) {
+                activeSession = null
+                service.jsAppInputConnection = null
+                service.jsAppDismiss = null
+                service.resetJsAppEditorState()
+            }
             scope.cancel()
             val engine = js
             js = null
             service.lifecycleScope.launch(Dispatchers.IO + NonCancellable) { runCatching { engine?.close() } }
-            service.resetJsAppEditorState()
         }
         fun permissionLabel(permission: String): String = service.getString(when (permission) {
             "editor.read_selection" -> R.string.js_app_read_selection

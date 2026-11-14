@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ai_assistant">KI-Assistent</string>
+    <string name="js_tools">JS-Werkzeuge</string>
+    <string name="js_tools_select_title">JS-App für diese Schaltfläche auswählen</string>
+    <string name="js_tools_select_hint">Wählen Sie unter „Schaltflächen bearbeiten“ erneut eine bestimmte JS-App aus.</string>
+    <string name="js_app_shortcut_missing">Diese JS-App ist nicht mehr verfügbar. Konfigurieren Sie die Schaltfläche erneut.</string>
+    <string name="js_app_shortcut_password">JS-Apps sind in Passwortfeldern nicht verfügbar.</string>
+    <string name="youdao_free_translate">Übersetzen (ohne API-Schlüssel)</string>
     <string name="js_app_none">Importieren Sie zuerst ein JavaScript-App-Plugin.</string>
     <string name="js_app_password">Der KI-Assistent ist in Passwortfeldern nicht verfügbar.</string>
     <string name="js_app_permission_message">Diesem Plugin die folgenden Funktionen erlauben?\n\n%1$s\n\nSie können den Zugriff in den Einstellungen des Plugins widerrufen.</string>

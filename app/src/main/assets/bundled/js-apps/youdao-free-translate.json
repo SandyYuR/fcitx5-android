@@ -1,0 +1,19 @@
+{
+  "id": "youdao-free-translate",
+  "name": "翻译（免密钥）",
+  "version": "1.0.0",
+  "hosts": ["aidemo.youdao.com"],
+  "features": [],
+  "apps": [
+    {
+      "id": "youdao_translate",
+      "label": "翻译（免密钥）",
+      "permissions": [
+        "editor.read_selection",
+        "editor.composition",
+        "editor.commit",
+        "network.request"
+      ]
+    }
+  ]
+}

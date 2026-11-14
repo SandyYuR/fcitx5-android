@@ -81,6 +81,7 @@ data class IconTheme(
             "toolbar.floating_toggle",
             "toolbar.clipboard",
             "toolbar.ai_assistant",
+            "toolbar.js_tools",
             "toolbar.more",
             "toolbar.language_switch",
             "toolbar.theme",

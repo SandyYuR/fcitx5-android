@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="js_app_preferred">AI 按鈕使用的助手</string>
+    <string name="js_app_selection_failed">此工具已無法使用，請重新選擇。</string>
+    <string name="js_plugin_export">匯出原始碼</string>
+    <string name="js_plugin_export_summary">儲存目前使用的 JS 原始碼，不包含已儲存的設定和 API 金鑰。</string>
+    <string name="js_plugin_export_success">已匯出外掛原始碼。</string>
+    <string name="js_plugin_replace">匯入取代</string>
+    <string name="js_plugin_replace_summary">選擇修改後的 .js 檔案取代此外掛，保留設定和 API 金鑰。</string>
+    <string name="js_plugin_replace_builtin_message">此版本將取代內建外掛，無需提高版本號。應用程式升級後仍使用你的自訂版本，也可在外掛設定中恢復內建版本。</string>
+    <string name="js_plugin_replace_permissions">原有授權將重設。本次確認會核准上方列出的網路主機；應用程式能力及其他主機會在使用時重新詢問。</string>
+    <string name="js_plugin_import_wrong_id">請選擇 %1$s 的原始碼，目前檔案屬於另一個外掛。</string>
+    <string name="js_plugin_import_incompatible">取代檔案須保留此外掛的語音能力和既有工具入口。其他工具請從外掛清單匯入。</string>
+    <string name="js_plugin_source_builtin">目前原始碼：應用程式內建</string>
+    <string name="js_plugin_source_custom">目前原始碼：自訂取代</string>
+    <string name="js_plugin_source_imported">目前原始碼：自行匯入</string>
+    <string name="js_plugin_source_failed">外掛原始碼操作失敗：%1$s</string>
+    <string name="js_plugin_restore">恢復內建版本</string>
+    <string name="js_plugin_restore_summary">使用目前應用程式附帶的版本，保留設定和 API 金鑰。</string>
+    <string name="js_plugin_restore_message">重新使用內建版本？已匯入的原始碼、設定和 API 金鑰會保留，所需權限會在使用時重新詢問。</string>
+    <string name="js_plugin_restored">已恢復內建外掛。</string>
+    <string name="js_voice_import_post_install_failed">外掛已安裝，但授權或外掛清單重新整理失敗：%1$s。請重新開啟外掛頁面並檢查授權。</string>
+</resources>

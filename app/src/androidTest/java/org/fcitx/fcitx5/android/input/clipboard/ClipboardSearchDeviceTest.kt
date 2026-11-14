@@ -551,7 +551,7 @@ class ClipboardSearchDeviceTest {
             await("Cancelling clipboard editing must release the local editor") { service.jsAppInputConnection == null }
             onMain {
                 JsAppPermissions.grant(assistant.id, "llm_assistant", assistant.apps.single { it.id == "llm_assistant" }.permissions)
-                JsApps.open(service)
+                JsApps.openExact(service, assistant.id, "llm_assistant")
             }
             val assistantEditor = panelEditor(service)
             if (suffix == "light") assertClipboardToolbarSwitchKeepsPanelVisible(service, assistantEditor, "ai-assistant")

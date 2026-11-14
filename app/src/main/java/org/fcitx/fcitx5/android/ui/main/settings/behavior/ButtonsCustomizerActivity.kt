@@ -53,6 +53,8 @@ import org.fcitx.fcitx5.android.input.config.ConfigurableButton
 import org.fcitx.fcitx5.android.input.config.displayedKawaiiBarButtons
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
+import org.fcitx.fcitx5.android.input.voice.js.JsAppButtonBinding
+import org.fcitx.fcitx5.android.input.voice.js.JsAppSelection
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDataManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
@@ -586,17 +588,18 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
     }
 
     private fun openAddButtonDialog(buttonDef: ButtonDefinition) {
+        if (buttonDef.id == "js_tools") {
+            selectJsApp { selected -> openAddButtonSectionDialog(selected) }
+            return
+        }
+        openAddButtonSectionDialog(ConfigurableButton(id = buttonDef.id))
+    }
+
+    private fun openAddButtonSectionDialog(newButton: ConfigurableButton) {
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.add_button_to_section_title))
             .setItems(arrayOf(getString(R.string.kawaii_bar_section), getString(R.string.status_area_section))) { _, which ->
-                val newButton = ConfigurableButton(
-                    id = buttonDef.id,
-                    icon = null,
-                    label = null,
-                )
-
                 val targetSection = if (which == 0) Section.KawaiiBar else Section.StatusArea
-                // Find the position before the section's "+" placeholder
                 val insertPosition = if (targetSection == Section.KawaiiBar) {
                     val kawaiiBarEndIndex = items.indexOfFirst { it is ListItem.AddButtonPlaceholder }
                     if (kawaiiBarEndIndex >= 0) kawaiiBarEndIndex else items.size
@@ -604,14 +607,46 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                     val statusAreaEndIndex = items.indexOfFirst { it is ListItem.StatusAreaAddButtonPlaceholder }
                     if (statusAreaEndIndex >= 0) statusAreaEndIndex else items.size
                 }
-
-                items.add(insertPosition, ListItem.ButtonItem(newButton, targetSection))
-                adapter?.notifyItemInserted(insertPosition)
-                updateAddButtonsSection()
-                adapter?.notifyDataSetChanged() // 更新 AddButtons 区域
-                updateSaveButtonState()
+                insertButton(insertPosition, targetSection, newButton)
             }
             .show()
+    }
+
+    private fun selectJsApp(selected: (ConfigurableButton) -> Unit) {
+        val apps = JsAppSelection.available().sortedWith(compareBy(
+            { it.first.label.lowercase() }, { it.second.label.lowercase() }, { it.first.id }, { it.second.id }
+        ))
+        if (apps.isEmpty()) {
+            Toast.makeText(this, R.string.js_app_none, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val labels = apps.map { (spec, app) ->
+            if (app.label == spec.label) "${app.label}\n${spec.id}"
+            else "${app.label}\n${spec.label} (${spec.id})"
+        }.toTypedArray()
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.js_tools_select_title)
+            .setItems(labels) { _, index ->
+                val (spec, app) = apps[index]
+                selected(ConfigurableButton(
+                    id = requireNotNull(JsAppButtonBinding.encode(spec.id, app.id)),
+                    label = app.label,
+                ))
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun insertButton(position: Int, section: Section, button: ConfigurableButton) {
+        if (items.filterIsInstance<ListItem.ButtonItem>().any { it.button.id == button.id }) {
+            Toast.makeText(this, R.string.edit_button_id_duplicate, Toast.LENGTH_SHORT).show()
+            return
+        }
+        items.add(position, ListItem.ButtonItem(button, section))
+        adapter?.notifyItemInserted(position)
+        updateAddButtonsSection()
+        adapter?.notifyDataSetChanged()
+        updateSaveButtonState()
     }
 
     // Macro editor launcher
@@ -793,7 +828,25 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
     }
 
     private fun openButtonEditor(button: ConfigurableButton, position: Int, section: Section) {
+        if (button.id == "js_tools") {
+            // The early unreleased implementation stored a generic runtime picker. Rebind that
+            // placeholder in the editor; never send the user through a second picker on each tap.
+            selectJsApp { selected ->
+                items[position] = ListItem.ButtonItem(selected.copy(
+                    icon = button.icon,
+                    text = button.text,
+                ), section)
+                adapter?.notifyItemChanged(position)
+                updateAddButtonsSection()
+                adapter?.notifyDataSetChanged()
+                updateSaveButtonState()
+            }
+            return
+        }
         val isBuiltIn = button.id in builtInButtonIds
+        val isJsApp = JsAppButtonBinding.decode(button.id) != null
+        val fixedIdentity = isBuiltIn || isJsApp
+        val removable = !isBuiltIn
 
         val dialogView = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -820,16 +873,16 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             }
         }
 
-        // ID input (only for non-built-in)
+        // JS App shortcuts keep their exact provider/App identity but remain removable.
         var idInput: EditText? = null
-        if (!isBuiltIn) {
+        if (!fixedIdentity) {
             idInput = labeledInput(getString(R.string.edit_button_label_id), getString(R.string.edit_button_hint_id), button.id, dialogView)
         }
 
         // Text icon input
         val textInput = labeledInput(getString(R.string.edit_button_label_text), getString(R.string.edit_button_hint_text), button.text, dialogView)
 
-        // Custom label input (only for non-built-in)
+        // Dynamic JS App shortcuts retain and may customize the App label.
         var labelInput: EditText? = null
         if (!isBuiltIn) {
             labelInput = labeledInput(getString(R.string.edit_button_label_label), getString(R.string.custom_label_hint), button.label, dialogView)
@@ -880,7 +933,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
         dialogView.addView(iconPathText)
 
         // Edit Macro Steps button
-        if (!isBuiltIn) {
+        if (!fixedIdentity) {
             val macroBtn = MaterialButton(this).apply {
                 text = getString(R.string.edit_button_macro)
                 textSize = 12f
@@ -898,7 +951,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
         }
 
         // Macro steps summary
-        if (!isBuiltIn) {
+        if (!fixedIdentity) {
             stepsSummaryText = TextView(this).apply {
                 text = stepsSummary()
                 textSize = 11f
@@ -909,7 +962,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
         }
 
         // Delete button (only for non-built-in buttons) - shown as neutral button in dialog
-        if (!isBuiltIn) {
+        if (removable) {
             dialogView.addView(View(this).apply { layoutParams = ViewGroup.LayoutParams(0, dp(8)) })
         }
 
@@ -917,7 +970,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             .setTitle("${getString(R.string.edit_button_title)} ${button.id}")
             .setView(dialogView)
             .apply {
-                if (!isBuiltIn) {
+                if (removable) {
                     setNeutralButton(R.string.delete) { dialog, _ ->
                         MaterialAlertDialogBuilder(this@ButtonsCustomizerActivity)
                             .setTitle(R.string.delete_button_title)
@@ -937,7 +990,8 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             }
             .setPositiveButton(R.string.ok) { _, _ ->
                 val customText = textInput.text?.toString()?.trim()?.ifEmpty { null }
-                val customLabel = if (isBuiltIn) null else labelInput?.text?.toString()?.trim()?.ifEmpty { null }
+                val customLabel = if (isBuiltIn) button.label
+                    else labelInput?.text?.toString()?.trim()?.ifEmpty { null }
 
                 val newId = idInput?.text?.toString()?.trim()?.takeIf { it.isNotEmpty() } ?: button.id
                 // Validate ID
@@ -1171,32 +1225,28 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                             ?: return@setOnClickListener
                         // Show add button dialog
                         val currentIds = items.filterIsInstance<ListItem.ButtonItem>().map { it.button.id }.toSet()
-                        val availableIds = availableButtons.filter { button ->
+                        val availableDefs = availableButtons.filter { button ->
                             button.id !in currentIds
-                        }.map { it.id }
+                        }
                         
                         // Show a popup menu with available buttons
                         val popup = android.widget.PopupMenu(this@ButtonsCustomizerActivity, holder.ui.root)
-                        availableIds.forEach { id ->
-                            val buttonDef = availableButtons.find { it.id == id }
-                            popup.menu.add(buttonDef?.let { getString(it.labelRes) } ?: id)
+                        availableDefs.forEachIndexed { index, buttonDef ->
+                            popup.menu.add(Menu.NONE, index, index, getString(buttonDef.labelRes))
                         }
                         val customLabel = getString(R.string.edit_button_new_custom)
-                        popup.menu.add(customLabel)
+                        val customItemId = availableDefs.size
+                        popup.menu.add(Menu.NONE, customItemId, customItemId, customLabel)
                         popup.setOnMenuItemClickListener { menuItem ->
-                            if (menuItem.title == customLabel) {
+                            val targetSection = if (isKawaiiBar) Section.KawaiiBar else Section.StatusArea
+                            if (menuItem.itemId == customItemId) {
                                 val customId = generateCustomButtonId()
-                                val targetSection = if (isKawaiiBar) Section.KawaiiBar else Section.StatusArea
                                 val newButton = ConfigurableButton(
                                     id = customId,
                                     text = null,
                                     macroSteps = listOf(MacroStep.Text(""))
                                 )
-                                items.add(insertAt, ListItem.ButtonItem(newButton, targetSection))
-                                adapter?.notifyItemInserted(insertAt)
-                                updateAddButtonsSection()
-                                adapter?.notifyDataSetChanged()
-                                updateSaveButtonState()
+                                insertButton(insertAt, targetSection, newButton)
                                 // Open editor immediately so user can configure
                                 recyclerView.post {
                                     val editAt = items.indexOfFirst {
@@ -1205,19 +1255,15 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                                     if (editAt >= 0) openButtonEditor(newButton, editAt, targetSection)
                                 }
                             } else {
-                                val buttonDef = availableButtons.find { getString(it.labelRes) == menuItem.title }
+                                val buttonDef = availableDefs.getOrNull(menuItem.itemId)
                                 if (buttonDef != null) {
-                                    val targetSection = if (isKawaiiBar) Section.KawaiiBar else Section.StatusArea
-                                    val newButton = ConfigurableButton(
-                                        id = buttonDef.id,
-                                        icon = null,
-                                        label = null,
-                                    )
-                                    items.add(insertAt, ListItem.ButtonItem(newButton, targetSection))
-                                    adapter?.notifyItemInserted(insertAt)
-                                    updateAddButtonsSection()
-                                    adapter?.notifyDataSetChanged()
-                                    updateSaveButtonState()
+                                    if (buttonDef.id == "js_tools") {
+                                        selectJsApp { selected ->
+                                            insertButton(insertAt, targetSection, selected)
+                                        }
+                                    } else {
+                                        insertButton(insertAt, targetSection, ConfigurableButton(buttonDef.id))
+                                    }
                                 }
                             }
                             true
@@ -1242,13 +1288,13 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                         b.icon != null && b.icon.startsWith("file:") -> 0
                         b.icon != null -> {
                             val resId = resources.getIdentifier(b.icon, "drawable", packageName)
-                            if (resId != 0) resId else (buttonDef?.iconRes ?: when (b.id) {
+                            if (resId != 0) resId else (buttonDef?.iconRes ?: ButtonAction.fromId(b.id)?.defaultIcon ?: when (b.id) {
                                 "toolbar_toggle" -> R.drawable.ic_baseline_more_horiz_24
                                 "hide_keyboard" -> R.drawable.ic_baseline_arrow_drop_down_24
                                 else -> 0
                             })
                         }
-                        else -> (buttonDef?.iconRes ?: when (b.id) {
+                        else -> (buttonDef?.iconRes ?: ButtonAction.fromId(b.id)?.defaultIcon ?: when (b.id) {
                             "toolbar_toggle" -> R.drawable.ic_baseline_more_horiz_24
                             "hide_keyboard" -> R.drawable.ic_baseline_arrow_drop_down_24
                             else -> 0

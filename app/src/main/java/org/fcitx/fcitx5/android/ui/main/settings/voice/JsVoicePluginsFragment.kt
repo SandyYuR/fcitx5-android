@@ -2,6 +2,7 @@
 package org.fcitx.fcitx5.android.ui.main.settings.voice
 
 import android.net.Uri
+import android.app.Activity
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.view.View
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.input.voice.js.JsAppSelection
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceImportResult
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceImporter
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceHostPermissions
@@ -35,10 +37,25 @@ import java.util.Locale
  */
 class JsVoicePluginsFragment : PaddingPreferenceFragment() {
 
+    private val targetPluginId: String?
+        get() = arguments?.getString(JsVoicePluginsActivity.EXTRA_TARGET_PLUGIN_ID)
+    private var targetPickerLaunched = false
+
     private val importLauncher =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri != null) startImport(uri)
+            else if (targetPluginId != null) requireActivity().finish()
         }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        targetPickerLaunched = savedInstanceState?.getBoolean("target_picker_launched") ?: false
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("target_picker_launched", targetPickerLaunched)
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
@@ -47,6 +64,10 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         rebuild()
+        if (targetPluginId != null && !targetPickerLaunched) {
+            targetPickerLaunched = true
+            importLauncher.launch(arrayOf("*/*"))
+        }
     }
 
     override fun onResume() {
@@ -57,17 +78,32 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
 
     private fun rebuild() {
         val screen = preferenceScreen ?: return
+        if (targetPluginId != null) {
+            screen.removeAll()
+            screen.addPreference(actionPreference(KEY_IMPORT, getString(R.string.js_plugin_replace),
+                JsVoiceProviders.specOf(targetPluginId!!)?.label.orEmpty() + "\n" + getString(R.string.js_plugin_replace_summary)) {
+                importLauncher.launch(arrayOf("*/*"))
+            })
+            return
+        }
         if (screen.findPreference<Preference>(KEY_IMPORT) == null) screen.addPreference(actionPreference(
             key = KEY_IMPORT,
             title = getString(R.string.js_voice_import),
             summary = getString(R.string.js_voice_import_summary),
-        ) { importLauncher.launch(arrayOf("*/*")) })
+        ) { importLauncher.launch(arrayOf("*/*")) }.apply { order = 0 })
+
+        val selectedApp = JsAppSelection.preferred()
+        val selector = screen.findPreference<Preference>(KEY_ASSISTANT) ?: actionPreference(
+            KEY_ASSISTANT, getString(R.string.js_app_preferred), "", ::selectAssistant
+        ).apply { order = 1 }.also(screen::addPreference)
+        selector.summary = selectedApp?.let { (spec, app) -> "${app.label} · ${spec.label} (${spec.id})" }
+            ?: getString(R.string.js_app_none)
+        selector.isEnabled = JsAppSelection.available().isNotEmpty()
 
         val current = AppPrefs.getInstance().keyboard.preferredVoiceInput.getValue()
-        val visibleKeys = mutableSetOf(KEY_IMPORT)
-        var order = 1
-        // 内置与导入平级：对宿主而言它们走同一份契约（同一份 Spec、同一条注册路径），
-        // 唯一的差别是「能不能移除」，而那件事在插件自己的设置页里表达，不在这里分栏。
+        val visibleKeys = mutableSetOf(KEY_IMPORT, KEY_ASSISTANT)
+        var order = 2
+        // 内置与导入平级；源码替换、恢复和移除在各自设置页中管理。
         // 顺序按显示名排：导入、覆盖升级、移除之后条目的位置可预期，也不会因为「新来的
         // 只能排到末尾、内置永远占顶部」而退化成变相分组。
         JsVoiceProviders.all()
@@ -122,6 +158,22 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
         startActivity(JsVoicePluginSettingsActivity.intent(requireContext(), pluginId))
     }
 
+    private fun selectAssistant() {
+        val apps = JsAppSelection.available().sortedWith(compareBy({ it.first.label }, { it.second.label }, { it.first.id }))
+        val current = JsAppSelection.preferred()
+        val selected = apps.indexOfFirst { it.first.id == current?.first?.id && it.second.id == current?.second?.id }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.js_app_preferred)
+            .setSingleChoiceItems(apps.map { (spec, app) -> "${app.label}\n${spec.label} (${spec.id})" }.toTypedArray(), selected) { dialog, index ->
+                val (spec, app) = apps[index]
+                if (!JsAppSelection.select(spec.id, app.id)) toast(getString(R.string.js_app_selection_failed))
+                dialog.dismiss()
+                rebuild()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
     private fun startImport(uri: Uri) {
         viewLifecycleOwner.lifecycleScope.launch {
             val file = withContext(Dispatchers.IO) { runCatching { readDocument(uri) } }
@@ -138,6 +190,8 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
                         locale = Locale.getDefault().toLanguageTag(),
                         builtInIds = JsVoiceProviders.builtInIds(),
                         importedIds = JsVoicePluginStore.importedIds(),
+                        targetPluginId = targetPluginId,
+                        existingImportedSpecs = JsVoiceProviders.all().associateBy { it.id },
                     )
                 }
             }
@@ -176,6 +230,12 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
         if (result.replacesExisting) {
             lines += getString(R.string.js_voice_import_dialog_replace)
         }
+        if (targetPluginId != null && JsVoiceProviders.isBuiltInId(meta.providerId)) {
+            lines += getString(R.string.js_plugin_replace_builtin_message)
+        }
+        if (result.replacesExisting || targetPluginId != null) {
+            lines += getString(R.string.js_plugin_replace_permissions)
+        }
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.js_voice_network_title)
             .setMessage(lines.joinToString("\n\n"))
@@ -183,6 +243,7 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
             .setPositiveButton(R.string.js_voice_network_install_approve) { _, _ ->
                 saveImport(meta, sourceName, script)
             }
+            .setOnCancelListener { if (targetPluginId != null) requireActivity().finish() }
             .show()
     }
 
@@ -192,20 +253,39 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
                 meta = meta,
                 sourceName = sourceName,
                 importedAt = System.currentTimeMillis(),
+                overridesBuiltIn = targetPluginId != null && JsVoiceProviders.isBuiltInId(meta.providerId),
             )
-            val saved = withContext(Dispatchers.IO) {
+            val installed = withContext(Dispatchers.IO) {
                 runCatching {
                     check(JsVoicePluginStore.save(record, script)) { "Cannot save plugin" }
-                    if (meta.hosts.isNotEmpty()) JsVoiceHostPermissions.approve(meta.providerId, meta.hosts.toSet())
-                    JsVoiceProviders.reload()
                 }
             }
             if (!isAdded) return@launch
-            saved.onSuccess {
-                toast(getString(R.string.js_voice_import_success, meta.displayName))
-                rebuild()
-            }.onFailure {
+            installed.onFailure {
                 toast(getString(R.string.js_voice_import_failed_save, it.message.orEmpty()))
+                return@launch
+            }
+            // The durable install is already complete. Authorization and catalog refresh are
+            // follow-up operations: always attempt both, and never report the installed source as
+            // "not saved" if either follow-up fails.
+            val followUp = withContext(Dispatchers.IO) {
+                val errors = mutableListOf<Throwable>()
+                if (meta.hosts.isNotEmpty()) runCatching {
+                    JsVoiceHostPermissions.approve(meta.providerId, meta.hosts.toSet())
+                }.exceptionOrNull()?.let(errors::add)
+                runCatching { JsVoiceProviders.reload() }.exceptionOrNull()?.let(errors::add)
+                errors.firstOrNull()?.also { first -> errors.drop(1).forEach(first::addSuppressed) }
+            }
+            if (!isAdded) return@launch
+            toast(getString(R.string.js_voice_import_success, meta.displayName))
+            followUp?.let {
+                toast(getString(R.string.js_voice_import_post_install_failed, it.message.orEmpty()))
+            }
+            if (targetPluginId != null) {
+                requireActivity().setResult(Activity.RESULT_OK)
+                requireActivity().finish()
+            } else {
+                rebuild()
             }
         }
     }
@@ -225,6 +305,10 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
             getString(R.string.js_voice_import_failed_reserved_id, failure.detail)
         JsVoiceImportResult.Failure.Reason.NO_HOSTS ->
             getString(R.string.js_voice_import_failed_no_hosts)
+        JsVoiceImportResult.Failure.Reason.TARGET_MISMATCH ->
+            getString(R.string.js_plugin_import_wrong_id, targetPluginId.orEmpty())
+        JsVoiceImportResult.Failure.Reason.INCOMPATIBLE_TARGET ->
+            getString(R.string.js_plugin_import_incompatible)
     }
 
     private fun toast(text: String) {
@@ -256,6 +340,7 @@ class JsVoicePluginsFragment : PaddingPreferenceFragment() {
 
     companion object {
         private const val KEY_IMPORT = "js_voice_import"
+        private const val KEY_ASSISTANT = "js_app_preferred"
         private const val KEY_ENTRY = "js_voice_entry_"
     }
 }
