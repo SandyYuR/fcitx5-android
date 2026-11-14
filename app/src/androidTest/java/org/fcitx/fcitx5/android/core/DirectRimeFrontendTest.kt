@@ -1108,12 +1108,18 @@ end
                 instrumentation.runOnMainSync {
                     grid = descendants(input).filterIsInstance<androidx.recyclerview.widget.RecyclerView>()
                         .first { it.adapter is org.fcitx.fcitx5.android.input.status.StatusAreaAdapter }
-                    val adapter = grid.adapter as org.fcitx.fcitx5.android.input.status.StatusAreaAdapter
-                    position = adapter.entries.indexOfFirst {
-                        (it as? org.fcitx.fcitx5.android.input.status.StatusAreaEntry.Fcitx)?.action?.name == "rime"
+                }
+                // onAttached reads actions on the owner before posting adapter updates to main.
+                // A newly attached status window can therefore still have an empty adapter.
+                await("Status area must contain the Rime menu entry") {
+                    instrumentation.runOnMainSync {
+                        val adapter = grid.adapter as org.fcitx.fcitx5.android.input.status.StatusAreaAdapter
+                        position = adapter.entries.indexOfFirst {
+                            (it as? org.fcitx.fcitx5.android.input.status.StatusAreaEntry.Fcitx)?.action?.name == "rime"
+                        }
+                        if (position >= 0) grid.scrollToPosition(position)
                     }
-                    assertTrue("Status area must contain the Rime menu entry", position >= 0)
-                    grid.scrollToPosition(position)
+                    position >= 0
                 }
                 var rootButton: View? = null
                 await("The current Rime menu entry must be visible") {
