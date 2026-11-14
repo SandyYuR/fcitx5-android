@@ -25,6 +25,8 @@ var __pending = null;
 // foxy.websocket 的回调按种类各注册一个，宿主收到帧后按种类调用；与语音会话的
 // plugin.onMessage 单入口并存，互不覆盖。
 var __wsHandlers = { message: null, binary: null, error: null, close: null };
+// foxy.http 的流式回调同样按种类各注册一个：chunk(id, event, data) / end(id) / error(id, message)。
+var __streamHandlers = { chunk: null, end: null, error: null };
 var __native = {
   locale: __n_locale, wsConnect: __n_wsConnect, wsWaitOpen: __n_wsWaitOpen, wsSend: __n_wsSend,
   wsSendBinary: __n_wsSendBinary, wsSendGzipFrame: __n_wsSendGzipFrame, wsClose: __n_wsClose,
@@ -118,7 +120,13 @@ var foxy = {
     request: function (options) { return __n_appHttp(JSON.stringify(options)); },
     post: function (url, secretField, jsonBody, headersJson) {
       return __native.httpPost(__str(url), __str(secretField), String(jsonBody), __str(headersJson));
-    }
+    },
+    // 立即返回流 ID，事件通过 onChunk/onEnd/onError 异步到达；取消用 cancelStream。
+    stream: function (options) { return __n_appHttpStream(JSON.stringify(options || {})); },
+    cancelStream: function (id) { return __n_appHttpCancelStream(__str(id)); },
+    onChunk: function (fn) { __streamHandlers.chunk = fn; },
+    onEnd: function (fn) { __streamHandlers.end = fn; },
+    onError: function (fn) { __streamHandlers.error = fn; }
   },
   audio: {
     wavBase64: function (pcmBase64, sampleRate) {
@@ -167,7 +175,7 @@ var foxy = {
     },
     http: {
       request: true, post: true, supportsConfiguredEndpoints: true,
-      stream: false, cancelStream: false, onChunk: false, onEnd: false, onError: false
+      stream: true, cancelStream: true, onChunk: true, onEnd: true, onError: true
     },
     audio: { wavBase64: true },
     crypto: { hmacSha1Base64: true },
@@ -280,6 +288,13 @@ function __invoke(name, ctx) {
     var handler = __wsHandlers[ctx.kind];
     if (typeof handler !== "function") return null;
     return handler(ctx.socket, ctx.payload);
+  }
+  if (name === "stream") {
+    var streamHandler = __streamHandlers[ctx.kind];
+    if (typeof streamHandler !== "function") return null;
+    if (ctx.kind === "chunk") return streamHandler(ctx.id, ctx.event, ctx.data);
+    if (ctx.kind === "error") return streamHandler(ctx.id, ctx.payload);
+    return streamHandler(ctx.id);
   }
   throw new Error("Unknown plugin callback: " + name);
 }

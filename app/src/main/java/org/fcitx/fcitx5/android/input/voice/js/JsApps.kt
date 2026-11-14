@@ -179,6 +179,24 @@ internal object JsApps {
             receive = { wsEvents.trySend(it) },
         )
 
+        /**
+         * App 会话的流式 HTTP。授权与普通请求共用 endpoint policy 和主机批准；stream() 同步返回
+         * 流 ID，所以批准在协程里做，被拒绝时以 onError 通知插件。
+         */
+        private val streams = JsAppStreams(
+            scope = scope,
+            checkUrl = { url -> JsAppEndpointPolicy(spec.hosts, settings).checkUrl(url) },
+            secret = { key ->
+                require(fields.any { it.key == key && it.isSecret }) { "Undeclared credential" }
+                JsVoiceSettingsStore.secret(spec.id, key)
+            },
+            approve = { parsed ->
+                requirePermission("network.request")
+                approveHost(parsed.host.trimEnd('.'))
+            },
+            dispatch = { event -> dispatchStream(event) },
+        )
+
         fun start() {
             if (connection == null || token?.isCurrent() != true) return
             activeSession = this
@@ -249,6 +267,14 @@ internal object JsApps {
                         JsVoiceSettingsStore.secret(spec.id, key)
                     }).request(options)
                 }
+                engine.function("__n_appHttpStream") { args ->
+                    requirePermission("network.request")
+                    streams.start(Json.parseToJsonElement(args[0].toString()).jsonObject)
+                }
+                engine.function("__n_appHttpCancelStream") { args ->
+                    streams.cancel(args.getOrNull(0).toString())
+                    null
+                }
                 // foxy.websocket.authorize：App 的 WebSocket 连接是同步的，插件必须在 connect 前先拿到
                 // 主机授权。返回 true/false 让插件自己决定要不要继续，而不是在这里抛错。
                 engine.asyncFunction("__n_wsAuthorize") { args ->
@@ -314,6 +340,35 @@ internal object JsApps {
                 } catch (error: Exception) {
                     // 单个回调抛错不该掐断后续帧，也不该顶掉对话框里的错误提示。
                 }
+            }
+        }
+
+        /**
+         * 把流式事件翻成 foxy.http.onChunk/onEnd/onError 的调用。每个事件都 await 插件处理完
+         * 才返回，读循环因此不会跑在插件前面；没有处理器时静默丢弃。
+         */
+        private suspend fun dispatchStream(event: StreamEvent) {
+            val engine = js ?: return
+            val context = buildJsonObject {
+                when (event) {
+                    is StreamEvent.Chunk -> {
+                        put("kind", "chunk"); put("event", event.event); put("data", event.data)
+                    }
+                    is StreamEvent.End -> put("kind", "end")
+                    is StreamEvent.Failed -> { put("kind", "error"); put("payload", event.message) }
+                }
+                put("id", event.streamId)
+            }
+            try {
+                jsLock.withLock {
+                    withContext(Dispatchers.IO) {
+                        JsVoiceInvoker.call({ engine.evaluate<String>(it) }, "stream", context.toString(), 180_000)
+                    }
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                // 单个回调抛错不该掐断整条流，也不该顶掉对话框里的错误提示。
             }
         }
 
@@ -398,6 +453,7 @@ internal object JsApps {
             }
             ws.closeAll()
             wsEvents.close()
+            streams.closeAll()
             scope.cancel()
             val engine = js
             js = null
