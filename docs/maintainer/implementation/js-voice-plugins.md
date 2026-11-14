@@ -20,8 +20,9 @@
 - 同一输入法服务中的 AI 动作再次点击会关闭当前 App 面板，取消未完成请求并恢复临时预览；重新点击才创建新会话。键盘内剪贴板等页面切换保留现有面板和本地输入，不改变原应用连接。
 - 同一动态 App 动作再次点击会关闭当前面板；点击另一动态 App 动作会先取消旧会话、恢复临时预览，再打开精确目标。切换入口不改变原应用编辑器的归属，过期输入会话不能因按钮解析而复活。旧的通用 `js_tools` 占位只引导用户回“编辑按钮”重新绑定，不再提供运行时选择器。
 - `foxy.editor.getSelection/getText/setComposition/clearComposition/commit` 分别核对相应能力。预览取消时恢复原选中文本；只有 `commit` 正式上屏。`credentials.list` 和 `context.configuredSecrets` 仅提供已配置的字段 ID，不提供密钥。
-- `foxy.capabilities` 是按 Foxy 形状组织的**白名单**能力表，不是原生桥对象的转储：表里为 `true` 的项本宿主确实实现，为 `false` 的项（`http.stream`、`http.cancelStream`、`http.onChunk/onEnd/onError`）尚未实现，插件据此降级即可，不必 `try/catch`。它只描述公开 API，`__n_*`、`wsConnect`、`__native` 等宿主内部入口不在表内，新增内部函数也不会因此变成公开契约；新增能力时必须同步改表，否则插件会以为它不存在。
+- `foxy.capabilities` 是按 Foxy 形状组织的**白名单**能力表，不是原生桥对象的转储：表里为 `true` 的项本宿主确实实现，目前公开 API 各项均为 `true`；将来若有尚未实现的项必须报 `false`，插件据此降级即可，不必 `try/catch`。它只描述公开 API，`__n_*`、`wsConnect`、`__native` 等宿主内部入口不在表内，新增内部函数也不会因此变成公开契约；新增能力时必须同步改表，否则插件会以为它不存在。
 - App 会话与语音会话共用同一份 `JsWebSocketTransport`（`JsWebSocketTransport.kt`）：`__n_wsConnect` 等原生绑定只实现一次，语音侧把入站转成 `JsVoiceCommand`，App 侧转成 `WsInbound` 经 `Channel` 投递到引擎线程。App 的 `connect` 是同步调用，不能在里边弹授权框，因此要求插件先 `await foxy.websocket.authorize(...)`：它走 `JsAppEndpointPolicy`（静态 `hosts` + 普通设置里的 HTTPS 主机）与按插件/主机的用户批准，未授权主机在 `connect` 时直接抛错。`onMessage/onBinary/onError/onClose` 按种类各存一个处理函数（与 Foxy 一致，不按 socket 区分），由 `__invoke("ws", {kind, socket, payload})` 分派；`onClose` 的载荷是 `wasClean` 布尔值，本宿主用关闭码 1000 近似。回调在 `jsLock` 下串行执行，单个回调抛错不会掐断后续帧；App 关闭时 `closeAll()` 并结束投递。
+- App 的 SSE 由 `JsAppStreams`（`JsAppStreams.kt`）实现：`stream()` 校验 HTTPS、方法与 1 MiB 请求体上限后立刻返回流 ID，实际请求在 IO 协程里先过 `network.request` 权限与主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 解析 `event:`/`data:`（多行以换行连接、空行派发、缺省事件名 `message`、`:` 注释忽略），非 SSE 响应逐行投递、事件名 `line`，单行上限 `JsVoiceRuntime.RESPONSE_BYTES`。请求派生自 `JsAppHttp.CLIENT` 并清空 call/read 超时（SSE 可能长时间空闲），取消只来自 `cancelStream` 或 App 关闭；取消或关闭后不再回调。回调与 WebSocket 回调共用同一把 `jsLock` 串行执行。
 - `foxy.settings.set(key, value)` 把值写回该插件的普通设置项，只接受 `configure()` 里声明过的非密钥字段（`ui.text/select/switch/number`）；密钥字段与未声明的键都抛错，避免插件覆盖用户密钥或往偏好文件塞任意键值。写入后同一会话后续 `event` 上下文里的 `settings` 立即反映新值。设置页用的占位宿主没有这项能力，那里 `foxy.settings` 不存在（`typeof` 为 `undefined`），与 Foxy 的条件挂载一致。
 - JS 不提供自动读取剪贴板的能力。迁移其他宿主的文本插件时，可按声明读取选区，或让用户在 App 的 `input` 中输入、手动粘贴；网络、返回值及界面需分别适配本页接口。上屏前的明确确认与旧结果失效逻辑仍由脚本实现，动态按钮不会替插件添加这些步骤。
 - `foxy.http.request` 支持 GET、POST、PUT、PATCH、DELETE，返回 JSON 字符串形式的状态、头和正文。`credential`、`authHeader`、`authPrefix` 让宿主注入密钥，JS 不持有明文。请求体限制 1 MiB、响应限制 2 MiB，禁止自动重定向和覆盖传输头。
@@ -37,8 +38,8 @@
 
 内置助手以 **发送 AI → 显示 AI 回复 → 确认上屏** 为主流程。无有效回复的旧 `confirm` 事件按生成处理；输入、用途、服务或配置变化使旧回复失效，不能提交旧结果。失败保持窗口与输入。按钮标签没有宿主内建语义，其他插件应自行实现完整状态处理。
 
-当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的非流式文本请求；App SSE/WebSocket、`foxy.websocket.authorize`、旧式平铺 `fields/buttons` 和任意 `js.*` 布局命令未实现。动态 JS App 按钮只解析已注册 App，不执行任意布局命令。
-新版 [Foxy 英文接口参考](/features/voice-input-js-en)和[中文译文](/features/voice-input-js-reference-zh-CN)包含上游完整 API，不能将其中的流式示例直接视为本宿主已支持。
+当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的文本请求，以及 App SSE 与 App WebSocket；旧式平铺 `fields/buttons` 和任意 `js.*` 布局命令未实现。动态 JS App 按钮只解析已注册 App，不执行任意布局命令。
+新版 [Foxy 英文接口参考](/features/voice-input-js-en)和[中文译文](/features/voice-input-js-reference-zh-CN)包含上游完整 API；判断本宿主支持范围以本页和能力表为准。
 
 ## 插件定义
 

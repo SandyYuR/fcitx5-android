@@ -9,7 +9,7 @@ docKind: reference
 以下正文描述 **Foxy** 的接口。中州鹅的实际支持范围见[宿主实现](/maintainer/implementation/js-voice-plugins#js-app-test-branch)。
 
 中州鹅的 AI 助手与 JS App 功能已于 2026-11-05 合入默认分支 `fx-rime-only`；较早的 APK 需更新后使用。
-已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP，以及按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`）；App 的 SSE、旧式平铺布局、任意 `js.*` 布局命令和通用 App 选择器尚未实现。语音 WebSocket 仍可使用。
+已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP、SSE 流式 HTTP，以及按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`）；旧式平铺布局、任意 `js.*` 布局命令和通用 App 选择器尚未实现。语音 WebSocket 仍可使用。
 
 Foxy 要求请求主机在静态 `hosts` 中声明。中州鹅的 **App HTTP** 还允许从用户配置的 HTTPS 地址提取主机，并在首次请求时逐域名授权；内置助手的 `hosts` 为空。这个扩展不等于给原版 Foxy 放开任意域名，语音接口仍按静态清单授权。
 
@@ -52,7 +52,7 @@ foxy.plugin.register({
 
 WebSocket 的 `connect` 是同步接口，首次连接未批准的主机前，应调用 `await foxy.websocket.authorize("wss://api.example.com/...")` 或 `await foxy.websocket.authorize("api.example.com")`，先完成相同的授权确认。
 
-> 上述 WebSocket 预授权和 SSE 是 Foxy 接口；中州鹅的支持差异见页首。
+> 上述 WebSocket 预授权与 SSE 均已在本宿主实现；其余支持差异见页首。
 
 ## 设置
 
@@ -239,7 +239,7 @@ if (foxy.capabilities.http.stream) {
 
 ## 流式 HTTP / SSE
 
-> 本节为 Foxy 参考，中州鹅的 JS App 尚未实现这些流式接口。
+> 本宿主已实现本节接口，`foxy.capabilities.http.stream` 为 `true`。实现细节与限制见本节末。
 
 `foxy.http.stream(options)` 立即返回流 ID。每个 SSE 事件以 `(streamId, event, data)` 传入；非 SSE 响应逐行传入，事件名为 `"line"`。
 
@@ -271,6 +271,8 @@ foxy.http.cancelStream(streamId);
 ```
 
 解析 SSE 的 `event:`、`data:` 字段，多行 `data:` 以换行连接。流仅使用 HTTPS，与普通 HTTP 共用主机授权及 `network.request` 权限；App 关闭时取消。分块回调按顺序等待完成，提供背压。
+
+本宿主的实现约定：`stream()` 校验 HTTPS、方法与请求体上限（1 MiB）后立即返回流 ID，事件可能早于紧随其后的同步代码，应先注册 `onChunk/onEnd/onError` 再发起。真正发请求前会请求主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 的空行派发事件、缺省事件名为 `message`，`:` 开头的注释行忽略；非 SSE 响应逐行投递、事件名为 `line`，单行上限 1 MiB，超长以 `onError` 结束。请求不设整体与读取超时（SSE 可能长时间空闲），取消只来自 `cancelStream` 或 App 关闭；取消或关闭后不再回调，回调在宿主侧串行执行。
 
 ## WebSocket
 

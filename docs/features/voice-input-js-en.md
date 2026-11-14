@@ -15,9 +15,9 @@ Older APKs need an update. See the [current host implementation](/maintainer/imp
 
 | Area | Current 中州鹅 host |
 | --- | --- |
-| JS Apps | App registration, permissions, structured native layouts, editor APIs, credentials and non-streaming HTTP are supported. The toolbar provides an AI assistant entry. |
+| JS Apps | App registration, permissions, structured native layouts, editor APIs, credentials, non-streaming HTTP and SSE streaming are supported. The toolbar provides an AI assistant entry. |
 | Network authorization | App HTTP accepts declared hosts or hosts derived from configured HTTPS addresses, with separate approval before sending text or credentials. The built-in assistant has no default API addresses or static hosts. Voice transports still require declared hosts. |
-| Streaming and commands | App WebSocket with per-kind callbacks and `foxy.websocket.authorize()` is supported. App SSE, legacy flat layouts, generic `js.*` layout commands and arbitrary App selection are not implemented. The voice WebSocket transport is supported. |
+| Streaming and commands | App SSE (`foxy.http.stream`) and App WebSocket with per-kind callbacks and `foxy.websocket.authorize()` are supported. Legacy flat layouts, generic `js.*` layout commands and arbitrary App selection are not implemented. The voice WebSocket transport is supported. |
 | Controls | Floating panels keep keyboard input available. The host additionally supports `input.readOnly` for a selectable AI reply. |
 
 Button IDs and selector IDs are delivered to the plugin as events: a label such as “Confirm” has no built-in generate/insert behavior. Handle selector events explicitly to keep the panel open.
@@ -268,6 +268,8 @@ foxy.http.cancelStream(streamId);
 ```
 
 SSE `event:` and `data:` fields are parsed; multiple `data:` lines are joined with newline. The stream is HTTPS-only, uses the same host approval and `network.request` permission as ordinary HTTP, and is cancelled when the plugin App closes. Chunk callbacks are awaited sequentially to provide backpressure.
+
+Host specifics: `stream()` validates HTTPS, the method and a 1 MiB body limit, then returns the stream ID immediately, so register `onChunk/onEnd/onError` before starting; events can arrive before the following synchronous statements run. Host approval is requested before the request is sent and a denial reports `Network permission denied` through `onError`. A blank line dispatches an SSE event, the default event name is `message`, and `:` comment lines are ignored; non-SSE bodies are delivered line by line with event `"line"` and a 1 MiB per-line cap that ends the stream with `onError`. No overall or read timeout is applied because SSE streams can idle, so cancellation comes only from `cancelStream` or App close; nothing is delivered after either.
 
 ## WebSocket
 
