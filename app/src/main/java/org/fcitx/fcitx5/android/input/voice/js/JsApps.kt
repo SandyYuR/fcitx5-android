@@ -141,7 +141,7 @@ internal object JsApps {
         var fields = emptyList<JsVoiceField>()
         var settings = emptyMap<String, String>()
         var configuredSecrets = emptyList<String>()
-        val dialog = JsAppDialog(service, ::event, ::close)
+        val dialog = JsAppDialog(service, ::event, ::close, command = ::openCommand)
 
         /** WebSocket 入站帧先入队：OkHttp 回调线程不能直接碰引擎，消费协程负责串行投递。 */
         private val wsEvents = Channel<WsInbound>(Channel.UNLIMITED)
@@ -424,6 +424,17 @@ internal object JsApps {
                 JsVoiceHostPermissions.approve(spec.id, JsVoiceHostPermissions.approvedHosts(spec.id) + host)
             }
             return true
+        }
+
+        /**
+         * 布局里的 `{"type":"app","command":"js.<id>"}`：解析成唯一匹配的 App 后切过去。
+         * 解析失败（未注册或同 ID 出现在多个插件里）就提示改用编辑按钮里的精确绑定。
+         */
+        private fun openCommand(command: String) {
+            val target = JsAppCommand.resolve(command, JsAppSelection.available().map { it.first.id to it.second })
+            if (target == null) { service.toast(R.string.js_app_shortcut_missing); return }
+            dialog.dismiss()
+            openTarget(service, target.pluginId, target.appId, R.string.js_app_shortcut_password)
         }
 
         fun requirePermission(permission: String) {
