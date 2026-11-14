@@ -101,6 +101,7 @@ const maintenance = [
     { text: '后端职责分批拆分 · 2026-11-14', link: '/maintainer/changes/2026-11-14-direct-rime-responsibility-splits' },
     { text: '后端发布状态拆分 · 2026-11-14', link: '/maintainer/changes/2026-11-14-direct-rime-publication-state' },
     { text: '后端展示与维护重构 · 2026-11-13', link: '/maintainer/changes/2026-11-13-direct-rime-backend-seams' },
+    { text: 'JS 插件工具整合 · 2026-11-13', link: '/maintainer/changes/2026-11-13-js-plugin-tools' },
     { text: '万象 EVO 方案排查 · 2026-11-12', link: '/maintainer/changes/2026-11-12-evo-profile-diagnosis' },
     { text: '提交分类整理 · 2026-11-07', link: '/maintainer/changes/2026-11-07-history-squash' },
     { text: '引擎同步与输入修复 · 2026-11-06', link: '/maintainer/changes/2026-11-06-engine-input-fixes' },
