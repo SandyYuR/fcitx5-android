@@ -9,7 +9,7 @@ docKind: reference
 以下正文描述 **Foxy** 的接口。中州鹅的实际支持范围见[宿主实现](/maintainer/implementation/js-voice-plugins#js-app-test-branch)。
 
 中州鹅的 AI 助手与 JS App 功能已于 2026-11-05 合入默认分支 `fx-rime-only`；较早的 APK 需更新后使用。
-已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名和非流式 HTTP；App 的 SSE/WebSocket、旧式平铺布局、任意 `js.*` 布局命令、通用 App 选择器和 `foxy.websocket.authorize()` 尚未实现。语音 WebSocket 仍可使用。
+已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP，以及按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`）；App 的 SSE、旧式平铺布局、任意 `js.*` 布局命令和通用 App 选择器尚未实现。语音 WebSocket 仍可使用。
 
 Foxy 要求请求主机在静态 `hosts` 中声明。中州鹅的 **App HTTP** 还允许从用户配置的 HTTPS 地址提取主机，并在首次请求时逐域名授权；内置助手的 `hosts` 为空。这个扩展不等于给原版 Foxy 放开任意域名，语音接口仍按静态清单授权。
 
@@ -219,6 +219,24 @@ const response = JSON.parse(responseText);
 
 旧版 `foxy.http.post(url, secretField, body, headersJson = "{}")` 继续供语音插件使用，固定发送 JSON POST、使用 Bearer 认证，非 2xx 响应会拒绝 Promise。
 
+## 能力探测与设置写入
+
+> 中州鹅已实现这两项；能力表的具体内容见[宿主实现](/maintainer/implementation/js-voice-plugins)。
+
+`foxy.capabilities` 是一张按 API 形状组织的布尔表，用于在调用前判断宿主是否支持某项能力：
+
+```javascript
+if (foxy.capabilities.http.stream) {
+  // 走流式
+} else {
+  // 退回非流式 foxy.http.request
+}
+```
+
+表里为 `false` 的项表示本宿主尚未实现，插件应降级而不是依赖 `try/catch`。
+
+`foxy.settings.set(key, value)` 把值写回插件自己的普通设置项。只接受 `configure()` 中声明过的非密钥字段；密钥字段和未声明的键都会抛错。值按字符串保存。
+
 ## 流式 HTTP / SSE
 
 > 本节为 Foxy 参考，中州鹅的 JS App 尚未实现这些流式接口。
@@ -256,7 +274,7 @@ foxy.http.cancelStream(streamId);
 
 ## WebSocket
 
-> 中州鹅已实现语音 WebSocket；以下按事件注册的 App WebSocket 和 `authorize` 接口仍是 Foxy 参考。
+> 中州鹅的语音插件与 App 会话共用同一份 WebSocket 传输，以下接口均已实现。`connect` 是同步的，连接未授权主机前必须先 `await foxy.websocket.authorize(...)`，否则直接抛错；四个回调按种类各注册一次，不按 socket 区分；`onClose` 的第二个参数是 `wasClean`（本宿主用关闭码 1000 近似），不是关闭码。
 
 普通 App 与语音插件共用 Foxy 的宿主 WebSocket 传输：
 

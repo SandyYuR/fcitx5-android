@@ -20,6 +20,9 @@
 - 同一输入法服务中的 AI 动作再次点击会关闭当前 App 面板，取消未完成请求并恢复临时预览；重新点击才创建新会话。键盘内剪贴板等页面切换保留现有面板和本地输入，不改变原应用连接。
 - 同一动态 App 动作再次点击会关闭当前面板；点击另一动态 App 动作会先取消旧会话、恢复临时预览，再打开精确目标。切换入口不改变原应用编辑器的归属，过期输入会话不能因按钮解析而复活。旧的通用 `js_tools` 占位只引导用户回“编辑按钮”重新绑定，不再提供运行时选择器。
 - `foxy.editor.getSelection/getText/setComposition/clearComposition/commit` 分别核对相应能力。预览取消时恢复原选中文本；只有 `commit` 正式上屏。`credentials.list` 和 `context.configuredSecrets` 仅提供已配置的字段 ID，不提供密钥。
+- `foxy.capabilities` 是按 Foxy 形状组织的**白名单**能力表，不是原生桥对象的转储：表里为 `true` 的项本宿主确实实现，为 `false` 的项（`http.stream`、`http.cancelStream`、`http.onChunk/onEnd/onError`）尚未实现，插件据此降级即可，不必 `try/catch`。它只描述公开 API，`__n_*`、`wsConnect`、`__native` 等宿主内部入口不在表内，新增内部函数也不会因此变成公开契约；新增能力时必须同步改表，否则插件会以为它不存在。
+- App 会话与语音会话共用同一份 `JsWebSocketTransport`（`JsWebSocketTransport.kt`）：`__n_wsConnect` 等原生绑定只实现一次，语音侧把入站转成 `JsVoiceCommand`，App 侧转成 `WsInbound` 经 `Channel` 投递到引擎线程。App 的 `connect` 是同步调用，不能在里边弹授权框，因此要求插件先 `await foxy.websocket.authorize(...)`：它走 `JsAppEndpointPolicy`（静态 `hosts` + 普通设置里的 HTTPS 主机）与按插件/主机的用户批准，未授权主机在 `connect` 时直接抛错。`onMessage/onBinary/onError/onClose` 按种类各存一个处理函数（与 Foxy 一致，不按 socket 区分），由 `__invoke("ws", {kind, socket, payload})` 分派；`onClose` 的载荷是 `wasClean` 布尔值，本宿主用关闭码 1000 近似。回调在 `jsLock` 下串行执行，单个回调抛错不会掐断后续帧；App 关闭时 `closeAll()` 并结束投递。
+- `foxy.settings.set(key, value)` 把值写回该插件的普通设置项，只接受 `configure()` 里声明过的非密钥字段（`ui.text/select/switch/number`）；密钥字段与未声明的键都抛错，避免插件覆盖用户密钥或往偏好文件塞任意键值。写入后同一会话后续 `event` 上下文里的 `settings` 立即反映新值。设置页用的占位宿主没有这项能力，那里 `foxy.settings` 不存在（`typeof` 为 `undefined`），与 Foxy 的条件挂载一致。
 - JS 不提供自动读取剪贴板的能力。迁移其他宿主的文本插件时，可按声明读取选区，或让用户在 App 的 `input` 中输入、手动粘贴；网络、返回值及界面需分别适配本页接口。上屏前的明确确认与旧结果失效逻辑仍由脚本实现，动态按钮不会替插件添加这些步骤。
 - `foxy.http.request` 支持 GET、POST、PUT、PATCH、DELETE，返回 JSON 字符串形式的状态、头和正文。`credential`、`authHeader`、`authPrefix` 让宿主注入密钥，JS 不持有明文。请求体限制 1 MiB、响应限制 2 MiB，禁止自动重定向和覆盖传输头。
 - App HTTP 的主机须为静态声明项或当前普通设置中有效 HTTPS 地址的精确主机；读取密钥与发送请求前还需该插件对该主机的用户批准。旧批准本身不能使已从配置删除的非声明主机继续可访问。内置助手使用空 `hosts` 与空默认地址。
@@ -156,7 +159,7 @@ configure(ui) {
 
 `foxy.binary` 提供 `concatBase64(chunks)`（先解码再拼接，不能直接连接带填充的 Base64 字符串）、`utf8Base64(text)`、`base64Utf8(base64)`、`byteLength(base64)`、`readUInt8(base64, offset)`、`readInt32BE(base64, offset)`、`sliceBase64(base64, offset, length)`、`gunzipUtf8(base64)`，用于解析带长度前缀或压缩的二进制协议。
 
-> 与 Foxy 上游文档的差异：本宿主**支持**二进制 WebSocket 帧（经 `onMessage({binaryBase64})` 交给插件），Foxy 当前文档写的是拒绝；`foxy.http.post` 没有自定义认证头参数，固定用 Bearer；本宿主也不提供 `foxy.capabilities` 别名，请直接用 `foxy.websocket`、`foxy.http`、`foxy.audio`、`foxy.binary`。
+> 与 Foxy 上游文档的差异：本宿主**支持**二进制 WebSocket 帧（经 `onMessage({binaryBase64})` 交给插件），Foxy 当前文档写的是拒绝；`foxy.http.post` 没有自定义认证头参数，固定用 Bearer。`foxy.capabilities` 见下面的能力表，它是白名单而不是 Foxy 的原生桥对象转储。
 
 ## 网络与安全
 

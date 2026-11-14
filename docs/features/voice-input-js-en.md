@@ -17,7 +17,7 @@ Older APKs need an update. See the [current host implementation](/maintainer/imp
 | --- | --- |
 | JS Apps | App registration, permissions, structured native layouts, editor APIs, credentials and non-streaming HTTP are supported. The toolbar provides an AI assistant entry. |
 | Network authorization | App HTTP accepts declared hosts or hosts derived from configured HTTPS addresses, with separate approval before sending text or credentials. The built-in assistant has no default API addresses or static hosts. Voice transports still require declared hosts. |
-| Streaming and commands | App SSE/WebSocket, legacy flat layouts, generic `js.*` layout commands, arbitrary App selection and `foxy.websocket.authorize()` are not implemented. The voice WebSocket transport is supported. |
+| Streaming and commands | App WebSocket with per-kind callbacks and `foxy.websocket.authorize()` is supported. App SSE, legacy flat layouts, generic `js.*` layout commands and arbitrary App selection are not implemented. The voice WebSocket transport is supported. |
 | Controls | Floating panels keep keyboard input available. The host additionally supports `input.readOnly` for a selectable AI reply. |
 
 Button IDs and selector IDs are delivered to the plugin as events: a label such as “Confirm” has no built-in generate/insert behavior. Handle selector events explicitly to keep the panel open.
@@ -217,6 +217,24 @@ Supported methods are `GET`, `POST`, `PUT`, `PATCH`, and `DELETE`. `credential` 
 
 The legacy `foxy.http.post(url, secretField, body, headersJson = "{}")` remains available to existing voice plugins. It always sends a JSON POST with Bearer authentication and rejects non-2xx responses.
 
+## Capability Detection and Settings
+
+> Both are implemented by Zhongzhou E; the table contents are documented in the [host implementation](/maintainer/implementation/js-voice-plugins).
+
+`foxy.capabilities` is a boolean table shaped like the API, so a plugin can branch before calling something the host may not provide:
+
+```javascript
+if (foxy.capabilities.http.stream) {
+  // stream
+} else {
+  // fall back to non-streaming foxy.http.request
+}
+```
+
+An entry that reads `false` means this host does not implement it yet; degrade instead of relying on `try/catch`.
+
+`foxy.settings.set(key, value)` writes a value back into the plugin's own ordinary settings. Only non-secret fields declared in `configure()` are accepted; secret fields and undeclared keys throw. Values are stored as strings.
+
 ## Streaming HTTP / SSE
 
 `foxy.http.stream(options)` returns a stream ID immediately. Each SSE event is delivered as `(streamId, event, data)`; non-SSE responses are delivered one line at a time with event `"line"`.
@@ -277,6 +295,8 @@ foxy.websocket.close(socketId);
 `connect(url, secretField, authHeader = "Authorization", authPrefix = "Bearer ", headersJson = "{}")` returns an opaque socket ID. Pass an empty secret field for a pre-signed URL. `sendGzipFrame(socketId, prefixBase64, payloadBase64)` sends `prefix + 4-byte big-endian compressed length + gzip(payload)` as a binary frame. Binary frame size is bounded. The connection uses WSS, no redirects, the plugin's declared/approved host list, and `network.request` permission.
 
 WebSocket handlers are registered once per JS runtime. `onClose` receives `expected = true` for a plugin-requested close.
+
+中州鹅 wires both the voice and App sessions through one transport. Because `connect` is synchronous, call `await foxy.websocket.authorize(...)` for a declared host before connecting to it; connecting to an unauthorized host throws. Handlers are registered once per kind, not per socket, and the host approximates `expected` with a normal close code of 1000.
 
 ## Editor APIs
 
