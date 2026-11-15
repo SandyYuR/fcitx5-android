@@ -13,6 +13,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * 驱动一次插件回调：前奏的 `__run` + `__pump` 两拍。
@@ -34,6 +35,7 @@ internal object JsVoiceInvoker {
 
     /** 两拍之间的间隔。字节操作同步完成；网络通过可取消的异步绑定等待。 */
     const val POLL_DELAY_MS = 4L
+    private val nextInvocationId = AtomicLong()
 
     suspend fun call(
         evaluate: suspend (String) -> String?,
@@ -42,11 +44,14 @@ internal object JsVoiceInvoker {
         timeoutMs: Long,
         cleanupEvaluate: suspend (String) -> String? = evaluate,
     ): Outcome {
-        var pendingId: String? = null
+        // evaluate() can suspend on a host async binding after __run has already stored its
+        // Promise. Know its ID before evaluating so cancellation can also clean that first phase.
+        val invocationId = "host-" + nextInvocationId.incrementAndGet()
+        var pendingId: String? = invocationId
         try {
             return withTimeout(timeoutMs) {
                 val actions = mutableListOf<JsonObject>()
-                var reply = read(evaluate(runCode(name, argJson)), actions)
+                var reply = read(evaluate(runCode(name, argJson, invocationId)), actions)
                 reply.errorOrNull()?.let { return@withTimeout Outcome(null, actions, it) }
                 pendingId = reply.pendingId()
                 while (pendingId != null) {
@@ -67,13 +72,14 @@ internal object JsVoiceInvoker {
     }
 
     /**
-     * JS 表达式：`__run("<name>", <argJson>)`。
+     * JS 表达式：`__run("<name>", <argJson>, <optional invocationId>)`。
      *
-     * 两个实参都用 [JsonPrimitive] 渲染，这样引号、反斜杠、换行由 JSON 编码器负责转义，
+     * 各实参都用 [JsonPrimitive] 渲染，这样引号、反斜杠、换行由 JSON 编码器负责转义，
      * 不会因为插件文本里出现 `"` 或 `\` 拼出语法错误。
      */
-    fun runCode(name: String, argJson: String): String =
-        "__run(" + JsonPrimitive(name) + ", " + JsonPrimitive(argJson) + ")"
+    fun runCode(name: String, argJson: String, invocationId: String? = null): String =
+        "__run(" + JsonPrimitive(name) + ", " + JsonPrimitive(argJson) +
+            (invocationId?.let { ", " + JsonPrimitive(it) } ?: "") + ")"
 
     private fun pumpCode(invocationId: String): String = "__pump(" + JsonPrimitive(invocationId) + ")"
 

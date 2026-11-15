@@ -7,6 +7,8 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.Call
@@ -52,6 +54,7 @@ internal class JsAppStreams(
     private val checkUrl: (String) -> HttpUrl,
     private val secret: (String) -> String?,
     private val approve: suspend (HttpUrl) -> Boolean,
+    private val authorizeSend: (HttpUrl) -> Unit,
     private val dispatch: suspend (StreamEvent, isActive: () -> Boolean) -> Unit,
     client: OkHttpClient = JsAppHttp.CLIENT,
     private val maxStreams: Int = MAX_STREAMS,
@@ -162,13 +165,17 @@ internal class JsAppStreams(
 
     private suspend fun run(state: ActiveStream, request: StreamRequest) {
         try {
+            currentCoroutineContext().ensureActive()
             if (!state.isActive()) return
             if (!approve(request.destination)) {
                 emit(state, StreamEvent.Failed(state.id, "Network permission denied"))
                 return
             }
+            currentCoroutineContext().ensureActive()
             if (!state.isActive()) return
             check(checkUrl(request.originalUrl) == request.destination) { "Endpoint changed before sending" }
+            authorizeSend(request.destination)
+            currentCoroutineContext().ensureActive()
             val headers = JsVoiceHeaders.build(
                 request.credential,
                 request.credential.takeIf { it.isNotBlank() }?.let(secret),
@@ -176,7 +183,13 @@ internal class JsAppStreams(
                 request.authPrefix,
                 request.extraHeadersJson,
             )
+            currentCoroutineContext().ensureActive()
             if (!state.isActive()) return
+            // Credential lookup may involve storage/keystore work. Recheck the current
+            // endpoint and approval after it, immediately before attaching a network call.
+            check(checkUrl(request.originalUrl) == request.destination) { "Endpoint changed before sending" }
+            authorizeSend(request.destination)
+            currentCoroutineContext().ensureActive()
             val built = Request.Builder().url(request.destination)
                 .method(
                     request.method,
@@ -189,6 +202,7 @@ internal class JsAppStreams(
                 call.cancel()
                 return
             }
+            currentCoroutineContext().ensureActive()
             call.execute().use { response ->
                 if (!response.isSuccessful) error("HTTP " + response.code)
                 val source = response.body?.source() ?: error("Empty response")
@@ -232,13 +246,15 @@ internal class JsAppStreams(
         var eventBytes = "message".utf8Size()
         val data = StringBuilder()
         var dataBytes = 0L
+        var hasData = false
         while (state.isActive()) {
             val line = readLine(source) ?: break
             if (line.isEmpty()) {
-                if (data.isNotEmpty()) {
+                if (hasData) {
                     if (!emit(state, StreamEvent.Chunk(state.id, event.ifEmpty { "message" }, data.toString()))) return
                     data.setLength(0)
                     dataBytes = 0L
+                    hasData = false
                 }
                 event = ""
                 eventBytes = "message".utf8Size()
@@ -258,18 +274,19 @@ internal class JsAppStreams(
                     event = value
                 }
                 "data" -> {
-                    val added = value.utf8Size() + if (data.isNotEmpty()) 1L else 0L
+                    val added = value.utf8Size() + if (hasData) 1L else 0L
                     require(eventBytes + dataBytes + added <= JsVoiceRuntime.RESPONSE_BYTES) {
                         "Stream event is too large"
                     }
-                    if (data.isNotEmpty()) data.append('\n')
+                    if (hasData) data.append('\n')
                     data.append(value)
                     dataBytes += added
+                    hasData = true
                 }
                 else -> Unit
             }
         }
-        if (state.isActive() && data.isNotEmpty()) {
+        if (state.isActive() && hasData) {
             emit(state, StreamEvent.Chunk(state.id, event.ifEmpty { "message" }, data.toString()))
         }
     }
@@ -277,10 +294,20 @@ internal class JsAppStreams(
     /** 读一行，去掉行尾的 CR；单行上限与普通响应的正文预算相同。 */
     private fun readLine(source: BufferedSource): String? {
         val limit = JsVoiceRuntime.RESPONSE_BYTES.toLong()
-        if (source.indexOf('\n'.code.toByte(), 0L, limit) == -1L) {
-            if (!source.exhausted()) error("Stream line is too long")
-            return source.readUtf8().trimEnd('\r').ifEmpty { null }
+        val newline = source.indexOf('\n'.code.toByte(), 0L, limit + 2L)
+        if (newline >= 0L) {
+            val contentBytes = if (newline > 0L && source.buffer[newline - 1L] == '\r'.code.toByte()) {
+                newline - 1L
+            } else newline
+            require(contentBytes <= limit) { "Stream line is too long" }
+            return source.readUtf8Line()
         }
-        return source.readUtf8Line()?.trimEnd('\r')
+        // exhausted() also checks buffered data, so it cannot identify EOF with a valid trailing
+        // line still buffered. Request beyond the payload and optional CR delimiter instead.
+        require(!source.request(limit + 2L) && (source.buffer.size <= limit ||
+            source.buffer.size == limit + 1L && source.buffer[limit] == '\r'.code.toByte())) {
+            "Stream line is too long"
+        }
+        return source.readUtf8().removeSuffix("\r").ifEmpty { null }
     }
 }

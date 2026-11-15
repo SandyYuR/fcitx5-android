@@ -11,7 +11,8 @@ import kotlinx.serialization.json.*
  * 翻译成等价的 column，避免老插件直接撞上 "Dialog must declare a layout"。
  *
  * 规则与 Foxy 的解析保持一致：`type` 为 `select` 的字段渲染成下拉、`multiline` 渲染成多行输入、
- * 其余一律单行输入；`label` 缺省用 `id`；字段最多 12 个、按钮最多 8 个；按钮排成一行靠右。
+ * 其余一律单行输入；`label` 缺省用 `id`；字段最多 12 个、按钮最多 8 个。
+ * 按钮保留原事件 ID，并使用本宿主的完整按钮换行组件，避免窄屏或大字号丢失后部操作。
  */
 internal object JsAppLegacyLayout {
     private const val MAX_FIELDS = 12
@@ -47,8 +48,7 @@ internal object JsAppLegacyLayout {
                 })
             }
             if (buttons.isNotEmpty()) add(buildJsonObject {
-                put("type", "row")
-                put("align", "end")
+                put("type", "actions")
                 put("children", buildJsonArray {
                     buttons.forEach { element ->
                         val item = element as? JsonObject ?: return@forEach

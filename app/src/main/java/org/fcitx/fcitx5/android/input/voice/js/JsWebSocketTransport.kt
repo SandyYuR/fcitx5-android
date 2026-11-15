@@ -137,6 +137,13 @@ internal class JsWebSocketTransport(
     ): String {
         val destination = authorizeUrl(url)
         val built = headers(secretField, authHeader, authPrefix, headersJson)
+        // Header construction may read credentials from storage; current grants and configured
+        // endpoints must still allow this destination when the connection is created.
+        check(authorizeUrl(url) == destination) { "Endpoint changed before connecting" }
+        // Complete synchronous request validation before reserving a connection slot.
+        val request = Request.Builder().url(destination)
+            .apply { built.forEach { (name, value) -> header(name, value) } }
+            .build()
         val id = nextId.getAndIncrement().toString()
         val connection = Connection(destination)
         synchronized(connections) {
@@ -144,10 +151,8 @@ internal class JsWebSocketTransport(
             check(connections.size < maxConnections) { "Too many WebSocket connections" }
             connections[id] = connection
         }
-        val builder = Request.Builder().url(destination)
-        built.forEach { (name, value) -> builder.header(name, value) }
         val socket = try {
-            socketHttp.newWebSocket(builder.build(), listener(id, connection))
+            socketHttp.newWebSocket(request, listener(id, connection))
         } catch (error: Throwable) {
             connections.remove(id, connection)
             connection.deactivate(error)

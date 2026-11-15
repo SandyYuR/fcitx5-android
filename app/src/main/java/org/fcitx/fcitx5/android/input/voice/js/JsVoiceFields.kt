@@ -90,8 +90,17 @@ internal object JsVoiceFields {
      * 密钥项永远不可写——它的值只在宿主建立连接时解密使用，插件不该有机会覆盖；
      * 未声明的键也不接受，否则插件能往偏好文件里塞任意键值。
      */
-    fun writable(fields: List<JsVoiceField>, key: String): Boolean =
-        fields.any { it.key == key && !it.isSecret }
+    fun writable(fields: List<JsVoiceField>, key: String): Boolean {
+        val declared = fields.filter { it.key == key }
+        return declared.isNotEmpty() && declared.all { field ->
+            field.kind in setOf(
+                JsVoiceField.KIND_TEXT,
+                JsVoiceField.KIND_SELECT,
+                JsVoiceField.KIND_SWITCH,
+                JsVoiceField.KIND_NUMBER,
+            )
+        }
+    }
 
     /** Bound plugin-driven persistence outside QuickJS's own heap budget. */
     fun requireWritableValue(values: Map<String, String>, key: String, value: String) {

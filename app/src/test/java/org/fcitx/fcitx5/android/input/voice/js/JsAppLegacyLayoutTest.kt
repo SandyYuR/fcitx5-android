@@ -36,8 +36,7 @@ class JsAppLegacyLayoutTest {
         assertEquals("purpose", select.text("label"))
         assertEquals(2, (select["options"] as JsonArray).size)
         val row = layout.child(3)
-        assertEquals("row", row.text("type"))
-        assertEquals("end", row.text("align"))
+        assertEquals("actions", row.text("type"))
         val buttons = (row["children"] as JsonArray).map { it.jsonObject }
         assertEquals(listOf("Send", "close"), buttons.map { it.text("label") })
         assertTrue(buttons.all { it.text("type") == "button" })
@@ -65,7 +64,7 @@ class JsAppLegacyLayoutTest {
         val fields = (1..20).joinToString(",") { """{"id":"f$it"}""" }
         val buttons = (1..12).joinToString(",") { """{"id":"b$it"}""" }
         val layout = JsAppLegacyLayout.convert(spec("""{"fields":[$fields],"buttons":[$buttons]}"""))!!
-        // 12 个字段 + 1 行按钮
+        // 12 个字段 + 1 个完整按钮换行区域
         assertEquals(13, (layout["children"] as JsonArray).size)
         val row = layout.child(12)
         assertEquals(8, (row["children"] as JsonArray).size)

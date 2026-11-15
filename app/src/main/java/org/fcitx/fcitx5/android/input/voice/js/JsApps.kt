@@ -145,7 +145,7 @@ internal object JsApps {
             !closed && token?.isCurrent() == true && service.applicationInputConnection === connection
         }, ::requirePermission) }
         var fields = emptyList<JsVoiceField>()
-        var settings = emptyMap<String, String>()
+        @Volatile var settings = emptyMap<String, String>()
         var configuredSecrets = emptyList<String>()
         val dialog = JsAppDialog(service, ::event, ::close, command = ::openCommand)
 
@@ -216,6 +216,13 @@ internal object JsApps {
                 requirePermission("network.request")
                 approveHost(parsed.host.trimEnd('.'))
             },
+            authorizeSend = { parsed ->
+                ensureCurrent()
+                requirePermission("network.request")
+                require(parsed.host.trimEnd('.') in JsVoiceHostPermissions.approvedHosts(spec.id)) {
+                    "Network permission revoked"
+                }
+            },
             dispatch = { event, isActive -> dispatchStream(event, isActive) },
         )
 
@@ -266,25 +273,16 @@ internal object JsApps {
                 engine.function("__n_appSettings") { args ->
                     val key = args.getOrNull(0).toString()
                     val value = args.getOrNull(1)?.toString().orEmpty()
-                    // 只允许写插件自己声明过的普通项：密钥只在宿主侧解密使用，插件不该有机会覆盖它；
-                    // 未声明的键写进去也只会变成没人读的垃圾，所以直接拒绝而不是静默接受。
-                    require(JsVoiceFields.writable(fields, key)) { "Undeclared setting: $key" }
-                    JsVoiceFields.requireWritableValue(settings, key, value)
-                    JsVoiceSettingsStore.setValue(spec.id, key, value)
-                    synchronized(this@Session) { settings = settings + (key to value) }
+                    writeSetting(key, value)
                     null
                 }
                 engine.asyncFunction("__n_appHttp") { args ->
                     requirePermission("network.request")
                     val options = Json.parseToJsonElement(args[0].toString()).jsonObject
-                    val policy = JsAppEndpointPolicy(spec.hosts, settings)
-                    val host = policy.checkUrl(options.text("url")).host.trimEnd('.')
+                    val host = JsAppEndpointPolicy(spec.hosts, settings).checkUrl(options.text("url")).host.trimEnd('.')
                     check(approveHost(host)) { "Network permission denied" }
                     JsAppHttp(checkUrl = { url ->
-                        requirePermission("network.request")
-                        val parsed = policy.checkUrl(url)
-                        require(parsed.host.trimEnd('.') == host && host in JsVoiceHostPermissions.approvedHosts(spec.id)) { "Network permission revoked" }
-                        parsed
+                        checkHttpUrl(url, host)
                     }, secret = { key ->
                         require(fields.any { it.key == key && it.isSecret }) { "Undeclared credential" }
                         JsVoiceSettingsStore.secret(spec.id, key)
@@ -490,6 +488,22 @@ internal object JsApps {
         }
         fun ensureCurrent() {
             check(!closed && sourceCurrent && token?.isCurrent() == true && service.applicationInputConnection === connection) { "Editor session ended" }
+        }
+        private fun writeSetting(key: String, value: String) = synchronized(this) {
+            // Source invalidation shares this lock: an old callback cannot persist after replacement.
+            ensureCurrent()
+            require(JsVoiceFields.writable(fields, key)) { "Undeclared setting: $key" }
+            JsVoiceFields.requireWritableValue(settings, key, value)
+            JsVoiceSettingsStore.setValue(spec.id, key, value)
+            settings = settings + (key to value)
+        }
+        private fun checkHttpUrl(url: String, approvedHost: String): okhttp3.HttpUrl {
+            requirePermission("network.request")
+            // Recompute eligibility after approval and credentials: another callback can change settings.
+            val parsed = JsAppEndpointPolicy(spec.hosts, settings).checkUrl(url)
+            require(parsed.host.trimEnd('.') == approvedHost &&
+                approvedHost in JsVoiceHostPermissions.approvedHosts(spec.id)) { "Network permission revoked" }
+            return parsed
         }
         fun invalidateSource() {
             synchronized(this) { sourceCurrent = false }

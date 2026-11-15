@@ -324,7 +324,7 @@ function __invoke(name, ctx) {
 // 回调分两拍：__run 立即给出「结果」或「还在等」的标记，__pump 之后反复拍一次。
 // 原因见 JsVoiceInvoker：quickjs-kt 的 evaluate 只等待求值时仍未落地的 Promise，
 // 插件回调在一次微任务里就 resolve 时它会把 Promise 对象本身按字符串返回。
-function __run(name, argJson) {
+function __run(name, argJson, suppliedInvocationId) {
   __events = [];
   var ctx = JSON.parse(argJson);
   var out;
@@ -337,7 +337,8 @@ function __run(name, argJson) {
     if (Object.keys(__pending).length >= 16) {
       return JSON.stringify({ error: "Too many pending plugin callbacks", events: __takeEvents() });
     }
-    var invocationId = String(__nextInvocation++);
+    var invocationId = suppliedInvocationId === undefined
+      ? String(__nextInvocation++) : __str(suppliedInvocationId);
     var slot = { done: false, value: undefined, error: null };
     __pending[invocationId] = slot;
     out.then(

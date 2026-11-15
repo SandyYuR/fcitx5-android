@@ -15,6 +15,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 /** 旧式平铺对话框与 `app` 节点走的是同一条渲染/事件路径，这里固定住端到端行为。 */
@@ -75,6 +76,43 @@ class JsAppDialogCompatTest {
             buttons.single { it.text == "js.other" }.performClick()
             assertEquals(listOf("js.rewrite", "js.other"), commands)
         } finally { dialog.dismiss() }
+    }
+
+    @Test fun flatButtonsRemainReachableAtNarrowWidthsWithLargeText() = checkFlatButtons(View.LAYOUT_DIRECTION_LTR)
+
+    @Test fun flatButtonsRemainReachableInRtl() = checkFlatButtons(View.LAYOUT_DIRECTION_RTL)
+
+    private fun checkFlatButtons(direction: Int) {
+        RuntimeEnvironment.setFontScale(1.5f)
+        val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
+        val events = mutableListOf<String>()
+        val dialog = JsAppDialog(service, { id, _ -> events += id }, { service.jsAppInputConnection = null })
+        try {
+            val buttons = (1..8).joinToString(",") { """{"id":"action$it","label":"Operation $it"}""" }
+            dialog.render(Json.parseToJsonElement("""{"title":"Actions","buttons":[$buttons]}""").jsonObject)
+            dialog.show()
+            val rendered = descendants(dialog.findViewById(android.R.id.content)).filterIsInstance<MaterialButton>()
+            assertEquals(8, rendered.size)
+            val parent = rendered.first().parent as ViewGroup
+            parent.layoutDirection = direction
+            val density = service.resources.displayMetrics.density
+            parent.measure(View.MeasureSpec.makeMeasureSpec((240 * density).toInt(), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+            parent.layout(0, 0, parent.measuredWidth, parent.measuredHeight)
+            assertTrue("Whole buttons must wrap instead of squeezing away later actions",
+                rendered.map { it.top }.distinct().size > 1)
+            rendered.forEach { button ->
+                assertTrue("Button lost its touch area: ${button.text}",
+                    button.width > 0 && button.height >= (48 * density).toInt())
+                assertTrue("Button escaped its action area: ${button.text}",
+                    button.left >= 0 && button.right <= parent.width && button.top >= 0 && button.bottom <= parent.height)
+                button.performClick()
+            }
+            assertEquals((1..8).map { "action$it" }, events)
+        } finally {
+            dialog.dismiss()
+            RuntimeEnvironment.setFontScale(1f)
+        }
     }
 
     private fun descendants(view: View): List<View> = listOf(view) + if (view is ViewGroup) {

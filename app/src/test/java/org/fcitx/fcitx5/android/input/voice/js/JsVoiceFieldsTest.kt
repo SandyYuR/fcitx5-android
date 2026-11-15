@@ -122,6 +122,19 @@ class JsVoiceFieldsTest {
     }
 
     @Test
+    fun unsupportedKindsAndKeysAlsoDeclaredAsSecretsAreNotWritable() {
+        val fields = JsVoiceFields.parse("""[
+            {"kind":"text","key":"apiKey"},
+            {"kind":"secret","key":"apiKey"},
+            {"kind":"unsupported","key":"unknown"},
+            {"kind":"number","key":"timeout"}
+        ]""")
+        assertFalse(JsVoiceFields.writable(fields, "apiKey"))
+        assertFalse(JsVoiceFields.writable(fields, "unknown"))
+        assertTrue(JsVoiceFields.writable(fields, "timeout"))
+    }
+
+    @Test
     fun pluginWritesRespectPerValueAndAggregateBudgets() {
         JsVoiceFields.requireWritableValue(emptyMap(), "value", "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES))
         assertTrue(runCatching {
