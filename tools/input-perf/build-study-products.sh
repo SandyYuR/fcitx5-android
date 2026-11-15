@@ -38,9 +38,11 @@ if [ "$mode" = build ]; then
     python3 - "$root" "$current_ref" <<'PYLOCK'
 import hashlib, subprocess, sys
 root, current = sys.argv[1:]
+# The three products must share one SDK. The pinned digest follows this checkout's lock;
+# moving it means the study needs new baseline and regressed refs before comparing again.
 for source in ('0380d70f16efb6a9946a164821d5cad7118ce4ff', '4d77cd79a580a9984130a5653b13f949ec5bc0a9', current):
     lock = subprocess.check_output(['git', '-C', root, 'show', source + ':native/rime-sdk.lock.json'])
-    if hashlib.sha256(lock).hexdigest() != '6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f':
+    if hashlib.sha256(lock).hexdigest() != '63e8acc8c6045673787efa9fa5f4d020885d8ed33614095bf89a250d3f60b971':
         raise SystemExit('Product changed the frozen SDK lock: ' + source)
 PYLOCK
     for label in baseline regressed current; do
@@ -176,7 +178,7 @@ if mode in ('build', 'recover'):
     require(len(set(certificates.values())) == 1, 'Products and probes must use the same CI debug signer')
     locks = {label: hashlib.sha256(git('show', sha + ':native/rime-sdk.lock.json')).hexdigest()
              for label, sha in sources.items()}
-    require(set(locks.values()) == {'6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f'},
+    require(set(locks.values()) == {'63e8acc8c6045673787efa9fa5f4d020885d8ed33614095bf89a250d3f60b971'},
             'All products must use the original frozen SDK lock')
     require(protocol in (root / 'tools/input-perf/CadenceCandidateTapTest.kt').read_text(), 'Expected the v2 cadence probe')
     record = {
@@ -207,7 +209,7 @@ require(record['host_sha256'] == digest(output / 'host.apk'), 'Neutral host APK 
 require(set(record['apks']) == expected_apks, 'Unexpected or missing product APKs')
 require(set(record['native_audit_sha256']) == set(sources), 'Missing native audit identities')
 require(set(record['sdk_lock_sha256']) == set(sources) and
-        set(record['sdk_lock_sha256'].values()) == {'6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f'},
+        set(record['sdk_lock_sha256'].values()) == {'63e8acc8c6045673787efa9fa5f4d020885d8ed33614095bf89a250d3f60b971'},
         'SDK identity does not match the original study')
 for label, sha in sources.items():
     require((output / (label + '-commit.txt')).read_text().strip() == sha, 'Embedded source record mismatch: ' + label)
