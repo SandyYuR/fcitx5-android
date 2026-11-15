@@ -19,6 +19,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.BufferedSource
+import okio.ByteString.Companion.encodeUtf8
 import okio.utf8Size
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
@@ -61,6 +62,7 @@ internal class JsAppStreams(
 ) {
     companion object {
         const val MAX_STREAMS = 4
+        private val SSE_LINE_ENDINGS = "\r\n".encodeUtf8()
     }
 
     private data class StreamRequest(
@@ -242,13 +244,14 @@ internal class JsAppStreams(
      * 事件名缺省为 `message`，注释行（`:` 开头）与其余字段忽略。
      */
     private suspend fun readEvents(state: ActiveStream, source: BufferedSource) {
+        val lines = SseLineReader(source)
         var event = ""
         var eventBytes = "message".utf8Size()
         val data = StringBuilder()
         var dataBytes = 0L
         var hasData = false
         while (state.isActive()) {
-            val line = readLine(source) ?: break
+            val line = lines.readLine() ?: break
             if (line.isEmpty()) {
                 if (hasData) {
                     if (!emit(state, StreamEvent.Chunk(state.id, event.ifEmpty { "message" }, data.toString()))) return
@@ -288,6 +291,50 @@ internal class JsAppStreams(
         }
         if (state.isActive() && hasData) {
             emit(state, StreamEvent.Chunk(state.id, event.ifEmpty { "message" }, data.toString()))
+        }
+    }
+
+    /** SSE accepts CR, LF and CRLF and ignores exactly one leading UTF-8 BOM. */
+    private class SseLineReader(private val source: BufferedSource) {
+        private var firstLine = true
+        private var skipLf = false
+
+        fun readLine(): String? {
+            if (firstLine) {
+                firstLine = false
+                // Read only as much of the BOM prefix as matches. In particular, a stream
+                // beginning with CR must not wait for three bytes before handling that line.
+                if (source.request(1L) && source.buffer[0L] == 0xef.toByte() &&
+                    source.request(2L) && source.buffer[1L] == 0xbb.toByte() &&
+                    source.request(3L) && source.buffer[2L] == 0xbf.toByte()) {
+                    source.skip(3L)
+                }
+            }
+            if (skipLf) {
+                skipLf = false
+                if (source.request(1L) && source.buffer[0L] == '\n'.code.toByte()) source.skip(1L)
+            }
+            val limit = JsVoiceRuntime.RESPONSE_BYTES.toLong()
+            var searchedBytes = 0L
+            while (true) {
+                val newline = source.buffer.indexOfElement(SSE_LINE_ENDINGS, searchedBytes)
+                if (newline >= 0L) {
+                    require(newline <= limit) { "Stream line is too long" }
+                    val line = source.readUtf8(newline)
+                    // Return a CR-terminated line immediately; consume its optional LF on
+                    // the next read, even when the pair spans response buffers.
+                    skipLf = source.readByte() == '\r'.code.toByte()
+                    return line
+                }
+                val bufferedBytes = source.buffer.size
+                require(bufferedBytes <= limit) { "Stream line is too long" }
+                if (!source.request(bufferedBytes + 1L)) {
+                    return if (bufferedBytes == 0L) null else source.readUtf8()
+                }
+                // request() fills a segment at a time. Do not rescan the previous segments
+                // or wait for an entire size budget before looking for a newly received CR.
+                searchedBytes = bufferedBytes
+            }
         }
     }
 

@@ -376,12 +376,8 @@ internal object JsApps {
                     }
                     put("socket", inbound.socketId)
                 }
-                try {
+                JsAppCallbackDispatch.run {
                     invoke(engine, "ws", context)
-                } catch (error: CancellationException) {
-                    throw error
-                } catch (error: Exception) {
-                    // 单个回调抛错不该掐断后续帧，也不该顶掉对话框里的错误提示。
                 }
             }
         }
@@ -402,12 +398,8 @@ internal object JsApps {
                 }
                 put("id", event.streamId)
             }
-            try {
+            JsAppCallbackDispatch.run {
                 invoke(engine, "stream", context, active)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Exception) {
-                // 单个回调抛错不该掐断整条流，也不该顶掉对话框里的错误提示。
             }
         }
 

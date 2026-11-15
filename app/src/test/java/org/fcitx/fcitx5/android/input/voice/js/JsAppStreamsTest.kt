@@ -13,10 +13,18 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Response
+import okhttp3.ResponseBody
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
+import okio.Buffer
+import okio.Source
+import okio.Timeout
+import okio.buffer
 import org.junit.Assert.*
 import org.junit.Test
 import java.util.concurrent.LinkedBlockingQueue
@@ -43,6 +51,19 @@ class JsAppStreamsTest {
     }
 
     private fun scope() = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private fun clientWithSseSource(source: Source): OkHttpClient {
+        val buffered = source.buffer()
+        return OkHttpClient.Builder().addInterceptor { chain ->
+            Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK")
+                .header("Content-Type", "text/event-stream")
+                .body(object : ResponseBody() {
+                    override fun contentType() = "text/event-stream".toMediaType()
+                    override fun contentLength() = -1L
+                    override fun source() = buffered
+                }).build()
+        }.build()
+    }
 
     private fun newStreams(
         scope: CoroutineScope,
@@ -188,6 +209,147 @@ class JsAppStreamsTest {
             assertNotNull(final)
             assertEquals("delta", final!!.event)
             assertEquals("tail", final.data)
+            assertTrue(events.poll(5, TimeUnit.SECONDS) is StreamEvent.End)
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun sseIgnoresOnlyTheInitialByteOrderMark() = runBlocking {
+        val (server, client) = tlsServer()
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("\uFEFFdata: first\n\ndata: \uFEFFsecond\n\n"))
+        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { event, _ -> events += event })
+        try {
+            streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
+            assertEquals("first", (events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk)?.data)
+            assertEquals("\uFEFFsecond", (events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk)?.data)
+            assertTrue(events.poll(5, TimeUnit.SECONDS) is StreamEvent.End)
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun sseCarriageReturnEventDoesNotReadAheadForALineFeedOrEof() = runBlocking {
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        val source = object : Source {
+            private val chunk = Buffer().writeUtf8("data: first\r\r")
+            override fun read(sink: Buffer, byteCount: Long): Long {
+                check(chunk.size > 0L) { "Read beyond a complete CR-delimited event before dispatch" }
+                return chunk.read(sink, byteCount)
+            }
+            override fun timeout() = Timeout.NONE
+            override fun close() = Unit
+        }
+        val client = clientWithSseSource(source)
+        lateinit var streams: JsAppStreams
+        streams = newStreams(scope, client, JsAppEndpointPolicy(setOf("example.test"), emptyMap())::checkUrl,
+            dispatch = { event, _ ->
+                events += event
+                if (event is StreamEvent.Chunk) streams.cancel(event.streamId)
+            })
+        try {
+            streams.start(buildJsonObject { put("url", "https://example.test/sse") })
+            assertEquals("first", (events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk)?.data)
+            assertNull(events.poll(300, TimeUnit.MILLISECONDS))
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+        }
+    }
+
+    @Test fun sseCrLfAcrossResponseChunksRemainsOneLineEnding() = runBlocking {
+        val (server, baseClient) = tlsServer()
+        // MockWebServer's chunked body includes HTTP/1.1 framing. HTTP/2 would deliver
+        // that framing as payload instead of decoding it as a chunked response.
+        server.protocols = listOf(Protocol.HTTP_1_1)
+        val client = baseClient.newBuilder().protocols(listOf(Protocol.HTTP_1_1)).build()
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setChunkedBody("\uFEFFdata: first\r\ndata: second\r\n\r\ndata: tail\r", 1))
+        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { event, _ -> events += event })
+        try {
+            streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
+            val firstEvent = events.poll(5, TimeUnit.SECONDS)
+            assertTrue("Expected chunk, got ${firstEvent?.javaClass?.simpleName}: " +
+                (firstEvent as? StreamEvent.Failed)?.message.orEmpty(), firstEvent is StreamEvent.Chunk)
+            assertEquals("first\nsecond", (firstEvent as StreamEvent.Chunk).data)
+            assertEquals("tail", (events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk)?.data)
+            assertTrue(events.poll(5, TimeUnit.SECONDS) is StreamEvent.End)
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun sseByteOrderMarkAndCrLfCanArriveOneByteAtATime() = runBlocking {
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        val payload = Buffer().writeUtf8("\uFEFFdata: first\r\ndata: second\r\n\r\ndata: tail\r")
+        // HTTP chunks may be combined before reaching Okio. This source guarantees every
+        // byte of the BOM and every CRLF pair crosses a source-read boundary.
+        val client = clientWithSseSource(object : Source {
+            override fun read(sink: Buffer, byteCount: Long) = payload.read(sink, minOf(byteCount, 1L))
+            override fun timeout() = Timeout.NONE
+            override fun close() = Unit
+        })
+        val streams = newStreams(scope, client, JsAppEndpointPolicy(setOf("example.test"), emptyMap())::checkUrl,
+            dispatch = { event, _ -> events += event })
+        try {
+            streams.start(buildJsonObject { put("url", "https://example.test/sse") })
+            assertEquals("first\nsecond", (events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk)?.data)
+            assertEquals("tail", (events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk)?.data)
+            assertTrue(events.poll(5, TimeUnit.SECONDS) is StreamEvent.End)
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+        }
+    }
+
+    @Test fun sseCrDelimitedLinesKeepTheByteBudget() = runBlocking {
+        val (server, client) = tlsServer()
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        val comment = ":" + "x".repeat(JsVoiceRuntime.RESPONSE_BYTES - 1)
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("\uFEFF$comment\rdata: accepted\r\r"))
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream")
+            .setBody("${comment}x\rdata: rejected\r\r"))
+        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { event, _ -> events += event })
+        try {
+            streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
+            assertEquals("accepted", (events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk)?.data)
+            assertTrue(events.poll(5, TimeUnit.SECONDS) is StreamEvent.End)
+            streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
+            val failed = events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Failed
+            assertTrue(failed?.message.orEmpty().contains("line is too long"))
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun plainResponsesPreserveByteOrderMarksAndEmbeddedCarriageReturns() = runBlocking {
+        val (server, client) = tlsServer()
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/plain")
+            .setBody("\uFEFFfirst\rsecond\n\uFEFFtail"))
+        val streams = newStreams(scope, client, { server.url("/lines") }, dispatch = { event, _ -> events += event })
+        try {
+            streams.start(buildJsonObject { put("url", server.url("/lines").toString()) })
+            assertEquals("\uFEFFfirst\rsecond", (events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk)?.data)
+            assertEquals("\uFEFFtail", (events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk)?.data)
             assertTrue(events.poll(5, TimeUnit.SECONDS) is StreamEvent.End)
         } finally {
             streams.closeAll()
