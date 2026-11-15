@@ -4,7 +4,15 @@
 
 ## 两条链路
 
-2026-11-10 的固定版本为 [`android-sdk-20261110-1`](https://github.com/SandyYuR/librime/releases/tag/android-sdk-20261110-1)：官方基线 `a104ec6cafdb61a19f0e79707741733a0963c431`，定制源码 `b5561910d9eba97a273e09e7996535679b730032`，SDK SHA-256 `d22bf604adc844ac568c375b57b2ff575f3fa9c05e46f33ead394bd31bf815e9`。本轮同步官方词典迭代优化，保留下游独有改动；恢复临时库在整批同步前主动回收，打开前安装清理守卫并传播占用、打开及最终清理失败，同时协调同次上屏的用户词学习事务。插件、依赖版本和构建配方保持上一 SDK 的固定输入；四 ABI、宿主回归、打包与 Release 流水线均已通过。上一版 `.temp` 枚举修复的交付证据见[设备反馈修复](changes/2026-11-06-device-fixes.md)，更早的官方源码同步见[2026-11-06 引擎记录](changes/2026-11-06-engine-input-fixes.md)。实际消费版本仍以应用锁文件为准。
+2026-11-16 的现行固定版本为 [`android-sdk-20261116-2`](https://github.com/SandyYuR/librime/releases/tag/android-sdk-20261116-2)：官方基线 `bb56876890ba60f446fa2640c244b1794b965eda`，定制源码 `9a3175013def3d4d051fa57eb3acbbb201139e8e`，正式 SDK ZIP SHA-256 `fbfed3c1f6679b9a65f151a22f1afae72db71d54463f3ee8bdf27df29bea6a7c`。它保留完整 algebra 顺序、真实 `derive`／`fuzz` 来源与最终 prism 输入边的有序筛选，并加入九键字面音节标签、声母韵母组合模糊候选保护和无模糊规则方案的兼容边界。正式标签的四 ABI、宿主回归、打包与 Release 发布通过，881 个 SDK 文件及四 ABI 来源、ELF 和链接元数据已核验；应用侧验证另行记录，见[新版 SDK 消费与默认分支重写](changes/2026-11-16-syllable-fuzzy-filter-fix.md#新版-sdk-消费与默认分支重写)。实际消费版本仍以应用锁文件及对应 APK 元数据为准。同日首轮 `android-sdk-20261116-1` 的固定源码 `8bbdf773…`、SDK 摘要 `a566e36a…` 和交付结果继续保留在[原音节筛选记录](changes/2026-11-16-syllable-fuzzy-filter-fix.md#正式-sdk-发布与核验)。
+
+同日后续按用户提供的万象配置与补丁，修订“九键音节栏只显示本音节拼写、候选仍保留方案模糊关系”的展示过滤，并补足无 `derive/fuzz` 时保持旧行为、真实分隔符及 `ü/v` 规范化边界。原生最小例子确认 `8bbdf773…` 会展示只能通过模糊派生匹配的中间标签，选中后因路径来源不同而出现声母、韵母双模糊不对称。修复先在 `fix/t9-tab-order-fuzzy` 的 [`455a78f9…`](https://github.com/SandyYuR/librime/commit/455a78f999501d8a68be03caa5743fdcfb674342) 完成验证，随后按用户授权合并重写并推送为 `zhongzhou` 的 [`9a317501…`](https://github.com/SandyYuR/librime/commit/9a3175013def3d4d051fa57eb3acbbb201139e8e)。生产源码、测试、构建脚本和工作流与已验收 fix 逐文件一致，旧 SHA 的 CI 与产物保持原身份。新 SHA 的 Commit CI、四 ABI Android SDK 和 ARM64 外置引擎分支 CI 均已通过；该阶段没有发布标签，SDK 发布任务按预期跳过，当时输入法发行消费锁未更新。四十一项目标、穷举、用户实际测试反馈及历史映射见[双模糊与字面标签最终修复](changes/2026-11-16-syllable-fuzzy-filter-fix.md#双模糊与字面标签最终修复)，后续正式交付使用上段的新标签。
+
+SDK 继续使用 spdlog 1.17.0、Android `libspdlog.a` 与 logcat sink，保留官方 #1272 紧凑词条编译、#1260 用户库恢复，以及尚未上游的 #1274 紧凑词条与两段式反向词典构建和下游映射保护。临时库回收、清理守卫、失败传播和同次上屏的用户词学习事务继续保留；插件与依赖按 Android 来源锁固定。此前 glog → spdlog 换版和原生日志开关的固定产物事实见[2026-11-15 引擎与日志记录](changes/2026-11-15-engine-sdk-spdlog.md)。
+
+消费端默认分支已将 `cd9a105bf41b2ee3e16046619a6075f1a91e419a` 重写为 `f340e09a4d596c209934e50da2fd7d63038f780b`，锁定上述正式 SDK，并增加四项真实打包引擎回归。父提交和总提交数保持原值，已按旧远端完整 SHA 的精确 lease 强推，远端复核一致。Commit CI 与既有 Direct Rime CI 全部通过，下载的原始 JUnit 核验包含应用 2417 项、SDK 归档 10 项、引擎设备 13 项（其中音节 7 项）和完整前端设备 60 项，失败、错误和跳过均为 0；签名 ARM64 Release 与 Nightly 已发布。Windows native 引擎契约的实际符号链接权限阻塞仍保留，Linux native 安全契约及 LevelDB 复用、同步与恢复已在本次 CI 补验通过。指定 fix 分支的本地与远端引用均已删除，旧 SHA 与恢复依据、各项实际范围见[本次 SDK 消费与默认分支重写](changes/2026-11-16-syllable-fuzzy-filter-fix.md#新版-sdk-消费与默认分支重写)，旧 fix 和旧 SDK 产物各自保持原身份。
+
+上一版 `.temp` 枚举修复的交付证据见[设备反馈修复](changes/2026-11-06-device-fixes.md)，更早的官方源码同步见[2026-11-06 引擎记录](changes/2026-11-06-engine-input-fixes.md)。历史研究的源码引用、SDK 和产物元数据保持原身份，不因现行 SDK 换版而修改。
 
 构建与发布：
 
@@ -32,7 +40,7 @@ JNI 是 Kotlin/Java 调用 C++ 的本地接口，发生在同一进程；JNI 调
 | 位置 | 管理内容 |
 | --- | --- |
 | `SandyYuR/librime` 的 `master` | 跟踪官方源码的基线分支 |
-| 同仓库 `zhongzhou` | 产品使用的定制源码、Android 构建配方和依赖锁 |
+| 同仓库 `zhongzhou`（默认分支） | 产品使用的定制源码、Android 构建配方和依赖锁 |
 | `downstream/manifest.json` | 源码仓库、维护分支、官方基线及定制补丁来源 |
 | `downstream/android/sources.lock.json` | 各组件的仓库、版本或提交、下载 URL、源码包与补丁摘要 |
 | `downstream/android/patches/` | Android 构建所需的固定依赖补丁 |
@@ -80,7 +88,15 @@ Android 构建的依赖版本以 `sources.lock.json` 为准，不能只改 libri
 
 每次进程准备使用外部引擎，而不只是首次切换，都会在载荷发布和加载前原子写入启动守卫。显式切换或修改活动引擎绑定时还设置完整部署标志；普通稳定启动不因此无条件重编方案。只有 native 初始化、所需部署和方案刷新成功才清除守卫，未完成的下一次启动按保存的前一引擎回退。外部引擎活动期间，兼容保留的 `profile-manager` 不允许直接切换目录，`import-profile` 也不允许导入并切换；应在引擎变体页修改绑定。任何导入引擎、已授权 provider 或内置回退状态仍引用的 profile 均不得重命名或删除。
 
-`SandyYuR/librime-evo` 的 `.github/workflows/android-engine.yml` 是完整示例：从固定源码和依赖构建 ARM64 自包含 DSO，检查 ELF、导出和摘要，再把同一字节载荷封装为提供 APK。工作流分别上传 `.so` 与 APK artifact；只有 `main` 分支的非 PR 构建且四个 `ANDROID_ENGINE_*` Secrets 齐备时使用稳定发行签名。未配置 keystore，或属于非 `main`／PR 构建时，生成本次运行专用的测试签名；已进入发行签名分支但其余凭据不完整时，构建会终止。方案兼容仍需单独设备验证，构建成功不代表任意 YAML、词典或模型完整。
+`SandyYuR/librime` 的外置引擎工作流在推送 `zhongzhou` 或 `build/android-engine-*`，且改动命中其 `paths` 列表时自动触发；分支与路径条件须同时满足。也可在 GitHub 网页手动构建：
+
+1. 打开仓库 **Actions**，选择 [Android ARM64 engine](https://github.com/SandyYuR/librime/actions/workflows/android-engine.yml)。
+2. 点击 **Run workflow**，在 **Branch** 中选择包含此工作流和下游构建脚本的分支，例如默认分支 `zhongzhou`。
+3. 点击面板中的 **Run workflow** 发起该分支构建。
+
+仓库默认分支现为 `zhongzhou`，其中的 `android-engine.yml` 已声明 `workflow_dispatch`，满足网页手动入口的要求。手动事件不受该文件 `push` 的分支和路径过滤限制。`master` 保留纯官方基线，缺少此工作流和下游构建配方，不能直接选择它构建该外置引擎。
+
+`SandyYuR/librime-evo` 的 `.github/workflows/android-engine.yml` 是另一份完整示例：从固定源码和依赖构建 ARM64 自包含 DSO，检查 ELF、导出和摘要，再把同一字节载荷封装为提供 APK。工作流分别上传 `.so` 与 APK artifact；只有 `main` 分支的非 PR 构建且四个 `ANDROID_ENGINE_*` Secrets 齐备时使用稳定发行签名。未配置 keystore，或属于非 `main`／PR 构建时，生成本次运行专用的测试签名；已进入发行签名分支但其余凭据不完整时，构建会终止。方案兼容仍需单独设备验证，构建成功不代表任意 YAML、词典或模型完整。
 
 设备门禁的两个 `RimeEngineVariantDeviceTest` 方法必须用两次独立 instrumentation 启动；同一 runner 进程不会卸载第一个 DSO，连续执行会污染第二项。2026-11-12 本机固定的 x86_64 夹具为：内置 SDK 最终链接 DSO SHA-256 `401da5c080b00876e173c9b351c881888f6c0eedc278728aba88ca15df7fabaf`，`librime-evo@8727992e` provider APK SHA-256 `75638150c5d273dc9a497d7b1a91ba51316e1129474cca114e9d7ad59a041f36`，可运行万象 profile ZIP SHA-256 `1bfe7d8652a71977b3cb67aaaefdcd0efc7c71f874c90eb1a615bea968a70788`（方案基线 `45eeda12`）。运行前逐项复核摘要、安装 provider，并把 DSO/ZIP 放到下列固定设备路径；不能用同名未核验文件替代。
 
@@ -113,7 +129,7 @@ adb shell am instrument -w -r \
 
 ## 组件源码在哪里
 
-以下为 2026-11-05 这一轮更新后的版本；完整 SHA 和下载摘要以[依赖锁](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/sources.lock.json)为准。
+以下为 2026-11-15 这一轮更新后的版本；完整 SHA 和下载摘要以[依赖锁](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/sources.lock.json)为准。
 
 | 组件 | 源码 | 本轮版本 |
 | --- | --- | --- |
@@ -124,11 +140,11 @@ adb shell am instrument -w -r \
 | LevelDB | [google/leveldb](https://github.com/google/leveldb) | `bb74ef73` |
 | OpenCC | [BYVoid/OpenCC](https://github.com/BYVoid/OpenCC) | 正式版 1.4.2 |
 | Marisa | [s-yata/marisa-trie](https://github.com/s-yata/marisa-trie) | 正式版 0.3.1 |
-| glog | [google/glog](https://github.com/google/glog) | 正式版 0.7.1 |
+| spdlog | [gabime/spdlog](https://github.com/gabime/spdlog) | 正式版 1.17.0 |
 | yaml-cpp | [jbeder/yaml-cpp](https://github.com/jbeder/yaml-cpp) | 正式版 0.9.0 |
 | Boost | [boostorg/boost](https://github.com/boostorg/boost) | 正式版 1.92.0 |
 
-Marisa、glog、yaml-cpp 已是本轮检查时各自的最新正式版，保留现有版本。predict 使用的是表中明确的 LevelDB 分支，切换到其他 predict 仓库需要另查接口、配置与数据兼容性。
+Marisa、spdlog、yaml-cpp 已是本轮检查时各自的最新正式版，保留现有版本。glog 已随上游 spdlog 迁移移除，不再作为 Android 依赖。predict 使用的是表中明确的 LevelDB 分支，切换到其他 predict 仓库需要另查接口、配置与数据兼容性。
 
 ## 一、准备源码更新分支
 
@@ -220,7 +236,7 @@ git push origin refs/tags/android-sdk-20261105-2
 
 示例标签已用于本轮发布，后续必须使用新的日期或序号。标签触发的 SDK CI 会重新编译、测试和打包，再上传 `rime-android-sdk.zip`、`SHA256SUMS` 和 `sdk-manifest.json`；当前实现不会直接把工作分支的产物提升为 Release。
 
-核对标签实际提交、最终发布包的 SHA-256、四 ABI 和来源清单。Release 的 `target_commitish` 是发布元数据，不能替代标签与 SDK 清单的源码校验。SDK 有七个静态库：librime、glog、LevelDB、Lua、Marisa、OpenCC、yaml-cpp；三个引擎插件合并在 librime 中。
+核对标签实际提交、最终发布包的 SHA-256、四 ABI 和来源清单。Release 的 `target_commitish` 是发布元数据，不能替代标签与 SDK 清单的源码校验。SDK 有七个静态库：librime、spdlog、LevelDB、Lua、Marisa、OpenCC、yaml-cpp；三个引擎插件合并在 librime 中。
 
 已发布标签与包不覆盖。即使只升级依赖、核心代码未变，也要发布新的 SDK 版本。
 
