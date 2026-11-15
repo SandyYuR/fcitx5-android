@@ -9,7 +9,7 @@ docKind: reference
 以下正文描述 **Foxy** 的接口。中州鹅的实际支持范围见[宿主实现](/maintainer/implementation/js-voice-plugins#js-app-test-branch)。
 
 中州鹅的 AI 助手与 JS App 功能已于 2026-11-05 合入默认分支 `fx-rime-only`；较早的 APK 需更新后使用。
-已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP、SSE 流式 HTTP、按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`），以及旧式平铺 `fields` / `buttons` 布局和布局里的 `app` 节点；通用 App 选择器尚未实现。语音 WebSocket 仍可使用。
+已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP、SSE 流式 HTTP、按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`），以及旧式平铺 `fields` / `buttons` 布局；中州鹅另提供 App 对话框里的 `app` 切换节点。键盘按钮使用本宿主的精确绑定，通用 App 选择器尚未实现。语音 WebSocket 仍可使用。
 
 Foxy 要求请求主机在静态 `hosts` 中声明。中州鹅的 App 扩展还允许从普通设置中的格式安全端点提取精确主机：HTTP／SSE 只从 HTTPS 设置取主机并继续使用 HTTPS；App WebSocket 可从 HTTPS 或 WSS 设置取主机，但实际连接仍只使用 WSS。两者首次使用时都逐域名授权；内置助手的 `hosts` 为空。这个扩展不等于给原版 Foxy 放开任意域名，语音接口仍按静态清单授权。
 
@@ -119,13 +119,13 @@ foxy.app.register({
 });
 ```
 
-在 Foxy 布局中这样调用：
+在 Foxy 的键盘布局中这样调用：
 
 ```json
 {"type":"app","command":"js.rewrite"}
 ```
 
-同一个命令也可以在 Foxy 工具栏动作编辑器中选择。每个 App 收到：
+同一个命令也可以在 Foxy 工具栏动作编辑器中选择。这是 Foxy 的外部调用入口；中州鹅键盘布局使用 `js_app:<pluginId>/<appId>` 精确绑定，App 对话框中的扩展节点见下文。每个 App 收到：
 
 - `context.event`：`"open"` 或上一个界面的按钮 ID。
 - `context.values`：按钮事件发生时的输入框、下拉框值。
@@ -149,14 +149,15 @@ foxy.app.register({
 | `input` | `id`、`label`、`labelPlacement`、`placeholder`、`multiline`、`height`、`value`、`weight` |
 | `select` | `id`、`label`、`labelPlacement`、`options`、`value`、`height`、`weight` |
 | `button` | `id`、`label`、`style`（`outlined`、`filled`）、`weight` |
-| `app` | `command`（`js.<appId>`）、`label`、`style`；渲染成切换到该 App 的按钮 |
 | `spacer` | `height`、`weight` |
 
 下拉选项可以是字符串或 `{label, value}`。标签默认在控件左侧；`labelPlacement: "top"` 将标签放在上方。没有 `weight` 时，子项不会拉伸。界面的 `maxWidth`、`maxHeight` 是以 dp 为单位的边界。Foxy 保留旧版平铺 `fields` / `buttons` 格式以便兼容。
 
 中州鹅还支持 `input.readOnly: true`，用于允许选择和复制、但不接收键盘输入的结果框。
 
-中州鹅同样兼容旧式平铺格式：没有 `layout` 时按 Foxy 的字段规则把 `title`、`fields`（最多 12 个）和 `buttons`（最多 8 个）拼成纵向界面，字段缺省值取上一轮的 `values`。按钮保留原事件 ID，并按中州鹅的界面约定完整换行，使窄屏、大字号下全部操作可达。`app` 节点按 `command` 解析成唯一注册的 App，解析不到（或同一 App ID 出现在多个插件里）时提示改用编辑按钮里的精确绑定；`js.<appId>` 只用于 `app` 节点，键盘布局 JSON 仍应写 `js_app:<pluginId>/<appId>`，因为 App ID 只在插件内唯一。
+中州鹅同样兼容旧式平铺格式：没有 `layout` 时按 Foxy 的字段规则把 `title`、`fields`（最多 12 个）和 `buttons`（最多 8 个）拼成纵向界面，字段缺省值取上一轮的 `values`。按钮保留原事件 ID，并按中州鹅的界面约定完整换行，使窄屏、大字号下全部操作可达。
+
+中州鹅额外提供 App 对话框节点 `app`，接受 `command`（`js.<appId>`）、`label` 和 `style` 字段，渲染成切换 App 的按钮。它是本宿主的对话框扩展，Foxy 原始参考仅将 `type: "app"` 用于上面的键盘布局调用入口，未将它列为对话框节点。此扩展按 `command` 解析成唯一注册的 App；解析不到或同一 App ID 出现在多个插件里时，提示改用编辑按钮里的精确绑定。中州鹅键盘布局 JSON 仍使用 `js_app:<pluginId>/<appId>`，因为 App ID 只在插件内唯一。
 
 ### 增量更新界面
 
@@ -281,9 +282,9 @@ foxy.http.cancelStream(streamId);
 
 解析 SSE 的 `event:`、`data:` 字段，多行 `data:` 以换行连接。流仅使用 HTTPS，与普通 HTTP 共用主机授权及 `network.request` 权限；App 关闭时取消。分块回调按顺序等待完成，提供背压。
 
-本宿主的实现约定：`stream()` 校验 HTTPS、方法与请求体上限（1 MiB）后立即返回流 ID；应先注册 `onChunk/onEnd/onError` 再发起，回调可在当前 JavaScript 求值返回后执行。真正发请求前会请求主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 在空行处派发含 `data` 字段的事件，空的 `data:` 值也会交付；缺省事件名为 `message`，`:` 开头的注释行忽略，EOF 处仍会交付含 `data` 字段的尾事件。单行和单个完整事件分别以 2 MiB 为上限，事件预算包括 `event` 名称、每条 `data` 内容及连接多行时插入的换行；非 SSE 响应也使用 2 MiB 单行上限，并交付没有末尾换行的合法尾行。同一 App 会话最多 4 条流。请求不设整体与读取超时（SSE 可能长时间空闲）；`cancelStream`、App 关闭或授权撤销后不再投递已缓冲事件。
+本宿主的实现约定：`stream()` 校验 HTTPS、方法与请求体上限（1 MiB）后立即返回流 ID；应先注册 `onChunk/onEnd/onError` 再发起，回调可在当前 JavaScript 求值返回后执行。真正发请求前会请求主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 接受 LF、CRLF 和单独 CR 作为换行，并忽略流开头的一个 UTF-8 BOM；只在流首去除 BOM。空行处派发含 `data` 字段的事件，空的 `data:` 值也会交付；缺省事件名为 `message`，`:` 开头的注释行忽略，EOF 处仍会交付含 `data` 字段的尾事件。单行和单个完整事件分别以 2 MiB 为上限，事件预算包括 `event` 名称、每条 `data` 内容及连接多行时插入的换行；非 SSE 响应也使用 2 MiB 单行上限，并交付没有末尾换行的合法尾行。同一 App 会话最多 4 条流。请求不设整体与读取超时（SSE 可能长时间空闲）；`cancelStream`、App 关闭或授权撤销后不再投递已缓冲事件。
 
-宿主一次只执行一个 JavaScript 片段。App 等待由 WebSocket／SSE 回调解决的纯 JavaScript Promise 时，两次求值／轮询步骤之间会释放会话锁，使该回调可以交错执行。直接等待 editor／UI、`http.request`、授权或 `waitOpen` 等宿主异步 API 时，主线程或传输独立完成宿主工作，但当前求值仍会等待该工作结束后才返回，不能据此保证等待期间其他脚本回调可以进入。单条连接或流内部的事件仍保持顺序，流回调保持背压。
+宿主一次只执行一个 JavaScript 片段。App 等待由 WebSocket／SSE 回调解决的纯 JavaScript Promise 时，两次求值／轮询步骤之间会释放会话锁，使该回调可以交错执行。直接等待 editor／UI、`http.request`、授权或 `waitOpen` 等宿主异步 API 时，主线程或传输独立完成宿主工作，但当前求值仍会等待该工作结束后才返回，不能据此保证等待期间其他脚本回调可以进入。单条连接或流内部的事件仍保持顺序，流回调保持背压。单个 WebSocket／SSE 回调超过 180 秒等待预算时，宿主将其视为本次调用失败并回收其等待槽；会话与连接或流仍有效时，后续事件继续处理。取消流、关闭会话或撤销授权仍会停止相应投递。
 
 ## WebSocket
 

@@ -69,3 +69,40 @@ Debug 证书 SHA-256 为 `86f8c54c1917b6ef2c71a43ae8e5100b1b5164b06702113289e4c8
 现有 `ClipboardSearchDeviceTest` 会创建和切换临时 Rime profile、替换剪贴板测试数据、调整输入法及外观，并注明使用 disposable Debug emulator；本次没有在长期保留数据的 AVD 上直接运行它。JVM 的 TLS 传输和组件测量不能替代实际设备上的网络回调、输入连接、触摸及窗口验收。
 
 现行接口与范围见 [JS 宿主协议](../implementation/js-voice-plugins)、[中文接口参考](/features/voice-input-js-reference-zh-CN)及[英文接口参考](/features/voice-input-js-en)。
+
+## 后续独立复审：回调超时与 SSE 行格式
+
+本轮从已推送的代码 `d69ac8049fe7005ff068ee068ecfd65b783cc86e` 与文档 `8aeeee6c5d9dee88399811752016668d77cfa561` 开始，重新读取两个 PR 的全部审阅和普通评论，核对前述问题已修复。此次新增修正如下：
+
+| 问题 | 修正与回归 |
+| --- | --- |
+| 单个 WS 回调超时结束唯一消费者，SSE 回调超时结束流读取 | 两条入口共用 `JsAppCallbackDispatch`，隔离调用自己的超时，先检查父协程仍活动；普通取消、会话关闭和外层超时仍传播。真实 QuickJS 回归检查超时后仍交付下一条 WS／SSE 事件，等待槽归零；另测显式取消、消费者取消及外层超时。 |
+| SSE 流首 BOM 丢掉第一事件，CR 分隔被当作正文 | SSE 专用读取器接受 LF、CRLF、CR，流首只剥一个 UTF-8 BOM。CR 立即结束本行，下一轮吞可选 LF；按已检查位置继续扫描，保留 2 MiB 行和事件预算。六个回归覆盖 BOM、CR 及时交付、逐字节分块、大小边界和普通文本兼容。 |
+| 将 `app` 对话框节点误写为 Foxy 原有节点 | 从 Foxy 节点表移出，明确为中州鹅 App 对话框扩展。原始参考中的 `type: "app"` 是键盘调用入口，本宿主键盘继续使用精确插件／App 绑定。 |
+| 本机引擎缓存路径过时 | 根据当前本机脚本，修正源码缓存与构建目录为工作区 `.build/rime/source-cache` 和 `.build/rime/windows`。 |
+
+SSE 格式依据为 [WHATWG 事件流解析规则](https://html.spec.whatwg.org/multipage/server-sent-events.html#parsing-an-event-stream)；EOF 尾事件仍保留本宿主已有的兼容行为。本轮没有更改依赖、SDK 锁、签名、插件授权模型或手机数据。
+
+修改前先重新执行现有 355 项 voice 测试，全部通过。加入回归后、SSE 修复前执行 27 项目标测试，4 失败、0 错误、0 跳过，复现 BOM、CR、分块及预算问题；回调超时隔离的四项测试通过。初版 CR 回归依赖服务端响应结束行为，最终改为受控响应源：完整 CR 事件交付前若继续读取，测试立即失败，避免用延时猜测及时交付。
+
+修复后的首轮完整执行为 364 项、1 失败、0 错误、0 跳过。诊断确认失败的分块夹具协商了 HTTP/2，却用 `MockResponse.setChunkedBody` 预先写入 HTTP/1.1 chunk framing，导致 SSE 只得到结束事件。最终夹具明确使用 HTTP/1.1；另用每次仅读一字节的受控响应源检查 BOM 与 CRLF 跨缓冲边界。失败及诊断结果保留，不以延长等待或放宽断言处理。
+
+本轮日志、失败及最终 JUnit、源码和 APK 身份保存在本机 `.dsh-tmp/foxy-second-review-20261115/`，与上文前一轮产物分开保留。本轮仍未安装 APK 或执行设备回归，设备边界不变。
+
+本轮代码提交为 [`bbdf4f686af52a4c915c573a777d143469383422`](https://github.com/SandyYuR/fcitx5-android/commit/bbdf4f686af52a4c915c573a777d143469383422)，完整测试与 APK 构建在该提交生成后执行，以该提交及固定 SDK 为验证输入。
+
+### 本轮最终验证
+
+| 验证 | 结果 |
+| --- | --- |
+| 完整 voice JVM 测试 | 46 份 JUnit，365 tests、0 failures、0 errors、0 skipped，包含真实 bundled 脚本。 |
+| ARM64 Debug | 构建、原生库白名单、16 KiB 对齐和链接审计通过。 |
+| x86_64 Debug | 构建、原生库白名单、16 KiB 对齐和链接审计通过。 |
+| APK 签名 | 两包均通过签名校验，证书与前轮保留的 Debug 证书摘要一致。 |
+
+| 本轮 APK | SHA-256 |
+| --- | --- |
+| arm64-v8a Debug | `e1c72a137445f5eee547a1c5227ccf1daa2d6a14db044d8083dcfb295bba623f` |
+| x86_64 Debug | `04c5d51350b8bc4feeff63425b572bbb84e746f22729c1e48a0212eed0c20b15` |
+
+两包只包含对应 ABI 的 `libc++_shared.so`、`libdirect-rime.so`、`libquickjs.so`，链接审计使用本次 `app/.cxx` 与固定 `native/rime-sdk` 输入。本节保存后执行文档构建、链接、历史完整性、目录、搜索和 diff 检查；输出保留在本轮证据目录的 `docs-final-*.log`，同时由 PR #40 的构建检查验证文档提交。上述构建与测试不代表手机设备验收。

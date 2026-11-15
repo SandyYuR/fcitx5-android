@@ -17,7 +17,7 @@ Older APKs need an update. See the [current host implementation](/maintainer/imp
 | --- | --- |
 | JS Apps | App registration, permissions, structured native layouts, editor APIs, credentials, non-streaming HTTP and SSE streaming are supported. The toolbar provides an AI assistant entry. |
 | Network authorization | App HTTP accepts HTTPS and derives configured hosts from safe HTTPS settings. App WebSocket connects with WSS, while its exact host may come from `hosts` or a safe configured HTTPS/WSS endpoint. Every host still needs separate approval before use. The built-in assistant has no default API addresses or static hosts. Voice transports still require declared hosts. |
-| Streaming and commands | App SSE (`foxy.http.stream`), App WebSocket with per-kind callbacks and `foxy.websocket.authorize()`, legacy flat `fields` / `buttons` layouts and `app` layout nodes are supported. A generic App selector is not implemented. The voice WebSocket transport is supported. |
+| Streaming and commands | App SSE (`foxy.http.stream`), App WebSocket with per-kind callbacks and `foxy.websocket.authorize()`, and legacy flat `fields` / `buttons` layouts are supported. Zhongzhou E additionally provides an `app` node inside App dialogs; keyboard buttons use its exact plugin/App binding. A generic App selector is not implemented. The voice WebSocket transport is supported. |
 | Controls | Floating panels keep keyboard input available. The host additionally supports `input.readOnly` for a selectable AI reply. |
 
 Button IDs and selector IDs are delivered to the plugin as events: a label such as “Confirm” has no built-in generate/insert behavior. Handle selector events explicitly to keep the panel open.
@@ -123,13 +123,13 @@ foxy.app.register({
 });
 ```
 
-Invoke it from a layout:
+Invoke it from a Foxy keyboard layout:
 
 ```json
 {"type":"app","command":"js.rewrite"}
 ```
 
-The same command can be selected in the toolbar action editor. Every App receives:
+The same command can be selected in Foxy's toolbar action editor. This is Foxy's external invocation entry. Zhongzhou E keyboard layouts use the exact `js_app:<pluginId>/<appId>` binding; its App dialog extension is described below. Every App receives:
 
 - `context.event`: `"open"` or a button ID from the last dialog.
 - `context.values`: current input/select values for button events.
@@ -151,12 +151,13 @@ The plugin owns the layout tree. Foxy renders these nodes with native controls s
 | `input` | `id`, `label`, `labelPlacement`, `placeholder`, `multiline`, `height`, `value`, `weight` |
 | `select` | `id`, `label`, `labelPlacement`, `options`, `value`, `height`, `weight` |
 | `button` | `id`, `label`, `style` (`outlined` or `filled`), `weight` |
-| `app` | `command` (`js.<appId>`), `label`, `style`; renders a button that switches to that App |
 | `spacer` | `height`, `weight` |
 
 Select `options` may be strings or `{label, value}` objects. Labels are inline by default; set `labelPlacement: "top"` for stacked labels. Children do not stretch unless `weight` is provided. Dialog-level `maxWidth` and `maxHeight` are dp bounds.
 
-The old flat `fields` / `buttons` format is supported too: without `layout`, `title`, up to 12 `fields` and up to 8 `buttons` are composed into a vertical dialog using Foxy's field rules, and field values fall back to the previous `values`. Buttons retain their event IDs and wrap as whole actions under Zhongzhou E's UI rules so every operation remains reachable at narrow widths and large font scales. An `app` node resolves its `command` to the single registered App; when nothing matches (or two plugins register the same App ID) the dialog asks the user to rebind it. `js.<appId>` is only for `app` nodes — keyboard layout JSON should keep using `js_app:<pluginId>/<appId>`, because App IDs are unique per plugin only.
+Zhongzhou E also supports the old flat `fields` / `buttons` format: without `layout`, `title`, up to 12 `fields` and up to 8 `buttons` are composed into a vertical dialog using Foxy's field rules, and field values fall back to the previous `values`. Buttons retain their event IDs and wrap as whole actions under Zhongzhou E's UI rules so every operation remains reachable at narrow widths and large font scales.
+
+Zhongzhou E additionally supports an `app` node inside App dialogs, with `command` (`js.<appId>`), `label`, and `style` fields. It renders a button that switches Apps. This is a Zhongzhou E dialog extension; the supplied Foxy reference only uses `type: "app"` for the keyboard invocation above and does not list it as a dialog node. The extension resolves its command to a single registered App; when nothing matches or two plugins register the same App ID, it asks the user to use an exact binding in the button editor. Zhongzhou E keyboard layout JSON still uses `js_app:<pluginId>/<appId>`, because App IDs are unique per plugin only.
 
 ### Incremental Dialog Updates
 
@@ -280,9 +281,9 @@ foxy.http.cancelStream(streamId);
 
 SSE `event:` and `data:` fields are parsed; multiple `data:` lines are joined with newline. The stream is HTTPS-only, uses the same host approval and `network.request` permission as ordinary HTTP, and is cancelled when the plugin App closes. Chunk callbacks are awaited sequentially to provide backpressure.
 
-Host specifics: `stream()` validates HTTPS, the method and a 1 MiB body limit, then returns the stream ID immediately. Register `onChunk/onEnd/onError` before starting; callbacks can run after the current JavaScript evaluation returns. Host approval is requested before the request is sent and a denial reports `Network permission denied` through `onError`. A blank line dispatches an SSE event containing a `data` field, including an empty `data:` value. The default event name is `message`, `:` comment lines are ignored, and EOF also delivers a remaining event containing a `data` field. One input line and one complete SSE event are each capped at 2 MiB; the event budget includes the event name, every `data` line, and the newline inserted when data lines are joined. Non-SSE bodies use the same 2 MiB per-line cap and deliver a valid final line without a trailing newline. One App session may keep at most four streams. No overall or read timeout is applied because SSE streams can idle, so cancellation comes only from `cancelStream`, App close, or authorization revocation; buffered events are suppressed afterwards.
+Host specifics: `stream()` validates HTTPS, the method and a 1 MiB body limit, then returns the stream ID immediately. Register `onChunk/onEnd/onError` before starting; callbacks can run after the current JavaScript evaluation returns. Host approval is requested before the request is sent and a denial reports `Network permission denied` through `onError`. SSE accepts LF, CRLF, and bare CR line endings and ignores one UTF-8 BOM at the start of the stream; BOMs elsewhere are preserved. A blank line dispatches an event containing a `data` field, including an empty `data:` value. The default event name is `message`, `:` comment lines are ignored, and EOF also delivers a remaining event containing a `data` field. One input line and one complete SSE event are each capped at 2 MiB; the event budget includes the event name, every `data` line, and the newline inserted when data lines are joined. Non-SSE bodies use the same 2 MiB per-line cap and deliver a valid final line without a trailing newline. One App session may keep at most four streams. No overall or read timeout is applied because SSE streams can idle, so cancellation comes only from `cancelStream`, App close, or authorization revocation; buffered events are suppressed afterwards.
 
-Only one JavaScript fragment is evaluated at a time. When an App awaits a plain JavaScript Promise that a WebSocket or SSE handler will resolve, the host releases the session lock between evaluation and polling steps, allowing that handler to run. Directly awaited host APIs, such as editor/UI calls, `http.request`, authorization or `waitOpen`, complete independently on the main thread or transport, but the current evaluation still waits for that host work before returning. Such an await does not guarantee that another script callback can enter during the wait. Events within one connection or stream remain ordered.
+Only one JavaScript fragment is evaluated at a time. When an App awaits a plain JavaScript Promise that a WebSocket or SSE handler will resolve, the host releases the session lock between evaluation and polling steps, allowing that handler to run. Directly awaited host APIs, such as editor/UI calls, `http.request`, authorization or `waitOpen`, complete independently on the main thread or transport, but the current evaluation still waits for that host work before returning. Such an await does not guarantee that another script callback can enter during the wait. Events within one connection or stream remain ordered. When an individual WebSocket or SSE callback exceeds its 180-second wait budget, the host treats that invocation as failed and reclaims its pending slot; later events continue while the session and connection or stream remain active. Stream cancellation, App close, and authorization revocation still stop the corresponding delivery.
 
 ## WebSocket
 

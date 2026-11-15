@@ -54,8 +54,8 @@ Windows 解包和插件准备安全复制内部链接内容，不要求开启开
 
 | 内容 | 路径 |
 | --- | --- |
-| 固定源码缓存 | `D:\GitHub\tools\rime-android-sources\<sha256>` |
-| 源码快照、CMake 缓存及产物 | `D:\GitHub\tools\rime-build\windows` |
+| 固定源码缓存 | `D:\GitHub\fx2-rime\.build\rime\source-cache\<sha256>` |
+| 源码快照、CMake 缓存及产物 | `D:\GitHub\fx2-rime\.build\rime\windows` |
 | 已校验的开发 SDK | `D:\GitHub\fx2-rime\.build\rime\sdk` |
 | 应用生成的 SDK 输入 | `fx-rime-only\native\rime-sdk` |
 
