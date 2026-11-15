@@ -99,6 +99,8 @@
     <string name="app_crash_message">Извините, но мы предоставляем вам несколько журналов для изучения.</string>
     <string name="crash_logs">Журналы сбоев</string>
     <string name="verbose_log">Подробное ведение журнала</string>
+    <string name="rime_engine_log">Журналы движка Rime</string>
+    <string name="rime_engine_log_summary">Выводить сообщения INFO и WARNING нативного движка в журналы в реальном времени. Вступает в силу после перезапуска приложения.</string>
     <string name="removed_x">Удалено %1$s</string>
     <string name="added_x">Добавлено %1$s</string>
     <string name="edited_x">Отредактировано %1$s</string>

@@ -514,7 +514,7 @@ bool Engine::deploy() {
     if (shared_.empty() || user_.empty()) return false;
     // Recreating only the session retains Lua require()'s module cache and
     // component-held config. Finalize unloads those modules and flushes DBs;
-    // setup/glog remains process-wide and must not be run a second time.
+    // setup/logging remains process-wide and must not be run a second time.
     stop();
     initialize(true);
     return !deployFailed_.load();

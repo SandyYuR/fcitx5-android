@@ -70,6 +70,8 @@
     <string name="app_crash">La aplicación se cerró inesperadamente</string>
     <string name="crash_logs">Registros de cierres inesperados</string>
     <string name="verbose_log">Registro a detalle</string>
+    <string name="rime_engine_log">Registros del motor Rime</string>
+    <string name="rime_engine_log_summary">Emite los mensajes INFO y WARNING del motor nativo en los registros en tiempo real. Se aplica tras reiniciar la aplicación.</string>
     <string name="invalid_value">Valor no válido</string>
     <string name="create_new">Crear</string>
     <string name="name">Nombre</string>

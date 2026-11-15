@@ -13,7 +13,7 @@
 using direct_rime::Engine;
 namespace {
 // Accessed exclusively on rime-main. Each engine identity owns a retained Engine object so
-// librime's process-wide setup (including glog initialization) runs once for that loaded slot.
+// librime's process-wide setup (including logging initialization) runs once for that loaded slot.
 // Switching first stop/finalizes the current slot; inactive external DSOs stay mapped so a failed
 // activation can restart the previous slot without killing the Android process.
 std::unordered_map<std::string, std::unique_ptr<Engine>> engineSlots;

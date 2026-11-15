@@ -93,6 +93,8 @@
     <string name="app_crash_message">죄송합니다. 조사를 위해 몇 가지 로그를 가져왔습니다.</string>
     <string name="crash_logs">충돌 로그</string>
     <string name="verbose_log">자세한 로깅</string>
+    <string name="rime_engine_log">Rime 엔진 로그</string>
+    <string name="rime_engine_log_summary">네이티브 엔진의 INFO / WARNING 메시지도 실시간 로그에 기록합니다. 앱을 다시 시작한 후 적용됩니다.</string>
     <string name="removed_x">%1$s 제거됨</string>
     <string name="added_x">%1$s 추가됨</string>
     <string name="edited_x">%1$s 편집됨</string>
