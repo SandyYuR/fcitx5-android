@@ -11,7 +11,7 @@ docKind: reference
 中州鹅的 AI 助手与 JS App 功能已于 2026-11-05 合入默认分支 `fx-rime-only`；较早的 APK 需更新后使用。
 已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP、SSE 流式 HTTP、按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`），以及旧式平铺 `fields` / `buttons` 布局和布局里的 `app` 节点；通用 App 选择器尚未实现。语音 WebSocket 仍可使用。
 
-Foxy 要求请求主机在静态 `hosts` 中声明。中州鹅的 **App HTTP** 还允许从用户配置的 HTTPS 地址提取主机，并在首次请求时逐域名授权；内置助手的 `hosts` 为空。这个扩展不等于给原版 Foxy 放开任意域名，语音接口仍按静态清单授权。
+Foxy 要求请求主机在静态 `hosts` 中声明。中州鹅的 App 扩展还允许从普通设置中的格式安全端点提取精确主机：HTTP／SSE 只从 HTTPS 设置取主机并继续使用 HTTPS；App WebSocket 可从 HTTPS 或 WSS 设置取主机，但实际连接仍只使用 WSS。两者首次使用时都逐域名授权；内置助手的 `hosts` 为空。这个扩展不等于给原版 Foxy 放开任意域名，语音接口仍按静态清单授权。
 
 “确认”“发送”等标签的含义由插件的按钮事件处理决定，宿主不会自动把它们解释成 AI 请求或上屏操作。
 :::
@@ -224,7 +224,7 @@ const response = JSON.parse(responseText);
 
 ## 能力探测与设置写入
 
-> 中州鹅已实现这两项；能力表的具体内容见[宿主实现](/maintainer/implementation/js-voice-plugins)。
+> 中州鹅已实现这两项。运行中的 App 或语音会话精确报告自身可调用能力；设置声明／导入求值是例外，它报告 App + voice 运行时能力的发现并集，避免插件顶层条件注册漏掉任一入口，但这个临时环境仍不能实际调用网络／编辑器，也没有 `settings.set`。完整约定见[宿主实现](/maintainer/implementation/js-voice-plugins)。
 
 `foxy.capabilities` 是一张按 API 形状组织的布尔表，用于在调用前判断宿主是否支持某项能力：
 
@@ -236,13 +236,19 @@ if (foxy.capabilities.http.stream) {
 }
 ```
 
-表里为 `false` 的项表示本宿主尚未实现，插件应降级而不是依赖 `try/catch`。
+在运行会话中，表里为 `false` 的项表示该会话未实现，插件应降级而不是依赖 `try/catch`。设置声明／导入求值阶段的能力表只用于发现并注册入口，不能据此执行运行时操作。
 
-`foxy.settings.set(key, value)` 把值写回插件自己的普通设置项。只接受 `configure()` 中声明过的非密钥字段；密钥字段和未声明的键都会抛错。值按字符串保存。
+| 会话 | 报告为可用的 API |
+| --- | --- |
+| 设置声明／导入求值 | App + voice 运行时能力的发现并集，保留顶层条件注册；不能实际调用网络／编辑器，也没有 `settings.set` |
+| 运行中的 App | 编辑器／对话框、`http.request`、SSE、App WebSocket 及回调、`settings.set`；没有语音事件、旧式 `http.post` 或 HMAC |
+| 运行中的语音提供方 | 语音事件、旧式 `http.post`、HMAC、音频／二进制工具和语音 WebSocket；没有 App request/stream、编辑器或设置写入 |
+
+`foxy.settings.set(key, value)` 把值写回插件自己的普通设置项。只接受 `configure()` 中声明过的非密钥字段；密钥字段和未声明的键都会抛错。值按字符串保存，单值 UTF-8 内容最多 64 KiB，同一 App 会话全部普通设置合计最多 256 KiB；设置声明／导入求值和语音会话中没有该对象。
 
 ## 流式 HTTP / SSE
 
-> 本宿主已实现本节接口，`foxy.capabilities.http.stream` 为 `true`。实现细节与限制见本节末。
+> 本宿主的 App 会话已实现本节接口，`foxy.capabilities.http.stream` 在 App 会话为 `true`，在语音和设置声明会话为 `false`。实现细节与限制见本节末。
 
 `foxy.http.stream(options)` 立即返回流 ID。每个 SSE 事件以 `(streamId, event, data)` 传入；非 SSE 响应逐行传入，事件名为 `"line"`。
 
@@ -275,11 +281,11 @@ foxy.http.cancelStream(streamId);
 
 解析 SSE 的 `event:`、`data:` 字段，多行 `data:` 以换行连接。流仅使用 HTTPS，与普通 HTTP 共用主机授权及 `network.request` 权限；App 关闭时取消。分块回调按顺序等待完成，提供背压。
 
-本宿主的实现约定：`stream()` 校验 HTTPS、方法与请求体上限（1 MiB）后立即返回流 ID，事件可能早于紧随其后的同步代码，应先注册 `onChunk/onEnd/onError` 再发起。真正发请求前会请求主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 的空行派发事件、缺省事件名为 `message`，`:` 开头的注释行忽略；非 SSE 响应逐行投递、事件名为 `line`，单行上限 2 MiB（与响应体预算相同），超长以 `onError` 结束。请求不设整体与读取超时（SSE 可能长时间空闲），取消只来自 `cancelStream` 或 App 关闭；取消或关闭后不再回调，回调在宿主侧串行执行。
+本宿主的实现约定：`stream()` 校验 HTTPS、方法与请求体上限（1 MiB）后立即返回流 ID，事件可能早于紧随其后的同步代码，应先注册 `onChunk/onEnd/onError` 再发起。真正发请求前会请求主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 的空行派发事件、缺省事件名为 `message`，`:` 开头的注释行忽略；单行和单个完整事件分别以 2 MiB 为上限，事件预算包括 `event` 名称、每条 `data` 内容及连接多行时插入的换行，非 SSE 响应也使用 2 MiB 单行上限。同一 App 会话最多 4 条流。请求不设整体与读取超时（SSE 可能长时间空闲）；`cancelStream`、App 关闭或授权撤销后不再投递已缓冲事件。宿主一次只执行一个 JavaScript 片段，但 async App Promise 等待网络结果时允许 WebSocket／SSE 回调交错运行，单条流内部仍保持顺序和背压。
 
 ## WebSocket
 
-> 中州鹅的语音插件与 App 会话共用同一份 WebSocket 传输，以下接口均已实现。`connect` 是同步的，连接未授权主机前必须先 `await foxy.websocket.authorize(...)`，否则直接抛错；四个回调按种类各注册一次，不按 socket 区分；`onClose` 的第二个参数是布尔值（Foxy 文档写作 `expected`，语义接近 `wasClean`），本宿主按关闭码是否为 1000 给出：插件主动关闭与服务端正常关闭都为 `true`，异常关闭为 `false`。
+> 中州鹅的语音插件与 App 会话共用同一份 WebSocket 传输，以下接口均已实现。App WebSocket 的实际连接只接受 WSS；静态声明或格式安全的普通 HTTPS／WSS 端点设置可以贡献精确主机，但仍需授权。`connect` 是同步的，连接未授权主机前必须先 `await foxy.websocket.authorize(...)`，否则直接抛错；四个回调按种类各注册一次，不按 socket 区分；`onClose` 的第二个参数是布尔值（Foxy 文档写作 `expected`，语义接近 `wasClean`），本宿主按关闭码是否为 1000 给出：插件主动关闭与服务端正常关闭都为 `true`，异常关闭为 `false`。App 会话最多缓存 8 个入站 WebSocket 事件，第 9 个会关闭对应连接，避免输入法进程无限积压。
 
 普通 App 与语音插件共用 Foxy 的宿主 WebSocket 传输：
 
@@ -394,11 +400,12 @@ Foxy 回调的等待上限分别是：`start` 10 秒、`audio` 3 秒、`onMessag
 
 ## 安全与运行限制
 
-- 主机必须是 `hosts` 中的精确条目，并单独获得用户批准。HTTP/SSE 可在运行期请求批准已声明主机；WebSocket 应先 `await foxy.websocket.authorize(...)`。未声明主机一律拒绝，端点设置不能扩大 Foxy 的访问范围。
+- Foxy 要求主机是 `hosts` 中的精确条目并单独批准。中州鹅的 App 扩展还允许普通设置中格式安全的 HTTPS 端点为 HTTP／SSE 贡献精确主机；App WebSocket 可从 HTTPS 或 WSS 端点取精确主机，但实际连接仍固定为 WSS。WebSocket 应先 `await foxy.websocket.authorize(...)`。
 - 密钥必须引用已声明的 `ui.secret` 字段，不应写入 URL、普通设置、额外请求头、源码或协议消息体。
 - 敏感头、传输层控制的头以及含换行的头值会被拒绝。`Content-Type` 用作请求体媒体类型。
 - 源码上限 256 KiB；每个 QuickJS 运行时内存上限 16 MiB。同步脚本执行上限 1.5 秒。网络 I/O 使用异步宿主 API。
-- HTTP 请求体上限 1 MB、响应体上限 2 MB。WebSocket 帧和二进制工具输入同样有界。
+- HTTP 请求体上限 1 MB、响应体上限 2 MB。中州鹅宿主的 SSE 单行与单个累计事件各限 2 MiB，事件计数包含名称、各数据行及连接换行；每个 App 会话最多 4 条流。WebSocket 帧和二进制工具输入同样有界，App WebSocket 入站队列最多 8 个事件。
+- 撤销当前 App 能力或插件主机授权会关闭该插件的活动 App 会话，取消网络任务并恢复未确认预览。
 - 更新只为仍声明的字段保留普通设置和密钥，字段含义不变时保持 ID 稳定。
 - 回调抛异常或 Promise 被拒绝时，该操作失败。只捕获插件确实可以恢复的错误。
 

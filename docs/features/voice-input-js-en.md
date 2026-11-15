@@ -16,7 +16,7 @@ Older APKs need an update. See the [current host implementation](/maintainer/imp
 | Area | Current 中州鹅 host |
 | --- | --- |
 | JS Apps | App registration, permissions, structured native layouts, editor APIs, credentials, non-streaming HTTP and SSE streaming are supported. The toolbar provides an AI assistant entry. |
-| Network authorization | App HTTP accepts declared hosts or hosts derived from configured HTTPS addresses, with separate approval before sending text or credentials. The built-in assistant has no default API addresses or static hosts. Voice transports still require declared hosts. |
+| Network authorization | App HTTP accepts HTTPS and derives configured hosts from safe HTTPS settings. App WebSocket connects with WSS, while its exact host may come from `hosts` or a safe configured HTTPS/WSS endpoint. Every host still needs separate approval before use. The built-in assistant has no default API addresses or static hosts. Voice transports still require declared hosts. |
 | Streaming and commands | App SSE (`foxy.http.stream`), App WebSocket with per-kind callbacks and `foxy.websocket.authorize()`, legacy flat `fields` / `buttons` layouts and `app` layout nodes are supported. A generic App selector is not implemented. The voice WebSocket transport is supported. |
 | Controls | Floating panels keep keyboard input available. The host additionally supports `input.readOnly` for a selectable AI reply. |
 
@@ -222,7 +222,7 @@ The legacy `foxy.http.post(url, secretField, body, headersJson = "{}")` remains 
 
 ## Capability Detection and Settings
 
-> Both are implemented by Zhongzhou E; the table contents are documented in the [host implementation](/maintainer/implementation/js-voice-plugins).
+> Both are implemented by Zhongzhou E. A running App or voice session reports its exact callable surface. Settings/import description is the exception: it reports the discovery union of App and voice runtime capabilities so top-level conditional registration does not drop either entry, but that temporary environment still cannot execute network/editor calls and has no `settings.set`. The full contract is documented in the [host implementation](/maintainer/implementation/js-voice-plugins).
 
 `foxy.capabilities` is a boolean table shaped like the API, so a plugin can branch before calling something the host may not provide:
 
@@ -234,9 +234,15 @@ if (foxy.capabilities.http.stream) {
 }
 ```
 
-An entry that reads `false` means this host does not implement it yet; degrade instead of relying on `try/catch`.
+In a running session, an entry that reads `false` means that session does not implement it; degrade instead of relying on `try/catch`. During settings/import description, use the table only to discover and register entries, not to perform runtime work.
 
-`foxy.settings.set(key, value)` writes a value back into the plugin's own ordinary settings. Only non-secret fields declared in `configure()` are accepted; secret fields and undeclared keys throw. Values are stored as strings.
+| Session | APIs reported as available |
+| --- | --- |
+| Settings/import description | Discovery union of App + voice runtime capabilities, preserving top-level conditional registration; no actual network/editor calls and no `settings.set` |
+| Running App | Editor/dialog APIs, `http.request`, SSE stream APIs, App WebSocket and callbacks, and `settings.set`; no voice events, legacy `http.post`, or HMAC signing |
+| Running voice provider | Voice events, legacy `http.post`, HMAC signing, audio/binary helpers, and voice WebSocket; no App request/stream, editor, or settings-write APIs |
+
+`foxy.settings.set(key, value)` writes a value back into the plugin's own ordinary settings. Only non-secret fields declared in `configure()` are accepted; secret fields and undeclared keys throw. Values are stored as strings, limited to 64 KiB of UTF-8 per value and 256 KiB for all ordinary settings in one App session. The object is absent in settings/import description and voice sessions.
 
 ## Streaming HTTP / SSE
 
@@ -272,7 +278,9 @@ foxy.http.cancelStream(streamId);
 
 SSE `event:` and `data:` fields are parsed; multiple `data:` lines are joined with newline. The stream is HTTPS-only, uses the same host approval and `network.request` permission as ordinary HTTP, and is cancelled when the plugin App closes. Chunk callbacks are awaited sequentially to provide backpressure.
 
-Host specifics: `stream()` validates HTTPS, the method and a 1 MiB body limit, then returns the stream ID immediately, so register `onChunk/onEnd/onError` before starting; events can arrive before the following synchronous statements run. Host approval is requested before the request is sent and a denial reports `Network permission denied` through `onError`. A blank line dispatches an SSE event, the default event name is `message`, and `:` comment lines are ignored; non-SSE bodies are delivered line by line with event `"line"` and a 2 MiB per-line cap (the same budget as a response body) that ends the stream with `onError`. No overall or read timeout is applied because SSE streams can idle, so cancellation comes only from `cancelStream` or App close; nothing is delivered after either.
+Host specifics: `stream()` validates HTTPS, the method and a 1 MiB body limit, then returns the stream ID immediately, so register `onChunk/onEnd/onError` before starting; events can arrive before the following synchronous statements run. Host approval is requested before the request is sent and a denial reports `Network permission denied` through `onError`. A blank line dispatches an SSE event, the default event name is `message`, and `:` comment lines are ignored. One input line and one complete SSE event are each capped at 2 MiB; the event budget includes the event name, every `data` line, and the newline inserted when data lines are joined. Non-SSE bodies use the same 2 MiB per-line cap. One App session may keep at most four streams. No overall or read timeout is applied because SSE streams can idle, so cancellation comes only from `cancelStream`, App close, or authorization revocation; buffered events are suppressed afterwards.
+
+Only one JavaScript fragment is evaluated at a time. When an async App Promise is waiting for a host or network result, it yields so WebSocket and SSE callbacks can run and resolve it; events within one connection or stream remain ordered.
 
 ## WebSocket
 
@@ -297,11 +305,11 @@ foxy.websocket.sendBinary(socketId, base64Payload);
 foxy.websocket.close(socketId);
 ```
 
-`connect(url, secretField, authHeader = "Authorization", authPrefix = "Bearer ", headersJson = "{}")` returns an opaque socket ID. Pass an empty secret field for a pre-signed URL. `sendGzipFrame(socketId, prefixBase64, payloadBase64)` sends `prefix + 4-byte big-endian compressed length + gzip(payload)` as a binary frame. Binary frame size is bounded. The connection uses WSS, no redirects, the plugin's declared/approved host list, and `network.request` permission.
+`connect(url, secretField, authHeader = "Authorization", authPrefix = "Bearer ", headersJson = "{}")` returns an opaque socket ID. Pass an empty secret field for a pre-signed URL. `sendGzipFrame(socketId, prefixBase64, payloadBase64)` sends `prefix + 4-byte big-endian compressed length + gzip(payload)` as a binary frame. Binary frame size is bounded. App WebSocket connects with WSS only; a static declaration or a safe configured HTTPS/WSS endpoint may contribute the exact host, and `network.request` plus separate host approval are still required.
 
 WebSocket handlers are registered once per JS runtime. `onClose` receives `expected = true` for a plugin-requested close.
 
-中州鹅 wires both the voice and App sessions through one transport. Because `connect` is synchronous, call `await foxy.websocket.authorize(...)` for a declared host before connecting to it; connecting to an unauthorized host throws. Handlers are registered once per kind, not per socket. The second `onClose` argument is a boolean: the host reports `true` when the socket closed with code 1000, so a plugin-requested close and a server-side normal close both read as `true`, while an abnormal close reads as `false`.
+中州鹅 wires both the voice and App sessions through one transport. Because `connect` is synchronous, call `await foxy.websocket.authorize(...)` before connecting to an unapproved host; connecting to an unauthorized host throws. Handlers are registered once per kind, not per socket. The second `onClose` argument is a boolean: the host reports `true` when the socket closed with code 1000, so a plugin-requested close and a server-side normal close both read as `true`, while an abnormal close reads as `false`. An App session buffers at most eight inbound WebSocket events; a ninth closes that connection instead of growing the IME process queue without bound.
 
 ## Editor APIs
 
@@ -389,11 +397,12 @@ These namespaces are provided to plugin runtimes that need them:
 
 ## Security And Runtime Limits
 
-- Hostnames must be exact entries in `hosts` and separately approved by the user. HTTP/SSE can request approval for a declared host at runtime; WebSocket callers should `await foxy.websocket.authorize(...)` first. Undeclared hosts are always rejected. Endpoint settings cannot grant access to another host.
+- Foxy requires exact entries in `hosts` and separate user approval. The 中州鹅 App extension also accepts an exact host derived from a syntactically safe ordinary HTTPS setting for HTTP/SSE. App WebSocket may derive its host from a safe HTTPS or WSS setting, while the actual connection still requires WSS. WebSocket callers should `await foxy.websocket.authorize(...)` first.
 - Credentials must reference a declared `ui.secret` field. Do not put secrets in URLs, ordinary settings, headers, plugin source, or protocol message bodies.
 - Sensitive headers, transport-owned headers, and header values containing line breaks are rejected. `Content-Type` is interpreted as the request-body media type.
 - Plugin source is limited to 256 KiB; each QuickJS runtime has a 16 MiB memory limit. Synchronous script evaluation is limited to 1.5 seconds. Use async host APIs for network I/O.
-- HTTP request bodies are limited to 1 MB and responses to 2 MB. WebSocket frames and binary helper inputs are bounded.
+- HTTP request bodies are limited to 1 MB and responses to 2 MB. In the 中州鹅 host, an SSE line and one accumulated event are each limited to 2 MiB; the event count includes its name, every data line, and joining newlines. One App session has at most four streams. WebSocket frames and binary helper inputs are bounded, and the App WebSocket inbound queue holds at most eight events.
+- Revoking the current App permission or the plugin's host approval closes that plugin's active App session, cancels its network work, and restores any unconfirmed preview.
 - Plugin updates retain ordinary settings and secrets only for still-declared fields. Keep setting IDs stable when meanings do not change.
 - Throwing/rejecting from a callback fails that operation. Catch only errors the plugin can recover from.
 

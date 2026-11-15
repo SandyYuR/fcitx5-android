@@ -56,7 +56,7 @@ Windows 解包和插件准备安全复制内部链接内容，不要求开启开
 | --- | --- |
 | 固定源码缓存 | `D:\GitHub\tools\rime-android-sources\<sha256>` |
 | 源码快照、CMake 缓存及产物 | `D:\GitHub\tools\rime-build\windows` |
-| 已校验的开发 SDK | `D:\GitHub\tools\rime-sdk-local` |
+| 已校验的开发 SDK | `D:\GitHub\fx2-rime\.build\rime\sdk` |
 | 应用生成的 SDK 输入 | `fx-rime-only\native\rime-sdk` |
 
 开发 SDK 的 `sdk-manifest.json` 记录 `development: true`、源树 SHA、基准提交、ABI 和逐文件摘要。导出前检查 ELF 架构、必需 API、依赖、OpenCC 数据和最终链接。
@@ -64,7 +64,7 @@ Windows 解包和插件准备安全复制内部链接内容，不要求开启开
 已有开发 SDK 时，也可单独构建应用：
 
 ```powershell
-& .\build-debug.ps1 -GradleArgs @('-PlocalRimeSdkDir=D:/GitHub/tools/rime-sdk-local')
+& .\build-debug.ps1 -GradleArgs @('-PlocalRimeSdkDir=D:/GitHub/fx2-rime/.build/rime/sdk')
 ```
 
 所选 `BUILD_ABI` / `-PbuildABI` 必须包含在开发 SDK 中。Gradle 校验并复制声明文件；缺少 ABI、来源标记、摘要不符或链接越界都会失败。带 `localRimeSdkDir` 的任何 Release 任务在执行前被拒绝。
