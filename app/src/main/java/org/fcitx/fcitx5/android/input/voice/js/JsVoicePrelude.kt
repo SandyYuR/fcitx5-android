@@ -1,6 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.voice.js
 
+internal enum class JsHostSession(val wireName: String) {
+    DESCRIBE("describe"),
+    APP("app"),
+    VOICE("voice"),
+}
+
 /**
  * Foxy-compatible global API evaluated before a plugin script.
  *
@@ -21,7 +27,8 @@ var __events = [];
 var __fields = [];
 var __plugin = null;
 var __apps = {};
-var __pending = null;
+var __pending = {};
+var __nextInvocation = 1;
 // foxy.websocket 的回调按种类各注册一个，宿主收到帧后按种类调用；与语音会话的
 // plugin.onMessage 单入口并存，互不覆盖。
 var __wsHandlers = { message: null, binary: null, error: null, close: null };
@@ -36,6 +43,13 @@ var __native = {
   hmacSha1Base64: __n_hmacSha1Base64
 };
 function __str(value) { return value === undefined || value === null ? "" : String(value); }
+var __hostSession = typeof __n_hostSession === "function" ? __str(__n_hostSession()) : "describe";
+var __isAppSession = __hostSession === "app";
+var __isVoiceSession = __hostSession === "voice";
+// describe/import discovers the union of runtime APIs so conditional registration cannot hide an
+// App or voice feature forever. Its stub still refuses live network/editor operations.
+var __hasAppApi = __isAppSession || __hostSession === "describe";
+var __hasVoiceApi = __isVoiceSession || __hostSession === "describe";
 // 只有宿主真的能落盘时才挂 foxy.settings：设置页用的占位宿主没有 __n_appSettings，
 // 挂一个必定抛错的函数会让插件误以为能存。
 var __hasSettings = typeof __n_appSettings === "function";
@@ -116,7 +130,7 @@ var foxy = {
     onClose: function (fn) { __wsHandlers.close = fn; }
   },
   http: {
-    supportsConfiguredEndpoints: true,
+    supportsConfiguredEndpoints: __hasAppApi,
     request: function (options) { return __n_appHttp(JSON.stringify(options)); },
     post: function (url, secretField, jsonBody, headersJson) {
       return __native.httpPost(__str(url), __str(secretField), String(jsonBody), __str(headersJson));
@@ -156,29 +170,37 @@ var foxy = {
   capabilities: {
     locale: true,
     plugin: { register: true },
-    app: { register: true, sleep: true },
+    app: { register: true, sleep: __hasAppApi },
     ui: {
       text: true, secret: true, select: true, switch: true, number: true,
       dialog: {
-        show: true, update: true, setValue: true, setEnabled: true,
-        setLoading: true, setError: true, close: true
+        show: true, update: __hasAppApi, setValue: __hasAppApi, setEnabled: __hasAppApi,
+        setLoading: __hasAppApi, setError: __hasAppApi, close: __hasAppApi
       }
     },
     editor: {
-      getSelection: true, getText: true, setComposition: true, clearComposition: true, commit: true
+      getSelection: __hasAppApi, getText: __hasAppApi, setComposition: __hasAppApi,
+      clearComposition: __hasAppApi, commit: __hasAppApi
     },
-    credentials: { list: true },
-    voice: { ready: true, partial: true, final: true, error: true, ended: true },
+    credentials: { list: __hasAppApi },
+    voice: {
+      ready: __hasVoiceApi, partial: __hasVoiceApi, final: __hasVoiceApi,
+      error: __hasVoiceApi, ended: __hasVoiceApi
+    },
     websocket: {
-      authorize: true, connect: true, waitOpen: true, send: true, sendBinary: true,
-      sendGzipFrame: true, close: true, onMessage: true, onBinary: true, onError: true, onClose: true
+      authorize: __hasAppApi || __hasVoiceApi, connect: __hasAppApi || __hasVoiceApi,
+      waitOpen: __hasAppApi || __hasVoiceApi, send: __hasAppApi || __hasVoiceApi,
+      sendBinary: __hasAppApi || __hasVoiceApi, sendGzipFrame: __hasAppApi || __hasVoiceApi,
+      close: __hasAppApi || __hasVoiceApi, onMessage: __hasAppApi,
+      onBinary: __hasAppApi, onError: __hasAppApi, onClose: __hasAppApi
     },
     http: {
-      request: true, post: true, supportsConfiguredEndpoints: true,
-      stream: true, cancelStream: true, onChunk: true, onEnd: true, onError: true
+      request: __hasAppApi, post: __hasVoiceApi, supportsConfiguredEndpoints: __hasAppApi,
+      stream: __hasAppApi, cancelStream: __hasAppApi, onChunk: __hasAppApi,
+      onEnd: __hasAppApi, onError: __hasAppApi
     },
     audio: { wavBase64: true },
-    crypto: { hmacSha1Base64: true },
+    crypto: { hmacSha1Base64: __hasVoiceApi },
     binary: {
       concatBase64: true, utf8Base64: true, base64Utf8: true, byteLength: true,
       readUInt8: true, readInt32BE: true, sliceBase64: true, gunzipUtf8: true
@@ -304,7 +326,6 @@ function __invoke(name, ctx) {
 // 插件回调在一次微任务里就 resolve 时它会把 Promise 对象本身按字符串返回。
 function __run(name, argJson) {
   __events = [];
-  __pending = null;
   var ctx = JSON.parse(argJson);
   var out;
   try {
@@ -313,25 +334,34 @@ function __run(name, argJson) {
     return JSON.stringify({ error: __errorText(e), events: __takeEvents() });
   }
   if (out !== null && out !== undefined && typeof out.then === "function") {
+    if (Object.keys(__pending).length >= 16) {
+      return JSON.stringify({ error: "Too many pending plugin callbacks", events: __takeEvents() });
+    }
+    var invocationId = String(__nextInvocation++);
     var slot = { done: false, value: undefined, error: null };
-    __pending = slot;
+    __pending[invocationId] = slot;
     out.then(
       function (value) { slot.done = true; slot.value = value; },
       function (reason) { slot.done = true; slot.error = reason; });
-    return JSON.stringify({ pending: true, events: __takeEvents() });
+    return JSON.stringify({ pending: invocationId, events: __takeEvents() });
   }
   return JSON.stringify({ result: out === undefined ? null : out, events: __takeEvents() });
 }
 
-function __pump() {
-  var slot = __pending;
-  if (slot === null) return JSON.stringify({ result: null, events: __takeEvents() });
-  if (!slot.done) return JSON.stringify({ pending: true, events: __takeEvents() });
-  __pending = null;
+function __pump(invocationId) {
+  var slot = __pending[invocationId];
+  if (!slot) return JSON.stringify({ error: "Unknown plugin invocation", events: __takeEvents() });
+  if (!slot.done) return JSON.stringify({ pending: invocationId, events: __takeEvents() });
+  delete __pending[invocationId];
   if (slot.error !== null && slot.error !== undefined) {
     return JSON.stringify({ error: __errorText(slot.error), events: __takeEvents() });
   }
   return JSON.stringify({ result: slot.value === undefined ? null : slot.value, events: __takeEvents() });
+}
+function __cancelInvocation(invocationId) {
+  var existed = Object.prototype.hasOwnProperty.call(__pending, invocationId);
+  delete __pending[invocationId];
+  return existed;
 }
 """.trimIndent()
 }

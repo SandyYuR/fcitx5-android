@@ -120,4 +120,28 @@ class JsVoiceFieldsTest {
         assertFalse(JsVoiceFields.writable(fields, "notDeclared"))
         assertFalse(JsVoiceFields.writable(emptyList(), "mode"))
     }
+
+    @Test
+    fun pluginWritesRespectPerValueAndAggregateBudgets() {
+        JsVoiceFields.requireWritableValue(emptyMap(), "value", "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES))
+        assertTrue(runCatching {
+            JsVoiceFields.requireWritableValue(
+                emptyMap(),
+                "value",
+                "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES + 1),
+            )
+        }.isFailure)
+        val existing = mapOf(
+            "a" to "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES),
+            "b" to "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES),
+            "c" to "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES),
+        )
+        assertTrue(runCatching {
+            JsVoiceFields.requireWritableValue(
+                existing,
+                "d",
+                "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES),
+            )
+        }.isFailure)
+    }
 }

@@ -33,28 +33,48 @@ internal sealed interface WsInbound {
 /**
  * 语音会话与 App 会话共用的一份 WebSocket 传输。
  *
- * 为什么抽出来：foxy 的 App 也能连 WebSocket，而此前只有语音会话装了真正的传输，App 会话装的是
- * 一碰就抛错的占位实现。两份实现会让「哪些主机允许连」「每次发送前是否复查授权」这类安全判断
- * 分叉，所以传输只保留这一份，策略由构造参数注入：语音会话注入整份清单授权，App 会话注入
- * 「声明主机 + 用户逐主机确认」。
- *
- * 入站事件不在这里决定语义：语音会话要把文本/二进制都交给 plugin.onMessage，App 会话要分到
- * foxy.websocket 的四个回调，所以这里只给出 [WsInbound]，由调用方翻译。
+ * 目标 URL 与连接一起保存，使每次发送都能重新检查当前授权。入站接收方返回 false 表示其有界
+ * 队列已满；传输随即取消并释放该连接，避免 OkHttp 回调把 JVM 内存变成无界缓冲。
  */
 internal class JsWebSocketTransport(
     http: OkHttpClient,
     private val authorizeUrl: (String) -> HttpUrl,
-    private val authorizeSend: () -> Unit,
+    private val authorizeSend: (HttpUrl) -> Unit,
     private val headers: (secretField: String, authHeader: String, authPrefix: String, headersJson: String) -> Map<String, String>,
-    private val receive: (WsInbound) -> Unit,
+    private val receive: (WsInbound) -> Boolean,
     private val maxConnections: Int = 4,
 ) {
+    private class Connection(val destination: HttpUrl) {
+        val opened = CompletableDeferred<Unit>()
+        private val active = AtomicBoolean(true)
+        private val closeNotified = AtomicBoolean(false)
+        @Volatile private var socket: WebSocket? = null
+
+        fun isActive(): Boolean = active.get()
+
+        @Synchronized fun attach(value: WebSocket): Boolean {
+            if (!active.get()) return false
+            socket = value
+            return true
+        }
+
+        @Synchronized fun socketForSend(): WebSocket =
+            socket?.takeIf { active.get() } ?: throw IllegalStateException("socket closed")
+
+        @Synchronized fun deactivate(error: Throwable? = null): WebSocket? {
+            if (!active.compareAndSet(true, false)) return null
+            if (error == null) opened.cancel() else opened.completeExceptionally(error)
+            return socket.also { socket = null }
+        }
+
+        fun markCloseNotified(): Boolean = closeNotified.compareAndSet(false, true)
+    }
+
     private val closed = AtomicBoolean(false)
     private val socketHttp by lazy {
         BoundedWebSocketTransport.client(http, secure = true, maxMessage = JsVoiceRuntime.WEBSOCKET_BYTES)
     }
-    private val sockets = ConcurrentHashMap<String, WebSocket>()
-    private val opened = ConcurrentHashMap<String, CompletableDeferred<Unit>>()
+    private val connections = ConcurrentHashMap<String, Connection>()
     private val nextId = AtomicInteger(1)
 
     fun install(js: QuickJs) {
@@ -69,38 +89,43 @@ internal class JsWebSocketTransport(
         }
         js.asyncFunction("__n_wsWaitOpen") { args -> awaitOpen(text(args, 0)); null }
         js.function("__n_wsSend") { args ->
-            authorizeSend()
-            val socket = sockets[text(args, 0)] ?: error("socket closed")
+            val connection = connectionForSend(text(args, 0))
             val message = text(args, 1)
             require(message.utf8Size() <= JsVoiceRuntime.WEBSOCKET_BYTES) { "WebSocket message exceeds its limit" }
-            check(socket.send(message)) { "WebSocket send failed" }
+            check(connection.socketForSend().send(message)) { "WebSocket send failed" }
             null
         }
         js.function("__n_wsSendBinary") { args ->
-            authorizeSend()
-            val socket = sockets[text(args, 0)] ?: error("socket closed")
-            check(socket.send(ByteString.of(*decode(text(args, 1))))) { "WebSocket send failed" }
+            val connection = connectionForSend(text(args, 0))
+            check(connection.socketForSend().send(ByteString.of(*decode(text(args, 1))))) { "WebSocket send failed" }
             null
         }
         js.function("__n_wsSendGzipFrame") { args ->
-            authorizeSend()
-            val socket = sockets[text(args, 0)] ?: error("socket closed")
+            val connection = connectionForSend(text(args, 0))
             val frame = JsVoiceHelpers.gzipFrame(decode(text(args, 1)), decode(text(args, 2)))
-            check(socket.send(ByteString.of(*frame))) { "WebSocket send failed" }
+            check(connection.socketForSend().send(ByteString.of(*frame))) { "WebSocket send failed" }
             null
         }
         js.function("__n_wsClose") { args ->
-            sockets.remove(text(args, 0))?.close(1000, null)
+            val id = text(args, 0)
+            val connection = connections.remove(id)
+            connection?.deactivate()?.close(1000, null)
+            if (connection?.markCloseNotified() == true) receive(WsInbound.Closed(id, 1000))
             null
         }
     }
 
     fun closeAll() {
         if (!closed.compareAndSet(false, true)) return
-        sockets.values.forEach { it.cancel() }
-        sockets.clear()
-        opened.values.forEach { it.cancel() }
-        opened.clear()
+        connections.entries.toList().forEach { (id, connection) ->
+            if (connections.remove(id, connection)) connection.deactivate()?.cancel()
+        }
+    }
+
+    private fun connectionForSend(id: String): Connection {
+        val connection = connections[id] ?: throw IllegalStateException("socket closed")
+        authorizeSend(connection.destination)
+        return connection
     }
 
     private fun connect(
@@ -113,52 +138,69 @@ internal class JsWebSocketTransport(
         val destination = authorizeUrl(url)
         val built = headers(secretField, authHeader, authPrefix, headersJson)
         val id = nextId.getAndIncrement().toString()
-        val gate = CompletableDeferred<Unit>()
-        synchronized(opened) {
+        val connection = Connection(destination)
+        synchronized(connections) {
             check(!closed.get()) { "Session closed" }
-            check(opened.size < maxConnections) { "Too many WebSocket connections" }
-            opened[id] = gate
+            check(connections.size < maxConnections) { "Too many WebSocket connections" }
+            connections[id] = connection
         }
         val builder = Request.Builder().url(destination)
         built.forEach { (name, value) -> builder.header(name, value) }
-        check(!closed.get()) { "Session closed" }
-        val socket = socketHttp.newWebSocket(builder.build(), object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: Response) {
-                gate.complete(Unit)
-            }
-
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                receive(WsInbound.Text(id, text))
-            }
-
-            override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-                // 用 okio 的 base64 而不是 android.util.Base64：这段传输要能在 JVM 契约测试里跑。
-                receive(WsInbound.Binary(id, bytes.base64()))
-            }
-
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                gate.completeExceptionally(t)
-                receive(WsInbound.Failed(id, t.message.orEmpty()))
-            }
-
-            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                webSocket.close(code, reason)
-                // Preserve final messages already queued before this close frame.
-                receive(WsInbound.Closed(id, code))
-            }
-
-            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                sockets.remove(id)
-                opened.remove(id)
-            }
-        })
-        sockets[id] = socket
-        if (closed.get()) { socket.cancel(); sockets.remove(id) }
+        val socket = try {
+            socketHttp.newWebSocket(builder.build(), listener(id, connection))
+        } catch (error: Throwable) {
+            connections.remove(id, connection)
+            connection.deactivate(error)
+            throw error
+        }
+        if (!connection.attach(socket)) socket.cancel()
         return id
     }
 
+    private fun listener(id: String, connection: Connection) = object : WebSocketListener() {
+        override fun onOpen(webSocket: WebSocket, response: Response) {
+            if (connection.isActive()) connection.opened.complete(Unit) else webSocket.cancel()
+        }
+
+        override fun onMessage(webSocket: WebSocket, text: String) {
+            deliver(id, connection, WsInbound.Text(id, text))
+        }
+
+        override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
+            deliver(id, connection, WsInbound.Binary(id, bytes.base64()))
+        }
+
+        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+            if (connections.remove(id, connection)) {
+                connection.deactivate(t)
+                receive(WsInbound.Failed(id, t.message.orEmpty()))
+            }
+        }
+
+        override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+            webSocket.close(code, reason)
+            if (connection.markCloseNotified()) deliver(id, connection, WsInbound.Closed(id, code))
+        }
+
+        override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            if (connection.markCloseNotified()) deliver(id, connection, WsInbound.Closed(id, code))
+            release(id, connection, cancelSocket = false)
+        }
+    }
+
+    private fun deliver(id: String, connection: Connection, event: WsInbound) {
+        if (!connection.isActive()) return
+        if (!receive(event)) release(id, connection, cancelSocket = true)
+    }
+
+    private fun release(id: String, connection: Connection, cancelSocket: Boolean) {
+        if (!connections.remove(id, connection)) return
+        val socket = connection.deactivate()
+        if (cancelSocket) socket?.cancel()
+    }
+
     private suspend fun awaitOpen(id: String) {
-        val gate = opened[id] ?: throw IllegalStateException("Unknown socket")
+        val gate = connections[id]?.opened ?: throw IllegalStateException("Unknown socket")
         withTimeout(10_000L) { gate.await() }
     }
 

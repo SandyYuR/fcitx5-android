@@ -277,6 +277,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
                 setTitle(R.string.js_app_revoke)
                 setSummary(R.string.js_app_revoke_summary)
                 setOnPreferenceClickListener {
+                    org.fcitx.fcitx5.android.input.voice.js.JsApps.onPluginAuthorizationChanging(pluginId)
                     org.fcitx.fcitx5.android.input.voice.js.JsAppPermissions.revoke(pluginId)
                     JsVoiceHostPermissions.revoke(pluginId)
                     Toast.makeText(requireContext(), R.string.ui_plugin_revoked, Toast.LENGTH_SHORT).show()

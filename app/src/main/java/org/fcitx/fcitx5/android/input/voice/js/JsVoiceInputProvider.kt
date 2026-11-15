@@ -103,10 +103,13 @@ internal class JsVoiceInputProvider(
             override fun onSessionEnded() = finish()
         }
 
-        fun offer(command: JsVoiceCommand) {
-            if (current && !queue.offer(command)) {
+        fun offer(command: JsVoiceCommand): Boolean {
+            if (!current) return false
+            if (!queue.offer(command)) {
                 finish(VoiceInputIpc.ErrorCodes.UNKNOWN to "JS voice input queue exceeded its limit")
+                return false
             }
+            return true
         }
 
         fun finish(error: Pair<Int, String?>? = null, notify: Boolean = true) {
@@ -324,9 +327,10 @@ internal class JsVoiceInputProvider(
  * 解引用了一遍，缺一个就是 ReferenceError（真机上的表现是「读取插件设置失败」）。
  */
 internal object JsVoiceStubNatives {
-    fun install(js: QuickJs, locale: String) {
+    fun install(js: QuickJs, locale: String, session: JsHostSession = JsHostSession.DESCRIBE) {
         val binary = JsVoiceBinary()
         fun decode(value: String) = binary.decode(value)
+        js.function("__n_hostSession") { session.wireName }
         js.function("__n_locale") { locale }
         js.function("__n_wsAuthorize") { throw IllegalStateException("network is not available here") }
         js.function("__n_wsConnect") { throw IllegalStateException("network is not available here") }
@@ -385,7 +389,7 @@ internal object JsVoiceScript {
 internal class JsVoiceNet(
     http: OkHttpClient,
     private val policy: JsVoiceNetworkPolicy,
-    private val receive: (JsVoiceCommand) -> Unit,
+    private val receive: (JsVoiceCommand) -> Boolean,
     private val secretFor: (String) -> String?,
 ) {
     // Credentials must not follow redirects beyond the explicitly approved hosts.
@@ -417,6 +421,7 @@ internal class JsVoiceNet(
     )
 
     fun install(js: QuickJs, locale: String) {
+        js.function("__n_hostSession") { JsHostSession.VOICE.wireName }
         js.function("__n_locale") { _ -> locale }
         js.function("__n_hmacSha1Base64") { args ->
             policy.requireApproval()

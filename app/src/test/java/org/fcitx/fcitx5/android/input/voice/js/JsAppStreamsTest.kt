@@ -2,10 +2,14 @@
 package org.fcitx.fcitx5.android.input.voice.js
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import okhttp3.OkHttpClient
@@ -45,7 +49,7 @@ class JsAppStreamsTest {
         checkUrl: (String) -> okhttp3.HttpUrl,
         secret: (String) -> String? = { null },
         approve: suspend (okhttp3.HttpUrl) -> Boolean = { true },
-        dispatch: suspend (StreamEvent) -> Unit,
+        dispatch: suspend (StreamEvent, () -> Boolean) -> Unit,
     ) = JsAppStreams(
         scope = scope,
         checkUrl = checkUrl,
@@ -63,7 +67,7 @@ class JsAppStreamsTest {
             MockResponse().setHeader("Content-Type", "text/event-stream")
                 .setBody("event: delta\ndata: he\ndata: llo\n\ndata: world\n\n")
         )
-        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { events += it })
+        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { event, _ -> events += event })
         try {
             val id = streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
             val first = events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk
@@ -88,7 +92,7 @@ class JsAppStreamsTest {
         val scope = scope()
         val events = LinkedBlockingQueue<StreamEvent>()
         server.enqueue(MockResponse().setHeader("Content-Type", "text/plain").setBody("alpha\nbeta\n"))
-        val streams = newStreams(scope, client, { server.url("/lines") }, dispatch = { events += it })
+        val streams = newStreams(scope, client, { server.url("/lines") }, dispatch = { event, _ -> events += event })
         try {
             streams.start(buildJsonObject { put("url", server.url("/lines").toString()) })
             val first = events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Chunk
@@ -109,7 +113,7 @@ class JsAppStreamsTest {
         val scope = scope()
         val events = LinkedBlockingQueue<StreamEvent>()
         server.enqueue(MockResponse().setResponseCode(500))
-        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { events += it })
+        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { event, _ -> events += event })
         try {
             val id = streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
             val failed = events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Failed
@@ -127,7 +131,7 @@ class JsAppStreamsTest {
         val (server, client) = tlsServer()
         val scope = scope()
         val events = LinkedBlockingQueue<StreamEvent>()
-        val streams = newStreams(scope, client, { server.url("/sse") }, approve = { false }, dispatch = { events += it })
+        val streams = newStreams(scope, client, { server.url("/sse") }, approve = { false }, dispatch = { event, _ -> events += event })
         try {
             streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
             val failed = events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Failed
@@ -146,7 +150,7 @@ class JsAppStreamsTest {
         val scope = scope()
         val events = LinkedBlockingQueue<StreamEvent>()
         server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
-        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { events += it })
+        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { event, _ -> events += event })
         try {
             val id = streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
             streams.cancel(id)
@@ -164,7 +168,7 @@ class JsAppStreamsTest {
         val events = LinkedBlockingQueue<StreamEvent>()
         server.enqueue(MockResponse().setHeader("Content-Type", "text/plain").setBody("done\n"))
         val secrets = mutableListOf<String>()
-        val streams = newStreams(scope, client, { server.url("/sse") }, secret = { key -> secrets += key; "token-1" }, dispatch = { events += it })
+        val streams = newStreams(scope, client, { server.url("/sse") }, secret = { key -> secrets += key; "token-1" }, dispatch = { event, _ -> events += event })
         try {
             streams.start(buildJsonObject {
                 put("url", server.url("/sse").toString())
@@ -185,6 +189,180 @@ class JsAppStreamsTest {
                     put("url", server.url("/sse").toString()); put("method", "TRACE")
                 }) }
             }
+            Unit
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun cancellingFromTheFirstChunkSuppressesBufferedChunksAndEnd() = runBlocking {
+        val (server, client) = tlsServer()
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/plain").setBody("first\nsecond\n"))
+        lateinit var streams: JsAppStreams
+        streams = newStreams(scope, client, { server.url("/lines") }, dispatch = { event, _ ->
+            events += event
+            if (event is StreamEvent.Chunk) streams.cancel(event.streamId)
+        })
+        try {
+            streams.start(buildJsonObject { put("url", server.url("/lines").toString()) })
+            assertEquals("first", (events.poll(5, TimeUnit.SECONDS) as StreamEvent.Chunk).data)
+            assertNull(events.poll(500, TimeUnit.MILLISECONDS))
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun cancellationWhileAnEventWaitsForDispatchSuppressesThatEvent() = runBlocking {
+        val (server, client) = tlsServer()
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val completed = CompletableDeferred<Unit>()
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/plain").setBody("queued\n"))
+        val streams = newStreams(scope, client, { server.url("/lines") }, dispatch = { event, isActive ->
+            entered.complete(Unit)
+            withContext(NonCancellable) { release.await() }
+            if (isActive()) events += event
+            completed.complete(Unit)
+        })
+        try {
+            val id = streams.start(buildJsonObject { put("url", server.url("/lines").toString()) })
+            withTimeout(5_000) { entered.await() }
+            streams.cancel(id)
+            release.complete(Unit)
+            withTimeout(5_000) { completed.await() }
+            assertNull(events.poll(300, TimeUnit.MILLISECONDS))
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun cumulativeSseEventSizeIsBounded() = runBlocking {
+        val (server, client) = tlsServer()
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        val half = "x".repeat(JsVoiceRuntime.RESPONSE_BYTES / 2)
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", "text/event-stream")
+                .setBody("data: $half\ndata: $half\n\n"),
+        )
+        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { event, _ -> events += event })
+        try {
+            streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
+            val failed = events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Failed
+            assertNotNull(failed)
+            assertTrue(failed!!.message.contains("event is too large"))
+            assertNull(events.poll(300, TimeUnit.MILLISECONDS))
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun eventNameAndDataShareOneSseEventBudget() = runBlocking {
+        val (server, client) = tlsServer()
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        val half = "x".repeat(JsVoiceRuntime.RESPONSE_BYTES / 2)
+        server.enqueue(
+            MockResponse().setHeader("Content-Type", "text/event-stream")
+                .setBody("event: $half\ndata: ${half}x\n\n"),
+        )
+        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { event, _ -> events += event })
+        try {
+            streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
+            val failed = events.poll(5, TimeUnit.SECONDS) as? StreamEvent.Failed
+            assertTrue(failed?.message.orEmpty().contains("event is too large"))
+        } finally {
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun approvalPrecedesSecretAccessAndCancellationStopsApproval() = runBlocking {
+        val (server, client) = tlsServer()
+        val scope = scope()
+        val events = LinkedBlockingQueue<StreamEvent>()
+        var secretReads = 0
+        var streams = newStreams(
+            scope,
+            client,
+            { server.url("/sse") },
+            secret = { secretReads++; "token" },
+            approve = {
+                assertEquals(0, secretReads)
+                false
+            },
+            dispatch = { event, _ -> events += event },
+        )
+        try {
+            streams.start(buildJsonObject {
+                put("url", server.url("/sse").toString())
+                put("credential", "apiKey")
+            })
+            assertTrue(events.poll(5, TimeUnit.SECONDS) is StreamEvent.Failed)
+            assertEquals(0, secretReads)
+            assertEquals(0, server.requestCount)
+        } finally {
+            streams.closeAll()
+
+            val entered = CompletableDeferred<Unit>()
+            val release = CompletableDeferred<Boolean>()
+            val approvalFinished = CompletableDeferred<Unit>()
+            streams = newStreams(
+                scope,
+                client,
+                { server.url("/sse") },
+                secret = { secretReads++; "token" },
+                approve = {
+                    entered.complete(Unit)
+                    try { release.await() } finally { approvalFinished.complete(Unit) }
+                },
+                dispatch = { event, _ -> events += event },
+            )
+            val id = streams.start(buildJsonObject {
+                put("url", server.url("/sse").toString())
+                put("credential", "apiKey")
+            })
+            entered.await()
+            streams.cancel(id)
+            release.complete(true)
+            withTimeout(1_000) { approvalFinished.await() }
+            assertEquals(0, secretReads)
+            assertEquals(0, server.requestCount)
+            streams.closeAll()
+            scope.cancel()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun concurrentStreamsAreBoundedAndCancellationReleasesASlot() = runBlocking {
+        val (server, client) = tlsServer()
+        val scope = scope()
+        repeat(JsAppStreams.MAX_STREAMS + 1) {
+            server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
+        }
+        val streams = newStreams(scope, client, { server.url("/sse") }, dispatch = { _, _ -> })
+        try {
+            val ids = (0 until JsAppStreams.MAX_STREAMS).map {
+                streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
+            }
+            assertTrue(runCatching {
+                streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
+            }.exceptionOrNull()?.message.orEmpty().contains("Too many HTTP streams"))
+            streams.cancel(ids.first())
+            streams.start(buildJsonObject { put("url", server.url("/sse").toString()) })
             Unit
         } finally {
             streams.closeAll()

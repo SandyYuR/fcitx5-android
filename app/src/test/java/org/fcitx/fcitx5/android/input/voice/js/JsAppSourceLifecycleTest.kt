@@ -51,6 +51,14 @@ class JsAppSourceLifecycleTest {
         assertTrue(ReflectionHelpers.getField<Boolean>(session, "closed"))
     }
 
+    @Test fun revokingAuthorizationInvalidatesTheMatchingActiveSession() = withSession { session, editor, _ ->
+        JsApps.onPluginAuthorizationChanging("js:llm-assistant")
+        assertFalse(ReflectionHelpers.getField<Boolean>(session, "sourceCurrent"))
+        assertTrue(runCatching { editor.call("commit", "late response") }.isFailure)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(ReflectionHelpers.getField<Boolean>(session, "closed"))
+    }
+
     private fun withSession(check: (Any, JsAppEditor, BaseInputConnection) -> Unit) {
         val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
         val engineJobs = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)

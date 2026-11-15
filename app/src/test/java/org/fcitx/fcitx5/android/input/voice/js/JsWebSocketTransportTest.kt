@@ -89,15 +89,16 @@ class JsWebSocketTransportTest {
             }
         }))
         val headerArgs = mutableListOf<List<String>>()
+        var sendAllowed = true
         val transport = JsWebSocketTransport(
             http = client,
             authorizeUrl = { server.url("/ws") },
-            authorizeSend = {},
+            authorizeSend = { check(sendAllowed) { "Network permission revoked" } },
             headers = { secretField, authHeader, authPrefix, headersJson ->
                 headerArgs += listOf(secretField, authHeader, authPrefix, headersJson)
                 emptyMap()
             },
-            receive = { received += it },
+            receive = { received += it; true },
         )
         val js = JsVoiceRuntime.create()
         try {
@@ -124,6 +125,13 @@ class JsWebSocketTransportTest {
 
             js.evaluate<String>("foxy.websocket.send('" + socket + "','ping')")
             assertEquals("ping", serverMessages.poll(5, TimeUnit.SECONDS))
+
+            sendAllowed = false
+            val revoked = runCatching {
+                js.evaluate<String>("foxy.websocket.send('" + socket + "','after-revoke')")
+            }.exceptionOrNull()
+            assertTrue(revoked?.message.orEmpty().contains("revoked"))
+            sendAllowed = true
 
             // 服务端主动关闭：客户端应当收到 Closed，并把关闭码带给插件。
             serverSocket!!.close(1000, null)
@@ -152,9 +160,9 @@ class JsWebSocketTransportTest {
         val transport = JsWebSocketTransport(
             http = OkHttpClient(),
             authorizeUrl = { throw IllegalStateException("Host is not authorized; call foxy.websocket.authorize first") },
-            authorizeSend = {},
+            authorizeSend = { },
             headers = { _, _, _, _ -> emptyMap() },
-            receive = { },
+            receive = { true },
         )
         val js = JsVoiceRuntime.create()
         try {
@@ -169,6 +177,87 @@ class JsWebSocketTransportTest {
         } finally {
             transport.closeAll()
             js.close()
+        }
+    }
+
+    @Test fun failedConnectionsReleaseTheirSlotForAReplacement() = runBlocking {
+        val (server, client) = tlsServer()
+        val received = LinkedBlockingQueue<WsInbound>()
+        server.enqueue(MockResponse().setResponseCode(503))
+        val opened = CountDownLatch(1)
+        server.enqueue(MockResponse().withWebSocketUpgrade(object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: Response) { opened.countDown() }
+        }))
+        val transport = JsWebSocketTransport(
+            http = client,
+            authorizeUrl = { server.url("/ws") },
+            authorizeSend = { },
+            headers = { _, _, _, _ -> emptyMap() },
+            receive = { received += it; true },
+            maxConnections = 1,
+        )
+        val js = JsVoiceRuntime.create()
+        try {
+            JsVoiceStubNatives.install(js, "zh-CN", JsHostSession.APP)
+            transport.install(js)
+            JsVoiceRuntime.initialize(js, JsVoicePrelude.SOURCE)
+            js.evaluate<String>("foxy.websocket.connect('wss://example.test/first','','','','{}')")
+            assertTrue(received.poll(5, TimeUnit.SECONDS) is WsInbound.Failed)
+            val replacement = js.evaluate<String>(
+                "foxy.websocket.connect('wss://example.test/replacement','','','','{}')",
+            )
+            assertTrue(opened.await(5, TimeUnit.SECONDS))
+            js.evaluate<String>("foxy.websocket.close('" + replacement + "')")
+            Unit
+        } finally {
+            transport.closeAll()
+            js.close()
+            runCatching { server.shutdown() }
+        }
+    }
+
+    @Test fun rejectedInboundEventClosesAndReleasesTheConnection() = runBlocking {
+        val (server, client) = tlsServer()
+        val opened = CountDownLatch(1)
+        var serverSocket: WebSocket? = null
+        server.enqueue(MockResponse().withWebSocketUpgrade(object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                serverSocket = webSocket
+                opened.countDown()
+            }
+        }))
+        val transport = JsWebSocketTransport(
+            http = client,
+            authorizeUrl = { server.url("/ws") },
+            authorizeSend = { },
+            headers = { _, _, _, _ -> emptyMap() },
+            receive = { false },
+            maxConnections = 1,
+        )
+        val js = JsVoiceRuntime.create()
+        try {
+            JsVoiceStubNatives.install(js, "zh-CN", JsHostSession.APP)
+            transport.install(js)
+            JsVoiceRuntime.initialize(js, JsVoicePrelude.SOURCE)
+            val socket = js.evaluate<String>("foxy.websocket.connect('wss://example.test/ws','','','','{}')")
+            assertTrue(opened.await(5, TimeUnit.SECONDS))
+            serverSocket!!.send("overflow")
+            var released = false
+            repeat(100) {
+                if (runCatching {
+                    js.evaluate<String>("foxy.websocket.send('" + socket + "','probe')")
+                }.exceptionOrNull()?.message.orEmpty().contains("socket closed")) {
+                    released = true
+                    return@repeat
+                }
+                Thread.sleep(10)
+            }
+            assertTrue(released)
+        } finally {
+            transport.closeAll()
+            js.close()
+            runCatching { serverSocket?.cancel() }
+            runCatching { server.shutdown() }
         }
     }
 }

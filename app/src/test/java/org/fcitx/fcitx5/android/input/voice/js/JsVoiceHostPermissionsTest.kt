@@ -71,7 +71,7 @@ class JsVoiceHostPermissionsTest {
             Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK")
                 .body("ok".toResponseBody()).build()
         }.build()
-        val net = JsVoiceNet(client, policy, {}) { secrets++; "sensitive-test-value" }
+        val net = JsVoiceNet(client, policy, { true }) { secrets++; "sensitive-test-value" }
         val js = QuickJs.create(Dispatchers.IO)
         try {
             net.install(js, "en")
@@ -110,7 +110,7 @@ class JsVoiceHostPermissionsTest {
         val client = OkHttpClient.Builder().proxy(java.net.Proxy.NO_PROXY)
             .sslSocketFactory(trust.sslSocketFactory(), trust.trustManager).build()
         JsVoiceHostPermissions.approve(id, setOf("localhost"))
-        val net = JsVoiceNet(client, JsVoiceNetworkPolicy(id, setOf("localhost")), {}) { "test-key" }
+        val net = JsVoiceNet(client, JsVoiceNetworkPolicy(id, setOf("localhost")), { true }) { "test-key" }
         val js = QuickJs.create(Dispatchers.IO)
         try {
             // A 307 would preserve the signed POST body and non-standard auth headers.

@@ -1,13 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.voice.js
 
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -39,16 +40,30 @@ internal object JsVoiceInvoker {
         name: String,
         argJson: String,
         timeoutMs: Long,
-    ): Outcome = withTimeout(timeoutMs) {
-        val actions = mutableListOf<JsonObject>()
-        var reply = read(evaluate(runCode(name, argJson)), actions)
-        reply.errorOrNull()?.let { return@withTimeout Outcome(null, actions, it) }
-        while (reply.isPending()) {
-            delay(POLL_DELAY_MS)
-            reply = read(evaluate(PUMP_CODE), actions)
-            reply.errorOrNull()?.let { return@withTimeout Outcome(null, actions, it) }
+        cleanupEvaluate: suspend (String) -> String? = evaluate,
+    ): Outcome {
+        var pendingId: String? = null
+        try {
+            return withTimeout(timeoutMs) {
+                val actions = mutableListOf<JsonObject>()
+                var reply = read(evaluate(runCode(name, argJson)), actions)
+                reply.errorOrNull()?.let { return@withTimeout Outcome(null, actions, it) }
+                pendingId = reply.pendingId()
+                while (pendingId != null) {
+                    delay(POLL_DELAY_MS)
+                    reply = read(evaluate(pumpCode(pendingId)), actions)
+                    pendingId = reply.pendingId()
+                    reply.errorOrNull()?.let { return@withTimeout Outcome(null, actions, it) }
+                }
+                Outcome(reply["result"], actions, null)
+            }
+        } finally {
+            pendingId?.let { id ->
+                withContext(NonCancellable) {
+                    runCatching { cleanupEvaluate(cancelCode(id)) }
+                }
+            }
         }
-        Outcome(reply["result"], actions, null)
     }
 
     /**
@@ -60,7 +75,10 @@ internal object JsVoiceInvoker {
     fun runCode(name: String, argJson: String): String =
         "__run(" + JsonPrimitive(name) + ", " + JsonPrimitive(argJson) + ")"
 
-    private const val PUMP_CODE = "__pump()"
+    private fun pumpCode(invocationId: String): String = "__pump(" + JsonPrimitive(invocationId) + ")"
+
+    private fun cancelCode(invocationId: String): String =
+        "__cancelInvocation(" + JsonPrimitive(invocationId) + ")"
 
     private fun read(raw: String?, actions: MutableList<JsonObject>): JsonObject {
         val text = raw ?: error("JS bridge returned no reply")
@@ -69,7 +87,7 @@ internal object JsVoiceInvoker {
         return root
     }
 
-    private fun JsonObject.isPending(): Boolean = this["pending"]?.jsonPrimitive?.booleanOrNull == true
+    private fun JsonObject.pendingId(): String? = this["pending"]?.jsonPrimitive?.contentOrNull
 
     private fun JsonObject.errorOrNull(): String? = this["error"]?.jsonPrimitive?.contentOrNull
 }

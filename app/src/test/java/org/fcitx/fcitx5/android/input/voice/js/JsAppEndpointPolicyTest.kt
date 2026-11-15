@@ -40,6 +40,27 @@ class JsAppEndpointPolicyTest {
         }
     }
 
+    @Test fun websocketUsesWssAndAcceptsDeclaredOrSecureConfiguredHosts() {
+        val policy = JsAppEndpointPolicy(
+            setOf("declared.example"),
+            mapOf("socketUrl" to "wss://configured.example/live"),
+        )
+        assertEquals("declared.example", policy.checkWebSocketUrl("wss://declared.example/ws").host)
+        assertEquals("configured.example", policy.checkWebSocketUrl("wss://configured.example/ws").host)
+        assertTrue(runCatching { policy.checkUrl("https://configured.example/api") }.isFailure)
+        val httpsConfigured = JsAppEndpointPolicy(emptySet(), mapOf("endpoint" to "https://relay.example/api"))
+        assertEquals("relay.example", httpsConfigured.checkWebSocketUrl("wss://relay.example/ws").host)
+        for (url in listOf(
+            "ws://declared.example/ws",
+            "https://declared.example/ws",
+            "wss://other.example/ws",
+            "wss://declared.example@evil.test/ws",
+        )) {
+            assertTrue(url, runCatching { policy.checkWebSocketUrl(url) }.isFailure)
+        }
+        assertTrue(runCatching { policy.checkUrl("wss://configured.example/api") }.isFailure)
+    }
+
     @Test fun unconfiguredHostsAreRejectedBeforeAnyCredentialIsRead() = runBlocking {
         var secretReads = 0
         val policy = JsAppEndpointPolicy(emptySet(), mapOf("customUrl" to "https://relay.example/v1"))

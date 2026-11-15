@@ -17,29 +17,85 @@ class JsVoiceCapabilitiesTest {
     private suspend fun capabilities(js: com.dokar.quickjs.QuickJs): JsonObject =
         Json.parseToJsonElement(js.evaluate<String>("JSON.stringify(foxy.capabilities)")).jsonObject
 
-    @Test fun capabilityTableMatchesWhatThisHostActuallyProvides() = runBlocking {
+    @Test fun describeSessionAdvertisesTheRuntimeUnionForConditionalRegistration() = runBlocking {
         val js = JsVoiceRuntime.create()
         try {
             JsVoiceStubNatives.install(js, "zh-CN")
             JsVoiceRuntime.initialize(js, JsVoicePrelude.SOURCE)
             val caps = capabilities(js)
             assertTrue(caps["locale"]!!.jsonPrimitive.boolean)
+            assertTrue(caps["app"]!!.jsonObject["register"]!!.jsonPrimitive.boolean)
             assertTrue(caps["app"]!!.jsonObject["sleep"]!!.jsonPrimitive.boolean)
             assertTrue(caps["http"]!!.jsonObject["request"]!!.jsonPrimitive.boolean)
             assertTrue(caps["http"]!!.jsonObject["post"]!!.jsonPrimitive.boolean)
-            assertTrue(caps["editor"]!!.jsonObject["commit"]!!.jsonPrimitive.boolean)
             assertTrue(caps["http"]!!.jsonObject["stream"]!!.jsonPrimitive.boolean)
-            assertTrue(caps["http"]!!.jsonObject["cancelStream"]!!.jsonPrimitive.boolean)
-            assertTrue(caps["http"]!!.jsonObject["onChunk"]!!.jsonPrimitive.boolean)
-            assertTrue(caps["http"]!!.jsonObject["onEnd"]!!.jsonPrimitive.boolean)
-            assertTrue(caps["http"]!!.jsonObject["onError"]!!.jsonPrimitive.boolean)
+            assertTrue(caps["editor"]!!.jsonObject["commit"]!!.jsonPrimitive.boolean)
             assertTrue(caps["websocket"]!!.jsonObject["authorize"]!!.jsonPrimitive.boolean)
-            assertTrue(caps["websocket"]!!.jsonObject["onMessage"]!!.jsonPrimitive.boolean)
-            assertTrue(caps["websocket"]!!.jsonObject["onBinary"]!!.jsonPrimitive.boolean)
-            assertTrue(caps["websocket"]!!.jsonObject["onError"]!!.jsonPrimitive.boolean)
-            assertTrue(caps["websocket"]!!.jsonObject["onClose"]!!.jsonPrimitive.boolean)
+            assertTrue(caps["crypto"]!!.jsonObject["hmacSha1Base64"]!!.jsonPrimitive.boolean)
             assertTrue(caps["settings"] is JsonNull)
+
+            JsVoiceRuntime.initialize(
+                js,
+                """
+                    var features = foxy.capabilities.voice.ready
+                      ? [{type:'voice.asr',id:'asr',label:'ASR'}] : [];
+                    foxy.plugin.register({id:'conditional',version:'1',hosts:[],features:features});
+                    if (foxy.capabilities.app.register && foxy.capabilities.http.stream &&
+                        foxy.http.supportsConfiguredEndpoints) {
+                      foxy.app.register({id:'tool',label:'Tool',permissions:[],onOpen:function(){return {};}});
+                    }
+                """.trimIndent(),
+            )
+            val meta = Json.parseToJsonElement(js.evaluate<String>("__meta()")).jsonObject
+            assertEquals("voice.asr", meta["features"]!!.jsonArray.single().jsonObject["type"]!!.jsonPrimitive.content)
+            assertEquals("tool", meta["apps"]!!.jsonArray.single().jsonObject["id"]!!.jsonPrimitive.content)
         } finally { js.close() }
+    }
+
+    @Test fun appAndVoiceSessionsAdvertiseOnlyTheirInstalledBindings() = runBlocking {
+        val appJs = JsVoiceRuntime.create()
+        val voiceJs = JsVoiceRuntime.create()
+        try {
+            JsVoiceStubNatives.install(appJs, "zh-CN", JsHostSession.APP)
+            JsVoiceRuntime.initialize(appJs, JsVoicePrelude.SOURCE)
+            val app = capabilities(appJs)
+            assertTrue(app["app"]!!.jsonObject["sleep"]!!.jsonPrimitive.boolean)
+            assertTrue(app["editor"]!!.jsonObject["commit"]!!.jsonPrimitive.boolean)
+            assertTrue(app["http"]!!.jsonObject["request"]!!.jsonPrimitive.boolean)
+            assertTrue(app["http"]!!.jsonObject["stream"]!!.jsonPrimitive.boolean)
+            assertFalse(app["http"]!!.jsonObject["post"]!!.jsonPrimitive.boolean)
+            assertTrue(app["websocket"]!!.jsonObject["onMessage"]!!.jsonPrimitive.boolean)
+            assertFalse(app["voice"]!!.jsonObject["final"]!!.jsonPrimitive.boolean)
+            assertFalse(app["crypto"]!!.jsonObject["hmacSha1Base64"]!!.jsonPrimitive.boolean)
+            assertEquals(
+                "fallback",
+                appJs.evaluate<String>(
+                    "foxy.capabilities.crypto.hmacSha1Base64 ? foxy.crypto.hmacSha1Base64('key','x') : 'fallback'"
+                ),
+            )
+
+            JsVoiceStubNatives.install(voiceJs, "zh-CN", JsHostSession.VOICE)
+            JsVoiceRuntime.initialize(voiceJs, JsVoicePrelude.SOURCE)
+            val voice = capabilities(voiceJs)
+            assertTrue(voice["voice"]!!.jsonObject["final"]!!.jsonPrimitive.boolean)
+            assertTrue(voice["http"]!!.jsonObject["post"]!!.jsonPrimitive.boolean)
+            assertFalse(voice["http"]!!.jsonObject["request"]!!.jsonPrimitive.boolean)
+            assertFalse(voice["http"]!!.jsonObject["stream"]!!.jsonPrimitive.boolean)
+            assertTrue(voice["crypto"]!!.jsonObject["hmacSha1Base64"]!!.jsonPrimitive.boolean)
+            assertTrue(voice["websocket"]!!.jsonObject["connect"]!!.jsonPrimitive.boolean)
+            assertFalse(voice["websocket"]!!.jsonObject["onMessage"]!!.jsonPrimitive.boolean)
+            assertFalse(voice["app"]!!.jsonObject["sleep"]!!.jsonPrimitive.boolean)
+            assertFalse(voice["editor"]!!.jsonObject["commit"]!!.jsonPrimitive.boolean)
+            assertEquals(
+                "fallback",
+                voiceJs.evaluate<String>(
+                    "foxy.capabilities.http.stream ? foxy.http.stream({url:'https://invalid'}) : 'fallback'"
+                ),
+            )
+        } finally {
+            appJs.close()
+            voiceJs.close()
+        }
     }
 
     @Test fun capabilityTableNeverExposesHostInternals() = runBlocking {
