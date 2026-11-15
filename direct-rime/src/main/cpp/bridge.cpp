@@ -13,7 +13,7 @@
 using direct_rime::Engine;
 namespace {
 // Accessed exclusively on rime-main. Each engine identity owns a retained Engine object so
-// librime's process-wide setup (including glog initialization) runs once for that loaded slot.
+// librime's process-wide setup (including logging initialization) runs once for that loaded slot.
 // Switching first stop/finalizes the current slot; inactive external DSOs stay mapped so a failed
 // activation can restart the previous slot without killing the Android process.
 std::unordered_map<std::string, std::unique_ptr<Engine>> engineSlots;
@@ -179,14 +179,15 @@ extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void*) {
 
 #define JNI_METHOD(name) Java_org_fcitx_directrime_Native_##name
 extern "C" JNIEXPORT void JNICALL JNI_METHOD(start)(JNIEnv* env, jobject, jstring shared, jstring user,
-                                                    jstring version, jboolean fullCheck) {
+                                                    jstring version, jboolean fullCheck, jint minLogLevel) {
     try {
         if (engineStarted) throw std::logic_error("direct Rime is already started");
         const auto identity = direct_rime::selectedEngineIdentity();
         auto& slot = engineSlots[identity];
         if (!slot) slot = std::make_unique<Engine>(direct_rime::selectedRimeApi());
         engine = slot.get();
-        instance().start(string(env, shared), string(env, user), string(env, version), fullCheck);
+        instance().start(string(env, shared), string(env, user), string(env, version), fullCheck,
+                         minLogLevel);
         engineStarted = true;
         clearSnapshotCache(env);
     } catch (const std::exception& e) { error(env, e); }

@@ -98,7 +98,14 @@ internal object Native {
     external fun selectBuiltin()
     /** Configure/select an authorized external engine after the current engine has stopped. */
     external fun configureExternal(fd: Int, entry: String, identity: String): Array<String>
-    external fun start(shared: String, user: String, version: String, fullCheck: Boolean = false)
+    /**
+     * [minLogLevel] is librime's min_log_level (0=INFO, 2=ERROR). librime initializes its
+     * logger once per process, so only the first start after a process launch applies it.
+     */
+    external fun start(
+        shared: String, user: String, version: String,
+        fullCheck: Boolean = false, minLogLevel: Int = 2
+    )
     external fun stop()
     external fun begin(generation: Long, program: String): Snapshot
     external fun beginInput(generation: Long, program: String, noLearning: Boolean): Snapshot

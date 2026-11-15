@@ -243,6 +243,7 @@ object SettingsSearchIndex {
         // 「实时日志」是一项纯动作（点击直接开 LogActivity），它的 Preference 没有设置 key，
         // 因此这里不登记——登记了也找不到目标行，只会让键一直挂着不被消费。
         R.string.verbose_log to "verbose_log",
+        R.string.rime_engine_log to "rime_engine_log",
 
         /* 主题 · 配置 tab（在 ThemeFragment 内，由该页自行滚动） */
         R.string.key_radius to "key_radius",
@@ -1077,6 +1078,11 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.verbose_log, P_ADVANCED,
             listOf("verbose", "详细日志", "xiangxirizhi", "诊断", "排查"),
+            route = SettingsRoute.Developer
+        ),
+        SettingsSearchEntry(
+            R.string.rime_engine_log, P_ADVANCED,
+            listOf("rime", "librime", "engine log", "引擎日志", "yinqingrizhi", "INFO", "WARNING"),
             route = SettingsRoute.Developer
         ),
         SettingsSearchEntry(

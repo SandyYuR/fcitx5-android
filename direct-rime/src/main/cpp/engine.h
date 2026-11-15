@@ -34,8 +34,11 @@ struct RawInput { std::string text; int caret; };
 class Engine {
 public:
     explicit Engine(RimeApi* api);
+    // minLogLevel is librime's min_log_level (0=INFO, 2=ERROR). The logger is process-wide,
+    // so only the first start after a process launch can change it.
     void start(const std::string& shared, const std::string& user,
-               const std::string& version = "development", bool fullCheck = false);
+               const std::string& version = "development", bool fullCheck = false,
+               int minLogLevel = 2);
     void stop();
     Snapshot begin(int64_t generation, const std::string& program, bool noLearning = false);
     Snapshot end(int64_t generation);
@@ -93,6 +96,7 @@ private:
     int64_t sessionsCreated_ = 0, sessionsReused_ = 0, sessionsEnded_ = 0;
     std::string sessionProgram_;
     std::string shared_, user_, version_;
+    int minLogLevel_ = 2;
     std::vector<Tab> tabs_;
     std::optional<StatusCache> statusCache_;
     bool saveOptionsLoaded_ = false;

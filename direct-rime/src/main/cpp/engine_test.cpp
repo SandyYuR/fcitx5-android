@@ -49,6 +49,7 @@ struct Fake {
     int userConfigOpens = 0;
     int keys = 0, mask = 0, created = 0, destroyed = 0, freedCommit = 0;
     int setups = 0, initialized = 0, finalized = 0, selected = -1, freedTabs = 0, freedCodes = 0;
+    int logLevel = -1;
     int statusReads = 0, freedStatus = 0, statusFailures = 0;
     int contextNotifications = 0, tabsNotifications = 0, statusNotifications = 0;
     size_t selectedSpan = 0, selectedGlobal = 999, deletedGlobal = 999, caret = 999, tabSpan = 3;
@@ -70,7 +71,7 @@ void notifyOptionIfRequested(int& count) {
 }
 RimeApi api() {
     RimeApi a{}; RIME_STRUCT_INIT(RimeApi, a);
-    a.setup = [](RimeTraits*) { ++f.setups; };
+    a.setup = [](RimeTraits* traits) { ++f.setups; f.logLevel = traits->min_log_level; };
     a.initialize = [](RimeTraits* traits) {
         ++f.initialized; f.distribution = traits->distribution_code_name; f.version = traits->distribution_version;
     };
@@ -222,7 +223,21 @@ void testInputContract() {
     std::thread thread([&] { try { engine.key(2, 'a', 0, false); } catch (const std::logic_error&) { wrongThreadRejected = true; } });
     thread.join(); CHECK(wrongThreadRejected);
     engine.stop(); engine.stop(); CHECK(f.finalized == 1);
-    engine.start("shared", "user"); CHECK(f.setups == 1); engine.stop();
+    engine.start("shared", "user"); CHECK(f.setups == 1 && f.logLevel == 2); engine.stop();
+}
+void testEngineLogLevel() {
+    f = {}; auto a = api(); Engine engine(&a);
+    engine.start("shared", "user", "development", false, 0);
+    CHECK(f.logLevel == 0);
+    engine.stop();
+    // setup() runs once per process, so a later start keeps the level it already applied.
+    engine.start("shared", "user", "development", false, 3);
+    CHECK(f.setups == 1 && f.logLevel == 0);
+    engine.stop();
+    f = {}; auto b = api(); Engine clamped(&b);
+    clamped.start("shared", "user", "development", false, 99);
+    CHECK(f.setups == 1 && f.logLevel == 3);
+    clamped.stop();
 }
 void testMaintenanceAndAbi() {
     f = {}; auto a = api();
@@ -673,7 +688,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
+        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

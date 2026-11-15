@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 PREBUILT = {
-    "librime": "librime.a", "glog": "libglog.a", "leveldb": "libleveldb.a",
+    "librime": "librime.a", "spdlog": "libspdlog.a", "leveldb": "libleveldb.a",
     "lua": "liblua_static.a", "marisa": "libmarisa.a", "opencc": "libopencc.a",
     "yaml-cpp": "libyaml-cpp.a",
 }

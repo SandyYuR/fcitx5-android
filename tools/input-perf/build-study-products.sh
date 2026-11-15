@@ -5,6 +5,9 @@
 set -euo pipefail
 
 root=$(git rev-parse --show-toplevel)
+# This SDK belongs to the pinned study sources, independently of the application's lock.
+# A study with a different SDK must version its source refs and product identity together.
+readonly frozen_study_sdk_lock_sha256=6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f
 mode=build
 if [ "${1:-}" = --verify ]; then mode=verify; shift; fi
 if [ "${1:-}" = --recover ]; then mode=recover; shift; fi
@@ -35,12 +38,13 @@ if [ "$mode" = build ]; then
     for revision in 0380d70f16efb6a9946a164821d5cad7118ce4ff 4d77cd79a580a9984130a5653b13f949ec5bc0a9 "$current_ref"; do
         git -C "$root" fetch --no-recurse-submodules --no-tags origin "$revision"
     done
-    python3 - "$root" "$current_ref" <<'PYLOCK'
+    python3 - "$root" "$current_ref" "$frozen_study_sdk_lock_sha256" <<'PYLOCK'
 import hashlib, subprocess, sys
-root, current = sys.argv[1:]
+root, current, frozen_sdk_lock_sha256 = sys.argv[1:]
+# The three products must share the original study's SDK, including current_ref.
 for source in ('0380d70f16efb6a9946a164821d5cad7118ce4ff', '4d77cd79a580a9984130a5653b13f949ec5bc0a9', current):
     lock = subprocess.check_output(['git', '-C', root, 'show', source + ':native/rime-sdk.lock.json'])
-    if hashlib.sha256(lock).hexdigest() != '6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f':
+    if hashlib.sha256(lock).hexdigest() != frozen_sdk_lock_sha256:
         raise SystemExit('Product changed the frozen SDK lock: ' + source)
 PYLOCK
     for label in baseline regressed current; do
@@ -87,7 +91,7 @@ PYLOCK
     cp "$runner_temp/latency-study-host/host.apk" "$output/host.apk"
 fi
 
-python3 - "$mode" "$root" "$output" "$current_ref" "$fixture_dir" "$original_driver_ref" "$failed_build_run" <<'PY'
+python3 - "$mode" "$root" "$output" "$current_ref" "$fixture_dir" "$original_driver_ref" "$failed_build_run" "$frozen_study_sdk_lock_sha256" <<'PY'
 import hashlib
 import json
 import os
@@ -97,7 +101,7 @@ import subprocess
 import sys
 import zipfile
 
-mode, root_arg, output_arg, current_ref, fixture_arg, original_driver_ref, failed_build_run = sys.argv[1:]
+mode, root_arg, output_arg, current_ref, fixture_arg, original_driver_ref, failed_build_run, frozen_sdk_lock_sha256 = sys.argv[1:]
 root, output = Path(root_arg), Path(output_arg)
 protocol = 'fixed_cadence_100ms_input_manager_async_cached_targets_v2'
 sources = {
@@ -176,7 +180,7 @@ if mode in ('build', 'recover'):
     require(len(set(certificates.values())) == 1, 'Products and probes must use the same CI debug signer')
     locks = {label: hashlib.sha256(git('show', sha + ':native/rime-sdk.lock.json')).hexdigest()
              for label, sha in sources.items()}
-    require(set(locks.values()) == {'6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f'},
+    require(set(locks.values()) == {frozen_sdk_lock_sha256},
             'All products must use the original frozen SDK lock')
     require(protocol in (root / 'tools/input-perf/CadenceCandidateTapTest.kt').read_text(), 'Expected the v2 cadence probe')
     record = {
@@ -207,7 +211,7 @@ require(record['host_sha256'] == digest(output / 'host.apk'), 'Neutral host APK 
 require(set(record['apks']) == expected_apks, 'Unexpected or missing product APKs')
 require(set(record['native_audit_sha256']) == set(sources), 'Missing native audit identities')
 require(set(record['sdk_lock_sha256']) == set(sources) and
-        set(record['sdk_lock_sha256'].values()) == {'6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f'},
+        set(record['sdk_lock_sha256'].values()) == {frozen_sdk_lock_sha256},
         'SDK identity does not match the original study')
 for label, sha in sources.items():
     require((output / (label + '-commit.txt')).read_text().strip() == sha, 'Embedded source record mismatch: ' + label)

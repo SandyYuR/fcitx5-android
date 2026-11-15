@@ -91,6 +91,8 @@
     <string name="app_crash_message">Entschuldigung, bitte untersuche die Logs</string>
     <string name="crash_logs">Absturzprotokolle</string>
     <string name="verbose_log">Ausführliche Protokollierung</string>
+    <string name="rime_engine_log">Rime-Engine-Protokolle</string>
+    <string name="rime_engine_log_summary">Gibt INFO- und WARNING-Meldungen der nativen Engine in den Echtzeitprotokollen aus. Wird nach einem Neustart der App wirksam.</string>
     <string name="removed_x">%1$s entfernt</string>
     <string name="added_x">%1$s hinzugefügt</string>
     <string name="edited_x">%1$s bearbeitet</string>

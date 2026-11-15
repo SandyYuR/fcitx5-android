@@ -1,10 +1,11 @@
-"""Recover manifests from fixed synthetic products without building or running an APK."""
+"""Check frozen study SDK identities and synthetic products without building or running an APK."""
 import contextlib
 import hashlib
 import io
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -21,6 +22,8 @@ SOURCES = {
 }
 ORIGINAL_DRIVER = '483c2870a6136f61cd5a13c416829fcfcca274b0'
 FAILED_RUN = '43173173211'
+FROZEN_SDK_LOCK_SHA256 = '6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f'
+UPGRADED_SDK_LOCK_SHA256 = '63e8acc8c6045673787efa9fa5f4d020885d8ed33614095bf89a250d3f60b971'
 
 
 def digest(path):
@@ -49,8 +52,12 @@ class StudyProductRecoveryTest(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
         (self.root / 'tools/input-perf/apk_signers.py').write_bytes((HERE / 'apk_signers.py').read_bytes())
-        # git show in the builder reads canonical LF bytes, even on a CRLF checkout.
-        self.lock = (HERE.parents[1] / 'native/rime-sdk.lock.json').read_text().encode('utf-8')
+        # Exact lock from all three SOURCES, not the SDK of the workflow checkout.
+        # git show reads canonical LF bytes, even on a CRLF checkout.
+        self.lock = (HERE / 'fixtures/study-rime-sdk.lock.json').read_text().encode('utf-8')
+        self.locks = {sha: self.lock for sha in SOURCES.values()}
+        # Exact upgraded lock from c595263f2, independent of future application SDK changes.
+        self.upgraded_lock = (HERE / 'fixtures/upgraded-rime-sdk.lock.json').read_text().encode('utf-8')
         sdk = self.root / 'sdk/build-tools/36.1.0'
         sdk.mkdir(parents=True)
         (sdk / 'aapt2').write_text('never executed')
@@ -73,6 +80,10 @@ class StudyProductRecoveryTest(unittest.TestCase):
         (self.products / 'host.apk').write_bytes(b'fixed host binary')
         (self.products / 'baseline-tests.apk.signer.txt').write_text('original failure evidence')
         script = (HERE / 'build-study-products.sh').read_text()
+        self.frozen_sdk_lock_sha256 = re.search(
+            r'^readonly frozen_study_sdk_lock_sha256=([0-9a-f]{64})$', script, re.MULTILINE).group(1)
+        preflight = script.split("<<'PYLOCK'\n", 1)[1].split('\nPYLOCK', 1)[0]
+        self.preflight_code = compile(preflight, 'build-study-products.sh SDK preflight', 'exec')
         python = script.split("<<'PY'\n", 1)[1].rsplit('\nPY', 1)[0]
         self.code = compile(python, 'build-study-products.sh metadata', 'exec')
         self.calls = []
@@ -86,7 +97,7 @@ class StudyProductRecoveryTest(unittest.TestCase):
             revision, path = args[4].split(':', 1)
             if path == 'native/rime-sdk.lock.json':
                 self.assertIn(revision, SOURCES.values())
-                return self.lock
+                return self.locks[revision]
             self.assertEqual(ORIGINAL_DRIVER, revision)
             return self.original_files[path]
         if Path(args[0]).name == 'aapt2':
@@ -98,8 +109,9 @@ class StudyProductRecoveryTest(unittest.TestCase):
             return 'V2 Signer: certificate SHA-256 digest: ' + 'd' * 64 + '\n'
         self.fail('Unexpected subprocess: ' + repr(args))
 
-    def recover(self, error=None):
-        argv = ['metadata', 'recover', str(self.root), str(self.products), SOURCES['current'], '', ORIGINAL_DRIVER, FAILED_RUN]
+    def finalize(self, mode, error=None):
+        argv = ['metadata', mode, str(self.root), str(self.products), SOURCES['current'], '', ORIGINAL_DRIVER, FAILED_RUN,
+                self.frozen_sdk_lock_sha256]
         with patch.object(sys, 'argv', argv), patch.object(sys, 'path', list(sys.path)), \
                 patch.dict(os.environ, {'ANDROID_HOME': str(self.sdk)}), \
                 patch.object(subprocess, 'check_output', side_effect=self.command), \
@@ -112,6 +124,54 @@ class StudyProductRecoveryTest(unittest.TestCase):
             exec(self.code, {})
         return json.loads((self.products / 'products.json').read_text())
 
+    def recover(self, error=None):
+        return self.finalize('recover', error)
+
+    def preflight(self, error=None):
+        argv = ['preflight', str(self.root), SOURCES['current'], self.frozen_sdk_lock_sha256]
+        with patch.object(sys, 'argv', argv), \
+                patch.object(subprocess, 'check_output', side_effect=self.command):
+            if error:
+                with self.assertRaisesRegex(SystemExit, error):
+                    exec(self.preflight_code, {})
+            else:
+                exec(self.preflight_code, {})
+
+    def verify(self, error):
+        # Exercise all product guards before the remote fixture check. These tests
+        # deliberately do not download the original scheme/model ZIP.
+        argv = ['metadata', 'verify', str(self.root), str(self.products), SOURCES['current'], '', '', '',
+                self.frozen_sdk_lock_sha256]
+        with patch.object(sys, 'argv', argv), \
+                patch.object(subprocess, 'check_output', side_effect=self.command), \
+                contextlib.redirect_stdout(io.StringIO()), \
+                self.assertRaisesRegex(SystemExit, error):
+            exec(self.code, {})
+
+    def test_fixture_and_study_keep_the_original_sdk_identity(self):
+        self.assertEqual(418, len(self.lock))
+        self.assertEqual(FROZEN_SDK_LOCK_SHA256, hashlib.sha256(self.lock).hexdigest())
+        self.assertEqual(FROZEN_SDK_LOCK_SHA256, self.frozen_sdk_lock_sha256)
+        self.assertEqual(UPGRADED_SDK_LOCK_SHA256, hashlib.sha256(self.upgraded_lock).hexdigest())
+
+    def test_build_preflight_accepts_the_historical_sources(self):
+        self.preflight()
+        self.assertEqual(set(SOURCES.values()), {args[4].split(':')[0] for args in self.calls})
+
+    def test_build_preflight_rejects_a_current_source_with_an_upgraded_sdk(self):
+        self.locks[SOURCES['current']] = self.upgraded_lock
+        self.preflight('Product changed the frozen SDK lock: ' + SOURCES['current'])
+
+    def test_build_metadata_preserves_the_historical_sdk_identity(self):
+        record = self.finalize('build')
+        self.assertEqual({label: FROZEN_SDK_LOCK_SHA256 for label in SOURCES}, record['sdk_lock_sha256'])
+        self.assertEqual('f' * 40, record['driver_commit'])
+        self.assertNotIn('recovery', record)
+
+    def test_build_metadata_rejects_a_current_source_with_an_upgraded_sdk(self):
+        self.locks[SOURCES['current']] = self.upgraded_lock
+        self.finalize('build', 'All products must use the original frozen SDK lock')
+
     def test_recovery_preserves_binaries_original_driver_and_failed_run(self):
         before = {p.name: digest(p) for p in self.products.glob('*.apk')}
         result = self.recover()
@@ -123,6 +183,22 @@ class StudyProductRecoveryTest(unittest.TestCase):
         self.assertEqual('original failure evidence', (self.products / 'baseline-tests.apk.signer.txt').read_text())
         self.assertTrue((self.products / 'baseline-tests.apk.recovery.signer.txt').is_file())
         self.assertEqual(set(SOURCES), set(result['native_audit_sha256']))
+        self.assertEqual({label: FROZEN_SDK_LOCK_SHA256 for label in SOURCES}, result['sdk_lock_sha256'])
+
+    def test_verification_accepts_the_historical_product_identity_before_checking_the_fixture(self):
+        self.recover()
+        self.calls.clear()
+        self.verify('--verify requires the downloaded fixture directory')
+        self.assertEqual([], self.calls)
+
+    def test_verification_rejects_an_upgraded_sdk_manifest(self):
+        record = self.recover()
+        for label in SOURCES:
+            with self.subTest(label=label):
+                changed = dict(record, sdk_lock_sha256=dict(record['sdk_lock_sha256']))
+                changed['sdk_lock_sha256'][label] = UPGRADED_SDK_LOCK_SHA256
+                (self.products / 'products.json').write_text(json.dumps(changed))
+                self.verify('SDK identity does not match the original study')
 
     def test_recovery_rejects_changed_original_source_record(self):
         (self.products / 'baseline-commit.txt').write_text('0' * 40)
@@ -149,7 +225,11 @@ class StudyProductRecoveryTest(unittest.TestCase):
         self.recover('Original native audit does not match')
 
     def test_recovery_rejects_changed_sdk_lock(self):
-        self.lock += b'\n'
+        self.locks[SOURCES['current']] += b'\n'
+        self.recover('All products must use the original frozen SDK lock')
+
+    def test_recovery_rejects_a_current_source_with_an_upgraded_sdk(self):
+        self.locks[SOURCES['current']] = self.upgraded_lock
         self.recover('All products must use the original frozen SDK lock')
 
 

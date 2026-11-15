@@ -98,6 +98,8 @@
     <string name="app_crash_message">申し訳ありませんが、調査のためにいくつかのログをお届けします。</string>
     <string name="crash_logs">クラッシュログ</string>
     <string name="verbose_log">詳細な記録</string>
+    <string name="rime_engine_log">Rime エンジンのログ</string>
+    <string name="rime_engine_log_summary">ネイティブエンジンの INFO / WARNING もリアルタイムログに出力します。アプリの再起動後に有効になります。</string>
     <string name="removed_x">%1$s を削除しました</string>
     <string name="added_x">%1$s を追加しました</string>
     <string name="edited_x">%1$s を編集しました</string>
