@@ -272,7 +272,7 @@ foxy.http.cancelStream(streamId);
 
 SSE `event:` and `data:` fields are parsed; multiple `data:` lines are joined with newline. The stream is HTTPS-only, uses the same host approval and `network.request` permission as ordinary HTTP, and is cancelled when the plugin App closes. Chunk callbacks are awaited sequentially to provide backpressure.
 
-Host specifics: `stream()` validates HTTPS, the method and a 1 MiB body limit, then returns the stream ID immediately, so register `onChunk/onEnd/onError` before starting; events can arrive before the following synchronous statements run. Host approval is requested before the request is sent and a denial reports `Network permission denied` through `onError`. A blank line dispatches an SSE event, the default event name is `message`, and `:` comment lines are ignored; non-SSE bodies are delivered line by line with event `"line"` and a 1 MiB per-line cap that ends the stream with `onError`. No overall or read timeout is applied because SSE streams can idle, so cancellation comes only from `cancelStream` or App close; nothing is delivered after either.
+Host specifics: `stream()` validates HTTPS, the method and a 1 MiB body limit, then returns the stream ID immediately, so register `onChunk/onEnd/onError` before starting; events can arrive before the following synchronous statements run. Host approval is requested before the request is sent and a denial reports `Network permission denied` through `onError`. A blank line dispatches an SSE event, the default event name is `message`, and `:` comment lines are ignored; non-SSE bodies are delivered line by line with event `"line"` and a 2 MiB per-line cap (the same budget as a response body) that ends the stream with `onError`. No overall or read timeout is applied because SSE streams can idle, so cancellation comes only from `cancelStream` or App close; nothing is delivered after either.
 
 ## WebSocket
 
@@ -301,7 +301,7 @@ foxy.websocket.close(socketId);
 
 WebSocket handlers are registered once per JS runtime. `onClose` receives `expected = true` for a plugin-requested close.
 
-中州鹅 wires both the voice and App sessions through one transport. Because `connect` is synchronous, call `await foxy.websocket.authorize(...)` for a declared host before connecting to it; connecting to an unauthorized host throws. Handlers are registered once per kind, not per socket, and the host approximates `expected` with a normal close code of 1000.
+中州鹅 wires both the voice and App sessions through one transport. Because `connect` is synchronous, call `await foxy.websocket.authorize(...)` for a declared host before connecting to it; connecting to an unauthorized host throws. Handlers are registered once per kind, not per socket. The second `onClose` argument is a boolean: the host reports `true` when the socket closed with code 1000, so a plugin-requested close and a server-side normal close both read as `true`, while an abnormal close reads as `false`.
 
 ## Editor APIs
 

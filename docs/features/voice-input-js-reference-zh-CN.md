@@ -275,11 +275,11 @@ foxy.http.cancelStream(streamId);
 
 解析 SSE 的 `event:`、`data:` 字段，多行 `data:` 以换行连接。流仅使用 HTTPS，与普通 HTTP 共用主机授权及 `network.request` 权限；App 关闭时取消。分块回调按顺序等待完成，提供背压。
 
-本宿主的实现约定：`stream()` 校验 HTTPS、方法与请求体上限（1 MiB）后立即返回流 ID，事件可能早于紧随其后的同步代码，应先注册 `onChunk/onEnd/onError` 再发起。真正发请求前会请求主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 的空行派发事件、缺省事件名为 `message`，`:` 开头的注释行忽略；非 SSE 响应逐行投递、事件名为 `line`，单行上限 1 MiB，超长以 `onError` 结束。请求不设整体与读取超时（SSE 可能长时间空闲），取消只来自 `cancelStream` 或 App 关闭；取消或关闭后不再回调，回调在宿主侧串行执行。
+本宿主的实现约定：`stream()` 校验 HTTPS、方法与请求体上限（1 MiB）后立即返回流 ID，事件可能早于紧随其后的同步代码，应先注册 `onChunk/onEnd/onError` 再发起。真正发请求前会请求主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 的空行派发事件、缺省事件名为 `message`，`:` 开头的注释行忽略；非 SSE 响应逐行投递、事件名为 `line`，单行上限 2 MiB（与响应体预算相同），超长以 `onError` 结束。请求不设整体与读取超时（SSE 可能长时间空闲），取消只来自 `cancelStream` 或 App 关闭；取消或关闭后不再回调，回调在宿主侧串行执行。
 
 ## WebSocket
 
-> 中州鹅的语音插件与 App 会话共用同一份 WebSocket 传输，以下接口均已实现。`connect` 是同步的，连接未授权主机前必须先 `await foxy.websocket.authorize(...)`，否则直接抛错；四个回调按种类各注册一次，不按 socket 区分；`onClose` 的第二个参数是 `wasClean`（本宿主用关闭码 1000 近似），不是关闭码。
+> 中州鹅的语音插件与 App 会话共用同一份 WebSocket 传输，以下接口均已实现。`connect` 是同步的，连接未授权主机前必须先 `await foxy.websocket.authorize(...)`，否则直接抛错；四个回调按种类各注册一次，不按 socket 区分；`onClose` 的第二个参数是布尔值（Foxy 文档写作 `expected`，语义接近 `wasClean`），本宿主按关闭码是否为 1000 给出：插件主动关闭与服务端正常关闭都为 `true`，异常关闭为 `false`。
 
 普通 App 与语音插件共用 Foxy 的宿主 WebSocket 传输：
 
