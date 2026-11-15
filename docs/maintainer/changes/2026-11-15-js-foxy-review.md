@@ -106,3 +106,47 @@ SSE 格式依据为 [WHATWG 事件流解析规则](https://html.spec.whatwg.org/
 | x86_64 Debug | `04c5d51350b8bc4feeff63425b572bbb84e746f22729c1e48a0212eed0c20b15` |
 
 两包只包含对应 ABI 的 `libc++_shared.so`、`libdirect-rime.so`、`libquickjs.so`，链接审计使用本次 `app/.cxx` 与固定 `native/rime-sdk` 输入。本节保存后执行文档构建、链接、历史完整性、目录、搜索和 diff 检查；输出保留在本轮证据目录的 `docs-final-*.log`，同时由 PR #40 的构建检查验证文档提交。上述构建与测试不代表手机设备验收。
+
+## 后续 CI 修复：关闭会话与后台回收竞态
+
+代码提交 `bbdf4f686af52a4c915c573a777d143469383422` 推送后，[CI 的 arm64-v8a 构建任务](https://github.com/SandyYuR/fcitx5-android/actions/runs/43695275401/job/132754298746)在完整 `:app:testFxDebugUnitTest` 中执行 2413 项测试，有 1 项失败：`JsAppStreamsTest.sseEventsAreParsedAndDispatchedInOrder` 报 `NoSuchElementException`，日志定位到测试方法的 `JsAppStreamsTest.kt:86`。这是本次远端完整测试的失败结果；上节本地 365 项 voice 测试通过的记录继续保留，其测试范围与此次 CI 不同。
+
+审阅定位到生产关闭路径中的集合竞态：`JsAppStreams.closeAll()` 对 `ConcurrentHashMap.entries` 调用 `toList()`。Kotlin 的集合转换会先读 `size`，当观察到仅一个条目时走单元素分支，直接取迭代器的下一项；若后台 `release()` 在这两步之间移除最后一条流，转换就会抛出 `NoSuchElementException`。并发映射允许安全遍历，但不能保证这次独立读取的大小与随后取得的迭代器内容一致。因此异常来自会话清理，不能作为 SSE 顺序断言不稳定而忽略。
+
+`JsWebSocketTransport.closeAll()` 存在相同的 `connections.entries.toList()` 模式，连接失败或正常结束时的后台回收同样可能与关闭相遇，本次一并处理。修复范围是让关闭与新流／连接登记使用同一把锁串行化，并直接遍历并发映射关闭条目，去掉依赖预读集合大小的转换；已经由后台释放的条目保持幂等处理。取消授权等待、网络调用和打开等待槽的原有边界继续保留。
+
+| 本轮来源 | 记录 |
+| --- | --- |
+| 失败代码提交 | `bbdf4f686af52a4c915c573a777d143469383422` |
+| 开始修复时的文档提交 | `6bb51d976ca2b243bf600d1db3e4b1fa39ad87c0` |
+| 失败 CI | Run `43695275401`，job `132754298746` |
+| 本地证据目录 | `.dsh-tmp/foxy-ci-fix-20261115/` |
+| 已保存证据 | `failed-arm64-job.log`、任务详情、检查注解、对应代码／文档提交的检查状态及两个 PR 的读取结果 |
+
+最终修复来源及验证结果见下表。原失败日志与不利结果继续保留在上述证据目录，不将旧测试或旧 APK 结果计作此次修复通过；本机设备验收仍受前述边界约束。
+
+修复前新增四项确定性回归，全部失败：Streams 与 WebSocket 的两项集合回收用例均得到 `CollectionsKt.toList` → `closeAll` 的 `NoSuchElementException`；两项登记用例均证明关闭线程提前结束，未等待已经通过检查的登记完成。失败 XML 与日志保留于本轮证据目录的 `race-before-fix-junit/` 和 `race-before-fix.log`。
+
+修复在登记锁内设置关闭标志并用并发映射自身的遍历收集、移除条目，出锁后才取消 Job／Call／socket，避免取消回调持有登记锁。测试同时检查资源已失活及真实等待任务已取消，使用有界 latch／join 并确保失败时释放测试线程。
+
+修复代码提交：[`4eeb272b906497a69254bb2fafae90bc4e27b2db`](https://github.com/SandyYuR/fcitx5-android/commit/4eeb272b906497a69254bb2fafae90bc4e27b2db)。
+
+提交后的 voice JVM 测试执行 369 项（47 份 JUnit），失败／错误／跳过均为零，包含上述四项关闭竞态回归。完整 JVM 与远端 CI 结果如下。
+
+### CI 修复后的最终验证
+
+| 验证 | 结果与证据 |
+| --- | --- |
+| Linux PR CI 完整 JVM | [JVM unit tests](https://github.com/SandyYuR/fcitx5-android/actions/runs/43699131967/job/132766136460)：295 份 JUnit，2417 tests、0 failures、0 errors、0 skipped。 |
+| 原失败 ARM64 任务 | [Full frontend ARM64 APK](https://github.com/SandyYuR/fcitx5-android/actions/runs/43699131905/job/132766136574) 通过；日志同样确认 2417 tests、0 failures、0 errors、0 skipped，后续 APK 门禁通过。 |
+| 代码 CI 汇总 | 本次代码提交的 6 项检查全部成功，包括原生契约、引擎 smoke、完整前端触摸与引擎设备测试、Debug 构建及两项 JVM／ARM64 任务。 |
+| 本机 voice JVM | 369 tests、0 failures、0 errors、0 skipped，包含四项确定性关闭竞态回归。 |
+| 本机完整 JVM | 2417 tests、0 failures、0 errors、30 skipped；30 项均实际创建符号链接时被 Windows 拒绝。严格 JUnit 门禁因此未通过，环境限制如实保留；完整覆盖由上方 Linux CI 验证。 |
+| 本机 ARM64／x86_64 Debug | 同一修复提交构建，两包均通过原生库白名单、16 KiB 对齐、链接及签名校验。 |
+
+| CI 修复版 APK | SHA-256 |
+| --- | --- |
+| arm64-v8a Debug | `9b953f6e35aa3c9906d9efc9bebd5c7cc6966df21a8df24d3e4fd345746cef10` |
+| x86_64 Debug | `88feb7d5bc6e1b93f05926a826cf308c48b30da9957a1b29f2fd26147c5f2500` |
+
+本机跳过原因逐项保存在 `windows-symbolic-link-skips.json`，完整 XML 保存在 `full-jvm-junit/`；两个成功的 Linux JVM 日志与代码 CI 状态快照也保存在本轮证据目录。本轮没有修改测试过滤、跳过规则、CI workflow、SDK 锁或本机权限，也没有安装 APK 或操作本机模拟器。文档保存后重新运行五项门禁和 diff 检查，并由配套 PR #40 的新提交继续验证。
