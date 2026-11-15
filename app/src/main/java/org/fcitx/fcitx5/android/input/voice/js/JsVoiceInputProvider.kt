@@ -7,7 +7,6 @@ import com.dokar.quickjs.QuickJs
 import com.dokar.quickjs.binding.function
 import com.dokar.quickjs.binding.asyncFunction
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,11 +35,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
-import okio.ByteString
 import okio.utf8Size
-import org.fcitx.fcitx5.android.clipboardsync.network.BoundedWebSocketTransport
 import org.fcitx.fcitx5.android.utils.readBounded
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -54,7 +49,6 @@ import org.fcitx.fcitx5.android.common.ipc.VoiceInputIpc
 import org.fcitx.fcitx5.android.utils.appContext
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
 
 /** Commands queued to the per-session worker. Shared by the provider and the JS net bridge. */
 internal sealed interface JsVoiceCommand {
@@ -109,10 +103,13 @@ internal class JsVoiceInputProvider(
             override fun onSessionEnded() = finish()
         }
 
-        fun offer(command: JsVoiceCommand) {
-            if (current && !queue.offer(command)) {
+        fun offer(command: JsVoiceCommand): Boolean {
+            if (!current) return false
+            if (!queue.offer(command)) {
                 finish(VoiceInputIpc.ErrorCodes.UNKNOWN to "JS voice input queue exceeded its limit")
+                return false
             }
+            return true
         }
 
         fun finish(error: Pair<Int, String?>? = null, notify: Boolean = true) {
@@ -330,10 +327,12 @@ internal class JsVoiceInputProvider(
  * 解引用了一遍，缺一个就是 ReferenceError（真机上的表现是「读取插件设置失败」）。
  */
 internal object JsVoiceStubNatives {
-    fun install(js: QuickJs, locale: String) {
+    fun install(js: QuickJs, locale: String, session: JsHostSession = JsHostSession.DESCRIBE) {
         val binary = JsVoiceBinary()
         fun decode(value: String) = binary.decode(value)
+        js.function("__n_hostSession") { session.wireName }
         js.function("__n_locale") { locale }
+        js.function("__n_wsAuthorize") { throw IllegalStateException("network is not available here") }
         js.function("__n_wsConnect") { throw IllegalStateException("network is not available here") }
         js.function("__n_wsWaitOpen") { null }
         js.function("__n_wsSend") { null }
@@ -390,7 +389,7 @@ internal object JsVoiceScript {
 internal class JsVoiceNet(
     http: OkHttpClient,
     private val policy: JsVoiceNetworkPolicy,
-    private val receive: (JsVoiceCommand) -> Unit,
+    private val receive: (JsVoiceCommand) -> Boolean,
     private val secretFor: (String) -> String?,
 ) {
     // Credentials must not follow redirects beyond the explicitly approved hosts.
@@ -398,53 +397,38 @@ internal class JsVoiceNet(
     private val closed = AtomicBoolean(false)
     private val calls: MutableSet<Call> = ConcurrentHashMap.newKeySet()
     private val binary = JsVoiceBinary()
-    private val socketHttp by lazy {
-        BoundedWebSocketTransport.client(http, secure = true, maxMessage = JsVoiceRuntime.WEBSOCKET_BYTES)
-    }
-    private val sockets = ConcurrentHashMap<String, WebSocket>()
-    private val opened = ConcurrentHashMap<String, CompletableDeferred<Unit>>()
-    private val nextId = AtomicInteger(1)
+    private val ws = JsWebSocketTransport(
+        http = http,
+        authorizeUrl = { policy.checkUrl(it) },
+        authorizeSend = { policy.requireApproval() },
+        headers = { secretField, authHeader, authPrefix, headersJson ->
+            JsVoiceHeaders.build(
+                secretField = secretField,
+                secret = secretField.takeIf { it.isNotBlank() }?.let(secretFor),
+                authHeader = authHeader,
+                authPrefix = authPrefix,
+                headersJson = headersJson,
+            )
+        },
+        receive = { inbound ->
+            when (inbound) {
+                is WsInbound.Text -> receive(JsVoiceCommand.Message(inbound.socketId, inbound.text))
+                is WsInbound.Binary -> receive(JsVoiceCommand.Message(inbound.socketId, "", inbound.base64))
+                is WsInbound.Failed -> receive(JsVoiceCommand.Fail("WebSocket failed: " + inbound.message))
+                is WsInbound.Closed -> receive(JsVoiceCommand.Fail("WebSocket closed: " + inbound.code))
+            }
+        },
+    )
 
     fun install(js: QuickJs, locale: String) {
+        js.function("__n_hostSession") { JsHostSession.VOICE.wireName }
         js.function("__n_locale") { _ -> locale }
         js.function("__n_hmacSha1Base64") { args ->
             policy.requireApproval()
             encode(JsVoiceCrypto.hmacSha1(text(args, 0), text(args, 1), secretFor))
         }
-        js.function("__n_wsConnect") { args ->
-            connect(
-                url = text(args, 0),
-                secretField = text(args, 1),
-                authHeader = text(args, 2),
-                authPrefix = text(args, 3),
-                headersJson = text(args, 4),
-            )
-        }
-        js.asyncFunction("__n_wsWaitOpen") { args -> awaitOpen(text(args, 0)); null }
-        js.function("__n_wsSend") { args ->
-            policy.requireApproval()
-            val socket = sockets[text(args, 0)] ?: error("socket closed")
-            val message = text(args, 1)
-            require(message.utf8Size() <= JsVoiceRuntime.WEBSOCKET_BYTES) { "WebSocket message exceeds its limit" }
-            check(socket.send(message)) { "WebSocket send failed" }
-            null
-        }
-        js.function("__n_wsSendBinary") { args ->
-            policy.requireApproval()
-            val socket = sockets[text(args, 0)] ?: error("socket closed")
-            check(socket.send(ByteString.of(*bytes(args, 1)))) { "WebSocket send failed" }
-            null
-        }
-        js.function("__n_wsSendGzipFrame") { args ->
-            policy.requireApproval()
-            val socket = sockets[text(args, 0)] ?: error("socket closed")
-            check(socket.send(ByteString.of(*JsVoiceHelpers.gzipFrame(bytes(args, 1), bytes(args, 2))))) { "WebSocket send failed" }
-            null
-        }
-        js.function("__n_wsClose") { args ->
-            sockets.remove(text(args, 0))?.close(1000, null)
-            null
-        }
+        js.asyncFunction("__n_wsAuthorize") { args -> policy.authorize(text(args, 0)) }
+        ws.install(js)
         js.asyncFunction("__n_httpPost") { args ->
             post(
                 url = text(args, 0),
@@ -469,70 +453,6 @@ internal class JsVoiceNet(
         js.function("__n_readUInt8") { args -> bytes(args, 0)[text(args, 1).toInt()].toInt() and 0xff }
         js.function("__n_readInt32BE") { args -> JsVoiceHelpers.readInt32BE(bytes(args, 0), text(args, 1).toInt()) }
         js.function("__n_gunzipUtf8") { args -> String(JsVoiceHelpers.gunzip(bytes(args, 0)), Charsets.UTF_8) }
-    }
-
-    private fun connect(
-        url: String,
-        secretField: String,
-        authHeader: String,
-        authPrefix: String,
-        headersJson: String,
-    ): String {
-        val destination = policy.checkUrl(url)
-        val headers = JsVoiceHeaders.build(
-            secretField = secretField,
-            secret = secretField.takeIf { it.isNotBlank() }?.let(secretFor),
-            authHeader = authHeader,
-            authPrefix = authPrefix,
-            headersJson = headersJson,
-        )
-        val id = nextId.getAndIncrement().toString()
-        val gate = CompletableDeferred<Unit>()
-        synchronized(opened) {
-            check(!closed.get()) { "Voice session closed" }
-            check(opened.size < 4) { "Too many voice WebSocket connections" }
-            opened[id] = gate
-        }
-        val builder = Request.Builder().url(destination)
-        headers.forEach { (name, value) -> builder.header(name, value) }
-        check(!closed.get()) { "Voice session closed" }
-        val socket = socketHttp.newWebSocket(builder.build(), object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: Response) {
-                gate.complete(Unit)
-            }
-
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                receive(JsVoiceCommand.Message(id, text))
-            }
-
-            override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-                receive(JsVoiceCommand.Message(id, "", Base64.encodeToString(bytes.toByteArray(), Base64.NO_WRAP)))
-            }
-
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                gate.completeExceptionally(t)
-                receive(JsVoiceCommand.Fail("WebSocket failed: " + t.message))
-            }
-
-            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                webSocket.close(code, reason)
-                // Preserve final messages already queued before this close frame.
-                receive(JsVoiceCommand.Fail("WebSocket closed: $code"))
-            }
-
-            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                sockets.remove(id)
-                opened.remove(id)
-            }
-        })
-        sockets[id] = socket
-        if (closed.get()) { socket.cancel(); sockets.remove(id) }
-        return id
-    }
-
-    private suspend fun awaitOpen(id: String) {
-        val gate = opened[id] ?: throw IllegalStateException("Unknown socket")
-        withTimeout(10_000L) { gate.await() }
     }
 
     private suspend fun post(url: String, secretField: String, body: String, headersJson: String): String {
@@ -583,10 +503,7 @@ internal class JsVoiceNet(
         if (!closed.compareAndSet(false, true)) return
         calls.forEach { it.cancel() }
         calls.clear()
-        sockets.values.forEach { it.cancel() }
-        sockets.clear()
-        opened.values.forEach { it.cancel() }
-        opened.clear()
+        ws.closeAll()
     }
 
     private fun text(args: Array<Any?>, index: Int): String = args.getOrNull(index)?.toString().orEmpty()

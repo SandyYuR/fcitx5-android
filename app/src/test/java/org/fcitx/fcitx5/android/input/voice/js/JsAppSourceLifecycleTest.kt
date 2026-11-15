@@ -6,6 +6,9 @@ import android.view.View
 import android.view.inputmethod.BaseInputConnection
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import okhttp3.OkHttpClient
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
@@ -49,6 +52,60 @@ class JsAppSourceLifecycleTest {
         assertFalse(ReflectionHelpers.getField<Boolean>(session, "sourceCurrent"))
         shadowOf(Looper.getMainLooper()).idle()
         assertTrue(ReflectionHelpers.getField<Boolean>(session, "closed"))
+    }
+
+    @Test fun revokingAuthorizationInvalidatesTheMatchingActiveSession() = withSession { session, editor, _ ->
+        JsApps.onPluginAuthorizationChanging("js:llm-assistant")
+        assertFalse(ReflectionHelpers.getField<Boolean>(session, "sourceCurrent"))
+        assertTrue(runCatching { editor.call("commit", "late response") }.isFailure)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(ReflectionHelpers.getField<Boolean>(session, "closed"))
+    }
+
+    @Test fun sourceInvalidationPreventsSettingsPersistenceFromAnOldCallback() = withSession { session, _, _ ->
+        val key = "reviewLifecycleValue"
+        ReflectionHelpers.setField(session, "fields", listOf(JsVoiceField("text", key, key, "", "")))
+        val write = session.javaClass.getDeclaredMethod("writeSetting", String::class.java, String::class.java)
+            .apply { isAccessible = true }
+        try {
+            write.invoke(session, key, "current")
+            assertEquals("current", JsVoiceSettingsStore.value("js:llm-assistant", key))
+            assertEquals("current", ReflectionHelpers.getField<Map<String, String>>(session, "settings")[key])
+            JsApps.onPluginSourceChanging("js:llm-assistant")
+            assertTrue(runCatching { write.invoke(session, key, "stale") }.isFailure)
+            assertEquals("current", JsVoiceSettingsStore.value("js:llm-assistant", key))
+        } finally { JsVoiceSettingsStore.setValue("js:llm-assistant", key, null) }
+    }
+
+    @Test fun changingSettingsDuringCredentialReadRejectsTheOldHttpDestination() = withSession { session, _, _ ->
+        val key = "reviewEndpoint"
+        val host = "relay.example"
+        ReflectionHelpers.setField(session, "fields", listOf(JsVoiceField("text", key, key, "", "")))
+        ReflectionHelpers.setField(session, "settings", mapOf(key to "https://$host/v1"))
+        val write = session.javaClass.getDeclaredMethod("writeSetting", String::class.java, String::class.java)
+            .apply { isAccessible = true }
+        val checkUrl = session.javaClass.getDeclaredMethod("checkHttpUrl", String::class.java, String::class.java)
+            .apply { isAccessible = true }
+        val previousApprovals = JsVoiceHostPermissions.approvedHosts("js:llm-assistant")
+        JsVoiceHostPermissions.approve("js:llm-assistant", previousApprovals + host)
+        var sends = 0
+        val client = OkHttpClient.Builder().addInterceptor { sends++; error("An obsolete endpoint must not be sent") }.build()
+        try {
+            val http = JsAppHttp(
+                checkUrl = { checkUrl.invoke(session, it, host) as okhttp3.HttpUrl },
+                secret = { write.invoke(session, key, "https://new.example/v1"); "fixture-secret" },
+                client = client,
+            )
+            val result = runBlocking { runCatching { http.request(buildJsonObject {
+                put("url", "https://$host/v1"); put("credential", "fixtureKey")
+            }) } }
+            assertTrue(result.isFailure)
+            assertEquals(0, sends)
+        } finally {
+            JsVoiceSettingsStore.setValue("js:llm-assistant", key, null)
+            if (previousApprovals.isEmpty()) JsVoiceHostPermissions.revoke("js:llm-assistant")
+            else JsVoiceHostPermissions.approve("js:llm-assistant", previousApprovals)
+        }
     }
 
     private fun withSession(check: (Any, JsAppEditor, BaseInputConnection) -> Unit) {

@@ -1,17 +1,19 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.voice.js
 
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * 驱动一次插件回调：前奏的 `__run` + `__pump` 两拍。
@@ -33,34 +35,56 @@ internal object JsVoiceInvoker {
 
     /** 两拍之间的间隔。字节操作同步完成；网络通过可取消的异步绑定等待。 */
     const val POLL_DELAY_MS = 4L
+    private val nextInvocationId = AtomicLong()
 
     suspend fun call(
         evaluate: suspend (String) -> String?,
         name: String,
         argJson: String,
         timeoutMs: Long,
-    ): Outcome = withTimeout(timeoutMs) {
-        val actions = mutableListOf<JsonObject>()
-        var reply = read(evaluate(runCode(name, argJson)), actions)
-        reply.errorOrNull()?.let { return@withTimeout Outcome(null, actions, it) }
-        while (reply.isPending()) {
-            delay(POLL_DELAY_MS)
-            reply = read(evaluate(PUMP_CODE), actions)
-            reply.errorOrNull()?.let { return@withTimeout Outcome(null, actions, it) }
+        cleanupEvaluate: suspend (String) -> String? = evaluate,
+    ): Outcome {
+        // evaluate() can suspend on a host async binding after __run has already stored its
+        // Promise. Know its ID before evaluating so cancellation can also clean that first phase.
+        val invocationId = "host-" + nextInvocationId.incrementAndGet()
+        var pendingId: String? = invocationId
+        try {
+            return withTimeout(timeoutMs) {
+                val actions = mutableListOf<JsonObject>()
+                var reply = read(evaluate(runCode(name, argJson, invocationId)), actions)
+                reply.errorOrNull()?.let { return@withTimeout Outcome(null, actions, it) }
+                pendingId = reply.pendingId()
+                while (pendingId != null) {
+                    delay(POLL_DELAY_MS)
+                    reply = read(evaluate(pumpCode(pendingId)), actions)
+                    pendingId = reply.pendingId()
+                    reply.errorOrNull()?.let { return@withTimeout Outcome(null, actions, it) }
+                }
+                Outcome(reply["result"], actions, null)
+            }
+        } finally {
+            pendingId?.let { id ->
+                withContext(NonCancellable) {
+                    runCatching { cleanupEvaluate(cancelCode(id)) }
+                }
+            }
         }
-        Outcome(reply["result"], actions, null)
     }
 
     /**
-     * JS 表达式：`__run("<name>", <argJson>)`。
+     * JS 表达式：`__run("<name>", <argJson>, <optional invocationId>)`。
      *
-     * 两个实参都用 [JsonPrimitive] 渲染，这样引号、反斜杠、换行由 JSON 编码器负责转义，
+     * 各实参都用 [JsonPrimitive] 渲染，这样引号、反斜杠、换行由 JSON 编码器负责转义，
      * 不会因为插件文本里出现 `"` 或 `\` 拼出语法错误。
      */
-    fun runCode(name: String, argJson: String): String =
-        "__run(" + JsonPrimitive(name) + ", " + JsonPrimitive(argJson) + ")"
+    fun runCode(name: String, argJson: String, invocationId: String? = null): String =
+        "__run(" + JsonPrimitive(name) + ", " + JsonPrimitive(argJson) +
+            (invocationId?.let { ", " + JsonPrimitive(it) } ?: "") + ")"
 
-    private const val PUMP_CODE = "__pump()"
+    private fun pumpCode(invocationId: String): String = "__pump(" + JsonPrimitive(invocationId) + ")"
+
+    private fun cancelCode(invocationId: String): String =
+        "__cancelInvocation(" + JsonPrimitive(invocationId) + ")"
 
     private fun read(raw: String?, actions: MutableList<JsonObject>): JsonObject {
         val text = raw ?: error("JS bridge returned no reply")
@@ -69,7 +93,7 @@ internal object JsVoiceInvoker {
         return root
     }
 
-    private fun JsonObject.isPending(): Boolean = this["pending"]?.jsonPrimitive?.booleanOrNull == true
+    private fun JsonObject.pendingId(): String? = this["pending"]?.jsonPrimitive?.contentOrNull
 
     private fun JsonObject.errorOrNull(): String? = this["error"]?.jsonPrimitive?.contentOrNull
 }

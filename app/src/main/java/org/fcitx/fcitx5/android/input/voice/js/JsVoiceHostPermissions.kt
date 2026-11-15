@@ -39,6 +39,17 @@ internal class JsVoiceNetworkPolicy(
         }
     }
 
+    /**
+     * foxy.websocket.authorize：语音会话在开跑前已经整份声明过授权，所以这里只核对主机确实被声明，
+     * 不会在会话中途弹窗。未获授权时返回 false 而不是抛错——插件据此提示用户去设置页授权，
+     * 真正连接仍由 [checkUrl] 的 requireApproval 兜底。
+     */
+    fun authorize(url: String): Boolean {
+        val host = JsVoiceHelpers.authorizeHost(url) ?: throw IllegalArgumentException("Invalid WebSocket host")
+        require(host in declaredHosts) { "Host is not declared by the plugin" }
+        return JsVoiceHostPermissions.isApproved(pluginId, declaredHosts)
+    }
+
     fun checkUrl(url: String): HttpUrl {
         val parsed = JsVoiceHelpers.secureUrl(url)
         require(parsed != null && parsed.host.trimEnd('.') in declaredHosts) {

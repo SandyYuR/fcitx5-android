@@ -2,6 +2,7 @@
 package org.fcitx.fcitx5.android.input.voice.js
 
 import com.dokar.quickjs.QuickJs
+import com.dokar.quickjs.binding.function
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonPrimitive
@@ -70,7 +71,7 @@ class JsVoiceHostPermissionsTest {
             Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("OK")
                 .body("ok".toResponseBody()).build()
         }.build()
-        val net = JsVoiceNet(client, policy, {}) { secrets++; "sensitive-test-value" }
+        val net = JsVoiceNet(client, policy, { true }) { secrets++; "sensitive-test-value" }
         val js = QuickJs.create(Dispatchers.IO)
         try {
             net.install(js, "en")
@@ -109,7 +110,7 @@ class JsVoiceHostPermissionsTest {
         val client = OkHttpClient.Builder().proxy(java.net.Proxy.NO_PROXY)
             .sslSocketFactory(trust.sslSocketFactory(), trust.trustManager).build()
         JsVoiceHostPermissions.approve(id, setOf("localhost"))
-        val net = JsVoiceNet(client, JsVoiceNetworkPolicy(id, setOf("localhost")), {}) { "test-key" }
+        val net = JsVoiceNet(client, JsVoiceNetworkPolicy(id, setOf("localhost")), { true }) { "test-key" }
         val js = QuickJs.create(Dispatchers.IO)
         try {
             // A 307 would preserve the signed POST body and non-standard auth headers.
@@ -123,5 +124,25 @@ class JsVoiceHostPermissionsTest {
             assertEquals(1, server.requestCount)
             assertEquals("Bearer test-key", server.takeRequest().getHeader("Authorization"))
         } finally { net.closeAll(); js.close(); server.shutdown() }
+    }
+
+    @Test fun websocketAuthorizeRequiresDeclarationAndApproval() {
+        assertFalse(policy.authorize("wss://asr.example.com/ws"))
+        JsVoiceHostPermissions.approve(id, hosts)
+        assertTrue(policy.authorize("wss://asr.example.com/ws"))
+        assertTrue(policy.authorize("asr.example.com"))
+        assertThrows(IllegalArgumentException::class.java) { policy.authorize("wss://evil.example.com/ws") }
+    }
+
+    @Test fun websocketAuthorizeForwardsToTheHost() = runBlocking {
+        val js = JsVoiceRuntime.create()
+        try {
+            JsVoiceStubNatives.install(js, "zh-CN")
+            var seen: String? = null
+            js.function("__n_wsAuthorize") { args -> seen = args[0].toString(); true }
+            JsVoiceRuntime.initialize(js, JsVoicePrelude.SOURCE)
+            assertEquals("true", invokeNative(js, "foxy.websocket.authorize('wss://asr.example.com/ws')"))
+            assertEquals("wss://asr.example.com/ws", seen)
+        } finally { js.close() }
     }
 }

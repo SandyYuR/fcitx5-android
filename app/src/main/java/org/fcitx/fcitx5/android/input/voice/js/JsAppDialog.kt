@@ -51,6 +51,8 @@ internal class JsAppDialog(
     private val closed: () -> Unit,
     private val keyboardView: () -> View? = { service.inputView?.keyboardView },
     private val inputLimit: Int = 65536,
+    /** 布局里的 `{"type":"app","command":"js.<id>"}` 节点：由宿主解析并切到那个 App。 */
+    private val command: (String) -> Unit = {},
 ) : Dialog(service), LifecycleOwner {
     private val panelLifecycle = LifecycleRegistry(this)
     override val lifecycle: Lifecycle get() = panelLifecycle
@@ -297,6 +299,8 @@ internal class JsAppDialog(
     }
 
     fun render(spec: JsonObject) {
+        // 旧式平铺对话框的字段缺省值取自当前值（Foxy 同样用上一轮 values 补齐），所以先取值再清空。
+        val previous = if (controls.isEmpty()) emptyMap() else values().mapValues { it.value.jsonPrimitive.content }
         selectors.values.forEach { it.first.dismissDropDown() }
         blockTyping()
         controls.clear(); editors.clear(); selections.clear(); selectors.clear(); enabled.clear()
@@ -455,6 +459,14 @@ internal class JsAppDialog(
                         event(id, values())
                     }
                 }
+                "app" -> {
+                    // Foxy 的 App 节点就是「切到那个 App」的入口，没有输入控件，只渲染成按钮。
+                    val target = obj.text("command")
+                    require(target.isNotBlank()) { "App node needs a command" }
+                    button(obj.text("label").ifBlank { target }.take(80), style = obj.text("style")) {
+                        if (!busy) { service.jsAppInputConnection?.finishComposingText(); command(target) }
+                    }
+                }
                 "spacer" -> View(uiContext).apply {
                     minimumHeight = dp((obj["height"] as? JsonPrimitive)?.intOrNull?.coerceIn(0, 320) ?: 0)
                 }
@@ -470,7 +482,9 @@ internal class JsAppDialog(
             } else require(obj.text("type") !in setOf("input", "select", "button")) { "Invalid control ID" }
             return view
         }
-        val layout = spec["layout"] as? JsonObject ?: error("Dialog must declare a layout")
+        val layout = spec["layout"] as? JsonObject
+            ?: JsAppLegacyLayout.convert(spec, previous)
+            ?: error("Dialog must declare a layout")
         val rendered = node(layout, 0)
         layoutColumn = (rendered as? LinearLayout)?.takeIf { it.orientation == LinearLayout.VERTICAL }
         layoutColumn?.let { column ->
