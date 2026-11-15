@@ -45,6 +45,7 @@
 | `direct-rime/src/main/cpp/CMakeLists.txt:33` | 链接依赖 `glog` → `spdlog` |
 | `tools/audit-direct-rime-link.py:14` | 链接审计清单 `glog` → `spdlog` |
 | `native/README.md:26` | 静态输入说明 |
+| `tools/input-perf/build-study-products.sh` | 候选延迟研究固定的 SDK 锁摘要同步为新锁的 `63e8acc8…`；历史 baseline／regressed 引用仍带上一版锁，重跑研究前要重建基线 |
 | `app/licenses/libraries/glog.json` → `spdlog.json` | 许可条目换成 MIT／1.17.0，AboutLibraries 生成物随构建刷新 |
 | `direct-rime/src/main/cpp/bridge.cpp:16`、`engine.cpp:514` | 注释里的 glog 改为 logging |
 
@@ -77,6 +78,7 @@
 | `tools/verify-direct-rime-apk.py` | 通过 |
 | `tools/audit-direct-rime-link.py` | 通过；静态输入为 `spdlog: libspdlog.a`（5 objects），无 glog；librime 130 objects |
 | `:app:testFxDebugUnitTest` | 2327 tests、0 failures、0 errors、30 skipped（283 份 JUnit 报告） |
+| `tools/input-perf` 单测 | 换版后先因冻结摘要不匹配失败；更新摘要后 109 tests 通过 |
 | `:build-logic:convention:test` | 23 tests，`RimeSdkArchiveTest` 10 tests 通过；仅 `DataDescriptorPathTest` 的 2 个用例失败，见下节 |
 
 | APK | SHA-256 |
