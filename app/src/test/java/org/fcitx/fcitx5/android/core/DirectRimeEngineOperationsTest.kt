@@ -106,7 +106,8 @@ class DirectRimeEngineOperationsTest {
             calls += "external:$identity"
             onConfigure(identity)
         }
-        override fun start(shared: String, user: String, version: String, fullCheck: Boolean) {
+        override fun start(shared: String, user: String, version: String, fullCheck: Boolean, minLogLevel: Int) {
+            assertTrue(minLogLevel == DirectRimeEngineLog.INFO || minLogLevel == DirectRimeEngineLog.ERROR)
             assertEquals("test-version", version)
             assertEquals(config.user.absolutePath, user)
             calls += "start:${config.current}:$fullCheck"

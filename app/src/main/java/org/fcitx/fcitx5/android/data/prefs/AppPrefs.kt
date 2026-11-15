@@ -40,6 +40,8 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val lastSymbolLayout = string("last_symbol_layout", PickerWindow.Key.Symbol.name)
         val lastPickerType = string("last_picker_type", PickerWindow.Key.Emoji.name)
         val verboseLog = bool("verbose_log", false)
+        // librime reads its min_log_level once per process; see DirectRimeEngineLog.
+        val rimeEngineLog = bool("rime_engine_log", false)
         val pid = int("pid", 0)
         val editorInfoInspector = bool("editor_info_inspector", false)
         val needNotifications = bool("need_notifications", true)
@@ -798,5 +800,8 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         }
 
         fun getInstance() = instance!!
+
+        /** False before [init]; code reachable from tests or early startup must not assume preferences exist. */
+        fun isInitialized() = instance != null
     }
 }

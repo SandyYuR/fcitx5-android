@@ -89,6 +89,14 @@ class DeveloperFragment : PaddingPreferenceFragment() {
                 }
             })
             addPreference(MySwitchPreference(context).apply {
+                key = AppPrefs.getInstance().internal.rimeEngineLog.key
+                setTitle(R.string.rime_engine_log)
+                setSummary(R.string.rime_engine_log_summary)
+                setDefaultValue(false)
+                isIconSpaceReserved = false
+                isSingleLineTitle = false
+            })
+            addPreference(MySwitchPreference(context).apply {
                 key = AppPrefs.getInstance().internal.editorInfoInspector.key
                 setTitle(R.string.editor_info_inspector)
                 setDefaultValue(false)

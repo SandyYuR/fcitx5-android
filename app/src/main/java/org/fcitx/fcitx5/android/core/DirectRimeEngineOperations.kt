@@ -221,7 +221,7 @@ internal class DirectRimeEngineOperations(
     private fun startConfiguredEngine(fullCheck: Boolean) {
         armExternalOperationWatchdog(EXTERNAL_START_TIMEOUT_MS)
         Native.start(shared().absolutePath, config.user.absolutePath, versionName,
-            fullCheck = fullCheck)
+            fullCheck = fullCheck, minLogLevel = DirectRimeEngineLog.minLevel())
         owner.started = true
     }
 
@@ -268,7 +268,8 @@ internal class DirectRimeEngineOperations(
         if (activeSelection.kind != RimeEngineKind.BUILTIN) {
             armExternalOperationWatchdog(EXTERNAL_START_TIMEOUT_MS)
         }
-        Native.start(shared().absolutePath, config.user.absolutePath, versionName, fullCheck = true)
+        Native.start(shared().absolutePath, config.user.absolutePath, versionName, fullCheck = true,
+            minLogLevel = DirectRimeEngineLog.minLevel())
         owner.started = true
     }
 

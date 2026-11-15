@@ -179,14 +179,15 @@ extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void*) {
 
 #define JNI_METHOD(name) Java_org_fcitx_directrime_Native_##name
 extern "C" JNIEXPORT void JNICALL JNI_METHOD(start)(JNIEnv* env, jobject, jstring shared, jstring user,
-                                                    jstring version, jboolean fullCheck) {
+                                                    jstring version, jboolean fullCheck, jint minLogLevel) {
     try {
         if (engineStarted) throw std::logic_error("direct Rime is already started");
         const auto identity = direct_rime::selectedEngineIdentity();
         auto& slot = engineSlots[identity];
         if (!slot) slot = std::make_unique<Engine>(direct_rime::selectedRimeApi());
         engine = slot.get();
-        instance().start(string(env, shared), string(env, user), string(env, version), fullCheck);
+        instance().start(string(env, shared), string(env, user), string(env, version), fullCheck,
+                         minLogLevel);
         engineStarted = true;
         clearSnapshotCache(env);
     } catch (const std::exception& e) { error(env, e); }
