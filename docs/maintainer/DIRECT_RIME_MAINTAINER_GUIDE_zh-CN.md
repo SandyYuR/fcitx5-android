@@ -140,6 +140,10 @@ cat native/rime-sdk/sdk-manifest.json
 
 SDK 缓存在 `GRADLE_USER_HOME/caches/rime-sdk/<sha256>.zip`。首次在线准备后可以 `--offline` 构建；没有缓存时明确失败，不回退到其他版本。下载包、文件清单、逐文件摘要、源码版本及 ABI 完整性均会校验。Gradle 检测提取目录的内容变化后会从已验证缓存恢复。
 
+2026-11-16 的现行 SDK 锁为正式 Release `android-sdk-20261116-2`，librime 源码固定为 `9a3175013def3d4d051fa57eb3acbbb201139e8e`，SDK ZIP SHA-256 为 `fbfed3c1f6679b9a65f151a22f1afae72db71d54463f3ee8bdf27df29bea6a7c`。它保留有序模糊候选筛选，并增加九键字面标签、声母韵母组合模糊候选保护和适用域兼容修订。消费正式标签 ZIP，分支 CI ZIP 与正式 Release ZIP 各有摘要，不能混用；四 ABI 与 881 个 SDK 文件核验见[新版 SDK 消费与默认分支重写](changes/2026-11-16-syllable-fuzzy-filter-fix.md#新版-sdk-消费与默认分支重写)。
+
+输入法默认分支已重写并以精确 lease 推送为 `f340e09a4d596c209934e50da2fd7d63038f780b`。本机 SDK 准备、下载器、相关 JVM、ARM64 Debug 和 APK 白名单及链接门禁通过；Commit CI 与 Direct Rime CI 全部成功，原始报告核验应用 JVM、归档测试与设备执行，签名 ARM64 Release 和 Nightly 已发布。Windows native 引擎契约实际创建符号链接时报权限不足仍记为本机环境阻塞，Linux native 安全契约及 LevelDB 复用、显式同步与恢复已在本次 CI 通过。设备操作继续遵循独立授权和数据保护约束，各阶段实际范围与恢复依据记入上述日期记录。
+
 Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、六个原生依赖、三个插件与引擎，并在主机生成 OpenCC 数据。它不读取旧 prebuilt，四 ABI 均执行最终链接验证，打包前核验全部归档对象的 ELF 架构、API 和来源。prebuilder/prebuilt 保留历史重建用途，不再参与当前更新。
 
 `librime.a` 静态链接进 `libdirect-rime.so`。LevelDB 的 `reuse_logs` 与恢复验证仍由 `tools/input-perf/test-leveldb-open.py` 等工具守护；调整依赖时同步核对实际导出和存储行为。
@@ -174,7 +178,7 @@ Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、�
 | OpenCC | 正式版 1.4.2，Android 库与主机生成工具同源 |
 | Boost | 正式版 1.92.0 |
 
-predict 的固定提交仍是其仓库最新提交；glog 0.7.1、yaml-cpp 0.9.0、Marisa 0.3.1 保持各自最新正式版。万象方案自己的 `.lua` 脚本随方案管理，不会随 Lua 运行时或 librime-lua 升级而自动改变。
+predict 的固定提交仍是其仓库最新提交；spdlog 1.17.0、yaml-cpp 0.9.0、Marisa 0.3.1 保持各自最新正式版。万象方案自己的 `.lua` 脚本随方案管理，不会随 Lua 运行时或 librime-lua 升级而自动改变。
 
 Lua 官方源码包的最小 CMake 配方与 Android API 23 的文件定位兼容修正保存在 `lua.patch`。Boost 头文件缓存按源码包摘要刷新，复用构建目录也不会沿用旧版本。`tools/input-perf/test-leveldb-open.py` 从已准备 SDK 的来源清单读取实际 LevelDB 版本，检查持久化、日志复用、显式同步与恢复；不再固定测试另一个旧版 LevelDB。
 
@@ -240,6 +244,9 @@ Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/a
 
 性能工具分别位于 `tools/input-perf/`、`tools/candidate-perf/` 和 `tools/screen-perf/`。复现前核对比较版本、方案、模型、ABI、构建类型、设备、输入速度和计时区间。
 相同文件名的远端模型也可能换过内容，应按原报告哈希找匹配夹具，不能跳过检查。
+
+`tools/input-perf/build-study-products.sh` 的旧研究保持原冻结 SDK 锁摘要，不随应用 SDK 升级而更新。新研究须将源码引用、SDK 身份和产物元数据整体版本化；通过 `products_run` 复用产物或 `--recover` 恢复元数据时，继续按原研究身份核对，不能用当前应用锁替代历史锁。审阅更正的来源与验证见[2026-11-15 SDK 换版记录](changes/2026-11-15-engine-sdk-spdlog.md)。
+
 手动触发性能 workflow、上传日志或设备数据前取得明确授权。
 
 [2026-11-14 职责拆分性能对照](history/direct-rime-refactor-performance-2026-11-14.md)固定默认产品与拆分产品，在两组 Actions Debug 模拟器测量候选点击及 Backend 工作负载；保留对象分配增加与延迟波动的信号和边界，不将职责移动或行数变化写成提速结论。
