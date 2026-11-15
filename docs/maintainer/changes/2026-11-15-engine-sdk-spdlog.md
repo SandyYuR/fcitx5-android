@@ -80,12 +80,16 @@
 | `:app:testFxDebugUnitTest` | 2327 tests、0 failures、0 errors、30 skipped（283 份 JUnit 报告） |
 | `tools/input-perf` 单测 | 换版后先因冻结摘要不匹配失败；更新摘要后 109 tests 通过 |
 | `:build-logic:convention:test` | 23 tests，`RimeSdkArchiveTest` 10 tests 通过；仅 `DataDescriptorPathTest` 的 2 个用例失败，见下节 |
+| 设备验证（模拟器 `rime`，API 35 x86_64） | 安装 x86_64 Debug APK；开关关闭时启动后 `rime.direct-android` 0 条，打开开关并重启后 87 条 INFO（`registering core components` 等），实时日志页按 tag 过滤可见 |
 
 | APK | SHA-256 |
 | --- | --- |
-| ARM64 Debug（提交 `c0c8db6b6`） | `811fa85654183271bccd32ef3470d3841026a92bb8dd8695bf1ebc17c9ac7aa5` |
+| ARM64 Debug（提交 `c595263f2`） | `30b7377b185a43b0e4d52a9827d4192c5782ee20351ab0a87572ea164a74769d` |
+| x86_64 Debug（提交 `c595263f2`，设备验证用） | `b4ed1b4d2d1fc63605dac77f140a9c50ac43674c07ee5c6cc395cfb0acaaa3a9` |
 
-该 APK 由提交 `c0c8db6b6` 构建，版本后缀 `-2-gc0c8db6b6`。提交前用未提交工作区构建的产物摘要为 `e4b1e6d3f131248149af107a34832310e8f74cf4aa8dfeca994805995dbe31c0`（后缀 `-1-g05acf9336`），只对应当时的输入。
+两个 APK 都由提交 `c595263f2` 构建，版本后缀 `-4-gc595263f2`。变基前 `c0c8db6b6` 的 ARM64 产物为 `811fa85654183271bccd32ef3470d3841026a92bb8dd8695bf1ebc17c9ac7aa5`，提交前用未提交工作区构建的产物为 `e4b1e6d3f131248149af107a34832310e8f74cf4aa8dfeca994805995dbe31c0`（后缀 `-1-g05acf9336`），都只对应各自的输入。
+
+代码分支已变基到默认分支最新提交 `2411d9d13`（原 base `3e0a87000`），3 个提交重放无冲突；变基前后 `git diff origin/fx-rime-only...HEAD` 的摘要同为 `51364415…`，补丁内容未变。
 
 ## 本机环境限制
 
