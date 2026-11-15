@@ -109,3 +109,16 @@ Direct Rime CI `43750197415` 已全部完成，4／4 个 job 成功。ARM64 完�
 [PR CI 43750197404](https://github.com/SandyYuR/fcitx5-android/actions/runs/43750197404) 已全部完成，2／2 个 job 成功，包含 APK job 的 Android lint。JVM job 日志中 `check-junit-results.py` 独立核对 295 份报告、2417 个用例，失败、错误和跳过均为 0，与上述 Direct Rime CI 的原始 XML 计数一致；性能工具 117 项也实际执行通过。上述结论限定于 `09f710d7…` 和正式 SDK，不继承旧 SDK 的验收。
 
 PR CI 的 SDK 完整性与离线恢复步骤实际执行成功，`:convention:test` 未以 `FROM-CACHE` 代替执行。该 CI 未上传 build-logic 原始 JUnit XML，因此远端归档测试的逐项计数未独立复核；上表 `RimeSdkArchiveTest` 10 项全零结果限定于本机门禁，应用 JVM 2417 项和设备目标 3 项则有本次远端原始 XML 核验。
+
+## 签名 Release 补充门禁
+
+同一输入法源码 `09f710d7…` 的手动 [Commit CI 43751694193](https://github.com/SandyYuR/fcitx5-android/actions/runs/43751694193) 随后完成，签名 ARM64 Release 与 `unit_test` 均成功。该运行上传了 build-logic 原始 XML，补齐远端 `RimeSdkArchiveTest` 的逐项核验：10 个用例实际执行，失败、错误和跳过均为 0，时间戳 `2026-11-15T19:19:50.218Z`、耗时 8.809 秒；日志中的 `:convention:test` 没有 `FROM-CACHE` 或 `UP-TO-DATE`。
+
+签名 Release APK SHA-256 为 `5d91aae316253eb7bb01a3540fcabee0159f8112ba5a876ef77084e029c25dd9`。产物源码与元数据均为 `09f710d7…`，内置 SDK 为上述正式 `android-sdk-20261116-1`、包摘要 `a566e36a…`、librime `8bbdf773…`。本机 `apksigner verify` 通过，v1／v2 签名有效；APK 白名单通过，原生链接审计匹配实际 `.so`，七个静态输入包含 spdlog 且无 Fcitx 依赖；打包 ART profile 包含 89 个方法，并保留 sendKey 与协程入口。
+
+| 补充证据 ZIP | artifact ID | SHA-256 |
+| --- | --- | --- |
+| `unit-test-reports`，含 SDK 归档原始 XML | `14176138891` | `2de7da85f069acec3ecbaa869ad88c184c9788eaef431666f5be6fb6f0dd59fc` |
+| 签名 ARM64 Release、来源及审计 | `14176922106` | `af55eb9dc455507a809ae1d4de548318df64a18093bb19aa5dd1605c53e935f8` |
+
+该运行的 `nightly_release` 因分支为 `feat/rime-engine-log-switch`，按仅主分支发布的条件正常跳过；上述 APK 属于 CI 产物，未发布 Nightly。
