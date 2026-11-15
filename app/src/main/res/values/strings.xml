@@ -140,6 +140,8 @@
     <string name="app_crash_message">Sorry, but we bring you some logs to investigate.</string>
     <string name="crash_logs">Crash logs</string>
     <string name="verbose_log">Verbose logging</string>
+    <string name="rime_engine_log">Rime engine logs</string>
+    <string name="rime_engine_log_summary">Emit INFO and WARNING from the native engine into real-time logs. Takes effect after the app restarts.</string>
     <string name="removed_x">Removed %1$s</string>
     <string name="added_x">Added %1$s</string>
     <string name="edited_x">Edited %1$s</string>

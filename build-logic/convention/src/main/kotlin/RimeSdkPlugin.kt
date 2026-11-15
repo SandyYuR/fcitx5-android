@@ -65,7 +65,7 @@ internal data class RimeSdkManifest(
 
 internal object RimeSdkArchive {
     private val libraries = mapOf(
-        "librime" to "librime.a", "glog" to "libglog.a", "leveldb" to "libleveldb.a",
+        "librime" to "librime.a", "spdlog" to "libspdlog.a", "leveldb" to "libleveldb.a",
         "lua" to "liblua_static.a", "marisa" to "libmarisa.a", "opencc" to "libopencc.a",
         "yaml-cpp" to "libyaml-cpp.a"
     )

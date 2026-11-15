@@ -34,7 +34,7 @@ class RimeSdkArchiveTest {
     private fun fixture(change: (MutableMap<String, ByteArray>, MutableMap<String, String>) -> Unit = { _, _ -> }): Pair<File, RimeSdkLock> {
         val files = mutableMapOf<String, ByteArray>()
         for (abi in abis) {
-            for ((name, archive) in mapOf("librime" to "librime.a", "glog" to "libglog.a", "leveldb" to "libleveldb.a", "lua" to "liblua_static.a", "marisa" to "libmarisa.a", "opencc" to "libopencc.a", "yaml-cpp" to "libyaml-cpp.a")) {
+            for ((name, archive) in mapOf("librime" to "librime.a", "spdlog" to "libspdlog.a", "leveldb" to "libleveldb.a", "lua" to "liblua_static.a", "marisa" to "libmarisa.a", "opencc" to "libopencc.a", "yaml-cpp" to "libyaml-cpp.a")) {
                 files["$name/$abi/lib/$archive"] = "$abi/$archive".toByteArray()
             }
             files["librime/$abi/include/rime_api.h"] = "api".toByteArray()

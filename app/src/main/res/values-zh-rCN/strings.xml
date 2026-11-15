@@ -133,6 +133,8 @@
     <string name="app_crash_message">抱歉，但我们提供了日志以供调查。</string>
     <string name="crash_logs">崩溃日志</string>
     <string name="verbose_log">详细记录日志</string>
+    <string name="rime_engine_log">Rime 引擎日志</string>
+    <string name="rime_engine_log_summary">让原生引擎把 INFO/WARNING 也写进实时日志。重启应用后生效。</string>
     <string name="removed_x">已移除 %1$s</string>
     <string name="added_x">已添加 %1$s</string>
     <string name="edited_x">已编辑 %1$s</string>

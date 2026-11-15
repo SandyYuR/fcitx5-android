@@ -210,7 +210,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 startupStage("config") { config.load() }
                 startupStage("engine-selection") { engineOperations.configureSelectedEngine() }
                 startupStage("native") { Native.start(shared.absolutePath, config.user.absolutePath, BuildConfig.VERSION_NAME,
-                    fullCheck = engineOperations.newActivation || WanxiangAdvancedFiles.needsDeploymentRepair(config.user)) }
+                    fullCheck = engineOperations.newActivation || WanxiangAdvancedFiles.needsDeploymentRepair(config.user),
+                    minLogLevel = DirectRimeEngineLog.minLevel()) }
                 started = true
                 startupError = ""
                 refreshSchemas()

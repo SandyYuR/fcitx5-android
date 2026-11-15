@@ -175,11 +175,12 @@ void Engine::notification(void* context, RimeSessionId, const char* type, const 
     }
 }
 void Engine::start(const std::string& shared, const std::string& user,
-                   const std::string& version, bool fullCheck) {
+                   const std::string& version, bool fullCheck, int minLogLevel) {
     Trace trace("rime.direct.initialize");
     owner();
     if (started_) throw std::logic_error("engine already started");
     shared_ = shared; user_ = user; version_ = version;
+    minLogLevel_ = std::clamp(minLogLevel, 0, 3);
     initialize(fullCheck);
     if (fullCheck && deployFailed_.load()) {
         stop();
@@ -207,7 +208,9 @@ void Engine::initialize(bool fullCheck) {
     traits.shared_data_dir = shared_.c_str(); traits.user_data_dir = user_.c_str();
     traits.app_name = "rime.direct-android"; traits.distribution_name = "中州鹅";
     traits.distribution_code_name = "中州鹅"; traits.distribution_version = version_.c_str();
-    traits.log_dir = ""; traits.min_log_level = 2;
+    // librime applies min_log_level in setup(), which runs once per process; a later start
+    // cannot change it, so the developer switch takes effect after the app restarts.
+    traits.log_dir = ""; traits.min_log_level = minLogLevel_;
     if (!setup_) { api_->setup(&traits); setup_ = true; }
     api_->initialize(&traits);
     started_ = true;
@@ -511,7 +514,7 @@ bool Engine::deploy() {
     if (shared_.empty() || user_.empty()) return false;
     // Recreating only the session retains Lua require()'s module cache and
     // component-held config. Finalize unloads those modules and flushes DBs;
-    // setup/glog remains process-wide and must not be run a second time.
+    // setup/logging remains process-wide and must not be run a second time.
     stop();
     initialize(true);
     return !deployFailed_.load();
