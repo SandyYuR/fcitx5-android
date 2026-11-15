@@ -4,7 +4,7 @@
 
 ## 两条链路
 
-2026-11-10 的固定版本为 [`android-sdk-20261110-1`](https://github.com/SandyYuR/librime/releases/tag/android-sdk-20261110-1)：官方基线 `a104ec6cafdb61a19f0e79707741733a0963c431`，定制源码 `b5561910d9eba97a273e09e7996535679b730032`，SDK SHA-256 `d22bf604adc844ac568c375b57b2ff575f3fa9c05e46f33ead394bd31bf815e9`。本轮同步官方词典迭代优化，保留下游独有改动；恢复临时库在整批同步前主动回收，打开前安装清理守卫并传播占用、打开及最终清理失败，同时协调同次上屏的用户词学习事务。插件、依赖版本和构建配方保持上一 SDK 的固定输入；四 ABI、宿主回归、打包与 Release 流水线均已通过。上一版 `.temp` 枚举修复的交付证据见[设备反馈修复](changes/2026-11-06-device-fixes.md)，更早的官方源码同步见[2026-11-06 引擎记录](changes/2026-11-06-engine-input-fixes.md)。实际消费版本仍以应用锁文件为准。
+2026-11-15 的固定版本为 [`android-sdk-20261115-2`](https://github.com/SandyYuR/librime/releases/tag/android-sdk-20261115-2)：官方基线 `bb56876890ba60f446fa2640c244b1794b965eda`，定制源码 `da8d1e7c41c8abddea4f5a55b2983f91866b84a3`，SDK SHA-256 `88d2c43f9455f9be47bd8eb4f38a589fad7584dc989e8ff367b6d57961301792`。本轮把日志依赖由 glog 0.7.1 换成 spdlog 1.17.0：上游改用 spdlog 门面并移除 glog、gflags，下游从依赖锁取同一份源码、导出时补入 `deps/spdlog`，并在 Android 侧安装 `libspdlog.a` 与 logcat sink。同步官方 #1272 词典编译紧凑条目与并行分组、#1260 用户库打开失败时隔离损坏库并恢复，并合入尚未上游的 #1274 紧凑词条与两段式反向词典构建（下游为新增路径补齐映射重映射保护）。此前恢复临时库的主动回收、清理守卫与失败传播，以及同次上屏的用户词学习事务继续保留；插件版本和构建配方沿用上一 SDK 的固定输入。SDK CI 的四 ABI 构建、宿主回归与打包已通过并发布 Release；应用侧的换版、构建与验证见[2026-11-15 引擎与日志记录](changes/2026-11-15-engine-sdk-spdlog.md)。上一版 `.temp` 枚举修复的交付证据见[设备反馈修复](changes/2026-11-06-device-fixes.md)，更早的官方源码同步见[2026-11-06 引擎记录](changes/2026-11-06-engine-input-fixes.md)。实际消费版本仍以应用锁文件为准。
 
 构建与发布：
 
@@ -113,7 +113,7 @@ adb shell am instrument -w -r \
 
 ## 组件源码在哪里
 
-以下为 2026-11-05 这一轮更新后的版本；完整 SHA 和下载摘要以[依赖锁](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/sources.lock.json)为准。
+以下为 2026-11-15 这一轮更新后的版本；完整 SHA 和下载摘要以[依赖锁](https://github.com/SandyYuR/librime/blob/zhongzhou/downstream/android/sources.lock.json)为准。
 
 | 组件 | 源码 | 本轮版本 |
 | --- | --- | --- |
@@ -124,11 +124,11 @@ adb shell am instrument -w -r \
 | LevelDB | [google/leveldb](https://github.com/google/leveldb) | `bb74ef73` |
 | OpenCC | [BYVoid/OpenCC](https://github.com/BYVoid/OpenCC) | 正式版 1.4.2 |
 | Marisa | [s-yata/marisa-trie](https://github.com/s-yata/marisa-trie) | 正式版 0.3.1 |
-| glog | [google/glog](https://github.com/google/glog) | 正式版 0.7.1 |
+| spdlog | [gabime/spdlog](https://github.com/gabime/spdlog) | 正式版 1.17.0 |
 | yaml-cpp | [jbeder/yaml-cpp](https://github.com/jbeder/yaml-cpp) | 正式版 0.9.0 |
 | Boost | [boostorg/boost](https://github.com/boostorg/boost) | 正式版 1.92.0 |
 
-Marisa、glog、yaml-cpp 已是本轮检查时各自的最新正式版，保留现有版本。predict 使用的是表中明确的 LevelDB 分支，切换到其他 predict 仓库需要另查接口、配置与数据兼容性。
+Marisa、spdlog、yaml-cpp 已是本轮检查时各自的最新正式版，保留现有版本。glog 已随上游 spdlog 迁移移除，不再作为 Android 依赖。predict 使用的是表中明确的 LevelDB 分支，切换到其他 predict 仓库需要另查接口、配置与数据兼容性。
 
 ## 一、准备源码更新分支
 
@@ -220,7 +220,7 @@ git push origin refs/tags/android-sdk-20261105-2
 
 示例标签已用于本轮发布，后续必须使用新的日期或序号。标签触发的 SDK CI 会重新编译、测试和打包，再上传 `rime-android-sdk.zip`、`SHA256SUMS` 和 `sdk-manifest.json`；当前实现不会直接把工作分支的产物提升为 Release。
 
-核对标签实际提交、最终发布包的 SHA-256、四 ABI 和来源清单。Release 的 `target_commitish` 是发布元数据，不能替代标签与 SDK 清单的源码校验。SDK 有七个静态库：librime、glog、LevelDB、Lua、Marisa、OpenCC、yaml-cpp；三个引擎插件合并在 librime 中。
+核对标签实际提交、最终发布包的 SHA-256、四 ABI 和来源清单。Release 的 `target_commitish` 是发布元数据，不能替代标签与 SDK 清单的源码校验。SDK 有七个静态库：librime、spdlog、LevelDB、Lua、Marisa、OpenCC、yaml-cpp；三个引擎插件合并在 librime 中。
 
 已发布标签与包不覆盖。即使只升级依赖、核心代码未变，也要发布新的 SDK 版本。
 

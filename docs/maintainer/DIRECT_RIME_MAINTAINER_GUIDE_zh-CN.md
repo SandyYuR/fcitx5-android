@@ -174,7 +174,7 @@ Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、�
 | OpenCC | 正式版 1.4.2，Android 库与主机生成工具同源 |
 | Boost | 正式版 1.92.0 |
 
-predict 的固定提交仍是其仓库最新提交；glog 0.7.1、yaml-cpp 0.9.0、Marisa 0.3.1 保持各自最新正式版。万象方案自己的 `.lua` 脚本随方案管理，不会随 Lua 运行时或 librime-lua 升级而自动改变。
+predict 的固定提交仍是其仓库最新提交；spdlog 1.17.0、yaml-cpp 0.9.0、Marisa 0.3.1 保持各自最新正式版。万象方案自己的 `.lua` 脚本随方案管理，不会随 Lua 运行时或 librime-lua 升级而自动改变。
 
 Lua 官方源码包的最小 CMake 配方与 Android API 23 的文件定位兼容修正保存在 `lua.patch`。Boost 头文件缓存按源码包摘要刷新，复用构建目录也不会沿用旧版本。`tools/input-perf/test-leveldb-open.py` 从已准备 SDK 的来源清单读取实际 LevelDB 版本，检查持久化、日志复用、显式同步与恢复；不再固定测试另一个旧版 LevelDB。
 
