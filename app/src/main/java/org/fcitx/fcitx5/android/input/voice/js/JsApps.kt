@@ -11,6 +11,9 @@ import com.dokar.quickjs.QuickJs
 import com.dokar.quickjs.binding.asyncFunction
 import com.dokar.quickjs.binding.function
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.*
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
@@ -37,12 +40,18 @@ internal object JsAppPermissions {
 
 /** App capabilities share plugin source/settings, but never enter the voice provider registry. */
 internal object JsApps {
+    private const val APP_WEBSOCKET_QUEUE_CAPACITY = 8
     @Volatile private var activeSession: Session? = null
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private fun preferred() = JsAppSelection.preferred()
 
     /** Called before source/permission writes; safe while the store holds its IO lock. */
     fun onPluginSourceChanging(pluginId: String) {
+        activeSession?.takeIf { it.spec.id == pluginId }?.invalidateSource()
+    }
+
+    /** Permission revocation has the same live-session boundary as replacing plugin source. */
+    fun onPluginAuthorizationChanging(pluginId: String) {
         activeSession?.takeIf { it.spec.id == pluginId }?.invalidateSource()
     }
 
@@ -136,9 +145,86 @@ internal object JsApps {
             !closed && token?.isCurrent() == true && service.applicationInputConnection === connection
         }, ::requirePermission) }
         var fields = emptyList<JsVoiceField>()
-        var settings = emptyMap<String, String>()
+        @Volatile var settings = emptyMap<String, String>()
         var configuredSecrets = emptyList<String>()
-        val dialog = JsAppDialog(service, ::event, ::close)
+        val dialog = JsAppDialog(service, ::event, ::close, command = ::openCommand)
+
+        /** WebSocket 入站帧先入队：OkHttp 回调线程不能直接碰引擎，消费协程负责串行投递。 */
+        private val wsEvents = Channel<WsInbound>(APP_WEBSOCKET_QUEUE_CAPACITY)
+
+        /** 同一引擎上的 JS 调用必须串行：对话框事件与 WebSocket 回调都从这里过。 */
+        private val jsLock = Mutex()
+        private val hostApprovals = JsHostApprovalCoordinator(scope)
+
+        /**
+         * App 会话的 WebSocket 传输。授权沿用 endpoint policy：connect 是同步的，没法在里边弹授权框，
+         * 所以插件必须先 await foxy.websocket.authorize(url)，这里只校验「已授权」。
+         */
+        private val ws = JsWebSocketTransport(
+            http = JsAppHttp.CLIENT,
+            authorizeUrl = { url ->
+                requirePermission("network.request")
+                val parsed = JsAppEndpointPolicy(spec.hosts, settings).checkWebSocketUrl(url)
+                require(parsed.host.trimEnd('.') in JsVoiceHostPermissions.approvedHosts(spec.id)) {
+                    "Host is not authorized; call foxy.websocket.authorize first"
+                }
+                parsed
+            },
+            authorizeSend = { destination ->
+                requirePermission("network.request")
+                val host = destination.host.trimEnd('.')
+                require(JsAppEndpointPolicy(spec.hosts, settings).allows(host) &&
+                    host in JsVoiceHostPermissions.approvedHosts(spec.id)) {
+                    "Network permission revoked"
+                }
+            },
+            headers = { secretField, authHeader, authPrefix, headersJson ->
+                require(secretField.isBlank() || fields.any { it.key == secretField && it.isSecret }) {
+                    "Undeclared credential"
+                }
+                JsVoiceHeaders.build(
+                    secretField = secretField,
+                    secret = secretField.takeIf { it.isNotBlank() }?.let { JsVoiceSettingsStore.secret(spec.id, it) },
+                    authHeader = authHeader,
+                    authPrefix = authPrefix,
+                    headersJson = headersJson,
+                )
+            },
+            receive = { inbound ->
+                val accepted = wsEvents.trySend(inbound).isSuccess
+                if (!accepted && !closed) {
+                    mainHandler.post {
+                        if (!closed) dialog.showError("WebSocket input queue exceeded its limit")
+                    }
+                }
+                accepted
+            },
+        )
+
+        /**
+         * App 会话的流式 HTTP。授权与普通请求共用 endpoint policy 和主机批准；stream() 同步返回
+         * 流 ID，所以批准在协程里做，被拒绝时以 onError 通知插件。
+         */
+        private val streams = JsAppStreams(
+            scope = scope,
+            checkUrl = { url -> JsAppEndpointPolicy(spec.hosts, settings).checkUrl(url) },
+            secret = { key ->
+                require(fields.any { it.key == key && it.isSecret }) { "Undeclared credential" }
+                JsVoiceSettingsStore.secret(spec.id, key)
+            },
+            approve = { parsed ->
+                requirePermission("network.request")
+                approveHost(parsed.host.trimEnd('.'))
+            },
+            authorizeSend = { parsed ->
+                ensureCurrent()
+                requirePermission("network.request")
+                require(parsed.host.trimEnd('.') in JsVoiceHostPermissions.approvedHosts(spec.id)) {
+                    "Network permission revoked"
+                }
+            },
+            dispatch = { event, isActive -> dispatchStream(event, isActive) },
+        )
 
         fun start() {
             if (connection == null || token?.isCurrent() != true) return
@@ -173,7 +259,9 @@ internal object JsApps {
             val engine = JsVoiceRuntime.create()
             js = engine
             withContext(Dispatchers.IO) {
-                JsVoiceStubNatives.install(engine, locale)
+                JsVoiceStubNatives.install(engine, locale, JsHostSession.APP)
+                // 覆盖占位实现：App 会话现在有真实 WebSocket，授权与端点校验走 endpoint policy。
+                ws.install(engine)
                 installJsAppDelay(engine) { withContext(Dispatchers.Main.immediate) { ensureCurrent() } }
                 engine.asyncFunction("__n_appEditor") { args -> withContext(Dispatchers.Main.immediate) {
                     requireNotNull(editor).call(args.getOrNull(0).toString(), args.getOrNull(1).toString())
@@ -182,33 +270,42 @@ internal object JsApps {
                     requirePermission("credentials.list")
                     JsonArray(configuredSecrets.map(::JsonPrimitive)).toString()
                 }
+                engine.function("__n_appSettings") { args ->
+                    val key = args.getOrNull(0).toString()
+                    val value = args.getOrNull(1)?.toString().orEmpty()
+                    writeSetting(key, value)
+                    null
+                }
                 engine.asyncFunction("__n_appHttp") { args ->
                     requirePermission("network.request")
                     val options = Json.parseToJsonElement(args[0].toString()).jsonObject
-                    val policy = JsAppEndpointPolicy(spec.hosts, settings)
-                    val host = policy.checkUrl(options.text("url")).host.trimEnd('.')
-                    if (host !in JsVoiceHostPermissions.approvedHosts(spec.id)) {
-                        val approved = withContext(Dispatchers.Main.immediate) {
-                            ensureCurrent()
-                            dialog.confirm(service.getString(R.string.js_voice_network_title),
-                                service.getString(R.string.js_app_endpoint_message, host),
-                                service.getString(R.string.js_app_allow), service.getString(android.R.string.cancel))
-                        }
-                        check(approved) { "Network permission denied" }
-                        synchronized(this@Session) {
-                            ensureCurrent()
-                            JsVoiceHostPermissions.approve(spec.id, JsVoiceHostPermissions.approvedHosts(spec.id) + host)
-                        }
-                    }
+                    val host = JsAppEndpointPolicy(spec.hosts, settings).checkUrl(options.text("url")).host.trimEnd('.')
+                    check(approveHost(host)) { "Network permission denied" }
                     JsAppHttp(checkUrl = { url ->
-                        requirePermission("network.request")
-                        val parsed = policy.checkUrl(url)
-                        require(parsed.host.trimEnd('.') == host && host in JsVoiceHostPermissions.approvedHosts(spec.id)) { "Network permission revoked" }
-                        parsed
+                        checkHttpUrl(url, host)
                     }, secret = { key ->
                         require(fields.any { it.key == key && it.isSecret }) { "Undeclared credential" }
                         JsVoiceSettingsStore.secret(spec.id, key)
                     }).request(options)
+                }
+                engine.function("__n_appHttpStream") { args ->
+                    requirePermission("network.request")
+                    streams.start(Json.parseToJsonElement(args[0].toString()).jsonObject)
+                }
+                engine.function("__n_appHttpCancelStream") { args ->
+                    streams.cancel(args.getOrNull(0).toString())
+                    null
+                }
+                // foxy.websocket.authorize：App 的 WebSocket 连接是同步的，插件必须在 connect 前先拿到
+                // 主机授权。返回 true/false 让插件自己决定要不要继续，而不是在这里抛错。
+                engine.asyncFunction("__n_wsAuthorize") { args ->
+                    requirePermission("network.request")
+                    val host = JsVoiceHelpers.authorizeHost(args.getOrNull(0).toString())
+                        ?: throw IllegalArgumentException("Invalid WebSocket host")
+                    require(JsAppEndpointPolicy(spec.hosts, settings).allows(host)) {
+                        "Endpoint must be declared or configured in plugin settings"
+                    }
+                    approveHost(host)
                 }
                 engine.asyncFunction("__n_appUi") { args -> withContext(Dispatchers.Main.immediate) {
                     ensureCurrent()
@@ -233,6 +330,77 @@ internal object JsApps {
                 settings = JsVoiceFields.currentValues(fields, JsVoiceSettingsStore.values(spec.id))
                 configuredSecrets = fields.filter { it.isSecret && JsVoiceSettingsStore.hasSecret(spec.id, it.key) }.map { it.key }
             }
+            scope.launch { consumeWebSocket() }
+        }
+
+        /** Serialize individual QuickJS evaluations while allowing pending invocations to interleave. */
+        private suspend fun invoke(
+            engine: QuickJs,
+            name: String,
+            context: JsonObject,
+            active: () -> Boolean = { true },
+        ): JsVoiceInvoker.Outcome = JsVoiceInvoker.call(
+            evaluate = { code ->
+                jsLock.withLock {
+                    if (js !== engine || closed || !sourceCurrent || !active()) {
+                        throw CancellationException("App callback is no longer active")
+                    }
+                    withContext(Dispatchers.IO) { engine.evaluate<String>(code) }
+                }
+            },
+            name = name,
+            argJson = context.toString(),
+            timeoutMs = 180_000,
+            cleanupEvaluate = { code ->
+                jsLock.withLock {
+                    if (js !== engine || closed) null
+                    else withContext(Dispatchers.IO) { engine.evaluate<String>(code) }
+                }
+            },
+        )
+
+        /**
+         * 把入站帧翻成 foxy.websocket.onMessage/onBinary/onError/onClose 的调用。
+         * 与语音会话的 plugin.onMessage 单入口不同：App 侧按种类分派，且没有处理器时静默丢弃。
+         */
+        private suspend fun consumeWebSocket() {
+            for (inbound in wsEvents) {
+                val engine = js ?: continue
+                val context = buildJsonObject {
+                    when (inbound) {
+                        is WsInbound.Text -> { put("kind", "message"); put("payload", inbound.text) }
+                        is WsInbound.Binary -> { put("kind", "binary"); put("payload", inbound.base64) }
+                        is WsInbound.Failed -> { put("kind", "error"); put("payload", inbound.message) }
+                        // foxy 的 onClose 第二个参数是 wasClean，不是关闭码。
+                        is WsInbound.Closed -> { put("kind", "close"); put("payload", inbound.code == 1000) }
+                    }
+                    put("socket", inbound.socketId)
+                }
+                JsAppCallbackDispatch.run {
+                    invoke(engine, "ws", context)
+                }
+            }
+        }
+
+        /**
+         * 把流式事件翻成 foxy.http.onChunk/onEnd/onError 的调用。每个事件都 await 插件处理完
+         * 才返回，读循环因此不会跑在插件前面；没有处理器时静默丢弃。
+         */
+        private suspend fun dispatchStream(event: StreamEvent, active: () -> Boolean) {
+            val engine = js ?: return
+            val context = buildJsonObject {
+                when (event) {
+                    is StreamEvent.Chunk -> {
+                        put("kind", "chunk"); put("event", event.event); put("data", event.data)
+                    }
+                    is StreamEvent.End -> put("kind", "end")
+                    is StreamEvent.Failed -> { put("kind", "error"); put("payload", event.message) }
+                }
+                put("id", event.streamId)
+            }
+            JsAppCallbackDispatch.run {
+                invoke(engine, "stream", context, active)
+            }
         }
 
         fun event(name: String, values: JsonObject) {
@@ -253,9 +421,7 @@ internal object JsApps {
                         put("settings", buildJsonObject { settings.forEach { (key, value) -> put(key, value) } })
                         put("configuredSecrets", JsonArray(if ("credentials.list" in app.permissions) configuredSecrets.map(::JsonPrimitive) else emptyList()))
                     }
-                    val outcome = withContext(Dispatchers.IO) {
-                        JsVoiceInvoker.call({ engine.evaluate<String>(it) }, "app", context.toString(), 180_000)
-                    }
+                    val outcome = invoke(engine, "app", context)
                     ensureCurrent()
                     outcome.error?.let { error(it) }
                     val result = outcome.result as? JsonObject ?: error("Plugin returned no dialog")
@@ -267,11 +433,69 @@ internal object JsApps {
             }
         }
 
+        /**
+         * 同一插件的主机授权对所有 App 共享：用户在这里点过允许，别的 App 的同一主机不再重复弹窗。
+         * 用户拒绝时返回 false，由调用方决定是抛错还是让插件降级。
+         */
+        private suspend fun approveHost(host: String): Boolean {
+            return hostApprovals.approve(
+                host = host,
+                isApproved = { host in JsVoiceHostPermissions.approvedHosts(spec.id) },
+                prompt = {
+                    withContext(Dispatchers.Main.immediate) {
+                        ensureCurrent()
+                        dialog.confirm(
+                            service.getString(R.string.js_voice_network_title),
+                            service.getString(R.string.js_app_endpoint_message, host),
+                            service.getString(R.string.js_app_allow),
+                            service.getString(android.R.string.cancel),
+                        )
+                    }
+                },
+                persist = {
+                    synchronized(this@Session) {
+                        ensureCurrent()
+                        JsVoiceHostPermissions.approve(
+                            spec.id,
+                            JsVoiceHostPermissions.approvedHosts(spec.id) + host,
+                        )
+                    }
+                },
+            )
+        }
+
+        /**
+         * 布局里的 `{"type":"app","command":"js.<id>"}`：解析成唯一匹配的 App 后切过去。
+         * 解析失败（未注册或同 ID 出现在多个插件里）就提示改用编辑按钮里的精确绑定。
+         */
+        private fun openCommand(command: String) {
+            val target = JsAppCommand.resolve(command, JsAppSelection.available().map { it.first.id to it.second })
+            if (target == null) { service.toast(R.string.js_app_shortcut_missing); return }
+            dialog.dismiss()
+            openTarget(service, target.pluginId, target.appId, R.string.js_app_shortcut_password)
+        }
+
         fun requirePermission(permission: String) {
             check(!closed && sourceCurrent && permission in app.permissions && permission in JsAppPermissions.granted(spec.id, app.id)) { "Permission denied: $permission" }
         }
         fun ensureCurrent() {
             check(!closed && sourceCurrent && token?.isCurrent() == true && service.applicationInputConnection === connection) { "Editor session ended" }
+        }
+        private fun writeSetting(key: String, value: String) = synchronized(this) {
+            // Source invalidation shares this lock: an old callback cannot persist after replacement.
+            ensureCurrent()
+            require(JsVoiceFields.writable(fields, key)) { "Undeclared setting: $key" }
+            JsVoiceFields.requireWritableValue(settings, key, value)
+            JsVoiceSettingsStore.setValue(spec.id, key, value)
+            settings = settings + (key to value)
+        }
+        private fun checkHttpUrl(url: String, approvedHost: String): okhttp3.HttpUrl {
+            requirePermission("network.request")
+            // Recompute eligibility after approval and credentials: another callback can change settings.
+            val parsed = JsAppEndpointPolicy(spec.hosts, settings).checkUrl(url)
+            require(parsed.host.trimEnd('.') == approvedHost &&
+                approvedHost in JsVoiceHostPermissions.approvedHosts(spec.id)) { "Network permission revoked" }
+            return parsed
         }
         fun invalidateSource() {
             synchronized(this) { sourceCurrent = false }
@@ -292,6 +516,9 @@ internal object JsApps {
                 service.jsAppDismiss = null
                 service.resetJsAppEditorState()
             }
+            ws.closeAll()
+            wsEvents.close()
+            streams.closeAll()
             scope.cancel()
             val engine = js
             js = null

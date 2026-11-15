@@ -108,4 +108,53 @@ class JsVoiceFieldsTest {
         values["auth"] = "legacy"
         assertEquals(mapOf("resource" to "big-hours"), JsVoiceFields.defaultsAfterChange(dependentFields, "auth", values))
     }
+
+    @Test
+    fun onlyDeclaredOrdinaryFieldsAreWritableFromJavaScript() {
+        val fields = JsVoiceFields.parse(declaration)
+        assertTrue(JsVoiceFields.writable(fields, "mode"))
+        assertTrue(JsVoiceFields.writable(fields, "stripPunctuation"))
+        // 密钥项：值只在宿主侧解密使用，插件不能覆盖。
+        assertFalse(JsVoiceFields.writable(fields, "apiKey"))
+        // 未声明的键：写进去只会变成没人读的垃圾。
+        assertFalse(JsVoiceFields.writable(fields, "notDeclared"))
+        assertFalse(JsVoiceFields.writable(emptyList(), "mode"))
+    }
+
+    @Test
+    fun unsupportedKindsAndKeysAlsoDeclaredAsSecretsAreNotWritable() {
+        val fields = JsVoiceFields.parse("""[
+            {"kind":"text","key":"apiKey"},
+            {"kind":"secret","key":"apiKey"},
+            {"kind":"unsupported","key":"unknown"},
+            {"kind":"number","key":"timeout"}
+        ]""")
+        assertFalse(JsVoiceFields.writable(fields, "apiKey"))
+        assertFalse(JsVoiceFields.writable(fields, "unknown"))
+        assertTrue(JsVoiceFields.writable(fields, "timeout"))
+    }
+
+    @Test
+    fun pluginWritesRespectPerValueAndAggregateBudgets() {
+        JsVoiceFields.requireWritableValue(emptyMap(), "value", "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES))
+        assertTrue(runCatching {
+            JsVoiceFields.requireWritableValue(
+                emptyMap(),
+                "value",
+                "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES + 1),
+            )
+        }.isFailure)
+        val existing = mapOf(
+            "a" to "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES),
+            "b" to "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES),
+            "c" to "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES),
+        )
+        assertTrue(runCatching {
+            JsVoiceFields.requireWritableValue(
+                existing,
+                "d",
+                "x".repeat(JsVoiceFields.MAX_WRITABLE_VALUE_BYTES),
+            )
+        }.isFailure)
+    }
 }

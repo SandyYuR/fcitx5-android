@@ -37,6 +37,21 @@ class JsAppBundledProviderTest {
         assertTrue(spec.id in JsVoiceProviders.builtInIds())
     }
 
+    @Test fun bundledBilibiliAppDeclaresItsOwnHostAndNoVoiceProvider() {
+        val spec = JsVoiceProviders.builtInSpecOf("js:bilibili-translate")!!
+        assertTrue(spec.builtIn)
+        assertFalse(spec.hasVoice)
+        assertEquals("1.3.0", spec.version)
+        assertEquals(setOf("index-translate.bilibili.com"), spec.hosts)
+        assertEquals("bilibili_translate", spec.apps.single().id)
+        assertEquals("bilibili-translate.js", spec.originName)
+        assertEquals(
+            "bundled/js-apps/bilibili-translate.js",
+            (spec.source as JsVoiceProviders.Source.Asset).path,
+        )
+        assertTrue(spec.id in JsVoiceProviders.builtInIds())
+    }
+
     @Test fun oldImportedAssistantCannotShadowTheFixedBundledVersionOrEraseItsSettings() = runBlocking {
         val script = """
             foxy.plugin.register({id:'llm-assistant',version:'1.1',hosts:[],features:[]});

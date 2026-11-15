@@ -82,6 +82,11 @@ internal object JsVoiceProviders {
             R.string.youdao_free_translate,
             R.string.youdao_free_translate,
         ),
+        BundledAppAsset(
+            "bilibili-translate",
+            R.string.bilibili_translate,
+            R.string.bilibili_translate,
+        ),
     )
 
     private fun builtInSpecs(): List<Spec> = listOf(

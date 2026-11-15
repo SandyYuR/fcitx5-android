@@ -1,5 +1,5 @@
 /**
- * 翻译（免密钥）— 元书脚本的中州鹅 JS App 适配版
+ * 有道翻译 — 元书脚本的中州鹅 JS App 适配版
  *
  * 原脚本：翻译-免密钥.js；沿用有道公开演示接口，无需 API 密钥。
  *
@@ -23,7 +23,7 @@
   ];
   const STRINGS = {
     en: {
-      name: 'Translate (no API key)', close: 'Close',
+      name: 'Youdao Translate', close: 'Close',
       sourceAuto: 'Detect language', original: 'Original text', placeholder: 'Type or paste text, for example: 英 你好',
       result: 'Translation', previewUnavailable: 'This editor cannot show a temporary preview. Review the translation here, then confirm to insert it.',
       clear: 'Clear', translate: 'Translate', retranslate: 'Again', reuse: 'Use', replace: 'Apply', insert: 'Apply',
@@ -33,7 +33,7 @@
       languages: {auto:'Auto',zhCHS:'Simplified Chinese',en:'English',ja:'Japanese',ko:'Korean',fr:'French',de:'German',ru:'Russian',es:'Spanish'}
     },
     zhCN: {
-      name: '翻译（免密钥）', close: '关闭',
+      name: '有道翻译', close: '关闭',
       sourceAuto: '自动识别', original: '原文', placeholder: '输入或粘贴文本，例如：英 你好',
       result: '译文', previewUnavailable: '当前输入框不支持临时预览；请在此核对译文，确认后再写入。',
       clear: '清空', translate: '翻译', retranslate: '再译', reuse: '作原文', replace: '替换', insert: '插入',
@@ -43,7 +43,7 @@
       languages: {auto:'自动',zhCHS:'简体中文',en:'英语',ja:'日语',ko:'韩语',fr:'法语',de:'德语',ru:'俄语',es:'西班牙语'}
     },
     zhTW: {
-      name: '翻譯（免金鑰）', close: '關閉',
+      name: '有道翻譯', close: '關閉',
       sourceAuto: '自動偵測', original: '原文', placeholder: '輸入或貼上文字，例如：英 你好',
       result: '譯文', previewUnavailable: '目前輸入框不支援暫時預覽；請在此核對譯文，確認後再寫入。',
       clear: '清除', translate: '翻譯', retranslate: '再譯', reuse: '作原文', replace: '取代', insert: '插入',

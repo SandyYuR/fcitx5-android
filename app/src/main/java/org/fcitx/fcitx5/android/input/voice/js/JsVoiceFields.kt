@@ -10,6 +10,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import okio.utf8Size
 
 /**
  * 插件 `configure(ui, locale)` 声明出来的一项设置。
@@ -44,6 +45,8 @@ internal data class JsVoiceField(
 internal data class JsVoiceFieldOption(val label: String, val value: String)
 
 internal object JsVoiceFields {
+    const val MAX_WRITABLE_VALUE_BYTES = 64 * 1024
+    const val MAX_WRITABLE_VALUES_BYTES = 256 * 1024
 
     /**
      * 解析 `__describe()` 返回的声明数组。
@@ -79,6 +82,34 @@ internal object JsVoiceFields {
             visibleWhen = obj["visibleWhen"] as? JsonObject,
             defaultWhen = obj["defaultWhen"] as? JsonObject,
         )
+    }
+
+    /**
+     * `foxy.settings.set` 能写哪些键：只有插件自己声明过的普通项。
+     *
+     * 密钥项永远不可写——它的值只在宿主建立连接时解密使用，插件不该有机会覆盖；
+     * 未声明的键也不接受，否则插件能往偏好文件里塞任意键值。
+     */
+    fun writable(fields: List<JsVoiceField>, key: String): Boolean {
+        val declared = fields.filter { it.key == key }
+        return declared.isNotEmpty() && declared.all { field ->
+            field.kind in setOf(
+                JsVoiceField.KIND_TEXT,
+                JsVoiceField.KIND_SELECT,
+                JsVoiceField.KIND_SWITCH,
+                JsVoiceField.KIND_NUMBER,
+            )
+        }
+    }
+
+    /** Bound plugin-driven persistence outside QuickJS's own heap budget. */
+    fun requireWritableValue(values: Map<String, String>, key: String, value: String) {
+        require(value.utf8Size() <= MAX_WRITABLE_VALUE_BYTES) { "Setting value is too large" }
+        val updated = values + (key to value)
+        val total = updated.entries.sumOf { (storedKey, storedValue) ->
+            storedKey.utf8Size() + storedValue.utf8Size()
+        }
+        require(total <= MAX_WRITABLE_VALUES_BYTES) { "Plugin settings exceed their limit" }
     }
 
     /** 递归判断 `visibleWhen`：`{key,value}` 与 `{all:[...]}` 两种形态。 */

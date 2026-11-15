@@ -78,7 +78,7 @@ internal class JsAppHttp(
         }
     }
     companion object {
-        private val CLIENT = OkHttpClient.Builder().followRedirects(false).followSslRedirects(false)
+        internal val CLIENT = OkHttpClient.Builder().followRedirects(false).followSslRedirects(false)
             .callTimeout(60, TimeUnit.SECONDS).readTimeout(45, TimeUnit.SECONDS).build()
     }
 }

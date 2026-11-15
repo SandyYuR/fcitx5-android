@@ -1,6 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.voice.js
 
+internal enum class JsHostSession(val wireName: String) {
+    DESCRIBE("describe"),
+    APP("app"),
+    VOICE("voice"),
+}
+
 /**
  * Foxy-compatible global API evaluated before a plugin script.
  *
@@ -21,7 +27,13 @@ var __events = [];
 var __fields = [];
 var __plugin = null;
 var __apps = {};
-var __pending = null;
+var __pending = {};
+var __nextInvocation = 1;
+// foxy.websocket 的回调按种类各注册一个，宿主收到帧后按种类调用；与语音会话的
+// plugin.onMessage 单入口并存，互不覆盖。
+var __wsHandlers = { message: null, binary: null, error: null, close: null };
+// foxy.http 的流式回调同样按种类各注册一个：chunk(id, event, data) / end(id) / error(id, message)。
+var __streamHandlers = { chunk: null, end: null, error: null };
 var __native = {
   locale: __n_locale, wsConnect: __n_wsConnect, wsWaitOpen: __n_wsWaitOpen, wsSend: __n_wsSend,
   wsSendBinary: __n_wsSendBinary, wsSendGzipFrame: __n_wsSendGzipFrame, wsClose: __n_wsClose,
@@ -31,6 +43,16 @@ var __native = {
   hmacSha1Base64: __n_hmacSha1Base64
 };
 function __str(value) { return value === undefined || value === null ? "" : String(value); }
+var __hostSession = typeof __n_hostSession === "function" ? __str(__n_hostSession()) : "describe";
+var __isAppSession = __hostSession === "app";
+var __isVoiceSession = __hostSession === "voice";
+// describe/import discovers the union of runtime APIs so conditional registration cannot hide an
+// App or voice feature forever. Its stub still refuses live network/editor operations.
+var __hasAppApi = __isAppSession || __hostSession === "describe";
+var __hasVoiceApi = __isVoiceSession || __hostSession === "describe";
+// 只有宿主真的能落盘时才挂 foxy.settings：设置页用的占位宿主没有 __n_appSettings，
+// 挂一个必定抛错的函数会让插件误以为能存。
+var __hasSettings = typeof __n_appSettings === "function";
 var foxy = {
   locale: __native.locale(),
   plugin: {
@@ -52,15 +74,34 @@ var foxy = {
     commit: function (text) { return __n_appEditor("commit", __str(text)); }
   },
   credentials: { list: function () { return JSON.parse(__n_appCredentials()); } },
-  ui: { dialog: {
-    show: function (spec) { return spec; },
-    update: function (spec) { return __n_appUi("update", JSON.stringify(spec)); },
-    setValue: function (id, value) { return __n_appUi("setValue", JSON.stringify({id: id, value: value})); },
-    setEnabled: function (id, enabled) { return __n_appUi("setEnabled", JSON.stringify({id: id, enabled: enabled})); },
-    setLoading: function (loading) { return __n_appUi("setLoading", JSON.stringify({loading: loading})); },
-    setError: function (message) { return __n_appUi("setError", JSON.stringify({message: message})); },
-    close: function () { return __n_appUi("close", "{}"); }
-  } },
+  ui: {
+    text: function (key, label, defaultValue, settings) {
+      __fields.push(__field("text", key, label, defaultValue, settings, null)); return defaultValue;
+    },
+    secret: function (key, label, settings) {
+      __fields.push(__field("secret", key, label, "", settings, null)); return "";
+    },
+    select: function (key, label, options, defaultValue, settings) {
+      __fields.push(__field("select", key, label, defaultValue, settings, __options(options)));
+      return defaultValue;
+    },
+    switch: function (key, label, defaultValue, settings) {
+      __fields.push(__field("switch", key, label, defaultValue === true ? "true" : "false", settings, null));
+      return defaultValue;
+    },
+    number: function (key, label, defaultValue, settings) {
+      __fields.push(__field("number", key, label, defaultValue, settings, null)); return defaultValue;
+    },
+    dialog: {
+      show: function (spec) { return spec; },
+      update: function (spec) { return __n_appUi("update", JSON.stringify(spec)); },
+      setValue: function (id, value) { return __n_appUi("setValue", JSON.stringify({id: id, value: value})); },
+      setEnabled: function (id, enabled) { return __n_appUi("setEnabled", JSON.stringify({id: id, enabled: enabled})); },
+      setLoading: function (loading) { return __n_appUi("setLoading", JSON.stringify({loading: loading})); },
+      setError: function (message) { return __n_appUi("setError", JSON.stringify({message: message})); },
+      close: function () { return __n_appUi("close", "{}"); }
+    }
+  },
   voice: {
     ready: function () { __events.push({ ready: true }); },
     partial: function (text) { __events.push({ partial: String(text) }); },
@@ -69,6 +110,8 @@ var foxy = {
     ended: function () { __events.push({ ended: true }); }
   },
   websocket: {
+    // connect 是同步的，插件必须先 await authorize 拿到主机授权；返回 false 表示用户拒绝。
+    authorize: function (url) { return __n_wsAuthorize(__str(url)); },
     connect: function (url, secretField, authHeader, authPrefix, headersJson) {
       return __native.wsConnect(
         __str(url), __str(secretField), __str(authHeader), __str(authPrefix), __str(headersJson));
@@ -79,14 +122,25 @@ var foxy = {
     sendGzipFrame: function (socket, prefixB64, payloadB64) {
       return __native.wsSendGzipFrame(__str(socket), __str(prefixB64), __str(payloadB64));
     },
-    close: function (socket) { return __native.wsClose(__str(socket)); }
+    close: function (socket) { return __native.wsClose(__str(socket)); },
+    // 与 foxy 一致：只收一个处理函数，不按 socket 区分；宿主用 (socket, payload) 调用它。
+    onMessage: function (fn) { __wsHandlers.message = fn; },
+    onBinary: function (fn) { __wsHandlers.binary = fn; },
+    onError: function (fn) { __wsHandlers.error = fn; },
+    onClose: function (fn) { __wsHandlers.close = fn; }
   },
   http: {
-    supportsConfiguredEndpoints: true,
+    supportsConfiguredEndpoints: __hasAppApi,
     request: function (options) { return __n_appHttp(JSON.stringify(options)); },
     post: function (url, secretField, jsonBody, headersJson) {
       return __native.httpPost(__str(url), __str(secretField), String(jsonBody), __str(headersJson));
-    }
+    },
+    // 立即返回流 ID，事件通过 onChunk/onEnd/onError 异步到达；取消用 cancelStream。
+    stream: function (options) { return __n_appHttpStream(JSON.stringify(options || {})); },
+    cancelStream: function (id) { return __n_appHttpCancelStream(__str(id)); },
+    onChunk: function (fn) { __streamHandlers.chunk = fn; },
+    onEnd: function (fn) { __streamHandlers.end = fn; },
+    onError: function (fn) { __streamHandlers.error = fn; }
   },
   audio: {
     wavBase64: function (pcmBase64, sampleRate) {
@@ -109,7 +163,55 @@ var foxy = {
       return __native.sliceBase64(__str(b64), __str(offset), __str(length));
     },
     gunzipUtf8: function (b64) { return __native.gunzipUtf8(__str(b64)); }
+  },
+  // Foxy 的 foxy.capabilities 直接暴露原生桥对象；这里给一张按同样形状组织的白名单，
+  // 让插件用 `if (foxy.capabilities.http.stream)` 这类探测拿到正确结果，同时不把 __n_* 内部入口
+  // 固化成公开 API。新增一项能力时同步改这里，否则插件会以为它不存在。
+  capabilities: {
+    locale: true,
+    plugin: { register: true },
+    app: { register: true, sleep: __hasAppApi },
+    ui: {
+      text: true, secret: true, select: true, switch: true, number: true,
+      dialog: {
+        show: true, update: __hasAppApi, setValue: __hasAppApi, setEnabled: __hasAppApi,
+        setLoading: __hasAppApi, setError: __hasAppApi, close: __hasAppApi
+      }
+    },
+    editor: {
+      getSelection: __hasAppApi, getText: __hasAppApi, setComposition: __hasAppApi,
+      clearComposition: __hasAppApi, commit: __hasAppApi
+    },
+    credentials: { list: __hasAppApi },
+    voice: {
+      ready: __hasVoiceApi, partial: __hasVoiceApi, final: __hasVoiceApi,
+      error: __hasVoiceApi, ended: __hasVoiceApi
+    },
+    websocket: {
+      authorize: __hasAppApi || __hasVoiceApi, connect: __hasAppApi || __hasVoiceApi,
+      waitOpen: __hasAppApi || __hasVoiceApi, send: __hasAppApi || __hasVoiceApi,
+      sendBinary: __hasAppApi || __hasVoiceApi, sendGzipFrame: __hasAppApi || __hasVoiceApi,
+      close: __hasAppApi || __hasVoiceApi, onMessage: __hasAppApi,
+      onBinary: __hasAppApi, onError: __hasAppApi, onClose: __hasAppApi
+    },
+    http: {
+      request: __hasAppApi, post: __hasVoiceApi, supportsConfiguredEndpoints: __hasAppApi,
+      stream: __hasAppApi, cancelStream: __hasAppApi, onChunk: __hasAppApi,
+      onEnd: __hasAppApi, onError: __hasAppApi
+    },
+    audio: { wavBase64: true },
+    crypto: { hmacSha1Base64: __hasVoiceApi },
+    binary: {
+      concatBase64: true, utf8Base64: true, base64Utf8: true, byteLength: true,
+      readUInt8: true, readInt32BE: true, sliceBase64: true, gunzipUtf8: true
+    },
+    settings: __hasSettings ? { set: true } : null
   }
+};
+// foxy 原版只在原生桥带 settings 时才挂这个对象，缺省时属性根本不存在（不是 null）；
+// 差别在 typeof 上，所以这里也照做，而不是在字面量里写 null。
+if (__hasSettings) foxy.settings = {
+  set: function (key, value) { return __n_appSettings(__str(key), __str(value)); }
 };
 
 function __field(kind, key, label, defaultValue, settings, options) {
@@ -145,30 +247,8 @@ function __options(list) {
 // yields an empty list rather than breaking the settings screen.
 function __describe(locale) {
   __fields = [];
-  var ui = {
-    text: function (key, label, defaultValue, settings) {
-      __fields.push(__field("text", key, label, defaultValue, settings, null));
-      return defaultValue;
-    },
-    secret: function (key, label, settings) {
-      __fields.push(__field("secret", key, label, "", settings, null));
-      return "";
-    },
-    select: function (key, label, options, defaultValue, settings) {
-      __fields.push(__field("select", key, label, defaultValue, settings, __options(options)));
-      return defaultValue;
-    },
-    switch: function (key, label, defaultValue, settings) {
-      __fields.push(__field("switch", key, label, defaultValue === true ? "true" : "false", settings, null));
-      return defaultValue;
-    },
-    number: function (key, label, defaultValue, settings) {
-      __fields.push(__field("number", key, label, defaultValue, settings, null));
-      return defaultValue;
-    }
-  };
   try {
-    if (__plugin && typeof __plugin.configure === "function") __plugin.configure(ui, __str(locale));
+    if (__plugin && typeof __plugin.configure === "function") __plugin.configure(foxy.ui, __str(locale));
   } catch (e) {
     __fields = [];
   }
@@ -226,15 +306,26 @@ function __invoke(name, ctx) {
   if (name === "audio") return __plugin.audio(ctx);
   if (name === "stop") return __plugin.stop(ctx);
   if (name === "onMessage") return __plugin.onMessage(ctx);
+  if (name === "ws") {
+    var handler = __wsHandlers[ctx.kind];
+    if (typeof handler !== "function") return null;
+    return handler(ctx.socket, ctx.payload);
+  }
+  if (name === "stream") {
+    var streamHandler = __streamHandlers[ctx.kind];
+    if (typeof streamHandler !== "function") return null;
+    if (ctx.kind === "chunk") return streamHandler(ctx.id, ctx.event, ctx.data);
+    if (ctx.kind === "error") return streamHandler(ctx.id, ctx.payload);
+    return streamHandler(ctx.id);
+  }
   throw new Error("Unknown plugin callback: " + name);
 }
 
 // 回调分两拍：__run 立即给出「结果」或「还在等」的标记，__pump 之后反复拍一次。
 // 原因见 JsVoiceInvoker：quickjs-kt 的 evaluate 只等待求值时仍未落地的 Promise，
 // 插件回调在一次微任务里就 resolve 时它会把 Promise 对象本身按字符串返回。
-function __run(name, argJson) {
+function __run(name, argJson, suppliedInvocationId) {
   __events = [];
-  __pending = null;
   var ctx = JSON.parse(argJson);
   var out;
   try {
@@ -243,25 +334,35 @@ function __run(name, argJson) {
     return JSON.stringify({ error: __errorText(e), events: __takeEvents() });
   }
   if (out !== null && out !== undefined && typeof out.then === "function") {
+    if (Object.keys(__pending).length >= 16) {
+      return JSON.stringify({ error: "Too many pending plugin callbacks", events: __takeEvents() });
+    }
+    var invocationId = suppliedInvocationId === undefined
+      ? String(__nextInvocation++) : __str(suppliedInvocationId);
     var slot = { done: false, value: undefined, error: null };
-    __pending = slot;
+    __pending[invocationId] = slot;
     out.then(
       function (value) { slot.done = true; slot.value = value; },
       function (reason) { slot.done = true; slot.error = reason; });
-    return JSON.stringify({ pending: true, events: __takeEvents() });
+    return JSON.stringify({ pending: invocationId, events: __takeEvents() });
   }
   return JSON.stringify({ result: out === undefined ? null : out, events: __takeEvents() });
 }
 
-function __pump() {
-  var slot = __pending;
-  if (slot === null) return JSON.stringify({ result: null, events: __takeEvents() });
-  if (!slot.done) return JSON.stringify({ pending: true, events: __takeEvents() });
-  __pending = null;
+function __pump(invocationId) {
+  var slot = __pending[invocationId];
+  if (!slot) return JSON.stringify({ error: "Unknown plugin invocation", events: __takeEvents() });
+  if (!slot.done) return JSON.stringify({ pending: invocationId, events: __takeEvents() });
+  delete __pending[invocationId];
   if (slot.error !== null && slot.error !== undefined) {
     return JSON.stringify({ error: __errorText(slot.error), events: __takeEvents() });
   }
   return JSON.stringify({ result: slot.value === undefined ? null : slot.value, events: __takeEvents() });
+}
+function __cancelInvocation(invocationId) {
+  var existed = Object.prototype.hasOwnProperty.call(__pending, invocationId);
+  delete __pending[invocationId];
+  return existed;
 }
 """.trimIndent()
 }

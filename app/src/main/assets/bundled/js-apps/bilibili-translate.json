@@ -1,0 +1,21 @@
+{
+  "id": "bilibili-translate",
+  "name": "哔哩哔哩翻译",
+  "version": "1.3.0",
+  "hosts": [
+    "index-translate.bilibili.com"
+  ],
+  "features": [],
+  "apps": [
+    {
+      "id": "bilibili_translate",
+      "label": "哔哩哔哩翻译",
+      "permissions": [
+        "editor.read_selection",
+        "editor.composition",
+        "editor.commit",
+        "network.request"
+      ]
+    }
+  ]
+}

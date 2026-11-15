@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
+import org.fcitx.fcitx5.android.input.voice.js.JsApps
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceHostPermissions
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
 
@@ -20,6 +21,7 @@ internal object JsVoiceHostPermissionDialog {
             .setNegativeButton(android.R.string.cancel, null)
         if (JsVoiceHostPermissions.isApproved(spec.id, spec.hosts)) {
             builder.setPositiveButton(R.string.js_voice_network_revoke) { _, _ ->
+                JsApps.onPluginAuthorizationChanging(spec.id)
                 JsVoiceHostPermissions.revoke(spec.id)
                 onChanged()
             }
