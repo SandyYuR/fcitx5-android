@@ -116,10 +116,18 @@ internal class JsWebSocketTransport(
     }
 
     fun closeAll() {
-        if (!closed.compareAndSet(false, true)) return
-        connections.entries.toList().forEach { (id, connection) ->
-            if (connections.remove(id, connection)) connection.deactivate()?.cancel()
+        val pending = synchronized(connections) {
+            // Share connect's registration boundary so close cannot miss a checked but
+            // not-yet-inserted connection. Failure callbacks may still remove entries.
+            if (!closed.compareAndSet(false, true)) return
+            val sockets = ArrayList<Connection>()
+            connections.forEach { id, connection ->
+                if (connections.remove(id, connection)) sockets.add(connection)
+            }
+            sockets
         }
+        // Completing waitOpen and cancelling sockets can resume callbacks; release the map first.
+        pending.forEach { it.deactivate()?.cancel() }
     }
 
     private fun connectionForSend(id: String): Connection {

@@ -159,10 +159,20 @@ internal class JsAppStreams(
     }
 
     fun closeAll() {
-        closed.set(true)
-        activeStreams.entries.toList().forEach { (id, state) ->
-            if (activeStreams.remove(id, state)) state.deactivate(cancelJob = true, cancelCall = true)
+        val pending = synchronized(activeStreams) {
+            // Registration checks closed under this same monitor. It must finish inserting
+            // before we drain, or observe closed and refuse the registration.
+            if (!closed.compareAndSet(false, true)) return
+            val states = ArrayList<ActiveStream>()
+            // Concurrent completion may remove the last entry at any point. CHM's traversal
+            // is weakly consistent; Collection.toList's size==1 shortcut is not.
+            activeStreams.forEach { id, state ->
+                if (activeStreams.remove(id, state)) states.add(state)
+            }
+            states
         }
+        // Job cancellation may resume completion handlers; do not run them under the map lock.
+        pending.forEach { it.deactivate(cancelJob = true, cancelCall = true) }
     }
 
     private suspend fun run(state: ActiveStream, request: StreamRequest) {
