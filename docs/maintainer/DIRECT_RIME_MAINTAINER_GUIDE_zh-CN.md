@@ -140,6 +140,8 @@ cat native/rime-sdk/sdk-manifest.json
 
 SDK 缓存在 `GRADLE_USER_HOME/caches/rime-sdk/<sha256>.zip`。首次在线准备后可以 `--offline` 构建；没有缓存时明确失败，不回退到其他版本。下载包、文件清单、逐文件摘要、源码版本及 ABI 完整性均会校验。Gradle 检测提取目录的内容变化后会从已验证缓存恢复。
 
+2026-11-16 的内置 SDK 锁更新为正式 Release `android-sdk-20261116-1`，包含有序模糊音节筛选修复。消费正式标签 ZIP，并核对锁中的包摘要；分支 CI 的构建 ZIP 与正式 Release ZIP 各有摘要，不能混用。固定来源、四 ABI 与 881 个 SDK 文件的核验见[音节筛选与 SDK 交付记录](changes/2026-11-16-syllable-fuzzy-filter-fix.md)。
+
 Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、六个原生依赖、三个插件与引擎，并在主机生成 OpenCC 数据。它不读取旧 prebuilt，四 ABI 均执行最终链接验证，打包前核验全部归档对象的 ELF 架构、API 和来源。prebuilder/prebuilt 保留历史重建用途，不再参与当前更新。
 
 `librime.a` 静态链接进 `libdirect-rime.so`。LevelDB 的 `reuse_logs` 与恢复验证仍由 `tools/input-perf/test-leveldb-open.py` 等工具守护；调整依赖时同步核对实际导出和存储行为。
@@ -240,6 +242,9 @@ Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/a
 
 性能工具分别位于 `tools/input-perf/`、`tools/candidate-perf/` 和 `tools/screen-perf/`。复现前核对比较版本、方案、模型、ABI、构建类型、设备、输入速度和计时区间。
 相同文件名的远端模型也可能换过内容，应按原报告哈希找匹配夹具，不能跳过检查。
+
+`tools/input-perf/build-study-products.sh` 的旧研究保持原冻结 SDK 锁摘要，不随应用 SDK 升级而更新。新研究须将源码引用、SDK 身份和产物元数据整体版本化；通过 `products_run` 复用产物或 `--recover` 恢复元数据时，继续按原研究身份核对，不能用当前应用锁替代历史锁。审阅更正的来源与验证见[2026-11-15 SDK 换版记录](changes/2026-11-15-engine-sdk-spdlog.md)。
+
 手动触发性能 workflow、上传日志或设备数据前取得明确授权。
 
 [2026-11-14 职责拆分性能对照](history/direct-rime-refactor-performance-2026-11-14.md)固定默认产品与拆分产品，在两组 Actions Debug 模拟器测量候选点击及 Backend 工作负载；保留对象分配增加与延迟波动的信号和边界，不将职责移动或行数变化写成提速结论。

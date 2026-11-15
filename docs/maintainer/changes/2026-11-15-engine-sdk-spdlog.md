@@ -37,6 +37,8 @@
 
 下表路径相对 `fx-rime-only/`。
 
+下表保留当时改动；性能研究摘要项的后续更正见本页“2026-11-16 审阅后更正”一节。
+
 | 位置 | 改动 |
 | --- | --- |
 | `native/rime-sdk.lock.json` | 标签、SHA-256、`librime_commit`、`upstream_commit` 换成新版本 |
@@ -95,3 +97,25 @@
 
 - 本会话的 JVM 进程只能写 `D:\GitHub\fx2-rime` 与 `D:\GitHub\tools`，Robolectric 默认要写 `~/.robolectric-download-lock`，会以 `Couldn't create lock file` 让全部 Robolectric 用例失败。用 `--init-script` 把测试 JVM 的 `user.home` 指到工作区内目录（并把 `.m2` 复制过去）后恢复正常；这是本机验证方式，不进入仓库。
 - `build-logic` 的 `DataDescriptorPathTest` 在 Windows 上失败：`File("/assets")` 在 Windows 不是绝对路径，`descriptorKey` 因此原样返回 `/assets/usr/share/rime-data`。该用例与本次改动无关，Linux CI 正常；本次没有把它算作通过。
+
+## 2026-11-16 审阅后更正
+
+本次修复以代码 `c595263f2accb4959ee0a6b8228ac08d480e1d85`、文档 `5248ca8a1a000b3f428b90e23f3c724ad2237381` 为修改前来源。上文把性能研究冻结摘要改为 `63e8acc8…` 并要求重建基线的处理引入了回归：固定 baseline／regressed 仍携带旧锁，新构建会在 baseline 校验处失败，原本合法的历史产物也无法通过恢复和校验。上文 109 项单测的结果保留为当时事实，但测试把历史提交模拟成当前锁内容，漏检了这个差异。
+
+旧研究恢复使用 SDK 锁 SHA-256 `6500f364626c863bee98157e51b6539990bb0f4e392c38ec442b6b3e5eeaa92f`。以下三个历史源码引用中的 Git 锁字节均为 418 字节，摘要相同：
+
+| 研究角色 | 固定源码提交 |
+| --- | --- |
+| baseline | `0380d70f16efb6a9946a164821d5cad7118ce4ff` |
+| regressed | `4d77cd79a580a9984130a5653b13f949ec5bc0a9` |
+| 历史 current | `adb6a4e33426333677934ac82f0a19997245556a` |
+
+本轮修复保留旧研究身份。使用相同 SDK 的历史 current 仍可构建、恢复和校验；使用本次 spdlog SDK 的 current 会因身份不匹配而拒绝。当前应用的 SDK 锁保持 `63e8acc8…`；若要比较新 SDK，须另建源码引用、SDK 身份与元数据一致的新研究。`products_run` 复用和 `--recover` 只按原研究身份核对。
+
+用户手册同时更正日志默认范围：Rime 引擎默认仅输出 ERROR／FATAL，应用自身日志不受“Rime 引擎日志”开关控制。依据为 `DirectRimeEngineLog.ERROR = 2`、`ConciseTree` 默认仍保留 INFO 及以上日志，以及 `Logcat` 没有默认 ERROR 过滤。
+
+本轮验证针对上述来源上的未提交修复：`python3 -m unittest discover -s tools/input-perf -p 'test_*.py' -v` 实际执行 117 项测试，失败、错误和跳过均为 0；`bash -n tools/input-perf/build-study-products.sh` 与 `git diff --check` 通过。测试使用固定的真实历史锁夹具，以及来自代码 `c595263f2` 的升级锁夹具，覆盖构建预检查、构建元数据、恢复和校验的旧身份成功及异身份拒绝；历史夹具已与上述三个源码提交的 Git 锁字节逐字节核对。
+
+校验单测只执行到方案／模型远端夹具检查之前，没有下载原研究 ZIP。本轮未构建 APK、触发远端 workflow 或执行设备性能研究；此前 APK 和设备结果仍只对应上文原始输入。
+
+以上工具修复和 117 项回归结果属于 11 月 16 日的首个阶段，当时应用锁仍为 `63e8acc8…`。随后源码修复发布了新的正式 SDK `android-sdk-20261116-1`，应用锁和 SDK 交付验证另见[同日音节筛选记录](2026-11-16-syllable-fuzzy-filter-fix.md)；旧研究的 `6500f364…` 身份继续保持。

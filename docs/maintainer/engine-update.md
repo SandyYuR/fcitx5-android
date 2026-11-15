@@ -4,7 +4,11 @@
 
 ## 两条链路
 
-2026-11-15 的固定版本为 [`android-sdk-20261115-2`](https://github.com/SandyYuR/librime/releases/tag/android-sdk-20261115-2)：官方基线 `bb56876890ba60f446fa2640c244b1794b965eda`，定制源码 `da8d1e7c41c8abddea4f5a55b2983f91866b84a3`，SDK SHA-256 `88d2c43f9455f9be47bd8eb4f38a589fad7584dc989e8ff367b6d57961301792`。本轮把日志依赖由 glog 0.7.1 换成 spdlog 1.17.0：上游改用 spdlog 门面并移除 glog、gflags，下游从依赖锁取同一份源码、导出时补入 `deps/spdlog`，并在 Android 侧安装 `libspdlog.a` 与 logcat sink。同步官方 #1272 词典编译紧凑条目与并行分组、#1260 用户库打开失败时隔离损坏库并恢复，并合入尚未上游的 #1274 紧凑词条与两段式反向词典构建（下游为新增路径补齐映射重映射保护）。此前恢复临时库的主动回收、清理守卫与失败传播，以及同次上屏的用户词学习事务继续保留；插件版本和构建配方沿用上一 SDK 的固定输入。SDK CI 的四 ABI 构建、宿主回归与打包已通过并发布 Release；应用侧的换版、构建与验证见[2026-11-15 引擎与日志记录](changes/2026-11-15-engine-sdk-spdlog.md)。上一版 `.temp` 枚举修复的交付证据见[设备反馈修复](changes/2026-11-06-device-fixes.md)，更早的官方源码同步见[2026-11-06 引擎记录](changes/2026-11-06-engine-input-fixes.md)。实际消费版本仍以应用锁文件为准。
+2026-11-16 的固定版本为 [`android-sdk-20261116-1`](https://github.com/SandyYuR/librime/releases/tag/android-sdk-20261116-1)：官方基线 `bb56876890ba60f446fa2640c244b1794b965eda`，定制源码 `8bbdf7733b31162a41baeb2b3bfe0f9962dc4a9a`，正式 SDK ZIP SHA-256 `a566e36a3d050264308906b156ed627d37e89829d80bdbacc97f20b8fd6e8dfd`。本轮修正完整音节标签的模糊筛选：按顺序从原始带调音节重放完整 algebra，保留真实 `derive`／`fuzz` 来源，并核对最终 prism 输入边，不把九键重码或普通变换当成模糊关系。源码 CI、标签 SDK 的四 ABI 构建、宿主回归、打包与实际 Release 发布通过；来源、SDK 清单核验和应用侧验证范围见[2026-11-16 音节筛选记录](changes/2026-11-16-syllable-fuzzy-filter-fix.md)。实际消费版本仍以应用锁文件及对应 APK 元数据为准。
+
+SDK 继续使用 spdlog 1.17.0、Android `libspdlog.a` 与 logcat sink，保留官方 #1272 紧凑词条编译、#1260 用户库恢复，以及尚未上游的 #1274 紧凑词条与两段式反向词典构建和下游映射保护。临时库回收、清理守卫、失败传播和同次上屏的用户词学习事务继续保留；插件与依赖按 Android 来源锁固定。此前 glog → spdlog 换版和原生日志开关的固定产物事实见[2026-11-15 引擎与日志记录](changes/2026-11-15-engine-sdk-spdlog.md)。
+
+上一版 `.temp` 枚举修复的交付证据见[设备反馈修复](changes/2026-11-06-device-fixes.md)，更早的官方源码同步见[2026-11-06 引擎记录](changes/2026-11-06-engine-input-fixes.md)。历史研究的源码引用、SDK 和产物元数据保持原身份，不因现行 SDK 换版而修改。
 
 构建与发布：
 

@@ -8,6 +8,10 @@
 
 同日补充[万象 EVO 方案排查](./2026-11-12-evo-profile-diagnosis)：区分 API 探测、裁剪夹具通过与原始方案部署失败，并记录 `librime-evo@06947eed` 的编译失败误报成功问题。错误传播修复已推送 EVO 开发分支并生成 CI 产物，完整方案仍未通过，不能把修复引擎等同于修复方案；用户排查入口见[能切换引擎但没有中文候选](/features/rime-enhancements#能切换引擎但没有中文候选)。
 
+2026-11-16 审阅增量：[音节标签与模糊拼写](/features/rime-enhancements#音节标签与模糊拼写) 的引擎算法来源固定为 librime `8bbdf7733b31162a41baeb2b3bfe0f9962dc4a9a`。生产入口为 [ScriptSyllabifier／FuzzySpellingProjection](https://github.com/SandyYuR/librime/blob/8bbdf7733b31162a41baeb2b3bfe0f9962dc4a9a/src/rime/gear/script_translator.cc)，原生回归为 [ScriptTranslatorTab](https://github.com/SandyYuR/librime/blob/8bbdf7733b31162a41baeb2b3bfe0f9962dc4a9a/test/script_translator_tab_test.cc)。完整 algebra 顺序、模糊来源与最终 prism 输入边的契约见[正确性约束](/maintainer/implementation/correctness-contracts#候选目标、坐标与展示快照)；源码整理、SDK 交付及 Android 验证各自的实际范围见[本轮记录](./2026-11-16-syllable-fuzzy-filter-fix)。
+
+应用侧配套来源为 [PR #41](https://github.com/SandyYuR/fcitx5-android/pull/41) 的 `09f710d7b2cb213d7d1a72245c9b2ab18e052fe9`：[正式 SDK 锁](https://github.com/SandyYuR/fcitx5-android/blob/09f710d7b2cb213d7d1a72245c9b2ab18e052fe9/native/rime-sdk.lock.json) 消费 `android-sdk-20261116-1`，[OrderedSpellingTabSdkTest](https://github.com/SandyYuR/fcitx5-android/blob/09f710d7b2cb213d7d1a72245c9b2ab18e052fe9/direct-rime/src/androidTest/java/org/fcitx/directrime/OrderedSpellingTabSdkTest.kt) 通过实际 APK 中的引擎检查前置变换、九键模糊关联和带调派生。用例编译与设备实际执行结果分别记录，不继承旧 SDK 的验收结果。
+
 | 更新说明 | 源码与回归入口 |
 | --- | --- |
 | [剪贴板分组搜索](/features/clipboard-sync#应用内剪贴板) | [ClipboardSearchController](https://github.com/SandyYuR/fcitx5-android/blob/51e246b23c4854647844dbbb25695264d37cb1e6/app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchController.kt) · [ClipboardContent](https://github.com/SandyYuR/fcitx5-android/blob/51e246b23c4854647844dbbb25695264d37cb1e6/app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardContent.kt) · [ClipboardSearchDeviceTest](https://github.com/SandyYuR/fcitx5-android/blob/51e246b23c4854647844dbbb25695264d37cb1e6/app/src/androidTest/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchDeviceTest.kt) |

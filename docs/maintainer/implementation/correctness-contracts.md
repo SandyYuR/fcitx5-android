@@ -89,6 +89,8 @@ expiry 先核提示 ID，匹配时先清 Job、文本与 lifetime，再检查引
 
 音节标签另用 `CandidateTabActionTarget` 保存 generation、`tabsRevision` 与发布列表中的索引。native 比较整组有效 label／span，任一变化都会推进 `tabsRevision`，因此文字相同但跨度变化也必须刷新点击目标。`CandidateAction`、`AuxBarAction`、键盘辅助条、回退辅助条与展开／固定 tabs 都保留该目标，经 `postCandidateTabAction` 进入原有服务队列，并在进入 owner 前后复查；不从最新快照给旧标签重新生成目标。JNI 展示复用与 `Snapshot.isUnchangedRelease` 同样核对 `tabsRevision`。
 
+引擎侧完整音节筛选由 librime 的 `ScriptSyllabifier::ApplyTabConstraints` 处理。模糊关联必须从原始带调音节按部署顺序重放完整 `speller/algebra`，只由实际命中的 `derive`／`fuzz` 建立来源；普通变换只沿已有模糊分支传播，删除规则必须移除该分支。最终分支还须在实际 prism 中索引到所选输入边的拼写 key，保留分隔符、canonicalize 与补全边的匹配规则，不能仅比较数字键或抽出模糊规则单独执行。`xform/^n$/en/` 本身不建立 `n → en` 模糊关系；完整音节的直接匹配仍忽略声调，单键简拼的首字母约束继续保持。原生回归为 `ScriptTranslatorTab`，源码与交付证据见[2026-11-16 音节筛选修复](../changes/2026-11-16-syllable-fuzzy-filter-fix.md)。
+
 横向候选高亮变化只通过专用 RecyclerView payload 调用 `setActive`；结构变化后的高亮位置必须采用 `CandidateUpdatePlan` 已换算的新坐标。高亮与角标位移 payload 可以合并处理，角标仍同时更新全局下标；候选内容、主题、字体或字号变化继续完整绑定。局部 payload 不取消 `setActive` 内对正文／注释前景色和高亮背景的更新，也不改变 holder 的候选目标。
 
 `InputView` 将分页快照直接交给 `InputBroadcaster`，不先合成列表事件。广播器向每个 `PagedCandidateReceiver` 交付完整页，其他接收方共享一份列表兼容表示；每个接收方只收到一种表示。真实列表事件仍正常广播，分页与列表切换立即生效，不使用 500ms 超时猜测模式。空页须清空两种接收方，相同显示文字的新快照仍须交付其真实选择版本。入口测试为 `CandidateBroadcastTest`。
