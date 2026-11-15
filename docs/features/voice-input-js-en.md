@@ -156,7 +156,7 @@ The plugin owns the layout tree. Foxy renders these nodes with native controls s
 
 Select `options` may be strings or `{label, value}` objects. Labels are inline by default; set `labelPlacement: "top"` for stacked labels. Children do not stretch unless `weight` is provided. Dialog-level `maxWidth` and `maxHeight` are dp bounds.
 
-The old flat `fields` / `buttons` format is supported too: without `layout`, `title`, up to 12 `fields` and up to 8 `buttons` are composed into a vertical dialog, and field values fall back to the previous `values`. An `app` node resolves its `command` to the single registered App; when nothing matches (or two plugins register the same App ID) the dialog asks the user to rebind it. `js.<appId>` is only for `app` nodes — keyboard layout JSON should keep using `js_app:<pluginId>/<appId>`, because App IDs are unique per plugin only.
+The old flat `fields` / `buttons` format is supported too: without `layout`, `title`, up to 12 `fields` and up to 8 `buttons` are composed into a vertical dialog using Foxy's field rules, and field values fall back to the previous `values`. Buttons retain their event IDs and wrap as whole actions under Zhongzhou E's UI rules so every operation remains reachable at narrow widths and large font scales. An `app` node resolves its `command` to the single registered App; when nothing matches (or two plugins register the same App ID) the dialog asks the user to rebind it. `js.<appId>` is only for `app` nodes — keyboard layout JSON should keep using `js_app:<pluginId>/<appId>`, because App IDs are unique per plugin only.
 
 ### Incremental Dialog Updates
 
@@ -246,6 +246,8 @@ In a running session, an entry that reads `false` means that session does not im
 
 ## Streaming HTTP / SSE
 
+> In Zhongzhou E, `foxy.capabilities.http.stream` is `true` in a running App and `false` in a voice session. Settings/import description reports the discovery union, so it also reports `true` there; that temporary environment can discover and register App entries but cannot start a stream.
+
 `foxy.http.stream(options)` returns a stream ID immediately. Each SSE event is delivered as `(streamId, event, data)`; non-SSE responses are delivered one line at a time with event `"line"`.
 
 ```javascript
@@ -278,9 +280,9 @@ foxy.http.cancelStream(streamId);
 
 SSE `event:` and `data:` fields are parsed; multiple `data:` lines are joined with newline. The stream is HTTPS-only, uses the same host approval and `network.request` permission as ordinary HTTP, and is cancelled when the plugin App closes. Chunk callbacks are awaited sequentially to provide backpressure.
 
-Host specifics: `stream()` validates HTTPS, the method and a 1 MiB body limit, then returns the stream ID immediately, so register `onChunk/onEnd/onError` before starting; events can arrive before the following synchronous statements run. Host approval is requested before the request is sent and a denial reports `Network permission denied` through `onError`. A blank line dispatches an SSE event, the default event name is `message`, and `:` comment lines are ignored. One input line and one complete SSE event are each capped at 2 MiB; the event budget includes the event name, every `data` line, and the newline inserted when data lines are joined. Non-SSE bodies use the same 2 MiB per-line cap. One App session may keep at most four streams. No overall or read timeout is applied because SSE streams can idle, so cancellation comes only from `cancelStream`, App close, or authorization revocation; buffered events are suppressed afterwards.
+Host specifics: `stream()` validates HTTPS, the method and a 1 MiB body limit, then returns the stream ID immediately. Register `onChunk/onEnd/onError` before starting; callbacks can run after the current JavaScript evaluation returns. Host approval is requested before the request is sent and a denial reports `Network permission denied` through `onError`. A blank line dispatches an SSE event containing a `data` field, including an empty `data:` value. The default event name is `message`, `:` comment lines are ignored, and EOF also delivers a remaining event containing a `data` field. One input line and one complete SSE event are each capped at 2 MiB; the event budget includes the event name, every `data` line, and the newline inserted when data lines are joined. Non-SSE bodies use the same 2 MiB per-line cap and deliver a valid final line without a trailing newline. One App session may keep at most four streams. No overall or read timeout is applied because SSE streams can idle, so cancellation comes only from `cancelStream`, App close, or authorization revocation; buffered events are suppressed afterwards.
 
-Only one JavaScript fragment is evaluated at a time. When an async App Promise is waiting for a host or network result, it yields so WebSocket and SSE callbacks can run and resolve it; events within one connection or stream remain ordered.
+Only one JavaScript fragment is evaluated at a time. When an App awaits a plain JavaScript Promise that a WebSocket or SSE handler will resolve, the host releases the session lock between evaluation and polling steps, allowing that handler to run. Directly awaited host APIs, such as editor/UI calls, `http.request`, authorization or `waitOpen`, complete independently on the main thread or transport, but the current evaluation still waits for that host work before returning. Such an await does not guarantee that another script callback can enter during the wait. Events within one connection or stream remain ordered.
 
 ## WebSocket
 
@@ -309,7 +311,7 @@ foxy.websocket.close(socketId);
 
 WebSocket handlers are registered once per JS runtime. `onClose` receives `expected = true` for a plugin-requested close.
 
-中州鹅 wires both the voice and App sessions through one transport. Because `connect` is synchronous, call `await foxy.websocket.authorize(...)` before connecting to an unapproved host; connecting to an unauthorized host throws. Handlers are registered once per kind, not per socket. The second `onClose` argument is a boolean: the host reports `true` when the socket closed with code 1000, so a plugin-requested close and a server-side normal close both read as `true`, while an abnormal close reads as `false`. An App session buffers at most eight inbound WebSocket events; a ninth closes that connection instead of growing the IME process queue without bound.
+中州鹅 wires both the voice and App sessions through one transport. The four per-kind handlers above are available in App sessions; voice sessions still deliver text or binary frames through `plugin.onMessage` and do not report these handlers in their capability table. Because `connect` is synchronous, call `await foxy.websocket.authorize(...)` before connecting to an unapproved host; connecting to an unauthorized host throws. App handlers are registered once per kind, not per socket. The second `onClose` argument is a boolean: the host reports `true` when the socket closed with code 1000, so a plugin-requested close and a server-side normal close both read as `true`, while an abnormal close reads as `false`. An App session buffers at most eight inbound WebSocket events; a ninth closes that connection instead of growing the IME process queue without bound.
 
 ## Editor APIs
 

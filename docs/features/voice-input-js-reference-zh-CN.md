@@ -156,7 +156,7 @@ foxy.app.register({
 
 中州鹅还支持 `input.readOnly: true`，用于允许选择和复制、但不接收键盘输入的结果框。
 
-中州鹅同样兼容旧式平铺格式：没有 `layout` 时按 Foxy 的规则把 `title`、`fields`（最多 12 个）和 `buttons`（最多 8 个）拼成纵向界面，字段缺省值取上一轮的 `values`。`app` 节点按 `command` 解析成唯一注册的 App，解析不到（或同一 App ID 出现在多个插件里）时提示改用编辑按钮里的精确绑定；`js.<appId>` 只用于 `app` 节点，键盘布局 JSON 仍应写 `js_app:<pluginId>/<appId>`，因为 App ID 只在插件内唯一。
+中州鹅同样兼容旧式平铺格式：没有 `layout` 时按 Foxy 的字段规则把 `title`、`fields`（最多 12 个）和 `buttons`（最多 8 个）拼成纵向界面，字段缺省值取上一轮的 `values`。按钮保留原事件 ID，并按中州鹅的界面约定完整换行，使窄屏、大字号下全部操作可达。`app` 节点按 `command` 解析成唯一注册的 App，解析不到（或同一 App ID 出现在多个插件里）时提示改用编辑按钮里的精确绑定；`js.<appId>` 只用于 `app` 节点，键盘布局 JSON 仍应写 `js_app:<pluginId>/<appId>`，因为 App ID 只在插件内唯一。
 
 ### 增量更新界面
 
@@ -248,7 +248,7 @@ if (foxy.capabilities.http.stream) {
 
 ## 流式 HTTP / SSE
 
-> 本宿主的 App 会话已实现本节接口，`foxy.capabilities.http.stream` 在 App 会话为 `true`，在语音和设置声明会话为 `false`。实现细节与限制见本节末。
+> 本宿主的 App 会话已实现本节接口，`foxy.capabilities.http.stream` 在运行中的 App 会话为 `true`，在语音会话为 `false`。设置声明／导入求值报告发现并集，因此该值也为 `true`，但临时环境不能实际发起流式请求，只可据此发现并注册 App 入口。实现细节与限制见本节末。
 
 `foxy.http.stream(options)` 立即返回流 ID。每个 SSE 事件以 `(streamId, event, data)` 传入；非 SSE 响应逐行传入，事件名为 `"line"`。
 
@@ -281,11 +281,13 @@ foxy.http.cancelStream(streamId);
 
 解析 SSE 的 `event:`、`data:` 字段，多行 `data:` 以换行连接。流仅使用 HTTPS，与普通 HTTP 共用主机授权及 `network.request` 权限；App 关闭时取消。分块回调按顺序等待完成，提供背压。
 
-本宿主的实现约定：`stream()` 校验 HTTPS、方法与请求体上限（1 MiB）后立即返回流 ID，事件可能早于紧随其后的同步代码，应先注册 `onChunk/onEnd/onError` 再发起。真正发请求前会请求主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 的空行派发事件、缺省事件名为 `message`，`:` 开头的注释行忽略；单行和单个完整事件分别以 2 MiB 为上限，事件预算包括 `event` 名称、每条 `data` 内容及连接多行时插入的换行，非 SSE 响应也使用 2 MiB 单行上限。同一 App 会话最多 4 条流。请求不设整体与读取超时（SSE 可能长时间空闲）；`cancelStream`、App 关闭或授权撤销后不再投递已缓冲事件。宿主一次只执行一个 JavaScript 片段，但 async App Promise 等待网络结果时允许 WebSocket／SSE 回调交错运行，单条流内部仍保持顺序和背压。
+本宿主的实现约定：`stream()` 校验 HTTPS、方法与请求体上限（1 MiB）后立即返回流 ID；应先注册 `onChunk/onEnd/onError` 再发起，回调可在当前 JavaScript 求值返回后执行。真正发请求前会请求主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 在空行处派发含 `data` 字段的事件，空的 `data:` 值也会交付；缺省事件名为 `message`，`:` 开头的注释行忽略，EOF 处仍会交付含 `data` 字段的尾事件。单行和单个完整事件分别以 2 MiB 为上限，事件预算包括 `event` 名称、每条 `data` 内容及连接多行时插入的换行；非 SSE 响应也使用 2 MiB 单行上限，并交付没有末尾换行的合法尾行。同一 App 会话最多 4 条流。请求不设整体与读取超时（SSE 可能长时间空闲）；`cancelStream`、App 关闭或授权撤销后不再投递已缓冲事件。
+
+宿主一次只执行一个 JavaScript 片段。App 等待由 WebSocket／SSE 回调解决的纯 JavaScript Promise 时，两次求值／轮询步骤之间会释放会话锁，使该回调可以交错执行。直接等待 editor／UI、`http.request`、授权或 `waitOpen` 等宿主异步 API 时，主线程或传输独立完成宿主工作，但当前求值仍会等待该工作结束后才返回，不能据此保证等待期间其他脚本回调可以进入。单条连接或流内部的事件仍保持顺序，流回调保持背压。
 
 ## WebSocket
 
-> 中州鹅的语音插件与 App 会话共用同一份 WebSocket 传输，以下接口均已实现。App WebSocket 的实际连接只接受 WSS；静态声明或格式安全的普通 HTTPS／WSS 端点设置可以贡献精确主机，但仍需授权。`connect` 是同步的，连接未授权主机前必须先 `await foxy.websocket.authorize(...)`，否则直接抛错；四个回调按种类各注册一次，不按 socket 区分；`onClose` 的第二个参数是布尔值（Foxy 文档写作 `expected`，语义接近 `wasClean`），本宿主按关闭码是否为 1000 给出：插件主动关闭与服务端正常关闭都为 `true`，异常关闭为 `false`。App 会话最多缓存 8 个入站 WebSocket 事件，第 9 个会关闭对应连接，避免输入法进程无限积压。
+> 中州鹅的语音插件与 App 会话共用同一份 WebSocket 传输。以下四个按种类注册的回调用于 App 会话；语音会话仍经 `plugin.onMessage` 接收文本或二进制帧，其能力表不报告这四个回调。App WebSocket 的实际连接只接受 WSS；静态声明或格式安全的普通 HTTPS／WSS 端点设置可以贡献精确主机，但仍需授权。`connect` 是同步的，连接未授权主机前必须先 `await foxy.websocket.authorize(...)`，否则直接抛错；四个回调按种类各注册一次，不按 socket 区分；`onClose` 的第二个参数是布尔值（Foxy 文档写作 `expected`，语义接近 `wasClean`），本宿主按关闭码是否为 1000 给出：插件主动关闭与服务端正常关闭都为 `true`，异常关闭为 `false`。App 会话最多缓存 8 个入站 WebSocket 事件，第 9 个会关闭对应连接，避免输入法进程无限积压。
 
 普通 App 与语音插件共用 Foxy 的宿主 WebSocket 传输：
 

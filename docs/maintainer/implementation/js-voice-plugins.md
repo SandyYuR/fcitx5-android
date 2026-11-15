@@ -2,6 +2,8 @@
 
 本页描述中州鹅当前宿主。安装与账号配置请先看[JS 插件使用指南](/features/voice-input-js)；Foxy 英文原文只作接口来源参考，差异以本页及源码为准。
 
+Foxy API 对齐的修正、固定源码与验证范围见[2026-11-15 配套 PR 审阅记录](../changes/2026-11-15-js-foxy-review)。
+
 <span id="js-app-test-branch"></span>
 
 ## JS App 与 AI 助手
@@ -12,7 +14,7 @@
 - “编辑按钮”中的“JS 工具”是添加模板：用户在配置阶段选择一个已注册 App，布局保存 `js_app:js:<plugin-id>/<app-id>` 形式的稳定动态动作 ID。运行时短按直接解析当前 `Spec` 与 App，不再弹选择器；长按进入对应插件设置。一个插件的多个 App 可分别绑定，纯语音插件不列出。目标缺失时不回退其他 App，重新安装相同 ID 后从当前目录恢复解析。
 - AI 首选保存完整的插件 ID 与 App ID 组合，不依赖名称、用途标签或列表顺序。短按运行与长按配置使用同一解析结果；所选插件或 App 消失时清除失效选择并回退到 `js:llm-assistant`，之后重新安装该外部插件不会自动恢复旧选择。选择其他 App 不转移插件之间的设置、密钥或权限。
 - App 回调收到 `event`、`values`、`appId`、`command`、`settings`、普通设置顶层别名及已配置的密钥字段 ID。按钮和下拉选择使用控件 ID 作为事件名，主流程按次序执行。
-- 支持 `column`、`row`、`text`、`input`、`select`、`button`、`app`、`spacer`；没有 `layout` 时按 Foxy 规则把 `title`、`fields`、`buttons` 转成同样的声明式布局。标签默认在左侧，`labelPlacement: "top"` 放上方；字段的 `height` 只计控件，不计标签。`input.readOnly: true` 允许选择、复制和滚动，但不接收键盘输入。
+- 支持 `column`、`row`、`text`、`input`、`select`、`button`、`app`、`spacer`；没有 `layout` 时按 Foxy 的字段规则把 `title`、`fields`、`buttons` 转成声明式布局，按钮保留原事件 ID 并使用本宿主的 `actions` 完整换行组件。标签默认在左侧，`labelPlacement: "top"` 放上方；字段的 `height` 只计控件，不计标签。`input.readOnly: true` 允许选择、复制和滚动，但不接收键盘输入。
 - 本地界面扩展 `header` 与 `actions`：根 `column` 首部的 `header` 和末尾的 `actions` 固定在滚动正文两侧；空间过矮时整块滚动，切换只移动现有视图。`actions` 只接收按钮，并按完整按钮换行；旧 `row` 表单仍按原结构显示。
 - 按钮 `style` 可为 `filled`、`tonal`、`text` 或默认描边。`icon` 仅接受内置 `assistant`、`close`、`send`、`check`；`iconOnly` 保留文字作为无障碍说明，未知图标回退文字。文本可用 `tone: "error"`、`maxLines`（1–8）与 `description`（长按说明，最多 600 字符）。这些是中州鹅的界面扩展，不表示原版 Foxy 提供相同字段。
 - 原生界面通过 `SettingsUiPreferences.themedContext` 复用主界面颜色角色，包含深浅色、Monet、手动色板和纯黑。图标来自受限应用资源，不接受脚本提供的外部图片路径；界面样式不改变原有事件 ID、能力权限或输入连接归属。
@@ -22,8 +24,8 @@
 - `foxy.editor.getSelection/getText/setComposition/clearComposition/commit` 分别核对相应能力。预览取消时恢复原选中文本；只有 `commit` 正式上屏。`credentials.list` 和 `context.configuredSecrets` 仅提供已配置的字段 ID，不提供密钥。
 - `foxy.capabilities` 是按 Foxy 形状组织的白名单，不是原生桥对象的转储。设置声明／导入求值（describe）报告 App 与 voice 运行时能力的**发现并集**，使插件顶层按能力条件注册时不会漏掉 App 或语音入口；该临时环境仍不能实际调用网络或编辑器，也没有 `settings.set`。进入运行态后表才表示可调用性：App 会话报告编辑器、对话框、`http.request/stream`、WebSocket 及其回调和 `settings.set`，不报告语音事件、`http.post` 或 HMAC；语音会话报告语音事件、`http.post`、HMAC、音频与 WebSocket，不报告 App 的 request/stream、编辑器或设置写入。`__n_*`、`wsConnect`、`__native` 等内部入口永不进入公开表；插件应在运行会话按表降级，不依赖 `try/catch` 猜测能力。
 - App 会话与语音会话共用同一份 `JsWebSocketTransport`（`JsWebSocketTransport.kt`）：App HTTP 只接受 `https://`，WebSocket 的实际连接只接受 `wss://`。HTTP 主机可来自静态 `hosts` 或普通设置中格式安全的 HTTPS 端点；App WebSocket 主机可来自静态 `hosts`，也可由普通设置中格式安全的 HTTPS 或 WSS 端点贡献。两者都只取精确主机，仍须按插件和主机单独批准。App 的 `connect` 是同步调用，必须先 `await foxy.websocket.authorize(...)`；未授权主机在连接时直接抛错。`onMessage/onBinary/onError/onClose` 按种类各存一个处理函数（与 Foxy 一致，不按 socket 区分），`onClose` 按关闭码是否为 1000 给出布尔值。App 入站队列最多缓存 8 个事件，满时关闭对应连接而不继续占用 IME 内存；单个回调抛错不掐断其他连接的后续帧，App 关闭时 `closeAll()` 并结束投递。
-- App 的 SSE 由 `JsAppStreams`（`JsAppStreams.kt`）实现：`stream()` 校验 HTTPS、方法与 1 MiB 请求体上限后立刻返回流 ID，实际请求在 IO 协程里先过 `network.request` 权限与主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 单行及单个事件分别以 2 MiB 为上限；事件预算包含 `event` 名称、每条 `data` 内容及多行连接时插入的换行，不只计算最终数据文本。非 SSE 响应逐行投递，使用相同单行上限。同一会话最多 4 条流。请求不设整体或读取超时；取消、关闭或授权撤销后不再投递已缓冲事件。
-- 同一 QuickJS 会话一次只执行一个 JavaScript 求值；App 的 async Promise 等待宿主或网络结果时会让出执行权，允许 WebSocket／SSE 回调交错运行并解决原 Promise，但单条流及单个连接的事件顺序仍保持。不能在等待 Promise 的整个 180 秒预算内占住会话锁，阻止负责完成它的回调。
+- App 的 SSE 由 `JsAppStreams`（`JsAppStreams.kt`）实现：`stream()` 校验 HTTPS、方法与 1 MiB 请求体上限后立刻返回流 ID，实际请求在 IO 协程里先过 `network.request` 权限与主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 单行及单个事件分别以 2 MiB 为上限；事件预算包含 `event` 名称、每条 `data` 内容及多行连接时插入的换行，不只计算最终数据文本。空行处派发含 `data` 字段的事件，空的 `data:` 值也会交付；EOF 处仍会交付含 `data` 字段的尾事件。非 SSE 响应逐行投递，使用相同单行上限，没有末尾换行的合法尾行仍会交付。同一会话最多 4 条流。请求不设整体或读取超时；取消、关闭或授权撤销后不再投递已缓冲事件。
+- 同一 QuickJS 会话一次只执行一个 JavaScript 求值。App 等待由 WebSocket／SSE 回调解决的纯 JavaScript Promise 时，`__run`／`__pump` 两次求值之间会释放会话锁，允许网络回调交错运行并解决原 Promise；单条流及单个连接的事件顺序仍保持。`QuickJs.evaluate` 会等待本次触发的宿主 `asyncFunction` 工作完成，例如 editor／UI、`http.request`、主机批准或 `waitOpen`；这些工作通过主线程或传输独立完成，当前求值返回前仍持有锁，不能据此认为等待任何宿主 API 都允许其他脚本回调进入。
 - `foxy.settings.set(key, value)` 把值写回该插件的普通设置项，只接受 `configure()` 里声明过的非密钥字段（`ui.text/select/switch/number`）；密钥字段与未声明的键都抛错。单个值的 UTF-8 内容最多 64 KiB，同一会话全部普通设置合计最多 256 KiB；写入后同一会话后续 `event` 上下文立即反映新值。设置声明／导入求值环境没有持久化能力，那里 `foxy.settings` 不存在（`typeof` 为 `undefined`）。
 - JS 不提供自动读取剪贴板的能力。迁移其他宿主的文本插件时，可按声明读取选区，或让用户在 App 的 `input` 中输入、手动粘贴；网络、返回值及界面需分别适配本页接口。上屏前的明确确认与旧结果失效逻辑仍由脚本实现，动态按钮不会替插件添加这些步骤。
 - `foxy.http.request` 支持 GET、POST、PUT、PATCH、DELETE，返回 JSON 字符串形式的状态、头和正文。`credential`、`authHeader`、`authPrefix` 让宿主注入密钥，JS 不持有明文。请求体限制 1 MiB、响应限制 2 MiB，禁止自动重定向和覆盖传输头。
@@ -39,7 +41,7 @@
 
 内置助手以 **发送 AI → 显示 AI 回复 → 确认上屏** 为主流程。无有效回复的旧 `confirm` 事件按生成处理；输入、用途、服务或配置变化使旧回复失效，不能提交旧结果。失败保持窗口与输入。按钮标签没有宿主内建语义，其他插件应自行实现完整状态处理。
 
-当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的文本请求，以及 App SSE 与 App WebSocket。旧式平铺 `fields/buttons` 由 `JsAppLegacyLayout` 按 Foxy 规则转换成同样的声明式布局（`title`、最多 12 个字段、最多 8 个按钮、缺省值取上一轮 `values`）；布局里的 `app` 节点由 `JsAppCommand` 解析成唯一注册的 App，解析不到或同 ID 多插件时提示重新绑定。`js.<appId>` 只用于 `app` 节点，不执行任意布局命令，键盘布局仍写 `js_app:<pluginId>/<appId>`。
+当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的文本请求，以及 App SSE 与 App WebSocket。旧式平铺 `fields/buttons` 由 `JsAppLegacyLayout` 按 Foxy 的字段规则转换成声明式布局（`title`、最多 12 个字段、最多 8 个按钮、缺省值取上一轮 `values`），按钮按本宿主界面约定完整换行，保持窄屏、大字号和 RTL 下可达；布局里的 `app` 节点由 `JsAppCommand` 解析成唯一注册的 App，解析不到或同 ID 多插件时提示重新绑定。`js.<appId>` 只用于 `app` 节点，不执行任意布局命令，键盘布局仍写 `js_app:<pluginId>/<appId>`。
 新版 [Foxy 英文接口参考](/features/voice-input-js-en)和[中文译文](/features/voice-input-js-reference-zh-CN)包含上游完整 API；判断本宿主支持范围以本页和能力表为准。
 
 ## 插件定义
@@ -104,7 +106,7 @@ configure(ui) {
 
 ## 生命周期
 
-所有回调在同一个 QuickJS 会话里执行，同一时刻只有一个 JavaScript 片段求值。回调可以是 `async` 并返回 Promise；运行中的 App Promise 等待宿主或网络结果时会让出执行权，使负责完成它的 WebSocket／SSE 回调可以交错执行。语音生命周期回调及每条连接、每条流内部的事件顺序仍保持。
+所有回调在同一个 QuickJS 会话里执行，同一时刻只有一个 JavaScript 片段求值。回调可以是 `async` 并返回 Promise。App 等待由 WebSocket／SSE 回调解决的纯 JavaScript Promise 时，宿主在 `__run`／`__pump` 两次求值之间释放会话锁，使网络回调可以交错执行。直接调用 editor／UI、`http.request`、授权或 `waitOpen` 等宿主异步 API 时，`QuickJs.evaluate` 仍会等待本次触发的宿主工作完成后才返回；主线程或传输负责独立完成该工作，等待期间不保证其他脚本回调可以进入。语音生命周期回调及每条连接、每条流内部的事件顺序仍保持。
 
 1. `start(context)`：每次识别会话调用一次，必须返回一个字符串 handle，之后以 `context.socket` 传回。非 WebSocket 模式返回任意哨兵字符串即可，例如 `"single"`。
 2. `audio(context)`：每段 PCM 调用一次，`context.pcm` 是 Base64 编码的 PCM，另有 `sampleRate`、`taskId`、`socket`。流式插件直接转发；单次请求插件可以缓冲，但必须自己限制时长或字节数。
