@@ -2,17 +2,19 @@
 
 本页描述中州鹅当前宿主。安装与账号配置请先看[JS 插件使用指南](/features/voice-input-js)；Foxy 英文原文只作接口来源参考，差异以本页及源码为准。
 
+Foxy API 对齐的修正、固定源码与验证范围见[2026-11-15 配套 PR 审阅记录](../changes/2026-11-15-js-foxy-review)。
+
 <span id="js-app-test-branch"></span>
 
 ## JS App 与 AI 助手
 
 本节对应默认分支 `fx-rime-only` 的当前实现，AI 助手于 2026-11-05 合入；较早的 APK 需更新后使用。旧章节锚点保留，以兼容已有链接。
 
-- `foxy.app.register` 注册 App；`features` 可以为空，App 不会加入语音服务列表。App 能力与网络主机分别授权，可在插件设置撤销。
+- `foxy.app.register` 注册 App；`features` 可以为空，App 不会加入语音服务列表。App 能力与网络主机分别授权，可在插件设置撤销；撤销当前 App 的能力或插件主机授权会关闭该插件正在运行的 App 会话，取消网络任务并恢复尚未确认的预览。
 - “编辑按钮”中的“JS 工具”是添加模板：用户在配置阶段选择一个已注册 App，布局保存 `js_app:js:<plugin-id>/<app-id>` 形式的稳定动态动作 ID。运行时短按直接解析当前 `Spec` 与 App，不再弹选择器；长按进入对应插件设置。一个插件的多个 App 可分别绑定，纯语音插件不列出。目标缺失时不回退其他 App，重新安装相同 ID 后从当前目录恢复解析。
 - AI 首选保存完整的插件 ID 与 App ID 组合，不依赖名称、用途标签或列表顺序。短按运行与长按配置使用同一解析结果；所选插件或 App 消失时清除失效选择并回退到 `js:llm-assistant`，之后重新安装该外部插件不会自动恢复旧选择。选择其他 App 不转移插件之间的设置、密钥或权限。
 - App 回调收到 `event`、`values`、`appId`、`command`、`settings`、普通设置顶层别名及已配置的密钥字段 ID。按钮和下拉选择使用控件 ID 作为事件名，主流程按次序执行。
-- 支持 `column`、`row`、`text`、`input`、`select`、`button`、`spacer`。标签默认在左侧，`labelPlacement: "top"` 放上方；字段的 `height` 只计控件，不计标签。`input.readOnly: true` 允许选择、复制和滚动，但不接收键盘输入。
+- 支持 `column`、`row`、`text`、`input`、`select`、`button`、`spacer`，并扩展 App 对话框里的 `app` 切换节点；没有 `layout` 时按 Foxy 的字段规则把 `title`、`fields`、`buttons` 转成声明式布局，按钮保留原事件 ID 并使用本宿主的 `actions` 完整换行组件。标签默认在左侧，`labelPlacement: "top"` 放上方；字段的 `height` 只计控件，不计标签。`input.readOnly: true` 允许选择、复制和滚动，但不接收键盘输入。
 - 本地界面扩展 `header` 与 `actions`：根 `column` 首部的 `header` 和末尾的 `actions` 固定在滚动正文两侧；空间过矮时整块滚动，切换只移动现有视图。`actions` 只接收按钮，并按完整按钮换行；旧 `row` 表单仍按原结构显示。
 - 按钮 `style` 可为 `filled`、`tonal`、`text` 或默认描边。`icon` 仅接受内置 `assistant`、`close`、`send`、`check`；`iconOnly` 保留文字作为无障碍说明，未知图标回退文字。文本可用 `tone: "error"`、`maxLines`（1–8）与 `description`（长按说明，最多 600 字符）。这些是中州鹅的界面扩展，不表示原版 Foxy 提供相同字段。
 - 原生界面通过 `SettingsUiPreferences.themedContext` 复用主界面颜色角色，包含深浅色、Monet、手动色板和纯黑。图标来自受限应用资源，不接受脚本提供的外部图片路径；界面样式不改变原有事件 ID、能力权限或输入连接归属。
@@ -20,13 +22,18 @@
 - 同一输入法服务中的 AI 动作再次点击会关闭当前 App 面板，取消未完成请求并恢复临时预览；重新点击才创建新会话。键盘内剪贴板等页面切换保留现有面板和本地输入，不改变原应用连接。
 - 同一动态 App 动作再次点击会关闭当前面板；点击另一动态 App 动作会先取消旧会话、恢复临时预览，再打开精确目标。切换入口不改变原应用编辑器的归属，过期输入会话不能因按钮解析而复活。旧的通用 `js_tools` 占位只引导用户回“编辑按钮”重新绑定，不再提供运行时选择器。
 - `foxy.editor.getSelection/getText/setComposition/clearComposition/commit` 分别核对相应能力。预览取消时恢复原选中文本；只有 `commit` 正式上屏。`credentials.list` 和 `context.configuredSecrets` 仅提供已配置的字段 ID，不提供密钥。
+- `foxy.capabilities` 是按 Foxy 形状组织的白名单，不是原生桥对象的转储。设置声明／导入求值（describe）报告 App 与 voice 运行时能力的**发现并集**，使插件顶层按能力条件注册时不会漏掉 App 或语音入口；该临时环境仍不能实际调用网络或编辑器，也没有 `settings.set`。进入运行态后表才表示可调用性：App 会话报告编辑器、对话框、`http.request/stream`、WebSocket 及其回调和 `settings.set`，不报告语音事件、`http.post` 或 HMAC；语音会话报告语音事件、`http.post`、HMAC、音频与 WebSocket，不报告 App 的 request/stream、编辑器或设置写入。`__n_*`、`wsConnect`、`__native` 等内部入口永不进入公开表；插件应在运行会话按表降级，不依赖 `try/catch` 猜测能力。
+- App 会话与语音会话共用同一份 `JsWebSocketTransport`（`JsWebSocketTransport.kt`）：App HTTP 只接受 `https://`，WebSocket 的实际连接只接受 `wss://`。HTTP 主机可来自静态 `hosts` 或普通设置中格式安全的 HTTPS 端点；App WebSocket 主机可来自静态 `hosts`，也可由普通设置中格式安全的 HTTPS 或 WSS 端点贡献。两者都只取精确主机，仍须按插件和主机单独批准。App 的 `connect` 是同步调用，必须先 `await foxy.websocket.authorize(...)`；未授权主机在连接时直接抛错。`onMessage/onBinary/onError/onClose` 按种类各存一个处理函数（与 Foxy 一致，不按 socket 区分），`onClose` 按关闭码是否为 1000 给出布尔值。App 入站队列最多缓存 8 个事件，满时关闭对应连接而不继续占用 IME 内存；单个回调抛错不掐断其他连接的后续帧，App 关闭时 `closeAll()` 并结束投递。
+- App 的 SSE 由 `JsAppStreams`（`JsAppStreams.kt`）实现：`stream()` 校验 HTTPS、方法与 1 MiB 请求体上限后立刻返回流 ID，实际请求在 IO 协程里先过 `network.request` 权限与主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 接受 LF、CRLF 和单独 CR 换行，忽略流首的一个 UTF-8 BOM，保留其他位置的 BOM。单行及单个事件分别以 2 MiB 为上限；事件预算包含 `event` 名称、每条 `data` 内容及多行连接时插入的换行，不只计算最终数据文本。空行处派发含 `data` 字段的事件，空的 `data:` 值也会交付；EOF 处仍会交付含 `data` 字段的尾事件。非 SSE 响应逐行投递，使用相同单行上限，没有末尾换行的合法尾行仍会交付。同一会话最多 4 条流。请求不设整体或读取超时；取消、关闭或授权撤销后不再投递已缓冲事件。
+- 同一 QuickJS 会话一次只执行一个 JavaScript 求值。App 等待由 WebSocket／SSE 回调解决的纯 JavaScript Promise 时，`__run`／`__pump` 两次求值之间会释放会话锁，允许网络回调交错运行并解决原 Promise；单条流及单个连接的事件顺序仍保持。`QuickJs.evaluate` 会等待本次触发的宿主 `asyncFunction` 工作完成，例如 editor／UI、`http.request`、主机批准或 `waitOpen`；这些工作通过主线程或传输独立完成，当前求值返回前仍持有锁，不能据此认为等待任何宿主 API 都允许其他脚本回调进入。
+- `foxy.settings.set(key, value)` 把值写回该插件的普通设置项，只接受 `configure()` 里声明过的非密钥字段（`ui.text/select/switch/number`）；密钥字段与未声明的键都抛错。单个值的 UTF-8 内容最多 64 KiB，同一会话全部普通设置合计最多 256 KiB；写入后同一会话后续 `event` 上下文立即反映新值。设置声明／导入求值环境没有持久化能力，那里 `foxy.settings` 不存在（`typeof` 为 `undefined`）。
 - JS 不提供自动读取剪贴板的能力。迁移其他宿主的文本插件时，可按声明读取选区，或让用户在 App 的 `input` 中输入、手动粘贴；网络、返回值及界面需分别适配本页接口。上屏前的明确确认与旧结果失效逻辑仍由脚本实现，动态按钮不会替插件添加这些步骤。
 - `foxy.http.request` 支持 GET、POST、PUT、PATCH、DELETE，返回 JSON 字符串形式的状态、头和正文。`credential`、`authHeader`、`authPrefix` 让宿主注入密钥，JS 不持有明文。请求体限制 1 MiB、响应限制 2 MiB，禁止自动重定向和覆盖传输头。
-- App HTTP 的主机须为静态声明项或当前普通设置中有效 HTTPS 地址的精确主机；读取密钥与发送请求前还需该插件对该主机的用户批准。旧批准本身不能使已从配置删除的非声明主机继续可访问。内置助手使用空 `hosts` 与空默认地址。
-- 授权按插件及主机名记录；首次请求新主机再询问。URL 路径、端口、模型变化不另作域名授权，Host 和 HTTP/2 `:authority` 由 OkHttp 生成。App 回调等待上限 180 秒。
+- App HTTP 的主机须为静态声明项或当前普通设置中有效 HTTPS 地址的精确主机；App WebSocket 可使用静态声明项，或普通设置中有效 HTTPS／WSS 地址的精确主机，但实际连接仍必须是 WSS。读取密钥与发送前还需该插件对目标主机的用户批准；旧批准不能让已从配置删除的非声明主机继续可访问。内置助手使用空 `hosts` 与空默认地址。
+- 授权按插件及主机名记录；首次请求新主机再询问。URL 路径、端口、模型变化不另作域名授权，Host 和 HTTP/2 `:authority` 由 OkHttp 生成。撤销当前 App 能力或插件主机授权会关闭该插件的活动 App 会话。App 回调等待上限 180 秒；单个 WebSocket／SSE 回调超时视为本次调用失败并回收等待槽，会话与连接或流仍有效时继续处理后续事件。取消流、关闭会话和撤销授权仍会停止相应投递。
 - 中州鹅扩展 `await foxy.app.sleep(milliseconds)`：仅 App 运行上下文可调用，接受 0–10000 的整数毫秒，通过可取消协程等待，等待前后检查输入会话。QuickJS 不提供浏览器 `setTimeout`，不能用立即返回的替代函数假装完成退避。
 - App HTTP 可传 `timeoutMs`（1–60000 的整数，默认 60000），宿主限制整次网络调用；读取密钥后、真正发送前再次核对域名与授权。内置助手每组生成请求共享 60 秒预算，最多三次尝试，退避为 900/1800 ms；超过 20 秒的失败不自动重试。
-- APK 内置 `llm-assistant` 与 `youdao-free-translate`。后者从用户提供的元书脚本适配，只在点击翻译后向静态声明的 `aidemo.youdao.com` 发送文本；成功后同时保留原文和只读译文，面板结果不依赖目标编辑器是否接受临时 composition，确认后才 commit。公开服务的限流、语言范围与可用性不是宿主保证。两者都作为 App 而不是语音提供方加载。
+- APK 内置 `llm-assistant`、`youdao-free-translate` 与 `bilibili-translate`。两个翻译 App 都从用户提供的元书脚本适配，只在点击翻译后向各自静态声明的域名（`aidemo.youdao.com`、`index-translate.bilibili.com`）发送文本；成功后同时保留原文和只读译文，面板结果不依赖目标编辑器是否接受临时 composition，确认后才 commit。哔哩哔哩翻译沿用上游的 OpenAI 兼容请求体，接口地址与模型是该插件的普通设置，改到其他主机后仍按前述端点与授权规则单独批准。公开服务的限流、语言范围与可用性不是宿主保证。三者都作为 App 而不是语音提供方加载。
 - 普通新增导入保留内置 ID；插件设置的定向“导入替换”只放行选定的 ID。内置替换还核对其原有 App／语音入口，由用户确认启用自定义来源；普通导入插件升级可调整 App 列表，但已有语音能力不得移除。内置覆盖标记随导入记录原子提交，旧记录默认不带标记，历史同 ID 文件不会自动抢占内置。明确启用的自定义版本持续优先，不比较版本号，APK 升级不自动切回内置。
 - “恢复内置”取消自定义覆盖标记，保留设置、密钥和已导入脚本；后者不再参与实际运行，重新启用须再次明确导入替换。同 ID 源码更新保留设置和密钥，源码替换、恢复内置或移除会使同 ID 的活动 App 与语音 provider 失效，并撤销旧 App 与网络授权。导入脚本的静态主机经本次导入确认批准；APK 初次附带、尚未经过导入确认的静态主机（如内置翻译）在首次实际请求时询问。动态主机也在实际请求时单独询问。
 - 目录重建后核对 `preferredVoiceInput`：仅当 `js:` 首选已不再注册语音 provider 时持久清除；外部 provider ID 不受此逻辑影响。这样 App-only 内置项的自定义语音覆盖在“恢复内置”后不会留下死首选，原本就是语音的内置项恢复后仍保留有效选择。
@@ -34,8 +41,10 @@
 
 内置助手以 **发送 AI → 显示 AI 回复 → 确认上屏** 为主流程。无有效回复的旧 `confirm` 事件按生成处理；输入、用途、服务或配置变化使旧回复失效，不能提交旧结果。失败保持窗口与输入。按钮标签没有宿主内建语义，其他插件应自行实现完整状态处理。
 
-当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的非流式文本请求；App SSE/WebSocket、`foxy.websocket.authorize`、旧式平铺 `fields/buttons` 和任意 `js.*` 布局命令未实现。动态 JS App 按钮只解析已注册 App，不执行任意布局命令。
-新版 [Foxy 英文接口参考](/features/voice-input-js-en)和[中文译文](/features/voice-input-js-reference-zh-CN)包含上游完整 API，不能将其中的流式示例直接视为本宿主已支持。
+当前支持 Chat Completions、Anthropic Messages 和 OpenAI Responses 的文本请求，以及 App SSE 与 App WebSocket。旧式平铺 `fields/buttons` 由 `JsAppLegacyLayout` 按 Foxy 的字段规则转换成声明式布局（`title`、最多 12 个字段、最多 8 个按钮、缺省值取上一轮 `values`），按钮按本宿主界面约定完整换行，保持窄屏、大字号和 RTL 下可达。
+
+App 对话框里的 `app` 节点是中州鹅扩展，接受 `command`（`js.<appId>`）、`label` 和 `style`，由 `JsAppCommand` 解析成唯一注册的 App 并渲染切换按钮，解析不到或同 ID 多插件时提示重新绑定。Foxy 原始参考中的 `{"type":"app","command":"js.rewrite"}` 是键盘布局调用入口，未列入其对话框节点表。中州鹅只在这一对话框扩展内解析 `js.<appId>`，不执行任意布局命令；键盘布局继续写 `js_app:<pluginId>/<appId>` 精确绑定。
+新版 [Foxy 英文接口参考](/features/voice-input-js-en)和[中文译文](/features/voice-input-js-reference-zh-CN)包含上游完整 API；判断本宿主支持范围以本页和能力表为准。
 
 ## 插件定义
 
@@ -99,7 +108,7 @@ configure(ui) {
 
 ## 生命周期
 
-所有回调在同一个 QuickJS 会话里串行调用，可以是 `async` 并返回 Promise。
+所有回调在同一个 QuickJS 会话里执行，同一时刻只有一个 JavaScript 片段求值。回调可以是 `async` 并返回 Promise。App 等待由 WebSocket／SSE 回调解决的纯 JavaScript Promise 时，宿主在 `__run`／`__pump` 两次求值之间释放会话锁，使网络回调可以交错执行。直接调用 editor／UI、`http.request`、授权或 `waitOpen` 等宿主异步 API 时，`QuickJs.evaluate` 仍会等待本次触发的宿主工作完成后才返回；主线程或传输负责独立完成该工作，等待期间不保证其他脚本回调可以进入。语音生命周期回调及每条连接、每条流内部的事件顺序仍保持。
 
 1. `start(context)`：每次识别会话调用一次，必须返回一个字符串 handle，之后以 `context.socket` 传回。非 WebSocket 模式返回任意哨兵字符串即可，例如 `"single"`。
 2. `audio(context)`：每段 PCM 调用一次，`context.pcm` 是 Base64 编码的 PCM，另有 `sampleRate`、`taskId`、`socket`。流式插件直接转发；单次请求插件可以缓冲，但必须自己限制时长或字节数。
@@ -156,12 +165,12 @@ configure(ui) {
 
 `foxy.binary` 提供 `concatBase64(chunks)`（先解码再拼接，不能直接连接带填充的 Base64 字符串）、`utf8Base64(text)`、`base64Utf8(base64)`、`byteLength(base64)`、`readUInt8(base64, offset)`、`readInt32BE(base64, offset)`、`sliceBase64(base64, offset, length)`、`gunzipUtf8(base64)`，用于解析带长度前缀或压缩的二进制协议。
 
-> 与 Foxy 上游文档的差异：本宿主**支持**二进制 WebSocket 帧（经 `onMessage({binaryBase64})` 交给插件），Foxy 当前文档写的是拒绝；`foxy.http.post` 没有自定义认证头参数，固定用 Bearer；本宿主也不提供 `foxy.capabilities` 别名，请直接用 `foxy.websocket`、`foxy.http`、`foxy.audio`、`foxy.binary`。
+> 与 Foxy 上游文档的差异：本宿主**支持**二进制 WebSocket 帧（经 `onMessage({binaryBase64})` 交给插件），Foxy 当前文档写的是拒绝；`foxy.http.post` 没有自定义认证头参数，固定用 Bearer。`foxy.capabilities` 见下面的能力表，它是白名单而不是 Foxy 的原生桥对象转储。
 
 ## 网络与安全
 
-- 语音连接和请求只允许 `wss://` 与 `https://`，且主机名必须同时满足「脚本声明」和「用户明确批准」。App HTTP 另按本页开头的动态端点规则校验，仍需逐主机用户授权。
-- 授权按插件分别保存，不会因一个插件已获准就顺带批准其他插件。插件设置页可以查看完整域名清单，并撤销该插件的授权。
+- 语音连接和请求只允许 `wss://` 与 `https://`，且主机名必须同时满足「脚本声明」和「用户明确批准」。App HTTP 只用 HTTPS，App WebSocket 只用 WSS；普通设置中格式安全的对应端点可以贡献精确主机，仍需逐插件、逐主机授权。
+- 授权按插件分别保存，不会因一个插件已获准就顺带批准其他插件。插件设置页可以查看并撤销授权；撤销当前 App 能力或插件主机授权会关闭该插件的活动 App 会话，取消网络任务并恢复未确认预览。
 - 带 userinfo 的 URL（`https://user@host/`）一律拒绝，避免用凭据前缀伪造已批准域名。
 - `headersJson` 里不能出现 `Host`、`Content-Length`、`Content-Type`、`Connection`、`Transfer-Encoding`、`Proxy-Authorization`、`Upgrade`、`Authorization` 这些由宿主或 OkHttp 管理的头；头值里的换行会被剔除，长度也有限制，防止请求头注入。
 - `secretField` 必须是已声明的 `ui.secret` 字段。密钥由宿主在 Android Keystore 加密后保存，脚本只能给字段名，拿不到值。
@@ -179,9 +188,13 @@ configure(ui) {
 | 二进制解码或音频拼接 | 4 MiB |
 | HTTP 响应或解压结果 | 2 MiB |
 | WebSocket 单条消息 | 1 MiB |
+| App WebSocket 入站队列 | 最多 8 个事件；满时关闭对应连接 |
 | 语音 HTTP 请求体 | 8 MiB |
 | App HTTP 请求体 | 1 MiB |
 | 同一会话的 WebSocket | 最多 4 条 |
+| SSE 单行／单个累计事件 | 各 2 MiB；事件含名称、各 `data` 行及连接换行 |
+| 同一 App 会话的流 | 最多 4 条 |
+| `settings.set` 普通设置 | 单值 64 KiB；会话合计 256 KiB |
 
 这些预算分别约束脚本、宿主缓冲和传输，不能相互替代。
 
@@ -241,8 +254,8 @@ foxy.plugin.register({
 
 ## 宿主维护与验证
 
-生产实现位于 `input/voice/js/`。`JsVoicePrelude` 声明 JavaScript 全局接口，`JsVoiceNatives` 提供真实网络与签名；设置页与导入求值使用同文件的 `JsVoiceStubNatives`，不执行网络和真实签名。
-新增 API 必须同时落到 prelude、真实实现与 stub，再让 `JsVoiceBridgeContractTest` 加载真实 bundled 脚本验证。只修改运行中的实现，会让设置页在求值时出现 `ReferenceError`。
+生产实现位于 `input/voice/js/`。`JsVoicePrelude` 声明 JavaScript 全局接口，App 与语音会话分别安装自己实际支持的绑定；设置页与导入求值使用 `JsVoiceStubNatives`，不执行运行时网络或真实签名。`foxy.capabilities` 在 describe／import 阶段使用 App + voice 的发现并集，保证插件顶层条件注册不丢入口；App／voice 运行会话则必须按各自真实绑定精确报告。
+新增 API 必须同步 prelude、对应真实实现、describe stub 与三类 capability 测试，再让 `JsVoiceBridgeContractTest` 加载真实 bundled 脚本验证。测试既要证明 discovery 并集能发现全部入口，也要证明临时环境不能实际调用网络／编辑器，并防止运行会话误报能力。
 
 提供方以 `js:` 前缀注册到共用 `VoiceInputProviderRegistry`，复用 `VoiceInputProviderManager` 的会话、录音和回填。取消与旧会话回调必须失效，不能另造一套输入结果队列。
 
