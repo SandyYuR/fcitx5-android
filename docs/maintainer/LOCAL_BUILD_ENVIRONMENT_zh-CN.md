@@ -11,6 +11,10 @@ CI 用的是 GitHub 托管的 Ubuntu，与这里无关；下面的路径是作�
 
 模拟器还读取 `ANDROID_EMULATOR_HOME`，不能只设置 `ANDROID_USER_HOME`；脚本把两者指向 `D:/GitHub/tools/android-home`，AVD 指向 `D:/GitHub/tools/android-avd`。否则新模拟器仍可能向 C 盘的 `.android` 写缓存和锁。SDK 安装完成不代表虚拟设备可用，实际 UI 验证还要检查设备上线与截图，不能用组件渲染图代替。
 
+本机唯一 AVD 为 `rime`，端口 `5574`，使用 AOSP API 35 `default/x86_64`。通过工作区根的 `start-rime.ps1 -WaitForBoot` 或桌面快捷方式启动，已有实例会被复用。启动入口默认传 `-no-snapshot-load -no-snapshot-save`，完整开机并保留手机磁盘数据，避免 Quick Boot 图形快照恢复异常；`-ColdBoot` 保留为兼容参数。不要以 `-wipe-data`、清空应用数据或另建 AVD 修复启动问题。
+
+`start-rime.ps1` 还把当前启动进程及其子进程的 `ANDROID_TMP`、`TMPDIR` 指向 `D:/GitHub/tools/tmp/rime-emulator`。netsim 的 Rust 临时目录和 discovery 文件不会只读取 `TEMP/TMP`；仅设置后两者时，仍可能出现 `PermissionDenied`，随后 Android 蓝牙服务因 HCI 无法连接而启动失败。这项修复不修改系统环境或目录权限。启动后同时核对 `sys.boot_completed`、实际桌面、netsim 日志和蓝牙服务，不能只依据 ADB 在线认定整机正常。
+
 Kotlin 编译服务的运行标记也在 `D:/GitHub/tools/kotlin-daemon`。环境脚本通过进程级 `GRADLE_OPTS` 设置 `kotlin.daemon.options=runFilesPath=...`，避免仍向旧 C 盘 `AppData/Local/kotlin/daemon` 写入并反复回退编译。不要把这种环境失败当作业务测试结论。
 
 ```powershell
