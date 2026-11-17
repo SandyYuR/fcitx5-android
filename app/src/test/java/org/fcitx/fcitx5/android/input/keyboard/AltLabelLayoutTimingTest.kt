@@ -10,6 +10,7 @@ import kotlinx.serialization.json.*
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.data.theme.ThemePrefs.AltLabelSide
 import org.fcitx.fcitx5.android.data.theme.ThemePrefs.PunctuationPosition
 import org.fcitx.fcitx5.android.data.theme.ThemePreset
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
@@ -47,7 +48,8 @@ class AltLabelLayoutTimingTest {
 
     private fun assertCorner(label: TextView, bottom: Boolean) {
         assertEquals(View.VISIBLE, label.visibility)
-        assertEquals(Gravity.END, label.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK)
+        // 设置里的左右是物理左右，RTL 下也不能翻面。
+        assertEquals(Gravity.RIGHT, label.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK)
         val parent = label.parent as View
         val params = label.layoutParams as ConstraintLayout.LayoutParams
         assertEquals("New corner constraints must be measured before children are laid out",
@@ -93,6 +95,71 @@ class AltLabelLayoutTimingTest {
         layout(image, 40)
         assertCorner(image.altText, bottom = false)
         assertCorner(image.altText1, bottom = true)
+    }
+
+    /** 主题里手动指定侧边后，标签贴到所选侧；滑动方向仍由标签在上/在下决定。 */
+    @Test fun sidePreferencePlacesDirectionalLabelsOnTheChosenSide() {
+        val text = AltTextKeyView(context, ThemePreset.PixelLight,
+            KeyDef.Appearance.AltText("1", "!", "1", 23f, altText1 = "@").apply {
+                directionalSwipeLabels = true
+            })
+        val image = ImageAltTextKeyView(context, ThemePreset.PixelLight,
+            KeyDef.Appearance.ImageAltText(R.drawable.ic_baseline_backspace_24, "!", altText1 = "@").apply {
+                directionalSwipeLabels = true
+            })
+        try {
+            for (atLeft in listOf(true, false)) {
+                ThemeManager.prefs.altLabelOnSide.setValue(true)
+                ThemeManager.prefs.altLabelSide.setValue(if (atLeft) AltLabelSide.Left else AltLabelSide.Right)
+                text.refreshAltTextLayout()
+                image.refreshAltTextLayout()
+                assertSidePlacement(text, text.altText, text.altText1, atLeft)
+                assertSidePlacement(image, image.altText, image.altText1, atLeft)
+            }
+        } finally {
+            ThemeManager.prefs.altLabelOnSide.setValue(false)
+        }
+    }
+
+    private fun assertSidePlacement(key: KeyView, up: TextView, down: TextView, atLeft: Boolean) {
+        layout(key, 40)
+        assertSide(up, atLeft, bottom = false)
+        assertSide(down, atLeft, bottom = true)
+        // 位置变了，动作方向不变：上标签仍上滑、下标签仍下滑。
+        val swipe = key as SwipeHintAwareKeyView
+        assertTrue(swipe.shouldTriggerAltBySwipe(-10, SwipeSymbolDirection.Up))
+        assertTrue(swipe.shouldTriggerAltBySwipe(10, SwipeSymbolDirection.Up))
+    }
+
+    /** 单个标点副标签（字母键默认形态）同样跟随侧边设置，且不再受键高影响。 */
+    @Test fun sidePreferenceAlsoMovesSingleBottomLabel() {
+        val key = AltTextKeyView(context, ThemePreset.PixelLight,
+            KeyDef.Appearance.AltText("Q", "~", "Q", 23f))
+        try {
+            ThemeManager.prefs.altLabelOnSide.setValue(true)
+            for (atLeft in listOf(true, false)) {
+                ThemeManager.prefs.altLabelSide.setValue(if (atLeft) AltLabelSide.Left else AltLabelSide.Right)
+                key.refreshAltTextLayout()
+                layout(key, 64)
+                assertSide(key.altText, atLeft, bottom = true)
+                assertTrue(key.shouldTriggerAltBySwipe(10, SwipeSymbolDirection.Up))
+                assertFalse(key.shouldTriggerAltBySwipe(-10, SwipeSymbolDirection.Up))
+            }
+        } finally {
+            ThemeManager.prefs.altLabelOnSide.setValue(false)
+        }
+    }
+
+    private fun assertSide(label: TextView, atLeft: Boolean, bottom: Boolean) {
+        assertEquals(View.VISIBLE, label.visibility)
+        assertEquals(if (atLeft) Gravity.LEFT else Gravity.RIGHT,
+            label.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK)
+        val parent = label.parent as View
+        val params = label.layoutParams as ConstraintLayout.LayoutParams
+        if (atLeft) assertEquals(params.leftMargin, label.left)
+        else assertEquals(parent.width - params.rightMargin, label.right)
+        if (bottom) assertEquals(parent.height - params.bottomMargin, label.bottom)
+        else assertEquals(params.topMargin, label.top)
     }
 
     @Test fun reusedKeysUpdateWithinTheSameTraversalWhenRowHeightChanges() {
