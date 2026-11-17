@@ -22,7 +22,7 @@ class JsAppButtonBindingTest {
         action as JsAppButtonAction
         assertEquals("js:youdao-free-translate", action.pluginId)
         assertEquals("youdao_translate", action.appId)
-        assertEquals(R.drawable.ic_translate_24, action.defaultIcon)
+        assertEquals(R.drawable.ic_youdao_24, action.defaultIcon)
         assertEquals("toolbar.js_tools", action.iconSlot)
     }
 

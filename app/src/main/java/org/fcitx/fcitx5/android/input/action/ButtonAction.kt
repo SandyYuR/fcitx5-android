@@ -920,7 +920,7 @@ internal data class JsAppButtonAction(
     override val id = requireNotNull(JsAppButtonBinding.encode(pluginId, appId))
     override val defaultIcon = when {
         pluginId == "js:youdao-free-translate" && appId == "youdao_translate" ->
-            R.drawable.ic_translate_24
+            R.drawable.ic_youdao_24
         pluginId == "js:bilibili-translate" && appId == "bilibili_translate" ->
             R.drawable.ic_bilibili_24
         pluginId == "js:llm-assistant" && appId == "llm_assistant" ->
