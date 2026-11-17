@@ -810,7 +810,7 @@ class AltTextKeyView(
     private fun applyCornerAltTextPosition(
         label: AutoScaleTextView,
         atTop: Boolean,
-        atStart: Boolean,
+        atLeft: Boolean,
         hideSibling: Boolean = true
     ) {
         if (hideSibling) {
@@ -834,34 +834,36 @@ class AltTextKeyView(
             bottomToBottom = if (atTop) unset else parentId
             leftToLeft = parentId
             rightToRight = parentId
-            leftMargin = if (atStart) hMargin + cornerLabelHorizontalSafeInset else hMargin
-            rightMargin = if (atStart) hMargin else hMargin + cornerLabelHorizontalSafeInset
+            leftMargin = if (atLeft) hMargin + cornerLabelHorizontalSafeInset else hMargin
+            rightMargin = if (atLeft) hMargin else hMargin + cornerLabelHorizontalSafeInset
             topMargin = if (atTop) vMargin + cornerLabelTopSafeInset else 0
             bottomMargin = if (atTop) 0 else vMargin + dp(2)
         }
         applyCornerAltTextPadding(label)
-        label.gravity = (if (atStart) Gravity.START else Gravity.END) or Gravity.CENTER_VERTICAL
+        // 设置里的左右是**物理**左右，边距也是按 left/right 写的，所以这里必须用
+        // LEFT/RIGHT：Gravity.START/END 在 RTL 布局下会解析成相反方向，标签会跑到另一边。
+        label.gravity = (if (atLeft) Gravity.LEFT else Gravity.RIGHT) or Gravity.CENTER_VERTICAL
     }
 
     private fun applyTopRightAltTextPosition(
         label: AutoScaleTextView = altText,
         hideSibling: Boolean = true
-    ) = applyCornerAltTextPosition(label, atTop = true, atStart = false, hideSibling = hideSibling)
+    ) = applyCornerAltTextPosition(label, atTop = true, atLeft = false, hideSibling = hideSibling)
 
     private fun applyTopLeftAltTextPosition(
         label: AutoScaleTextView = altText,
         hideSibling: Boolean = true
-    ) = applyCornerAltTextPosition(label, atTop = true, atStart = true, hideSibling = hideSibling)
+    ) = applyCornerAltTextPosition(label, atTop = true, atLeft = true, hideSibling = hideSibling)
 
     private fun applyBottomRightAltTextPosition(
         label: AutoScaleTextView,
         hideSibling: Boolean = true
-    ) = applyCornerAltTextPosition(label, atTop = false, atStart = false, hideSibling = hideSibling)
+    ) = applyCornerAltTextPosition(label, atTop = false, atLeft = false, hideSibling = hideSibling)
 
     private fun applyBottomLeftAltTextPosition(
         label: AutoScaleTextView,
         hideSibling: Boolean = true
-    ) = applyCornerAltTextPosition(label, atTop = false, atStart = true, hideSibling = hideSibling)
+    ) = applyCornerAltTextPosition(label, atTop = false, atLeft = true, hideSibling = hideSibling)
 
     private fun applyTopCenterAltTextPosition(label: AutoScaleTextView = altText) {
         val hidden = if (label === altText) altText1 else altText
@@ -980,7 +982,7 @@ class AltTextKeyView(
         }
     }
 
-    private fun applyDirectionalCornersAltTextPosition(atStart: Boolean = false) {
+    private fun applyDirectionalCornersAltTextPosition(atLeft: Boolean = false) {
         val hasUpLabel = !altText.text.isNullOrBlank()
         val hasDownLabel = !altText1.text.isNullOrBlank()
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
@@ -997,10 +999,10 @@ class AltTextKeyView(
         altText.visibility = if (hasUpLabel) View.VISIBLE else View.GONE
         altText1.visibility = if (hasDownLabel) View.VISIBLE else View.GONE
         if (hasUpLabel) {
-            applyCornerAltTextPosition(altText, atTop = true, atStart = atStart, hideSibling = false)
+            applyCornerAltTextPosition(altText, atTop = true, atLeft = atLeft, hideSibling = false)
         }
         if (hasDownLabel) {
-            applyCornerAltTextPosition(altText1, atTop = false, atStart = atStart, hideSibling = false)
+            applyCornerAltTextPosition(altText1, atTop = false, atLeft = atLeft, hideSibling = false)
         }
     }
 
@@ -1033,16 +1035,16 @@ class AltTextKeyView(
             // 主题里手动开启「副标签显示在侧边」后，位置只由该设置决定，不再看键高：
             // 上标签贴所选侧的顶角、下标签贴同侧的底角。
             if (ThemeManager.prefs.altLabelOnSide.getValue()) {
-                val atStart = ThemeManager.prefs.altLabelSide.getValue() == AltLabelSide.Left
+                val atLeft = ThemeManager.prefs.altLabelSide.getValue() == AltLabelSide.Left
                 return when {
                     hasUpLabel && hasDownLabel ->
-                        if (atStart) AltTextLayoutMode.DirectionalCornersLeft
+                        if (atLeft) AltTextLayoutMode.DirectionalCornersLeft
                         else AltTextLayoutMode.DirectionalCorners
                     hasUpLabel ->
-                        if (atStart) AltTextLayoutMode.DirectionalUpTopLeft
+                        if (atLeft) AltTextLayoutMode.DirectionalUpTopLeft
                         else AltTextLayoutMode.DirectionalUpTopRight
                     else ->
-                        if (atStart) AltTextLayoutMode.DirectionalDownBottomLeft
+                        if (atLeft) AltTextLayoutMode.DirectionalDownBottomLeft
                         else AltTextLayoutMode.DirectionalDownBottomRight
                 }
             }
@@ -1100,12 +1102,12 @@ class AltTextKeyView(
         // 上滑标签贴所选侧的顶角、下滑标签贴同侧的底角。位置只由该设置决定，不再看键高，
         // 与方向性标签分支保持一致；滑动方向不变（顶部标签仍上滑、底部标签仍下滑）。
         if (ThemeManager.prefs.altLabelOnSide.getValue()) {
-            val atStart = ThemeManager.prefs.altLabelSide.getValue() == AltLabelSide.Left
+            val atLeft = ThemeManager.prefs.altLabelSide.getValue() == AltLabelSide.Left
             return when (preferred) {
                 AltTextLayoutMode.TopRight, AltTextLayoutMode.TopCenter ->
-                    if (atStart) AltTextLayoutMode.TopLeft else AltTextLayoutMode.TopRight
+                    if (atLeft) AltTextLayoutMode.TopLeft else AltTextLayoutMode.TopRight
                 AltTextLayoutMode.Bottom ->
-                    if (atStart) AltTextLayoutMode.BottomLeft else AltTextLayoutMode.BottomRight
+                    if (atLeft) AltTextLayoutMode.BottomLeft else AltTextLayoutMode.BottomRight
                 else -> AltTextLayoutMode.Hidden
             }
         }
@@ -1170,7 +1172,7 @@ class AltTextKeyView(
             AltTextLayoutMode.DirectionalTopBottom -> applyDirectionalTopBottomAltTextPosition()
             AltTextLayoutMode.DirectionalCorners -> applyDirectionalCornersAltTextPosition()
             AltTextLayoutMode.DirectionalCornersLeft ->
-                applyDirectionalCornersAltTextPosition(atStart = true)
+                applyDirectionalCornersAltTextPosition(atLeft = true)
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
         return true
@@ -1433,7 +1435,7 @@ class ImageAltTextKeyView(
     private fun applyCornerAltTextPosition(
         label: AutoScaleTextView,
         atTop: Boolean,
-        atStart: Boolean,
+        atLeft: Boolean,
         hideSibling: Boolean = true
     ) {
         if (hideSibling) {
@@ -1460,34 +1462,36 @@ class ImageAltTextKeyView(
             bottomToBottom = if (atTop) unset else parentId
             leftToLeft = parentId
             rightToRight = parentId
-            leftMargin = if (atStart) hMargin + cornerLabelHorizontalSafeInset else hMargin
-            rightMargin = if (atStart) hMargin else hMargin + cornerLabelHorizontalSafeInset
+            leftMargin = if (atLeft) hMargin + cornerLabelHorizontalSafeInset else hMargin
+            rightMargin = if (atLeft) hMargin else hMargin + cornerLabelHorizontalSafeInset
             topMargin = if (atTop) vMargin + cornerLabelTopSafeInset else 0
             bottomMargin = if (atTop) 0 else vMargin + dp(2)
         }
         applyCornerAltTextPadding(label)
-        label.gravity = (if (atStart) Gravity.START else Gravity.END) or Gravity.CENTER_VERTICAL
+        // 设置里的左右是**物理**左右，边距也是按 left/right 写的，所以这里必须用
+        // LEFT/RIGHT：Gravity.START/END 在 RTL 布局下会解析成相反方向，标签会跑到另一边。
+        label.gravity = (if (atLeft) Gravity.LEFT else Gravity.RIGHT) or Gravity.CENTER_VERTICAL
     }
 
     private fun applyTopRightAltTextPosition(
         label: AutoScaleTextView = altText,
         hideSibling: Boolean = true
-    ) = applyCornerAltTextPosition(label, atTop = true, atStart = false, hideSibling = hideSibling)
+    ) = applyCornerAltTextPosition(label, atTop = true, atLeft = false, hideSibling = hideSibling)
 
     private fun applyTopLeftAltTextPosition(
         label: AutoScaleTextView = altText,
         hideSibling: Boolean = true
-    ) = applyCornerAltTextPosition(label, atTop = true, atStart = true, hideSibling = hideSibling)
+    ) = applyCornerAltTextPosition(label, atTop = true, atLeft = true, hideSibling = hideSibling)
 
     private fun applyBottomRightAltTextPosition(
         label: AutoScaleTextView,
         hideSibling: Boolean = true
-    ) = applyCornerAltTextPosition(label, atTop = false, atStart = false, hideSibling = hideSibling)
+    ) = applyCornerAltTextPosition(label, atTop = false, atLeft = false, hideSibling = hideSibling)
 
     private fun applyBottomLeftAltTextPosition(
         label: AutoScaleTextView,
         hideSibling: Boolean = true
-    ) = applyCornerAltTextPosition(label, atTop = false, atStart = true, hideSibling = hideSibling)
+    ) = applyCornerAltTextPosition(label, atTop = false, atLeft = true, hideSibling = hideSibling)
 
     private fun applyTopCenterAltTextPosition(label: AutoScaleTextView = altText) {
         val hidden = if (label === altText) altText1 else altText
@@ -1611,7 +1615,7 @@ class ImageAltTextKeyView(
         }
     }
 
-    private fun applyDirectionalCornersAltTextPosition(atStart: Boolean = false) {
+    private fun applyDirectionalCornersAltTextPosition(atLeft: Boolean = false) {
         val hasUpLabel = !altText.text.isNullOrBlank()
         val hasDownLabel = !altText1.text.isNullOrBlank()
         img.updateLayoutParams<ConstraintLayout.LayoutParams> {
@@ -1627,10 +1631,10 @@ class ImageAltTextKeyView(
         altText.visibility = if (hasUpLabel) View.VISIBLE else View.GONE
         altText1.visibility = if (hasDownLabel) View.VISIBLE else View.GONE
         if (hasUpLabel) {
-            applyCornerAltTextPosition(altText, atTop = true, atStart = atStart, hideSibling = false)
+            applyCornerAltTextPosition(altText, atTop = true, atLeft = atLeft, hideSibling = false)
         }
         if (hasDownLabel) {
-            applyCornerAltTextPosition(altText1, atTop = false, atStart = atStart, hideSibling = false)
+            applyCornerAltTextPosition(altText1, atTop = false, atLeft = atLeft, hideSibling = false)
         }
     }
 
@@ -1662,16 +1666,16 @@ class ImageAltTextKeyView(
             // 主题里手动开启「副标签显示在侧边」后，位置只由该设置决定，不再看键高：
             // 上标签贴所选侧的顶角、下标签贴同侧的底角。
             if (ThemeManager.prefs.altLabelOnSide.getValue()) {
-                val atStart = ThemeManager.prefs.altLabelSide.getValue() == AltLabelSide.Left
+                val atLeft = ThemeManager.prefs.altLabelSide.getValue() == AltLabelSide.Left
                 return when {
                     hasUpLabel && hasDownLabel ->
-                        if (atStart) AltTextLayoutMode.DirectionalCornersLeft
+                        if (atLeft) AltTextLayoutMode.DirectionalCornersLeft
                         else AltTextLayoutMode.DirectionalCorners
                     hasUpLabel ->
-                        if (atStart) AltTextLayoutMode.DirectionalUpTopLeft
+                        if (atLeft) AltTextLayoutMode.DirectionalUpTopLeft
                         else AltTextLayoutMode.DirectionalUpTopRight
                     else ->
-                        if (atStart) AltTextLayoutMode.DirectionalDownBottomLeft
+                        if (atLeft) AltTextLayoutMode.DirectionalDownBottomLeft
                         else AltTextLayoutMode.DirectionalDownBottomRight
                 }
             }
@@ -1752,12 +1756,12 @@ class ImageAltTextKeyView(
         // 上滑标签贴所选侧的顶角、下滑标签贴同侧的底角。位置只由该设置决定，不再看键高，
         // 与方向性标签分支保持一致；滑动方向不变（顶部标签仍上滑、底部标签仍下滑）。
         if (ThemeManager.prefs.altLabelOnSide.getValue()) {
-            val atStart = ThemeManager.prefs.altLabelSide.getValue() == AltLabelSide.Left
+            val atLeft = ThemeManager.prefs.altLabelSide.getValue() == AltLabelSide.Left
             return when (preferred) {
                 AltTextLayoutMode.TopRight, AltTextLayoutMode.TopCenter ->
-                    if (atStart) AltTextLayoutMode.TopLeft else AltTextLayoutMode.TopRight
+                    if (atLeft) AltTextLayoutMode.TopLeft else AltTextLayoutMode.TopRight
                 AltTextLayoutMode.Bottom ->
-                    if (atStart) AltTextLayoutMode.BottomLeft else AltTextLayoutMode.BottomRight
+                    if (atLeft) AltTextLayoutMode.BottomLeft else AltTextLayoutMode.BottomRight
                 else -> AltTextLayoutMode.Hidden
             }
         }
@@ -1844,7 +1848,7 @@ class ImageAltTextKeyView(
             AltTextLayoutMode.DirectionalTopBottom -> applyDirectionalTopBottomAltTextPosition()
             AltTextLayoutMode.DirectionalCorners -> applyDirectionalCornersAltTextPosition()
             AltTextLayoutMode.DirectionalCornersLeft ->
-                applyDirectionalCornersAltTextPosition(atStart = true)
+                applyDirectionalCornersAltTextPosition(atLeft = true)
             AltTextLayoutMode.Hidden -> applyNoAltTextPosition()
         }
         return true

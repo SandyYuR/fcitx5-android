@@ -48,7 +48,8 @@ class AltLabelLayoutTimingTest {
 
     private fun assertCorner(label: TextView, bottom: Boolean) {
         assertEquals(View.VISIBLE, label.visibility)
-        assertEquals(Gravity.END, label.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK)
+        // 设置里的左右是物理左右，RTL 下也不能翻面。
+        assertEquals(Gravity.RIGHT, label.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK)
         val parent = label.parent as View
         val params = label.layoutParams as ConstraintLayout.LayoutParams
         assertEquals("New corner constraints must be measured before children are laid out",
@@ -107,23 +108,23 @@ class AltLabelLayoutTimingTest {
                 directionalSwipeLabels = true
             })
         try {
-            for (atStart in listOf(true, false)) {
+            for (atLeft in listOf(true, false)) {
                 ThemeManager.prefs.altLabelOnSide.setValue(true)
-                ThemeManager.prefs.altLabelSide.setValue(if (atStart) AltLabelSide.Left else AltLabelSide.Right)
+                ThemeManager.prefs.altLabelSide.setValue(if (atLeft) AltLabelSide.Left else AltLabelSide.Right)
                 text.refreshAltTextLayout()
                 image.refreshAltTextLayout()
-                assertSidePlacement(text, text.altText, text.altText1, atStart)
-                assertSidePlacement(image, image.altText, image.altText1, atStart)
+                assertSidePlacement(text, text.altText, text.altText1, atLeft)
+                assertSidePlacement(image, image.altText, image.altText1, atLeft)
             }
         } finally {
             ThemeManager.prefs.altLabelOnSide.setValue(false)
         }
     }
 
-    private fun assertSidePlacement(key: KeyView, up: TextView, down: TextView, atStart: Boolean) {
+    private fun assertSidePlacement(key: KeyView, up: TextView, down: TextView, atLeft: Boolean) {
         layout(key, 40)
-        assertSide(up, atStart, bottom = false)
-        assertSide(down, atStart, bottom = true)
+        assertSide(up, atLeft, bottom = false)
+        assertSide(down, atLeft, bottom = true)
         // 位置变了，动作方向不变：上标签仍上滑、下标签仍下滑。
         val swipe = key as SwipeHintAwareKeyView
         assertTrue(swipe.shouldTriggerAltBySwipe(-10, SwipeSymbolDirection.Up))
@@ -136,11 +137,11 @@ class AltLabelLayoutTimingTest {
             KeyDef.Appearance.AltText("Q", "~", "Q", 23f))
         try {
             ThemeManager.prefs.altLabelOnSide.setValue(true)
-            for (atStart in listOf(true, false)) {
-                ThemeManager.prefs.altLabelSide.setValue(if (atStart) AltLabelSide.Left else AltLabelSide.Right)
+            for (atLeft in listOf(true, false)) {
+                ThemeManager.prefs.altLabelSide.setValue(if (atLeft) AltLabelSide.Left else AltLabelSide.Right)
                 key.refreshAltTextLayout()
                 layout(key, 64)
-                assertSide(key.altText, atStart, bottom = true)
+                assertSide(key.altText, atLeft, bottom = true)
                 assertTrue(key.shouldTriggerAltBySwipe(10, SwipeSymbolDirection.Up))
                 assertFalse(key.shouldTriggerAltBySwipe(-10, SwipeSymbolDirection.Up))
             }
@@ -149,13 +150,13 @@ class AltLabelLayoutTimingTest {
         }
     }
 
-    private fun assertSide(label: TextView, atStart: Boolean, bottom: Boolean) {
+    private fun assertSide(label: TextView, atLeft: Boolean, bottom: Boolean) {
         assertEquals(View.VISIBLE, label.visibility)
-        assertEquals(if (atStart) Gravity.START else Gravity.END,
+        assertEquals(if (atLeft) Gravity.LEFT else Gravity.RIGHT,
             label.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK)
         val parent = label.parent as View
         val params = label.layoutParams as ConstraintLayout.LayoutParams
-        if (atStart) assertEquals(params.leftMargin, label.left)
+        if (atLeft) assertEquals(params.leftMargin, label.left)
         else assertEquals(parent.width - params.rightMargin, label.right)
         if (bottom) assertEquals(parent.height - params.bottomMargin, label.bottom)
         else assertEquals(params.topMargin, label.top)
