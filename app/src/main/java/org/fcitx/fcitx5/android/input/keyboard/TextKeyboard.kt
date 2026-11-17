@@ -1963,6 +1963,9 @@ class TextKeyboard private constructor(
         // Compose-state switches may recreate key views; re-apply caps presentation immediately.
         updateCapsButtonIcon()
         updateAlphabetKeys()
+        // 合成态重绑会把空格键面重置成外观自带的文字：没有自定义标签的键要按方案名补回来，
+        // 否则进出合成态时方案名会变成一个空格。
+        refreshSpaceLabelFromState()
     }
 
     private fun transformPopupPreview(c: String): String {

@@ -1762,8 +1762,10 @@ abstract class BaseKeyboard(
                 // 仅 SpaceKey 支持在布局编辑器里配置划动动作；MiniSpaceKey 保持纯光标语义。
                 val swipeAction = (def as? SpaceKey)?.swipe
                 // 自定义空格标签：空/纯空白视为未设置，交回 TextKeyboard 按方案名显示。
+                // 取 activeDef 而不是基础 def：合成态用的是 composeOverride 里的键定义，
+                // 标签也必须跟着换，否则合成时仍显示普通态的标签。
                 (this as? TextKeyView)?.spaceLabelOverride =
-                    (def as? SpaceKey)?.label?.takeIf { it.isNotBlank() }
+                    (activeDef as? SpaceKey)?.label?.takeIf { it.isNotBlank() }
                 registerSpaceKeyEntry(this, swipeAction)
                 swipeEnabled = spaceSwipeEnabledFor(swipeAction)
                 swipeRepeatEnabled = true
@@ -1937,9 +1939,7 @@ abstract class BaseKeyboard(
             // 自定义空格标签要在 applyAppearance 之后再落一次：applyAppearance 会把
             // mainText 重置成 displayText（空格），而编辑器预览没有 TextKeyboard 的
             // updateSpaceLabel 兜底，不在这里写就会看到空白键面。
-            (this as? TextKeyView)?.let { view ->
-                view.spaceLabelOverride?.let { view.mainText.text = it }
-            }
+            applySpaceLabelOverride(this, activeDef)
             // 空格键的「长按重复输入」在 applyBehaviorPopupBindings 内部按视图重绑
             // （它会先清空 repeat 回调，所以由它自己收尾最稳），这里不再单独调用。
             applyBehaviorPopupBindings(this, baseline, activeDef.behaviors, activeDef.popup)
@@ -1968,6 +1968,23 @@ abstract class BaseKeyboard(
                 composeAwareKeys += ComposeAwareKey(def, this, baseline)
             }
         }
+    }
+
+    /**
+     * 把键定义里的空格键自定义标签写到视图上。
+     *
+     * [applyAppearance] 会把 `mainText` 重置成外观自带的 `displayText`（空格），所以创建、
+     * 合成态重绑、视图重建三条路径都要在它之后补写一次，否则标签只在首次创建时可见——
+     * 进出合成态或重建视图后键面会退回空白/方案名。
+     *
+     * 这里连同 [TextKeyView.spaceLabelOverride] 一起刷新：合成态用的是 `composeOverride`
+     * 里的键定义，标签也要跟着换；只重写文字的话，下一次重绑仍会拿着普通态的旧标签。
+     * 未配置标签时清空 override，交给 `TextKeyboard.updateSpaceLabel` 按方案名显示。
+     */
+    private fun applySpaceLabelOverride(view: KeyView, def: KeyDef) {
+        val textView = view as? TextKeyView ?: return
+        textView.spaceLabelOverride = (def as? SpaceKey)?.label?.takeIf { it.isNotBlank() }
+        textView.spaceLabelOverride?.let { label -> textView.mainText.text = label }
     }
 
     open fun onCompositionStateChanged(composing: Boolean) {
@@ -2022,6 +2039,9 @@ abstract class BaseKeyboard(
 
         updates.forEach { u ->
             applyAppearance(u.item.keyView, u.activeAppearance)
+            // 合成态切换会把键面文字重置成外观自带的 displayText，自定义空格标签要跟着
+            // activeDef 重新落一次（合成态用的是 composeOverride 里的键定义）。
+            applySpaceLabelOverride(u.item.keyView, u.activeDef)
             applyBehaviorPopupBindings(u.item.keyView, u.item.baseline, u.activeDef.behaviors, u.activeDef.popup)
         }
 
@@ -2163,6 +2183,8 @@ abstract class BaseKeyboard(
             onGestureListener = newView.onGestureListener
         )
         applyAppearance(newView, appearance)
+        // createKeyView 里已经写过一次标签，但这里又 applyAppearance 了一遍，需要再补。
+        applySpaceLabelOverride(newView, def)
     }
 
     private fun applyConfiguredFonts(keyView: KeyView) {
