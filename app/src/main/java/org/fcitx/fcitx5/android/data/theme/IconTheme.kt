@@ -55,6 +55,8 @@ data class IconTheme(
             "keys.return.previous",
             "keys.return.done",
             "keys.language",
+            // 语言键在 ASCII mode 下的图标：与上面中文态槽位成对，主题可分别覆盖。
+            "keys.language_ascii",
             "keys.space",
             "keys.numpad",
             "keys.emoji",
@@ -84,6 +86,8 @@ data class IconTheme(
             "toolbar.js_tools",
             "toolbar.more",
             "toolbar.language_switch",
+            // 语言切换按钮在 ASCII mode 下的图标：与上面中文态槽位成对，主题可分别覆盖。
+            "toolbar.language_switch_ascii",
             "toolbar.theme",
             "toolbar.random_theme",
             "toolbar.icon_theme",

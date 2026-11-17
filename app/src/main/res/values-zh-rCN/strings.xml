@@ -426,6 +426,7 @@
     <string name="edit_button_hint_id">按钮的唯一标识符</string>
     <string name="edit_button_hint_text">代替图标显示的 emoji 或文字</string>
     <string name="edit_button_pick_icon">选择图标文件</string>
+    <string name="edit_button_icon_ascii">ASCII 状态图标</string>
     <string name="edit_button_macro">宏</string>
     <string name="edit_button_no_custom_icon">（无自定义图标）</string>
     <string name="edit_button_macro_event_type">按钮动作</string>

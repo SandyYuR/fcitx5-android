@@ -29,6 +29,16 @@ data class ConfigurableButton(
      */
     @SerialName("icon")
     val icon: String? = null,
+
+    /**
+     * Optional: Icon for the second state of a stateful button.
+     * Only the language switch button uses it today: [icon] is the Chinese-scheme icon and
+     * this one is shown in ASCII mode. When null, ASCII mode falls back to [icon] so a single
+     * configured icon keeps working in both states.
+     * Same format as [icon]: resource name, or "file:" prefixed path.
+     */
+    @SerialName("iconAscii")
+    val iconAscii: String? = null,
     
     /**
      * Optional: Custom label for accessibility/content description.

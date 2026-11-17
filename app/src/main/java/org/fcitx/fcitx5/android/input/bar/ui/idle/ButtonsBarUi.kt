@@ -23,6 +23,8 @@ import splitties.dimensions.dp
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.view
 
+private const val LANGUAGE_SWITCH_ID = "language_switch"
+
 /**
  * The configurable button strip in the middle of the Kawaii Bar.
  *
@@ -42,6 +44,14 @@ class ButtonsBarUi(
 
     // Map to store button references by ID
     private val buttonMap = mutableMapOf<String, ToolButton>()
+
+    /**
+     * 语言切换按钮当前是否处于 ASCII mode。
+     *
+     * 由 [KawaiiBarComponent.onImeUpdate] 按 IME 状态推送：只有这个按钮的图标随方案状态变化，
+     * 其余按钮不受影响。
+     */
+    private var asciiMode = false
     // Keep per-button active state so a rebuilt button always restores its correct tint.
     private val buttonActiveMap = mutableMapOf<String, Boolean>()
 
@@ -106,6 +116,21 @@ class ButtonsBarUi(
         }
     }
 
+    /**
+     * 切换语言按钮的 ASCII 状态并刷新它的图标。
+     *
+     * 只重刷语言切换按钮：其余按钮的图标与方案状态无关，整行重刷会白白重新解码一遍图标。
+     */
+    fun setAsciiMode(ascii: Boolean) {
+        if (asciiMode == ascii) return
+        asciiMode = ascii
+        buttons.forEach { config ->
+            if (config.id != LANGUAGE_SWITCH_ID) return@forEach
+            val button = buttonMap[config.id] ?: return@forEach
+            applyIconAndText(button, config)
+        }
+    }
+
     fun setOnClickListener(buttonId: String, listener: View.OnClickListener?) {
         if (listener != null) {
             clickListeners[buttonId] = listener
@@ -126,18 +151,44 @@ class ButtonsBarUi(
 
     private fun loadFileIcon(path: String) = ButtonIconFile.loadDrawable(path)
 
+    /**
+     * 语言切换按钮在 ASCII mode 下优先用成对槽位，其余按钮与方案状态无关。
+     *
+     * 返回的是**候选槽位链**而不是单个槽位：[ButtonAction.iconSlotAlt] 是按钮定义里的常量，
+     * 恒为非空，写成 `iconSlotAlt ?: iconSlot` 会让主槽位永远查不到——只配了
+     * `toolbar.language_switch` 的旧主题切到 ASCII 后会掉回内置图标，而不是沿用主槽位。
+     * 这里按「专用槽位 → 主槽位」排好序交给调用方逐个查，都查不到才回落内置图标。
+     */
+    private fun resolveIconSlots(action: ButtonAction): List<String> =
+        if (asciiMode && action.id == LANGUAGE_SWITCH_ID)
+            listOfNotNull(action.iconSlotAlt, action.iconSlot).distinct()
+        else listOfNotNull(action.iconSlot)
+
+    /**
+     * 语言切换按钮在 ASCII mode 下优先用它自己的图标。只配了一个图标时两个状态共用，
+     * 不会在切到 ASCII 后掉回内置图标。
+     */
+    private fun resolveConfiguredIcon(config: ConfigurableButton): String? =
+        if (asciiMode && config.id == LANGUAGE_SWITCH_ID) config.iconAscii ?: config.icon
+        else config.icon
+
+    private fun resolveDefaultIcon(action: ButtonAction): Int =
+        if (asciiMode && action.id == LANGUAGE_SWITCH_ID) action.defaultIconAlt ?: action.defaultIcon
+        else action.defaultIcon
+
     private fun applyIconThemeIfAvailable(button: ToolButton, buttonId: String): Boolean {
         val action = ButtonAction.fromId(buttonId) ?: return false
-        val slot = action.iconSlot ?: return false
-        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
-        if (iconInfo != null) {
-            button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
-            return true
-        }
-        val textValue = IconThemeManager.resolveIcon(slot)
-        if (textValue != null) {
-            button.setText(textValue)
-            return true
+        for (slot in resolveIconSlots(action)) {
+            val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
+            if (iconInfo != null) {
+                button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
+                return true
+            }
+            val textValue = IconThemeManager.resolveIcon(slot)
+            if (textValue != null) {
+                button.setText(textValue)
+                return true
+            }
         }
         return false
     }
@@ -147,7 +198,7 @@ class ButtonsBarUi(
             button.setText(config.text)
             return true
         }
-        val customIcon = config.icon ?: return false
+        val customIcon = resolveConfiguredIcon(config) ?: return false
         if (customIcon.startsWith(ButtonIconFile.PREFIX)) {
             val drawable = loadFileIcon(customIcon) ?: return false
             val tintWithTheme = ButtonIconFile.shouldTintIcon(customIcon)
@@ -171,7 +222,8 @@ class ButtonsBarUi(
     private fun applyIconAndText(button: ToolButton, config: ConfigurableButton) {
         if (applyIconThemeIfAvailable(button, config.id)) return
         if (applyConfiguredIconIfAvailable(button, config)) return
-        val fallbackIcon = ButtonAction.fromId(config.id)?.defaultIcon ?: R.drawable.ic_baseline_more_horiz_24
+        val action = ButtonAction.fromId(config.id)
+        val fallbackIcon = action?.let(::resolveDefaultIcon) ?: R.drawable.ic_baseline_more_horiz_24
         button.setIcon(fallbackIcon)
     }
 

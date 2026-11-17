@@ -33,6 +33,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlag
 import org.fcitx.fcitx5.android.core.CapabilityFlags
+import org.fcitx.fcitx5.android.core.DirectRimeInputMethodEntryCache
 import org.fcitx.fcitx5.android.core.FcitxEvent.CandidateListEvent
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
@@ -421,7 +422,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         // Update watched icon filenames for hot-reload
         val allButtons = buttons + listOf(config.toolbarToggleButton, config.hideKeyboardButton)
         val iconFileNames = allButtons
-            .mapNotNull { it.icon }
+            .flatMap { listOfNotNull(it.icon, it.iconAscii) }
             .filter { it.startsWith(ButtonIconFile.PREFIX) }
             .map { it.removePrefix(ButtonIconFile.PREFIX).substringAfterLast('/') }
             .toSet()
@@ -431,6 +432,14 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     private var _idleUi: IdleUi? = null
+
+    /**
+     * 当前是否处在 Rime 的 ASCII mode。
+     *
+     * 只影响语言切换按钮的图标：中文方案与 ASCII mode 各有一套槽位/内置图标。
+     * 缓存在这里是因为 IdleUi 是懒建的，建好时要按已知状态补一次。
+     */
+    private var asciiMode = false
     private var currentButtonsConfig: List<ConfigurableButton> = emptyList()
     private var currentToolbarToggleConfig: ConfigurableButton = ConfigurableButton("toolbar_toggle")
     private var currentHideKeyboardConfig: ConfigurableButton = ConfigurableButton("hide_keyboard")
@@ -444,6 +453,8 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 currentHideKeyboardConfig = hideKeyboard
                 _idleUi = IdleUi(context, theme, popup, commonKeyActionListener, currentButtonsConfig,
                     currentToolbarToggleConfig, currentHideKeyboardConfig)
+                // onImeUpdate 可能先于第一次取 idleUi 到达，建好之后按已知状态补一次。
+                _idleUi!!.buttonsUi.setAsciiMode(asciiMode)
                 setupIdleUiCallbacks(_idleUi!!)
             }
             return _idleUi!!
@@ -641,7 +652,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     private fun extractIconFileNames(buttons: List<ConfigurableButton>): Set<String> {
         return buttons
-            .mapNotNull { it.icon }
+            .flatMap { listOfNotNull(it.icon, it.iconAscii) }
             .filter { it.startsWith(ButtonIconFile.PREFIX) }
             .map { it.removePrefix(ButtonIconFile.PREFIX).substringAfterLast('/') }
             .toSet()
@@ -935,6 +946,9 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     override fun onImeUpdate(ime: InputMethodEntry) {
+        asciiMode = ime.uniqueName == DirectRimeInputMethodEntryCache.IME_ID &&
+            ime.subMode.name == DirectRimeInputMethodEntryCache.LATIN_MODE_NAME
+        _idleUi?.buttonsUi?.setAsciiMode(asciiMode)
         refreshVoiceInputButton()
     }
 

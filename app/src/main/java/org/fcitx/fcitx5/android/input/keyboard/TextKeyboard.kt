@@ -17,6 +17,7 @@ import androidx.core.view.allViews
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.core.DirectRimeInputMethodEntryCache
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
@@ -1315,6 +1316,12 @@ class TextKeyboard private constructor(
     private val swipeSymbolDirection = AppPrefs.getInstance().keyboard.swipeSymbolDirection
     private val punctuationPosition = ThemeManager.prefs.punctuationPosition
 
+    /**
+     * 语言键当前是否处于 ASCII 态（Rime 的 latin 子模式）。
+     * 只在 [applyLanguageKeyAsciiMode] 里更新，避免每次刷新都重设图标。
+     */
+    private var languageKeyAsciiMode = false
+
     private fun refreshLegacySwipeDirections() {
         cachedKeyDefLayouts.clear()
         reloadLayout()
@@ -1802,6 +1809,7 @@ class TextKeyboard private constructor(
         capsState = if (getService()?.isVirtualShiftLockOn() == true) CapsState.Lock else CapsState.None
         updateCapsButtonIcon()
         updateAlphabetKeys()
+        applyLanguageKeyAsciiMode(force = true)
     }
 
     protected override fun defaultRowHeightPercent(rowCount: Int): Float =
@@ -1872,9 +1880,11 @@ class TextKeyboard private constructor(
             }
             return
         }
-        val directRime = ime.uniqueName == "rime"
+        val directRime = ime.uniqueName == DirectRimeInputMethodEntryCache.IME_ID
         // Keep the canonical mode name for existing layout keys; localize its display only.
-        val subModeText = if (directRime && ime.subMode.name == "Latin Mode") {
+        val subModeText = if (directRime &&
+            ime.subMode.name == DirectRimeInputMethodEntryCache.LATIN_MODE_NAME
+        ) {
             context.getString(R.string.direct_rime_ascii_mode)
         } else ime.subMode.run { name.ifEmpty { label.ifEmpty { "" } } }
         fun combinedLabel(name: String) = when {
@@ -1913,6 +1923,23 @@ class TextKeyboard private constructor(
         ensureSpecialKeyViewsInitialized()
         updateSpaceLabel(ime)
         refreshCapsPresentation()
+        // 重载会重建按键视图，所以这里强制重设一次，而不是依赖状态没变就跳过。
+        applyLanguageKeyAsciiMode(force = true)
+    }
+
+    /**
+     * 语言键在 ASCII 态显示另一枚图标，判定与工具栏语言切换按钮一致：
+     * 只有 Rime 的中/西文子模式算 ASCII，其它输入法保持中文态图标。
+     * 主题给了 ASCII 槽位就用主题图标，否则回落到内置的 En/中。
+     */
+    private fun applyLanguageKeyAsciiMode(force: Boolean = false) {
+        val ime = layoutState.ime
+        val ascii = ime != null &&
+            ime.uniqueName == DirectRimeInputMethodEntryCache.IME_ID &&
+            ime.subMode.name == DirectRimeInputMethodEntryCache.LATIN_MODE_NAME
+        if (!force && ascii == languageKeyAsciiMode) return
+        languageKeyAsciiMode = ascii
+        allViews.forEach { (it as? ImageKeyView)?.setAsciiMode(ascii) }
     }
 
     override fun onStyleRefreshFinished() {
@@ -1921,6 +1948,7 @@ class TextKeyboard private constructor(
         updateAlphabetKeys()
         refreshSymbolKeyLabels()
         refreshSpaceLabelFromState()
+        applyLanguageKeyAsciiMode(force = true)
     }
 
     override fun onThemeUpdate(newTheme: Theme) {
