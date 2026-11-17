@@ -16,6 +16,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import org.robolectric.util.ReflectionHelpers
+import org.robolectric.util.ReflectionHelpers.ClassParameter
 
 /**
  * 空格键的自定义标签要跟着键定义走，而不是只在首次创建时写一次。
@@ -56,6 +58,17 @@ class SpaceKeyLabelTest {
         .first { it.tag == R.id.button_space }
         .mainText.text.toString()
 
+    private fun TextKeyboard.alphabetText(): String = allViews
+        .filterIsInstance<AltTextKeyView>()
+        .first()
+        .mainText.text.toString()
+
+    private fun TextKeyboard.caps() {
+        ReflectionHelpers.callInstanceMethod<Unit>(this, "onAction",
+            ClassParameter.from(KeyAction::class.java, KeyAction.CapsAction(false)),
+            ClassParameter.from(KeyActionListener.Source::class.java, KeyActionListener.Source.Keyboard))
+    }
+
     @Test
     fun labelFollowsComposeOverride() = keyboard(
         """{"type":"SpaceKey","label":"SPACE","composeOverride":{"label":"合成"}}"""
@@ -65,6 +78,21 @@ class SpaceKeyLabelTest {
         assertEquals("合成", keyboard.spaceText())
         keyboard.onCompositionStateChanged(false)
         assertEquals("SPACE", keyboard.spaceText())
+    }
+
+    /** 标签是单个字母时也不能被 Shift/Caps 改写：空格键不是字母键。 */
+    @Test
+    fun singleLetterLabelIsNotRewrittenByCaps() = keyboard(
+        """{"type":"SpaceKey","label":"a"}"""
+    ) { keyboard ->
+        assertEquals("a", keyboard.spaceText())
+        keyboard.caps()
+        assertEquals("a", keyboard.spaceText())
+        // 字母键照常跟着 Caps 变大写，说明只是空格键被排除在外。
+        assertEquals("A", keyboard.alphabetText())
+        keyboard.caps()
+        assertEquals("a", keyboard.spaceText())
+        assertEquals("a", keyboard.alphabetText())
     }
 
     @Test

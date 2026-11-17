@@ -2070,6 +2070,10 @@ class TextKeyboard private constructor(
             // 纯外观键（空白占位键）：文字是用户指定的装饰内容，不参与任何状态改写。
             // 放在最前面短路，键面上写 "G" 就恒定是 "G"，不跟着 Shift/Caps 变。
             if (keyDef.staticDisplay) return@forEach
+            // 空格键的键面是「方案名 / 中英状态 / 用户自定义标签」，不是参与 Shift/Caps 的
+            // 字母键：标签写成单个字母（"a"）时不能跟着大小写改写。按视图 tag 判断而不是
+            // 看文本形态，标签内容可以是任何东西。
+            if (it.tag == R.id.button_space) return@forEach
             if (keyDef is KeyDef.Appearance.AltText) {
                 val renderedText = it.mainText.text.toString()
                 val sourceFromDef = renderedText.isEmpty() || renderedText == keyDef.displayText
