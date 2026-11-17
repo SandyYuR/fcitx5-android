@@ -1,0 +1,41 @@
+<!--
+  语言切换键：ASCII（西文）状态（英 / 中）。
+  Source: 用户提供的 英.svg（viewBox 0 0 48 48，墨迹 7.2,7.3,33.6,33.5）。
+  与中文态同尺寸、同裁剪（20dp，键面与工具栏一致）；两枚图标的字形大小与深浅
+  互换，用来表示当前状态。
+  次要笔画同 ic_language_switch_zh，用 45% 透明度保留层次。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="19.94dp"
+    android:viewportWidth="33.6"
+    android:viewportHeight="33.5">
+    <group
+        android:translateX="-7.2"
+        android:translateY="-7.3">
+            <group
+                android:scaleX="1.082191781"
+                android:scaleY="1.226666667"
+                android:translateX="-21.153424658"
+                android:translateY="-24.225333333">
+                <path
+                    android:fillColor="#FF000000"
+                    android:pathData="M34.8,36c.5.6,1.2,1.1,2.2,1.5s2.2.8,3.8,1.1l-.9,2c-1.5-.4-2.8-.8-3.9-1.4-1-.5-1.8-1.2-2.5-2-.6.7-1.4,1.4-2.4,2-1.1.6-2.4,1.1-4,1.5l-.9-2c1.6-.3,2.9-.7,3.9-1.2.9-.4,1.6-1,2-1.5h-5.6v-1.9h1.5v-3.8h4.6v-1.1h1.9v1.1h4.6v3.8h1.5v1.9s-5.8,0-5.8,0ZM29.7,28.7h-3.3v-1.9h3.3v-1.1h2v1.1h3.3v-1.1h2v1.1h3.3v1.9h-3.3v.8h-2v-.8h-3.3v.8h-2v-.8ZM29.8,34.2h2.5v-1.8h-2.5v1.8ZM34.3,32.3v1.8h2.5v-1.8h-2.5Z" />
+            </group>
+            <group
+                android:scaleX="0.924050633"
+                android:scaleY="0.815217391"
+                android:translateX="19.546835443"
+                android:translateY="19.748913043">
+                <path
+                    android:fillColor="#73000000"
+                    android:pathData="M23,20h-6.5v5.7h-2.6v-5.7h-6.7v-9.3h6.7v-3.4h2.6v3.4h6.5v9.3ZM13.9,17.3v-4.2h-4v4.2h4ZM20.4,13.2h-3.9v4.2h3.9v-4.2Z" />
+            </group>
+            <path
+                android:fillColor="#73000000"
+                android:pathData="M36.3,10.6h-4.6c-.8,0-1.5.7-1.5,1.5s.7,1.5,1.5,1.5h3.9c1.2,0,2.1,1,2.1,2.1v.6h0v3.3c0,.8.7,1.5,1.5,1.5s1.5-.7,1.5-1.5v-4.5c0-2.4-2-4.5-4.5-4.5h.1Z" />
+            <path
+                android:fillColor="#73000000"
+                android:pathData="M13.3,40.8h4.6c.8,0,1.5-.7,1.5-1.5s-.7-1.5-1.5-1.5h-3.9c-1.2,0-2.1-1-2.1-2.1v-.6h0v-3.3c0-.8-.7-1.5-1.5-1.5s-1.5.7-1.5,1.5v4.5c0,2.4,2,4.5,4.5,4.5,0,0-.1,0-.1,0Z" />
+    </group>
+</vector>

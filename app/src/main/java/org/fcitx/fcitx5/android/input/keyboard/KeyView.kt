@@ -1829,10 +1829,18 @@ class ImageKeyView(
     theme: Theme,
     def: KeyDef.Appearance.Image,
     horizontalGapScale: Float = 1f,
-    private val iconSlot: String? = null
+    private val iconSlot: String? = null,
+    /**
+     * 与 [iconSlot] 成对的 ASCII 状态槽位（目前只有语言键使用）。非空时该键随输入法
+     * 中/西文状态换图标：主题配了 ASCII 槽位就用主题图标，否则回落到 [srcAlt]。
+     */
+    private val iconSlotAlt: String? = null,
+    @DrawableRes private val srcAlt: Int? = null
 ) :
     KeyView(ctx, theme, def, horizontalGapScale) {
     private var iconThemeTintWithTheme: Boolean? = null
+    private val defaultSrc: Int = def.src
+    private var asciiMode = false
     val img = imageView { configure(theme, def.src, def.variant) }.apply {
         imageTintList = ColorStateList.valueOf(
             resolveTextColor(
@@ -1854,11 +1862,25 @@ class ImageKeyView(
         reapplyIconThemeOverride()
     }
 
+    /**
+     * 切换中/西文状态的键面图标。只有配了 ASCII 槽位的键（语言键）响应，
+     * 其它图标键调用无副作用。
+     */
+    fun setAsciiMode(ascii: Boolean) {
+        if (iconSlotAlt == null || asciiMode == ascii) return
+        asciiMode = ascii
+        reapplyIconThemeOverride()
+    }
+
     fun reapplyIconThemeOverride() {
-        if (iconSlot == null) return
-        val iconInfo = IconThemeManager.resolveIconDrawableInfo(iconSlot)
+        val slot = if (asciiMode) iconSlotAlt ?: iconSlot else iconSlot
+        if (slot == null) return
+        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
         if (iconInfo == null) {
             iconThemeTintWithTheme = null
+            // 主题没有该槽位时回落到内置图标。ASCII 态有自己的一枚，不能沿用中文态那枚，
+            // 所以这里必须显式重设，而不能依赖构造时已经设好的 def.src。
+            img.imageResource = if (asciiMode) srcAlt ?: defaultSrc else defaultSrc
             applyIconTint(theme)
             return
         }

@@ -3,6 +3,15 @@ package org.fcitx.fcitx5.android.core
 
 /** Reuses the immutable frontend entry while its actually displayed fields stay equal. */
 internal class DirectRimeInputMethodEntryCache {
+
+    companion object {
+        /** 前端唯一名，见 [get] 构造的 [InputMethodEntry]。 */
+        const val IME_ID = "rime"
+
+        /** ASCII mode 的 subMode 名；前端据此判断是否在英文直通状态。 */
+        const val LATIN_MODE_NAME = "Latin Mode"
+    }
+
     private var entry: InputMethodEntry? = null
     private var ascii: Boolean? = null
     private var schema = ""
@@ -27,12 +36,12 @@ internal class DirectRimeInputMethodEntryCache {
         this.schemaName = schemaName
         this.displayName = displayName
         val subMode = if (ascii) {
-            InputMethodSubMode("Latin Mode", "abc", "fcitx_rime_latin")
+            InputMethodSubMode(LATIN_MODE_NAME, "abc", "fcitx_rime_latin")
         } else {
             InputMethodSubMode(schemaName, schemaName, "fcitx-rime:$schema")
         }
         return InputMethodEntry(
-            "rime", displayName, "fcitx-rime", "中州韵", "㞢", "zh", "rime", true, subMode
+            IME_ID, displayName, "fcitx-rime", "中州韵", "㞢", "zh", "rime", true, subMode
         ).also { entry = it }
     }
 }

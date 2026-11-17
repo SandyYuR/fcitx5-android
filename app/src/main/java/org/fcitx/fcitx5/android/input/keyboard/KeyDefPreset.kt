@@ -420,7 +420,9 @@ class LanguageKey(
     shadowColorMonet: String? = null
 ) : KeyDef(
     Appearance.Image(
-        src = R.drawable.ic_baseline_language_24,
+        // 中文态与 ASCII 态各有一枚内置图标（主题没配槽位时用），与工具栏语言切换按钮同款：
+        // 中文态「中/En」、ASCII 态「En/中」。
+        src = R.drawable.ic_language_switch_zh,
         variant = Variant.AltForeground,
         viewId = R.id.button_lang,
         percentWidth = percentWidth,
@@ -438,8 +440,20 @@ class LanguageKey(
         // 系统输入法选单仍可长按工具栏语言切换按钮进入。
         Behavior.LongPress(KeyAction.ShowRimeSchemaMenuAction)
     ),
-    iconSlot = "keys.language"
-)
+    iconSlot = ICON_SLOT
+) {
+    companion object {
+        /** 图标主题里语言键「中文态」的槽位。沿用旧名，内置主题（谷歌、长日将烬）已覆盖。 */
+        const val ICON_SLOT = "keys.language"
+
+        /** 图标主题里语言键「ASCII 态」的槽位，与 [ICON_SLOT] 成对，主题可分别覆盖。 */
+        const val ICON_SLOT_ASCII = "keys.language_ascii"
+
+        /** 主题没配 ASCII 槽位时用的内置图标（En/中）。 */
+        @DrawableRes
+        val ICON_ASCII = R.drawable.ic_language_switch_ascii
+    }
+}
 
 /**
  * 空格键。

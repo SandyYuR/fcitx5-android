@@ -60,6 +60,20 @@ sealed class ButtonAction {
     open val iconSlot: String? = null
 
     /**
+     * 与 [iconSlot] 成对的第二个状态槽位。
+     *
+     * 目前只有语言切换按钮：中文方案用 [iconSlot]，ASCII mode 用这个槽位。图标主题没有配置
+     * 这个槽位时回落到 [iconSlot]，因此未适配的旧主题表现不变。
+     */
+    open val iconSlotAlt: String? = null
+
+    /**
+     * 第二状态的内置图标，与 [iconSlotAlt] 配套。为空时回落到 [defaultIcon]。
+     */
+    @get:DrawableRes
+    open val defaultIconAlt: Int? = null
+
+    /**
      * Execute the action.
      * @param context Android context
      * @param service Input method service
@@ -432,9 +446,14 @@ data object RandomThemeAction : ButtonAction() {
 
 data object LanguageSwitchAction : ButtonAction() {
     override val id = "language_switch"
-    override val defaultIcon = R.drawable.ic_baseline_language_24
+
+    // 中文方案显示「中/En」，ASCII mode 显示「En/中」：两个图标按同一墨迹宽度出图，
+    // 切换时字形大小不跳。
+    override val defaultIcon = R.drawable.ic_language_switch_zh
+    override val defaultIconAlt = R.drawable.ic_language_switch_ascii
     override val defaultLabelRes = R.string.language_switch
     override val iconSlot = "toolbar.language_switch"
+    override val iconSlotAlt = "toolbar.language_switch_ascii"
     override val hasLongPress = true
 
     override fun execute(

@@ -77,7 +77,7 @@ object BundledPresets {
     private val assetSizes = mapOf(
         "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 13777,
         "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 36265,
-        "bundled/icon_themes/谷歌.json" to 56425
+        "bundled/icon_themes/谷歌.json" to 68073
     )
 
     private val themeAssets = listOf(

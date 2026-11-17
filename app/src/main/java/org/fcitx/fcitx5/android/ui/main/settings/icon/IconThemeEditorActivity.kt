@@ -611,7 +611,8 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         "keys.return.next" -> R.drawable.ic_baseline_keyboard_tab_24
         "keys.return.previous" -> R.drawable.ic_baseline_keyboard_tab_reverse_24
         "keys.return.done" -> R.drawable.ic_baseline_done_24
-        "keys.language" -> R.drawable.ic_baseline_language_24
+        "keys.language" -> R.drawable.ic_language_switch_zh
+        "keys.language_ascii" -> R.drawable.ic_language_switch_ascii
         "keys.quickphrase" -> R.drawable.ic_baseline_format_quote_24
         "keys.space" -> R.drawable.ic_baseline_space_bar_24
         "keys.numpad" -> R.drawable.ic_number_pad
@@ -632,7 +633,8 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         "toolbar.floating_toggle" -> R.drawable.ic_floating_toggle_24
         "toolbar.clipboard" -> R.drawable.ic_clipboard
         "toolbar.more" -> R.drawable.ic_baseline_more_horiz_24
-        "toolbar.language_switch" -> R.drawable.ic_baseline_language_24
+        "toolbar.language_switch" -> R.drawable.ic_language_switch_zh
+        "toolbar.language_switch_ascii" -> R.drawable.ic_language_switch_ascii
         "toolbar.theme" -> R.drawable.ic_baseline_palette_24
         "toolbar.random_theme" -> R.drawable.ic_random_theme_24
         "toolbar.icon_theme" -> R.drawable.ic_icon_theme_24

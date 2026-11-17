@@ -24,7 +24,7 @@ class BundledPresetsUpgradeTest {
     private val current get() = File("src/main/assets/$asset").readBytes()
     private val handled get() = ReflectionHelpers.callInstanceMethod<MutableSet<String>>(BundledPresets, "getHandled")
     private fun previous() = javaClass.classLoader!!.getResourceAsStream(
-        "bundled/google-icon-theme-before-20261103.json"
+        "bundled/google-icon-theme-before-20261117.json"
     )!!.use { it.readBytes() }
     private fun install(file: File) = ReflectionHelpers.callInstanceMethod<Int>(
         BundledPresets, "installAsset", ClassParameter.from(String::class.java, asset),
@@ -35,7 +35,7 @@ class BundledPresetsUpgradeTest {
 
     @Test fun upgradingTheActualPreviousThemeInstallsTheNewBundledIcons() {
         val old = previous()
-        assertEquals(56425, old.size)
+        assertEquals(68073, old.size)
         val destination = temp.newFile().apply { writeBytes(old) }
         install(destination)
         assertArrayEquals(current, destination.readBytes())

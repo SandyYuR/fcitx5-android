@@ -1697,7 +1697,17 @@ abstract class BaseKeyboard(
             is KeyDef.Appearance.ImageAltText -> ImageAltTextKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
             is KeyDef.Appearance.ImageText -> ImageTextKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
             is KeyDef.Appearance.Text -> TextKeyView(context, theme, activeAppearance, horizontalGapScale)
-            is KeyDef.Appearance.Image -> ImageKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
+            is KeyDef.Appearance.Image -> ImageKeyView(
+                context,
+                theme,
+                activeAppearance,
+                horizontalGapScale,
+                def.iconSlot,
+                // 语言键在 ASCII 态换另一枚图标（与工具栏语言切换按钮同款逻辑），
+                // 其余图标键没有 ASCII 变体。
+                if (def is LanguageKey) LanguageKey.ICON_SLOT_ASCII else null,
+                if (def is LanguageKey) LanguageKey.ICON_ASCII else null
+            )
         }.apply {
             statisticsKeyLabel = KeyboardStatisticsLayout.label(def)
             if (statisticsKeyLabel != null) {

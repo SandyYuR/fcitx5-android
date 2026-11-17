@@ -435,6 +435,7 @@
     <string name="edit_button_hint_id">unique identifier</string>
     <string name="edit_button_hint_text">emoticon or character shown instead of icon</string>
     <string name="edit_button_pick_icon">Pick Icon</string>
+    <string name="edit_button_icon_ascii">ASCII mode icon</string>
     <string name="edit_button_macro">Macro</string>
     <string name="edit_button_no_custom_icon">(no custom icon)</string>
     <string name="edit_button_macro_event_type">Button Action</string>

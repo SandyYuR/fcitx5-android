@@ -79,8 +79,17 @@ import java.io.File
 
 private val prettyJson = kotlinx.serialization.json.Json { prettyPrint = true }
 
-private fun ConfigurableButton.normalizedIcon(): ConfigurableButton =
-    if (ButtonIconFile.isFileIcon(icon)) copy(icon = ButtonIconFile.toRelative(icon!!)) else this
+private val ICON_PICKER_MIME_TYPES = arrayOf(
+    "image/png", "image/webp", "image/svg+xml", "text/xml", "application/xml"
+)
+
+private fun ConfigurableButton.normalizedIcon(): ConfigurableButton {
+    val normalizedIcon = if (ButtonIconFile.isFileIcon(icon)) ButtonIconFile.toRelative(icon!!) else icon
+    val normalizedAscii = if (ButtonIconFile.isFileIcon(iconAscii)) ButtonIconFile.toRelative(iconAscii!!) else iconAscii
+    return if (normalizedIcon != icon || normalizedAscii != iconAscii) {
+        copy(icon = normalizedIcon, iconAscii = normalizedAscii)
+    } else this
+}
 
 /**
  * Unified activity for customizing buttons in both Kawaii Bar and Status Area.
@@ -222,11 +231,13 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
         }.onFailure { android.util.Log.w(TAG, "Failed to save draft buttons config", it) }
         outState.putString(STATE_PENDING_MACRO_BUTTON_ID, pendingMacroButtonId)
         outState.putString(STATE_PENDING_ICON_BUTTON_ID, pendingIconButtonId)
+        outState.putString(STATE_PENDING_ICON_ASCII_BUTTON_ID, pendingIconAsciiButtonId)
     }
 
     private fun restoreDraft(state: Bundle) {
         pendingMacroButtonId = state.getString(STATE_PENDING_MACRO_BUTTON_ID)
         pendingIconButtonId = state.getString(STATE_PENDING_ICON_BUTTON_ID)
+        pendingIconAsciiButtonId = state.getString(STATE_PENDING_ICON_ASCII_BUTTON_ID)
         val json = state.getString(STATE_DRAFT_CONFIG) ?: return
         val draft = runCatching { configJson.decodeFromString<ButtonsLayoutConfig>(json) }
             .onFailure { android.util.Log.w(TAG, "Failed to restore draft buttons config", it) }
@@ -669,6 +680,14 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
     /** Button id whose icon is being picked; survives recreation via onSaveInstanceState. */
     private var pendingIconButtonId: String? = null
 
+    /**
+     * Button id whose ASCII-mode icon is being picked (language switch only).
+     *
+     * Kept apart from [pendingIconButtonId] so a pick that arrives after the host was recreated
+     * still lands on the right one of the two icons.
+     */
+    private var pendingIconAsciiButtonId: String? = null
+
     // File picker for custom icon
     private var pendingIconCallback: ((String?) -> Unit)? = null
     private val iconPickerLauncher = registerForActivityResult(
@@ -709,7 +728,12 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                 } else {
                     // Dialog is gone (host recreated): apply straight to the item list so the
                     // pick is not silently discarded.
-                    pendingIconButtonId?.let { applyIconToButton(it, value) }
+                    val asciiButtonId = pendingIconAsciiButtonId
+                    if (asciiButtonId != null) {
+                        applyIconToButton(asciiButtonId, value, ascii = true)
+                    } else {
+                        pendingIconButtonId?.let { applyIconToButton(it, value) }
+                    }
                 }
             } catch (_: Exception) {
                 pendingIconCallback?.invoke(null)
@@ -718,14 +742,22 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             pendingIconCallback?.invoke(null)
         }
         pendingIconButtonId = null
+        pendingIconAsciiButtonId = null
     }
 
-    /** Apply a picked icon path directly to [items]; see [applyMacroResultToButton]. */
-    private fun applyIconToButton(buttonId: String, iconValue: String) {
+    /**
+     * Apply a picked icon path directly to [items]; see [applyMacroResultToButton].
+     *
+     * [ascii] selects the language switch button's ASCII-mode icon instead of its main icon.
+     */
+    private fun applyIconToButton(buttonId: String, iconValue: String, ascii: Boolean = false) {
         val index = items.indexOfFirst { it is ListItem.ButtonItem && it.button.id == buttonId }
         if (index < 0) return
         val current = items[index] as? ListItem.ButtonItem ?: return
-        items[index] = current.copy(button = current.button.copy(icon = iconValue))
+        val button = current.button
+        items[index] = current.copy(
+            button = if (ascii) button.copy(iconAscii = iconValue) else button.copy(icon = iconValue)
+        )
         adapter?.notifyItemChanged(index)
         updateSaveButtonState()
     }
@@ -908,7 +940,8 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                 // Remember which button this is for, so the picked icon can still be applied
                 // if this Activity is recreated while the document picker is in front.
                 pendingIconButtonId = button.id
-                iconPickerLauncher.launch(arrayOf("image/png", "image/webp", "image/svg+xml", "text/xml", "application/xml"))
+                pendingIconAsciiButtonId = null
+                iconPickerLauncher.launch(ICON_PICKER_MIME_TYPES)
             }
         }
         val clearIconBtn = MaterialButton(this).apply {
@@ -931,6 +964,58 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             setPadding(dp(8), dp(2), 0, 0)
         }
         dialogView.addView(iconPathText)
+
+        // 语言切换按钮的 ASCII mode 图标：中文态用上面那套，这里单独配一个。
+        // 留空时 ASCII mode 沿用中文态的图标，只配了一个图标的用户切换后也不会掉回内置图标。
+        var asciiIconPath = button.iconAscii
+        if (button.id == LANGUAGE_SWITCH_ID) {
+            dialogView.addView(TextView(this).apply {
+                text = getString(R.string.edit_button_icon_ascii)
+                textSize = 12f
+                setTextColor(settingsColor(android.R.attr.textColorPrimary))
+                setPadding(0, dp(8), 0, 0)
+            })
+            lateinit var asciiPathText: TextView
+            val asciiBtnRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+            }
+            val pickAsciiIconBtn = MaterialButton(this).apply {
+                text = getString(R.string.edit_button_pick_icon)
+                textSize = 12f
+                layoutParams = LinearLayout.LayoutParams(0, wrapContent).apply { weight = 1f; topMargin = dp(4) }
+                setOnClickListener {
+                    pendingIconCallback = { path ->
+                        if (path != null) {
+                            asciiIconPath = path
+                            asciiPathText.text = path.removePrefix("file:").takeLast(30)
+                        }
+                    }
+                    pendingIconButtonId = null
+                    pendingIconAsciiButtonId = button.id
+                    iconPickerLauncher.launch(ICON_PICKER_MIME_TYPES)
+                }
+            }
+            val clearAsciiIconBtn = MaterialButton(this).apply {
+                text = "✕"
+                textSize = 12f
+                layoutParams = LinearLayout.LayoutParams(wrapContent, wrapContent).apply { marginStart = dp(4); topMargin = dp(4) }
+                setOnClickListener {
+                    asciiIconPath = null
+                    asciiPathText.text = getString(R.string.edit_button_no_custom_icon)
+                }
+            }
+            asciiBtnRow.addView(pickAsciiIconBtn)
+            asciiBtnRow.addView(clearAsciiIconBtn)
+            dialogView.addView(asciiBtnRow)
+            asciiPathText = TextView(this).apply {
+                text = asciiIconPath?.removePrefix("file:")?.takeLast(30)
+                    ?: getString(R.string.edit_button_no_custom_icon)
+                textSize = 11f
+                setTextColor(settingsColor(android.R.attr.textColorSecondary))
+                setPadding(dp(8), dp(2), 0, 0)
+            }
+            dialogView.addView(asciiPathText)
+        }
 
         // Edit Macro Steps button
         if (!fixedIdentity) {
@@ -1017,6 +1102,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                 val updatedButton = ConfigurableButton(
                     id = newId,
                     icon = iconPath,
+                    iconAscii = asciiIconPath,
                     label = customLabel,
                     text = customText,
                     macroSteps = currentSteps
@@ -1135,7 +1221,7 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
 
         val allButtons = kawaiiBarButtons + statusAreaButtons + listOf(toolbarToggle, hideKeyboard)
         val referencedNames = allButtons
-            .mapNotNull { it.icon }
+            .flatMap { listOfNotNull(it.icon, it.iconAscii) }
             .filter { it.startsWith(ButtonIconFile.PREFIX) }
             .map { it.removePrefix(ButtonIconFile.PREFIX).substringAfterLast('/') }
             .toSet()
@@ -1483,3 +1569,7 @@ private const val TAG = "ButtonsCustomizer"
 private const val STATE_DRAFT_CONFIG = "draft_buttons_config"
 private const val STATE_PENDING_MACRO_BUTTON_ID = "pending_macro_button_id"
 private const val STATE_PENDING_ICON_BUTTON_ID = "pending_icon_button_id"
+private const val STATE_PENDING_ICON_ASCII_BUTTON_ID = "pending_icon_ascii_button_id"
+
+/** 语言切换按钮的 id：只有它的第二个状态（ASCII mode）有独立图标。 */
+private const val LANGUAGE_SWITCH_ID = "language_switch"
