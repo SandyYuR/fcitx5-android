@@ -51,6 +51,28 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         true
     )
 
+    /**
+     * 把上/下滑的副标签放到按键侧边，而不是等键高不够才自动退到角落。
+     * 关闭时保持原有行为：只有键高容不下「主字符 + 标签」时才退到角落。
+     */
+    val altLabelOnSide = switch(
+        R.string.alt_label_on_side,
+        "alt_label_on_side",
+        false
+    )
+
+    enum class AltLabelSide(override val stringRes: Int) : ManagedPreferenceEnum {
+        Right(R.string.alt_label_side_right),
+        Left(R.string.alt_label_side_left);
+    }
+
+    val altLabelSide = enumList(
+        R.string.alt_label_side,
+        "alt_label_side",
+        AltLabelSide.Right,
+        enableUiOn = { altLabelOnSide.getValue() }
+    )
+
     val keyHorizontalMargin: ManagedPreference.PInt
     val keyHorizontalMarginLandscape: ManagedPreference.PInt
 

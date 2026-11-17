@@ -201,6 +201,10 @@
     <string name="punctuation_pos_top_right">Top Right</string>
     <string name="punctuation_pos_top_center">Top Center</string>
     <string name="punctuation_pos_none">None</string>
+    <string name="alt_label_on_side">Show swipe labels on the side</string>
+    <string name="alt_label_side">Swipe label side</string>
+    <string name="alt_label_side_left">Left</string>
+    <string name="alt_label_side_right">Right</string>
     <string name="popup_on_key_press">Popup on key press</string>
     <string name="disable_animation">Disable animation</string>
     <string name="import_from_file">Import from file…</string>

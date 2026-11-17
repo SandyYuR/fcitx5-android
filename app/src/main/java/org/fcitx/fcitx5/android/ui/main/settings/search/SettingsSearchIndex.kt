@@ -253,6 +253,8 @@ object SettingsSearchIndex {
         R.string.key_border_stroke to "key_border_stroke",
         R.string.key_ripple_effect to "key_ripple_effect",
         R.string.move_main_text_for_alt_label to "move_main_text_for_alt_label",
+        R.string.alt_label_on_side to "alt_label_on_side",
+        R.string.alt_label_side to "alt_label_side",
         R.string.special_key_oval_shape to "special_key_oval_shape",
         R.string.text_editing_button_radius to "text_editing_button_radius",
         R.string.clipboard_entry_radius to "clipboard_entry_radius",
@@ -509,6 +511,16 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.move_main_text_for_alt_label, P_THEME,
             listOf("main text", "主字符", "主标签", "副标签", "居中", "按键文字", "center"),
+            route = SettingsRoute.Theme
+        ),
+        SettingsSearchEntry(
+            R.string.alt_label_on_side, P_THEME,
+            listOf("alt label", "swipe label", "副标签", "侧边", "侧边显示", "fubiaoqian"),
+            route = SettingsRoute.Theme
+        ),
+        SettingsSearchEntry(
+            R.string.alt_label_side, P_THEME,
+            listOf("alt label side", "副标签侧边位置", "左侧", "右侧", "left", "right"),
             route = SettingsRoute.Theme
         ),
         SettingsSearchEntry(
