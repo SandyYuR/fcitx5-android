@@ -1863,7 +1863,15 @@ class TextKeyboard private constructor(
             }
             return
         }
-        if (ime == null) return
+        ensureSpecialKeyViewsInitialized()
+        val spaces = specialKeyViews.space
+        if (ime == null) {
+            // 没有活动输入法时仍要显示布局里配好的自定义标签（未设置的键保持原样）。
+            spaces.forEach { spaceKey ->
+                spaceKey.spaceLabelOverride?.let { spaceKey.mainText.text = it }
+            }
+            return
+        }
         val directRime = ime.uniqueName == "rime"
         // Keep the canonical mode name for existing layout keys; localize its display only.
         val subModeText = if (directRime && ime.subMode.name == "Latin Mode") {
@@ -1885,9 +1893,9 @@ class TextKeyboard private constructor(
                 if (subModeText.isNotEmpty()) subModeText else ime.displayName
             }
         }
-        ensureSpecialKeyViewsInitialized()
-        specialKeyViews.space.forEach { spaceKey ->
-            spaceKey.mainText.text = newText
+        spaces.forEach { spaceKey ->
+            // 自定义标签优先；未设置（或只有空白）的键继续显示按方案名算出的文案。
+            spaceKey.mainText.text = spaceKey.spaceLabelOverride ?: newText
         }
     }
 

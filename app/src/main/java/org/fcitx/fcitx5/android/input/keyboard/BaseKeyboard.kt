@@ -1715,6 +1715,9 @@ abstract class BaseKeyboard(
             if (def is SpaceKey || def is MiniSpaceKey) {
                 // 仅 SpaceKey 支持在布局编辑器里配置划动动作；MiniSpaceKey 保持纯光标语义。
                 val swipeAction = (def as? SpaceKey)?.swipe
+                // 自定义空格标签：空/纯空白视为未设置，交回 TextKeyboard 按方案名显示。
+                (this as? TextKeyView)?.spaceLabelOverride =
+                    (def as? SpaceKey)?.label?.takeIf { it.isNotBlank() }
                 registerSpaceKeyEntry(this, swipeAction)
                 swipeEnabled = spaceSwipeEnabledFor(swipeAction)
                 swipeRepeatEnabled = true
@@ -1885,6 +1888,12 @@ abstract class BaseKeyboard(
             // its wrapper, so a later row reuse can recover the real baseline.
             gestureBaselines[this] = baseline
             applyAppearance(this, activeAppearance)
+            // 自定义空格标签要在 applyAppearance 之后再落一次：applyAppearance 会把
+            // mainText 重置成 displayText（空格），而编辑器预览没有 TextKeyboard 的
+            // updateSpaceLabel 兜底，不在这里写就会看到空白键面。
+            (this as? TextKeyView)?.let { view ->
+                view.spaceLabelOverride?.let { view.mainText.text = it }
+            }
             // 空格键的「长按重复输入」在 applyBehaviorPopupBindings 内部按视图重绑
             // （它会先清空 repeat 回调，所以由它自己收尾最稳），这里不再单独调用。
             applyBehaviorPopupBindings(this, baseline, activeDef.behaviors, activeDef.popup)

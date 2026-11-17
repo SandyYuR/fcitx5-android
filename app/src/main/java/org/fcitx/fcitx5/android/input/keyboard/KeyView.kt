@@ -583,6 +583,16 @@ open class TextKeyView(
     private val textAppearance: KeyDef.Appearance.Text = def
 
     /**
+     * 空格键的自定义标签（布局里的 `SpaceKey.label`）。
+     *
+     * 非空时由 [org.fcitx.fcitx5.android.input.keyboard.TextKeyboard.updateSpaceLabel]
+     * 直接显示这段文字；为空时仍按当前方案名与 `spaceKeyLabelMode` 计算。之所以放在
+     * 视图上而不是只改 `displayText`：默认文案要随方案/中英状态实时刷新，两者不能
+     * 用同一个字段互相覆盖。
+     */
+    var spaceLabelOverride: String? = null
+
+    /**
      * 主标签的基准字号（sp），不含手势/单手模式的缩放系数。
      *
      * 以前这是 `private val`，即「构造期快照」：KeyView 实例会被长期复用（KeyboardWindow

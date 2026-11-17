@@ -173,6 +173,7 @@ class KeyEditorForm(
     private var macroWeightEdit: EditText? = null
 
     private var simpleWeightEdit: EditText? = null
+    private var spaceLabelEdit: EditText? = null
     private var nonMacroSwipeLabelEdit: EditText? = null
     private var nonMacroSwipeUpLabelEdit: EditText? = null
     private var nonMacroSwipeDownLabelEdit: EditText? = null
@@ -417,6 +418,7 @@ class KeyEditorForm(
         macroDisplayTextRowBindings.clear()
         macroWeightEdit = null
         simpleWeightEdit = null
+        spaceLabelEdit = null
         nonMacroSwipeLabelEdit = null
         nonMacroSwipeUpLabelEdit = null
         nonMacroSwipeDownLabelEdit = null
@@ -815,11 +817,16 @@ class KeyEditorForm(
                     fieldsContainer.addView(weightEdit.first)
                 }
 
-                // 空格键的划动动作与「滑动空格键移动光标」开关互斥：开关开启时光标手势
-                // 完全接管，这里的配置不生效。显式提示，避免用户以为配置丢了。
+                // 自定义键面标签：留空时仍按方案名/中英状态自动计算。
+                val labelEdit = uiBuilder.createEditField(
+                    getString(R.string.text_keyboard_layout_space_label),
+                    keyData["label"] as? String ?: ""
+                )
+                spaceLabelEdit = labelEdit.second
+                fieldsContainer.addView(labelEdit.first)
                 fieldsContainer.addView(
                     uiBuilder.createNoticeField(
-                        getString(R.string.text_keyboard_layout_space_swipe_hint)
+                        getString(R.string.text_keyboard_layout_space_label_hint)
                     )
                 )
 
@@ -829,6 +836,16 @@ class KeyEditorForm(
                 )
                 nonMacroSwipeLabelEdit = swipeLabelEdit.second
                 fieldsContainer.addView(swipeLabelEdit.first)
+
+                // 空格键的划动动作与「滑动空格键移动光标」开关互斥：开关开启时光标手势
+                // 完全接管，这里的配置不生效。显式提示，避免用户以为配置丢了。
+                // 它解释的是划动动作，所以归到「动作」区并紧跟划动标签；留在内容区会被
+                // 当成空格键标签的说明（tag=1 即动作区，见 organizeFields）。
+                fieldsContainer.addView(
+                    uiBuilder.createNoticeField(
+                        getString(R.string.text_keyboard_layout_space_swipe_hint)
+                    ).apply { tag = 1 }
+                )
 
                 val swipeAction = keyData["swipe"] as? Map<*, *>
                 val swipeMacroSteps = (swipeAction?.get("macro") as? List<*>)?.filterNotNull() ?: emptyList()
@@ -1711,6 +1728,8 @@ class KeyEditorForm(
                 if (!disableWeightEditing) {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { draft["weight"] = it }
                 }
+                val spaceLabel = spaceLabelEdit?.text?.toString()?.trim().orEmpty()
+                if (spaceLabel.isNotEmpty()) draft["label"] = spaceLabel
                 val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
                 if (swipeLabel.isNotEmpty()) draft["swipeLabel"] = swipeLabel
                 if (nonMacroSwipeStepsData.isNotEmpty()) {
@@ -2239,6 +2258,8 @@ class KeyEditorForm(
                 if (!disableWeightEditing) {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
                 }
+                val spaceLabel = spaceLabelEdit?.text?.toString()?.trim().orEmpty()
+                if (spaceLabel.isNotEmpty()) newKey["label"] = spaceLabel
                 val swipeLabel = nonMacroSwipeLabelEdit?.text?.toString()?.trim().orEmpty()
                 if (swipeLabel.isNotEmpty()) newKey["swipeLabel"] = swipeLabel
                 if (nonMacroSwipeStepsData.isNotEmpty()) {

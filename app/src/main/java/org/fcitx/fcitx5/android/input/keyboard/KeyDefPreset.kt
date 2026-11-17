@@ -452,6 +452,9 @@ class LanguageKey(
  *   因此空格键的手势在 `BaseKeyboard.createKeyView` 里自建。
  * @param swipeLabel 划动动作的提示文字（可选）。非空时改用 `AltText` 外观，
  *   让它像其它可划动键一样在键面上显示划动提示。
+ * @param label 键面自定义标签（可选）。为空（或只有空白）时沿用默认行为：由
+ *   [org.fcitx.fcitx5.android.input.keyboard.TextKeyboard] 按当前方案名与
+ *   `spaceKeyLabelMode` 计算显示内容；非空时按键面宽度自动缩放显示该文字。
  */
 class SpaceKey(
     percentWidth: Float = 0f,
@@ -462,7 +465,8 @@ class SpaceKey(
     shadowColor: Int? = null,
     shadowColorMonet: String? = null,
     val swipe: MacroAction? = null,
-    val swipeLabel: String? = null
+    val swipeLabel: String? = null,
+    val label: String? = null
 ) : KeyDef(
     if (swipeLabel.isNullOrEmpty()) {
         Appearance.Text(
