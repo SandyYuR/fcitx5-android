@@ -22,9 +22,15 @@
 | `keys.backspace` | 退格按钮 |
 | `toolbar.random_theme` | 工具栏或状态区的随机主题动作 |
 | `toolbar.ai_assistant` | 工具栏或状态区的 AI 助手动作，默认星形图标 |
-| `toolbar.js_tools` | 工具栏或状态区的 JS App 直达动作；内置「有道翻译」默认 Google Translate 图标，内置「哔哩哔哩翻译」默认哔哩哔哩标志，其他工具回退代码图标 |
+| `toolbar.js_tools` | 工具栏或状态区的 JS App 直达动作；内置「有道翻译」默认有道官方字标，内置「哔哩哔哩翻译」默认哔哩哔哩标志，其他工具回退代码图标 |
+| `toolbar.language_switch` | 工具栏语言切换按钮的**中文态**图标，默认「中/En」 |
+| `toolbar.language_switch_ascii` | 工具栏语言切换按钮的**ASCII 态**图标，默认「En/中」 |
+| `keys.language` | 键盘语言键的**中文态**图标，默认「中/En」 |
+| `keys.language_ascii` | 键盘语言键的**ASCII 态**图标，默认「En/中」 |
 
 缺少槽位或值为空时回退内置图标。符号面板监听图标主题切换并刷新功能键，分类与滚动位置继续保留。
+
+语言相关的四个槽位按中英状态分别取用：中文态读 `toolbar.language_switch` / `keys.language`，ASCII 态读对应的 `*_ascii` 槽位。回退规则按界面不同——**键盘语言键**的 ASCII 槽位缺失时直接用内置「En/中」；**工具栏按钮**的 ASCII 槽位缺失时先沿用中文态槽位（未适配的主题两个状态显示同一图标），两者都没配才用内置「En/中」。因此只改中文态槽位不会连带改掉 ASCII 态的内置图案。
 
 主题页随机主题卡片自身的重新随机按钮使用应用资源中的圆角轮廓骰子，与当前图标主题的工具栏槽位分别管理；右上角仍是编辑按钮。
 
