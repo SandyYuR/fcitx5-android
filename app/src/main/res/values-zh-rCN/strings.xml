@@ -780,6 +780,8 @@
     <string name="text_keyboard_layout_swipe_label">划动标签</string>
     <string name="text_keyboard_layout_swipe_up_label">上划标签</string>
     <string name="text_keyboard_layout_swipe_down_label">下划标签</string>
+    <string name="text_keyboard_layout_space_label">空格键标签</string>
+    <string name="text_keyboard_layout_space_label_hint">留空时自动显示当前方案名（或中英状态）。</string>
     <string name="text_keyboard_layout_space_swipe_hint">仅在关闭「划动空格键以移动光标」后生效；开启时划动空格键用于移动光标。</string>
     <string name="text_keyboard_layout_switch_target">目标</string>
     <string name="text_keyboard_layout_switch_target_default">默认（?123 / 上次符号布局）</string>

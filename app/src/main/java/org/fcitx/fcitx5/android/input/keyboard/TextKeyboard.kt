@@ -1863,7 +1863,15 @@ class TextKeyboard private constructor(
             }
             return
         }
-        if (ime == null) return
+        ensureSpecialKeyViewsInitialized()
+        val spaces = specialKeyViews.space
+        if (ime == null) {
+            // 没有活动输入法时仍要显示布局里配好的自定义标签（未设置的键保持原样）。
+            spaces.forEach { spaceKey ->
+                spaceKey.spaceLabelOverride?.let { spaceKey.mainText.text = it }
+            }
+            return
+        }
         val directRime = ime.uniqueName == "rime"
         // Keep the canonical mode name for existing layout keys; localize its display only.
         val subModeText = if (directRime && ime.subMode.name == "Latin Mode") {
@@ -1885,9 +1893,9 @@ class TextKeyboard private constructor(
                 if (subModeText.isNotEmpty()) subModeText else ime.displayName
             }
         }
-        ensureSpecialKeyViewsInitialized()
-        specialKeyViews.space.forEach { spaceKey ->
-            spaceKey.mainText.text = newText
+        spaces.forEach { spaceKey ->
+            // 自定义标签优先；未设置（或只有空白）的键继续显示按方案名算出的文案。
+            spaceKey.mainText.text = spaceKey.spaceLabelOverride ?: newText
         }
     }
 
@@ -1927,6 +1935,16 @@ class TextKeyboard private constructor(
         // Compose-state switches may recreate key views; re-apply caps presentation immediately.
         updateCapsButtonIcon()
         updateAlphabetKeys()
+        // 合成态重绑会把空格键面重置成外观自带的文字：没有自定义标签的键要按方案名补回来，
+        // 否则进出合成态时方案名会变成一个空格。
+        refreshSpaceLabelFromState()
+    }
+
+    override fun onDeferredComposeRecreationsFlushed() {
+        super.onDeferredComposeRecreationsFlushed()
+        // If a held space key delayed its view replacement, the composition callback refreshed
+        // the old instance. Re-apply the scheme label after the new instance enters the tree.
+        refreshSpaceLabelFromState()
     }
 
     private fun transformPopupPreview(c: String): String {
@@ -2031,6 +2049,10 @@ class TextKeyboard private constructor(
             // 纯外观键（空白占位键）：文字是用户指定的装饰内容，不参与任何状态改写。
             // 放在最前面短路，键面上写 "G" 就恒定是 "G"，不跟着 Shift/Caps 变。
             if (keyDef.staticDisplay) return@forEach
+            // 空格键的键面是「方案名 / 中英状态 / 用户自定义标签」，不是参与 Shift/Caps 的
+            // 字母键：标签写成单个字母（"a"）时不能跟着大小写改写。按视图 tag 判断而不是
+            // 看文本形态，标签内容可以是任何东西。
+            if (it.tag == R.id.button_space) return@forEach
             if (keyDef is KeyDef.Appearance.AltText) {
                 val renderedText = it.mainText.text.toString()
                 val sourceFromDef = renderedText.isEmpty() || renderedText == keyDef.displayText
