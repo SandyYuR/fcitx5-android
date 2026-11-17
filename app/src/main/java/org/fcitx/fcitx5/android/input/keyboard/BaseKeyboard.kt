@@ -383,6 +383,9 @@ abstract class BaseKeyboard(
     private lateinit var keyRows: List<ConstraintLayout>
     private var keyboardWaterRippleView: KeyboardWaterRippleView? = null
     private var cachedWaterRippleColor: Int? = null
+    // 波纹中心换算用的窗口坐标缓冲区：按键与波纹层各取一次，避免每次点击分配数组。
+    private val keyRippleLocation = IntArray(2)
+    private val keyRippleOriginLocation = IntArray(2)
     private var rowHeightPercents: List<Float> = emptyList()
     private var horizontalGapScale = 1f
     private var composing = false
@@ -748,7 +751,13 @@ abstract class BaseKeyboard(
             val keyAdapter = AuxBarKeyAdapter(
                 vertical = isVertical,
                 keyViewFactory = { def ->
-                    createKeyView(def, registerComposeAware = false).also(::applyConfiguredFonts)
+                    createKeyView(def, registerComposeAware = false).also { keyView ->
+                        applyConfiguredFonts(keyView)
+                        // 辅助栏按键与主键盘按键共用同一套水波纹：不挂这个回调时，点九键
+                        // 左侧辅助栏（？ ! " 符）完全不出波纹。中心仍由 requestKeyRipple
+                        // 按窗口坐标换算，辅助栏整体偏移、纵向均分高度都不影响落点。
+                        keyView.onWaterRippleRequest = { view, _, _ -> requestKeyRipple(view) }
+                    }
                 }
             )
             val pinnedRv = recyclerView {
@@ -1279,12 +1288,7 @@ abstract class BaseKeyboard(
         clipChildren = false
         clipToPadding = false
         keyViews.forEach { keyView ->
-            keyView.onWaterRippleRequest = { view, _, _ ->
-                val cx = (view.parent as? View)?.x.orZero() + view.x + view.width * 0.5f
-                val cy = (view.parent as? View)?.y.orZero() + view.y + view.height * 0.5f
-                val radius = waterRippleRadiusPx(view)
-                keyboardWaterRippleView?.startRipple(cx, cy, waterRippleColor(), radius)
-            }
+            keyView.onWaterRippleRequest = { view, _, _ -> requestKeyRipple(view) }
         }
         if (row.isEmpty()) return@constraintLayout
         val gap = splitGapPercent()
@@ -1504,12 +1508,7 @@ abstract class BaseKeyboard(
         clipChildren = false
         clipToPadding = false
         keyViews.forEach { keyView ->
-            keyView.onWaterRippleRequest = { view, _, _ ->
-                val cx = (view.parent as? View)?.x.orZero() + view.x + view.width * 0.5f
-                val cy = (view.parent as? View)?.y.orZero() + view.y + view.height * 0.5f
-                val radius = waterRippleRadiusPx(view)
-                keyboardWaterRippleView?.startRipple(cx, cy, waterRippleColor(), radius)
-            }
+            keyView.onWaterRippleRequest = { view, _, _ -> requestKeyRipple(view) }
         }
         var totalWidth = 0f
         keyViews.forEachIndexed { index, view ->
@@ -1553,7 +1552,44 @@ abstract class BaseKeyboard(
         }
     }
 
-    private fun Float?.orZero(): Float = this ?: 0f
+    /**
+     * 触发一次键面水波纹，中心取按键中心。
+     *
+     * 坐标一律用「按键窗口坐标 − 波纹层窗口坐标」换算，而不是累加一层父容器偏移：
+     * 按键所在的 row 挂在 mainGridContainer 里，带左侧/右侧辅助栏时 mainGridContainer
+     * 整体偏移一个栏宽（分体键盘的中缝、横屏留白同理），只加一层父偏移会让波纹整体
+     * 偏离键帽。KeyboardWaterRippleView 的遮挡区也是用窗口坐标相减，两者因此共用同一
+     * 套坐标系，新增布局不必再补特例。
+     */
+    private fun requestKeyRipple(view: View) {
+        val rippleView = keyboardWaterRippleView ?: return
+        val cx: Float
+        val cy: Float
+        if (view.isAttachedToWindow && rippleView.isAttachedToWindow) {
+            view.getLocationInWindow(keyRippleLocation)
+            rippleView.getLocationInWindow(keyRippleOriginLocation)
+            cx = (keyRippleLocation[0] - keyRippleOriginLocation[0]).toFloat()
+            cy = (keyRippleLocation[1] - keyRippleOriginLocation[1]).toFloat()
+        } else {
+            // 尚未 attach（预览键盘首帧）时窗口坐标不可用，退回沿父链累加到波纹层。
+            var x = 0f
+            var y = 0f
+            var node: View? = view
+            while (node != null && node !== rippleView) {
+                x += node.x
+                y += node.y
+                node = node.parent as? View
+            }
+            cx = x
+            cy = y
+        }
+        rippleView.startRipple(
+            cx + view.width * 0.5f,
+            cy + view.height * 0.5f,
+            waterRippleColor(),
+            waterRippleRadiusPx(view)
+        )
+    }
 
     private fun waterRippleRadiusPx(view: View): Float {
         val base = minOf(width, height).takeIf { it > 0 }?.toFloat() ?: dp(120).toFloat()
@@ -2106,12 +2142,7 @@ abstract class BaseKeyboard(
         newView.id = oldView.id
         newView.tag = oldView.tag
         // Preserve water ripple request callback on recreated view
-        newView.onWaterRippleRequest = { view, _, _ ->
-            val cx = (view.parent as? View)?.x.orZero() + view.x + view.width * 0.5f
-            val cy = (view.parent as? View)?.y.orZero() + view.y + view.height * 0.5f
-            val radius = waterRippleRadiusPx(view)
-            keyboardWaterRippleView?.startRipple(cx, cy, waterRippleColor(), radius)
-        }
+        newView.onWaterRippleRequest = { view, _, _ -> requestKeyRipple(view) }
         parent.removeViewAt(index)
         if (copiedLayoutParams != null) {
             parent.addView(newView, index, copiedLayoutParams)
