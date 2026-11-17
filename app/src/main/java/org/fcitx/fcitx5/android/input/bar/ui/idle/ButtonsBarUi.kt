@@ -152,13 +152,17 @@ class ButtonsBarUi(
     private fun loadFileIcon(path: String) = ButtonIconFile.loadDrawable(path)
 
     /**
-     * 语言切换按钮在 ASCII mode 下换成成对槽位，其余按钮与方案状态无关。
+     * 语言切换按钮在 ASCII mode 下优先用成对槽位，其余按钮与方案状态无关。
      *
-     * 主题没有配置成对槽位时回落到主槽位，未适配的主题表现不变。
+     * 返回的是**候选槽位链**而不是单个槽位：[ButtonAction.iconSlotAlt] 是按钮定义里的常量，
+     * 恒为非空，写成 `iconSlotAlt ?: iconSlot` 会让主槽位永远查不到——只配了
+     * `toolbar.language_switch` 的旧主题切到 ASCII 后会掉回内置图标，而不是沿用主槽位。
+     * 这里按「专用槽位 → 主槽位」排好序交给调用方逐个查，都查不到才回落内置图标。
      */
-    private fun resolveIconSlot(action: ButtonAction): String? =
-        if (asciiMode && action.id == LANGUAGE_SWITCH_ID) action.iconSlotAlt ?: action.iconSlot
-        else action.iconSlot
+    private fun resolveIconSlots(action: ButtonAction): List<String> =
+        if (asciiMode && action.id == LANGUAGE_SWITCH_ID)
+            listOfNotNull(action.iconSlotAlt, action.iconSlot).distinct()
+        else listOfNotNull(action.iconSlot)
 
     /**
      * 语言切换按钮在 ASCII mode 下优先用它自己的图标。只配了一个图标时两个状态共用，
@@ -174,16 +178,17 @@ class ButtonsBarUi(
 
     private fun applyIconThemeIfAvailable(button: ToolButton, buttonId: String): Boolean {
         val action = ButtonAction.fromId(buttonId) ?: return false
-        val slot = resolveIconSlot(action) ?: return false
-        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
-        if (iconInfo != null) {
-            button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
-            return true
-        }
-        val textValue = IconThemeManager.resolveIcon(slot)
-        if (textValue != null) {
-            button.setText(textValue)
-            return true
+        for (slot in resolveIconSlots(action)) {
+            val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
+            if (iconInfo != null) {
+                button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
+                return true
+            }
+            val textValue = IconThemeManager.resolveIcon(slot)
+            if (textValue != null) {
+                button.setText(textValue)
+                return true
+            }
         }
         return false
     }
