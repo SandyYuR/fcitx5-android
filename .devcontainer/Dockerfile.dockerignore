@@ -1,0 +1,5 @@
+# Only the image recipe, checker and version contract enter the build context.
+**
+!.devcontainer/Dockerfile
+!.devcontainer/toolchain-check.py
+!build-logic/convention/src/main/kotlin/Versions.kt

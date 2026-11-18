@@ -1,0 +1,97 @@
+name: Codespaces
+
+on:
+  pull_request:
+    branches: [fx-rime-only]
+    paths:
+      - '.devcontainer/**'
+      - '.vscode/tasks.json'
+      - '.github/workflows/codespaces.yml'
+      - '.gitmodules'
+      - 'prepare_personal_build.sh'
+      - 'gradlew'
+      - 'gradle/**'
+      - 'gradle.properties'
+      - 'settings.gradle.kts'
+      - 'build.gradle.kts'
+      - 'build-logic/**'
+      - 'native/rime-sdk.lock.json'
+      - 'tools/verify-direct-rime-apk.py'
+      - 'tools/audit-direct-rime-link.py'
+  push:
+    branches: [fx-rime-only, chore/codespaces-devcontainer]
+    paths:
+      - '.devcontainer/**'
+      - '.vscode/tasks.json'
+      - '.github/workflows/codespaces.yml'
+      - '.gitmodules'
+      - 'prepare_personal_build.sh'
+      - 'gradlew'
+      - 'gradle/**'
+      - 'gradle.properties'
+      - 'settings.gradle.kts'
+      - 'build.gradle.kts'
+      - 'build-logic/**'
+      - 'native/rime-sdk.lock.json'
+      - 'tools/verify-direct-rime-apk.py'
+      - 'tools/audit-direct-rime-link.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codespaces-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  container_build:
+    name: Initialize container and verify ARM64 APK
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check lifecycle success and failure paths
+        run: python3 -B .devcontainer/test_lifecycle.py
+
+      - name: Build the Codespaces image
+        run: docker build --progress=plain -f .devcontainer/Dockerfile -t zhongzhou-codespaces .
+
+      - name: Start the development container
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker volume create codespaces-gradle-cache
+          docker run -d --init --name codespaces-smoke --user vscode \
+            --workdir /workspaces/fcitx5-android \
+            -e HOME=/home/vscode -e GRADLE_USER_HOME=/home/vscode/.gradle \
+            --mount "type=bind,source=$GITHUB_WORKSPACE,target=/workspaces/fcitx5-android" \
+            --mount type=volume,source=codespaces-gradle-cache,target=/home/vscode/.gradle \
+            zhongzhou-codespaces sleep infinity
+          # Match Codespaces' writable checkout before using the ordinary user.
+          docker exec --user root codespaces-smoke \
+            chown -R vscode:vscode /workspaces/fcitx5-android
+
+      - name: Initialize as the development user
+        run: docker exec codespaces-smoke bash .devcontainer/post-create.sh
+
+      - name: Build and audit the ARM64 Debug APK
+        run: docker exec codespaces-smoke bash .devcontainer/verify-build.sh
+
+      - name: Run JVM tests and validate JUnit reports
+        run: docker exec codespaces-smoke bash .devcontainer/test.sh
+
+      - name: Restore checkout ownership
+        if: always()
+        run: |
+          docker rm -f codespaces-smoke || true
+          sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      - name: Upload the verified Debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: codespaces-arm64-debug
+          path: app/build/outputs/apk/fx/debug/*.apk
+          if-no-files-found: error

@@ -1237,4 +1237,11 @@
     <string name="rime_engine_version_value">librime 版本：%1$s</string>
     <string name="rime_engine_api_size_value">RimeApi 資料大小：%1$d 位元組</string>
     <string name="rime_engine_capabilities_value">偵測到的能力：%1$s</string>
+    <string name="alt_label_on_side">在側邊顯示劃動標籤</string>
+    <string name="alt_label_side">劃動標籤位置</string>
+    <string name="alt_label_side_left">左側</string>
+    <string name="alt_label_side_right">右側</string>
+    <string name="edit_button_icon_ascii">ASCII 模式圖示</string>
+    <string name="text_keyboard_layout_space_label">空白鍵標籤</string>
+    <string name="text_keyboard_layout_space_label_hint">留空時自動顯示目前的方案名稱（或中文／ASCII 狀態）。</string>
 </resources>

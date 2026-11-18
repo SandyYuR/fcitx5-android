@@ -59,6 +59,8 @@ python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/debug/*.apk
 
 产物在 `app/build/outputs/apk/fx/debug/`。非空 `BUILD_ABI` 环境变量优先于 `-PbuildABI`；支持逗号分隔，均未设置时构建全部 ABI。JVM 测试任务为 `:app:testFxDebugUnitTest`，按改动选择测试及设备门禁，见 AGENTS 与维护手册。
 
+也可在 GitHub 的 **Code → Codespaces** 为当前分支创建云端 VS Code 环境，建议选择 4 核、8 GB 内存。首次启动会安装上述工具链、初始化共享预设并下载校验锁定的 Rime SDK。完成后在 **Terminal → Run Task** 选择 `Codespaces: ARM64 Debug + native audit` 或 `Codespaces: JVM tests`；终端等价命令为 `bash .devcontainer/verify-build.sh` 和 `bash .devcontainer/test.sh`。APK 可从上述产物目录下载。Codespaces 配置及独立容器构建检查位于 [.devcontainer](.devcontainer/devcontainer.json) 和 [Codespaces workflow](.github/workflows/codespaces.yml)；手机输入与视觉验收另按设备门禁执行。
+
 Windows 使用 `gradlew.bat` 和可用的 Python；没有 Bash 时，执行 `git submodule update --init --depth 1 native/rime-prelude`，再执行 `./gradlew.bat prepareRimeSdk`。Python 门禁传入本次 APK 的实际路径。维护文档中的本机 PowerShell 脚本不随仓库分发，无需复制作者的盘符和目录结构。
 
 内置引擎来自 [SandyYuR/librime 的 zhongzhou](https://github.com/SandyYuR/librime/tree/zhongzhou)，由 [native/rime-sdk.lock.json](native/rime-sdk.lock.json) 固定 SDK 版本与摘要，Gradle 下载并校验。用户另行授权的 `.so` 或引擎提供 APK 属于运行时变体，不改写该锁。共享预设 `native/rime-prelude` 是唯一子模块；当前构建不使用旧 prebuilder/prebuilt。开发 SDK 仅显式接入 Debug，详见[原生依赖说明](native/README.md)和[引擎更新流程](https://sandyyur.github.io/fcitx5-android/maintainer/engine-update)。
