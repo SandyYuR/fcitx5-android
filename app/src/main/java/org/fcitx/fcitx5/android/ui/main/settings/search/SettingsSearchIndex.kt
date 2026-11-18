@@ -253,6 +253,7 @@ object SettingsSearchIndex {
         R.string.key_border_stroke to "key_border_stroke",
         R.string.key_ripple_effect to "key_ripple_effect",
         R.string.move_main_text_for_alt_label to "move_main_text_for_alt_label",
+        R.string.show_key_alt_labels to "show_key_alt_labels",
         R.string.alt_label_on_side to "alt_label_on_side",
         R.string.alt_label_side to "alt_label_side",
         R.string.special_key_oval_shape to "special_key_oval_shape",
@@ -511,6 +512,14 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.move_main_text_for_alt_label, P_THEME,
             listOf("main text", "主字符", "主标签", "副标签", "居中", "按键文字", "center"),
+            route = SettingsRoute.Theme
+        ),
+        SettingsSearchEntry(
+            R.string.show_key_alt_labels, P_THEME,
+            listOf(
+                "alt label", "show alt label", "副标签", "显示副标签", "隐藏副标签",
+                "按键副标签", "fubiaoqian", "swipe label"
+            ),
             route = SettingsRoute.Theme
         ),
         SettingsSearchEntry(

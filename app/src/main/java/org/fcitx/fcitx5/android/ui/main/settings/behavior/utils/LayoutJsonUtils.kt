@@ -443,6 +443,7 @@ object LayoutJsonUtils {
             swipe = obj["swipe"]?.jsonObject?.let { parseMacroAction(it) },
             longPress = obj["longPress"]?.jsonObject?.let { parseMacroAction(it) },
             independentColor = independentColor,
+            iconSlot = obj["iconSlot"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() },
             composeOverride = composeOverride
         )
     }
@@ -940,6 +941,11 @@ object LayoutJsonUtils {
          * 底色，那时透明反过来才是错的。
          */
         val transparent: Boolean? = null,
+        /**
+         * 主题图标槽位（见 `KeyDef.iconSlotOverride`）。任何键型都可以在布局里点名，
+         * 覆盖键型自带的槽位；留空表示沿用键型默认。
+         */
+        val iconSlot: String? = null,
         val composeOverride: KeyJson? = null
     )
 
@@ -1130,6 +1136,7 @@ object LayoutJsonUtils {
         if (keyDef.splitRowDisabled) {
             json["splitRowDisabled"] = true
         }
+        keyDef.iconSlotOverride?.let { json["iconSlot"] = it }
 
         return json
     }
@@ -1466,6 +1473,7 @@ object LayoutJsonUtils {
         // 布局文件平白多出一整片 `"splitAfter": false`，QR 分享的载荷也跟着膨胀。
         if (key.splitAfter == true) keyDef.splitAfter = true
         if (key.splitRowDisabled == true) keyDef.splitRowDisabled = true
+        key.iconSlot?.let { keyDef.iconSlotOverride = it }
         key.composeOverride?.let { override ->
             val overrideDef = createKeyDef(
                 override.copy(composeOverride = null, weight = null, rowHeightPercent = null),

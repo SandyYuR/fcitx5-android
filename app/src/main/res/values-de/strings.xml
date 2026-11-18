@@ -789,4 +789,8 @@
     <string name="edit_button_icon_ascii">Symbol für ASCII-Modus</string>
     <string name="text_keyboard_layout_space_label">Beschriftung der Leertaste</string>
     <string name="text_keyboard_layout_space_label_hint">Leer lassen, um automatisch den aktuellen Schema-Namen (oder den Chinesisch-/ASCII-Status) anzuzeigen.</string>
+    <string name="show_key_alt_labels">Tasten-Zusatzbeschriftungen anzeigen</string>
+    <string name="show_key_alt_labels_summary">Der kleine Hinweistext auf Tasten: Satzzeichen auf Buchstabentasten, Wischhinweise auf Funktionstasten.</string>
+    <string name="icon_theme_letter_keys">Buchstabentasten</string>
+    <string name="icon_theme_numpad_keys">Zifferntasten</string>
 </resources>

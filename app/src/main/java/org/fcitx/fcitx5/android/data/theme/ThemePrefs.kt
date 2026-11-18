@@ -73,6 +73,18 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         enableUiOn = { altLabelOnSide.getValue() }
     )
 
+    /**
+     * 显示按键副标签（字母键的标点提示、功能键的划动提示）。
+     *
+     * 关掉后键面只剩图标或主字符；图标层本身不受影响，开关只控制那行小字。
+     */
+    val showKeyAltLabels = switch(
+        R.string.show_key_alt_labels,
+        "show_key_alt_labels",
+        true,
+        summary = R.string.show_key_alt_labels_summary
+    )
+
     val keyHorizontalMargin: ManagedPreference.PInt
     val keyHorizontalMarginLandscape: ManagedPreference.PInt
 

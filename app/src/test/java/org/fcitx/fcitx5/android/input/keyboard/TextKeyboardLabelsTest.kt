@@ -13,6 +13,8 @@ import org.fcitx.fcitx5.android.input.popup.PopupAction
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -35,6 +37,22 @@ class TextKeyboardLabelsTest {
         ]]}
     """).jsonObject
 
+    // 只有层子布局：不是"按方案细分"，中文与 ASCII 必须共用同一份行缓存。
+    private val layeredLayout = Json.parseToJsonElement("""
+        {"preview":{
+          "default":[[{"type":"AlphabetKey","main":"a","alt":"!"}]],
+          "__layer__:数字":[[{"type":"MacroKey","label":"1"}]]
+        }}
+    """).jsonObject
+
+    // 真正的方案子布局：仍应进入按方案细分路径。
+    private val subModeLayout = Json.parseToJsonElement("""
+        {"preview":{
+          "default":[[{"type":"AlphabetKey","main":"a","alt":"!"}]],
+          "英文":[[{"type":"AlphabetKey","main":"q","alt":"@"}]]
+        }}
+    """).jsonObject
+
     private fun keyboard(block: (TextKeyboard) -> Unit) = TextKeyboard.withPreviewLayout(layout) {
         val context = RuntimeEnvironment.getApplication()
         SplitKeyboardStateManager.init(context)
@@ -49,6 +67,12 @@ class TextKeyboardLabelsTest {
             ClassParameter.from(KeyAction::class.java, KeyAction.CapsAction(false)),
             ClassParameter.from(KeyActionListener.Source::class.java, KeyActionListener.Source.Keyboard))
     }
+
+    private fun usesSubMode(keyboard: TextKeyboard, ime: InputMethodEntry): Boolean =
+        ReflectionHelpers.callInstanceMethod(
+            keyboard, "layoutUsesSubMode",
+            ClassParameter.from(InputMethodEntry::class.java, ime)
+        )
 
     private fun TextKeyboard.popup(action: PopupAction) {
         ReflectionHelpers.callInstanceMethod<Unit>(this, "onPopupAction",
@@ -74,6 +98,35 @@ class TextKeyboardLabelsTest {
         keyboard.onCompositionStateChanged(false)
         keyboard.refreshStyle()
         check("a")
+    }
+
+    @Test fun layerEntriesDoNotMakeAFlatLayoutSubModeSpecific() {
+        TextKeyboard.withPreviewLayout(layeredLayout) {
+            val context = RuntimeEnvironment.getApplication()
+            SplitKeyboardStateManager.init(context)
+            val previewIme = InputMethodEntry("preview")
+            val keyboard = TextKeyboard(context, ThemePreset.PixelLight, initialIme = previewIme, isPreview = true)
+            keyboard.onInputMethodUpdate(previewIme)
+            try {
+                // __layer__:数字 是布局内的层，不是按方案细分；ASCII/中文不能再各存一份行缓存。
+                assertFalse(usesSubMode(keyboard, previewIme))
+            } finally {
+                keyboard.onDetach()
+            }
+        }
+        TextKeyboard.withPreviewLayout(subModeLayout) {
+            val context = RuntimeEnvironment.getApplication()
+            SplitKeyboardStateManager.init(context)
+            val previewIme = InputMethodEntry("preview")
+            val keyboard = TextKeyboard(context, ThemePreset.PixelLight, initialIme = previewIme, isPreview = true)
+            keyboard.onInputMethodUpdate(previewIme)
+            try {
+                // 真正的子模式布局仍要进入按方案细分路径。
+                assertTrue(usesSubMode(keyboard, previewIme))
+            } finally {
+                keyboard.onDetach()
+            }
+        }
     }
 
     @Test fun popupPreviewsKeepLiteralSymbolsAndExistingLetterCaps() = keyboard { keyboard ->

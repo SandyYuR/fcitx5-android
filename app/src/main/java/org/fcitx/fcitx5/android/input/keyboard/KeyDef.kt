@@ -55,6 +55,21 @@ open class KeyDef(
      */
     var independentColor: Boolean = false
 
+    /**
+     * 布局 JSON 里按单个按键指定的图标槽位（`iconSlot` 字段）。
+     *
+     * 与构造参数 [iconSlot] 的区别只在"谁来定"：构造参数是键型自己写死的（字母键 →
+     * `keys.letter.q`、回车键 → `keys.return.*`），而这里是用户在布局里给某一枚键点名的。
+     * 做成可变字段而不是构造参数，理由同 [splitAfter]：布局反序列化是"先建键型、再套通用
+     * 字段"，键型构造完之后才拿到 JSON 里的槽位；为它给十几个键型各加一个构造参数，就意味着
+     * 每次加键型都要再同步一遍 [org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils]
+     * 的整排分支。
+     */
+    var iconSlotOverride: String? = null
+
+    /** 实际生效的图标槽位：布局里点名的优先，否则回落到键型自带的。 */
+    val effectiveIconSlot: String? get() = iconSlotOverride ?: iconSlot
+
     sealed class Appearance(
         val percentWidth: Float,
         val variant: Variant,
