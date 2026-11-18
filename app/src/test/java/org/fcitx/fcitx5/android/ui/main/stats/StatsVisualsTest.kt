@@ -11,8 +11,15 @@ import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.R.attr.colorPrimary
+import androidx.core.graphics.ColorUtils
+import com.google.android.material.R.attr as MaterialAttr
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
+import org.fcitx.fcitx5.android.data.theme.SettingsKeyboardColors
+import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.fcitx.fcitx5.android.utils.settingsColor
 import org.junit.Assert.*
@@ -23,6 +30,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.util.ReflectionHelpers
 import java.io.File
 import java.text.NumberFormat
 import kotlin.math.ceil
@@ -190,7 +198,6 @@ class StatsVisualsTest {
         val total = counts.values.sumOf { it.toDouble() }
         val percent = NumberFormat.getPercentInstance().apply { maximumFractionDigits = 1 }
         val minimumTextSize = 10 * chart.resources.displayMetrics.density
-        val maxCount = counts.values.maxOrNull()?.coerceAtLeast(1) ?: 1
         text.forEach { item ->
             val cell = cells.getValue(item.keyId)
             val fraction = if (total > 0) (counts[item.keyId] ?: 0) / total else 0.0
@@ -204,13 +211,7 @@ class StatsVisualsTest {
                     cell.bounds.contains(line.inkBounds))
             }
             assertTrue("The key label and percentage must not overlap", item.label.inkBounds.bottom <= item.percentage.inkBounds.top)
-            val intensity = cell.count.toDouble() / maxCount
-            val surface = chart.context.settingsColor(when {
-                intensity >= .6 -> androidx.appcompat.R.attr.colorPrimary
-                intensity > .15 -> com.google.android.material.R.attr.colorPrimaryContainer
-                intensity > 0 -> com.google.android.material.R.attr.colorSecondaryContainer
-                else -> com.google.android.material.R.attr.colorSurfaceContainerHigh
-            })
+            val surface = heatFill(bitmap, cell)
             val ink = item.percentage.inkBounds
             var painted = 0
             for (y in ink.top.toInt() until ceil(ink.bottom).toInt()) {
@@ -219,6 +220,77 @@ class StatsVisualsTest {
                 }
             }
             assertTrue("${cell.keyId}: the complete percentage must actually be painted", painted > 0)
+        }
+    }
+
+    private fun heatFill(bitmap: Bitmap, cell: StatsChartView.HeatCell): Int =
+        bitmap.getPixel(cell.bounds.centerX().toInt(), cell.bounds.top.toInt() + 2)
+
+    @Test fun heatmapShowsDistinctIntensityLevelsWithReadableInkInSettingsAndKeyboardPalettes() {
+        for (dark in listOf(false, true)) {
+            host(dark) { activity, settings ->
+                val keyboard = SettingsKeyboardColors.Palette(
+                    accent = 0xff984e44.toInt(), secondary = 0xff984e44.toInt(),
+                    tertiary = 0xff60251d.toInt(), background = 0xfffae9e5.toInt(),
+                    keyBackground = 0xfffff7f5.toInt(), dark = dark, contrast = 0.0
+                )
+                val keyboardColors = SettingsKeyboardColors.wrapContext(settings, keyboard)
+                assertNotSame("Expected the keyboard color overlay", settings, keyboardColors)
+                val monetColors = monetSettingsContext(activity, dark)
+                assertNotEquals("Settings must apply the active Monet keyboard palette",
+                    settings.settingsColor(colorPrimary), monetColors.settingsColor(colorPrimary))
+                for ((name, context) in listOf("settings" to settings, "keyboard" to keyboardColors, "monet" to monetColors)) {
+                    val counts = listOf(0L, 1L, 10L, 30L, 52L, 100L)
+                        .mapIndexed { index, count -> index.toString() to count }.toMap()
+                    val rows = listOf(counts.keys.mapIndexed { index, id ->
+                        StatsChartView.HeatKey(id, ('A' + index).toString(), index.toFloat(), 1f)
+                    })
+                    val chart = StatsChartView(context).apply { setKeyboardHeatmap(counts, rows) }
+                    attach(activity, chart, width = 360)
+                    render(chart).also { bitmap ->
+                        try {
+                            val fills = chart.heatLayoutSnapshot().map { heatFill(bitmap, it) }
+                            val primary = context.settingsColor(colorPrimary)
+                            assertEquals("Hottest key should retain the primary color", primary, fills.last())
+                            assertEquals("Each level needs a distinct fill in $name, dark=$dark", 6, fills.distinct().size)
+                            val surface = context.settingsColor(MaterialAttr.colorSurfaceBright)
+                            val accentContrast = fills.drop(1).map { ColorUtils.calculateContrast(it, surface) }
+                            accentContrast.zipWithNext().forEach { (cooler, warmer) ->
+                                assertTrue("Heat must grow away from the card color in $name, dark=$dark",
+                                    warmer - cooler > .03)
+                            }
+                            chart.heatTextSnapshot().zip(fills).forEach { (text, fill) ->
+                                val ink = text.percentage.inkBounds
+                                val contrast = (ink.top.toInt() until ceil(ink.bottom).toInt()).maxOf { y ->
+                                    (ink.left.toInt() until ceil(ink.right).toInt()).maxOf { x ->
+                                        ColorUtils.calculateContrast(bitmap.getPixel(x, y), fill)
+                                    }
+                                }
+                                // Small anti-aliased glyphs may have no fully opaque ink pixel.
+                                // The nominal 4.5:1 color pair should still produce strong ink.
+                                assertTrue("${text.keyId} has readable percentage ink in $name, dark=$dark ($contrast)",
+                                    contrast >= 4.0)
+                            }
+                            save(bitmap, "keyboard-heat-$name-${if (dark) "dark" else "light"}")
+                        } finally { bitmap.recycle() }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun monetSettingsContext(activity: Activity, dark: Boolean): Context {
+        val previous = ReflectionHelpers.getStaticField<Theme?>(ThemeManager::class.java, "_activeTheme")
+        return try {
+            ReflectionHelpers.setStaticField(ThemeManager::class.java, "_activeTheme",
+                if (dark) ThemeMonet.getDark() else ThemeMonet.getLight())
+            val selection = SettingsUiPreferences.read(activity).copy(
+                mode = if (dark) SettingsUiPreferences.MODE_DARK else SettingsUiPreferences.MODE_LIGHT,
+                followKeyboardTheme = true
+            )
+            SettingsUiPreferences.themedContext(activity, selection)
+        } finally {
+            ReflectionHelpers.setStaticField(ThemeManager::class.java, "_activeTheme", previous)
         }
     }
 

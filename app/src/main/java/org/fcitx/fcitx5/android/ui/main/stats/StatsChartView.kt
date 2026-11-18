@@ -4,6 +4,7 @@ package org.fcitx.fcitx5.android.ui.main.stats
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
@@ -15,9 +16,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
+import androidx.appcompat.R.attr.colorPrimary
+import androidx.core.graphics.ColorUtils
+import com.google.android.material.R.attr as MaterialAttr
 import org.fcitx.fcitx5.android.utils.settingsColor
 import java.text.NumberFormat
 import kotlin.math.ceil
+
+private const val HIGH_HEAT_INTENSITY = 0.6
 
 /** Distribution bars and keyboard heat use the same counts, with geometry supplied by the actual keyboard. */
 class StatsChartView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
@@ -28,6 +34,31 @@ class StatsChartView @JvmOverloads constructor(context: Context, attrs: Attribut
     internal data class HeatTextLayout(val keyId: String, val label: HeatText, val percentage: HeatText)
     internal data class Bar(val label: String, val count: Long, val fraction: Float, val bounds: RectF, val stacked: Boolean)
     private data class Entry(val label: String, val count: Long)
+    private data class HeatColors(val fill: Int, val text: Int)
+
+    private val heatPalette by lazy {
+        val surface = context.settingsColor(MaterialAttr.colorSurfaceBright)
+        val primary = context.settingsColor(colorPrimary)
+        val onSurface = context.settingsColor(MaterialAttr.colorOnSurface)
+        val onPrimary = context.settingsColor(MaterialAttr.colorOnPrimary)
+
+        fun colors(fill: Int, preferred: Int, alternate: Int): HeatColors {
+            val text = when {
+                ColorUtils.calculateContrast(preferred, fill) >= 4.5 -> preferred
+                ColorUtils.calculateContrast(alternate, fill) >= 4.5 -> alternate
+                ColorUtils.calculateContrast(Color.BLACK, fill) >= 4.5 -> Color.BLACK
+                else -> Color.WHITE
+            }
+            return HeatColors(fill, text)
+        }
+
+        // Container roles can resolve to the same shade in a keyboard-derived palette.
+        // Use one accent ramp for all recorded counts and a neutral fill for unused keys.
+        listOf(colors(ColorUtils.blendARGB(surface, onSurface, .045f), onSurface, onPrimary)) +
+            listOf(.13f, .28f, .47f, .68f).map { strength ->
+                colors(ColorUtils.blendARGB(surface, primary, strength), onSurface, onPrimary)
+            } + colors(primary, onPrimary, onSurface)
+    }
 
     private val paint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private var entries = emptyList<Entry>()
@@ -186,7 +217,7 @@ class StatsChartView @JvmOverloads constructor(context: Context, attrs: Attribut
             val percent = percentFormatter()
             heatText = heatCells.map { cell ->
                 layoutHeatText(cell, keyboardPercentage(cell.count, total, percent),
-                    cell.count.toDouble() / maxCount >= 0.6)
+                    cell.count.toDouble() / maxCount >= HIGH_HEAT_INTENSITY)
             }
         } else {
             val total = entries.sumOf { it.count.toDouble() }
@@ -239,15 +270,18 @@ class StatsChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         val maxCount = counts.values.maxOrNull()?.coerceAtLeast(1) ?: 1
         heatCells.forEachIndexed { index, cell ->
             val intensity = cell.count.toDouble() / maxCount
-            val (surface, foreground) = when {
-                intensity >= 0.6 -> androidx.appcompat.R.attr.colorPrimary to com.google.android.material.R.attr.colorOnPrimary
-                intensity > 0.15 -> com.google.android.material.R.attr.colorPrimaryContainer to com.google.android.material.R.attr.colorOnPrimaryContainer
-                intensity > 0 -> com.google.android.material.R.attr.colorSecondaryContainer to com.google.android.material.R.attr.colorOnSecondaryContainer
-                else -> com.google.android.material.R.attr.colorSurfaceContainerHigh to com.google.android.material.R.attr.colorOnSurfaceVariant
+            val shade = when {
+                cell.count == 0L -> 0
+                intensity <= .05 -> 1
+                intensity <= .15 -> 2
+                intensity <= .35 -> 3
+                intensity < HIGH_HEAT_INTENSITY -> 4
+                else -> 5
             }
-            paint.color = context.settingsColor(surface)
+            val colors = heatPalette[shade]
+            paint.color = colors.fill
             canvas.drawRoundRect(cell.bounds, dp(6), dp(6), paint)
-            paint.color = context.settingsColor(foreground)
+            paint.color = colors.text
             val checkpoint = canvas.save()
             canvas.clipRect(cell.bounds)
             val text = heatText[index]
