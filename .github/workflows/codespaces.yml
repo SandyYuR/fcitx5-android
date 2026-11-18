@@ -40,7 +40,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: codespaces-${{ github.ref }}
+  group: codespaces-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -59,7 +59,7 @@ jobs:
       - name: Build the Codespaces image
         run: docker build --progress=plain -f .devcontainer/Dockerfile -t zhongzhou-codespaces .
 
-      - name: Initialize as the development user and verify APK
+      - name: Start the development container
         shell: bash
         run: |
           set -euo pipefail
@@ -73,8 +73,15 @@ jobs:
           # Match Codespaces' writable checkout before using the ordinary user.
           docker exec --user root codespaces-smoke \
             chown -R vscode:vscode /workspaces/fcitx5-android
-          docker exec codespaces-smoke bash .devcontainer/post-create.sh
-          docker exec codespaces-smoke bash .devcontainer/verify-build.sh
+
+      - name: Initialize as the development user
+        run: docker exec codespaces-smoke bash .devcontainer/post-create.sh
+
+      - name: Build and audit the ARM64 Debug APK
+        run: docker exec codespaces-smoke bash .devcontainer/verify-build.sh
+
+      - name: Run JVM tests and validate JUnit reports
+        run: docker exec codespaces-smoke bash .devcontainer/test.sh
 
       - name: Restore checkout ownership
         if: always()

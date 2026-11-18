@@ -2,6 +2,8 @@
 """Fail before preparation when the Codespaces toolchain differs from the build."""
 
 import argparse
+import codecs
+import locale
 import os
 from pathlib import Path
 import platform
@@ -74,9 +76,24 @@ def output_version(label, output, pattern):
     return match[1]
 
 
+def require_utf8(label, encoding):
+    try:
+        normalized = codecs.lookup(encoding).name
+    except LookupError:
+        normalized = encoding
+    if normalized != "utf-8":
+        raise ValueError(
+            f"{label}: expected UTF-8, found {encoding}. "
+            "Set LANG=C.UTF-8 and LC_ALL=C.UTF-8, then rebuild the container."
+        )
+    print(f"{label}: {encoding}")
+
+
 def check_toolchain(versions_file):
     if platform.system() != "Linux" or platform.machine() != "x86_64":
         raise ValueError("Codespaces Android tools require Linux x86_64 (Docker --platform=linux/amd64).")
+    require_utf8("Python filesystem encoding", sys.getfilesystemencoding())
+    require_utf8("Python text encoding", locale.getpreferredencoding(False))
     versions = build_versions(versions_file)
     sdk_home = os.environ.get("ANDROID_HOME")
     java_home = os.environ.get("JAVA_HOME")
@@ -110,8 +127,17 @@ def check_toolchain(versions_file):
     ):
         require_file(executable, executable=True)
 
-    java_output = command_output("java", java / "bin/java", "-version")
+    java_output = command_output("java", java / "bin/java", "-XshowSettings:properties", "-version")
     require_value("Java", output_version("Java", java_output, r'version "(\d+)[.\"]'), versions["java"])
+    # Java 17 derives filename encoding from the process locale. A Gradle JVM
+    # file.encoding override alone does not fix paths containing Chinese text.
+    for property_name in ("file.encoding", "sun.jnu.encoding"):
+        match = re.search(
+            rf"^\s*{re.escape(property_name)}\s*=\s*(\S+)\s*$", java_output, re.MULTILINE,
+        )
+        if match is None:
+            raise ValueError(f"Cannot read Java {property_name} from -XshowSettings:properties.")
+        require_utf8(f"Java {property_name}", match[1])
     javac_output = command_output("javac", java / "bin/javac", "-version")
     require_value("javac", output_version("javac", javac_output, r"javac (\d+)(?:\.|\s|$)"), versions["java"])
     cmake_output = command_output("cmake", cmake / "bin/cmake", "--version")
