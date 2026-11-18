@@ -11,6 +11,9 @@ import org.fcitx.fcitx5.android.data.prefs.SplitKeyboardStateManager
 import org.fcitx.fcitx5.android.data.theme.ThemePreset
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -63,6 +66,24 @@ class SpaceKeyLabelTest {
         .first()
         .mainText.text.toString()
 
+    private fun TextKeyboard.flushHeldCompositionChange(): TextKeyView {
+        val oldView = allViews.filterIsInstance<TextKeyView>()
+            .single { it.tag == R.id.button_space }
+        assertTrue("start with plain text appearance", oldView !is AltTextKeyView)
+        oldView.isPressed = true
+        onCompositionStateChanged(true)
+        assertSame("the held view must be retained until release", oldView,
+            allViews.filterIsInstance<TextKeyView>().single { it.tag == R.id.button_space })
+        oldView.isPressed = false
+        // Production touch dispatch runs this flush after UP, POINTER_UP, or CANCEL.
+        ReflectionHelpers.callInstanceMethod<Unit>(this, "flushDeferredComposeRecreations")
+        val newView = allViews.filterIsInstance<TextKeyView>()
+            .single { it.tag == R.id.button_space }
+        assertNotSame("release must recreate the incompatible text appearance", oldView, newView)
+        assertTrue("the active override must now have its alternate label", newView is AltTextKeyView)
+        return newView
+    }
+
     private fun TextKeyboard.caps() {
         ReflectionHelpers.callInstanceMethod<Unit>(this, "onAction",
             ClassParameter.from(KeyAction::class.java, KeyAction.CapsAction(false)),
@@ -104,5 +125,32 @@ class SpaceKeyLabelTest {
         assertEquals(schemeName, keyboard.spaceText())
         keyboard.onCompositionStateChanged(false)
         assertEquals(schemeName, keyboard.spaceText())
+    }
+
+    @Test
+    fun schemeNameSurvivesDeferredTextToAltTextRecreation() = keyboard(
+        """{"type":"SpaceKey","composeOverride":{"type":"SpaceKey","swipeLabel":"选字"}}"""
+    ) { keyboard ->
+        assertEquals(schemeName, keyboard.spaceText())
+        val newView = keyboard.flushHeldCompositionChange()
+        assertEquals(schemeName, newView.mainText.text.toString())
+    }
+
+    @Test
+    fun blankOverrideLabelFallsBackAfterDeferredRecreation() = keyboard(
+        """{"type":"SpaceKey","label":"SPACE","composeOverride":{"type":"SpaceKey","label":"","swipeLabel":"选字"}}"""
+    ) { keyboard ->
+        assertEquals("SPACE", keyboard.spaceText())
+        val newView = keyboard.flushHeldCompositionChange()
+        assertEquals(schemeName, newView.mainText.text.toString())
+    }
+
+    @Test
+    fun explicitOverrideLabelSurvivesDeferredRecreation() = keyboard(
+        """{"type":"SpaceKey","label":"SPACE","composeOverride":{"type":"SpaceKey","label":"合成","swipeLabel":"选字"}}"""
+    ) { keyboard ->
+        assertEquals("SPACE", keyboard.spaceText())
+        val newView = keyboard.flushHeldCompositionChange()
+        assertEquals("合成", newView.mainText.text.toString())
     }
 }

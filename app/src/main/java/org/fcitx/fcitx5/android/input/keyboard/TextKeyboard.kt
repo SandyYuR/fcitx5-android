@@ -1968,6 +1968,13 @@ class TextKeyboard private constructor(
         refreshSpaceLabelFromState()
     }
 
+    override fun onDeferredComposeRecreationsFlushed() {
+        super.onDeferredComposeRecreationsFlushed()
+        // If a held space key delayed its view replacement, the composition callback refreshed
+        // the old instance. Re-apply the scheme label after the new instance enters the tree.
+        refreshSpaceLabelFromState()
+    }
+
     private fun transformPopupPreview(c: String): String {
         if (c.length != 1) return c
         if (c[0].isLetter()) return transformAlphabet(c)

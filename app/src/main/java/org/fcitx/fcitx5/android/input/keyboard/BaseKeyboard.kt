@@ -2090,7 +2090,11 @@ abstract class BaseKeyboard(
                 keyRows.flatMap { row -> row.children.mapNotNull { it as? KeyView }.toList() }
             )
         }
+        onDeferredComposeRecreationsFlushed()
     }
+
+    /** Called after deferred compose-aware views have been swapped into the keyboard tree. */
+    protected open fun onDeferredComposeRecreationsFlushed() = Unit
 
     private fun shouldRecreateComposeAwareView(
         oldAppearance: KeyDef.Appearance,
