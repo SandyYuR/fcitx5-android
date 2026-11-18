@@ -783,4 +783,11 @@
     <string name="user_data_export_changed">バックアップ中にデータファイルが変更されました。外部同期や編集を一時停止して再試行してください。</string>
     <string name="user_data_exported">バックアップを保存しました。</string>
     <string name="user_data_export_cleanup_failed">バックアップの書き込みに失敗し、未完成のファイルを削除できませんでした。そのファイルを手動で削除して再試行してください。</string>
+    <string name="alt_label_on_side">スワイプラベルを横に表示</string>
+    <string name="alt_label_side">スワイプラベルの位置</string>
+    <string name="alt_label_side_left">左</string>
+    <string name="alt_label_side_right">右</string>
+    <string name="edit_button_icon_ascii">ASCII モードのアイコン</string>
+    <string name="text_keyboard_layout_space_label">スペースキーのラベル</string>
+    <string name="text_keyboard_layout_space_label_hint">空欄にすると、現在のスキーマ名（または中国語／ASCII の状態）が自動表示されます。</string>
 </resources>

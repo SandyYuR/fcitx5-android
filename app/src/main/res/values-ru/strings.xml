@@ -784,4 +784,11 @@
     <string name="user_data_export_changed">Файл данных продолжал изменяться во время резервного копирования. Приостановите внешнюю синхронизацию или редактирование и повторите попытку.</string>
     <string name="user_data_exported">Резервная копия сохранена.</string>
     <string name="user_data_export_cleanup_failed">Не удалось записать резервную копию и удалить неполный файл. Удалите этот файл вручную и повторите попытку.</string>
+    <string name="alt_label_on_side">Показывать метки свайпа сбоку</string>
+    <string name="alt_label_side">Сторона метки свайпа</string>
+    <string name="alt_label_side_left">Слева</string>
+    <string name="alt_label_side_right">Справа</string>
+    <string name="edit_button_icon_ascii">Значок режима ASCII</string>
+    <string name="text_keyboard_layout_space_label">Надпись на клавише пробела</string>
+    <string name="text_keyboard_layout_space_label_hint">Оставьте пустым, чтобы автоматически показывать название схемы (или состояние «китайский/ASCII»).</string>
 </resources>
