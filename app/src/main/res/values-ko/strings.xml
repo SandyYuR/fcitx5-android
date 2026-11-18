@@ -785,4 +785,11 @@
     <string name="user_data_export_changed">백업 중에 데이터 파일이 계속 변경되었습니다. 외부 동기화나 편집을 일시 중지하고 다시 시도하세요.</string>
     <string name="user_data_exported">백업을 저장했습니다.</string>
     <string name="user_data_export_cleanup_failed">백업 쓰기에 실패했고 불완전한 파일을 삭제하지 못했습니다. 해당 파일을 수동으로 삭제하고 다시 시도하세요.</string>
+    <string name="alt_label_on_side">스와이프 레이블을 옆에 표시</string>
+    <string name="alt_label_side">스와이프 레이블 위치</string>
+    <string name="alt_label_side_left">왼쪽</string>
+    <string name="alt_label_side_right">오른쪽</string>
+    <string name="edit_button_icon_ascii">ASCII 모드 아이콘</string>
+    <string name="text_keyboard_layout_space_label">스페이스 키 레이블</string>
+    <string name="text_keyboard_layout_space_label_hint">비워 두면 현재 스키마 이름(또는 중국어/ASCII 상태)이 자동으로 표시됩니다.</string>
 </resources>

@@ -781,4 +781,11 @@
     <string name="user_data_export_changed">Eine Datei wurde während der Sicherung weiterhin geändert. Externe Synchronisierung oder Bearbeitung pausieren und erneut versuchen.</string>
     <string name="user_data_exported">Sicherung gespeichert.</string>
     <string name="user_data_export_cleanup_failed">Die Sicherung konnte nicht geschrieben und die unvollständige Datei nicht entfernt werden. Die Datei manuell löschen und erneut versuchen.</string>
+    <string name="alt_label_on_side">Wisch-Labels seitlich anzeigen</string>
+    <string name="alt_label_side">Seite für Wisch-Labels</string>
+    <string name="alt_label_side_left">Links</string>
+    <string name="alt_label_side_right">Rechts</string>
+    <string name="edit_button_icon_ascii">Symbol für ASCII-Modus</string>
+    <string name="text_keyboard_layout_space_label">Beschriftung der Leertaste</string>
+    <string name="text_keyboard_layout_space_label_hint">Leer lassen, um automatisch den aktuellen Schema-Namen (oder den Chinesisch-/ASCII-Status) anzuzeigen.</string>
 </resources>

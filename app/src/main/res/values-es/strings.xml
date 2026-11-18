@@ -785,4 +785,11 @@
     <string name="user_data_export_changed">Un archivo siguió cambiando durante la copia. Pause la sincronización externa o la edición y vuelva a intentar.</string>
     <string name="user_data_exported">Copia guardada.</string>
     <string name="user_data_export_cleanup_failed">No se pudo escribir la copia ni eliminar el archivo incompleto. Elimine ese archivo manualmente y vuelva a intentar.</string>
+    <string name="alt_label_on_side">Mostrar etiquetas de deslizamiento en el lateral</string>
+    <string name="alt_label_side">Lado de la etiqueta de deslizamiento</string>
+    <string name="alt_label_side_left">Izquierda</string>
+    <string name="alt_label_side_right">Derecha</string>
+    <string name="edit_button_icon_ascii">Icono del modo ASCII</string>
+    <string name="text_keyboard_layout_space_label">Etiqueta de la tecla espaciadora</string>
+    <string name="text_keyboard_layout_space_label_hint">Déjalo vacío para mostrar automáticamente el nombre del esquema actual (o el estado chino/ASCII).</string>
 </resources>
