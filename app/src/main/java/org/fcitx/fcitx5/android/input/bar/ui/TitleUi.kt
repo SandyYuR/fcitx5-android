@@ -29,10 +29,16 @@ import splitties.views.dsl.core.textView
 import splitties.views.dsl.core.wrapContent
 import splitties.views.gravityVerticalCenter
 
+/**
+ * 扩展窗口（状态区 / 剪贴板 / 文本编辑）共用的标题栏。
+ *
+ * 返回键三处共用同一个实例，因此图标主题里只需要一个 [SLOT_BACK] 槽位。
+ */
 class TitleUi(override val ctx: Context, theme: Theme) : Ui {
 
     private val backButton = ToolButton(ctx, R.drawable.ic_baseline_arrow_back_24, theme).apply {
         contentDescription = ctx.getString(R.string.back_to_keyboard)
+        setIconFromTheme(SLOT_BACK, R.drawable.ic_baseline_arrow_back_24)
     }
 
     private val titleText = textView {
@@ -73,6 +79,8 @@ class TitleUi(override val ctx: Context, theme: Theme) : Ui {
         }
         backButton.isVisible = showTitle
         titleText.isVisible = showTitle
+        // 图标主题可能在键盘打开期间被切换：每次挂载扩展都按当前主题重取一次返回图标。
+        backButton.setIconFromTheme(SLOT_BACK, R.drawable.ic_baseline_arrow_back_24)
         extension = view
         root.run {
             add(view, lParams(matchConstraints, dp(40)) {
@@ -116,5 +124,10 @@ class TitleUi(override val ctx: Context, theme: Theme) : Ui {
         extension?.updateLayoutParams<androidx.constraintlayout.widget.ConstraintLayout.LayoutParams> {
             height = size
         }
+    }
+
+    companion object {
+        /** 图标主题槽位：扩展窗口标题栏的返回键（状态区 / 剪贴板 / 文本编辑共用）。 */
+        const val SLOT_BACK = "system.back"
     }
 }

@@ -78,6 +78,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(Statu
 
     private val iconThemeChangeListener = IconThemeManager.OnIconThemeChangeListener {
         renderEntries(fcitx.runImmediately { statusAreaActionsCached })
+        refreshBarExtensionIcons()
     }
 
     private fun staticEntries(): Array<StatusAreaEntry> {
@@ -334,6 +335,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(Statu
     private val editorInfoButton by lazy {
         ToolButton(context, R.drawable.ic_baseline_info_24, theme).apply {
             contentDescription = context.getString(R.string.editor_info_inspector)
+            setIconFromTheme(SLOT_EDITOR_INFO, R.drawable.ic_baseline_info_24)
             setOnClickListener { windowManager.attachWindow(EditorInfoWindow()) }
         }
     }
@@ -341,8 +343,14 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(Statu
     private val settingsButton by lazy {
         ToolButton(context, R.drawable.ic_baseline_settings_24, theme).apply {
             contentDescription = context.getString(R.string.open_input_method_settings)
+            setIconFromTheme(SLOT_SETTINGS, R.drawable.ic_baseline_settings_24)
             setOnClickListener { AppUtil.launchMain(context) }
         }
+    }
+
+    private fun refreshBarExtensionIcons() {
+        editorInfoButton.setIconFromTheme(SLOT_EDITOR_INFO, R.drawable.ic_baseline_info_24)
+        settingsButton.setIconFromTheme(SLOT_SETTINGS, R.drawable.ic_baseline_settings_24)
     }
 
     private val barExtension by lazy {
@@ -374,5 +382,13 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(Statu
         IconThemeManager.removeOnChangedListener(iconThemeChangeListener)
         popupMenu?.dismiss()
         popupMenu = null
+    }
+
+    companion object {
+        /** 图标主题槽位：状态区标题栏的编辑器信息按钮。 */
+        const val SLOT_EDITOR_INFO = "system.editor_info"
+
+        /** 图标主题槽位：状态区标题栏的输入法设置按钮。 */
+        const val SLOT_SETTINGS = "system.settings"
     }
 }
