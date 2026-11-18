@@ -22,6 +22,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.view.updateLayoutParams
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.bar.ToolbarMetrics
@@ -145,6 +146,31 @@ class ToolButton(context: Context) : CustomGestureView(context) {
     fun clearTransientPressState() {
         cancelGestures()
         jumpDrawablesToCurrentState()
+    }
+
+    /**
+     * 按图标主题槽位设置图标。
+     *
+     * 命中内联 SVG / 文件图标就用它（多色图标不染色，单色图标照旧 tint）；命中文字或 emoji
+     * 就用文字；槽位没有内容时回落到 [fallback] 的内置资源。与工具栏按钮
+     * （[org.fcitx.fcitx5.android.input.bar.ui.IdleUi.applyIconThemeToSystemButton]）同一套规则，
+     * 这样标题栏、状态区、剪贴板里的按钮也能被图标主题覆盖。
+     *
+     * @return true 表示用了主题里的内容
+     */
+    fun setIconFromTheme(slot: String, @DrawableRes fallback: Int): Boolean {
+        val info = IconThemeManager.resolveIconDrawableInfo(slot)
+        if (info != null) {
+            setIconFromDrawable(info.drawable, tintWithTheme = info.tintWithTheme)
+            return true
+        }
+        val text = IconThemeManager.resolveIcon(slot)
+        if (!text.isNullOrEmpty()) {
+            setText(text)
+            return true
+        }
+        setIcon(fallback)
+        return false
     }
 
     fun setIcon(@DrawableRes icon: Int) {

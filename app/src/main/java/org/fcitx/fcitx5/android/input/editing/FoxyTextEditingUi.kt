@@ -32,7 +32,8 @@ class FoxyTextEditingUi(
     private val onLayoutAction: ((KeyAction) -> Unit)? = null
 ) : TextEditingUi(viewContext, viewTheme, rippleEnabled, borderEnabled, buttonRadius) {
 
-    private val keyHeight = viewContext.dp(46)
+    // 46dp 时图标和文字都贴着上下边，抬高一点给按键留呼吸感。
+    private val keyHeight = viewContext.dp(50)
 
     val cursorPad = TextEditingCursorPadKey(
         viewContext,
@@ -118,27 +119,38 @@ class FoxyTextEditingUi(
             rippleEnabled,
             borderEnabled,
             buttonRadius,
-            altStyle
+            altStyle,
+            backgroundColor = appearance.backgroundColor,
+            shadowColor = appearance.shadowColor,
+            textColor = appearance.textColor
         )
+        // 布局给键点名了图标槽位就优先显示图标，主题里没有该槽位时仍回落文字。
+        val themedIconSlot = key.keyDef.effectiveIconSlot
         when (appearance) {
-            is KeyDef.Appearance.Text -> button.setText(appearance.displayText)
-            is KeyDef.Appearance.AltText -> button.setText(appearance.displayText)
+            is KeyDef.Appearance.Text -> {
+                if (themedIconSlot == null || !button.trySetThemedIcon(themedIconSlot)) {
+                    button.setText(appearance.displayText)
+                }
+            }
+            is KeyDef.Appearance.AltText -> {
+                if (themedIconSlot == null || !button.trySetThemedIcon(themedIconSlot)) {
+                    button.setText(appearance.displayText)
+                }
+            }
             is KeyDef.Appearance.ImageText -> {
                 if (appearance.displayText.isNotBlank()) button.setText(appearance.displayText)
                 else button.setIcon(appearance.src)
             }
             is KeyDef.Appearance.Image -> {
-                val iconSlot = key.keyDef.iconSlot
-                if (iconSlot != null) {
-                    button.setThemedIcon(iconSlot, appearance.src)
+                if (themedIconSlot != null) {
+                    button.setThemedIcon(themedIconSlot, appearance.src)
                 } else {
                     button.setIcon(appearance.src)
                 }
             }
             is KeyDef.Appearance.ImageAltText -> {
-                val iconSlot = key.keyDef.iconSlot
-                if (iconSlot != null) {
-                    button.setThemedIcon(iconSlot, appearance.src)
+                if (themedIconSlot != null) {
+                    button.setThemedIcon(themedIconSlot, appearance.src)
                 } else {
                     button.setIcon(appearance.src)
                 }

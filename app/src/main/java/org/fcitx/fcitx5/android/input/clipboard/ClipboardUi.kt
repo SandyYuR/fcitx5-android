@@ -121,10 +121,12 @@ class ClipboardUi(override val ctx: Context, private val theme: Theme, private v
 
     val deleteAllButton = ToolButton(ctx, R.drawable.ic_baseline_delete_sweep_24, theme).apply {
         contentDescription = ctx.getString(R.string.delete_all)
+        setIconFromTheme(SLOT_DELETE, R.drawable.ic_baseline_delete_sweep_24)
     }
 
     val searchButton = ToolButton(ctx, R.drawable.ic_clipboard_history_search_24, theme).apply {
         contentDescription = ctx.getString(R.string.search)
+        setIconFromTheme(SLOT_SEARCH, R.drawable.ic_clipboard_history_search_24)
     }
 
     val extension = horizontalLayout {
@@ -221,5 +223,13 @@ class ClipboardUi(override val ctx: Context, private val theme: Theme, private v
                 setDeleteButtonShown(false)
             }
         }
+    }
+
+    companion object {
+        /** 图标主题槽位：剪贴板标题栏的清空按钮。 */
+        const val SLOT_DELETE = "system.clipboard_delete"
+
+        /** 图标主题槽位：剪贴板标题栏的搜索按钮。 */
+        const val SLOT_SEARCH = "system.clipboard_search"
     }
 }

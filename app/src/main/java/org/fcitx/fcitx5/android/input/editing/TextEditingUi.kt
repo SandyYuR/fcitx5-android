@@ -207,12 +207,8 @@ open class TextEditingUi(
     }
 
     private fun applyThemeToolbarIcon(button: ToolButton, slot: String, fallback: Int) {
-        val iconInfo = IconThemeManager.resolveIconDrawableInfo(slot)
-        if (iconInfo != null) {
-            button.setIconFromDrawable(iconInfo.drawable, tintWithTheme = iconInfo.tintWithTheme)
-        } else {
-            button.setIcon(fallback)
-        }
+        // 统一走 ToolButton.setIconFromTheme：图标 / 文字 / 回退图三档，避免两处各写一遍。
+        button.setIconFromTheme(slot, fallback)
     }
 
     private fun applyThemeClipboardIcon(button: ToolButton) {
