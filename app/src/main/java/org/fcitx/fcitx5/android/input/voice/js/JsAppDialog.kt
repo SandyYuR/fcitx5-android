@@ -42,7 +42,13 @@ import org.fcitx.fcitx5.android.utils.settingsColor
 
 // Android's TYPE_APPLICATION_MEDIA_OVERLAY (1004) sits between TYPE_APPLICATION_MEDIA
 // and its parent window. The platform accepts this type, but omits its name from the SDK.
-private const val IME_PANEL_DROPDOWN_WINDOW_TYPE = 1004
+internal const val IME_PANEL_DROPDOWN_WINDOW_TYPE = 1004
+
+internal data class JsAppPanelTools(
+    val title: String,
+    val alternatives: List<JsAppPanelEntry>,
+    val open: (JsAppButtonBinding.Target) -> Unit,
+)
 
 /** Attached window; typing stays in the local editor while host APIs retain the app connection. */
 internal class JsAppDialog(
@@ -53,6 +59,7 @@ internal class JsAppDialog(
     private val inputLimit: Int = 65536,
     /** 布局里的 `{"type":"app","command":"js.<id>"}` 节点：由宿主解析并切到那个 App。 */
     private val command: (String) -> Unit = {},
+    private val tools: JsAppPanelTools? = null,
 ) : Dialog(service), LifecycleOwner {
     private val panelLifecycle = LifecycleRegistry(this)
     override val lifecycle: Lifecycle get() = panelLifecycle
@@ -71,6 +78,9 @@ internal class JsAppDialog(
     private val selectors = linkedMapOf<String, Pair<MaterialAutoCompleteTextView, List<Pair<String, String>>>>()
     private val enabled = mutableMapOf<String, Boolean>()
     private val header = FrameLayout(uiContext)
+    private val switcher = tools?.takeIf { it.alternatives.isNotEmpty() }?.let {
+        JsAppSwitcher(uiContext, it.alternatives, ::panelArea, it.open)
+    }
     private val footer = FrameLayout(uiContext)
     private var nativeContent: View? = null
     private var nativeFooterScroll: BoundedScrollView? = null
@@ -192,6 +202,7 @@ internal class JsAppDialog(
             root.viewTreeObserver.takeIf { it.isAlive }?.removeOnPreDrawListener(firstDrawListener)
             editors.values.filterIsInstance<JsAppEditText>().forEach { it.ownsLocalInput = false }
             selectors.values.forEach { it.first.dismissDropDown() }
+            switcher?.dismissMenu()
             prompt?.complete(false)
             closed()
         }
@@ -202,6 +213,8 @@ internal class JsAppDialog(
         editors.forEach { (id, view) -> put(id, view.text.toString()) }
         selections.forEach { (id, value) -> put(id, value) }
     }
+
+    fun dismissToolMenu(): Boolean = switcher?.dismissMenu() == true
 
     val panelContext: Context get() = uiContext
 
@@ -245,6 +258,7 @@ internal class JsAppDialog(
         if (value) {
             blockTyping()
             selectors.values.forEach { it.first.dismissDropDown() }
+            switcher?.dismissMenu()
         } else focusEditor()
     }
 
@@ -272,6 +286,7 @@ internal class JsAppDialog(
     suspend fun confirm(title: String, message: String, allow: String, deny: String): Boolean {
         val reply = CompletableDeferred<Boolean>()
         prompt = reply
+        switcher?.dismissMenu()
         content.visibility = View.GONE
         header.visibility = View.GONE
         footer.visibility = View.GONE
@@ -302,6 +317,7 @@ internal class JsAppDialog(
         // 旧式平铺对话框的字段缺省值取自当前值（Foxy 同样用上一轮 values 补齐），所以先取值再清空。
         val previous = if (controls.isEmpty()) emptyMap() else values().mapValues { it.value.jsonPrimitive.content }
         selectors.values.forEach { it.first.dismissDropDown() }
+        switcher?.let { (it.parent as? ViewGroup)?.removeView(it); it.dismissMenu() }
         blockTyping()
         controls.clear(); editors.clear(); selections.clear(); selectors.clear(); enabled.clear()
         header.removeAllViews(); footer.removeAllViews()
@@ -482,23 +498,62 @@ internal class JsAppDialog(
             } else require(obj.text("type") !in setOf("input", "select", "button")) { "Invalid control ID" }
             return view
         }
-        val layout = spec["layout"] as? JsonObject
-            ?: JsAppLegacyLayout.convert(spec, previous)
+        val declaredLayout = spec["layout"] as? JsonObject
+        val layout = declaredLayout ?: JsAppLegacyLayout.convert(spec, previous)
             ?: error("Dialog must declare a layout")
         val rendered = node(layout, 0)
-        layoutColumn = (rendered as? LinearLayout)?.takeIf { it.orientation == LinearLayout.VERTICAL }
+        val scriptColumn = (rendered as? LinearLayout)?.takeIf { it.orientation == LinearLayout.VERTICAL }
+        val scriptHeader = scriptColumn?.getChildAt(0) as? JsAppHeaderRow
+        val shortcuts = switcher
+        headerView = if (shortcuts == null) scriptHeader else {
+            val legacyTitle = if (declaredLayout == null && spec.text("title").isNotBlank()) {
+                scriptColumn?.let { column ->
+                    (column.getChildAt(0) as? TextView)?.also(column::removeView)
+                }
+            } else null
+            headerForTools(scriptHeader, legacyTitle).apply { insertSwitcher(shortcuts) }
+        }
+        layoutColumn = scriptColumn ?: headerView?.let {
+            LinearLayout(uiContext).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(rendered, LinearLayout.LayoutParams(-1, -2))
+            }
+        }
         layoutColumn?.let { column ->
-            headerView = column.getChildAt(0) as? JsAppHeaderRow
             actionsView = column.getChildAt(column.childCount - 1) as? JsAppActionRow
-            headerView?.let { column.removeView(it); header.addView(it, FrameLayout.LayoutParams(-1, -2)) }
+            headerView?.let {
+                if (it.parent === column) column.removeView(it)
+                header.addView(it, FrameLayout.LayoutParams(-1, -2))
+            }
             actionsView?.let { column.removeView(it); footer.addView(it, FrameLayout.LayoutParams(-1, -2)) }
         }
         footer.setPadding(0, if (actionsView == null) 0 else dp(8), 0, 0)
-        content.addView(rendered, LinearLayout.LayoutParams(-1, -2))
+        content.addView(layoutColumn ?: rendered, LinearLayout.LayoutParams(-1, -2))
         maxWidthDp = (spec["maxWidth"] as? JsonPrimitive)?.intOrNull?.coerceIn(200, 600) ?: 340
         maxHeightDp = (spec["maxHeight"] as? JsonPrimitive)?.intOrNull?.coerceIn(96, 600) ?: 360
         applyBounds()
         setBusy(busy)
+    }
+
+    private fun headerForTools(scriptHeader: JsAppHeaderRow?, legacyTitle: TextView?): JsAppHeaderRow {
+        // Preserve the normal script title and its close event when there is room for host actions.
+        if (scriptHeader != null && scriptHeader.childCount == 2 &&
+            scriptHeader.getChildAt(0) is TextView &&
+            (scriptHeader.getChildAt(0).layoutParams as LinearLayout.LayoutParams).weight > 0f &&
+            (scriptHeader.getChildAt(1) === controls["close"] || scriptHeader.getChildAt(1) === controls["cancel"])
+        ) return scriptHeader
+
+        // Legacy and custom layouts keep their controls. Give their host shortcuts a separate header.
+        return JsAppHeaderRow(uiContext).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            val title = legacyTitle ?: label(requireNotNull(tools).title, bold = true, size = 20f, draggable = true)
+            addView(title.apply {
+                maxLines = 2
+                ellipsize = TextUtils.TruncateAt.END
+            }, LinearLayout.LayoutParams(0, -2, 1f))
+            addView(button(service.getString(R.string.js_app_close_panel), "text", "close", iconOnly = true, action = ::dismiss),
+                LinearLayout.LayoutParams(-2, -2))
+        }
     }
 
     private fun fieldBox(input: EditText, readOnly: Boolean = false) = TextInputLayout(uiContext).apply {
@@ -611,6 +666,7 @@ internal class JsAppDialog(
             @Suppress("RtlHardcoded") val gravity = Gravity.TOP or Gravity.LEFT
             if (attrs.width != width || attrs.height != height ||
                 attrs.gravity != gravity || attrs.x != x || attrs.y != y) {
+                dismissToolMenu()
                 attrs.width = width; attrs.height = height
                 attrs.gravity = gravity; attrs.x = x; attrs.y = y
                 w.attributes = attrs
@@ -664,6 +720,7 @@ internal class JsAppDialog(
     }
 
     private fun setPanelVisible(visible: Boolean) {
+        if (!visible) dismissToolMenu()
         window?.let { w ->
             val alpha = if (visible) 1f else 0f
             val attrs = w.attributes

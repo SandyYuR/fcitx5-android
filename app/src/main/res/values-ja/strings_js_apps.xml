@@ -21,4 +21,7 @@
     <string name="js_app_endpoint_message">このプラグインが %1$s に接続することを許可しますか？\n\nテキストと設定済みの API キーがこのホストに送信されます。リダイレクトは無効です。</string>
     <string name="js_app_revoke">アプリの権限を取り消す</string>
     <string name="js_app_revoke_summary">入力欄へのアクセスやネットワークリクエストを許可する前に、再度確認します。</string>
+    <string name="js_app_switch_tools">ツールを切り替える</string>
+    <string name="js_app_switch_to">%1$sに切り替える</string>
+    <string name="js_app_close_panel">ツールパネルを閉じる</string>
 </resources>

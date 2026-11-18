@@ -21,4 +21,7 @@
     <string name="js_app_endpoint_message">是否允许此插件连接 %1$s？\n\n文本和配置的 API 密钥将发送到此域名，不会跟随重定向。</string>
     <string name="js_app_revoke">撤销应用能力授权</string>
     <string name="js_app_revoke_summary">下次使用前重新询问编辑器访问和网络请求权限。</string>
+    <string name="js_app_switch_tools">切换工具</string>
+    <string name="js_app_switch_to">切换到%1$s</string>
+    <string name="js_app_close_panel">关闭工具面板</string>
 </resources>

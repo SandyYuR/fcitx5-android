@@ -21,4 +21,7 @@
     <string name="js_app_endpoint_message">이 플러그인이 %1$s에 연결하도록 허용하시겠습니까?\n\n텍스트와 설정된 API 키가 이 호스트로 전송됩니다. 리디렉션은 허용되지 않습니다.</string>
     <string name="js_app_revoke">앱 권한 취소</string>
     <string name="js_app_revoke_summary">입력란 접근이나 네트워크 요청을 허용하기 전에 다시 묻습니다.</string>
+    <string name="js_app_switch_tools">도구 전환</string>
+    <string name="js_app_switch_to">%1$s(으)로 전환</string>
+    <string name="js_app_close_panel">도구 패널 닫기</string>
 </resources>

@@ -11,6 +11,17 @@ internal object JsAppSelection {
     fun available(): List<Pair<JsVoiceProviders.Spec, JsPluginApp>> =
         JsVoiceProviders.all().flatMap { spec -> spec.apps.map { spec to it } }
 
+    fun panelAlternatives(current: JsAppButtonBinding.Target): List<JsAppPanelEntry> {
+        val alternatives = available().filterNot { (spec, app) ->
+            spec.id == current.pluginId && app.id == current.appId
+        }
+        val counts = alternatives.groupingBy { (_, app) -> app.label }.eachCount()
+        return alternatives.map { (spec, app) ->
+            JsAppPanelEntry(JsAppButtonBinding.Target(spec.id, app.id),
+                if (counts.getValue(app.label) > 1) "${app.label} · ${spec.label}" else app.label)
+        }
+    }
+
     @Synchronized
     fun preferred(): Pair<JsVoiceProviders.Spec, JsPluginApp>? {
         val entries = available()
