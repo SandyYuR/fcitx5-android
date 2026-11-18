@@ -958,9 +958,13 @@
     <string name="icon_theme_saved">已儲存</string>
     <string name="icon_theme_name_empty">名稱不能為空</string>
     <string name="icon_theme_name_exists">名稱已存在</string>
+    <string name="show_key_alt_labels">顯示按鍵副標籤</string>
+    <string name="show_key_alt_labels_summary">按鍵上的小字提示：字母鍵的標點、功能鍵的滑動提示。</string>
     <string name="icon_theme_invalid_svg">無效的 SVG 檔案</string>
     <string name="icon_theme_read_svg_failed">讀取 SVG 檔案失敗</string>
     <string name="icon_theme_keyboard_keys">鍵盤按鍵</string>
+    <string name="icon_theme_letter_keys">字母按鍵</string>
+    <string name="icon_theme_numpad_keys">數字鍵盤按鍵</string>
     <string name="icon_theme_toolbar_buttons">工具列按鈕</string>
     <string name="icon_theme_system_buttons">系統按鈕</string>
     <string name="icon_theme_customized">%1$s（%2$d 個已自訂）</string>

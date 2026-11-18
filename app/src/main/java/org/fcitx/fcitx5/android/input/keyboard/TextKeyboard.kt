@@ -1315,6 +1315,8 @@ class TextKeyboard private constructor(
     private val spaceKeyLabelMode = AppPrefs.getInstance().keyboard.spaceKeyLabelMode
     private val swipeSymbolDirection = AppPrefs.getInstance().keyboard.swipeSymbolDirection
     private val punctuationPosition = ThemeManager.prefs.punctuationPosition
+    private val showKeyAltLabels = ThemeManager.prefs.showKeyAltLabels
+    private val moveMainTextForAltLabel = ThemeManager.prefs.moveMainTextForAltLabel
 
     /**
      * 语言键当前是否处于 ASCII 态（Rime 的 latin 子模式）。
@@ -1353,6 +1355,18 @@ class TextKeyboard private constructor(
     @Keep
     private val spaceKeyLabelModeListener = ManagedPreference.OnChangeListener<SpaceKeyLabelMode> { _, _ ->
         refreshSpaceLabelFromState()
+    }
+
+    @Keep
+    private val showKeyAltLabelsListener = ManagedPreference.OnChangeListener<Boolean> { _, _ ->
+        // 只重跑副标签布局，不重建键盘：开关要立刻生效，且不打断当前输入状态。
+        refreshAltLabelVisibility()
+    }
+
+    @Keep
+    private val moveMainTextForAltLabelListener = ManagedPreference.OnChangeListener<Boolean> { _, _ ->
+        // 图标层与主字符共用同一套让位规则，开关变化时一起重排。
+        refreshAltLabelVisibility()
     }
 
     private val keepLettersUppercase by AppPrefs.getInstance().keyboard.keepLettersUppercase
@@ -1505,10 +1519,11 @@ class TextKeyboard private constructor(
                 key != LAYOUT_META_KEY &&
                     key != "default" &&
                     key != "" &&
-                    // 排列形态变体（__variant__:...）是布局结构的一部分，不是"按方案细分"，
-                    // 不能让它把平铺布局判成"随子模式变化"——那会让行缓存在每次 Shift
-                    // 切换子模式时全部失效（见 usesSubMode 的说明）。
-                    !LayoutJsonUtils.isVariantSubModeLabel(key) &&
+                    // 排列形态变体（__variant__:...）与数字/符号层（__layer__:...）都是布局
+                    // 结构的一部分，不是"按方案细分"：把它们算进来会让平铺布局在中文与
+                    // ASCII 子模式之间生成不同签名，行缓存各存一份，切图标主题时只刷新当前
+                    // 那一份，另一模式复用旧行继续显示上一套图标（见 usesSubMode 的说明）。
+                    !LayoutJsonUtils.isReservedSubModeLabel(key) &&
                     parseLayoutArray(baseElement[key]) != null
             }
             if (hasSubModeLayout) return true
@@ -1825,6 +1840,8 @@ class TextKeyboard private constructor(
         spaceKeyLabelMode.registerOnChangeListener(spaceKeyLabelModeListener)
         swipeSymbolDirection.registerOnChangeListener(swipeSymbolDirectionListener)
         punctuationPosition.registerOnChangeListener(punctuationPositionListener)
+        showKeyAltLabels.registerOnChangeListener(showKeyAltLabelsListener)
+        moveMainTextForAltLabel.registerOnChangeListener(moveMainTextForAltLabelListener)
     }
 
     override fun onDetachedFromWindow() {
@@ -1833,6 +1850,8 @@ class TextKeyboard private constructor(
         spaceKeyLabelMode.unregisterOnChangeListener(spaceKeyLabelModeListener)
         swipeSymbolDirection.unregisterOnChangeListener(swipeSymbolDirectionListener)
         punctuationPosition.unregisterOnChangeListener(punctuationPositionListener)
+        showKeyAltLabels.unregisterOnChangeListener(showKeyAltLabelsListener)
+        moveMainTextForAltLabel.unregisterOnChangeListener(moveMainTextForAltLabelListener)
         super.onDetachedFromWindow()
     }
 

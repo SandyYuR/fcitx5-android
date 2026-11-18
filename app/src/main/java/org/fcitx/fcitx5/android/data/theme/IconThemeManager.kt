@@ -76,6 +76,9 @@ object IconThemeManager {
     private const val MAX_IMPORT_TOTAL_BYTES = 32L * 1024 * 1024
     private const val MAX_IMPORT_ENTRIES = 256
 
+    /** 多色图标里算作「笔画黑」的通道上限：再深一点才替换成键面文字色，色点和浅色阴影不动。 */
+    private const val NEAR_BLACK_MAX = 0x30
+
     private val themeDir: File? by lazy {
         val extDir = appContext.getExternalFilesDir(null)
         if (extDir != null) File(extDir, "icon_themes").also { it.mkdirs() } else null
@@ -93,6 +96,25 @@ object IconThemeManager {
     private var installedThemes: List<IconTheme> = emptyList()
 
     private val themeLock = Any()
+
+    /**
+     * 解析后的 SVG 对象缓存，键是 "slot:themeName"。
+     *
+     * 光栅化尺寸变了（换键高、转屏、切分体）只需要重新渲染，不必再解析一遍 XML：
+     * androidSVG 的解析是纯 Java 的 XML + 属性解析，26 个字母图标在首帧上是一笔实打实的
+     * 主线程开销。切图标主题时与 [drawableCache] 一起清空。
+     */
+    private val svgCache = object : LruCache<String, com.caverock.androidsvg.SVG>(64) {
+        override fun sizeOf(key: String, value: com.caverock.androidsvg.SVG): Int = 1
+    }
+
+    /** 预解析线程：切主题时把内联 SVG 先解析好，键盘首帧只剩渲染。 */
+    private val svgPrewarmExecutor = java.util.concurrent.Executors.newSingleThreadExecutor { r ->
+        Thread(r, "icon-theme-svg-prewarm").apply { isDaemon = true }
+    }
+
+    /** 每次换主题自增；后台预解析任务据此丢弃旧主题的结果，不污染新主题的缓存。 */
+    private val svgPrewarmGeneration = java.util.concurrent.atomic.AtomicInteger()
 
     /** Drawable cache for SVG icons, keyed by "slot:themeName". */
     private val drawableCache = object : LruCache<String, IconDrawableInfo>(16 * 1024) {
@@ -116,6 +138,7 @@ object IconThemeManager {
             field = value
             activeThemeName = value.name
             clearDrawableCache()
+            prewarmSvgCache(value, svgPrewarmGeneration.incrementAndGet())
             dispatchOnMain { onChangeListeners.toList().forEach { it.onIconThemeChange(value) } }
         }
 
@@ -271,22 +294,40 @@ object IconThemeManager {
         return resolveIconDrawableInfo(slot)?.drawable
     }
 
-    fun resolveIconDrawableInfo(slot: String): IconDrawableInfo? {
+    /**
+     * @param sizePx 期望的光栅边长（px）。null 表示沿用旧的 24dp 标准尺寸；按键面会按自己的
+     *   实际大小传入，避免把 24dp 的位图放大到整键尺寸后糊掉。尺寸参与缓存键，同一槽位在
+     *   不同尺寸下各自缓存，互不顶替。
+     * @param inkColor 键面文字色。只对**多色**内联 SVG 生效：把近黑笔画换成这个颜色，让自带
+     *   配色的图标在深色主题下也读得清，同时保留色点等原有配色。单色图标忽略此参数（它们
+     *   走 tint）。颜色参与缓存键。
+     */
+    fun resolveIconDrawableInfo(
+        slot: String,
+        sizePx: Int? = null,
+        inkColor: Int? = null
+    ): IconDrawableInfo? {
         val value = activeTheme.icons[slot] ?: return null
-        val key = "$slot:${activeTheme.name}"
+        val isFileIcon = ButtonIconFile.isFileIcon(value)
+        val isSvg = isInlineSvg(value)
+        // 多色图标（自带配色）不套主题染色，但深色主题下它的近黑笔画会看不见：把近黑笔画
+        // 换成键面文字色，色点等彩色部分原样保留。单色图标照旧走 tint，不需要这一步。
+        val ink = if (isSvg && inkColor != null && !isSvgMonochrome(value)) inkColor else null
+        // 只有内联 SVG 会按 sizePx 重新光栅化；文件图标和 XML 图标与尺寸无关，缓存键里
+        // 带上尺寸只会让同一张图按不同尺寸重复存几份。
+        val key = if (isSvg && sizePx != null) "$slot:${activeTheme.name}:$sizePx${inkSuffix(ink)}"
+        else "$slot:${activeTheme.name}${inkSuffix(ink)}"
         drawableCache.get(key)?.let { cached ->
             return IconDrawableInfo(
                 drawable = cloneDrawable(cached.drawable),
                 tintWithTheme = cached.tintWithTheme
             )
         }
-        val isFileIcon = ButtonIconFile.isFileIcon(value)
-        val isSvg = isInlineSvg(value)
         val loaded: Drawable = (if (isFileIcon) {
             // 文件图标已在 ButtonIconFile.loadDrawable 出口统一归一到标准图标尺寸。
             ButtonIconFile.loadDrawable(value)
         } else if (isSvg) {
-            loadSvgDrawable(value)
+            loadSvgDrawable(value, sizePx, "$slot:" + activeTheme.name + inkSuffix(ink), ink)
         } else {
             loadInlineDrawableXml(value)
         }) ?: return null
@@ -386,21 +427,62 @@ object IconThemeManager {
         return ButtonIconFile.loadInlineXmlDrawable(clean)
     }
 
-    private fun loadSvgDrawable(svgContent: String): Drawable? {
+    private fun loadSvgDrawable(
+        svgContent: String,
+        sizePx: Int? = null,
+        cacheKey: String? = null,
+        inkColor: Int? = null
+    ): Drawable? {
         val density = appContext.resources.displayMetrics.density
-        val size = (24 * density).toInt().coerceAtLeast(1)
+        val size = sizePx?.coerceAtLeast(1) ?: (24 * density).toInt().coerceAtLeast(1)
+        val content = if (inkColor == null) svgContent else recolorNearBlack(svgContent, inkColor)
+        // 解析结果按槽位缓存：同一图标换尺寸时只重新光栅化。缓存未命中时现场解析并回填；
+        // 渲染失败把这个键清掉，避免把坏结果留在缓存里。
+        val svg = (cacheKey?.let { svgCache.get(it) } ?: parseSvg(content)?.also { parsed ->
+            if (cacheKey != null) svgCache.put(cacheKey, parsed)
+        }) ?: return null
+        return try {
+            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            svg.renderToCanvas(canvas, android.graphics.RectF(0f, 0f, size.toFloat(), size.toFloat()))
+            BitmapDrawable(appContext.resources, bitmap)
+        } catch (_: Exception) {
+            if (cacheKey != null) svgCache.remove(cacheKey)
+            null
+        }
+    }
+
+    /** 解析内联 SVG；规范化版本解析不了时退回原串（与旧实现同样的兜底顺序）。 */
+    private fun parseSvg(svgContent: String): com.caverock.androidsvg.SVG? {
         for (candidate in svgCandidates(svgContent)) {
             try {
-                val svg = com.caverock.androidsvg.SVG.getFromString(candidate)
-                val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmap)
-                svg.renderToCanvas(canvas, android.graphics.RectF(0f, 0f, size.toFloat(), size.toFloat()))
-                return BitmapDrawable(appContext.resources, bitmap)
+                return com.caverock.androidsvg.SVG.getFromString(candidate)
             } catch (_: Exception) {
                 // Try the original SVG when normalization changed unsupported markup.
             }
         }
         return null
+    }
+
+    /**
+     * 后台预解析当前主题里的内联 SVG。
+     *
+     * 键盘首帧上 26 个字母图标各解析一次 XML，累加起来足以吃掉一帧；切主题时用户还在设置页
+     * 或工具栏，正好把这段开销挪到看不见的地方。解析失败不重试、不抛异常。
+     */
+    private fun prewarmSvgCache(theme: IconTheme, generation: Int) {
+        val entries = theme.icons.filterValues { isInlineSvg(it) }
+        if (entries.isEmpty()) return
+        val themeName = theme.name
+        svgPrewarmExecutor.execute {
+            for ((slot, svg) in entries) {
+                // 主题已经被替换：这份结果属于旧 SVG，写进同名缓存键会让新主题读到过期图标。
+                if (generation != svgPrewarmGeneration.get()) return@execute
+                val key = "$slot:$themeName"
+                if (svgCache.get(key) != null) continue
+                parseSvg(svg)?.let { svgCache.put(key, it) }
+            }
+        }
     }
 
     private fun svgCandidates(raw: String): List<String> =
@@ -474,8 +556,35 @@ object IconThemeManager {
         return r == g && g == b
     }
 
+    /** 缓存键里的笔画色后缀；没有替换时为空串，保持旧键不变。 */
+    private fun inkSuffix(ink: Int?): String = if (ink == null) "" else ":%08X".format(ink)
+
+    private val svgColorAttr = Regex("(fill|stroke)\\s*=\\s*(['\"])([^'\"]+)\\2")
+
+    /**
+     * 把 SVG 里的近黑笔画换成 [inkColor]。
+     *
+     * 水彩字母是「黑色笔画 + 粉/蓝/绿的小色点」，整枚 SVG 含非灰颜色，按既有规则判为多色、
+     * 不套主题染色——于是深色主题下黑笔画永远压在深底上看不见，同一套键盘里带色点的字母黑、
+     * 不带色点的字母被染成浅色，混排得很乱。这里只动近黑（每个通道都不超过 [NEAR_BLACK_MAX]）
+     * 的 fill/stroke，色点、渐变和 fill-opacity 全部原样保留：浅色主题下文字色本来就接近黑，
+     * 观感不变；深色主题下笔画跟着文字色变浅，与单色图标被染色的结果一致。
+     */
+    private fun recolorNearBlack(svgContent: String, inkColor: Int): String {
+        val hex = "#%06X".format(inkColor and 0xFFFFFF)
+        return svgColorAttr.replace(svgContent) { match ->
+            val color = parseSvgColor(match.groupValues[3]) ?: return@replace match.value
+            val nearBlack = Color.red(color) <= NEAR_BLACK_MAX &&
+                Color.green(color) <= NEAR_BLACK_MAX &&
+                Color.blue(color) <= NEAR_BLACK_MAX
+            if (!nearBlack) match.value
+            else "${match.groupValues[1]}=${match.groupValues[2]}$hex${match.groupValues[2]}"
+        }
+    }
+
     private fun clearDrawableCache() {
         drawableCache.evictAll()
+        svgCache.evictAll()
     }
 
     fun refresh() {

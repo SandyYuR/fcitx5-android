@@ -793,4 +793,8 @@
     <string name="edit_button_icon_ascii">ASCII 모드 아이콘</string>
     <string name="text_keyboard_layout_space_label">스페이스 키 레이블</string>
     <string name="text_keyboard_layout_space_label_hint">비워 두면 현재 스키마 이름(또는 중국어/ASCII 상태)이 자동으로 표시됩니다.</string>
+    <string name="show_key_alt_labels">키 보조 레이블 표시</string>
+    <string name="show_key_alt_labels_summary">키에 표시되는 작은 안내 문구입니다. 영문 키에는 문장 부호, 기능 키에는 스와이프 안내가 표시됩니다.</string>
+    <string name="icon_theme_letter_keys">영문 키</string>
+    <string name="icon_theme_numpad_keys">숫자 키</string>
 </resources>

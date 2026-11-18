@@ -61,6 +61,13 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
     private val iconThemeListener = IconThemeManager.OnIconThemeChangeListener {
         returnKeyDrawable.onIconThemeChanged()
         refreshCurrentKeyboard()
+        // refreshCurrentKeyboard() 会复用未变的行，行里的 KeyView 仍带着上一套图标的位图；
+        // 尺寸没变时 applyLayout() 会提前返回，所以这里显式让复用行重新解析一次槽位。
+        // 刷新全部实例：ASCII/中文的行缓存在同一个 TextKeyboard 里，隐藏的数字键盘也是独立实例。
+        keyboards.values.forEach { it.refreshIconTheme() }
+        // refreshIconTheme() 又会把回车键按构造时的默认槽位重画，覆盖掉上面刚装好的
+        // 搜索／发送／完成等动作图标；最后再交还一次当前动作的覆盖图。
+        reapplyReturnKeyDrawable()
     }
 
     init {

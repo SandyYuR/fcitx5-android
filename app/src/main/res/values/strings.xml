@@ -205,6 +205,8 @@
     <string name="alt_label_side">Swipe label side</string>
     <string name="alt_label_side_left">Left</string>
     <string name="alt_label_side_right">Right</string>
+    <string name="show_key_alt_labels">Show key alt labels</string>
+    <string name="show_key_alt_labels_summary">The small hint text on keys: punctuation on letter keys, swipe hints on function keys.</string>
     <string name="popup_on_key_press">Popup on key press</string>
     <string name="disable_animation">Disable animation</string>
     <string name="import_from_file">Import from file…</string>
@@ -499,6 +501,10 @@
     <string name="clipboard_return_after_paste">Return after pasting</string>
     <string name="theme_message_follow_system_day_night_mode_enabled">Cannot switch theme manually while \"Follow system day/night mode\" is enabled.</string>
     <string name="disable_it">Disable it</string>
+    <string name="theme_kit_title">Apply the complete theme set?</string>
+    <string name="theme_kit_message">This theme also has a matching keyboard layout, icon theme and key sub-label font. Apply them together with \"%1$s\"?</string>
+    <string name="theme_kit_apply_all">Apply all</string>
+    <string name="theme_kit_theme_only">Colors only</string>
     <string name="reset_keyboard_on_focus_change">Switch back to keyboard when the focus changes</string>
     <string name="export_user_data">Export user data</string>
     <string name="restore_data_ready">User data is ready</string>
@@ -948,6 +954,8 @@
     <string name="icon_theme_invalid_svg">Invalid SVG file</string>
     <string name="icon_theme_read_svg_failed">Failed to read SVG file</string>
     <string name="icon_theme_keyboard_keys">Keyboard Keys</string>
+    <string name="icon_theme_letter_keys">Letter Keys</string>
+    <string name="icon_theme_numpad_keys">Numpad Keys</string>
     <string name="icon_theme_toolbar_buttons">Toolbar Buttons</string>
     <string name="icon_theme_system_buttons">System Buttons</string>
     <string name="icon_theme_customized">%1$s (%2$d customized)</string>

@@ -30,9 +30,16 @@ class ReturnKeyDrawableComponent :
     var resourceId: Int = DEFAULT_DRAWABLE
         private set
 
-    /** Non-null when the active icon theme provides an SVG override for the current action. */
-    var iconThemeDrawable: Drawable? = null
-        private set
+    /**
+     * Non-null when the active icon theme provides an SVG override for the current action.
+     *
+     * 每次读取都按 [currentSlot] 现算，而不是在 EditorInfo 到达时缓存一次：组件会随
+     * InputView 重建，而系统不会为同一个输入框重发 EditorInfo，缓存下来的 null 会让
+     * 回车键一直停在系统箭头上（切主题、重建视图后尤其明显）。现算时 [currentSlot]
+     * 为空也会回落到 `keys.return.default`，与图标主题里配的那张图一致。
+     */
+    val iconThemeDrawable: Drawable?
+        get() = resolveIconThemeDrawable(currentSlot)
 
     /** Current action slot name (for debugging / external icon theme checks). */
     var currentSlot: String? = null
@@ -78,25 +85,20 @@ class ReturnKeyDrawableComponent :
     fun updateDrawableOnEditorInfo(info: EditorInfo) {
         actionDrawable = drawableFromEditorInfo(info)
         currentSlot = slotForEditorInfo(info)
-        iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
         resourceId = actionDrawable
         broadcaster.onReturnKeyDrawableUpdate(resourceId)
     }
 
     fun updateDrawableOnPreedit(preeditEmpty: Boolean) {
         val newResId = if (preeditEmpty) actionDrawable else DEFAULT_DRAWABLE
-        if (preeditEmpty) {
-            iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
-        } else {
+        if (!preeditEmpty) {
             currentSlot = "keys.return.default"
-            iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
         }
         resourceId = newResId
         broadcaster.onReturnKeyDrawableUpdate(resourceId)
     }
 
     fun onIconThemeChanged() {
-        iconThemeDrawable = resolveIconThemeDrawable(currentSlot)
         broadcaster.onReturnKeyDrawableUpdate(resourceId)
     }
 }

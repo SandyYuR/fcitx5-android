@@ -12,6 +12,7 @@ import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.data.InputFeedbacks
+import org.fcitx.fcitx5.android.data.theme.IconTheme
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Border
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Variant
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
@@ -155,7 +156,10 @@ class AlphabetKey(
     popup ?: arrayOf(
         Popup.AltPreview(character, punctuation),
         Popup.Keyboard.Preset(character)
-    )
+    ),
+    // 字母键的主题图标槽位（keys.letter.<小写字母>）；标点键等非字母返回 null。
+    // 主题没配该槽位时键面行为完全不变（图标层 GONE，主字符照常显示）。
+    IconTheme.letterSlotOf(character)
 )
 
 class CapsKey(
@@ -238,45 +242,36 @@ class LayoutSwitchKey(
     val swipeUp: MacroAction? = null,
     val swipeDown: MacroAction? = null,
     val swipeUpLabel: String? = null,
-    val swipeDownLabel: String? = null
+    val swipeDownLabel: String? = null,
+    /**
+     * 主题图标槽位（`?123` 用 `keys.numpad`，切符号用 `keys.symbols`）。
+     *
+     * 一律走 [Appearance.AltText] 而不是 [Appearance.Text]：只有 AltText 那条视图
+     * （[org.fcitx.fcitx5.android.input.keyboard.AltTextKeyView]）带图标层。没有划动标签时
+     * altText 为空，布局模式判定为 Hidden，主字符照旧上下居中——与 AltText 之外的写法
+     * 视觉完全一致，只是多了一层"有图标就显示图标"的能力。
+     */
+    iconSlot: String? = null
 ) : KeyDef(
-    if (swipeLabel.isNullOrEmpty() && swipeUpLabel.isNullOrEmpty() && swipeDownLabel.isNullOrEmpty()) {
-        Appearance.Text(
-            displayText,
-            textSize = 16f,
-            textStyle = Typeface.BOLD,
-            percentWidth = percentWidth,
-            variant = variant,
-            border = Border.Special,
-            viewId = R.id.button_layout_switch,
-            textColor = textColor,
-            textColorMonet = textColorMonet,
-            backgroundColor = backgroundColor,
-            backgroundColorMonet = backgroundColorMonet,
-            shadowColor = shadowColor,
-            shadowColorMonet = shadowColorMonet
-        )
-    } else {
-        Appearance.AltText(
-            displayText = displayText,
-            altText = swipeUpLabel ?: if (swipeDownLabel == null) swipeLabel.orEmpty() else "",
-            altText1 = swipeDownLabel,
-            character = displayText,
-            textSize = 16f,
-            textStyle = Typeface.BOLD,
-            percentWidth = percentWidth,
-            variant = variant,
-            border = Border.Special,
-            viewId = R.id.button_layout_switch,
-            textColor = textColor,
-            textColorMonet = textColorMonet,
-            backgroundColor = backgroundColor,
-            backgroundColorMonet = backgroundColorMonet,
-            shadowColor = shadowColor,
-            shadowColorMonet = shadowColorMonet
-        ).apply {
-            directionalSwipeLabels = swipeUpLabel != null || swipeDownLabel != null
-        }
+    Appearance.AltText(
+        displayText = displayText,
+        altText = swipeUpLabel ?: if (swipeDownLabel == null) swipeLabel.orEmpty() else "",
+        altText1 = swipeDownLabel,
+        character = displayText,
+        textSize = 16f,
+        textStyle = Typeface.BOLD,
+        percentWidth = percentWidth,
+        variant = variant,
+        border = Border.Special,
+        viewId = R.id.button_layout_switch,
+        textColor = textColor,
+        textColorMonet = textColorMonet,
+        backgroundColor = backgroundColor,
+        backgroundColorMonet = backgroundColorMonet,
+        shadowColor = shadowColor,
+        shadowColorMonet = shadowColorMonet
+    ).apply {
+        directionalSwipeLabels = swipeUpLabel != null || swipeDownLabel != null
     },
     buildSet {
         add(Behavior.Press(KeyAction.LayoutSwitchAction(to)))
@@ -309,7 +304,8 @@ class LayoutSwitchKey(
             )
         )
        )
-    )
+    ),
+    iconSlot = iconSlot
 )
 
 class BackspaceKey(
@@ -806,7 +802,10 @@ class MacroKey(
     buildBehaviors(tap, swipeUp, swipeDown, swipe, longPress),
     // Popup 候选沿用「实际显示的文本」：显式 displayText 优先，未设置时回落到标签文本，
     // 与改动前（label 即显示文本）的候选列表保持一致。
-    buildPopup(popup, tap, displayText?.takeIf { it.isNotEmpty() } ?: label, longPress, longPressLabel)
+    buildPopup(popup, tap, displayText?.takeIf { it.isNotEmpty() } ?: label, longPress, longPressLabel),
+    // 自定义布局里的 26 键常常写成 MacroKey 而不是 AlphabetKey，键面文字一样是 q/w/e；
+    // 只给 AlphabetKey 挂图标的话，同一套主题在这些布局上就只有功能键有图标。
+    iconSlot = letterIconSlotOf(displayText?.takeIf { it.isNotEmpty() } ?: label, tap)
 ) {
     private companion object {
         private val FCITX_SYMBOL_LABELS = mapOf(
@@ -871,6 +870,19 @@ class MacroKey(
             "kp_space" to "Space",
             "kp_enter" to "Enter"
         )
+
+        /**
+         * 宏键被当成字母键用时，沿用字母图标槽位。
+         *
+         * 判定必须严格：键面就是一个 ASCII 字母，且 tap 恰好是一步「按下并释放这枚字母」。
+         * 组合键、文本宏、多步宏（全选/复制之类）都不算，避免把宏键误画成字母。
+         */
+        fun letterIconSlotOf(visibleText: String, tap: MacroAction): String? {
+            val slot = IconTheme.letterSlotOf(visibleText) ?: return null
+            val step = tap.steps.singleOrNull() as? MacroStep.Tap ?: return null
+            val ref = step.keys.singleOrNull() as? KeyRef.Fcitx ?: return null
+            return if (ref.code.equals(visibleText, ignoreCase = true)) slot else null
+        }
 
         fun buildBehaviors(
             tap: MacroAction,

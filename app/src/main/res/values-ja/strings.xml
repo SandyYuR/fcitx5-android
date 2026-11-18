@@ -791,4 +791,8 @@
     <string name="edit_button_icon_ascii">ASCII モードのアイコン</string>
     <string name="text_keyboard_layout_space_label">スペースキーのラベル</string>
     <string name="text_keyboard_layout_space_label_hint">空欄にすると、現在のスキーマ名（または中国語／ASCII の状態）が自動表示されます。</string>
+    <string name="show_key_alt_labels">キーの補助ラベルを表示</string>
+    <string name="show_key_alt_labels_summary">キーに表示される小さなヒントです。英字キーは約物、ファンクションキーはスワイプのヒントを示します。</string>
+    <string name="icon_theme_letter_keys">英字キー</string>
+    <string name="icon_theme_numpad_keys">数字キー</string>
 </resources>
