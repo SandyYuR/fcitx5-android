@@ -94,6 +94,7 @@ import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardSearchController
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardCategory
 import org.fcitx.fcitx5.android.input.cursor.CursorRange
+import org.fcitx.fcitx5.android.input.voice.js.JsAppDialog
 import org.fcitx.fcitx5.android.input.voice.js.JsAppInputConnection
 import org.fcitx.fcitx5.android.input.cursor.CursorTracker
 import org.fcitx.fcitx5.android.input.keyboard.SpaceLongPressBehavior
@@ -2470,7 +2471,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             // A non-focusable Dialog does not consume Back DOWN itself. Returning
             // false would let InputMethodService hide the keyboard before UP can
             // close the menu, and the same action may then reach the editor app.
-            if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) dialog.cancel()
+            if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) {
+                if (dialog is JsAppDialog && dialog.dismissToolMenu()) return true
+                dialog.cancel()
+            }
             return true
         }
         return dialog.dispatchKeyEvent(event)

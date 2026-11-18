@@ -21,4 +21,7 @@
     <string name="js_app_endpoint_message">Allow this plugin to connect to %1$s?\n\nText and the configured API key will be sent to this host. Redirects are disabled.</string>
     <string name="js_app_revoke">Revoke app permissions</string>
     <string name="js_app_revoke_summary">Ask again before allowing editor access or network requests.</string>
+    <string name="js_app_switch_tools">Switch tools</string>
+    <string name="js_app_switch_to">Switch to %1$s</string>
+    <string name="js_app_close_panel">Close tool panel</string>
 </resources>

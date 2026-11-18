@@ -918,15 +918,7 @@ internal data class JsAppButtonAction(
     val appId: String,
 ) : ButtonAction() {
     override val id = requireNotNull(JsAppButtonBinding.encode(pluginId, appId))
-    override val defaultIcon = when {
-        pluginId == "js:youdao-free-translate" && appId == "youdao_translate" ->
-            R.drawable.ic_youdao_24
-        pluginId == "js:bilibili-translate" && appId == "bilibili_translate" ->
-            R.drawable.ic_bilibili_24
-        pluginId == "js:llm-assistant" && appId == "llm_assistant" ->
-            R.drawable.ic_auto_awesome_24
-        else -> R.drawable.ic_baseline_code_24
-    }
+    override val defaultIcon = JsAppButtonBinding.Target(pluginId, appId).icon
     override val defaultLabelRes = R.string.js_tools
     override val iconSlot = "toolbar.js_tools"
     override val hasLongPress = true

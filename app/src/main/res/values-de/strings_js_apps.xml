@@ -21,4 +21,7 @@
     <string name="js_app_endpoint_message">Diesem Plugin die Verbindung zu %1$s erlauben?\n\nDer Text und der eingerichtete API-Schlüssel werden an diesen Host gesendet. Weiterleitungen sind deaktiviert.</string>
     <string name="js_app_revoke">App-Berechtigungen widerrufen</string>
     <string name="js_app_revoke_summary">Vor dem Zugriff auf Textfelder oder Netzwerkanfragen erneut fragen.</string>
+    <string name="js_app_switch_tools">Werkzeug wechseln</string>
+    <string name="js_app_switch_to">Zu %1$s wechseln</string>
+    <string name="js_app_close_panel">Werkzeugfenster schließen</string>
 </resources>

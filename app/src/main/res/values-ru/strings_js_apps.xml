@@ -21,4 +21,7 @@
     <string name="js_app_endpoint_message">Разрешить этому плагину подключение к %1$s?\n\nТекст и настроенный API-ключ будут отправлены на этот хост. Перенаправления отключены.</string>
     <string name="js_app_revoke">Отозвать разрешения приложения</string>
     <string name="js_app_revoke_summary">Снова запрашивать разрешение перед доступом к полю ввода или сетевыми запросами.</string>
+    <string name="js_app_switch_tools">Переключить инструмент</string>
+    <string name="js_app_switch_to">Переключиться на %1$s</string>
+    <string name="js_app_close_panel">Закрыть панель инструментов</string>
 </resources>

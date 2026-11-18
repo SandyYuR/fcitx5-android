@@ -147,7 +147,9 @@ internal object JsApps {
         var fields = emptyList<JsVoiceField>()
         @Volatile var settings = emptyMap<String, String>()
         var configuredSecrets = emptyList<String>()
-        val dialog = JsAppDialog(service, ::event, ::close, command = ::openCommand)
+        val dialog = JsAppDialog(service, ::event, ::close, command = ::openCommand,
+            tools = JsAppPanelTools(app.label,
+                JsAppSelection.panelAlternatives(JsAppButtonBinding.Target(spec.id, app.id)), ::openPanelTool))
 
         /** WebSocket 入站帧先入队：OkHttp 回调线程不能直接碰引擎，消费协程负责串行投递。 */
         private val wsEvents = Channel<WsInbound>(APP_WEBSOCKET_QUEUE_CAPACITY)
@@ -473,6 +475,13 @@ internal object JsApps {
             if (target == null) { service.toast(R.string.js_app_shortcut_missing); return }
             dialog.dismiss()
             openTarget(service, target.pluginId, target.appId, R.string.js_app_shortcut_password)
+        }
+
+        private fun openPanelTool(target: JsAppButtonBinding.Target) {
+            if (activeSession !== this || closed || !sourceCurrent ||
+                token?.isCurrent() != true || service.applicationInputConnection !== connection) return
+            service.jsAppInputConnection?.finishComposingText()
+            openExact(service, target.pluginId, target.appId)
         }
 
         fun requirePermission(permission: String) {

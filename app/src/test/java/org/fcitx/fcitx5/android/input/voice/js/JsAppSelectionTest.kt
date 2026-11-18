@@ -61,6 +61,23 @@ class JsAppSelectionTest {
         assertPreferred("js:$firstId", "translator")
     }
 
+    @Test fun panelAlternativesTrackInstalledAppsAndExcludeOnlyTheOpenApp() {
+        install(firstId, "formatter", "translator")
+        install(secondId, "formatter")
+        val current = JsAppButtonBinding.Target("js:$firstId", "formatter")
+        val sibling = JsAppButtonBinding.Target("js:$firstId", "translator")
+        val sameAppId = JsAppButtonBinding.Target("js:$secondId", "formatter")
+        val alternatives = JsAppSelection.panelAlternatives(current).map { it.target }
+        assertFalse(current in alternatives)
+        assertTrue(sibling in alternatives)
+        assertTrue(sameAppId in alternatives)
+        assertTrue(alternatives.none { it.pluginId == "js:qwen-asr" })
+
+        assertTrue(JsVoicePluginStore.delete(secondId))
+        JsVoiceProviders.reload()
+        assertTrue(JsAppSelection.panelAlternatives(current).none { it.target == sameAppId })
+    }
+
     @Test fun unknownProviderOrAppDoesNotReplaceAValidSelection() {
         install(firstId, "formatter")
         assertTrue(JsAppSelection.select("js:$firstId", "formatter"))
