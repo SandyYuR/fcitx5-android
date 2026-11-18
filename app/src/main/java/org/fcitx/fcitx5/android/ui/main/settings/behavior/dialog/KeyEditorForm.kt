@@ -1768,6 +1768,9 @@ class KeyEditorForm(
                 if (placeholderCustomColor) draft["transparent"] = false
             }
         }
+        // 按键级的主题图标槽位没有单独的输入项，但重建草稿时不能把它丢掉：
+        // 用户只改宽度或动作时，保存后不该连带清掉这个键的主题图标（含嵌套合成态编辑器的入口）。
+        keyData["iconSlot"]?.let { draft["iconSlot"] = it }
         if (!composeOverrideEditorMode) {
             // Row height stays in row settings; the split boundary can also be edited on this key.
             keyData["rowHeightPercent"]?.let { draft["rowHeightPercent"] = it }

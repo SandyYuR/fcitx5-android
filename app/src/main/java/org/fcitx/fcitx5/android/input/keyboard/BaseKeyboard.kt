@@ -1668,17 +1668,50 @@ abstract class BaseKeyboard(
         invalidate()
     }
 
-    fun refreshIconTheme() {
+    /**
+     * 遍历当前行以及所有缓存行里的 KeyView。
+     *
+     * 行缓存按布局签名保存（中文与 ASCII 各自一份）。切图标主题时如果只看当前 keyRows，
+     * 另一模式缓存的键面仍持有上一套位图；等切到那个模式复用旧行，旧图标就又露出来。
+     */
+    private fun forEachKeyViewIncludingCachedRows(block: (KeyView) -> Unit) {
         if (!::keyRows.isInitialized) return
-        keyRows.forEach { row ->
-            row.children.forEach { child ->
-                (child as? KeyView)?.let { keyView ->
-                    when (keyView) {
-                        is ImageAltTextKeyView -> keyView.reapplyIconThemeOverride()
-                        is ImageTextKeyView -> keyView.reapplyIconThemeOverride()
-                        is ImageKeyView -> keyView.reapplyIconThemeOverride()
-                    }
-                }
+        val rows = LinkedHashSet<ConstraintLayout>(keyRows)
+        reusableRowsCache.values.forEach { rows.addAll(it.containers) }
+        fun visit(view: View) {
+            if (view is KeyView) {
+                block(view)
+                return
+            }
+            if (view is ViewGroup) {
+                for (i in 0 until view.childCount) visit(view.getChildAt(i))
+            }
+        }
+        rows.forEach(::visit)
+    }
+
+    fun refreshIconTheme() {
+        forEachKeyViewIncludingCachedRows { keyView ->
+            when (keyView) {
+                is AltTextKeyView -> keyView.reapplyIconThemeOverride()
+                is ImageAltTextKeyView -> keyView.reapplyIconThemeOverride()
+                is ImageTextKeyView -> keyView.reapplyIconThemeOverride()
+                is ImageKeyView -> keyView.reapplyIconThemeOverride()
+            }
+        }
+    }
+
+    /**
+     * 只刷新副标签的显隐，不重建键盘。
+     *
+     * 主题设置里的“显示按键副标签”开关走这里：两个 KeyView 都只是重新跑一遍布局模式判定，
+     * 不碰图标缓存、不重建视图，所以开关能即时生效，关掉也不会残留占位。
+     */
+    fun refreshAltLabelVisibility() {
+        forEachKeyViewIncludingCachedRows { keyView ->
+            when (keyView) {
+                is AltTextKeyView -> keyView.refreshAltTextLayout()
+                is ImageAltTextKeyView -> keyView.refreshAltTextLayout()
             }
         }
     }
@@ -1729,16 +1762,16 @@ abstract class BaseKeyboard(
         val activeAppearance = appearanceOverride ?: resolvedAppearance
         return when (activeAppearance) {
             is KeyDef.Appearance.ToolbarText -> ToolbarTextKeyView(context, theme, activeAppearance, horizontalGapScale)
-            is KeyDef.Appearance.AltText -> AltTextKeyView(context, theme, activeAppearance, horizontalGapScale)
-            is KeyDef.Appearance.ImageAltText -> ImageAltTextKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
-            is KeyDef.Appearance.ImageText -> ImageTextKeyView(context, theme, activeAppearance, horizontalGapScale, def.iconSlot)
+            is KeyDef.Appearance.AltText -> AltTextKeyView(context, theme, activeAppearance, horizontalGapScale, activeDef.effectiveIconSlot)
+            is KeyDef.Appearance.ImageAltText -> ImageAltTextKeyView(context, theme, activeAppearance, horizontalGapScale, activeDef.effectiveIconSlot)
+            is KeyDef.Appearance.ImageText -> ImageTextKeyView(context, theme, activeAppearance, horizontalGapScale, activeDef.effectiveIconSlot)
             is KeyDef.Appearance.Text -> TextKeyView(context, theme, activeAppearance, horizontalGapScale)
             is KeyDef.Appearance.Image -> ImageKeyView(
                 context,
                 theme,
                 activeAppearance,
                 horizontalGapScale,
-                def.iconSlot,
+                activeDef.effectiveIconSlot,
                 // 语言键在 ASCII 态换另一枚图标（与工具栏语言切换按钮同款逻辑），
                 // 其余图标键没有 ASCII 变体。
                 if (def is LanguageKey) LanguageKey.ICON_SLOT_ASCII else null,
@@ -2004,7 +2037,7 @@ abstract class BaseKeyboard(
 
         val updates = composeAwareKeys.map { item ->
             val (activeDef, activeAppearance) = resolveComposeActiveDef(item.baseDef)
-            val needsRecreate = shouldRecreateComposeAwareView(item.keyView.def, item.keyView, activeAppearance)
+            val needsRecreate = shouldRecreateComposeAwareView(item.keyView, activeDef, activeAppearance)
             PendingUpdate(item, activeDef, activeAppearance, needsRecreate)
         }
 
@@ -2078,7 +2111,7 @@ abstract class BaseKeyboard(
         try {
             ready.forEach { item ->
                 val (activeDef, activeAppearance) = resolveComposeActiveDef(item.baseDef)
-                if (shouldRecreateComposeAwareView(item.keyView.def, item.keyView, activeAppearance)) {
+                if (shouldRecreateComposeAwareView(item.keyView, activeDef, activeAppearance)) {
                     recreateComposeAwareKeyView(item, activeDef, activeAppearance)
                 }
             }
@@ -2097,10 +2130,11 @@ abstract class BaseKeyboard(
     protected open fun onDeferredComposeRecreationsFlushed() = Unit
 
     private fun shouldRecreateComposeAwareView(
-        oldAppearance: KeyDef.Appearance,
         currentView: KeyView,
+        newDef: KeyDef,
         newAppearance: KeyDef.Appearance
     ): Boolean {
+        val oldAppearance = currentView.def
         if (!isAppearanceCompatible(currentView, newAppearance)) return true
 
         val textMetricsChanged = when {
@@ -2114,7 +2148,12 @@ abstract class BaseKeyboard(
 
         // Recreate only when style-affecting attributes changed. For text/action-only changes,
         // keep the same view instance to avoid touch race and expensive hierarchy churn.
-        return oldAppearance.variant != newAppearance.variant ||
+        // 合成态可能换成另一枚外观（含另一枚图标槽位）：视图只在构造时绑定图标槽位，
+        // 槽位不同就必须重建，否则键面继续显示普通态的主题图标。
+        val iconSlotChanged = currentView.themedIconSlot != newDef.effectiveIconSlot
+
+        return iconSlotChanged ||
+            oldAppearance.variant != newAppearance.variant ||
             oldAppearance.border != newAppearance.border ||
             oldAppearance.margin != newAppearance.margin ||
             oldAppearance.percentWidth != newAppearance.percentWidth ||

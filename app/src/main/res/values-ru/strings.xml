@@ -792,4 +792,8 @@
     <string name="edit_button_icon_ascii">Значок режима ASCII</string>
     <string name="text_keyboard_layout_space_label">Надпись на клавише пробела</string>
     <string name="text_keyboard_layout_space_label_hint">Оставьте пустым, чтобы автоматически показывать название схемы (или состояние «китайский/ASCII»).</string>
+    <string name="show_key_alt_labels">Показывать дополнительные метки клавиш</string>
+    <string name="show_key_alt_labels_summary">Мелкий текст на клавишах: знаки препинания на буквенных клавишах, подсказки свайпа на функциональных.</string>
+    <string name="icon_theme_letter_keys">Буквенные клавиши</string>
+    <string name="icon_theme_numpad_keys">Цифровые клавиши</string>
 </resources>

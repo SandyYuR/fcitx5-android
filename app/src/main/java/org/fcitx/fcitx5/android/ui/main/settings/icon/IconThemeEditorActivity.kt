@@ -364,6 +364,8 @@ class IconThemeEditorActivity : SettingsUiActivity() {
     private val groupedSections: List<Pair<String, List<String>>> by lazy {
         listOf(
             getString(R.string.icon_theme_keyboard_keys) to IconTheme.KEY_SLOTS,
+            getString(R.string.icon_theme_letter_keys) to IconTheme.LETTER_SLOTS,
+            getString(R.string.icon_theme_numpad_keys) to IconTheme.NUMPAD_KEY_SLOTS,
             getString(R.string.icon_theme_toolbar_buttons) to IconTheme.TOOLBAR_SLOTS,
             getString(R.string.icon_theme_system_buttons) to IconTheme.SYSTEM_SLOTS
         )
@@ -636,9 +638,12 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         "toolbar.language_switch" -> R.drawable.ic_language_switch_zh
         "toolbar.language_switch_ascii" -> R.drawable.ic_language_switch_ascii
         "toolbar.theme" -> R.drawable.ic_baseline_palette_24
+        "toolbar.theme_toggle" -> R.drawable.ic_theme_light_dark_24
         "toolbar.random_theme" -> R.drawable.ic_random_theme_24
         "toolbar.icon_theme" -> R.drawable.ic_icon_theme_24
         "toolbar.input_method_options" -> R.drawable.ic_baseline_language_24
+        "toolbar.switch_input_method" -> R.drawable.ic_baseline_keyboard_24
+        "toolbar.rime_schema_menu" -> R.drawable.ic_baseline_library_books_24
         "toolbar.reload_config" -> R.drawable.ic_baseline_sync_24
         "toolbar.virtual_keyboard" -> R.drawable.ic_baseline_keyboard_24
         "toolbar.one_handed_keyboard" -> R.drawable.ic_baseline_keyboard_tab_24
@@ -650,6 +655,11 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         "system.toolbar_toggle" -> R.drawable.ic_baseline_more_horiz_24
         "system.hide_keyboard" -> R.drawable.ic_baseline_arrow_drop_down_24
         "system.voice_input" -> R.drawable.ic_baseline_keyboard_voice_24
+        "system.back" -> R.drawable.ic_baseline_arrow_back_24
+        "system.editor_info" -> R.drawable.ic_baseline_info_24
+        "system.settings" -> R.drawable.ic_baseline_settings_24
+        "system.clipboard_delete" -> R.drawable.ic_baseline_delete_sweep_24
+        "system.clipboard_search" -> R.drawable.ic_clipboard_history_search_24
         else -> 0
     }
 
@@ -760,12 +770,16 @@ class SlotRowUi(private val ctx: android.content.Context) {
                 .trimStart()
         }
 
-        fun slotToDisplayName(slot: String): String = slot
-            .removePrefix("keys.").removePrefix("toolbar.").removePrefix("system.")
-            .replace(".", " / ")
-            .replace("_", " ")
-            .split(" ")
-            .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+        fun slotToDisplayName(slot: String): String {
+            // 字母键槽位直接显示字母本身，比 "Letter / A" 好认。
+            if (slot.startsWith("keys.letter.")) return slot.removePrefix("keys.letter.").uppercase()
+            return slot
+                .removePrefix("keys.").removePrefix("toolbar.").removePrefix("system.")
+                .replace(".", " / ")
+                .replace("_", " ")
+                .split(" ")
+                .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+        }
 
         fun isSvgContent(s: String?): Boolean = s != null && IconThemeManager.isInlineSvg(s)
 

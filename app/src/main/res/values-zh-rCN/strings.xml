@@ -198,6 +198,8 @@
     <string name="alt_label_side">副标签侧边位置</string>
     <string name="alt_label_side_left">左侧</string>
     <string name="alt_label_side_right">右侧</string>
+    <string name="show_key_alt_labels">显示按键副标签</string>
+    <string name="show_key_alt_labels_summary">按键上的小字提示：字母键的标点、功能键的划动提示。</string>
     <string name="popup_on_key_press">按键时弹出显示字符</string>
     <string name="disable_animation">禁用动画</string>
     <string name="import_from_file">导入文件…</string>
@@ -1012,6 +1014,8 @@
     <string name="icon_theme_invalid_svg">无效的 SVG 文件</string>
     <string name="icon_theme_read_svg_failed">读取 SVG 文件失败</string>
     <string name="icon_theme_keyboard_keys">键盘按键</string>
+    <string name="icon_theme_letter_keys">字母按键</string>
+    <string name="icon_theme_numpad_keys">数字键盘按键</string>
     <string name="icon_theme_toolbar_buttons">工具栏按钮</string>
     <string name="icon_theme_system_buttons">系统按钮</string>
     <string name="icon_theme_customized">%1$s（%2$d 个已自定义）</string>
