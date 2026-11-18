@@ -1,8 +1,8 @@
 {
-  "name": "fcitx5-android (fx-rime-only)",
+  "name": "中州鹅 Android",
   "build": {
     "dockerfile": "Dockerfile",
-    "context": "."
+    "context": ".."
   },
   "hostRequirements": {
     "cpus": 4,
@@ -29,7 +29,8 @@
       "settings": {
         "java.jdt.ls.java.home": "/usr/lib/jvm/java-17",
         "files.eol": "\n",
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "cmake.configureOnOpen": false
       }
     }
   }

@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Codespaces: ARM64 Debug + native audit",
+      "type": "process",
+      "command": "bash",
+      "args": [".devcontainer/verify-build.sh"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Codespaces: JVM tests",
+      "type": "process",
+      "command": "bash",
+      "args": [".devcontainer/test.sh"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    }
+  ]
+}
