@@ -1699,7 +1699,17 @@ abstract class BaseKeyboard(
                 is ImageKeyView -> keyView.reapplyIconThemeOverride()
             }
         }
+        onIconThemeRefreshed()
     }
+
+    /**
+     * 通用图标刷新的收尾钩子。
+     *
+     * [refreshIconTheme] 按构造期记录的固定槽位重画每一枚带图标的键；但有些键的图标取决于
+     * 运行状态而不是构造参数（例如 Shift 键在 none/once/lock 之间切换）。子类在这里按当前
+     * 状态再校正一次，避免切换图标主题后这类键回落到固定槽位。
+     */
+    protected open fun onIconThemeRefreshed() {}
 
     /**
      * 只刷新副标签的显隐，不重建键盘。

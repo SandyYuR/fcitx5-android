@@ -10,6 +10,7 @@ import org.fcitx.fcitx5.android.input.keyboard.*
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.data.theme.ThemePrefs
+import org.fcitx.fcitx5.android.utils.ColorLiteral
 
 // Import Macro types explicitly
 import org.fcitx.fcitx5.android.input.keyboard.MacroAction
@@ -312,13 +313,7 @@ object LayoutJsonUtils {
             primitive.content
                 .trim()
                 .takeUnless { it.isEmpty() || it.equals("null", ignoreCase = true) }
-                ?.let { raw ->
-                    when {
-                        raw.startsWith("#") -> raw.removePrefix("#").toLongOrNull(16)?.toInt()
-                        raw.startsWith("0x", ignoreCase = true) -> raw.removePrefix("0x").toLongOrNull(16)?.toInt()
-                        else -> raw.toLongOrNull()?.toInt()
-                    }
-                }
+                ?.let { raw -> org.fcitx.fcitx5.android.utils.ColorLiteral.parseArgb(raw) }
         } else {
             primitive.intOrNull ?: primitive.longOrNull?.toInt()
         }
@@ -744,11 +739,9 @@ object LayoutJsonUtils {
                         } else if (key == "sym") {
                             resolveKeysym(it)
                         } else {
-                            when {
-                                it.startsWith("#") -> it.removePrefix("#").toLongOrNull(16)?.toInt()
-                                it.startsWith("0x", ignoreCase = true) -> it.removePrefix("0x").toLongOrNull(16)?.toInt()
-                                else -> it.toLongOrNull()?.toInt()
-                            }
+                            // 颜色字段统一按 Android 颜色字面量解析：六位 #RRGGBB 必须补上
+                            // alpha=FF，否则保存进布局就是透明色（编辑器往返与运行时一致）。
+                            ColorLiteral.parseArgb(it)
                         }
                     }
             }

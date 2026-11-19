@@ -104,9 +104,21 @@ object IconThemeManager {
      * androidSVG 的解析是纯 Java 的 XML + 属性解析，26 个字母图标在首帧上是一笔实打实的
      * 主线程开销。切图标主题时与 [drawableCache] 一起清空。
      */
-    private val svgCache = object : LruCache<String, com.caverock.androidsvg.SVG>(64) {
-        override fun sizeOf(key: String, value: com.caverock.androidsvg.SVG): Int = 1
+    private val svgCache = object : LruCache<String, CachedSvg>(64) {
+        override fun sizeOf(key: String, value: CachedSvg): Int = 1
     }
+
+    /**
+     * 缓存条目连同它对应的源 SVG 一起存：缓存键只有「槽位:主题名」，同名主题可以被保存
+     * 覆盖，命中时必须确认内容身份一致，否则会渲染上一次保存的图标。
+     */
+    private class CachedSvg(val content: String, val svg: com.caverock.androidsvg.SVG)
+
+    /**
+     * SVG 解析缓存的同步边界。写入前要校验代次，而代次与写入若不在同一把锁里，
+     * 「校验通过 → 主题切换 → 写入」会让旧主题的解析结果占住新主题的缓存键。
+     */
+    private val svgCacheLock = Any()
 
     /** 预解析线程：切主题时把内联 SVG 先解析好，键盘首帧只剩渲染。 */
     private val svgPrewarmExecutor = java.util.concurrent.Executors.newSingleThreadExecutor { r ->
@@ -116,6 +128,59 @@ object IconThemeManager {
     /** 每次换主题自增；后台预解析任务据此丢弃旧主题的结果，不污染新主题的缓存。 */
     private val svgPrewarmGeneration = java.util.concurrent.atomic.AtomicInteger()
 
+    /** 命中只有内容一致才算数：同名主题换了内容时旧条目自动失效。 */
+    private fun cachedSvg(key: String, content: String): com.caverock.androidsvg.SVG? =
+        synchronized(svgCacheLock) {
+            svgCache.get(key)?.takeIf { it.content == content }?.svg
+        }
+
+    /**
+     * 发布解析结果。代次校验与写入在同一把锁里，且只在新条目缺失或内容不同的时候写：
+     * 两个线程同时解析同一份内容，后到的那个不会覆盖先到的同内容结果。
+     */
+    private fun publishSvg(
+        key: String,
+        content: String,
+        svg: com.caverock.androidsvg.SVG,
+        generation: Int
+    ) {
+        synchronized(svgCacheLock) {
+            if (generation != svgPrewarmGeneration.get()) return
+            val existing = svgCache.get(key)
+            if (existing == null || existing.content != content) {
+                svgCache.put(key, CachedSvg(content, svg))
+            }
+        }
+    }
+
+    /**
+     * 发布已经光栅化的图标。与 [publishSvg] 同理：代次校验与写入必须在清理缓存
+     * （换主题）的同一把锁里，否则「校验通过 → 换同名主题 → 写入」会把旧主题的画面
+     * 留在新主题的缓存键上。
+     */
+    private fun publishDrawable(key: String, info: IconDrawableInfo, generation: Int) {
+        synchronized(svgCacheLock) {
+            if (generation == svgPrewarmGeneration.get()) drawableCache.put(key, info)
+        }
+    }
+
+    /** 只删自己那份内容的条目，避免把别处刚写入的新内容一起删掉。 */
+    private fun removeCachedSvg(key: String, content: String) {
+        synchronized(svgCacheLock) {
+            if (svgCache.get(key)?.content == content) svgCache.remove(key)
+        }
+    }
+
+    /**
+     * 切换主题时清空两套缓存并推进代次。清空与推进必须在同一临界区：只验证代次、
+     * 却在清空之后才写入的旧任务，否则会把旧主题的解析结果带进新主题。
+     */
+    private fun invalidateIconCaches(): Int = synchronized(svgCacheLock) {
+        drawableCache.evictAll()
+        svgCache.evictAll()
+        svgPrewarmGeneration.incrementAndGet()
+    }
+
     /** Drawable cache for SVG icons, keyed by "slot:themeName". */
     private val drawableCache = object : LruCache<String, IconDrawableInfo>(16 * 1024) {
         override fun sizeOf(key: String, value: IconDrawableInfo): Int {
@@ -124,6 +189,19 @@ object IconThemeManager {
             return w * h * 4 / 1024
         }
     }
+
+    /**
+     * 用户显式选择（列表点击、套装应用、编辑器保存）的计数与最后一份选择。
+     *
+     * 后台扫描会用扫描开始前读到的主题名恢复选择；扫描期间用户如果又点了一个主题，
+     * 不能再用旧名盖回去。计数只在 [selectTheme] 里推进，扫描自身的恢复不算选择。
+     */
+    private val explicitSelectionVersion = java.util.concurrent.atomic.AtomicInteger()
+    @Volatile
+    private var lastExplicitSelection: IconTheme? = null
+
+    /** 串行化「记录用户选择」与「扫描收尾恢复」，避免判断与赋值之间插入一次点击。 */
+    private val selectionLock = Any()
 
     /**
      * The currently active icon theme. Defaults to builtin (all slots empty).
@@ -137,10 +215,21 @@ object IconThemeManager {
             if (field == value) return
             field = value
             activeThemeName = value.name
-            clearDrawableCache()
-            prewarmSvgCache(value, svgPrewarmGeneration.incrementAndGet())
+            val generation = invalidateIconCaches()
+            prewarmSvgCache(value, generation)
             dispatchOnMain { onChangeListeners.toList().forEach { it.onIconThemeChange(value) } }
         }
+
+    /**
+     * 用户显式选择图标主题。所有来自界面的选择都走这里，扫描收尾据此判断是否该恢复旧名。
+     */
+    fun selectTheme(theme: IconTheme) {
+        synchronized(selectionLock) {
+            lastExplicitSelection = theme
+            explicitSelectionVersion.incrementAndGet()
+            activeTheme = theme
+        }
+    }
 
     /** Store/restore active theme name in device-protected SharedPreferences. */
     private var activeThemeName: String
@@ -218,8 +307,13 @@ object IconThemeManager {
 
     private suspend fun loadAndNotify(registerUnlockReceiver: Boolean) {
         refreshMutex.withLock {
+            // 必须在 refresh() 之前读出选择：refresh() 发现旧主题文件被异步安装器换掉时会把
+            // activeTheme 重置为内置默认，setter 同时改写 activeThemeName；先读再扫描，旧名才
+            // 不会在迁移前丢失。
+            val savedName = readActiveThemeName()
+            val selectionVersion = explicitSelectionVersion.get()
             refresh()
-            restoreActiveTheme()
+            restoreSelection(savedName, selectionVersion)
             if (registerUnlockReceiver && restorePending.get()) {
                 dispatchOnMain { registerUserUnlockReceiver() }
             }
@@ -228,21 +322,57 @@ object IconThemeManager {
         }
     }
 
-    private fun restoreActiveTheme() {
-        val savedName = runCatching { activeThemeName }.getOrElse {
-            restorePending.set(true)
-            return
+    /** 读取已保存的图标主题名；受保护存储不可读时返回 null 并登记解锁后重试。 */
+    private fun readActiveThemeName(): String? = runCatching { activeThemeName }.getOrElse {
+        restorePending.set(true)
+        null
+    }
+
+    /**
+     * 扫描结束后的选择恢复。[selectionVersionAtStart] 是扫描开始时的用户选择计数：
+     * 扫描期间如果用户显式选过主题，以新选择为准，不再套用扫描前的旧名；否则按旧名恢复。
+     * 判断与赋值在同一把锁里，用户点击不会插在「确认没变化」和「写回旧名」之间。
+     *
+     * internal + 注释：单测需要可控地制造「扫描进行中用户又选了一次」的时序。
+     */
+    internal fun restoreSelection(savedName: String?, selectionVersionAtStart: Int) {
+        synchronized(selectionLock) {
+            if (explicitSelectionVersion.get() != selectionVersionAtStart) {
+                val chosen = lastExplicitSelection ?: return
+                val chosenName = migratedThemeName(chosen.name)
+                val restored = if (chosenName == builtinDefault.name) builtinDefault
+                else installedThemes.find { it.name == chosenName }
+                if (restored != null && restored !== activeTheme) {
+                    activeTheme = restored
+                }
+                return
+            }
+            restoreActiveTheme(savedName)
         }
-        // 「蓝狐狸」图标主题改名为「普蓝」：选择里存的旧名要落到新主题上。
-        val restoredName = if (savedName == "蓝狐狸" &&
-            installedThemes.any { it.name == "普蓝" }
-        ) "普蓝" else savedName
+    }
+
+    /** 当前用户显式选择的计数，供扫描收尾判断其间是否发生过新选择。 */
+    internal fun selectionVersionForRescan(): Int = explicitSelectionVersion.get()
+
+    private fun restoreActiveTheme(savedName: String? = readActiveThemeName()) {
+        if (savedName == null) return
+        val restoredName = migratedThemeName(savedName)
         if (restoredName != savedName) activeThemeName = restoredName
         val saved = installedThemes.find { it.name == restoredName }
         if (saved != null && saved !== builtinDefault) {
             activeTheme = saved
         }
     }
+
+    /**
+     * 「蓝狐狸」图标主题改名为「普蓝」：选择里存的旧名要落到新主题上。
+     * 旧主题文件还在（用户改过、安装器因此保留）时不迁移，选择仍指向用户那一份。
+     */
+    private fun migratedThemeName(name: String): String =
+        if (name == "蓝狐狸" &&
+            installedThemes.none { it.name == "蓝狐狸" } &&
+            installedThemes.any { it.name == "普蓝" }
+        ) "普蓝" else name
 
     private fun registerUserUnlockReceiver() {
         val filter = IntentFilter(Intent.ACTION_USER_UNLOCKED)
@@ -312,7 +442,11 @@ object IconThemeManager {
         sizePx: Int? = null,
         inkColor: Int? = null
     ): IconDrawableInfo? {
-        val value = activeTheme.icons[slot] ?: return null
+        // 先取代次再读主题：主题 setter 是先换字段、后推进代次。这个顺序下，
+        // 「旧代次 + 新内容」最多让本次结果不进缓存，绝不会把旧内容写进新代次的缓存。
+        val generation = svgPrewarmGeneration.get()
+        val theme = activeTheme
+        val value = theme.icons[slot] ?: return null
         val isFileIcon = ButtonIconFile.isFileIcon(value)
         val isSvg = isInlineSvg(value)
         // 多色图标（自带配色）不套主题染色，但深色主题下它的近黑笔画会看不见：把近黑笔画
@@ -320,8 +454,8 @@ object IconThemeManager {
         val ink = if (isSvg && inkColor != null && !isSvgMonochrome(value)) inkColor else null
         // 只有内联 SVG 会按 sizePx 重新光栅化；文件图标和 XML 图标与尺寸无关，缓存键里
         // 带上尺寸只会让同一张图按不同尺寸重复存几份。
-        val key = if (isSvg && sizePx != null) "$slot:${activeTheme.name}:$sizePx${inkSuffix(ink)}"
-        else "$slot:${activeTheme.name}${inkSuffix(ink)}"
+        val key = if (isSvg && sizePx != null) "$slot:${theme.name}:$sizePx${inkSuffix(ink)}"
+        else "$slot:${theme.name}${inkSuffix(ink)}"
         drawableCache.get(key)?.let { cached ->
             return IconDrawableInfo(
                 drawable = cloneDrawable(cached.drawable),
@@ -332,7 +466,7 @@ object IconThemeManager {
             // 文件图标已在 ButtonIconFile.loadDrawable 出口统一归一到标准图标尺寸。
             ButtonIconFile.loadDrawable(value)
         } else if (isSvg) {
-            loadSvgDrawable(value, sizePx, "$slot:" + activeTheme.name + inkSuffix(ink), ink)
+            loadSvgDrawable(value, sizePx, "$slot:" + theme.name + inkSuffix(ink), ink, generation)
         } else {
             loadInlineDrawableXml(value)
         }) ?: return null
@@ -344,7 +478,7 @@ object IconThemeManager {
                 else -> true
             }
         )
-        drawableCache.put(key, info)
+        publishDrawable(key, info, generation)
         return IconDrawableInfo(
             drawable = cloneDrawable(info.drawable),
             tintWithTheme = info.tintWithTheme
@@ -436,15 +570,17 @@ object IconThemeManager {
         svgContent: String,
         sizePx: Int? = null,
         cacheKey: String? = null,
-        inkColor: Int? = null
+        inkColor: Int? = null,
+        generation: Int = svgPrewarmGeneration.get()
     ): Drawable? {
         val density = appContext.resources.displayMetrics.density
         val size = sizePx?.coerceAtLeast(1) ?: (24 * density).toInt().coerceAtLeast(1)
         val content = if (inkColor == null) svgContent else recolorNearBlack(svgContent, inkColor)
         // 解析结果按槽位缓存：同一图标换尺寸时只重新光栅化。缓存未命中时现场解析并回填；
-        // 渲染失败把这个键清掉，避免把坏结果留在缓存里。
-        val svg = (cacheKey?.let { svgCache.get(it) } ?: parseSvg(content)?.also { parsed ->
-            if (cacheKey != null) svgCache.put(cacheKey, parsed)
+        // 命中和回填都要比对内容身份，渲染失败只删自己那份，避免把坏结果或别人的新结果
+        // 留在缓存里。
+        val svg = (cacheKey?.let { cachedSvg(it, content) } ?: parseSvg(content)?.also { parsed ->
+            if (cacheKey != null) publishSvg(cacheKey, content, parsed, generation)
         }) ?: return null
         return try {
             val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
@@ -452,7 +588,7 @@ object IconThemeManager {
             svg.renderToCanvas(canvas, android.graphics.RectF(0f, 0f, size.toFloat(), size.toFloat()))
             BitmapDrawable(appContext.resources, bitmap)
         } catch (_: Exception) {
-            if (cacheKey != null) svgCache.remove(cacheKey)
+            if (cacheKey != null) removeCachedSvg(cacheKey, content)
             null
         }
     }
@@ -484,8 +620,12 @@ object IconThemeManager {
                 // 主题已经被替换：这份结果属于旧 SVG，写进同名缓存键会让新主题读到过期图标。
                 if (generation != svgPrewarmGeneration.get()) return@execute
                 val key = "$slot:$themeName"
-                if (svgCache.get(key) != null) continue
-                parseSvg(svg)?.let { svgCache.put(key, it) }
+                if (cachedSvg(key, svg) != null) continue
+                val parsed = parseSvg(svg) ?: continue
+                // 解析本身要花时间；期间主题可能已被同名保存换成新内容。代次校验和写入
+                // 由 publishSvg 放在同一把锁里完成，旧代次的结果不会占住新主题的缓存键；
+                // 条目还会记住源 SVG，读取方按自己手里的内容校验，不会读到别的版本。
+                publishSvg(key, svg, parsed, generation)
             }
         }
     }
@@ -585,11 +725,6 @@ object IconThemeManager {
             if (!nearBlack) match.value
             else "${match.groupValues[1]}=${match.groupValues[2]}$hex${match.groupValues[2]}"
         }
-    }
-
-    private fun clearDrawableCache() {
-        drawableCache.evictAll()
-        svgCache.evictAll()
     }
 
     fun refresh() {

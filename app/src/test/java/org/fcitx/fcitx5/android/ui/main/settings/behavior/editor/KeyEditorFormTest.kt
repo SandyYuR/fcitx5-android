@@ -278,6 +278,54 @@ class KeyEditorFormTest {
         assertFalse(form.validatedDraft(false)!!.containsKey("splitAfter"))
     }
 
+    @Test fun anExplicitIconSlotSurvivesTheSharedForm() = page { activity ->
+        val key = mapOf("type" to "MacroKey", "label" to "q", "weight" to 0.1f,
+            "iconSlot" to "keys.letter.q")
+        val result = KeyEditorForm(activity, options(key)).validatedDraft(false)
+        assertNotNull(result)
+        assertEquals("keys.letter.q", result!!["iconSlot"])
+    }
+
+    /**
+     * 覆盖编辑器打开的只是「合成态覆盖」这层定义，父键的槽位根本不会传进来；
+     * 因此这里读到的 iconSlot 一定是覆盖键自己的，必须原样保存。
+     *
+     * 旧行为按「覆盖键不能继承父键槽位」的误判把它一并删掉，用户给覆盖态单独配的
+     * 图标切一次编辑器就丢。
+     */
+    @Test fun composeOverrideKeepsItsOwnIconSlot() = page { activity ->
+        val args = options(mapOf("type" to "MacroKey", "label" to "q", "iconSlot" to "keys.letter.q"))
+            .putExtra(KeyEditorForm.EXTRA_COMPOSE_OVERRIDE_EDITOR_MODE, true)
+        val result = KeyEditorForm(activity, args).validatedDraft(false)
+        assertNotNull(result)
+        assertEquals("keys.letter.q", result!!["iconSlot"])
+    }
+
+    /** 父键与它的合成态覆盖各有各的槽位：保存父键时两边都不能被改写成对方的。 */
+    @Test fun composeOverrideAndParentKeyKeepTheirOwnIconSlots() = page { activity ->
+        val key = mapOf(
+            "type" to "MacroKey", "label" to "q", "weight" to 0.1f,
+            "iconSlot" to "keys.letter.q",
+            "composeOverride" to mapOf(
+                "type" to "AlphabetKey", "main" to "a", "alt" to "A",
+                "iconSlot" to "keys.letter.a"
+            )
+        )
+        val result = KeyEditorForm(activity, options(key)).validatedDraft(false)
+        assertNotNull(result)
+        assertEquals("keys.letter.q", result!!["iconSlot"])
+        val override = result["composeOverride"] as Map<*, *>
+        assertEquals("keys.letter.a", override["iconSlot"])
+    }
+
+    /** 六位十六进制颜色在表单往返后仍是不透明的，不会变成 alpha=0 的透明色。 */
+    @Test fun hexColorLiteralKeepsItsAlphaThroughTheForm() = page { activity ->
+        val key = mapOf("type" to "MacroKey", "label" to "q", "backgroundColor" to "#5C6B89")
+        val result = KeyEditorForm(activity, options(key)).validatedDraft(false)
+        assertNotNull(result)
+        assertEquals(0xFF5C6B89.toInt(), result!!["backgroundColor"])
+    }
+
     private object NoOpListener : KeyboardLayoutAdapter.Listener {
         override fun onKeyClick(rowIndex: Int, keyIndex: Int) {}
         override fun onAddKeyClick(rowIndex: Int) {}
