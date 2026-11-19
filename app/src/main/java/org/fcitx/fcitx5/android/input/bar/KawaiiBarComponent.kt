@@ -169,6 +169,14 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     private var isClipboardFresh: Boolean = false
     private var isInlineSuggestionPresent: Boolean = false
+
+    /**
+     * 用户已经用最左侧返回按钮退出过内嵌自动填充建议。
+     *
+     * 密码管理器一聚焦输入框就把建议常驻在工具栏上，不主动忽略的话工具栏会被一直占住。
+     * 退出只在本次编辑会话内有效，下一次 [onStartInput]（换输入框或重新进入编辑）复位。
+     */
+    private var isInlineSuggestionDismissed: Boolean = false
     private var isPasswordField: Boolean = false
     private var isKeyboardLayoutNumber: Boolean = false
 
@@ -276,6 +284,21 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         }
         if (newState == idleUi.currentState) return
         idleUi.updateState(newState, fromUser)
+    }
+
+    /**
+     * 退出内嵌自动填充建议（API 30+）。
+     *
+     * 建议是平台推来的临时内容，用户不应该被它困在工具栏之外：退出后本次编辑会话内
+     * 后续建议一律忽略（见 [handleInlineSuggestions]），工具栏恢复原来的内容。
+     */
+    private fun dismissInlineSuggestions() {
+        isInlineSuggestionDismissed = true
+        isInlineSuggestionPresent = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            idleUi.inlineSuggestionsBar.clear()
+        }
+        evalIdleUiState(fromUser = true)
     }
 
     private fun hideKeyboardAndExitAdjustingMode() {
@@ -470,6 +493,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             // 符号面板显示时，最左侧按钮已换成返回箭头，点击即回到文字键盘。
             if (windowManager.currentWindowOrNull() is PickerWindow) {
                 windowManager.attachWindow(KeyboardWindow)
+                return@setOnClickListener
+            }
+            // 内嵌自动填充建议显示时，最左侧按钮同样换成了返回箭头：点击退出建议，
+            // 让工具栏回到正常内容（剪贴板提示、状态区等）。
+            if (idleUi.currentState == IdleUi.State.InlineSuggestion) {
+                dismissInlineSuggestions()
                 return@setOnClickListener
             }
             // When the clipboard hint is showing, the leftmost button dismisses it
@@ -937,6 +966,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         }
         isPasswordField = capFlags.has(CapabilityFlag.Password)
         isInlineSuggestionPresent = false
+        isInlineSuggestionDismissed = false
         numberRowState = NumberRowState.Auto
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             idleUi.inlineSuggestionsBar.clear()
@@ -1011,6 +1041,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     @RequiresApi(Build.VERSION_CODES.R)
     fun handleInlineSuggestions(response: InlineSuggestionsResponse): Boolean {
+        if (isInlineSuggestionDismissed) {
+            // 用户已经退出建议：继续保持工具栏，不再用新建议占回中间区域。
+            isInlineSuggestionPresent = false
+            idleUi.inlineSuggestionsBar.clear()
+            return true
+        }
         val suggestions = response.inlineSuggestions
         if (suggestions.isEmpty()) {
             isInlineSuggestionPresent = false

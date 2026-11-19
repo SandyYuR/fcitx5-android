@@ -572,6 +572,7 @@
     <string name="private_mode">隐私模式（点击打开状态区域）</string>
     <string name="return_to_toolbar">返回工具栏</string>
     <string name="back_to_keyboard">返回键盘</string>
+    <string name="exit_inline_suggestions">退出自动填充建议</string>
     <string name="backspace">退格</string>
     <string name="move_cursor_up">向上移动光标</string>
     <string name="move_cursor_right">向右移动光标</string>

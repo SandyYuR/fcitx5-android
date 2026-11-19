@@ -585,6 +585,7 @@
     <string name="private_mode">Private mode (tap to open status area)</string>
     <string name="return_to_toolbar">Return to toolbar</string>
     <string name="back_to_keyboard">Back to keyboard</string>
+    <string name="exit_inline_suggestions">Exit autofill suggestions</string>
     <string name="backspace">Backspace</string>
     <string name="move_cursor_up">Move cursor up</string>
     <string name="move_cursor_right">Move cursor right</string>

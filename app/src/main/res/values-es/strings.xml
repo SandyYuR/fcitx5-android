@@ -471,6 +471,7 @@
     <string name="added_x">Se agrego %1$s</string>
     <string name="app_crash_message">Lo sentimos; hemos preparado registros para investigarlo.</string>
     <string name="back_to_keyboard">Volver al teclado</string>
+    <string name="exit_inline_suggestions">Salir de las sugerencias de autocompletado</string>
     <string name="backspace">Retroceso</string>
     <string name="build_git_hash">Hash Git de compilacion</string>
     <string name="build_time">Hora de compilacion</string>
