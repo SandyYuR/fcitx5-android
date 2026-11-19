@@ -15,6 +15,8 @@
 | `swipeUpLabel` / `swipeDownLabel` | string |  | 上滑 / 下滑标签：上滑在上、下滑在下，不受主题「标点位置」影响 |
 | `weight` / `rowHeightPercent` / 颜色字段 | — |  | 与[共通字段](/features/keys/overview#几乎所有按键都通用的字段)相同 |
 
+本键也接受共通字段里的 `iconSlot`：配置后键面底层显示图标并隐藏 `label`。`subLabel` 始终是切换目标，不会被当成可见副标签；数字层的 `ABC` 常用 `keys.numpad.layout`，见[图标主题](/features/theme/icon-themes#在布局里指定槽位)。
+
 ::: tip 切换"层" vs 切换"布局文件"
 - **LayoutSwitchKey** 切换的是键盘布局目标：`subLabel` 为内置布局名、布局文件中的 layout key，或空字符串
 - 如果只是在当前输入方案布局内切换"层"，用 [MacroKey](/features/keys/macro-key#_8-layer-布局层切换) 的 `layer` step
