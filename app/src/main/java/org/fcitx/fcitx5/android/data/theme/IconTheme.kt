@@ -116,6 +116,7 @@ data class IconTheme(
             "toolbar.redo",
             "toolbar.cursor_move",
             "toolbar.floating_toggle",
+            "toolbar.split_keyboard",
             "toolbar.clipboard",
             "toolbar.ai_assistant",
             "toolbar.js_tools",

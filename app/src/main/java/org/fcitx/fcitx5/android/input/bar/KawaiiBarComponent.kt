@@ -743,7 +743,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 // Refresh UI state after action completion
                 when (action.id) {
                     "floating_toggle" -> evalIdleUiState()
-                    "one_handed_keyboard", "theme_toggle" -> updateButtonsState()
+                    "one_handed_keyboard", "theme_toggle", "split_keyboard" -> updateButtonsState()
                 }
             }
         )
