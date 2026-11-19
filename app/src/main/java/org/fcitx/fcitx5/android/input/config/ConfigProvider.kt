@@ -307,9 +307,14 @@ object ConfigProviders {
     inline fun <reified T> readStatusAreaButtonsConfig(): UserJsonConfigStore.JsonSnapshot<T>? =
         readButtonsLayoutConfig()
 
+    /**
+     * 读取 fontset.json 快照。文件不存在时成功、内容损坏时失败。
+     *
+     * 失败必须传播出去：调用方要据此区分「没有配置」和「配置读不出来」，
+     * 后者不能当成空配置写回，否则会把用户原来的字体配置整个覆盖掉。
+     */
     fun readFontsetPathMapSnapshot(): Result<UserJsonConfigStore.JsonSnapshot<Map<String, List<String>>>?> =
-        runCatching {
-            ensureWatching()
-            UserJsonConfigStore.readFontsetPathMapSnapshot().getOrNull()
+        runCatching { ensureWatching() }.mapCatching {
+            UserJsonConfigStore.readFontsetPathMapSnapshot().getOrThrow()
         }
 }

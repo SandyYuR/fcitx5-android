@@ -3,7 +3,10 @@ package org.fcitx.fcitx5.android.data
 
 import java.io.File
 import org.fcitx.fcitx5.android.FcitxApplication
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
+import org.fcitx.fcitx5.android.utils.appContext
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -59,10 +62,97 @@ class BundledPresetsUpgradeTest {
         assertArrayEquals(edited, destination.readBytes())
     }
 
-    @Test fun aDeletedHandledThemeIsNotRecreatedByTheRegistrationFix() {
+    @Test fun aDeletedHandledThemeIsRecreated() {
         handled.add("$asset#${current.size}")
         val destination = File(temp.root, "deleted-theme.json")
-        assertEquals(0, install(destination))
-        assertFalse(destination.exists())
+        assertEquals(1, install(destination))
+        assertArrayEquals(current, destination.readBytes())
+    }
+
+    @Test fun explicitDefaultLayoutProfileSurvivesWhenFirstInstallSelectionIsDisabled() {
+        val profile = AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile
+        profile.setValue(UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE)
+        ReflectionHelpers.callInstanceMethod<Unit>(
+            BundledPresets, "ensureLayoutProfile",
+            ClassParameter.from(Boolean::class.java, false)
+        )
+        assertEquals(
+            UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE,
+            profile.getValue()
+        )
+    }
+
+    /**
+     * 蓝狐狸改名为普蓝时，只有原版旧布局被退役（删除）才迁移选择。
+     * 用户改过的旧布局会被安装器保留，此时必须继续用用户那一份，不能悄悄换成普蓝。
+     */
+    @Test fun userEditedLegacyLayoutProfileSurvivesTheRename() {
+        val profile = AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile
+        profile.setValue("蓝狐狸")
+        UserConfigFiles.textKeyboardLayoutJson("蓝狐狸")!!.apply {
+            parentFile?.mkdirs()
+            writeText("{\"user\":true}")
+        }
+        UserConfigFiles.textKeyboardLayoutJson("普蓝")!!.apply {
+            parentFile?.mkdirs()
+            writeText("{\"bundled\":true}")
+        }
+        ReflectionHelpers.callInstanceMethod<Unit>(
+            BundledPresets, "ensureLayoutProfile",
+            ClassParameter.from(Boolean::class.java, false)
+        )
+        assertEquals("蓝狐狸", profile.getValue())
+    }
+
+    /**
+     * 完整安装路径：先退役原版旧文件，再迁移布局选择。
+     *
+     * 顺序反了就会把用户改过的旧布局删掉；或者旧文件还在就迁移，用户自定义布局被
+     * 悄悄换成普蓝。这里用真实的 install() 跑一遍，并用与上一版登记值相同的字节数
+     * 构造「未改过的原版文件」。
+     */
+    @Test fun fullInstallRetiresLegacyKitFilesBeforeMigratingTheProfile() {
+        val ext = requireNotNull(appContext.getExternalFilesDir(null))
+        fun seed(relative: String, size: Int): File =
+            File(ext, relative).apply {
+                parentFile?.mkdirs()
+                writeBytes(ByteArray(size) { 'x'.code.toByte() })
+            }
+        val legacyLayout = seed("config/TextKeyboardLayout.蓝狐狸.json", 19729)
+        val legacyIcons = seed("icon_themes/蓝狐狸.json", 56240)
+        val legacyTheme = seed("theme/蓝狐狸.json", 709)
+        // Windows Robolectric 打不开非 ASCII 的 APK asset 名，先放一份目标布局，
+        // 让「旧文件不在 + 新文件在」这一迁移条件成立。
+        val renamedLayout = seed("config/TextKeyboardLayout.普蓝.json", 0)
+        val profile = AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile
+        val previousProfile = profile.getValue()
+        profile.setValue("蓝狐狸")
+        try {
+            ReflectionHelpers.callInstanceMethod<Unit>(BundledPresets, "install")
+
+            assertFalse("原版旧布局应在迁移前退役", legacyLayout.exists())
+            assertFalse("原版旧图标主题应退役", legacyIcons.exists())
+            assertFalse("原版旧配色主题应退役", legacyTheme.exists())
+            assertTrue(renamedLayout.exists())
+            assertEquals("普蓝", profile.getValue())
+        } finally {
+            profile.setValue(previousProfile)
+            listOf(legacyLayout, legacyIcons, legacyTheme, renamedLayout).forEach { it.delete() }
+        }
+    }
+
+    @Test fun retiredLegacyLayoutProfileMigratesToTheRenamedKit() {
+        val profile = AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile
+        profile.setValue("蓝狐狸")
+        UserConfigFiles.textKeyboardLayoutJson("蓝狐狸")?.delete()
+        UserConfigFiles.textKeyboardLayoutJson("普蓝")!!.apply {
+            parentFile?.mkdirs()
+            writeText("{\"bundled\":true}")
+        }
+        ReflectionHelpers.callInstanceMethod<Unit>(
+            BundledPresets, "ensureLayoutProfile",
+            ClassParameter.from(Boolean::class.java, false)
+        )
+        assertEquals("普蓝", profile.getValue())
     }
 }

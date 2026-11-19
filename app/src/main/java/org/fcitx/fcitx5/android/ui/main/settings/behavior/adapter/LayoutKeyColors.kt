@@ -37,13 +37,7 @@ internal class LayoutKeyColors(private val systemColor: (String) -> Int? = { nul
 
     private fun parseColor(value: Any?): Int? = when (value) {
         is Number -> value.toInt()
-        is String -> value.trim().let {
-            when {
-                it.startsWith("#") -> it.drop(1).toLongOrNull(16)?.toInt()
-                it.startsWith("0x", ignoreCase = true) -> it.drop(2).toLongOrNull(16)?.toInt()
-                else -> it.toLongOrNull()?.toInt()
-            }
-        }
+        is String -> org.fcitx.fcitx5.android.utils.ColorLiteral.parseArgb(value)
         else -> null
     }
 

@@ -335,7 +335,7 @@ class ThemeListFragment : Fragment() {
             AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(kit.layoutProfile)
         }
         IconThemeManager.iconThemes.find { it.name == kit.iconTheme }?.let {
-            IconThemeManager.activeTheme = it
+            IconThemeManager.selectTheme(it)
         }
         kit.keyAltFont?.let(::applyKeyAltFont)
         // 只覆盖偏好本身：用户之后仍可以在「键盘」里改回来，换主题不会反复重置。
@@ -353,7 +353,13 @@ class ThemeListFragment : Fragment() {
     private fun applyKeyAltFont(fontName: String) {
         val fontFile = UserConfigFiles.fontsDir()?.let { File(it, fontName) }
         if (fontFile?.isFile != true) return
-        val current = ConfigProviders.readFontsetPathMapSnapshot().getOrNull()?.value.orEmpty()
+        val snapshot = ConfigProviders.readFontsetPathMapSnapshot()
+        if (snapshot.isFailure) {
+            // 配置损坏时保持原样：拿空配置去写，会把用户其它字体设置一起抹掉。
+            Timber.w(snapshot.exceptionOrNull(), "Skip theme kit font: failed to read fontset config")
+            return
+        }
+        val current = snapshot.getOrNull()?.value.orEmpty()
         if (current[KEY_ALT_FONT] == listOf(fontName)) return
         UserJsonConfigStore.writeFontsetPathMap(current + (KEY_ALT_FONT to listOf(fontName)))
             .onSuccess { FontProviders.markNeedsRefresh() }

@@ -185,7 +185,7 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         if (isEditingExisting && themeName != originalName) {
             IconThemeManager.deleteTheme(originalName)
             if (wasActive) {
-                IconThemeManager.activeTheme = updated
+                IconThemeManager.selectTheme(updated)
             }
         }
         Toast.makeText(this, getString(R.string.icon_theme_saved), Toast.LENGTH_SHORT).show()
@@ -591,7 +591,10 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         dialogView.addView(actionsRow)
 
         val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle(slot.replace("keys.", "Key: ").replace("toolbar.", "Toolbar: ").replace("system.", "System: "))
+            .setTitle(
+                slot.replace("keys.", "Key: ").replace("toolbar.", "Toolbar: ")
+                    .replace("system.", "System: ").replace("text_editor.", "Text editor: ")
+            )
             .setView(dialogView)
             .create()
         dialog.show()
@@ -617,6 +620,8 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         "keys.language_ascii" -> R.drawable.ic_language_switch_ascii
         "keys.quickphrase" -> R.drawable.ic_baseline_format_quote_24
         "keys.space" -> R.drawable.ic_baseline_space_bar_24
+        "keys.comma" -> R.drawable.ic_baseline_tag_faces_24
+        "keys.period" -> R.drawable.ic_baseline_text_format_24
         "keys.numpad" -> R.drawable.ic_number_pad
         "keys.emoji" -> R.drawable.ic_baseline_tag_faces_24
         "keys.symbols" -> R.drawable.ic_baseline_emoji_symbols_24
@@ -629,6 +634,12 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         "keys.cursor_right" -> R.drawable.ic_baseline_keyboard_arrow_right_24
         "keys.home" -> R.drawable.ic_baseline_first_page_24
         "keys.end" -> R.drawable.ic_baseline_last_page_24
+        "text_editor.select_all" -> R.drawable.ic_baseline_text_format_24
+        "text_editor.cut" -> R.drawable.ic_baseline_edit_24
+        "text_editor.copy" -> R.drawable.ic_baseline_content_copy_24
+        "text_editor.paste" -> R.drawable.ic_baseline_content_paste_24
+        "text_editor.backspace" -> R.drawable.ic_baseline_backspace_24
+        "text_editor.layout" -> R.drawable.ic_baseline_keyboard_24
         "toolbar.undo" -> R.drawable.ic_baseline_undo_24
         "toolbar.redo" -> R.drawable.ic_baseline_redo_24
         "toolbar.cursor_move" -> R.drawable.ic_cursor_move
@@ -776,6 +787,7 @@ class SlotRowUi(private val ctx: android.content.Context) {
             if (slot.startsWith("keys.letter.")) return slot.removePrefix("keys.letter.").uppercase()
             return slot
                 .removePrefix("keys.").removePrefix("toolbar.").removePrefix("system.")
+                .removePrefix("text_editor.")
                 .replace(".", " / ")
                 .replace("_", " ")
                 .split(" ")

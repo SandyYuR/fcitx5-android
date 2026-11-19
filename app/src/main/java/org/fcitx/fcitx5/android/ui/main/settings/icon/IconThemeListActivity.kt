@@ -342,7 +342,7 @@ class IconThemeListActivity : SettingsUiActivity() {
                     NEW_ITEM -> showCreateThemeMenu()
                     else -> {
                         val theme = themes[position - THEME_OFFSET]
-                        IconThemeManager.activeTheme = theme
+                        IconThemeManager.selectTheme(theme)
                         refreshThemes()
                     }
                 }

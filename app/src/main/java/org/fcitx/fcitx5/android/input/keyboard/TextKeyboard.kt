@@ -2055,6 +2055,12 @@ class TextKeyboard private constructor(
         refreshCapsPresentation()
     }
 
+    override fun onIconThemeRefreshed() {
+        // Shift 图标按 CapsState 选槽位（keys.capslock.none/once/lock），而通用刷新只认构造期
+        // 固定的 none；这里按当前状态再校正一次，切图标主题时不会把已按下的 Shift 画回未按下。
+        updateCapsButtonIcon()
+    }
+
     private fun updateCapsButtonIcon() {
         val displayLock = isDisplayCapsOn()
         val slots = when (capsState) {

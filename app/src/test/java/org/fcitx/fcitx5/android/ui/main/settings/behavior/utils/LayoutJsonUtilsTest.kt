@@ -915,4 +915,49 @@ class LayoutJsonUtilsTest {
         assertTrue(LayoutJsonUtils.legacySwipeTargetsUp(false, false, true, false))
         assertTrue(LayoutJsonUtils.legacySwipeTargetsUp(true, false, true, false))
     }
+
+    /**
+     * 布局行里的颜色字面量与运行时查表、表单保存必须是同一套语义：六位 #RRGGBB 补上
+     * alpha=FF，三位/四位短写按 Android 规则展开。
+     *
+     * 回归点：旧实现把十六进制位直接当整数，六位颜色解析成 alpha=0，键盘上是全透明。
+     */
+    @Test
+    fun colorLiteralsInLayoutRowsKeepTheirAlpha() {
+        val rows = LayoutJsonUtils.parseLayoutRows(
+            Json.parseToJsonElement(
+                """
+                [[{
+                  "type": "MacroKey",
+                  "backgroundColor": "#5C6B89",
+                  "textColor": "#abc",
+                  "shadowColor": "#8abc"
+                }]]
+                """.trimIndent()
+            ) as JsonArray
+        )
+        val key = rows.single().single()
+        assertEquals(0xFF5C6B89.toInt(), key["backgroundColor"])
+        assertEquals(0xFFAABBCC.toInt(), key["textColor"])
+        assertEquals(0x88AABBCC.toInt(), key["shadowColor"])
+    }
+
+    /** 运行时按键解析（parseOptionalInt）与迁移走同一套颜色语义。 */
+    @Test
+    fun runtimeKeyParsingReadsSixDigitColorsAsOpaque() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "MacroKey",
+                  "label": "q",
+                  "backgroundColor": "#5C6B89",
+                  "textColor": "#abc"
+                }]
+                """.trimIndent()
+            )
+        ).single()
+        assertEquals(0xFF5C6B89.toInt(), parsed.backgroundColor)
+        assertEquals(0xFFAABBCC.toInt(), parsed.textColor)
+    }
 }
