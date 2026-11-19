@@ -199,6 +199,11 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
             }
             BundledPresets.installAsync {
                 IconThemeManager.refreshAsync()
+                // 内置资源可能改名或退役主题文件；装完再扫一遍主题列表，
+                // 让改名迁移与当前主题重新对齐，避免本轮扫描跑在文件落盘之前。
+                FcitxApplication.getInstance().coroutineScope.launch {
+                    ThemeManager.refreshThemes()
+                }
             }
             // Custom resources live in credential-protected external storage. The unlock
             // receiver restarts this process before loading them with normal preferences.

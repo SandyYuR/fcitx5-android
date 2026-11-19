@@ -502,7 +502,7 @@
     <string name="theme_message_follow_system_day_night_mode_enabled">Cannot switch theme manually while \"Follow system day/night mode\" is enabled.</string>
     <string name="disable_it">Disable it</string>
     <string name="theme_kit_title">Apply the complete theme set?</string>
-    <string name="theme_kit_message">This theme also has a matching keyboard layout, icon theme and key sub-label font. Apply them together with \"%1$s\"?</string>
+    <string name="theme_kit_message">This theme also has a matching keyboard layout, icon theme, key sub-label font and key-cap style. Apply them together with \"%1$s\"?</string>
     <string name="theme_kit_apply_all">Apply all</string>
     <string name="theme_kit_theme_only">Colors only</string>
     <string name="reset_keyboard_on_focus_change">Switch back to keyboard when the focus changes</string>

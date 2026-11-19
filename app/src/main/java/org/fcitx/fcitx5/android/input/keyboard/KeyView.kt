@@ -69,10 +69,6 @@ abstract class KeyView(
 ) :
     CustomGestureView(ctx) {
 
-    private companion object {
-        private const val THEME_COLOR_REF_PREFIX = "theme:"
-    }
-
     /**
      * 构造时绑定的主题图标槽位，由持有图层的子类覆盖。
      *
@@ -179,48 +175,8 @@ abstract class KeyView(
         add(appearanceView, lParams(matchParent, matchParent))
     }
 
-    private fun resolveMonetColor(resourceName: String?): Int? {
-        val name = resourceName?.takeIf { it.isNotBlank() } ?: return null
-        val colorResId = context.resources.getIdentifier(name, "color", "android")
-        if (colorResId == 0) return null
-        return runCatching { context.getColor(colorResId) }.getOrNull()
-    }
-
-    private fun resolveThemeTokenColor(theme: Theme, token: String): Int? {
-        return when (token) {
-            "backgroundColor" -> theme.backgroundColor
-            "barColor" -> theme.barColor
-            "keyboardColor" -> theme.keyboardColor
-            "keyBackgroundColor" -> theme.keyBackgroundColor
-            "keyTextColor" -> theme.keyTextColor
-            "candidateTextColor" -> theme.candidateTextColor
-            "candidateLabelColor" -> theme.candidateLabelColor
-            "candidateCommentColor" -> theme.candidateCommentColor
-            "altKeyBackgroundColor" -> theme.altKeyBackgroundColor
-            "altKeyTextColor" -> theme.altKeyTextColor
-            "accentKeyBackgroundColor" -> theme.accentKeyBackgroundColor
-            "accentKeyTextColor" -> theme.accentKeyTextColor
-            "keyPressHighlightColor" -> theme.keyPressHighlightColor
-            "keyShadowColor" -> theme.keyShadowColor
-            "popupBackgroundColor" -> theme.popupBackgroundColor
-            "popupTextColor" -> theme.popupTextColor
-            "spaceBarColor" -> theme.spaceBarColor
-            "dividerColor" -> theme.dividerColor
-            "clipboardEntryColor" -> theme.clipboardEntryColor
-            "genericActiveBackgroundColor" -> theme.genericActiveBackgroundColor
-            "genericActiveForegroundColor" -> theme.genericActiveForegroundColor
-            else -> null
-        }
-    }
-
     private fun resolveColorOverride(staticColor: Int?, colorRef: String?, theme: Theme = this.theme): Int? {
-        val refValue = colorRef?.takeIf { it.isNotBlank() }
-        val resolved = if (refValue != null && refValue.startsWith(THEME_COLOR_REF_PREFIX)) {
-            resolveThemeTokenColor(theme, refValue.removePrefix(THEME_COLOR_REF_PREFIX))
-        } else {
-            resolveMonetColor(refValue)
-        }
-        return resolved ?: staticColor
+        return LayoutKeyColorResolver.resolve(context, theme, staticColor, colorRef)
     }
 
     protected fun resolveBackgroundColor(theme: Theme, defaultColor: Int): Int {

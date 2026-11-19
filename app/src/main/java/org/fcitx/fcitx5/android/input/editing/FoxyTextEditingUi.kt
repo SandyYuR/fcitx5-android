@@ -13,6 +13,7 @@ import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
+import org.fcitx.fcitx5.android.input.keyboard.LayoutKeyColorResolver
 import splitties.dimensions.dp
 
 /** Foxy 风格的编辑器页面：上方光标触控板，下方读取 text_editor 布局的按键行。 */
@@ -120,9 +121,18 @@ class FoxyTextEditingUi(
             borderEnabled,
             buttonRadius,
             altStyle,
-            backgroundColor = appearance.backgroundColor,
-            shadowColor = appearance.shadowColor,
-            textColor = appearance.textColor
+            // 布局里的颜色可以写成 theme: 主题字段（也能写 Monet 资源名），这里必须和键盘
+            // 走同一个解析器；直接传 appearance.backgroundColor 只认得出静态色，成套主题
+            // 用主题引用给按键上色时编辑器会退回键型默认的灰/白，跟主键盘对不上。
+            backgroundColor = LayoutKeyColorResolver.resolve(
+                viewContext, viewTheme, appearance.backgroundColor, appearance.backgroundColorMonet
+            ),
+            shadowColor = LayoutKeyColorResolver.resolve(
+                viewContext, viewTheme, appearance.shadowColor, appearance.shadowColorMonet
+            ),
+            textColor = LayoutKeyColorResolver.resolve(
+                viewContext, viewTheme, appearance.textColor, appearance.textColorMonet
+            )
         )
         // 布局给键点名了图标槽位就优先显示图标，主题里没有该槽位时仍回落文字。
         val themedIconSlot = key.keyDef.effectiveIconSlot

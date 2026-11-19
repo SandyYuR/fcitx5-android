@@ -793,6 +793,10 @@
     <string name="text_keyboard_layout_space_label_hint">空欄にすると、現在のスキーマ名（または中国語／ASCII の状態）が自動表示されます。</string>
     <string name="show_key_alt_labels">キーの補助ラベルを表示</string>
     <string name="show_key_alt_labels_summary">キーに表示される小さなヒントです。英字キーは約物、ファンクションキーはスワイプのヒントを示します。</string>
+    <string name="theme_kit_title">テーマセットをまとめて適用しますか？</string>
+    <string name="theme_kit_message">このテーマには対応するキーボードレイアウト、アイコンテーマ、キー補助ラベルのフォント、キートップのスタイルがあります。\"%1$s\" と一緒に適用しますか？</string>
+    <string name="theme_kit_apply_all">すべて適用</string>
+    <string name="theme_kit_theme_only">配色のみ</string>
     <string name="icon_theme_letter_keys">英字キー</string>
     <string name="icon_theme_numpad_keys">数字キー</string>
 </resources>

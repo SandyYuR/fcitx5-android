@@ -233,7 +233,12 @@ object IconThemeManager {
             restorePending.set(true)
             return
         }
-        val saved = installedThemes.find { it.name == savedName }
+        // 「蓝狐狸」图标主题改名为「普蓝」：选择里存的旧名要落到新主题上。
+        val restoredName = if (savedName == "蓝狐狸" &&
+            installedThemes.any { it.name == "普蓝" }
+        ) "普蓝" else savedName
+        if (restoredName != savedName) activeThemeName = restoredName
+        val saved = installedThemes.find { it.name == restoredName }
         if (saved != null && saved !== builtinDefault) {
             activeTheme = saved
         }

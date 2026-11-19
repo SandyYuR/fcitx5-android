@@ -795,6 +795,10 @@
     <string name="text_keyboard_layout_space_label_hint">비워 두면 현재 스키마 이름(또는 중국어/ASCII 상태)이 자동으로 표시됩니다.</string>
     <string name="show_key_alt_labels">키 보조 레이블 표시</string>
     <string name="show_key_alt_labels_summary">키에 표시되는 작은 안내 문구입니다. 영문 키에는 문장 부호, 기능 키에는 스와이프 안내가 표시됩니다.</string>
+    <string name="theme_kit_title">테마 세트를 함께 적용할까요?</string>
+    <string name="theme_kit_message">이 테마에는 맞춤 키보드 레이아웃, 아이콘 테마, 키 보조 레이블 글꼴, 키캡 스타일이 있습니다. \"%1$s\"와(과) 함께 적용할까요?</string>
+    <string name="theme_kit_apply_all">모두 적용</string>
+    <string name="theme_kit_theme_only">색상만</string>
     <string name="icon_theme_letter_keys">영문 키</string>
     <string name="icon_theme_numpad_keys">숫자 키</string>
 </resources>

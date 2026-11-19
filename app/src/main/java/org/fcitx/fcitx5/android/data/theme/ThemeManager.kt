@@ -99,6 +99,28 @@ object ThemeManager {
 
     const val RANDOM_THEME_NAME = "随机主题"
 
+    /**
+     * 改过名的内置主题：旧名 → 现名。
+     *
+     * 主题选择保存的是主题名本身，改名后旧名在列表里找不到，
+     * [ManagedThemePreference.getValue] 会静默回落到默认主题——用户会以为自己的主题被换掉了。
+     * 主题列表刷新后把旧名迁到新名上，选择状态才不会失联。
+     */
+    private val legacyThemeNames = mapOf("水彩（浅色）" to "水彩", "蓝狐狸" to "普蓝")
+
+    private fun migrateLegacyThemeNames() {
+        legacyThemeNames.forEach { (oldName, newName) ->
+            // 旧文件还在（用户改过，BundledPresets 因此保留）时不迁移：用户特意留下的
+            // 自定义主题不该被改名逻辑从选择里踢掉，而且这个函数每次刷新主题列表都会跑。
+            // 「蓝狐狸」是整套更名（旧资源会退役），旧文件即使还在也强制迁移。
+            if (oldName != "蓝狐狸" && getTheme(oldName) != null) return@forEach
+            val target = getTheme(newName) ?: return@forEach
+            arrayOf(prefs.normalModeTheme, prefs.lightModeTheme, prefs.darkModeTheme).forEach { pref ->
+                if (pref.storedName() == oldName) pref.setValue(target)
+            }
+        }
+    }
+
     private val randomThemeJson = Json { ignoreUnknownKeys = true }
     private val customThemes: MutableList<Theme.Custom> = mutableListOf()
     private var themeListRevision = 0L
@@ -330,6 +352,7 @@ object ThemeManager {
         customThemes.clear()
         customThemes.addAll(refreshedCustomThemes.filter { it.name != RANDOM_THEME_NAME })
         monetThemes = loadMonetThemes()
+        migrateLegacyThemeNames()
         activeTheme = evaluateActiveTheme()
         fireThemeListChange()
     }

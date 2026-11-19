@@ -1,0 +1,1353 @@
+{
+  "rime": {
+    "default": [
+      [
+        {
+          "type": "MacroKey",
+          "label": "q",
+          "altLabel": "1",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "Q"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "1"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "w",
+          "altLabel": "2",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "W"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "e",
+          "altLabel": "3",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "E"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "3"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "r",
+          "altLabel": "4",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "R"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "4"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "t",
+          "altLabel": "5",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "T"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "5"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "y",
+          "altLabel": "6",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "Y"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "6"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "u",
+          "altLabel": "7",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "U"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "7"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "i",
+          "altLabel": "8",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "I"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "8"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "o",
+          "altLabel": "9",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "O"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "9"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "p",
+          "altLabel": "0",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "P"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "0"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "type": "PlaceholderKey",
+          "weight": 0.05
+        },
+        {
+          "type": "MacroKey",
+          "label": "a",
+          "altLabel": "@",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "A"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "at"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "s",
+          "altLabel": "/",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "S"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "slash"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "d",
+          "altLabel": "`",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "D"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "grave"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "f",
+          "altLabel": "-",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "F"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "minus"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "g",
+          "altLabel": "=",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "G"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "equal"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "h",
+          "altLabel": "'",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "H"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "apostrophe"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "j",
+          "altLabel": "\"",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "J"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "quotedbl"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "k",
+          "altLabel": "?",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "K"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "question"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "l",
+          "altLabel": "\\",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "L"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "backslash"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "PlaceholderKey",
+          "weight": 0.05
+        }
+      ],
+      [
+        {
+          "type": "CapsKey",
+          "weight": 0.15,
+          "backgroundColor": -2040075,
+          "shadowColor": -3355930,
+          "textColor": -15592166
+        },
+        {
+          "type": "MacroKey",
+          "label": "z",
+          "altLabel": "全",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "Z"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "edit",
+                "action": "selectAll"
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "x",
+          "altLabel": "切",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "X"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "edit",
+                "action": "cut"
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "c",
+          "altLabel": "复",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "C"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "edit",
+                "action": "copy"
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "v",
+          "altLabel": "贴",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "V"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "edit",
+                "action": "paste"
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "b",
+          "altLabel": "撤",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "B"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "edit",
+                "action": "undo"
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "n",
+          "altLabel": "重",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "N"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "edit",
+                "action": "redo"
+              }
+            ]
+          }
+        },
+        {
+          "type": "MacroKey",
+          "label": "m",
+          "altLabel": "首",
+          "weight": 0.1,
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "M"
+                  }
+                ]
+              }
+            ]
+          },
+          "swipe": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "Home"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "BackspaceKey",
+          "weight": 0.15,
+          "backgroundColor": -663580,
+          "shadowColor": -1257258,
+          "textColor": -15592166
+        }
+      ],
+      [
+        {
+          "type": "MacroKey",
+          "label": "?123",
+          "weight": 0.15,
+          "iconSlot": "keys.numpad",
+          "tap": {
+            "macro": [
+              {
+                "type": "layer",
+                "mode": "to",
+                "target": "数字"
+              }
+            ]
+          },
+          "backgroundColor": -1447447,
+          "shadowColor": -2566175,
+          "textColor": -15592166
+        },
+        {
+          "type": "MacroKey",
+          "label": ",",
+          "weight": 0.1,
+          "iconSlot": "keys.comma",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "comma"
+                  }
+                ]
+              }
+            ]
+          },
+          "backgroundColor": -3152434,
+          "shadowColor": -4072768,
+          "textColor": -15592166
+        },
+        {
+          "type": "LanguageKey",
+          "weight": 0.1,
+          "backgroundColor": -69401,
+          "shadowColor": -729648,
+          "textColor": -15592166
+        },
+        {
+          "backgroundColor": -1840650,
+          "shadowColor": -2827286,
+          "textColor": "#FF5C6B89",
+          "type": "SpaceKey",
+          "weight": 0.4
+        },
+        {
+          "type": "MacroKey",
+          "label": ".",
+          "weight": 0.1,
+          "iconSlot": "keys.period",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "period"
+                  }
+                ]
+              }
+            ]
+          },
+          "backgroundColor": -3152434,
+          "shadowColor": -4072768,
+          "textColor": -15592166
+        },
+        {
+          "type": "ReturnKey",
+          "weight": 0.15,
+          "backgroundColor": -3481622,
+          "shadowColor": -4534052,
+          "textColor": -15592166
+        }
+      ]
+    ],
+    "__layer__:数字": [
+      [
+        {
+          "type": "MacroKey",
+          "weight": 0.16,
+          "iconSlot": "keys.numpad.add",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_Add"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "+",
+          "backgroundColor": -1032,
+          "shadowColor": -729648,
+          "textColor": -15592166
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.1",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_1"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "1"
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.2",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_2"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "2"
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.3",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_3"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "3"
+        },
+        {
+          "type": "LayoutSwitchKey",
+          "label": "ABC",
+          "subLabel": "Text",
+          "weight": 0.15,
+          "iconSlot": "keys.numpad.layout",
+          "backgroundColor": -2040075,
+          "shadowColor": -3355930,
+          "textColor": -15592166
+        }
+      ],
+      [
+        {
+          "type": "MacroKey",
+          "weight": 0.16,
+          "iconSlot": "keys.numpad.subtract",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_Subtract"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "−",
+          "backgroundColor": -1032,
+          "shadowColor": -729648,
+          "textColor": -15592166
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.4",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_4"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "4"
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.5",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_5"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "5"
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.6",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_6"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "6"
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.15,
+          "iconSlot": "keys.numpad.space",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "space"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "空格",
+          "backgroundColor": -3152434,
+          "shadowColor": -4072768,
+          "textColor": -15592166
+        }
+      ],
+      [
+        {
+          "type": "MacroKey",
+          "weight": 0.16,
+          "iconSlot": "keys.numpad.multiply",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_Multiply"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "×",
+          "backgroundColor": -1032,
+          "shadowColor": -729648,
+          "textColor": -15592166
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.7",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_7"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "7"
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.8",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_8"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "8"
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.9",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_9"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "9"
+        },
+        {
+          "type": "BackspaceKey",
+          "weight": 0.15,
+          "backgroundColor": -663580,
+          "shadowColor": -1257258,
+          "textColor": -15592166
+        }
+      ],
+      [
+        {
+          "type": "MacroKey",
+          "weight": 0.16,
+          "iconSlot": "keys.numpad.divide",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_Divide"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "÷",
+          "backgroundColor": -1032,
+          "shadowColor": -729648,
+          "textColor": -15592166
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.115,
+          "iconSlot": "keys.numpad.at",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "at"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "@",
+          "backgroundColor": -69401,
+          "shadowColor": -729648,
+          "textColor": -15592166
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.115,
+          "iconSlot": "keys.numpad.equal",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_Equal"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "=",
+          "backgroundColor": -1447447,
+          "shadowColor": -2566175,
+          "textColor": -15592166
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.23,
+          "iconSlot": "keys.numpad.0",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_0"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "0"
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.115,
+          "iconSlot": "keys.numpad.decimal",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "KP_Decimal"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": ".",
+          "backgroundColor": -1447447,
+          "shadowColor": -2566175,
+          "textColor": -15592166
+        },
+        {
+          "type": "MacroKey",
+          "weight": 0.115,
+          "iconSlot": "keys.numpad.percent",
+          "tap": {
+            "macro": [
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "percent"
+                  }
+                ]
+              }
+            ]
+          },
+          "label": "%",
+          "backgroundColor": -1840650,
+          "shadowColor": -2827286,
+          "textColor": -15592166
+        },
+        {
+          "type": "ReturnKey",
+          "weight": 0.15,
+          "backgroundColor": -3481622,
+          "shadowColor": -4534052,
+          "textColor": -15592166
+        }
+      ]
+    ]
+  },
+  "text_editor": [
+    [
+      {
+        "type": "LayoutSwitchKey",
+        "label": "ABC",
+        "subLabel": "Text",
+        "weight": 0.16666666666666666,
+        "iconSlot": "keys.numpad.layout",
+        "backgroundColor": -2040075,
+        "shadowColor": -3355930,
+        "textColor": -15592166
+      },
+      {
+        "type": "MacroKey",
+        "label": "全选",
+        "weight": 0.16666666666666666,
+        "iconSlot": "text_editor.select_all",
+        "tap": {
+          "macro": [
+            {
+              "type": "edit",
+              "action": "selectAll"
+            }
+          ]
+        }
+      },
+      {
+        "type": "MacroKey",
+        "label": "剪切",
+        "weight": 0.16666666666666666,
+        "iconSlot": "text_editor.cut",
+        "tap": {
+          "macro": [
+            {
+              "type": "edit",
+              "action": "cut"
+            }
+          ]
+        }
+      },
+      {
+        "type": "MacroKey",
+        "label": "复制",
+        "weight": 0.16666666666666666,
+        "iconSlot": "text_editor.copy",
+        "tap": {
+          "macro": [
+            {
+              "type": "edit",
+              "action": "copy"
+            }
+          ]
+        }
+      },
+      {
+        "type": "MacroKey",
+        "label": "粘贴",
+        "weight": 0.16666666666666666,
+        "iconSlot": "text_editor.paste",
+        "tap": {
+          "macro": [
+            {
+              "type": "edit",
+              "action": "paste"
+            }
+          ]
+        }
+      },
+      {
+        "type": "BackspaceKey",
+        "weight": 0.16666666666666666,
+        "backgroundColor": -663580,
+        "shadowColor": -1257258,
+        "textColor": -15592166
+      }
+    ]
+  ]
+}

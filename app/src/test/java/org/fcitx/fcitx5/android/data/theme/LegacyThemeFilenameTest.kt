@@ -38,7 +38,8 @@ class LegacyThemeFilenameTest {
             Json.decodeFromString(CustomThemeSerializer, bytes.decodeToString()).name
         }.toSet()
         val loaded = ThemeFilesManager.listThemes()
-        assertEquals(12, expected.size)
+        // 内置主题数量：新增或删除内置主题时同步更新，防止资源漏打包
+        assertEquals(14, expected.size)
         assertEquals(expected, loaded.map { it.name }.toSet())
         assertEquals(expected.map { "$it.json" }.toSet(), root.listFiles()!!.map { it.name }.toSet())
         assertEquals(expected, ThemeFilesManager.listThemes().map { it.name }.toSet())
