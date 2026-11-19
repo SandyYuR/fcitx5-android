@@ -362,6 +362,10 @@ class IdleUi(
         when {
             currentState == State.Clipboard ->
                 menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
+            // 内嵌自动填充建议占住中间区域时，最左侧按钮同样是「返回」：密码管理器的条目
+            // 会一直贴着工具栏，没有第二个出口就切不出去（见 KawaiiBarComponent 的点击判定）。
+            currentState == State.InlineSuggestion ->
+                menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
             // 符号面板占据键盘时：工具栏整体保持主键盘的样子，只把最左按钮换成返回箭头
             backToKeyboardMode ->
                 menuButton.setIcon(R.drawable.ic_baseline_arrow_back_24)
@@ -380,6 +384,7 @@ class IdleUi(
         if (!toolbarToggleConfig.label.isNullOrEmpty()) return
         menuButton.contentDescription = when {
             currentState == State.Clipboard -> ctx.getString(R.string.return_to_toolbar)
+            currentState == State.InlineSuggestion -> ctx.getString(R.string.exit_inline_suggestions)
             inPrivate -> ctx.getString(R.string.private_mode)
             else -> ctx.getString(R.string.status_area)
         }

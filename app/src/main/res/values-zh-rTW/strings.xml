@@ -490,6 +490,7 @@
     <string name="private_mode">隱私模式（點擊開啟狀態區）</string>
     <string name="return_to_toolbar">返回工具列</string>
     <string name="back_to_keyboard">返回鍵盤</string>
+    <string name="exit_inline_suggestions">退出自動填充建議</string>
     <string name="backspace">退格</string>
     <string name="move_cursor_up">向上移動游標</string>
     <string name="move_cursor_right">向右移動游標</string>

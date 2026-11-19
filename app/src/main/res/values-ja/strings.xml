@@ -612,6 +612,7 @@
 
     <!-- Auto-completed missing strings (fallback to zh-CN/en) -->
     <string name="back_to_keyboard">キーボードに戻る</string>
+    <string name="exit_inline_suggestions">自動入力候補を閉じる</string>
     <string name="backspace">Backspace</string>
     <string name="button_up_haptic_feedback">キーを離した時に振動</string>
     <string name="candidates_window">候補ウィンドウ</string>

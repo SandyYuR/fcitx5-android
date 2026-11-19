@@ -443,6 +443,7 @@
     <!-- Auto-completed missing strings (fallback to zh-CN/en) -->
     <string name="_cannot_be_empty">%1$s은(는) 비워 둘 수 없습니다</string>
     <string name="back_to_keyboard">키보드로 돌아가기</string>
+    <string name="exit_inline_suggestions">자동 완성 제안 닫기</string>
     <string name="backspace">백스페이스</string>
     <string name="brightness">밝기</string>
     <string name="button_haptic_feedback">키 누를 때 햅틱 피드백</string>

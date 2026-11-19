@@ -523,6 +523,7 @@
     <!-- Auto-completed missing strings (de) -->
     <string name="_cannot_be_empty">%1$s darf nicht leer sein</string>
     <string name="back_to_keyboard">Zurück zur Tastatur</string>
+    <string name="exit_inline_suggestions">Autofill-Vorschläge schließen</string>
     <string name="backspace">Rücktaste</string>
     <string name="build_time">Build-Zeit</string>
     <string name="button_up_haptic_feedback">Vibration beim Loslassen</string>
