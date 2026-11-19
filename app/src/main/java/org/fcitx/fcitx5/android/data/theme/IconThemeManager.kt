@@ -23,6 +23,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.yield
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.input.config.ButtonIconFile
@@ -38,6 +39,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.nio.charset.Charset
+import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -91,11 +93,9 @@ object IconThemeManager {
     private val onChangeListeners = WeakHashSet<OnIconThemeChangeListener>()
     private val onListChangeListeners = WeakHashSet<OnIconThemeListChangeListener>()
 
-    /** Backing list of all installed icon themes (loaded from disk). */
+    /** Backing list of all installed icon themes (loaded from disk). Writes hold [selectionLock]. */
     @Volatile
     private var installedThemes: List<IconTheme> = emptyList()
-
-    private val themeLock = Any()
 
     /**
      * 解析后的 SVG 对象缓存，键是 "slot:themeName"。
@@ -191,17 +191,42 @@ object IconThemeManager {
     }
 
     /**
-     * 用户显式选择（列表点击、套装应用、编辑器保存）的计数与最后一份选择。
+     * 主题注册表与用户选择的版本号。
      *
-     * 后台扫描会用扫描开始前读到的主题名恢复选择；扫描期间用户如果又点了一个主题，
-     * 不能再用旧名盖回去。计数只在 [selectTheme] 里推进，扫描自身的恢复不算选择。
+     * 「选择」只在 [selectTheme]、以及删除当前主题时产生；「注册表」在保存、删除、扫描发布
+     * 时推进。扫描在开始时于 [selectionLock] 内一次取走保存名与两个版本，收尾时只有注册表
+     * 版本未变才允许发布；选择版本变了则不再按旧名恢复。这样扫描期间的点击、保存和删除
+     * 都服从同一条所有权规则：更新的显式状态赢，过期扫描结果直接丢弃。
      */
     private val explicitSelectionVersion = java.util.concurrent.atomic.AtomicInteger()
-    @Volatile
-    private var lastExplicitSelection: IconTheme? = null
+    private val registryVersion = java.util.concurrent.atomic.AtomicInteger()
 
-    /** 串行化「记录用户选择」与「扫描收尾恢复」，避免判断与赋值之间插入一次点击。 */
+    /** 串行化注册表变更、显式选择与扫描发布，避免判断与赋值之间插入一次点击。 */
     private val selectionLock = Any()
+
+    /** 扫描开始时的不可变快照；磁盘扫描在锁外进行，发布前拿它做版本校验。 */
+    internal data class ScanSnapshot(
+        val savedName: String?,
+        val selectionVersion: Int,
+        val registryVersion: Int
+    )
+
+    /**
+     * 一次只读扫描的结果：主题列表与「需要回填缩略图」的待发布项分开。
+     *
+     * 扫描阶段只读盘，不能在锁外写回；待发布项带着扫描时读到的内容摘要，发布时再核对，
+     * 避免旧扫描把用户刚保存或已删除的文件覆盖/重建。
+     */
+    internal data class ScannedThemes(
+        val themes: List<IconTheme>,
+        val thumbnailBackfills: List<PendingThumbnailBackfill> = emptyList()
+    )
+
+    internal data class PendingThumbnailBackfill(
+        val file: File,
+        val sourceDigest: String,
+        val theme: IconTheme
+    )
 
     /**
      * The currently active icon theme. Defaults to builtin (all slots empty).
@@ -225,7 +250,6 @@ object IconThemeManager {
      */
     fun selectTheme(theme: IconTheme) {
         synchronized(selectionLock) {
-            lastExplicitSelection = theme
             explicitSelectionVersion.incrementAndGet()
             activeTheme = theme
         }
@@ -307,19 +331,55 @@ object IconThemeManager {
 
     private suspend fun loadAndNotify(registerUnlockReceiver: Boolean) {
         refreshMutex.withLock {
-            // 必须在 refresh() 之前读出选择：refresh() 发现旧主题文件被异步安装器换掉时会把
-            // activeTheme 重置为内置默认，setter 同时改写 activeThemeName；先读再扫描，旧名才
-            // 不会在迁移前丢失。
-            val savedName = readActiveThemeName()
-            val selectionVersion = explicitSelectionVersion.get()
-            refresh()
-            restoreSelection(savedName, selectionVersion)
+            reconcileScans()
             if (registerUnlockReceiver && restorePending.get()) {
                 dispatchOnMain { registerUserUnlockReceiver() }
             }
-            val themes = iconThemes
-            dispatchOnMain { onListChangeListeners.toList().forEach { it.onIconThemeListChange(themes) } }
+            val listed = iconThemes
+            dispatchOnMain { onListChangeListeners.toList().forEach { it.onIconThemeListChange(listed) } }
         }
+    }
+
+    /**
+     * 反复「取快照 → 只读扫描 → 发布」，直到某次发布没有被注册表变更打断。
+     *
+     * 单次扫描在用户保存/删除时会被整批丢弃；如果就此返回，盘上尚未注册的主题（例如安装器
+     * 刚写入的内置资源）会一直缺席到进程重启。这里用同一把 [refreshMutex] 串行执行扫描请求，
+     * 冲突后基于新的起点重扫：旧结果仍然丢弃，但重新扫描会同时看到用户的新内容和盘上其他
+     * 主题。整个循环在后台协程中运行，可被取消；用户连续写入时最多表现为多扫几轮。
+     *
+     * [onScanFinished] 只为单测留出「已读盘、尚未发布」的可控交错点，生产路径使用默认实现。
+     */
+    internal suspend fun reconcileScans(
+        onScanFinished: suspend (attempt: Int) -> Unit = {}
+    ) {
+        var attempt = 0
+        while (true) {
+            // 保存名与两个版本必须在同一临界区里取走：分两次读会让「读旧名 → 用户选择 →
+            // 读新版本」的扫描误以为自己开始时就是新选择，收尾再把旧名写回去。
+            val snapshot = beginScan()
+            val scanned = scanThemeDirectory() ?: return
+            onScanFinished(attempt)
+            attempt++
+            if (applyScannedThemes(scanned, snapshot)) return
+            yield()
+        }
+    }
+
+    /**
+     * 扫描起点：在 [selectionLock] 内一次取走保存名、选择版本与注册表版本。
+     *
+     * [savedNameReader] 只为单测留出「读取保存名时用户恰好选择」的可控交错点；生产路径
+     * 使用默认实现。它必须在锁内调用，测试里阻塞它即等于阻塞扫描起点。
+     */
+    internal fun beginScan(
+        savedNameReader: () -> String? = { readActiveThemeName() }
+    ): ScanSnapshot = synchronized(selectionLock) {
+        ScanSnapshot(
+            savedName = savedNameReader(),
+            selectionVersion = explicitSelectionVersion.get(),
+            registryVersion = registryVersion.get()
+        )
     }
 
     /** 读取已保存的图标主题名；受保护存储不可读时返回 null 并登记解锁后重试。 */
@@ -329,32 +389,52 @@ object IconThemeManager {
     }
 
     /**
-     * 扫描结束后的选择恢复。[selectionVersionAtStart] 是扫描开始时的用户选择计数：
-     * 扫描期间如果用户显式选过主题，以新选择为准，不再套用扫描前的旧名；否则按旧名恢复。
-     * 判断与赋值在同一把锁里，用户点击不会插在「确认没变化」和「写回旧名」之间。
+     * 发布一次磁盘扫描。只有扫描起点之后没有任何注册表变更（保存、删除、另一次发布）时
+     * 才生效；否则这份结果已经过期，直接丢弃，当前注册表与选择保持不变。
      *
-     * internal + 注释：单测需要可控地制造「扫描进行中用户又选了一次」的时序。
+     * 缩略图回填也在这里、在 [selectionLock] 内完成：扫描阶段只读，回填前再核对文件内容
+     * 必须仍是扫描时读到的那一份。这样旧扫描不会覆盖用户刚保存的新版文件，也不会把已删除
+     * 的文件重新创建出来。
+     *
+     * 生效时若选择版本也没变，才按扫描前保存的名字恢复；选择变了说明用户已经点过新的
+     * 主题，活动主题由那次选择决定，这里不再用扫描前的旧对象覆盖它。
      */
-    internal fun restoreSelection(savedName: String?, selectionVersionAtStart: Int) {
+    internal fun applyScannedThemes(scanned: ScannedThemes, snapshot: ScanSnapshot): Boolean =
         synchronized(selectionLock) {
-            if (explicitSelectionVersion.get() != selectionVersionAtStart) {
-                val chosen = lastExplicitSelection ?: return
-                val chosenName = migratedThemeName(chosen.name)
-                val restored = if (chosenName == builtinDefault.name) builtinDefault
-                else installedThemes.find { it.name == chosenName }
-                if (restored != null && restored !== activeTheme) {
-                    activeTheme = restored
+            if (registryVersion.get() != snapshot.registryVersion) return false
+            for (pending in scanned.thumbnailBackfills) {
+                val current = runCatching {
+                    pending.file.inputStream().use { it.readBounded(MAX_IMPORT_JSON_BYTES) }
+                }.getOrNull() ?: continue
+                if (current.sha256Hex() != pending.sourceDigest) continue
+                runCatching {
+                    FileUtil.writeAtomically(pending.file, json.encodeToString(pending.theme))
+                }.onFailure {
+                    Timber.w(it, "Failed to backfill thumbnail for icon theme: ${pending.theme.name}")
                 }
-                return
             }
-            restoreActiveTheme(savedName)
+            installedThemes = scanned.themes
+            registryVersion.incrementAndGet()
+            if (explicitSelectionVersion.get() == snapshot.selectionVersion) {
+                val current = activeTheme
+                if (current !== builtinDefault && scanned.themes.none { it.name == current.name }) {
+                    activeTheme = builtinDefault
+                }
+                restoreActiveThemeLocked(snapshot.savedName)
+            }
+            true
         }
+
+    /** 单测与内部调用只需要发布主题列表时使用；生产扫描走带待回填项的 [ScannedThemes]。 */
+    internal fun applyScannedThemes(themes: List<IconTheme>, snapshot: ScanSnapshot): Boolean =
+        applyScannedThemes(ScannedThemes(themes), snapshot)
+
+    private fun restoreActiveTheme() {
+        synchronized(selectionLock) { restoreActiveThemeLocked(readActiveThemeName()) }
     }
 
-    /** 当前用户显式选择的计数，供扫描收尾判断其间是否发生过新选择。 */
-    internal fun selectionVersionForRescan(): Int = explicitSelectionVersion.get()
-
-    private fun restoreActiveTheme(savedName: String? = readActiveThemeName()) {
+    /** 调用方必须持有 [selectionLock]。 */
+    private fun restoreActiveThemeLocked(savedName: String?) {
         if (savedName == null) return
         val restoredName = migratedThemeName(savedName)
         if (restoredName != savedName) activeThemeName = restoredName
@@ -727,45 +807,49 @@ object IconThemeManager {
         }
     }
 
-    fun refresh() {
-        val dir = themeDir ?: return
-        val files = dir.listFiles { f -> f.isFile && f.name.endsWith(".json") } ?: return
+    /**
+     * 纯磁盘扫描：只解析并算出内存里的缩略图，绝不写盘；发布与回填由 [applyScannedThemes]
+     * 在同一把锁内完成。internal 让单测能把「磁盘上实际是什么」与注册表、活动对象分开断言。
+     */
+    internal fun scanThemeDirectory(): ScannedThemes? {
+        val dir = themeDir ?: return null
+        val files = dir.listFiles { f -> f.isFile && f.name.endsWith(".json") } ?: return null
+        val backfills = mutableListOf<PendingThumbnailBackfill>()
         val themes = files.mapNotNull { f ->
             runCatching {
                 require(ThemeStoragePaths.within(dir, f) == ThemeStoragePaths.json(dir, f.nameWithoutExtension))
-                val loaded = json.decodeFromString<IconTheme>(f.inputStream().use { it.readBounded(MAX_IMPORT_JSON_BYTES).decodeToString() })
+                val source = f.inputStream().use { it.readBounded(MAX_IMPORT_JSON_BYTES) }
+                val loaded = json.decodeFromString<IconTheme>(source.decodeToString())
                 require(ThemeStoragePaths.json(dir, loaded.name) == f.canonicalFile)
                 val normalized = fillMissingThumbnail(loaded)
                 if (normalized != loaded) {
-                    runCatching { FileUtil.writeAtomically(f, json.encodeToString(normalized)) }
-                        .onFailure { Timber.w(it, "Failed to backfill thumbnail for icon theme: ${loaded.name}") }
+                    backfills += PendingThumbnailBackfill(f, source.sha256Hex(), normalized)
                 }
                 normalized
             }.onFailure {
                 Timber.w(it, "Failed to load icon theme: ${f.name}")
             }.getOrNull()
         }
-        synchronized(themeLock) {
-            installedThemes = themes
-        }
-        // Ensure active theme still exists
-        val current = activeTheme
-        if (current !== builtinDefault && themes.none { it.name == current.name }) {
-            activeTheme = builtinDefault
-        }
+        return ScannedThemes(themes, backfills)
     }
+
+    private fun ByteArray.sha256Hex(): String =
+        MessageDigest.getInstance("SHA-256").digest(this)
+            .joinToString("") { "%02x".format(it.toInt() and 0xFF) }
 
     fun saveTheme(theme: IconTheme) {
         val normalizedTheme = fillMissingThumbnail(theme)
         val dir = themeDir ?: return
         val file = ThemeStoragePaths.json(dir, normalizedTheme.name)
-        runCatching {
-            FileUtil.writeAtomically(file, json.encodeToString(normalizedTheme))
-        }.onFailure {
-            Timber.w(it, "Failed to save icon theme: ${normalizedTheme.name}")
-            return
-        }
-        synchronized(themeLock) {
+        synchronized(selectionLock) {
+            // 磁盘写入与注册表更新同属一次发布：扫描要么看到旧文件旧版本，要么看到新文件
+            // 新版本，不会拿到「文件已新、注册表还是旧」的中间态再把它发布出去。
+            runCatching {
+                FileUtil.writeAtomically(file, json.encodeToString(normalizedTheme))
+            }.onFailure {
+                Timber.w(it, "Failed to save icon theme: ${normalizedTheme.name}")
+                return
+            }
             val mutable = installedThemes.toMutableList()
             val idx = mutable.indexOfFirst { it.name == normalizedTheme.name }
             if (idx >= 0) {
@@ -774,9 +858,10 @@ object IconThemeManager {
                 mutable.add(0, normalizedTheme)
             }
             installedThemes = mutable
-        }
-        if (activeTheme.name == normalizedTheme.name) {
-            activeTheme = normalizedTheme
+            registryVersion.incrementAndGet()
+            if (activeTheme.name == normalizedTheme.name) {
+                activeTheme = normalizedTheme
+            }
         }
         cleanupOrphanedPngs(normalizedTheme.name)
         dispatchOnMain { onListChangeListeners.toList().forEach { it.onIconThemeListChange(iconThemes) } }
@@ -784,18 +869,24 @@ object IconThemeManager {
 
     fun deleteTheme(name: String) {
         ThemeStoragePaths.requireName(name)
-        synchronized(themeLock) {
+        var removed = false
+        synchronized(selectionLock) {
             val mutable = installedThemes.toMutableList()
             val idx = mutable.indexOfFirst { it.name == name }
             if (idx < 0) return
+            val dir = themeDir
+            if (dir != null) ThemeStoragePaths.json(dir, name).delete()
             mutable.removeAt(idx)
             installedThemes = mutable
+            registryVersion.incrementAndGet()
+            removed = true
+            // 删除当前主题本身就是一次显式选择：保存名与选择版本都必须落到内置默认，
+            // 否则扫描收尾仍会拿着已删除的名字去找主题。
+            if (activeTheme.name == name) {
+                selectTheme(builtinDefault)
+            }
         }
-        val dir = themeDir
-        if (dir != null) ThemeStoragePaths.json(dir, name).delete()
-        if (activeTheme.name == name) {
-            activeTheme = builtinDefault
-        }
+        if (!removed) return
         cleanupOrphanedPngs(name)
         dispatchOnMain { onListChangeListeners.toList().forEach { it.onIconThemeListChange(iconThemes) } }
     }
