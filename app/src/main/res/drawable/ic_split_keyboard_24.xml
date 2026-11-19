@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 两半分开的键盘：分体键盘按钮的内置图标。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M3,5h6a2,2 0 0 1 2,2v10a2,2 0 0 1 -2,2H3a2,2 0 0 1 -2,-2V7a2,2 0 0 1 2,-2zM15,5h6a2,2 0 0 1 2,2v10a2,2 0 0 1 -2,2h-6a2,2 0 0 1 -2,-2V7a2,2 0 0 1 2,-2z" />
+</vector>

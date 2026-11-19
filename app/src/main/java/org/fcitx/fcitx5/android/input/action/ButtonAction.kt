@@ -16,6 +16,7 @@ import org.fcitx.fcitx5.android.core.SubtypeManager
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
@@ -142,6 +143,7 @@ sealed class ButtonAction {
                 RedoAction,
                 CursorMoveAction,
                 FloatingToggleAction,
+                SplitKeyboardAction,
                 ClipboardAction,
                 VoiceInputAction,
                 AiAssistantAction,
@@ -183,6 +185,7 @@ sealed class ButtonAction {
                 RedoAction,
                 CursorMoveAction,
                 FloatingToggleAction,
+                SplitKeyboardAction,
                 ClipboardAction,
                 VoiceInputAction,
                 AiAssistantAction,
@@ -309,6 +312,37 @@ data object FloatingToggleAction : ButtonAction() {
         view: View
     ) {
         service.inputView?.enterAdjustingMode()
+    }
+}
+
+/**
+ * 分体键盘开关。
+ *
+ * foxy 的键盘工具栏有独立的「分体」按钮，本项目此前只有设置页里的开关；这个动作让
+ * 工具栏也能一键切换 [AppPrefs.keyboard.splitKeyboardEnabled]。实际是否分体还受屏幕
+ * 宽度和阈值影响，按钮只负责切换开关。
+ */
+data object SplitKeyboardAction : ButtonAction() {
+    override val id = "split_keyboard"
+    override val defaultIcon = R.drawable.ic_split_keyboard_24
+    override val defaultLabelRes = R.string.keyboard_modes_category_split
+    override val iconSlot = "toolbar.split_keyboard"
+
+    override fun isActive(service: FcitxInputMethodService): Boolean {
+        return AppPrefs.getInstance().keyboard.splitKeyboardEnabled.getValue()
+    }
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        val pref = AppPrefs.getInstance().keyboard.splitKeyboardEnabled
+        pref.setValue(!pref.getValue())
+        onActionComplete?.invoke()
     }
 }
 

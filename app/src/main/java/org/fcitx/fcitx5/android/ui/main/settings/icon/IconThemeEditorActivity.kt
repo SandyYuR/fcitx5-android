@@ -633,6 +633,7 @@ class IconThemeEditorActivity : SettingsUiActivity() {
         "toolbar.redo" -> R.drawable.ic_baseline_redo_24
         "toolbar.cursor_move" -> R.drawable.ic_cursor_move
         "toolbar.floating_toggle" -> R.drawable.ic_floating_toggle_24
+        "toolbar.split_keyboard" -> R.drawable.ic_split_keyboard_24
         "toolbar.clipboard" -> R.drawable.ic_clipboard
         "toolbar.more" -> R.drawable.ic_baseline_more_horiz_24
         "toolbar.language_switch" -> R.drawable.ic_language_switch_zh
