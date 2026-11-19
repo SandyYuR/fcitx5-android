@@ -112,8 +112,8 @@ object ThemeManager {
         legacyThemeNames.forEach { (oldName, newName) ->
             // 旧文件还在（用户改过，BundledPresets 因此保留）时不迁移：用户特意留下的
             // 自定义主题不该被改名逻辑从选择里踢掉，而且这个函数每次刷新主题列表都会跑。
-            // 「蓝狐狸」是整套更名（旧资源会退役），旧文件即使还在也强制迁移。
-            if (oldName != "蓝狐狸" && getTheme(oldName) != null) return@forEach
+            // 原版旧文件会被退役删除，那时才会走到下面的迁移。
+            if (getTheme(oldName) != null) return@forEach
             val target = getTheme(newName) ?: return@forEach
             arrayOf(prefs.normalModeTheme, prefs.lightModeTheme, prefs.darkModeTheme).forEach { pref ->
                 if (pref.storedName() == oldName) pref.setValue(target)

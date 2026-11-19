@@ -60,6 +60,10 @@ data class IconTheme(
             // 语言键在 ASCII mode 下的图标：与上面中文态槽位成对，主题可分别覆盖。
             "keys.language_ascii",
             "keys.space",
+            // 逗号/句号键在部分布局里由 iconSlot 指定绘制图标；没有这两个槽位时主题
+            // 作者在编辑器里找不到入口，只能手写 JSON。
+            "keys.comma",
+            "keys.period",
             "keys.numpad",
             "keys.emoji",
             "keys.symbols",
@@ -71,7 +75,15 @@ data class IconTheme(
             "keys.cursor_left",
             "keys.cursor_right",
             "keys.home",
-            "keys.end"
+            "keys.end",
+            // 文本编辑栏（TextEditingWindow）底行按键：与主键盘一样是带图标的键，
+            // 槽位同样只接受内联 SVG。归在按键分组里，避免再新增一整节文案与翻译。
+            "text_editor.select_all",
+            "text_editor.cut",
+            "text_editor.copy",
+            "text_editor.paste",
+            "text_editor.backspace",
+            "text_editor.layout"
         )
 
         /**

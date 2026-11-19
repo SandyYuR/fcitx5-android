@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.fcitx.fcitx5.android.utils.ColorLiteral
 import org.fcitx.fcitx5.android.utils.FileUtil
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
@@ -1359,11 +1360,9 @@ class LayoutDataManager(private val context: Context) {
                         if (key == "weight" || key == "rowHeightPercent") {
                             it.toFloatOrNull()
                         } else {
-                            when {
-                                it.startsWith("#") -> it.removePrefix("#").toLongOrNull(16)?.toInt()
-                                it.startsWith("0x", ignoreCase = true) -> it.removePrefix("0x").toLongOrNull(16)?.toInt()
-                                else -> it.toLongOrNull()?.toInt()
-                            }
+                            // 与运行时解析、键编辑器保存同一套语义：六位 #RRGGBB 补 alpha=FF，
+                            // 否则布局管理页读入的浅色会被当成透明色，保存后键盘上看不见。
+                            ColorLiteral.parseArgb(it)
                         }
                     }
             }

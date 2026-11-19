@@ -163,11 +163,28 @@ object BundledPresets {
 
         // 键盘布局：安装到 config/
         val configDir = UserConfigFiles.configDir() ?: File(extDir, "config").apply { mkdirs() }
+        // 只有第一次铺内置布局时才自动选中第一套；之后用户显式选择 "default" 也要保留，
+        // 不能因为每次启动都跑一遍而把他改回内置布局。
+        val hadBundledLayout = layoutAssets.any { File(configDir, it).isFile }
         layoutAssets.forEach { name ->
             installAsset("bundled/keyboard_layouts/$name", File(configDir, name)).let { installedCount += it }
         }
-        // 即使本次没有写出文件也要跑：布局改名（蓝狐狸 → 普蓝）后要把旧选择迁过去。
-        ensureLayoutProfile()
+
+        // 退役资源：只删除仍与上一版内置内容一致的文件，用户改过的保留。
+        // 必须排在下面的改名迁移之前：迁移是否安全取决于旧文件是否还在——
+        // 原版旧文件删掉才迁移选择，用户改过而留下的旧文件则保留其选择。
+        retiredAssets.forEach { (path, size) ->
+            val file = File(extDir, path)
+            if (file.isFile && file.length() == size) {
+                if (file.delete()) {
+                    Timber.i("Retired bundled asset %s", path)
+                    installedCount += 1
+                }
+            }
+        }
+
+        // 改名迁移必须每次跑；首次默认布局的选择只在还没有任何内置布局时做。
+        ensureLayoutProfile(allowDefaultProfileSelection = !hadBundledLayout)
 
         // 主题：安装到 theme/（与用户自定义主题同目录）
         val themeDir = File(extDir, "theme").apply { mkdirs() }
@@ -187,17 +204,6 @@ object BundledPresets {
             installAsset("bundled/fonts/$name", File(fontDir, name)).let { installedCount += it }
         }
 
-        // 退役资源：只删除仍与上一版内置内容一致的文件，用户改过的保留
-        retiredAssets.forEach { (path, size) ->
-            val file = File(extDir, path)
-            if (file.isFile && file.length() == size) {
-                if (file.delete()) {
-                    Timber.i("Retired bundled asset %s", path)
-                    installedCount += 1
-                }
-            }
-        }
-
         if (installedCount > 0) {
             Timber.i("Bundled presets installed %d file(s)", installedCount)
         }
@@ -212,16 +218,18 @@ object BundledPresets {
         val previousSize = assetSizes[assetPath]
         val updateTag = previousSize?.let { "$tag#from=$it" } ?: tag
         // A corrected previous-size registration must retry a previously skipped old file.
-        // Existing legacy tags still protect files the user has deleted or edited.
-        if (tag in handled && (updateTag in handled || previousSize == null ||
-                    !dest.isFile || dest.length() != previousSize.toLong())) return 0
+        // Existing legacy tags still protect files the user has edited, but a missing file
+        // is always recreated: bundled presets should not depend on the user never deleting one.
+        val missing = !dest.isFile
+        if (!missing && tag in handled && (updateTag in handled || previousSize == null ||
+                    dest.length() != previousSize.toLong())) return 0
         // 内容有更新的内置资源（assetSizes 中登记了上一版字节数）：只有用户从未改过
         // 本地文件（大小仍等于上一版内置内容）时才原位替换；否则保留用户版本。
         if (previousSize != null && dest.exists() && dest.length() != previousSize.toLong()) {
             mark(tag, updateTag)
             return 1
         }
-        if (!dest.exists() || previousSize != null) {
+        if (missing || !dest.exists() || previousSize != null) {
             runCatching {
                 dest.parentFile?.mkdirs()
                 val tmp = File(dest.absolutePath + ".tmp")
@@ -249,16 +257,22 @@ object BundledPresets {
     }
 
     /**
-     * 首次安装布局后，把"布局文件"选择指向第一份内置布局，让用户开机即得完整布局；
-     * 用户已选择过其它 profile 时保持其选择不动。
+     * 首次铺完内置布局后，把"布局文件"选择指向第一份内置布局，让用户开机即得完整布局；
+     * 用户已选择过其它 profile 时保持其选择不动。改名迁移每次都会执行；
+     * [allowDefaultProfileSelection] 为 false 时连显式选择 "default" 也保留，
+     * 避免每次启动都把默认布局改回第一套内置布局。
      */
-    private fun ensureLayoutProfile() {
+    private fun ensureLayoutProfile(allowDefaultProfileSelection: Boolean) {
         val keyboardPrefs = AppPrefs.getInstance().keyboard
         val current = keyboardPrefs.textKeyboardLayoutProfile.getValue()
-        // 蓝狐狸改名为普蓝：新 profile 已安装就直接迁移，不受旧文件仍存在的守卫影响。
+        // 蓝狐狸改名为普蓝：只有旧文件确实不存在（原版已在本轮退役）时才迁移。
+        // 旧文件还在说明用户改过它，那是用户自己的布局，不能把选择悄悄换到另一份。
         if (current == "蓝狐狸") {
             val renamed = "普蓝"
-            if (UserConfigFiles.textKeyboardLayoutJson(renamed)?.exists() == true) {
+            val oldFile = UserConfigFiles.textKeyboardLayoutJson(current)
+            if (oldFile?.exists() != true &&
+                UserConfigFiles.textKeyboardLayoutJson(renamed)?.exists() == true
+            ) {
                 keyboardPrefs.textKeyboardLayoutProfile.setValue(renamed)
                 return
             }
@@ -267,6 +281,11 @@ object BundledPresets {
             // 用户已选择过：仅当指向的文件确实不存在时才回退
             val file = UserConfigFiles.textKeyboardLayoutJson(current)
             if (file?.exists() == true) return
+        } else {
+            // 显式选择 "default" 时保留其选择；首次铺内置布局时才自动落到第一套。
+            // 同时不覆盖用户自己放在 config/TextKeyboardLayout.json 的默认布局。
+            if (!allowDefaultProfileSelection) return
+            if (UserConfigFiles.textKeyboardLayoutJson()?.exists() == true) return
         }
         val defaultProfile = layoutProfileOf(layoutAssets.first()) ?: return
         if (UserConfigFiles.textKeyboardLayoutJson(defaultProfile)?.exists() == true) {

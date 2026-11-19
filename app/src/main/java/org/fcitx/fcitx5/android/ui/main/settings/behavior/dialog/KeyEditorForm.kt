@@ -31,6 +31,7 @@ import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SystemColorResourcePickerDialog
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeColorEditorActivity
+import org.fcitx.fcitx5.android.utils.ColorLiteral
 import org.fcitx.fcitx5.android.utils.DeviceUtil
 import org.fcitx.fcitx5.android.utils.serializable
 import splitties.dimensions.dp
@@ -1564,14 +1565,9 @@ class KeyEditorForm(
         return when (value) {
             is Int -> value
             is Number -> value.toInt()
-            is String -> {
-                val raw = value.trim()
-                when {
-                    raw.startsWith("#") -> raw.removePrefix("#").toLongOrNull(16)?.toInt()
-                    raw.startsWith("0x", ignoreCase = true) -> raw.removePrefix("0x").toLongOrNull(16)?.toInt()
-                    else -> raw.toLongOrNull()?.toInt()
-                }
-            }
+            // 与运行时解析同一套语义：六位 #RRGGBB 补 alpha=FF，三位/四位短写展开。
+            // 旧实现把十六进制位直接当整数，编辑器保存一次就会把浅色变成透明色。
+            is String -> ColorLiteral.parseArgb(value)
             else -> null
         }
     }
@@ -2298,6 +2294,11 @@ class KeyEditorForm(
                 if (placeholderCustomColor) newKey["transparent"] = false
             }
         }
+        // 键级图标槽位在这个表单里没有编辑控件，但必须原样带回：保存路径是整键替换，
+        // 漏掉这一项会把布局里显式指定（或上一轮主题编辑器写入）的 iconSlot 抹掉。
+        // 父键与合成态覆盖各自保存自己的槽位：覆盖编辑器打开的只是覆盖定义，父键槽位不会
+        // 进入子表单，所以这里保留的一定是当前这一层自己的槽位，不需要按模式排除。
+        keyData["iconSlot"]?.let { newKey["iconSlot"] = it }
         if (!composeOverrideEditorMode) {
             // Row height stays in row settings; the split boundary can also be edited on this key.
             keyData["rowHeightPercent"]?.let { newKey["rowHeightPercent"] = it }
