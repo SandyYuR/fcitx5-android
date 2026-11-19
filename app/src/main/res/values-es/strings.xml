@@ -795,6 +795,10 @@
     <string name="text_keyboard_layout_space_label_hint">Déjalo vacío para mostrar automáticamente el nombre del esquema actual (o el estado chino/ASCII).</string>
     <string name="show_key_alt_labels">Mostrar etiquetas secundarias de las teclas</string>
     <string name="show_key_alt_labels_summary">El texto de ayuda pequeno de las teclas: puntuacion en las letras e indicaciones de deslizamiento en las teclas de funcion.</string>
+    <string name="theme_kit_title">Aplicar el conjunto de tema completo?</string>
+    <string name="theme_kit_message">Este tema tambien incluye un diseno de teclado, un tema de iconos, una fuente para las etiquetas secundarias y un estilo de teclas. Aplicarlos junto con \"%1$s\"?</string>
+    <string name="theme_kit_apply_all">Aplicar todo</string>
+    <string name="theme_kit_theme_only">Solo colores</string>
     <string name="icon_theme_letter_keys">Teclas de letras</string>
     <string name="icon_theme_numpad_keys">Teclas numericas</string>
 </resources>

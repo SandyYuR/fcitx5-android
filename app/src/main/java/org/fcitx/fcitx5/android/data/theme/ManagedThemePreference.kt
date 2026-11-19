@@ -25,6 +25,14 @@ class ManagedThemePreference(
             ThemeManager.getAllThemes().find { it.name == name }
         } ?: defaultValue
 
+    /**
+     * 保存的主题名原文。
+     *
+     * [getValue] 在主题被删除或改名后会回落到默认主题，看不出用户原本选的是哪一个；
+     * 主题改名需要把旧名迁到新名上，只能读原文判断。
+     */
+    fun storedName(): String? = sharedPreferences.getString(key, null)
+
     override fun putValueTo(editor: SharedPreferences.Editor) {
         // Preserve the selected name while the asynchronously loaded list is not ready yet.
         editor.putString(key, sharedPreferences.getString(key, null) ?: defaultValue.name)

@@ -484,6 +484,10 @@
     <string name="custom_key_sound_invalid">请选择受支持的音频文件</string>
     <string name="clipboard_return_after_paste">粘贴后返回</string>
     <string name="theme_message_follow_system_day_night_mode_enabled">“跟随系统夜间模式”已启用，不能手动更换主题。</string>
+    <string name="theme_kit_title">应用成套主题？</string>
+    <string name="theme_kit_message">这套主题还带有配套的键盘布局、图标主题、按键副字体与键帽风格，是否与“%1$s”一并应用？</string>
+    <string name="theme_kit_apply_all">一并应用</string>
+    <string name="theme_kit_theme_only">仅应用配色</string>
     <string name="disable_it">禁用它</string>
     <string name="reset_keyboard_on_focus_change">焦点改变时切换回键盘</string>
     <string name="export_user_data">导出用户数据</string>
