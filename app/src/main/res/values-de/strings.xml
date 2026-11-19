@@ -791,6 +791,10 @@
     <string name="text_keyboard_layout_space_label_hint">Leer lassen, um automatisch den aktuellen Schema-Namen (oder den Chinesisch-/ASCII-Status) anzuzeigen.</string>
     <string name="show_key_alt_labels">Tasten-Zusatzbeschriftungen anzeigen</string>
     <string name="show_key_alt_labels_summary">Der kleine Hinweistext auf Tasten: Satzzeichen auf Buchstabentasten, Wischhinweise auf Funktionstasten.</string>
+    <string name="theme_kit_title">Komplettes Themenset anwenden?</string>
+    <string name="theme_kit_message">Dieses Thema hat auch ein passendes Tastaturlayout, ein Symbolthema, eine Schrift für Tasten-Zusatzbeschriftungen und einen Tastenkappenstil. Zusammen mit \"%1$s\" anwenden?</string>
+    <string name="theme_kit_apply_all">Alles anwenden</string>
+    <string name="theme_kit_theme_only">Nur Farben</string>
     <string name="icon_theme_letter_keys">Buchstabentasten</string>
     <string name="icon_theme_numpad_keys">Zifferntasten</string>
 </resources>

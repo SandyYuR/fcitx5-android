@@ -20,17 +20,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeFilesManager
+import org.fcitx.fcitx5.android.data.theme.ThemeKits
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemeMonet
+import org.fcitx.fcitx5.android.input.config.ConfigProviders
+import org.fcitx.fcitx5.android.input.config.UserConfigFiles
+import org.fcitx.fcitx5.android.input.config.UserJsonConfigStore
+import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.ui.common.withLoadingDialog
 import org.fcitx.fcitx5.android.utils.applyNavBarInsetsBottomPadding
 import org.fcitx.fcitx5.android.utils.importErrorDialog
 import org.fcitx.fcitx5.android.utils.parcelable
 import org.fcitx.fcitx5.android.utils.queryFileName
 import org.fcitx.fcitx5.android.utils.toast
+import timber.log.Timber
 import java.io.ByteArrayInputStream
+import java.io.File
 import java.util.UUID
 
 class ThemeListFragment : Fragment() {
@@ -262,13 +271,93 @@ class ThemeListFragment : Fragment() {
                 .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(R.string.disable_it) { _, _ ->
                     followSystemDayNightTheme = false
-                    ThemeManager.setNormalModeTheme(theme)
                     updateSelectedThemes()
+                    // 关掉跟随系统只是选择的前提；成套主题是否一并应用仍然要问一次。
+                    continueSelectTheme(theme)
                 }
                 .show()
             return
         }
+        continueSelectTheme(theme)
+    }
+
+    /** 主题选择的后半段：成套主题先问一次，避免只换了配色、布局与图标还停在上一套。 */
+    private fun continueSelectTheme(theme: Theme) {
+        val kit = ThemeKits.kitOf(theme)
+        if (kit != null && !isKitApplied(kit)) {
+            promptApplyKit(theme, kit)
+            return
+        }
         ThemeManager.setNormalModeTheme(theme)
+    }
+
+    /** 布局、图标主题与副字体都已经是这一套时不必再问——答案已经定了。 */
+    private fun isKitApplied(kit: ThemeKits.Kit): Boolean =
+        AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.getValue() == kit.layoutProfile &&
+                IconThemeManager.activeTheme.name == kit.iconTheme &&
+                isKeyAltFontApplied(kit.keyAltFont)
+
+    /**
+     * 套装字体是否已经就是「按键副字体」。
+     *
+     * 字体文件还没落到 `fonts/` 时视为已应用：没有可应用的对象，反复弹框只会挡住主题切换
+     * （首次启动的释放是异步的，用户可能先点到了主题卡片）。
+     */
+    private fun isKeyAltFontApplied(fontName: String?): Boolean {
+        if (fontName == null) return true
+        val file = UserConfigFiles.fontsDir()?.let { File(it, fontName) }
+        if (file?.isFile != true) return true
+        val current = ConfigProviders.readFontsetPathMapSnapshot().getOrNull()?.value
+        return current?.get(KEY_ALT_FONT) == listOf(fontName)
+    }
+
+    private fun promptApplyKit(theme: Theme, kit: ThemeKits.Kit) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.theme_kit_title)
+            .setMessage(getString(R.string.theme_kit_message, theme.name))
+            .setPositiveButton(R.string.theme_kit_apply_all) { _, _ -> applyKit(theme, kit) }
+            // 取消只意味着「不要配套资源」，用户点的仍然是他要的那套配色。
+            .setNegativeButton(R.string.theme_kit_theme_only) { _, _ ->
+                ThemeManager.setNormalModeTheme(theme)
+            }
+            .show()
+    }
+
+    /**
+     * 成套应用：布局、图标主题、副字体与操作键形状先就位，主题最后切。
+     *
+     * 主题变更会触发键盘整体重绘，放在最后只需一次刷新就能看到成套结果，
+     * 不会先出现「新布局配旧配色」的中间态。资源缺失时跳过对应一项，
+     * 避免把选择指向不存在的布局或字体。
+     */
+    private fun applyKit(theme: Theme, kit: ThemeKits.Kit) {
+        if (UserConfigFiles.textKeyboardLayoutJson(kit.layoutProfile)?.isFile == true) {
+            AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(kit.layoutProfile)
+        }
+        IconThemeManager.iconThemes.find { it.name == kit.iconTheme }?.let {
+            IconThemeManager.activeTheme = it
+        }
+        kit.keyAltFont?.let(::applyKeyAltFont)
+        // 只覆盖偏好本身：用户之后仍可以在「键盘」里改回来，换主题不会反复重置。
+        kit.specialKeyOvalShape?.let { ThemeManager.prefs.specialKeyOvalShape.setValue(it) }
+        ThemeManager.setNormalModeTheme(theme)
+    }
+
+    /**
+     * 把「按键副字体」指向套装自带字体。
+     *
+     * 只改这一项：用户在「字体设定」里配过的其它字体、字号原样保留，字体文件缺失时
+     * 直接跳过（写进去只会得到一条指向不存在文件的配置）。写完标记字体需要刷新，
+     * 键盘下次显示时按新字体重建，不必等用户手动去字体设定里点一次保存。
+     */
+    private fun applyKeyAltFont(fontName: String) {
+        val fontFile = UserConfigFiles.fontsDir()?.let { File(it, fontName) }
+        if (fontFile?.isFile != true) return
+        val current = ConfigProviders.readFontsetPathMapSnapshot().getOrNull()?.value.orEmpty()
+        if (current[KEY_ALT_FONT] == listOf(fontName)) return
+        UserJsonConfigStore.writeFontsetPathMap(current + (KEY_ALT_FONT to listOf(fontName)))
+            .onSuccess { FontProviders.markNeedsRefresh() }
+            .onFailure { Timber.w(it, "Failed to apply theme kit font") }
     }
 
     private fun editTheme(theme: Theme.Custom) {
@@ -322,6 +411,9 @@ class ThemeListFragment : Fragment() {
     }
 
     companion object {
+        /** 「字体设定」里按键副字体的键名，与 FontsetEditorActivity 的 FontEntry 一致。 */
+        private const val KEY_ALT_FONT = "key_alt_font"
+
         const val REQUEST_THEME_IMPORTED = "theme_list_request_imported"
         const val BUNDLE_THEME = "theme_list_bundle_theme"
         const val BUNDLE_NEW_CREATED = "theme_list_bundle_new_created"

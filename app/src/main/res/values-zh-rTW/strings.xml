@@ -413,6 +413,10 @@
     <string name="button_sound_volume">按鍵音音量</string>
     <string name="clipboard_return_after_paste">貼上後返回</string>
     <string name="theme_message_follow_system_day_night_mode_enabled">已設定「依據系統設定主題色調」，無法手動切換主題。</string>
+    <string name="theme_kit_title">套用成套主題？</string>
+    <string name="theme_kit_message">這套主題還帶有配套的鍵盤配置、圖示主題、按鍵副字型與鍵帽風格，是否與「%1$s」一併套用？</string>
+    <string name="theme_kit_apply_all">一併套用</string>
+    <string name="theme_kit_theme_only">僅套用配色</string>
     <string name="disable_it">停用此項</string>
     <string name="reset_keyboard_on_focus_change">焦點改變時切換回鍵盤</string>
     <string name="export_user_data">匯出使用者資料</string>

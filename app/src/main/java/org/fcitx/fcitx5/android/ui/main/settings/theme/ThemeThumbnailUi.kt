@@ -29,6 +29,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.data.theme.ThemeKits
 import org.fcitx.fcitx5.android.data.theme.ThemeMonet
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.utils.rippleDrawable
@@ -280,8 +281,10 @@ class ThemeThumbnailUi(override val ctx: Context) : Ui {
             imageTintList = foregroundTint
             TooltipCompat.setTooltipText(this, contentDescription)
         }
+        // 星标 = 「这套主题不只是配色」：莫奈主题随壁纸动态生成，成套主题自带配套的
+        // 键盘布局与图标主题。两者角标位置、尺寸、着色完全一致，用户一眼能看出同类。
         dynamicIcon.apply {
-            isVisible = supportsMonetMapping
+            isVisible = supportsMonetMapping || ThemeKits.kitOf(theme) != null
             imageTintList = ColorStateList.valueOf(theme.altKeyTextColor)
         }
         randomButton.apply {
