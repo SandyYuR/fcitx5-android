@@ -2,14 +2,19 @@ package io.github.sandyyur.inputbench;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.InputDevice;
 import android.view.MotionEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Injects real touches from outside both products, while screenrecord runs separately. */
 public final class VisualReplay extends Replay {
@@ -63,6 +68,112 @@ public final class VisualReplay extends Replay {
         }
     }
 
+    private static final class Label {
+        final String text;
+        final Rect bounds;
+
+        Label(CharSequence text, Rect bounds) {
+            this.text = text.toString();
+            this.bounds = new Rect(bounds);
+        }
+    }
+
+    private void collectLabels(AccessibilityNodeInfo node, List<Label> labels) {
+        if (node == null) return;
+        try {
+            if (!node.isVisibleToUser()) return;
+            Rect bounds = new Rect();
+            node.getBoundsInScreen(bounds);
+            if (!bounds.isEmpty()) {
+                if (node.getText() != null) labels.add(new Label(node.getText(), bounds));
+                if (node.getContentDescription() != null) labels.add(new Label(node.getContentDescription(), bounds));
+            }
+            for (int i = 0; i < node.getChildCount(); i++) collectLabels(node.getChild(i), labels);
+        } finally {
+            node.recycle();
+        }
+    }
+
+    private List<Label> keyboardLabels() {
+        List<Label> labels = new ArrayList<>();
+        for (AccessibilityWindowInfo window : getUiAutomation().getWindows()) {
+            try {
+                if (window.getType() == AccessibilityWindowInfo.TYPE_INPUT_METHOD) collectLabels(window.getRoot(), labels);
+            } finally {
+                window.recycle();
+            }
+        }
+        return labels;
+    }
+
+    private static JSONArray rect(Rect rect) {
+        return new JSONArray().put(rect.left).put(rect.top).put(rect.right).put(rect.bottom);
+    }
+
+    private Rect keyBounds(List<Label> labels, String key) {
+        Rect largest = null;
+        for (Label label : labels) {
+            Rect bounds = label.bounds;
+            if (bounds.top > 480 && label.text.trim().equalsIgnoreCase(key)
+                    && (largest == null || bounds.width() * bounds.height() > largest.width() * largest.height())) {
+                largest = bounds;
+            }
+        }
+        if (largest == null) throw new IllegalStateException("No accessible key bounds for " + key);
+        return largest;
+    }
+
+    private void recordLabels(JSONObject evidence, String name, List<Label> labels) throws Exception {
+        JSONArray items = new JSONArray();
+        for (Label label : labels) items.put(new JSONObject().put("text", label.text).put("bounds", rect(label.bounds)));
+        evidence.put(name, items);
+    }
+
+    private void calibrate(JSONObject evidence) throws Exception {
+        JSONObject bounds = new JSONObject();
+        List<Label> idle = keyboardLabels();
+        recordLabels(evidence, "idle_labels", idle);
+        String keys = args.getString("letters");
+        for (int i = 0; i < keys.length(); i++) {
+            String key = keys.substring(i, i + 1);
+            bounds.put(key, rect(keyBounds(idle, key)));
+        }
+        for (String key : new String[]{"n", "i"}) {
+            touch(bounds.getJSONArray(key), SystemClock.uptimeMillis(), key, 0);
+            SystemClock.sleep(200);
+        }
+        SystemClock.sleep(600);
+        screenshot("first-candidates.png");
+        List<Label> composing = keyboardLabels();
+        recordLabels(evidence, "composing_labels", composing);
+        int top = 960;
+        for (int i = 0; i < keys.length(); i++) {
+            String key = keys.substring(i, i + 1);
+            Rect idleRect = keyBounds(idle, key);
+            Rect active = keyBounds(composing, key);
+            top = Math.min(top, active.top);
+            if (!active.contains(idleRect.centerX(), idleRect.centerY())) {
+                throw new IllegalStateException(key + " moved beyond the idle touch point while composing");
+            }
+        }
+        Rect selected = null;
+        for (Label label : composing) {
+            Rect candidate = label.bounds;
+            if (candidate.top >= top - 180 && candidate.bottom <= top && label.text.matches("\\s*[1１]?[.、 ]*你(?:\\s.*)?")) {
+                if (selected == null || candidate.left < selected.left) selected = candidate;
+            }
+        }
+        if (selected == null) throw new IllegalStateException("Candidate 你 is absent from the IME accessibility window");
+        bounds.put("select", rect(selected));
+        bounds.put("candidate", rect(new Rect(0, selected.top, 480, selected.bottom)));
+        evidence.put("bounds", bounds);
+        touch(bounds.getJSONArray("select"), SystemClock.uptimeMillis(), "select", 0);
+        SystemClock.sleep(600);
+        screenshot("committed.png");
+        evidence.put("output", editorText());
+        if (!"你".equals(editorText())) throw new IllegalStateException("Chinese candidate touch did not commit 你");
+    }
+
     @Override public void onStart() {
         Bundle result = new Bundle();
         JSONObject evidence = new JSONObject();
@@ -80,33 +191,11 @@ public final class VisualReplay extends Replay {
             host = editorHost;
             awaitReady();
             screenshot("before.png");
-            markVideo();
-            JSONObject bounds = new JSONObject(args.getString("bounds"));
-            JSONArray words = new JSONArray(args.getString("words"));
-            int cadence = Integer.parseInt(args.getString("cadence"));
-            StringBuilder expected = new StringBuilder();
-            for (int round = 0; round < words.length(); round++) {
-                JSONArray word = words.getJSONArray(round);
-                String code = word.getString(0);
-                long start = SystemClock.uptimeMillis() + 40;
-                for (int i = 0; i < code.length(); i++) {
-                    String key = code.substring(i, i + 1);
-                    touch(bounds.getJSONArray(key), start + i * cadence, key, round);
-                }
-                SystemClock.sleep(460);
-                if (round == 0) screenshot("first-candidates.png");
-                touch(bounds.getJSONArray("select"), SystemClock.uptimeMillis(), "select", round);
-                expected.append(word.getString(1));
-                long deadline = now() + 2_000_000_000L;
-                while (!expected.toString().equals(editorText()) && now() < deadline) SystemClock.sleep(20);
-                if (!expected.toString().equals(editorText())) {
-                    screenshot("wrong-output.png");
-                    throw new IllegalStateException("Expected " + expected + ", editor contained " + editorText());
-                }
-                SystemClock.sleep(220);
+            if ("true".equals(args.getString("probe"))) {
+                calibrate(evidence);
+            } else {
+                replay(evidence);
             }
-            markVideo();
-            evidence.put("output", editorText()).put("markers", editorHost.markers());
             status = 0;
         } catch (Throwable failure) {
             result.putString("failure", android.util.Log.getStackTraceString(failure));
@@ -125,5 +214,35 @@ public final class VisualReplay extends Replay {
             result.putString("status", status == 0 ? "ok" : "failed");
             finish(status, result);
         }
+    }
+
+    private void replay(JSONObject evidence) throws Exception {
+        markVideo();
+        JSONObject bounds = new JSONObject(args.getString("bounds"));
+        JSONArray words = new JSONArray(args.getString("words"));
+        int cadence = Integer.parseInt(args.getString("cadence"));
+        StringBuilder expected = new StringBuilder();
+        for (int round = 0; round < words.length(); round++) {
+            JSONArray word = words.getJSONArray(round);
+            String code = word.getString(0);
+            long start = SystemClock.uptimeMillis() + 40;
+            for (int i = 0; i < code.length(); i++) {
+                String key = code.substring(i, i + 1);
+                touch(bounds.getJSONArray(key), start + i * cadence, key, round);
+            }
+            SystemClock.sleep(460);
+            if (round == 0) screenshot("first-candidates.png");
+            touch(bounds.getJSONArray("select"), SystemClock.uptimeMillis(), "select", round);
+            expected.append(word.getString(1));
+            long deadline = now() + 2_000_000_000L;
+            while (!expected.toString().equals(editorText()) && now() < deadline) SystemClock.sleep(20);
+            if (!expected.toString().equals(editorText())) {
+                screenshot("wrong-output.png");
+                throw new IllegalStateException("Expected " + expected + ", editor contained " + editorText());
+            }
+            SystemClock.sleep(220);
+        }
+        markVideo();
+        evidence.put("output", editorText()).put("markers", editorHost.markers());
     }
 }
