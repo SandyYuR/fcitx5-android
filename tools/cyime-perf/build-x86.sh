@@ -21,8 +21,27 @@ for original, updated in (
         raise SystemExit(f"Unexpected CyIME ABI configuration: {original}")
     text = text.replace(original, updated)
 gradle.write_text(text)
+
+# Both published translation binaries are unavailable. The upstream script
+# supports an empty map, and this experiment does not open the translation UI.
+translation = Path("app/build-logic/tasks-offline-translate.gradle.kts")
+text = translation.read_text()
+start = text.index("val offlineTranslateLibraryHashes = mapOf<String, String>(")
+end = text.index("\nval offlineTranslateLibraryRoot", start)
+translation.write_text(text[:start] + "val offlineTranslateLibraryHashes = emptyMap<String, String>()" + text[end:])
+
+# Every ONNX header succeeded from the official source during the first build.
+# Keep the upstream mirrors as fallback and try the official source first.
+native = Path("app/build-logic/tasks-native.gradle.kts")
+text = native.read_text()
+start = text.index("fun githubUrls(url: String): List<String> = buildList {")
+end = text.index("\n}", start) + len("\n}")
+native.write_text(text[:start] + '''fun githubUrls(url: String): List<String> = buildList {
+    add(url)
+    ghMirrors.forEach { add("${it.trimEnd('/')}/$url") }
+}''' + text[end:])
 PY
-git diff -- app/build.gradle.kts > "$evidence/cyime-abi.patch"
+git diff -- app/build.gradle.kts app/build-logic/tasks-offline-translate.gradle.kts app/build-logic/tasks-native.gradle.kts > "$evidence/cyime-build.patch"
 keystore="$RUNNER_TEMP/cyime-test.keystore"
 keytool -genkeypair -keystore "$keystore" -storepass android -keypass android -alias cyime-test \
   -dname CN=LocalBenchmark -keyalg RSA -validity 30 >/dev/null 2>&1
