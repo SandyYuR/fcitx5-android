@@ -129,6 +129,9 @@ def main():
         adb("shell", "settings", "put", namespace, key, value)
     adb("shell", "svc", "power", "stayon", "true")
     adb("shell", "wm", "dismiss-keyguard")
+    for package in ("com.google.android.gms", "com.google.android.setupwizard", "com.google.android.apps.messaging",
+                    "com.google.android.googlequicksearchbox", "com.android.chrome"):
+        adb("shell", "pm", "disable-user", "--user", "0", package, check=False)
     (output / "device-properties.txt").write_text(adb("shell", "getprop"))
     (output / "display.txt").write_text(adb("shell", "dumpsys", "display"))
     adb("install", "-r", args.host)
@@ -171,6 +174,8 @@ def main():
                 capture(out, "keyboard")
             (out / "input-method.txt").write_text(adb("shell", "dumpsys", "input_method"))
             (out / "logcat.txt").write_text(adb("logcat", "-d", "-v", "threadtime", "-t", "2500"))
+            (out / "crashes.txt").write_text(adb("logcat", "-b", "crash", "-d", "-v", "threadtime"))
+            (out / "exit-info.txt").write_text(adb("shell", "dumpsys", "activity", "exit-info", package, check=False))
             (output / "products.json").write_text(json.dumps(support, indent=2) + "\n")
         if label not in errors:
             print(f"{label}: keyboard and schema verified", flush=True)
