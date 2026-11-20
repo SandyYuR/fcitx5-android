@@ -135,7 +135,12 @@ abstract class BaseKeyboard(
             statisticsLayout = null
             return
         }
-        runCatching { KeyboardStatisticsLayout.capture(this, statisticsKeys.keys) }
+        runCatching {
+            // Row containers give every keycap an explicit row number, so side bar keys that are
+            // a pixel off from the main rows no longer become separate heatmap rows.
+            val rows = if (::keyRows.isInitialized) keyRows else emptyList()
+            KeyboardStatisticsLayout.capture(this, statisticsKeys.keys, rows)
+        }
             .onSuccess { if (it != statisticsLayout) statisticsLayout = it }
             .onFailure { Timber.w(it, "Unable to capture statistics keyboard geometry") }
     }

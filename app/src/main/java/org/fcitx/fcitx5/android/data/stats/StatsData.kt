@@ -151,6 +151,7 @@ internal data class StatsArchive(val format: String = "zhongzhou-input-statistic
             require(layout.geometry.size <= StatsLimits.MAX_KEYS)
             layout.geometry.forEach {
                 require(StatsLimits.label(it.label) && listOf(it.x, it.y, it.width, it.height).all { number -> number.isFinite() && number >= 0 && number <= 100_000 })
+                require(it.row in -1 until 32) { "Input statistics key row is out of range" }
             }
         }
     }

@@ -303,9 +303,9 @@ class InputStatsActivity : SettingsUiActivity() {
     private fun heatmap(s: StatsSnapshot,sharedImage: Boolean): View {
         val chart=StatsChartView(this).apply {
             emptyText=getString(R.string.stats_heatmap_empty)
-            val rows=s.layout?.geometry?.groupBy { it.y }?.toSortedMap()?.values?.map { row ->
-                row.sortedBy { it.x }.map { key -> StatsChartView.HeatKey(key.label,key.label,key.x,key.width,key.height) }
-            }.orEmpty()
+            val rows=StatsHeatmapRows.rows(s.layout?.geometry.orEmpty()).map { row ->
+                row.map { key -> StatsChartView.HeatKey(key.label,key.label,key.x,key.width,key.height) }
+            }
             setKeyboardHeatmap(s.keyHeatmap,rows)
         }
         val hint=StatsTypography.text(this,getString(if (sharedImage) R.string.stats_heatmap_shared_bars

@@ -95,10 +95,60 @@ class KeyboardStatisticsTest {
             assertEquals(0.55f, captured.geometry[1].x, 0.001f)
             assertEquals(0.45f, captured.geometry[1].width, 0.001f)
             assertEquals(70f, captured.geometry[1].height, 0.001f)
+            assertEquals("Without row containers the old parent grouping has no row number", -1, captured.geometry[0].row)
             row.removeView(right)
             val next = KeyboardStatisticsLayout.capture(root, listOf(left, right))
             assertEquals(listOf(listOf("a")), next.rows)
             assertEquals("Earlier snapshots remain immutable", 2, captured.geometry.size)
+        } finally { controller.get().finish(); controller.pause().stop().destroy() }
+    }
+
+    @Test fun sideBarKeysJoinTheirNearestRowInsteadOfBecomingExtraRows() {
+        val controller = Robolectric.buildActivity(ComponentActivity::class.java).setup().visible()
+        try {
+            val activity = controller.get()
+            val root = FrameLayout(activity)
+            activity.setContentView(root)
+            val rowHeight = 70
+            val rowWidth = 400
+            val rows = (0 until 3).map { index ->
+                FrameLayout(activity).also { row ->
+                    root.addView(row, FrameLayout.LayoutParams(rowWidth, rowHeight).apply { topMargin = index * rowHeight })
+                }
+            }
+            fun key(label: String, parent: FrameLayout, left: Int, top: Int, width: Int = 80) = TextKeyView(activity,
+                ThemePreset.PixelLight, KeyDef.Appearance.Text(label, 20f, margin = false)).apply {
+                statisticsKeyLabel = label
+                parent.addView(this, FrameLayout.LayoutParams(width, rowHeight).apply {
+                    leftMargin = left
+                    topMargin = top
+                })
+            }
+            // Main keys: q / a / z, one per row.
+            val main = listOf(key("q", rows[0], 0, 0), key("a", rows[1], 0, 0), key("z", rows[2], 0, 0))
+            // Side bar: each item is its own wrapper, and the last one is a pixel lower than the
+            // main row it belongs to. Parent-based grouping turned these into extra rows.
+            val sideBar = FrameLayout(activity)
+            root.addView(sideBar, FrameLayout.LayoutParams(100, 3 * rowHeight).apply { leftMargin = 300 })
+            val side = (0 until 3).map { index ->
+                FrameLayout(activity).also { item ->
+                    sideBar.addView(item, FrameLayout.LayoutParams(100, rowHeight).apply {
+                        topMargin = index * rowHeight + if (index == 2) 1 else 0
+                    })
+                }
+            }
+            val labels = listOf("全选", "复制", "粘贴")
+            val auxiliary = labels.mapIndexed { index, label -> key(label, side[index], 0, 0, 100) }
+            measure(root, rowWidth, 3 * rowHeight)
+            val captured = KeyboardStatisticsLayout.capture(root, main + auxiliary, rows)
+            assertEquals(listOf(listOf("q", "全选"), listOf("a", "复制"), listOf("z", "粘贴")), captured.rows)
+            assertEquals(3, captured.geometry.map { it.row }.distinct().size)
+            captured.geometry.filter { it.label in labels }.forEachIndexed { index, geometry ->
+                assertEquals(index, geometry.row)
+            }
+            val last = captured.geometry.single { it.label == "粘贴" }
+            assertEquals("Side bar keys snap to the row they join", 140f, last.y, 0.001f)
+            assertEquals(6, captured.geometry.size)
         } finally { controller.get().finish(); controller.pause().stop().destroy() }
     }
 
