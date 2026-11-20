@@ -1,4 +1,5 @@
 name: CyIME touch latency experiment
+run-name: CyIME touch latency (${{ contains(github.event.head_commit.message, '[native-x86]') && 'native x86_64' || 'ARM64 bridge' }})
 
 on:
   push:
@@ -14,6 +15,7 @@ concurrency:
 
 jobs:
   arm64-host-check:
+    if: ${{ !contains(github.event.head_commit.message, '[native-x86]') }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 5
     steps:
@@ -27,7 +29,9 @@ jobs:
           fi
   compare:
     runs-on: ubuntu-22.04
-    timeout-minutes: 45
+    timeout-minutes: 70
+    env:
+      BENCH_ABI: ${{ contains(github.event.head_commit.message, '[native-x86]') && 'x86_64' || 'arm64-v8a' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -41,7 +45,7 @@ jobs:
           packages: platform-tools platforms;android-36 build-tools;36.0.0
       - uses: actions/download-artifact@v6
         with:
-          artifact-ids: '14627779188'
+          artifact-ids: ${{ env.BENCH_ABI == 'x86_64' && '14628710616' || '14627779188' }}
           run-id: '44734472106'
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/direct-product
@@ -53,6 +57,22 @@ jobs:
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/study-inputs
           merge-multiple: true
+      - uses: actions/checkout@v7
+        if: env.BENCH_ABI == 'x86_64'
+        with:
+          repository: Cyletix/CyIME
+          ref: 3341da598dfbf99d624139d792624093a41a9851
+          submodules: recursive
+          persist-credentials: false
+          path: cyime-source
+      - uses: gradle/actions/setup-gradle@v6
+        if: env.BENCH_ABI == 'x86_64'
+      - name: Build the pinned CyIME source as native x86_64 Release
+        if: env.BENCH_ABI == 'x86_64'
+        run: |
+          mkdir -p build/cyime-latency
+          sdkmanager 'ndk;29.0.14206865' 'cmake;3.22.1'
+          bash tools/cyime-perf/build-x86.sh "$GITHUB_WORKSPACE/cyime-source" "$RUNNER_TEMP/cyime.apk" "$GITHUB_WORKSPACE/build/cyime-latency"
       - name: Verify exact products and prepare the neutral editor
         run: |
           mkdir -p build/cyime-latency
@@ -60,10 +80,12 @@ jobs:
           test "$(cat "$direct/source.txt")" = 4200b65d9ba9802a4d6e75d00a6619eb2732443e
           printf '%s  %s\n' "$(cut -d ' ' -f 1 "$direct/sha256.txt")" "$direct/direct.apk" | sha256sum -c -
           test "$(sha256sum "$RUNNER_TEMP/study-inputs/fixture.zip" | cut -d ' ' -f 1)" = 333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f
-          curl --fail --silent --show-error --location --retry 3 --connect-timeout 20 --max-time 240 \
-            https://github.com/Cyletix/CyIME/releases/download/1.15.101/CyIME-1.15.101-arm64-v8a.apk \
-            --output "$RUNNER_TEMP/cyime.apk"
-          printf '%s  %s\n' 955ef612c27f996f1da6af827882b51414facd2562304ba4562aac1b27c65074 "$RUNNER_TEMP/cyime.apk" | sha256sum -c -
+          if [ "$BENCH_ABI" = arm64-v8a ]; then
+            curl --fail --silent --show-error --location --retry 3 --connect-timeout 20 --max-time 240 \
+              https://github.com/Cyletix/CyIME/releases/download/1.15.101/CyIME-1.15.101-arm64-v8a.apk \
+              --output "$RUNNER_TEMP/cyime.apk"
+            printf '%s  %s\n' 955ef612c27f996f1da6af827882b51414facd2562304ba4562aac1b27c65074 "$RUNNER_TEMP/cyime.apk" | sha256sum -c -
+          fi
           cp "$direct"/{source.txt,build-metadata.json,rime-sdk.lock.json} "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/cyime-latency/
           bash tools/cyime-perf/build-host.sh "$RUNNER_TEMP/cyime-host"
           if ! command -v ffmpeg; then
@@ -84,7 +106,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -cores 4 -memory 4096 -camera-back none -camera-front none
           disable-animations: true
           script: |
-            python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration --measure
+            python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration --abi "$BENCH_ABI" --measure
             python3 tools/cyime-perf/run.py --output build/cyime-latency
       - uses: actions/upload-artifact@v7
         if: always()

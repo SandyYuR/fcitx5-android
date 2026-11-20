@@ -144,6 +144,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("direct", "cyime", "fixture", "host", "output"):
         parser.add_argument(f"--{name}", type=Path, required=True)
+    parser.add_argument("--abi", choices=("arm64-v8a", "x86_64"), default="arm64-v8a")
     parser.add_argument("--measure", action="store_true")
     args = parser.parse_args()
     output = args.output
@@ -151,8 +152,8 @@ def main():
     if not adb("get-serialno", check=False, timeout=10).startswith("emulator-"):
         raise RuntimeError("The experiment requires a disposable emulator")
     wait_for_root(output)
-    if "arm64-v8a" not in adb("shell", "getprop", "ro.product.cpu.abilist").split(","):
-        raise RuntimeError("The Android image cannot run both original ARM64 APKs")
+    if args.abi not in adb("shell", "getprop", "ro.product.cpu.abilist").split(","):
+        raise RuntimeError(f"The Android image cannot run the configured ABI {args.abi}")
     for namespace, key, value in (
         ("global", "device_provisioned", "1"), ("secure", "user_setup_complete", "1"),
         ("global", "hide_error_dialogs", "1"), ("secure", "anr_show_background", "0"),
@@ -185,7 +186,7 @@ def main():
         out = output / label
         out.mkdir(exist_ok=True)
         root, schema = profiles[label]
-        entry = {"apk_sha256": hashlib.sha256(getattr(args, label).read_bytes()).hexdigest(), "schema": schema}
+        entry = {"apk_sha256": hashlib.sha256(getattr(args, label).read_bytes()).hexdigest(), "schema": schema, "abi": args.abi}
         support[label] = entry
         try:
             entry["ime"] = select_product(package)
@@ -194,8 +195,10 @@ def main():
             maps = adb("shell", "cat", f"/proc/{pid}/maps")
             (out / "maps.txt").write_text(maps)
             entry["arm64_translation"] = "libndk_translation.so" in maps
-            if not entry["arm64_translation"]:
-                raise RuntimeError("ARM64 bridge was not loaded")
+            package_info = adb("shell", "dumpsys", "package", package)
+            (out / "package.txt").write_text(package_info)
+            if f"primaryCpuAbi={args.abi}" not in package_info or entry["arm64_translation"] != (args.abi == "arm64-v8a"):
+                raise RuntimeError(f"Process architecture does not match {args.abi}")
             (out / "effective-schema.yaml").write_text(adb("shell", "cat", f"{root}/build/{schema}.schema.yaml"))
             user = adb("shell", "cat", f"{root}/user.yaml", check=False)
             if user:
