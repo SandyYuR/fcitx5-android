@@ -39,19 +39,36 @@ def wait_for_root(output):
     raise RuntimeError("Root adbd did not return on the disposable emulator")
 
 
-def install_fixture(fixture):
-    target = f"/sdcard/Android/data/{PACKAGES['direct']}/files/data/rime"
+def install_fixture(fixture, output):
+    package = PACKAGES["direct"]
+    target = f"/sdcard/Android/data/{package}/files/data/rime"
+    physical = target.replace("/sdcard/", "/data/media/0/", 1)
+    owner = adb("shell", "cmd", "package", "list", "packages", "-U", package)
+    uid = re.search(r"uid:(\d+)", owner)[1]
+    # Android creates the scoped-storage app directory through the app's own
+    # storage context. Root creates only the benchmark profile inside it.
+    select_product(package)
+    adb("shell", "am", "start", "-W", "-n", HOST + "/.VisualHost")
+    parent = str(Path(physical).parents[1])
+    deadline = time.monotonic() + 45
+    while not adb("shell", "ls", "-d", parent, check=False):
+        if time.monotonic() >= deadline:
+            raise RuntimeError("The IME did not create its own scoped storage directory")
+        time.sleep(1)
+    adb("shell", "am", "start", "-W", "-a", "android.settings.SETTINGS")
+    adb("shell", "am", "force-stop", package)
+    adb("shell", "am", "force-stop", HOST)
     with tempfile.TemporaryDirectory(prefix="cyime-fixture-") as source:
         with zipfile.ZipFile(fixture) as archive:
             if any(Path(n).is_absolute() or ".." in Path(n).parts for n in archive.namelist()):
                 raise ValueError("Invalid fixture path")
             archive.extractall(source)
-        adb("shell", "mkdir", "-p", target)
-        adb("push", source + "/.", target)
-    physical = target.replace("/sdcard/", "/data/media/0/", 1)
-    uid = re.search(r"uid:(\d+)", adb("shell", "cmd", "package", "list", "packages", "-U", PACKAGES["direct"]))[1]
-    adb("shell", "chown", "-R", f"{uid}:{uid}", physical)
-    adb("shell", "restorecon", "-RF", physical)
+        adb("shell", "mkdir", "-p", physical)
+        adb("push", source + "/.", physical)
+    data = str(Path(physical).parent)
+    adb("shell", "chown", "-R", f"{uid}:{uid}", data)
+    adb("shell", "restorecon", "-RF", data)
+    (output / "wanxiang-files.txt").write_text(adb("shell", "ls", "-ldZ", parent, data, physical, physical + "/default.yaml"))
     return target
 
 
@@ -160,7 +177,7 @@ def main():
     (output / "cyime-first-launch.txt").write_text(adb("shell", "am", "start", "-W", "-n",
         PACKAGES["cyime"] + "/com.kingzcheung.xime.MainActivity", check=False, timeout=45))
     (output / "cyime-first-launch-crashes.txt").write_text(adb("logcat", "-b", "crash", "-d", "-v", "threadtime"))
-    target = install_fixture(args.fixture)
+    target = install_fixture(args.fixture, output)
     profiles = {"direct": (target, "wanxiang"), "cyime": (f"/data/user/0/{PACKAGES['cyime']}/files/rime", "rime_ice")}
     support = {}
     errors = []

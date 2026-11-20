@@ -110,6 +110,17 @@ public final class VisualReplay extends Replay {
         return new JSONArray().put(rect.left).put(rect.top).put(rect.right).put(rect.bottom);
     }
 
+    private void expandScreenKeyboard() throws Exception {
+        if (!imePackage.equals("com.cyletix.cyime")) return;
+        for (Label label : keyboardLabels()) {
+            if (!label.text.equals("展开屏幕键盘")) continue;
+            touch(rect(label.bounds), SystemClock.uptimeMillis(), "setup", -1);
+            touches.remove(touches.length() - 1);
+            SystemClock.sleep(550);
+            return;
+        }
+    }
+
     private Rect keyBounds(List<Label> labels, String key) {
         Rect largest = null;
         for (Label label : labels) {
@@ -225,6 +236,7 @@ public final class VisualReplay extends Replay {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             host = editorHost;
             awaitReady();
+            expandScreenKeyboard();
             screenshot("before.png");
             if ("true".equals(args.getString("probe"))) {
                 calibrate(evidence);
