@@ -13,6 +13,18 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  arm64-host-check:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 5
+    steps:
+      - name: Check whether a native ARM64 Android guest can use KVM
+        run: |
+          uname -m
+          if test -c /dev/kvm; then
+            ls -l /dev/kvm
+          else
+            printf '%s\n' 'This ARM64 GitHub-hosted runner does not expose /dev/kvm.'
+          fi
   compare:
     runs-on: ubuntu-22.04
     timeout-minutes: 45

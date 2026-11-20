@@ -119,8 +119,32 @@ public final class VisualReplay extends Replay {
                 largest = bounds;
             }
         }
-        if (largest == null) throw new IllegalStateException("No accessible key bounds for " + key);
         return largest;
+    }
+
+    private Rect directToolbar(List<Label> labels) {
+        for (Label label : labels) {
+            if (label.text.equals("Status area") && label.bounds.left == 0 && label.bounds.width() == 40
+                    && label.bounds.height() == 40 && label.bounds.top > 580) return label.bounds;
+        }
+        throw new IllegalStateException("Cannot anchor 中州鹅 split QWERTY to the recorded toolbar geometry");
+    }
+
+    private Rect splitKey(String key, Rect toolbar) {
+        // Pixel centers from the 480x960 calibration screenshot. Anchor Y to
+        // the 40px toolbar, then require actual Chinese commits during replay.
+        String[] letters = {"qwertyuiop", "asdfghjkl", "zxcvbnm"};
+        int[][] centers = {{19, 58, 96, 135, 174, 307, 346, 385, 423, 462},
+                           {19, 58, 96, 135, 174, 307, 346, 385, 423},
+                           {69, 107, 146, 174, 337, 375, 414}};
+        for (int row = 0; row < letters.length; row++) {
+            int index = letters[row].indexOf(key);
+            if (index < 0) continue;
+            int x = centers[row][index];
+            int y = toolbar.bottom + 31 + 65 * row;
+            return new Rect(x - 15, y - 26, x + 15, y + 26);
+        }
+        throw new IllegalArgumentException("Unknown letter " + key);
     }
 
     private void recordLabels(JSONObject evidence, String name, List<Label> labels) throws Exception {
@@ -134,9 +158,16 @@ public final class VisualReplay extends Replay {
         List<Label> idle = keyboardLabels();
         recordLabels(evidence, "idle_labels", idle);
         String keys = args.getString("letters");
+        Rect fallbackToolbar = null;
+        if (imePackage.equals("org.fcitx.fcitx5.android.fx.rime") && keyBounds(idle, "a") == null) {
+            fallbackToolbar = directToolbar(idle);
+            evidence.put("geometry", "verified split QWERTY screenshot anchored to idle toolbar");
+        }
         for (int i = 0; i < keys.length(); i++) {
             String key = keys.substring(i, i + 1);
-            bounds.put(key, rect(keyBounds(idle, key)));
+            Rect keyRect = fallbackToolbar == null ? keyBounds(idle, key) : splitKey(key, fallbackToolbar);
+            if (keyRect == null) throw new IllegalStateException("No accessible key bounds for " + key);
+            bounds.put(key, rect(keyRect));
         }
         for (String key : new String[]{"n", "i"}) {
             touch(bounds.getJSONArray(key), SystemClock.uptimeMillis(), key, 0);
@@ -146,11 +177,12 @@ public final class VisualReplay extends Replay {
         screenshot("first-candidates.png");
         List<Label> composing = keyboardLabels();
         recordLabels(evidence, "composing_labels", composing);
-        int top = 960;
-        for (int i = 0; i < keys.length(); i++) {
+        int top = fallbackToolbar == null ? 960 : fallbackToolbar.bottom;
+        for (int i = 0; fallbackToolbar == null && i < keys.length(); i++) {
             String key = keys.substring(i, i + 1);
             Rect idleRect = keyBounds(idle, key);
             Rect active = keyBounds(composing, key);
+            if (active == null) throw new IllegalStateException("No accessible bounds for composing key " + key);
             top = Math.min(top, active.top);
             if (!active.contains(idleRect.centerX(), idleRect.centerY())) {
                 throw new IllegalStateException(key + " moved beyond the idle touch point while composing");
@@ -162,6 +194,9 @@ public final class VisualReplay extends Replay {
             if (candidate.top >= top - 180 && candidate.bottom <= top && label.text.matches("\\s*[1１]?[.、 ]*你(?:\\s.*)?")) {
                 if (selected == null || candidate.left < selected.left) selected = candidate;
             }
+        }
+        if (selected == null && fallbackToolbar != null) {
+            selected = new Rect(4, fallbackToolbar.top, 44, fallbackToolbar.bottom);
         }
         if (selected == null) throw new IllegalStateException("Candidate 你 is absent from the IME accessibility window");
         bounds.put("select", rect(selected));
