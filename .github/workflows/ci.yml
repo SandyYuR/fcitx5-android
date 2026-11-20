@@ -24,13 +24,17 @@ concurrency:
 
 jobs:
   build_commit:
-    runs-on: ${{ matrix.os }}
+    name: Build signed ${{ matrix.abi }} Release
+    runs-on: ubuntu-22.04
     strategy:
+      # 四个 ABI 必须同时成功才发布；任何一路失败都取消其余构建并跳过 Release。
+      fail-fast: true
       matrix:
-        os:
-          - ubuntu-22.04
         abi:
           - arm64-v8a
+          - armeabi-v7a
+          - x86
+          - x86_64
     env:
       BUILD_ABI: ${{ matrix.abi }}
       SIGN_KEY_BASE64: ${{ secrets.SIGNING_KEY }}
@@ -79,7 +83,7 @@ jobs:
         run: |
           ./prepare_personal_build.sh
 
-      - name: Build signed ARM64 Release and verify native dependencies and ART profile
+      - name: Build signed ${{ matrix.abi }} Release and verify native dependencies and ART profile
         env:
           REQUIRE_RELEASE_SIGNING: 'true'
         run: |
@@ -99,7 +103,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
-          name: direct-rime-frontend-arm64-release
+          name: direct-rime-frontend-${{ matrix.abi }}-release
           path: ${{ runner.temp }}/release-product/
 
   # JVM 单测单独成一个 job。
@@ -207,29 +211,32 @@ jobs:
         with:
           path: release-artifacts
 
-      - name: Collect APKs
+      - name: Prepare release assets
+        id: assets
+        shell: bash
         run: |
-          mkdir -p final-release
-          find release-artifacts -name "*.apk" -exec cp {} final-release/ \;
-          test -n "$(find final-release -maxdepth 1 -name '*.apk' -print -quit)"
+          python3 tools/foxy-perf/prepare-release-assets.py \
+            --artifacts release-artifacts \
+            --output final-release \
+            --expected-abis arm64-v8a,armeabi-v7a,x86,x86_64 \
+            --expected-commit "$GITHUB_SHA"
+          version="$(cat final-release/version.txt)"
+          test -n "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Generate nightly tag
         id: tag
-        run: echo "value=nightly-$(git describe --tags --long)-$(date -u +'%Y%m%d-%H%M%S')" >> "$GITHUB_OUTPUT"
+        shell: bash
+        run: echo "value=nightly-${{ steps.assets.outputs.version }}-$(date -u +'%Y%m%d-%H%M%S')" >> "$GITHUB_OUTPUT"
 
       - name: Generate release notes
         shell: bash
         run: |
           last_tag="${{ steps.prev_tag.outputs.value }}"
           {
-            echo "中州鹅（org.fcitx.fcitx5.android.fx.rime），完整键盘签名 Release。"
-            echo "首次使用需导入并部署 Rime 方案；各输入法请使用独立工作目录。"
-            echo "[用户手册](https://github.com/${{ github.repository }}/blob/docs/docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)"
+            echo "[文档站](https://sandyyur.github.io/fcitx5-android/) · [用户手册](https://sandyyur.github.io/fcitx5-android/manual/DIRECT_RIME_USER_GUIDE_zh-CN) · [键盘布局编辑器](https://sandyyur.github.io/f5a-see-me/)"
             echo ""
-            echo "Commit: $(git rev-parse --short HEAD)"
-            echo "Built at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-            echo ""
-            echo "### Changes"
+            echo "## 更新记录"
             echo ""
             if [ -n "$last_tag" ]; then
               range="${last_tag}..HEAD"
@@ -237,6 +244,7 @@ jobs:
               range="-30"
             fi
             git log "$range" --no-merges --pretty=format:'- %s (%h)' | head -n 50 || true
+            echo ""
           } > release_notes.md
           cat release_notes.md
 

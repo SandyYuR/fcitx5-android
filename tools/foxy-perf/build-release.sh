@@ -18,7 +18,7 @@ else
     printf '%s\n' 'Repository-configured release signing key.' > "$output_dir/signing.txt"
 fi
 ./gradlew '-Dorg.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8 -XX:+UseParallelGC' \
-    -PbuildABI=arm64-v8a -PbuildCommitHash="$(git rev-parse HEAD)" \
+    -PbuildABI="${BUILD_ABI:-arm64-v8a}" -PbuildCommitHash="$(git rev-parse HEAD)" \
     :app:assembleFxRelease
 python3 tools/verify-direct-rime-apk.py app/build/outputs/apk/fx/release/*.apk
 python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/release/*.apk > "$output_dir/native-link-audit.json"
