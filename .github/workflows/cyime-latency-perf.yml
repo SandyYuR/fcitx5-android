@@ -53,7 +53,9 @@ jobs:
             --output "$RUNNER_TEMP/cyime.apk"
           printf '%s  %s\n' 955ef612c27f996f1da6af827882b51414facd2562304ba4562aac1b27c65074 "$RUNNER_TEMP/cyime.apk" | sha256sum -c -
           cp "$direct"/{source.txt,build-metadata.json,rime-sdk.lock.json} "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/cyime-latency/
-          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/cyime-host" tools/foxy-perf/host
+          bash tools/cyime-perf/build-host.sh "$RUNNER_TEMP/cyime-host"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -66,7 +68,8 @@ jobs:
           arch: x86_64
           disable-animations: true
           script: |
-            python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration
+            python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration --measure
+            python3 tools/cyime-perf/run.py --output build/cyime-latency
       - uses: actions/upload-artifact@v7
         if: always()
         with:
