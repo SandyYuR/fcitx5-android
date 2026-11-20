@@ -5,8 +5,9 @@ The uploaded ARM64 APK is not repackaged. Both products run ARM64 on the same
 API 30 Google APIs emulator's `libndk_translation.so` bridge. These are not phone
 performance measurements, nor an isolated before/after measurement of each fix.
 
-1. Build an ARM64 signed Release with `build-release.sh OUTPUT`; preserve its
-   source hash, signing metadata and SHA256. `apk_profiles.py` audits the packed
+1. Build a signed Release with `build-release.sh OUTPUT` (defaults to
+   arm64-v8a; set `BUILD_ABI` to build another ABI); preserve its source hash,
+   signing metadata and SHA256. `apk_profiles.py` audits the packed
    binary ART profile against the actual DEX method tables and ZIP CRCs.
 2. Build the independent editor/instrumentation host with
    `bash tools/screen-perf/build-host.sh "$PWD/build/foxy-host" "$PWD/tools/foxy-perf/host"`.
