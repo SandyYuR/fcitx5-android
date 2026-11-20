@@ -7,7 +7,7 @@
 Actions 产物需要登录 GitHub，且有保留期限。
 
 日常使用完整 `:app` 主应用。名称为“中州鹅引擎诊断”、包名带 `.lab` 的 APK 用于引擎诊断。
-按设备 ABI 选择安装包，常见设备使用 arm64-v8a。最低 Android 6.0/API 23。
+按设备 ABI 选择安装包，常见设备使用 arm64-v8a，模拟器可用 x86_64。Nightly 同时提供 `arm64-v8a`、`armeabi-v7a`、`x86_64` 三种资产，文件名形如 `zhongzhoue-<版本>-<abi>.apk`。最低 Android 6.0/API 23。
 
 ## 升级前备份
 

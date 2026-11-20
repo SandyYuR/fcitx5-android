@@ -61,7 +61,7 @@ python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/debug/*.apk
 ```
 
 `buildABI` 支持 `armeabi-v7a`、`arm64-v8a`、`x86`、`x86_64`。非空 `BUILD_ABI` 环境变量优先于 `-PbuildABI` 属性；两者均未设置时才构建全部支持 ABI。
-本机日常脚本与当前 PR/发布 CI 选择 ARM64，设备回归可按需要构建 x86_64。不要把“引擎产物支持四 ABI”写成“当前 PR CI 打包四 ABI”。
+本机日常脚本默认选择 ARM64，设备回归可用 `BUILD_ABI` 或 `-PbuildABI` 构建其他 ABI。默认分支 Commit CI 同时构建 `arm64-v8a`、`armeabi-v7a`、`x86_64` 三种签名 Release，`x86` 不在发布矩阵内。PR CI 仍只构建 ARM64 Debug，不要把“引擎产物支持四 ABI”写成“当前 PR CI 打包四 ABI”。
 
 | 包 | 包名 | 用途 |
 | --- | --- | --- |
@@ -220,7 +220,7 @@ tools/test-direct-rime-frontend.sh
 tools/test-material-settings.sh
 ```
 
-默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug` 及 APK/链接门禁；Commit CI 运行签名 ARM64 Release、ART profile 审计与 JVM；Direct Rime CI 覆盖原生诊断与完整前端回归，Material settings UI 覆盖 MD3 页面。
+默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug` 及 APK/链接门禁；Commit CI 同时构建签名 `arm64-v8a`、`armeabi-v7a`、`x86_64` Release（三路全部成功才发布 Nightly），运行 ART profile 审计与 JVM；Direct Rime CI 覆盖原生诊断与完整前端回归，Material settings UI 覆盖 MD3 页面。
 实际执行项以 workflow 内容为准；`lintFxDebug` 通过不等于所有构建变体的 lint 均已执行。测试类“仍在仓库里”不等于仍被 CI 执行。
 
 Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/actions/setup-gradle`，使脚本里的首次 Gradle 调用能够使用恢复的缓存。缓存未命中时，Wrapper 按 `gradle/wrapper/gradle-wrapper.properties` 中固定的官方地址下载 Gradle，网络超时为 60 秒。若日志停在 `Downloading ...gradle-...zip` 并报网络超时，失败发生在 Gradle 启动前；应检查分发包下载与缓存恢复步骤，不能当作编译或业务测试失败。
