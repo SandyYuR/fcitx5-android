@@ -220,7 +220,7 @@ tools/test-direct-rime-frontend.sh
 tools/test-material-settings.sh
 ```
 
-默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug` 及 APK/链接门禁；Commit CI 同时构建签名 `arm64-v8a`、`armeabi-v7a`、`x86_64` Release（三路全部成功才发布 Nightly），运行 ART profile 审计与 JVM；Direct Rime CI 覆盖原生诊断与完整前端回归，Material settings UI 覆盖 MD3 页面。
+默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug` 及 APK/链接门禁；Commit CI 同时构建签名 `arm64-v8a`、`armeabi-v7a`、`x86_64` Release（三路全部成功才发布 Nightly），运行 ART profile 审计与 JVM；Direct Rime CI 在 PR 上覆盖原生诊断、引擎设备冒烟与核心前端设备回归，完整前端构建、全量 JVM 与 APK/链接审计由 PR CI 负责，需要时手动选择 `all` 运行完整诊断。Material settings UI 覆盖 MD3 页面。
 实际执行项以 workflow 内容为准；`lintFxDebug` 通过不等于所有构建变体的 lint 均已执行。测试类“仍在仓库里”不等于仍被 CI 执行。
 
 Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/actions/setup-gradle`，使脚本里的首次 Gradle 调用能够使用恢复的缓存。缓存未命中时，Wrapper 按 `gradle/wrapper/gradle-wrapper.properties` 中固定的官方地址下载 Gradle，网络超时为 60 秒。若日志停在 `Downloading ...gradle-...zip` 并报网络超时，失败发生在 Gradle 启动前；应检查分发包下载与缓存恢复步骤，不能当作编译或业务测试失败。
