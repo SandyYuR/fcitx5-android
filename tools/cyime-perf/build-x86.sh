@@ -15,8 +15,7 @@ gradle = Path("app/build.gradle.kts")
 text = gradle.read_text()
 for original, updated in (
     ('abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")', 'abiFilters += listOf("x86_64")'),
-    ('include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")', 'include("x86_64")'),
-    ("isUniversalApk = true", "isUniversalApk = false"),
+    ("splits {\n        abi {\n            isEnable = true", "splits {\n        abi {\n            isEnable = false"),
 ):
     if text.count(original) != 1:
         raise SystemExit(f"Unexpected CyIME ABI configuration: {original}")
@@ -35,7 +34,7 @@ keyPassword=android
 EOF
 ./gradlew --no-daemon --max-workers=3 -Pkotlin.compiler.execution.strategy=in-process \
   :app:assembleRelease 2>&1 | tee "$evidence/cyime-build.log"
-cp app/build/outputs/apk/release/CyIME-1.15.101-x86_64.apk "$output_apk"
+cp app/build/outputs/apk/release/CyIME-1.15.101-universal.apk "$output_apk"
 python3 - "$output_apk" <<'PY'
 import sys
 import zipfile
