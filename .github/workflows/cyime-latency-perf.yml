@@ -1,0 +1,75 @@
+name: CyIME touch latency experiment
+
+on:
+  push:
+    branches: [perf/cyime-latency-20261120]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: cyime-latency-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
+      - uses: actions/download-artifact@v6
+        with:
+          artifact-ids: '14627779188'
+          run-id: '44734472106'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/direct-product
+          merge-multiple: true
+      - uses: actions/download-artifact@v6
+        with:
+          artifact-ids: '13853652309'
+          run-id: '43018095886'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/study-inputs
+          merge-multiple: true
+      - name: Verify exact products and prepare the neutral editor
+        run: |
+          mkdir -p build/cyime-latency
+          direct="$RUNNER_TEMP/direct-product"
+          test "$(cat "$direct/source.txt")" = 4200b65d9ba9802a4d6e75d00a6619eb2732443e
+          printf '%s  %s\n' "$(cut -d ' ' -f 1 "$direct/sha256.txt")" "$direct/direct.apk" | sha256sum -c -
+          test "$(sha256sum "$RUNNER_TEMP/study-inputs/fixture.zip" | cut -d ' ' -f 1)" = 333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/Cyletix/CyIME/releases/download/1.15.101/CyIME-1.15.101-arm64-v8a.apk \
+            --output "$RUNNER_TEMP/cyime.apk"
+          printf '%s  %s\n' 955ef612c27f996f1da6af827882b51414facd2562304ba4562aac1b27c65074 "$RUNNER_TEMP/cyime.apk" | sha256sum -c -
+          cp "$direct"/{source.txt,build-metadata.json,rime-sdk.lock.json} "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/cyime-latency/
+          bash tools/screen-perf/build-host.sh "$RUNNER_TEMP/cyime-host" tools/foxy-perf/host
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: |
+            python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: cyime-latency-evidence
+          path: build/cyime-latency/
+          retention-days: 14
