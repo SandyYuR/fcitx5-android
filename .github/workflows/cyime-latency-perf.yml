@@ -80,7 +80,8 @@ jobs:
           api-level: 35
           target: google_apis
           arch: x86_64
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -cores 2 -memory 4096 -camera-back none -camera-front none
+          profile: pixel_2
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -cores 4 -memory 4096 -camera-back none -camera-front none
           disable-animations: true
           script: |
             python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration --measure

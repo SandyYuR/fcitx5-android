@@ -81,6 +81,7 @@ def disable_press_bubble(package, prefs_name, key):
 
 def select_product(package):
     adb("shell", "am", "start", "-W", "-a", "android.settings.SETTINGS")
+    adb("shell", "am", "force-stop", "com.google.android.apps.nexuslauncher", check=False)
     for process in [HOST, *PACKAGES.values()]:
         adb("shell", "am", "force-stop", process)
     adb("logcat", "-c")
@@ -135,17 +136,19 @@ def main():
     wait_for_root(output)
     if "arm64-v8a" not in adb("shell", "getprop", "ro.product.cpu.abilist").split(","):
         raise RuntimeError("The Android image cannot run both original ARM64 APKs")
-    adb("shell", "wm", "size", "480x960")
-    adb("shell", "wm", "density", "160")
     for namespace, key, value in (
         ("global", "device_provisioned", "1"), ("secure", "user_setup_complete", "1"),
+        ("global", "hide_error_dialogs", "1"), ("secure", "anr_show_background", "0"),
         ("secure", "show_ime_with_hard_keyboard", "1"), ("system", "screen_off_timeout", "1800000"),
     ):
         adb("shell", "settings", "put", namespace, key, value)
     adb("shell", "svc", "power", "stayon", "true")
     adb("shell", "wm", "dismiss-keyguard")
-    for package in ("com.google.android.gms", "com.google.android.setupwizard", "com.google.android.apps.messaging",
-                    "com.google.android.googlequicksearchbox", "com.android.chrome"):
+    adb("shell", "am", "start", "-W", "-a", "android.settings.SETTINGS")
+    adb("shell", "am", "force-stop", "com.google.android.apps.nexuslauncher", check=False)
+    adb("shell", "wm", "size", "480x960")
+    adb("shell", "wm", "density", "160")
+    for package in ("com.google.android.setupwizard", "com.google.android.apps.messaging", "com.android.chrome"):
         adb("shell", "pm", "disable-user", "--user", "0", package, check=False)
     (output / "device-properties.txt").write_text(adb("shell", "getprop"))
     (output / "display.txt").write_text(adb("shell", "dumpsys", "display"))
@@ -191,6 +194,7 @@ def main():
             if not (out / "keyboard.png").exists():
                 capture(out, "keyboard")
             (out / "input-method.txt").write_text(adb("shell", "dumpsys", "input_method"))
+            (out / "window.txt").write_text(adb("shell", "dumpsys", "window", "windows"))
             (out / "logcat.txt").write_text(adb("logcat", "-d", "-v", "threadtime", "-t", "2500"))
             (out / "crashes.txt").write_text(adb("logcat", "-b", "crash", "-d", "-v", "threadtime"))
             (out / "exit-info.txt").write_text(adb("shell", "dumpsys", "activity", "exit-info", package, check=False))
