@@ -21,6 +21,24 @@ PACKAGES = {"direct": "org.fcitx.fcitx5.android.fx.rime", "cyime": "com.cyletix.
 WORDS = [("ni", "你"), ("nihao", "你好"), ("zhongguo", "中国"), ("women", "我们")]
 
 
+def wait_for_root(output):
+    responses = []
+    deadline = time.monotonic() + 75
+    while time.monotonic() < deadline:
+        try:
+            uid = adb("shell", "id", "-u", check=False, timeout=8)
+            if uid == "0":
+                (output / "adb-root.txt").write_text("\n".join(responses + ["uid=0"]) + "\n")
+                return
+            response = subprocess.run(["adb", "root"], capture_output=True, text=True, timeout=8)
+            responses.append((response.stdout + response.stderr).strip())
+        except subprocess.TimeoutExpired:
+            responses.append("ADB temporarily offline during startup or root restart")
+        time.sleep(3)
+    (output / "adb-root.txt").write_text("\n".join(responses) + "\n")
+    raise RuntimeError("Root adbd did not return on the disposable emulator")
+
+
 def install_fixture(fixture):
     target = f"/sdcard/Android/data/{PACKAGES['direct']}/files/data/rime"
     with tempfile.TemporaryDirectory(prefix="cyime-fixture-") as source:
@@ -112,12 +130,9 @@ def main():
     args = parser.parse_args()
     output = args.output
     output.mkdir(parents=True, exist_ok=True)
-    if not adb("get-serialno").startswith("emulator-"):
+    if not adb("get-serialno", check=False, timeout=10).startswith("emulator-"):
         raise RuntimeError("The experiment requires a disposable emulator")
-    adb("root")
-    adb("wait-for-device")
-    if adb("shell", "id", "-u") != "0":
-        raise RuntimeError("The emulator must allow root adbd to install the fixed Rime fixture")
+    wait_for_root(output)
     if "arm64-v8a" not in adb("shell", "getprop", "ro.product.cpu.abilist").split(","):
         raise RuntimeError("The Android image cannot run both original ARM64 APKs")
     adb("shell", "wm", "size", "480x960")
@@ -139,6 +154,9 @@ def main():
         adb("install", "-r", apk)
     disable_press_bubble(PACKAGES["direct"], PACKAGES["direct"] + "_preferences", "popup_on_key_press")
     disable_press_bubble(PACKAGES["cyime"], "kime_settings", "show_press_bubble_v2")
+    (output / "cyime-first-launch.txt").write_text(adb("shell", "am", "start", "-W", "-n",
+        PACKAGES["cyime"] + "/com.kingzcheung.xime.MainActivity", check=False, timeout=45))
+    (output / "cyime-first-launch-crashes.txt").write_text(adb("logcat", "-b", "crash", "-d", "-v", "threadtime"))
     target = install_fixture(args.fixture)
     profiles = {"direct": (target, "wanxiang"), "cyime": (f"/data/user/0/{PACKAGES['cyime']}/files/rime", "rime_ice")}
     support = {}

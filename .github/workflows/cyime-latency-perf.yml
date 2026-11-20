@@ -48,7 +48,7 @@ jobs:
           test "$(cat "$direct/source.txt")" = 4200b65d9ba9802a4d6e75d00a6619eb2732443e
           printf '%s  %s\n' "$(cut -d ' ' -f 1 "$direct/sha256.txt")" "$direct/direct.apk" | sha256sum -c -
           test "$(sha256sum "$RUNNER_TEMP/study-inputs/fixture.zip" | cut -d ' ' -f 1)" = 333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f
-          curl --fail --silent --show-error --location --retry 3 \
+          curl --fail --silent --show-error --location --retry 3 --connect-timeout 20 --max-time 240 \
             https://github.com/Cyletix/CyIME/releases/download/1.15.101/CyIME-1.15.101-arm64-v8a.apk \
             --output "$RUNNER_TEMP/cyime.apk"
           printf '%s  %s\n' 955ef612c27f996f1da6af827882b51414facd2562304ba4562aac1b27c65074 "$RUNNER_TEMP/cyime.apk" | sha256sum -c -
