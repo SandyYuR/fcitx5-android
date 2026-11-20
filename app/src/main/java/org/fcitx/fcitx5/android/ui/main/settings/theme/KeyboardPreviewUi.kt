@@ -785,7 +785,9 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             isUpdatingTheme = true
             // The preview keyboard owns its layout state, so its preview IME never reaches the
             // real keyboard. Pass it at construction time to build the right layout at once.
-            val previewIme = PreviewInputMethodEntry.create()
+            // 布局名必须跟随真实输入法：裸的 "Preview" 在布局文件里没有分节，会回退到内置
+            // QWERTY，布局里逐键的 backgroundColor 就全丢了（预览与真实键盘配色对不上）。
+            val previewIme = PreviewInputMethodEntry.createRealLayoutPreview(TextKeyboard.ime)
             fakeKeyboardWindow = TextKeyboard(ctx, theme, previewIme, isPreview = true)
             currentTheme = theme
 

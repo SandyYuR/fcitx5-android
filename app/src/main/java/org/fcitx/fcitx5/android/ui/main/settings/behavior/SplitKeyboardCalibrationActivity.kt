@@ -48,7 +48,8 @@ import splitties.views.backgroundColor
  * 4. Support for foldable devices with multiple DPI
  */
 class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
-    private val previewIme = PreviewInputMethodEntry.create()
+    // 校准页预览要照搬用户真实键盘的外观：布局名跟随真实输入法，避免回退到内置 QWERTY 丢逐键配色
+    private val previewIme = PreviewInputMethodEntry.createRealLayoutPreview(TextKeyboard.ime)
 
     private lateinit var toolbar: Toolbar
     private lateinit var previewKeyboardContainer: FrameLayout
