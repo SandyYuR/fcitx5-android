@@ -8,7 +8,7 @@ on:
         options: [all, engine-smoke]
         default: all
   pull_request:
-    paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', 'tools/test-direct-rime-frontend.sh', 'tools/test-rime-sdk-smoke.sh', 'tools/check-junit-results.py', 'tools/verify-direct-rime-apk.py', 'tools/audit-direct-rime-link.py', '.github/workflows/direct-rime.yml', 'settings.gradle.kts', 'native/**', 'build-logic/**', 'gradle/**', '.gitmodules']
+    paths: ['app/**', 'direct-rime/**', 'patches/**', 'tools/input-perf/**', 'tools/test-direct-rime-frontend.sh', 'tools/test-rime-sdk-smoke.sh', 'tools/check-junit-results.py', 'tools/verify-direct-rime-apk.py', 'tools/audit-direct-rime-link.py', '.github/workflows/direct-rime.yml', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', 'native/**', 'build-logic/**', 'gradle/**', '.gitmodules']
 permissions:
   contents: read
 concurrency:
@@ -94,8 +94,10 @@ jobs:
           path: |
             direct-rime/build/reports/androidTests/
             direct-rime/build/outputs/androidTest-results/connected/
+  # PR CI already runs the app build, full JVM suite and APK audits. Keep this
+  # job for manual end-to-end diagnostics only.
   frontend:
-    if: inputs.scope != 'engine-smoke'
+    if: github.event_name == 'workflow_dispatch' && inputs.scope != 'engine-smoke'
     name: Full frontend ARM64 APK
     runs-on: ubuntu-22.04
     steps:
