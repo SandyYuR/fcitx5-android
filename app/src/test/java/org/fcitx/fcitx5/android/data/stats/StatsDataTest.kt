@@ -84,5 +84,17 @@ class StatsDataTest {
         assertThrows(IllegalArgumentException::class.java) {
             StatsArchive.validateLayout(StatsLayout(geometry = listOf(StatsKeyGeometry("a", Float.NaN, 0f, 1f, 1f))))
         }
+        assertThrows(IllegalArgumentException::class.java) {
+            StatsArchive.validateLayout(StatsLayout(geometry = listOf(StatsKeyGeometry("a", 0f, 0f, 1f, 1f, 32))))
+        }
+        StatsArchive.validateLayout(StatsLayout(geometry = listOf(StatsKeyGeometry("a", 0f, 0f, 1f, 1f, 31))))
+    }
+
+    @Test fun layoutsWrittenBeforeRowIndexesStillDecode() {
+        // Records stored by an older build have no "row" field; they must keep decoding and carry
+        // -1 so the heatmap can fall back to clustering by y.
+        val text = "{\"format\":\"zhongzhou-input-statistics\",\"version\":1,\"schemas\":[{\"id\":\"wanxiang\",\"name\":\"万象\"}],\"buckets\":[],\"layouts\":{\"wanxiang\":{\"geometry\":[{\"label\":\"a\",\"x\":0.0,\"y\":0.0,\"width\":0.1,\"height\":48.0}]}}}"
+        val archive = StatsArchive.decode(text)
+        assertEquals(-1, archive.layouts.getValue("wanxiang").geometry.single().row)
     }
 }

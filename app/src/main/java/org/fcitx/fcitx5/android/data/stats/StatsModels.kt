@@ -67,7 +67,15 @@ data class StatsTotals(val characters: Long = 0, val commits: Long = 0, val keys
 
 @Serializable data class StatsSchema(val id: String, val name: String, val careerCharacters: Long = 0)
 @Serializable data class StatsDay(val day: String, val totals: StatsTotals)
-@Serializable data class StatsKeyGeometry(val label: String, val x: Float, val y: Float, val width: Float, val height: Float)
+/**
+ * One keycap of the keyboard snapshot.
+ *
+ * [row] is the index of the key row container that produced this key, or -1 for records written
+ * before rows were stored. The heatmap groups by [row]; [y] stays as a diagnostic value and as
+ * the fallback for older records.
+ */
+@Serializable data class StatsKeyGeometry(val label: String, val x: Float, val y: Float, val width: Float,
+    val height: Float, val row: Int = -1)
 @Serializable data class StatsLayout(val rows: List<List<String>> = emptyList(), val geometry: List<StatsKeyGeometry> = emptyList())
 data class StatsSnapshot(val range: StatsRange, val schemaId: String?, val schemas: List<StatsSchema>,
     val totals: StatsTotals, val daily: List<StatsDay>, val codeLengths: Map<Int, Long>,
