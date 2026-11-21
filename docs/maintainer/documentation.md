@@ -67,7 +67,7 @@ git diff --check
 
 浅色单色版使用 10% 不透明度的鹅身填色、72% 的细描边、60% 的喙脚和 90% 的眼睛与「㞢」；`drawable-night/` 独立保留 100%／65%／90% 的鹅身、喙脚与字形，眼睛镂空。不要共用一组透明度而使浅色调整连带改变深色。桌面按 alpha 遮罩着色，实际取色及图标缓存刷新由启动器管理，不能直接把带底色的彩色图转灰度。状态栏与小尺寸应用内标识保留实心轮廓以保证辨识度，Debug 字样已转为路径，不依赖设备字体。设备回归检查日夜资源的实际像素透明度、66 dp 安全圆及页面截图。
 
-文档站的 `docs/public/logo.svg` 与代码仓库彩色 SVG 一致，`logo.png` 保留为旧地址兼容资源；favicon 和 Apple touch icon 同批更新。独立网页编辑器使用「中州鹅」名称及 🪿 favicon。`docs/public/legacy/fcitx/logo.png` 属于冻结历史原站，保留原字节，不随现行标识替换。
+文档站的 `docs/public/logo.svg` 与代码仓库彩色 SVG 一致，`logo.png` 保留为旧地址兼容资源；favicon 和 Apple touch icon 同批更新。独立网页编辑器使用「中州鹅」名称及用户确认的白鹅矢量 favicon。`docs/public/legacy/fcitx/logo.png` 属于冻结历史原站，保留原字节，不随现行标识替换。
 
 ## 发布与历史解释
 

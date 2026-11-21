@@ -56,14 +56,14 @@
 
 > 常用 Fcitx 键名：`Return` / `BackSpace` / `Tab` / `space` / `Escape` / `Shift_L` / `Control_L` / `Alt_L` / `Up` / `Down` / `Left` / `Right` / `Home` / `End` / `Delete` / 字母数字直接小写 / `F1`–`F12`。字母键的大小写由 Shift / Caps 等状态决定；完整分类列表见 [Fcitx 键名速查](/features/keys/fcitx-keys)。
 
-::: warning Android KeyRef 不在编辑器 UI 中
-[MacroKey 编辑器](/features/editor/macrokey-editor) **只暴露 `fcitx` 形式**的按键引用 —— 没有"按 Android 键码"的输入控件。
+::: warning 应用内宏编辑器的 Android KeyRef 限制
+应用内 [MacroKey 编辑器](/features/editor/macrokey-editor) 只暴露 `fcitx` 形式的按键引用。2026-11-21 的网页编辑器修订提供 Android 整数键码输入，并保留导入的 Android 与自定义 Fcitx 引用；发布状态见[在线编辑器](/features/online-editor)。
 
-`{"android": <code>}` 仅在 **手改 JSON** 时可用。**如果你不清楚目标键码、不熟悉 Android `KeyEvent` 常量含义，请不要使用它**：
+使用 `{"android": <code>}` 前应确认对应的 Android `KeyEvent` 常量：
 
 - 不同 Android 版本 / 厂商 ROM 下，部分键码语义可能不一致
 - 同一个键大多在 Fcitx 键名表里都有对应（且语义更稳定），优先用 `fcitx`
-- 编辑器侧不会读取 / 显示 Android KeyRef，下次进编辑器再保存可能把它丢失（建议这类按键不要再用编辑器二次编辑）
+- 应用内表单可能在二次保存时丢失 Android KeyRef，修改后应核对导出的 JSON
 :::
 
 ---

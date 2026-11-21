@@ -41,8 +41,8 @@
 | 自定义更新 | `settings_scheme_updates` | 打开方案更新任务页，不自动启动更新或部署 |
 | 数据与备份 | `settings_data_backup` | 打开数据管理页，不自动备份或恢复 |
 
-::: warning 编辑器不支持 Android 键码
-KeyRef 的另一种形式 `{"android": <code>}` 只在手改 JSON 时可用，编辑器界面没有对应输入项。如果按键里已经存在 Android 键码引用，**不要再用编辑器二次保存** —— 编辑器可能不识别这种条目导致信息丢失。详见 [MacroKey 细化 → KeyRef](/features/keys/macro-key#keyref-引用按键的两种方式)。
+::: warning 应用内编辑器的 Android 键码限制
+应用内宏表单没有 Android 键码输入项；已有 `{"android": <code>}` 引用时，二次保存可能丢失它。2026-11-21 的网页编辑器修订已提供 Fcitx／Android 键类型输入并保留原始引用，发布状态与使用说明见[在线编辑器](/features/online-editor)。数据结构见 [MacroKey 细化 → KeyRef](/features/keys/macro-key#keyref-引用按键的两种方式)。
 :::
 
 ## 相关页面
