@@ -110,3 +110,13 @@ sealed class KeyAction {
 
     data class AuxBarTrigger(val target: CandidateTabActionTarget?) : KeyAction()
 }
+
+internal fun KeyAction.isSingleVirtualLetterTap(): Boolean {
+    val code = when (this) {
+        is KeyAction.FcitxKeyAction -> act.takeIf { !up && states == KeyStates.Virtual }
+        is MacroAction -> ((steps.singleOrNull() as? MacroStep.Tap)?.keys?.singleOrNull() as? KeyRef.Fcitx)?.code
+        else -> null
+    }
+    val letter = code?.singleOrNull() ?: return false
+    return letter in 'a'..'z' || letter in 'A'..'Z'
+}
