@@ -120,6 +120,7 @@ internal object Native {
     external fun schemas(): Array<String>
     external fun schemaEntries(): Array<String>
     external fun options(): Array<String>
+    external fun prewarmAssets(): Array<String>
     external fun schemaSelection(): String
     external fun selectSchemas(ids: Array<String>): Boolean
     external fun sync(): Boolean
