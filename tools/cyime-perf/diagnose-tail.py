@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import shlex
 import subprocess
+import time
 
 from calibrate import HOST, PACKAGES, WANXIANG_MODEL, WANXIANG_MODEL_SHA, adb
 from run import replay
@@ -32,9 +33,10 @@ def profile_evidence(root):
     return dict(sorted((line.split("  ", 1)[1], line.split("  ", 1)[0]) for line in file_hashes.splitlines()))
 
 
-def storage_profile(output, location, uid):
+def storage_profile(output, location, uid, alternate):
     stop_input()
-    paths = "" if location == "external" else "rime".encode().hex() + "|" + PRIVATE.encode().hex()
+    alternate_user_path = alternate.replace("/data/media/0/", "/storage/emulated/0/", 1)
+    paths = "" if location == "external" else "rime".encode().hex() + "|" + alternate_user_path.encode().hex()
     config = f'Current="rime"\nProfiles="rime"\nExternalPathsV2="{paths}"\n'
     local = output / f"{location}-profile.conf"
     local.write_text(config)
@@ -43,7 +45,7 @@ def storage_profile(output, location, uid):
     adb("shell", "chown", f"{uid}:{uid}", PROFILE_CONF, str(Path(PROFILE_CONF).parent))
 
 
-def record(output, name, bounds, location, cold):
+def record(output, name, bounds, location, cold, alternate, assets_warm_ms):
     capture = Path(__file__).resolve().parent.parent / "input-perf" / "capture.sh"
     trace = output / f"{name}.perfetto-trace"
     pinyin, expected = SENTENCES["lyric"]
@@ -62,11 +64,13 @@ def record(output, name, bounds, location, cold):
             maps = adb("shell", "cat", f"/proc/{pid}/maps")
             (output / name / "maps.txt").write_text(maps)
             model_paths = sorted({line.split(maxsplit=5)[-1] for line in maps.splitlines() if line.endswith("/" + WANXIANG_MODEL)})
-            folder = "/files/benchmark-wanxiang/" if location == "private" else "/files/data/rime/"
+            folder = "/files/data/rime/" if location == "external" else alternate[alternate.index("/files/"):] + "/"
             if len(model_paths) != 1 or folder not in model_paths[0]:
                 raise RuntimeError(f"Mapped profile did not use {location}: {model_paths}")
             report["location"] = location
             report["guest_page_cache_dropped"] = cold
+            if assets_warm_ms is not None:
+                report["model_and_table_warm_ms"] = assets_warm_ms
             report["mapped_model"] = model_paths[0]
             (output / name / "result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
             print(f"{name}: {report}", flush=True)
@@ -82,6 +86,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cold", action="store_true")
+    parser.add_argument("--prewarm", action="store_true",
+                        help="compare cold external profiles with and without reading the grammar and main table first")
     args = parser.parse_args()
     output = args.output
     if not adb("get-serialno").startswith("emulator-") or adb("shell", "id", "-u") != "0":
@@ -94,24 +100,33 @@ def main():
     uid = re.search(r"uid:(\d+)", adb("shell", "cmd", "package", "list", "packages", "-U", PACKAGE))[1]
     owner = f"{uid}:{uid}"
     external = EXTERNAL + "/data/rime"
-    adb("shell", "mkdir", "-p", PRIVATE)
-    adb("shell", "cp", "-a", external + "/.", PRIVATE)
-    adb("shell", "chown", "-R", owner, PRIVATE)
-    adb("shell", "restorecon", "-RF", PRIVATE)
+    alternate = EXTERNAL + "/data/rime-warmed" if args.prewarm else PRIVATE
+    adb("shell", "mkdir", "-p", alternate)
+    adb("shell", "cp", "-a", external + "/.", alternate)
+    adb("shell", "chown", "-R", owner, alternate)
+    adb("shell", "restorecon", "-RF", alternate)
     original = profile_evidence(external)
-    if original.get("./" + WANXIANG_MODEL) != WANXIANG_MODEL_SHA or original != profile_evidence(PRIVATE):
+    if original.get("./" + WANXIANG_MODEL) != WANXIANG_MODEL_SHA or original != profile_evidence(alternate):
         raise RuntimeError("The two benchmark profiles must start with identical files")
     (output / "storage-profile-sha256.json").write_text(json.dumps(original, ensure_ascii=False, indent=2) + "\n")
     reports = []
+    other = "warmed" if args.prewarm else "private"
+    cold = args.cold or args.prewarm
     try:
-        for i, location in enumerate(("external", "private", "private", "external"), 1):
-            storage_profile(output, location, uid)
-            if args.cold:
+        for i, location in enumerate(("external", other, other, "external"), 1):
+            storage_profile(output, location, uid, alternate)
+            if cold:
                 # Run only on the root disposable emulator checked above, with both input processes stopped.
                 adb("shell", "sync && echo 3 > /proc/sys/vm/drop_caches")
-            reports.append(record(output, f"storage-{i}-{location}", bounds, location, args.cold))
+            prepared_ms = None
+            if location == "warmed":
+                start = time.monotonic()
+                command = shlex.join(["cat", f"{alternate}/{WANXIANG_MODEL}", f"{alternate}/build/wanxiang.table.bin"])
+                adb("shell", command + " > /dev/null")
+                prepared_ms = round((time.monotonic() - start) * 1000, 2)
+            reports.append(record(output, f"storage-{i}-{location}", bounds, location, cold, alternate, prepared_ms))
     finally:
-        storage_profile(output, "external", uid)
+        storage_profile(output, "external", uid, alternate)
     if not all(report["exact_commit"] for report in reports):
         raise RuntimeError("At least one storage replay produced a different sentence")
 
