@@ -460,6 +460,10 @@ object ImeWebEditorBridgeServer {
                         put("keyVGap", JsonPrimitive(prefs.keyVerticalMargin.getValue()))
                         put("keyRadius", JsonPrimitive(prefs.keyRadius.getValue()))
                         put("punctPos", JsonPrimitive(prefs.punctuationPosition.getValue().toWebValue()))
+                        put("moveMainTextForAltLabel", JsonPrimitive(prefs.moveMainTextForAltLabel.getValue()))
+                        put("altLabelOnSide", JsonPrimitive(prefs.altLabelOnSide.getValue()))
+                        put("altLabelSide", JsonPrimitive(prefs.altLabelSide.getValue().toWebValue()))
+                        put("showKeyAltLabels", JsonPrimitive(prefs.showKeyAltLabels.getValue()))
                         put("screenWidthPx", JsonPrimitive(metrics.widthPixels))
                         put("screenHeightPx", JsonPrimitive(metrics.heightPixels))
                         put("density", JsonPrimitive(density))
@@ -487,6 +491,15 @@ object ImeWebEditorBridgeServer {
                     body["keyRadius"]?.jsonPrimitive?.intOrNull?.let { prefs.keyRadius.setValue(it) }
                     body["punctPos"]?.jsonPrimitive?.contentOrNull?.let { raw ->
                         punctuationPositionFromWebValue(raw)?.let { prefs.punctuationPosition.setValue(it) }
+                    }
+                    (body["moveMainTextForAltLabel"] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull
+                        ?.let { prefs.moveMainTextForAltLabel.setValue(it) }
+                    (body["altLabelOnSide"] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull
+                        ?.let { prefs.altLabelOnSide.setValue(it) }
+                    (body["showKeyAltLabels"] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull
+                        ?.let { prefs.showKeyAltLabels.setValue(it) }
+                    (body["altLabelSide"] as? JsonPrimitive)?.contentOrNull?.let { raw ->
+                        altLabelSideFromWebValue(raw)?.let { prefs.altLabelSide.setValue(it) }
                     }
                     writeJson(output, buildJsonObject { put("ok", JsonPrimitive(true)) })
                 }
@@ -1015,6 +1028,17 @@ object ImeWebEditorBridgeServer {
         "top-right" -> ThemePrefs.PunctuationPosition.TopRight
         "top-center" -> ThemePrefs.PunctuationPosition.TopCenter
         "none" -> ThemePrefs.PunctuationPosition.None
+        else -> null
+    }
+
+    private fun ThemePrefs.AltLabelSide.toWebValue(): String = when (this) {
+        ThemePrefs.AltLabelSide.Right -> "right"
+        ThemePrefs.AltLabelSide.Left -> "left"
+    }
+
+    private fun altLabelSideFromWebValue(value: String): ThemePrefs.AltLabelSide? = when (value) {
+        "right" -> ThemePrefs.AltLabelSide.Right
+        "left" -> ThemePrefs.AltLabelSide.Left
         else -> null
     }
 }
