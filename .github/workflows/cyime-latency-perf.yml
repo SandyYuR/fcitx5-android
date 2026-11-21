@@ -34,6 +34,8 @@ jobs:
       BENCH_ABI: ${{ contains(github.event.head_commit.message, '[native-x86]') && 'x86_64' || 'arm64-v8a' }}
       BENCH_SUITE: ${{ contains(github.event.head_commit.message, '[long-sentences]') && '--sentences' || '' }}
       BENCH_DIAGNOSTIC: ${{ contains(github.event.head_commit.message, '[pause-diagnostic]') && '--pause-diagnostic' || '' }}
+      BENCH_OVERLAP: ${{ contains(github.event.head_commit.message, '[same-key-overlap]') && 'yes' || 'no' }}
+      DIRECT_SHA: ${{ contains(github.event.head_commit.message, '[same-key-overlap]') && '899eedbf1b7eb8475f7f2a3e162e6ec014763be5' || '4200b65d9ba9802a4d6e75d00a6619eb2732443e' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -47,8 +49,8 @@ jobs:
           packages: platform-tools platforms;android-36 build-tools;36.0.0
       - uses: actions/download-artifact@v6
         with:
-          artifact-ids: ${{ env.BENCH_ABI == 'x86_64' && '14628710616' || '14627779188' }}
-          run-id: '44734472106'
+          artifact-ids: ${{ env.BENCH_OVERLAP == 'yes' && '14690585770' || env.BENCH_ABI == 'x86_64' && '14628710616' || '14627779188' }}
+          run-id: ${{ env.BENCH_OVERLAP == 'yes' && '44861442850' || '44734472106' }}
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/direct-product
           merge-multiple: true
@@ -91,7 +93,7 @@ jobs:
         run: |
           mkdir -p build/cyime-latency
           direct="$RUNNER_TEMP/direct-product"
-          test "$(cat "$direct/source.txt")" = 4200b65d9ba9802a4d6e75d00a6619eb2732443e
+          test "$(cat "$direct/source.txt")" = "$DIRECT_SHA"
           printf '%s  %s\n' "$(cut -d ' ' -f 1 "$direct/sha256.txt")" "$direct/direct.apk" | sha256sum -c -
           test "$(sha256sum "$RUNNER_TEMP/study-inputs/fixture.zip" | cut -d ' ' -f 1)" = 333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f
           if [ "$BENCH_ABI" = arm64-v8a ]; then
@@ -127,7 +129,7 @@ jobs:
           disable-animations: true
           script: |
             python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration --abi "$BENCH_ABI" --measure $BENCH_SUITE $BENCH_DIAGNOSTIC
-            python3 tools/cyime-perf/run.py --output build/cyime-latency $BENCH_SUITE $BENCH_DIAGNOSTIC
+            if [ "$BENCH_OVERLAP" = yes ]; then python3 tools/cyime-perf/overlap.py --output build/cyime-latency; else python3 tools/cyime-perf/run.py --output build/cyime-latency $BENCH_SUITE $BENCH_DIAGNOSTIC; fi
       - uses: actions/upload-artifact@v7
         if: always()
         with:

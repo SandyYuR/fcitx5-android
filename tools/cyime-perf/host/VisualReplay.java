@@ -288,9 +288,73 @@ public final class VisualReplay extends Replay {
         injectTouch = inputClass.getMethod("injectInputEvent", InputEvent.class, int.class);
         getUiAutomation().adoptShellPermissionIdentity("android.permission.INJECT_EVENTS");
         try {
-            replayWithCadence(evidence);
+            String overlap = args.getString("overlap");
+            if (overlap == null) replayWithCadence(evidence);
+            else replayOverlap(evidence, overlap);
         } finally {
             getUiAutomation().dropShellPermissionIdentity();
+        }
+    }
+
+    private void replayOverlap(JSONObject evidence, String mode) throws Exception {
+        JSONObject bounds = new JSONObject(args.getString("bounds"));
+        String code = mode.equals("one-g") ? "zhonguo" : "zhongguo";
+        long start = now() + 40_000_000L;
+        for (int i = 0; i < code.length(); i++) {
+            String key = code.substring(i, i + 1);
+            long due = start + i * 120_000_000L;
+            if (i == 4 && (mode.equals("older-up-first") || mode.equals("newer-up-first"))) {
+                doubleTouch(bounds.getJSONArray(key), due, mode.equals("older-up-first"));
+                i++;
+            } else {
+                touch(bounds.getJSONArray(key), due, key, 0);
+            }
+        }
+        SystemClock.sleep(850);
+        screenshot("first-candidates.png");
+        recordLabels(evidence, "overlap_candidates", keyboardLabels());
+        touch(bounds.getJSONArray("select"), now(), "select", 0);
+        SystemClock.sleep(500);
+        evidence.put("output", editorText());
+        screenshot("committed.png");
+    }
+
+    private void doubleTouch(JSONArray bounds, long start, boolean olderUpFirst) throws Exception {
+        float x = (bounds.getInt(0) + bounds.getInt(2)) / 2f;
+        float y = (bounds.getInt(1) + bounds.getInt(3)) / 2f;
+        MotionEvent.PointerProperties[] pointers = new MotionEvent.PointerProperties[2];
+        MotionEvent.PointerCoords[] coords = new MotionEvent.PointerCoords[2];
+        for (int i = 0; i < 2; i++) {
+            pointers[i] = new MotionEvent.PointerProperties();
+            pointers[i].id = i;
+            pointers[i].toolType = MotionEvent.TOOL_TYPE_FINGER;
+            coords[i] = new MotionEvent.PointerCoords();
+            coords[i].x = x + (i == 0 ? -3 : 3);
+            coords[i].y = y;
+            coords[i].pressure = 1;
+            coords[i].size = 1;
+        }
+        int[] offsets = {0, 28, 65, 94};
+        int[] actions = {MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN | (1 << MotionEvent.ACTION_POINTER_INDEX_SHIFT),
+            MotionEvent.ACTION_POINTER_UP | ((olderUpFirst ? 0 : 1) << MotionEvent.ACTION_POINTER_INDEX_SHIFT), MotionEvent.ACTION_UP};
+        long downTime = 0;
+        for (int i = 0; i < actions.length; i++) {
+            waitUntil(start + offsets[i] * 1_000_000L);
+            long eventTime = SystemClock.uptimeMillis();
+            if (i == 0) downTime = eventTime;
+            int count = i == 0 || i == 3 ? 1 : 2;
+            int first = i == 3 && olderUpFirst ? 1 : 0;
+            MotionEvent motion = MotionEvent.obtain(downTime, eventTime, actions[i], count,
+                count == 2 ? pointers : new MotionEvent.PointerProperties[]{pointers[first]},
+                count == 2 ? coords : new MotionEvent.PointerCoords[]{coords[first]},
+                0, 0, 1f, 1f, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
+            try {
+                long at = now();
+                if (!(Boolean) injectTouch.invoke(inputManager, motion, 0)) throw new IllegalStateException("Two-pointer injection failed");
+                touches.put(new JSONObject().put("key", "g").put("action", actions[i]).put("at_ns", at));
+            } finally {
+                motion.recycle();
+            }
         }
     }
 
