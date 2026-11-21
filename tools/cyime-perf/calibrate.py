@@ -21,6 +21,9 @@ from pilot import adb, capture, HOST, selected_ime
 
 PACKAGES = {"direct": "org.fcitx.fcitx5.android.fx.rime", "cyime": "com.cyletix.cyime"}
 WORDS = [("ni", "你"), ("nihao", "你好"), ("zhongguo", "中国"), ("women", "我们")]
+WANXIANG_MODEL = "wanxiang-lts-zh-hans.gram"
+WANXIANG_MODEL_SHA = "769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a"
+WANXIANG_PAGE_SIZE = 6
 
 
 def wait_for_root(output):
@@ -41,33 +44,31 @@ def wait_for_root(output):
     raise RuntimeError("Root adbd did not return on the disposable emulator")
 
 
-def install_fixture(fixture, output):
-    package = PACKAGES["direct"]
-    target = f"/sdcard/Android/data/{package}/files/data/rime"
-    physical = target.replace("/sdcard/", "/data/media/0/", 1)
+def install_fixture(source, output, label):
+    package = PACKAGES[label]
+    if label == "direct":
+        target = f"/sdcard/Android/data/{package}/files/data/rime"
+        physical = target.replace("/sdcard/", "/data/media/0/", 1)
+        # The app creates its own scoped-storage directory.
+        select_product(package)
+        adb("shell", "am", "start", "-W", "-n", HOST + "/.VisualHost")
+        parent = str(Path(physical).parents[1])
+        deadline = time.monotonic() + 45
+        while not adb("shell", "ls", "-d", parent, check=False):
+            if time.monotonic() >= deadline:
+                raise RuntimeError("The IME did not create its own scoped storage directory")
+            time.sleep(1)
+        adb("shell", "am", "start", "-W", "-a", "android.settings.SETTINGS")
+        adb("shell", "am", "force-stop", HOST)
+    else:
+        target = physical = f"/data/user/0/{package}/files/rime"
+        parent = str(Path(physical).parents[1])
     owner = adb("shell", "cmd", "package", "list", "packages", "-U", package)
     uid = re.search(r"uid:(\d+)", owner)[1]
-    # Android creates the scoped-storage app directory through the app's own
-    # storage context. Root creates only the benchmark profile inside it.
-    select_product(package)
-    adb("shell", "am", "start", "-W", "-n", HOST + "/.VisualHost")
-    parent = str(Path(physical).parents[1])
-    deadline = time.monotonic() + 45
-    while not adb("shell", "ls", "-d", parent, check=False):
-        if time.monotonic() >= deadline:
-            raise RuntimeError("The IME did not create its own scoped storage directory")
-        time.sleep(1)
-    adb("shell", "am", "start", "-W", "-a", "android.settings.SETTINGS")
     adb("shell", "am", "force-stop", package)
-    adb("shell", "am", "force-stop", HOST)
     staging = physical + ".benchmark-fixture"
-    with tempfile.TemporaryDirectory(prefix="cyime-fixture-") as source:
-        with zipfile.ZipFile(fixture) as archive:
-            if any(Path(n).is_absolute() or ".." in Path(n).parts for n in archive.namelist()):
-                raise ValueError("Invalid fixture path")
-            archive.extractall(source)
-        adb("shell", "mkdir", "-p", staging)
-        adb("push", source + "/.", staging)
+    adb("shell", "mkdir", "-p", staging)
+    adb("push", str(source) + "/.", staging)
     # The empty first startup can leave generated state in rime/. Swap in
     # the complete fixture rather than overlaying that state.
     if adb("shell", "ls", "-d", physical, check=False):
@@ -76,11 +77,11 @@ def install_fixture(fixture, output):
     data = str(Path(physical).parent)
     adb("shell", "chown", "-R", f"{uid}:{uid}", data)
     adb("shell", "restorecon", "-RF", data)
-    (output / "wanxiang-files.txt").write_text(adb("shell", "ls", "-ldZ", parent, data, physical, physical + "/default.yaml"))
+    (output / f"{label}-wanxiang-files.txt").write_text(adb("shell", "ls", "-ldZ", parent, data, physical, physical + "/default.yaml"))
     return target
 
 
-def disable_press_bubble(package, prefs_name, key):
+def configure_preferences(package, prefs_name, key, wanxiang_page_size=None):
     # Keep the actual key highlight, while stopping the enlarged key popup
     # from entering the candidate pixels on the row above the keys.
     adb("shell", "am", "force-stop", package)
@@ -88,10 +89,19 @@ def disable_press_bubble(package, prefs_name, key):
     path = f"{folder}/{prefs_name}.xml"
     saved = adb("shell", "cat", path, check=False)
     settings = ET.fromstring(saved) if saved else ET.Element("map")
+    values = {key: ("boolean", "false")}
+    if wanxiang_page_size is not None:
+        values.update(current_schema=("string", "wanxiang"), current_schema_dual=("boolean", "true"),
+                      page_size=("int", str(wanxiang_page_size)))
     for item in list(settings):
-        if item.get("name") == key:
+        if item.get("name") in values:
             settings.remove(item)
-    ET.SubElement(settings, "boolean", {"name": key, "value": "false"})
+    for name, (kind, value) in values.items():
+        item = ET.SubElement(settings, kind, {"name": name})
+        if kind == "string":
+            item.text = value
+        else:
+            item.set("value", value)
     uid = re.search(r"uid:(\d+)", adb("shell", "cmd", "package", "list", "packages", "-U", package))[1]
     with tempfile.TemporaryDirectory(prefix="cyime-prefs-") as source:
         xml = Path(source) / "settings.xml"
@@ -102,6 +112,107 @@ def disable_press_bubble(package, prefs_name, key):
     adb("shell", "chmod", "700", folder)
     adb("shell", "chmod", "600", path)
     adb("shell", "restorecon", "-RF", folder)
+
+
+def seed_profiles(fixture, output, packages, shared):
+    profiles = {"cyime": (f"/data/user/0/{PACKAGES['cyime']}/files/rime", "rime_ice")}
+    checksums = {}
+    with tempfile.TemporaryDirectory(prefix="cyime-fixture-") as directory:
+        source = Path(directory)
+        with zipfile.ZipFile(fixture) as archive:
+            if any(Path(n).is_absolute() or ".." in Path(n).parts for n in archive.namelist()):
+                raise ValueError("Invalid fixture path")
+            archive.extractall(source)
+        if shared:
+            for path in sorted(source.rglob("*")):
+                relative = path.relative_to(source)
+                if path.is_file() and relative.parts[0] != "build" and relative.name not in (
+                    "default.yaml", "default.custom.yaml", "user.yaml", "installation.yaml"
+                ):
+                    digest = hashlib.sha256()
+                    with path.open("rb") as stream:
+                        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                            digest.update(chunk)
+                    checksums[relative.as_posix()] = digest.hexdigest()
+            if checksums.get(WANXIANG_MODEL) != WANXIANG_MODEL_SHA or "wanxiang.custom.yaml" not in checksums:
+                raise RuntimeError("The shared fixture is missing the pinned grammar model or Wanxiang customization")
+            (output / "wanxiang-source-sha256.json").write_text(json.dumps(checksums, indent=2) + "\n")
+            (output / "wanxiang-seed-user.yaml").write_bytes((source / "user.yaml").read_bytes())
+        for label in packages:
+            if shared or label == "direct":
+                profiles[label] = (install_fixture(source, output, label), "wanxiang")
+    return profiles, checksums
+
+
+def verify_shared_profile(out, label, pid, root, checksums, entry):
+    import yaml
+
+    logs = adb("logcat", "-d", "--pid=" + pid)
+    (out / "startup-log.txt").write_text(logs)
+    if label == "cyime":
+        if not re.search(r"initRimeEngine: .*savedSchema=wanxiang(?:,|\s)", logs):
+            raise RuntimeError("CyIME did not select Wanxiang at startup")
+    schema = yaml.safe_load((out / "effective-schema.yaml").read_text())
+    if schema["schema"]["schema_id"] != "wanxiang" or schema["menu"]["page_size"] != WANXIANG_PAGE_SIZE:
+        raise RuntimeError("Deployed schema or candidate page size differ from the shared fixture")
+    schema.pop("__build_info", None)
+    (out / "effective-schema.json").write_text(json.dumps(schema, indent=2, ensure_ascii=False, sort_keys=True) + "\n")
+    user_file = adb("shell", "cat", f"{root}/user.yaml")
+    (out / "user-after-calibration.yaml").write_text(user_file)
+    user = yaml.safe_load(user_file)["var"]
+    if user.get("previously_selected_schema") != "wanxiang":
+        raise RuntimeError("The engine did not persist Wanxiang as the selected schema")
+    if schema["grammar"]["language"] + ".gram" != WANXIANG_MODEL:
+        raise RuntimeError("The deployed schema names a different grammar model")
+    # Check the open model after real typing, and hash that exact file rather than a copy next to it.
+    maps = adb("shell", "cat", f"/proc/{pid}/maps")
+    (out / "active-maps.txt").write_text(maps)
+    paths = {line.split(maxsplit=5)[-1] for line in maps.splitlines() if line.endswith("/" + WANXIANG_MODEL)}
+    if len(paths) != 1:
+        raise RuntimeError(f"Expected one mapped Wanxiang grammar model, found {sorted(paths)}")
+    model_path = paths.pop()
+    entry["grammar_model_sha256"] = adb("shell", shlex.join(["sha256sum", model_path])).split()[0]
+    if entry["grammar_model_sha256"] != WANXIANG_MODEL_SHA:
+        raise RuntimeError("Mapped Wanxiang grammar model has a different checksum")
+    entry["grammar_model_path"] = model_path
+    entry["page_size"] = schema["menu"]["page_size"]
+    files = [name for name in checksums if name != WANXIANG_MODEL]
+    result = {}
+    for start in range(0, len(files), 50):
+        command = f"cd {shlex.quote(root)} && " + shlex.join(["sha256sum", *files[start:start + 50]])
+        for line in adb("shell", command, check=False).splitlines():
+            digest, _, name = line.partition("  ")
+            if re.fullmatch(r"[0-9a-f]{64}", digest):
+                result[name] = digest
+    (out / "wanxiang-source-sha256.json").write_text(json.dumps(result, indent=2) + "\n")
+    entry["source_changes"] = [name for name in files if result.get(name) != checksums[name]]
+    entry["seeded_options"] = user.get("option", {})
+    for name in ("default.yaml", "default.custom.yaml", "build/default.yaml"):
+        data = adb("shell", "cat", f"{root}/{name}", check=False)
+        if data:
+            (out / name.replace("/", "-")).write_text(data)
+
+
+def verify_shared_comparison(output, support):
+    import yaml
+
+    schemas = [json.loads((output / label / "effective-schema.json").read_text()) for label in PACKAGES]
+    differences = sorted(key for key in schemas[0].keys() | schemas[1].keys() if schemas[0].get(key) != schemas[1].get(key))
+    seeded = yaml.safe_load((output / "wanxiang-seed-user.yaml").read_text())["var"]["option"]
+    report = {
+        "schema_differences": differences,
+        "source_changes": {label: entry["source_changes"] for label, entry in support.items()},
+        "seeded_option_differences": {
+            label: {key: {"expected": value, "observed": entry["seeded_options"].get(key)}
+                    for key, value in seeded.items() if entry["seeded_options"].get(key) != value}
+            for label, entry in support.items()
+        },
+    }
+    report["verified"] = not (differences or any(report["source_changes"].values()) or any(report["seeded_option_differences"].values()))
+    (output / "shared-wanxiang.json").write_text(json.dumps(report, indent=2) + "\n")
+    if not report["verified"]:
+        raise RuntimeError(f"Wanxiang profiles differ after deployment: {report}")
+    print("Verified both active Wanxiang schemas, saved input options and mapped grammar SHA-256", flush=True)
 
 
 def select_product(package):
@@ -169,7 +280,10 @@ def main():
     parser.add_argument("--measure", action="store_true")
     parser.add_argument("--sentences", action="store_true")
     parser.add_argument("--pause-diagnostic", action="store_true")
+    parser.add_argument("--shared-wanxiang", action="store_true")
     args = parser.parse_args()
+    if args.shared_wanxiang and (args.pause_diagnostic or not args.measure):
+        parser.error("--shared-wanxiang requires both products and measured touch calibration")
     output = args.output
     output.mkdir(parents=True, exist_ok=True)
     if not adb("get-serialno", check=False, timeout=10).startswith("emulator-"):
@@ -202,13 +316,14 @@ def main():
         verify_apk_abi(apk, args.abi)
         adb("install", "-r", apk)
     if "direct" in packages:
-        disable_press_bubble(PACKAGES["direct"], PACKAGES["direct"] + "_preferences", "popup_on_key_press")
-    disable_press_bubble(PACKAGES["cyime"], "kime_settings", "show_press_bubble_v2")
-    (output / "cyime-first-launch.txt").write_text(adb("shell", "am", "start", "-W", "-n",
-        PACKAGES["cyime"] + "/com.kingzcheung.xime.MainActivity", check=False, timeout=45))
-    (output / "cyime-first-launch-crashes.txt").write_text(adb("logcat", "-b", "crash", "-d", "-v", "threadtime"))
-    target = install_fixture(args.fixture, output) if "direct" in packages else None
-    profiles = {"direct": (target, "wanxiang"), "cyime": (f"/data/user/0/{PACKAGES['cyime']}/files/rime", "rime_ice")}
+        configure_preferences(PACKAGES["direct"], PACKAGES["direct"] + "_preferences", "popup_on_key_press")
+    configure_preferences(PACKAGES["cyime"], "kime_settings", "show_press_bubble_v2",
+                          WANXIANG_PAGE_SIZE if args.shared_wanxiang else None)
+    if not args.shared_wanxiang:
+        (output / "cyime-first-launch.txt").write_text(adb("shell", "am", "start", "-W", "-n",
+            PACKAGES["cyime"] + "/com.kingzcheung.xime.MainActivity", check=False, timeout=45))
+        (output / "cyime-first-launch-crashes.txt").write_text(adb("logcat", "-b", "crash", "-d", "-v", "threadtime"))
+    profiles, checksums = seed_profiles(args.fixture, output, packages, args.shared_wanxiang)
     support = {}
     errors = []
     for label, package in packages.items():
@@ -238,7 +353,9 @@ def main():
             capture(out, "keyboard")
             if args.measure:
                 entry["bounds"] = calibrate_touch(out, package, args.sentences)
-        except (RuntimeError, OSError, ValueError, subprocess.SubprocessError) as error:
+            if args.shared_wanxiang:
+                verify_shared_profile(out, label, pid, root, checksums, entry)
+        except (RuntimeError, OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
             entry["error"] = str(error)
             errors.append(label)
             print(f"{label}: {error}", flush=True)
@@ -258,6 +375,8 @@ def main():
             print(f"{label}: keyboard and schema verified", flush=True)
     if errors:
         raise RuntimeError(f"Calibration failed for {', '.join(errors)}")
+    if args.shared_wanxiang:
+        verify_shared_comparison(output, support)
 
 
 if __name__ == "__main__":
