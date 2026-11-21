@@ -210,6 +210,13 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
             handlingTapHandover = false
             tapPointerId = if (letterTapHandoverEnabled) event.getPointerId(0) else -1
         }
+        if (action == MotionEvent.ACTION_CANCEL) {
+            // Android may synthesize cancel without the active pointer ID.
+            // Let the normal cancellation path dismiss the press and popup.
+            handlingTapHandover = false
+            tapPointerId = -1
+            return super.dispatchTouchEvent(event)
+        }
         if (action == MotionEvent.ACTION_POINTER_DOWN && letterTapHandoverEnabled && isEnabled) {
             val next = event.actionIndex
             val old = event.findPointerIndex(tapPointerId)
@@ -242,9 +249,6 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                     tapPointerId = -1
                 }
                 if (action == MotionEvent.ACTION_UP) handlingTapHandover = false
-            }
-            MotionEvent.ACTION_CANCEL -> {
-                if (pointer >= 0) dispatchSingleTouch(event, pointer, action) else cancelGestures()
             }
         }
         return true
