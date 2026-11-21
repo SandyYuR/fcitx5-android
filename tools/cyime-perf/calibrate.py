@@ -162,6 +162,7 @@ def main():
     parser.add_argument("--abi", choices=("arm64-v8a", "x86_64"), default="arm64-v8a")
     parser.add_argument("--measure", action="store_true")
     parser.add_argument("--sentences", action="store_true")
+    parser.add_argument("--pause-diagnostic", action="store_true")
     args = parser.parse_args()
     output = args.output
     output.mkdir(parents=True, exist_ok=True)
@@ -188,19 +189,22 @@ def main():
     (output / "device-properties.txt").write_text(adb("shell", "getprop"))
     (output / "display.txt").write_text(adb("shell", "dumpsys", "display"))
     adb("install", "-r", args.host)
-    for apk in (args.direct, args.cyime):
+    packages = {"cyime": PACKAGES["cyime"]} if args.pause_diagnostic else PACKAGES
+    for label in packages:
+        apk = getattr(args, label)
         verify_apk_abi(apk, args.abi)
         adb("install", "-r", apk)
-    disable_press_bubble(PACKAGES["direct"], PACKAGES["direct"] + "_preferences", "popup_on_key_press")
+    if "direct" in packages:
+        disable_press_bubble(PACKAGES["direct"], PACKAGES["direct"] + "_preferences", "popup_on_key_press")
     disable_press_bubble(PACKAGES["cyime"], "kime_settings", "show_press_bubble_v2")
     (output / "cyime-first-launch.txt").write_text(adb("shell", "am", "start", "-W", "-n",
         PACKAGES["cyime"] + "/com.kingzcheung.xime.MainActivity", check=False, timeout=45))
     (output / "cyime-first-launch-crashes.txt").write_text(adb("logcat", "-b", "crash", "-d", "-v", "threadtime"))
-    target = install_fixture(args.fixture, output)
+    target = install_fixture(args.fixture, output) if "direct" in packages else None
     profiles = {"direct": (target, "wanxiang"), "cyime": (f"/data/user/0/{PACKAGES['cyime']}/files/rime", "rime_ice")}
     support = {}
     errors = []
-    for label, package in PACKAGES.items():
+    for label, package in packages.items():
         out = output / label
         out.mkdir(exist_ok=True)
         root, schema = profiles[label]

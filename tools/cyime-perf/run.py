@@ -4,6 +4,7 @@
 import argparse
 import json
 from pathlib import Path
+import re
 import shlex
 import subprocess
 import time
@@ -92,21 +93,60 @@ def compare_sentences(output, products):
         raise RuntimeError("No paired continuous sentence recordings passed timing checks")
 
 
+def diagnose_pause(output, bounds):
+    """Read CyIME's own correction timings in a separate, instrumented run."""
+    name = "log.tag.CyIMELatency"
+    saved = adb("shell", "getprop", name)
+    adb("shell", "setprop", name, "DEBUG")
+    reports = []
+    try:
+        pinyin, text = SENTENCES["park"]
+        cut = len("".join(pinyin.split()[:10]))
+        for variant, code, pause in (("continuous", pinyin, 0), ("pause", pinyin, 650),
+                                     ("pause-swap", pinyin.replace(" gong ", " gogn "), 650)):
+            path = output / ("diagnostic-" + variant)
+            report = {"variant": variant, "pinyin": code, "pause_after_letters": cut if pause else None}
+            try:
+                result = replay(path, "cyime", bounds, [(code.replace(" ", ""), text)], 120, True, cut, pause)
+                report["candidate_settle"] = result["candidate_settle"]
+            except (OSError, RuntimeError, ValueError, KeyError, subprocess.SubprocessError) as error:
+                report["failure"] = str(error)
+            log = path / "logcat.txt"
+            if log.exists():
+                logs = log.read_text()
+                report["probe_enabled"] = "probe on sdk=" in logs
+                report["corrections"] = [{"letters": int(length), "engine_ms": int(elapsed), "changed": changed == "true"}
+                                         for length, elapsed, changed in re.findall(
+                                             r"CyIMELatency\s*:\s+refine len=(\d+) ms=(\d+) changed=(true|false)", logs)]
+            reports.append(report)
+            print(json.dumps(report, ensure_ascii=False), flush=True)
+        (output / "pause-diagnostics.json").write_text(json.dumps(reports, ensure_ascii=False, indent=2) + "\n")
+        if not any(report.get("probe_enabled") for report in reports):
+            raise RuntimeError("CyIME did not activate its built-in latency probe")
+    finally:
+        adb("shell", shlex.join(("setprop", name, saved)))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--sentences", action="store_true")
+    parser.add_argument("--pause-diagnostic", action="store_true")
     args = parser.parse_args()
     output = args.output
     if not adb("get-serialno").startswith("emulator-"):
         raise RuntimeError("The experiment requires a disposable emulator")
     products = json.loads((output / "calibration" / "products.json").read_text())
-    for label, package in PACKAGES.items():
+    for label in products:
+        package = PACKAGES[label]
         profile = adb("shell", "am", "broadcast", "-a", "androidx.profileinstaller.action.INSTALL_PROFILE",
                       "-n", package + "/androidx.profileinstaller.ProfileInstallReceiver", check=False)
         compile_result = adb("shell", "cmd", "package", "compile", "-f", "-m", "speed-profile", package, check=False)
         (output / (label + "-art.txt")).write_text(profile + "\n" + compile_result + "\n" + adb("shell", "dumpsys", "package", package))
 
+    if args.pause_diagnostic:
+        diagnose_pause(output, products["cyime"]["bounds"])
+        return
     if args.sentences:
         compare_sentences(output, products)
         return
