@@ -71,7 +71,7 @@ def app_memory(pid):
     return {"process_kib": kib_fields(adb("shell", "cat", f"/proc/{pid}/smaps_rollup")), "asset_mappings_kib": files}
 
 
-def record(output, name, bounds, location, cold, alternate, assets_warm_ms, resources):
+def record(output, name, bounds, location, cold, alternate, assets_warm_ms, resources, automatic=None):
     capture = Path(__file__).resolve().parent.parent / "input-perf" / "capture.sh"
     trace = output / f"{name}.perfetto-trace"
     pinyin, expected = SENTENCES["lyric"]
@@ -85,7 +85,8 @@ def record(output, name, bounds, location, cold, alternate, assets_warm_ms, reso
             if "Tracing is ready" not in ready:
                 raise RuntimeError("Perfetto did not start")
             report = replay(output / name, "direct", bounds, [(pinyin.replace(" ", ""), expected)], 120,
-                            sentence=True, record_video=False)
+                            sentence=True, record_video=False, quick=automatic == "immediate",
+                            idle_before_ms=1500 if automatic == "idle" else 0)
             pid = adb("shell", "pidof", PACKAGE).split()[0]
             maps = adb("shell", "cat", f"/proc/{pid}/maps")
             (output / name / "maps.txt").write_text(maps)
@@ -105,6 +106,12 @@ def record(output, name, bounds, location, cold, alternate, assets_warm_ms, reso
                     **app_memory(pid),
                 }
                 (output / name / "resources.json").write_text(json.dumps(resources, indent=2) + "\n")
+            if automatic is not None:
+                events = json.loads((output / name / "touches.json").read_text())
+                report["ready_to_first_touch_ms"] = round((events["touches"][0]["down_ns"] - events["ready_ns"]) / 1e6, 2)
+                logs = adb("logcat", "-d", "-s", "RimeAssetPrewarm:I", "*:S")
+                report["app_prewarm"] = [{"bytes": int(count), "cancelled": cancelled == "true"}
+                                         for count, cancelled in re.findall(r"bytes=(\d+) cancelled=(true|false)", logs)]
             report["mapped_model"] = model_paths[0]
             (output / name / "result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
             print(f"{name}: {report}", flush=True)
@@ -123,6 +130,7 @@ def main():
     parser.add_argument("--prewarm", action="store_true",
                         help="compare cold external profiles with and without reading the grammar and main table first")
     parser.add_argument("--asset-probe", type=Path)
+    parser.add_argument("--app-prewarm", action="store_true")
     args = parser.parse_args()
     if args.asset_probe and not args.prewarm:
         parser.error("--asset-probe requires the --prewarm comparison")
@@ -140,6 +148,17 @@ def main():
     uid = re.search(r"uid:(\d+)", adb("shell", "cmd", "package", "list", "packages", "-U", PACKAGE))[1]
     owner = f"{uid}:{uid}"
     external = EXTERNAL + "/data/rime"
+    if args.app_prewarm:
+        for timing in ("idle", "immediate"):
+            storage_profile(output, "external", uid, PRIVATE)
+            adb("shell", "sync && echo 3 > /proc/sys/vm/drop_caches")
+            report = record(output, f"app-prewarm-{timing}", bounds, "external", True, PRIVATE, None, None, timing)
+            if not report["exact_commit"]:
+                raise RuntimeError(f"The {timing} prewarm case failed to commit the expected sentence")
+            if timing == "idle" and not any(event["bytes"] >= 32 * 1024 ** 2 and not event["cancelled"]
+                                           for event in report["app_prewarm"]):
+                raise RuntimeError("The visible, idle keyboard did not finish a cold asset prewarm")
+        return
     alternate = EXTERNAL + "/data/rime-warmed" if args.prewarm else PRIVATE
     adb("shell", "mkdir", "-p", alternate)
     adb("shell", "cp", "-a", external + "/.", alternate)

@@ -14,7 +14,8 @@ from sentences import SENTENCES
 from video import analyze, describe
 
 
-def replay(directory, label, bounds, words, cadence, sentence=False, pause_after=0, pause_ms=0, record_video=True):
+def replay(directory, label, bounds, words, cadence, sentence=False, pause_after=0, pause_ms=0, record_video=True,
+           quick=False, idle_before_ms=0):
     directory.mkdir()
     select_product(PACKAGES[label])
     adb("shell", "run-as", HOST, "rm", "-f", "files/touches.json", "files/candidate-editor.json",
@@ -26,6 +27,7 @@ def replay(directory, label, bounds, words, cadence, sentence=False, pause_after
                  "-e", "bounds", json.dumps(bounds, separators=(",", ":")),
                  "-e", "words", json.dumps(words, ensure_ascii=False, separators=(",", ":")),
                  "-e", "cadence", str(cadence), "-e", "sentence", str(sentence).lower(),
+                 "-e", "quick", str(quick).lower(), "-e", "idleBeforeMs", str(idle_before_ms),
                  "-e", "pauseAfter", str(pause_after), "-e", "pauseMs", str(pause_ms), HOST + "/.VisualReplay"]
     with (directory / "recorder.txt").open("w") as log:
         process = None

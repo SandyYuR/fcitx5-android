@@ -253,8 +253,9 @@ public final class VisualReplay extends Replay {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             host = editorHost;
             awaitReady();
+            evidence.put("ready_ns", now());
             expandScreenKeyboard();
-            screenshot("before.png");
+            if (!"true".equals(args.getString("quick"))) screenshot("before.png");
             if ("true".equals(args.getString("probe"))) {
                 calibrate(evidence);
             } else {
@@ -366,7 +367,12 @@ public final class VisualReplay extends Replay {
     }
 
     private void replayWithCadence(JSONObject evidence) throws Exception {
-        markVideo();
+        if ("true".equals(args.getString("quick"))) {
+            evidence.put("quick", true);
+        } else {
+            SystemClock.sleep(Integer.parseInt(args.getString("idleBeforeMs", "0")));
+            markVideo();
+        }
         JSONObject bounds = new JSONObject(args.getString("bounds"));
         JSONArray words = new JSONArray(args.getString("words"));
         int cadence = Integer.parseInt(args.getString("cadence"));
