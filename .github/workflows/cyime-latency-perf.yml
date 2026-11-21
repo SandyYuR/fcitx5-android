@@ -57,8 +57,14 @@ jobs:
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/study-inputs
           merge-multiple: true
-      - uses: actions/checkout@v7
+      - uses: actions/cache/restore@v5
+        id: cyime-cache
         if: env.BENCH_ABI == 'x86_64'
+        with:
+          path: ${{ runner.temp }}/cyime-native
+          key: cyime-3341da598dfbf99d624139d792624093a41a9851-x86_64-${{ hashFiles('tools/cyime-perf/build-x86.sh') }}
+      - uses: actions/checkout@v7
+        if: env.BENCH_ABI == 'x86_64' && steps.cyime-cache.outputs.cache-hit != 'true'
         with:
           repository: Cyletix/CyIME
           ref: 3341da598dfbf99d624139d792624093a41a9851
@@ -66,13 +72,19 @@ jobs:
           persist-credentials: false
           path: cyime-source
       - uses: gradle/actions/setup-gradle@v6
-        if: env.BENCH_ABI == 'x86_64'
+        if: env.BENCH_ABI == 'x86_64' && steps.cyime-cache.outputs.cache-hit != 'true'
       - name: Build the pinned CyIME source as native x86_64 Release
-        if: env.BENCH_ABI == 'x86_64'
+        if: env.BENCH_ABI == 'x86_64' && steps.cyime-cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p build/cyime-latency
+          mkdir -p build/cyime-latency "$RUNNER_TEMP/cyime-native"
           sdkmanager 'ndk;29.0.14206865' 'cmake;3.22.1'
-          bash tools/cyime-perf/build-x86.sh "$GITHUB_WORKSPACE/cyime-source" "$RUNNER_TEMP/cyime.apk" "$GITHUB_WORKSPACE/build/cyime-latency"
+          bash tools/cyime-perf/build-x86.sh "$GITHUB_WORKSPACE/cyime-source" "$RUNNER_TEMP/cyime-native/cyime.apk" "$GITHUB_WORKSPACE/build/cyime-latency"
+          cp build/cyime-latency/cyime-* "$RUNNER_TEMP/cyime-native/"
+      - uses: actions/cache/save@v5
+        if: env.BENCH_ABI == 'x86_64' && steps.cyime-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ runner.temp }}/cyime-native
+          key: ${{ steps.cyime-cache.outputs.cache-primary-key }}
       - name: Verify exact products and prepare the neutral editor
         run: |
           mkdir -p build/cyime-latency
@@ -85,6 +97,12 @@ jobs:
               https://github.com/Cyletix/CyIME/releases/download/1.15.101/CyIME-1.15.101-arm64-v8a.apk \
               --output "$RUNNER_TEMP/cyime.apk"
             printf '%s  %s\n' 955ef612c27f996f1da6af827882b51414facd2562304ba4562aac1b27c65074 "$RUNNER_TEMP/cyime.apk" | sha256sum -c -
+          else
+            cyime="$RUNNER_TEMP/cyime-native"
+            test "$(cat "$cyime/cyime-source.txt")" = 3341da598dfbf99d624139d792624093a41a9851
+            printf '%s  %s\n' "$(cut -d ' ' -f 1 "$cyime/cyime-x86-sha256.txt")" "$cyime/cyime.apk" | sha256sum -c -
+            cp "$cyime"/cyime-* build/cyime-latency/
+            ln -s "$cyime/cyime.apk" "$RUNNER_TEMP/cyime.apk"
           fi
           cp "$direct"/{source.txt,build-metadata.json,rime-sdk.lock.json} "$RUNNER_TEMP/study-inputs/fixture.manifest.json" build/cyime-latency/
           bash tools/cyime-perf/build-host.sh "$RUNNER_TEMP/cyime-host"

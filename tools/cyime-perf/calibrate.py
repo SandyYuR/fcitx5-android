@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare the two unmodified ARM64 IMEs on the same disposable Android emulator."""
+"""Prepare and verify two IME builds on the same disposable Android emulator."""
 
 import argparse
 import hashlib
@@ -140,6 +140,19 @@ def calibrate_touch(out, package):
     return record["bounds"]
 
 
+def verify_apk_abi(apk, abi):
+    machine = {"arm64-v8a": 183, "x86_64": 62}[abi]
+    with zipfile.ZipFile(apk) as archive:
+        libraries = [name for name in archive.namelist() if name.startswith("lib/") and name.endswith(".so")]
+        if not libraries or {name.split("/")[1] for name in libraries} != {abi}:
+            raise ValueError(f"{apk.name} does not contain only {abi} native libraries")
+        for name in libraries:
+            with archive.open(name) as library:
+                header = library.read(20)
+            if header[:6] != b"\x7fELF\x02\x01" or int.from_bytes(header[18:20], "little") != machine:
+                raise ValueError(f"{name} is not a little-endian {abi} ELF64 library")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("direct", "cyime", "fixture", "host", "output"):
@@ -152,6 +165,7 @@ def main():
     if not adb("get-serialno", check=False, timeout=10).startswith("emulator-"):
         raise RuntimeError("The experiment requires a disposable emulator")
     wait_for_root(output)
+    device_abi = adb("shell", "getprop", "ro.product.cpu.abi")
     if args.abi not in adb("shell", "getprop", "ro.product.cpu.abilist").split(","):
         raise RuntimeError(f"The Android image cannot run the configured ABI {args.abi}")
     for namespace, key, value in (
@@ -172,6 +186,7 @@ def main():
     (output / "display.txt").write_text(adb("shell", "dumpsys", "display"))
     adb("install", "-r", args.host)
     for apk in (args.direct, args.cyime):
+        verify_apk_abi(apk, args.abi)
         adb("install", "-r", apk)
     disable_press_bubble(PACKAGES["direct"], PACKAGES["direct"] + "_preferences", "popup_on_key_press")
     disable_press_bubble(PACKAGES["cyime"], "kime_settings", "show_press_bubble_v2")
@@ -194,11 +209,14 @@ def main():
             pid = wait_for_keyboard(label, package)
             maps = adb("shell", "cat", f"/proc/{pid}/maps")
             (out / "maps.txt").write_text(maps)
-            entry["arm64_translation"] = "libndk_translation.so" in maps
             package_info = adb("shell", "dumpsys", "package", package)
             (out / "package.txt").write_text(package_info)
-            if f"primaryCpuAbi={args.abi}" not in package_info or entry["arm64_translation"] != (args.abi == "arm64-v8a"):
+            primary_abi = re.search(r"^\s*primaryCpuAbi=(\S+)\s*$", package_info, re.MULTILINE)
+            if not primary_abi or primary_abi[1] != args.abi:
                 raise RuntimeError(f"Process architecture does not match {args.abi}")
+            entry["primary_cpu_abi"] = primary_abi[1]
+            entry["device_cpu_abi"] = device_abi
+            entry["arm64_translation"] = primary_abi[1] == "arm64-v8a" and device_abi == "x86_64"
             (out / "effective-schema.yaml").write_text(adb("shell", "cat", f"{root}/build/{schema}.schema.yaml"))
             user = adb("shell", "cat", f"{root}/user.yaml", check=False)
             if user:
