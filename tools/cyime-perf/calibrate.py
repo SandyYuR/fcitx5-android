@@ -94,7 +94,9 @@ def configure_preferences(package, prefs_name, key, wanxiang_page_size=None):
         # CyIME takes emoji from Android settings when it restores the scheme,
         # overriding the true value in the pinned Wanxiang user.yaml otherwise.
         values.update(current_schema=("string", "wanxiang"), current_schema_dual=("boolean", "true"),
-                      page_size=("int", str(wanxiang_page_size)), candidate_emoji=("boolean", "true"))
+                      page_size=("int", str(wanxiang_page_size)), candidate_emoji=("boolean", "true"),
+                      builtin_schemas_merged=("boolean", "true"), cyime_chinese_defaults_v1=("boolean", "true"),
+                      japanese_schemas_added_v1=("boolean", "true"))
     for item in list(settings):
         if item.get("name") in values:
             settings.remove(item)
@@ -126,6 +128,16 @@ def seed_profiles(fixture, output, packages, shared):
                 raise ValueError("Invalid fixture path")
             archive.extractall(source)
         if shared:
+            import yaml
+
+            # CyIME imports its bundled global patch when this file is absent.
+            # Carry the fixture's own values in both profiles to keep the same defaults.
+            custom = source / "default.custom.yaml"
+            if not custom.exists():
+                defaults = yaml.safe_load((source / "default.yaml").read_text(encoding="utf-8-sig"))
+                patch = {"patch": {"schema_list": defaults["schema_list"], "menu": defaults["menu"]}}
+                custom.write_text(yaml.safe_dump(patch, sort_keys=False, allow_unicode=True, indent=4))
+            (output / "wanxiang-seed-default.custom.yaml").write_bytes(custom.read_bytes())
             for path in sorted(source.rglob("*")):
                 relative = path.relative_to(source)
                 if path.is_file() and relative.parts[0] != "build" and relative.name not in (
@@ -200,9 +212,13 @@ def verify_shared_comparison(output, support):
 
     schemas = [json.loads((output / label / "effective-schema.json").read_text()) for label in PACKAGES]
     differences = sorted(key for key in schemas[0].keys() | schemas[1].keys() if schemas[0].get(key) != schemas[1].get(key))
+    defaults = [yaml.safe_load((output / label / "build-default.yaml").read_text()) for label in PACKAGES]
+    default_differences = sorted(key for key in defaults[0].keys() | defaults[1].keys()
+                                 if key != "__build_info" and defaults[0].get(key) != defaults[1].get(key))
     seeded = yaml.safe_load((output / "wanxiang-seed-user.yaml").read_text())["var"]["option"]
     report = {
         "schema_differences": differences,
+        "default_differences": default_differences,
         "source_changes": {label: entry["source_changes"] for label, entry in support.items()},
         "seeded_option_differences": {
             label: {key: {"expected": value, "observed": entry["seeded_options"].get(key)}
@@ -210,7 +226,8 @@ def verify_shared_comparison(output, support):
             for label, entry in support.items()
         },
     }
-    report["verified"] = not (differences or any(report["source_changes"].values()) or any(report["seeded_option_differences"].values()))
+    report["verified"] = not (differences or default_differences or any(report["source_changes"].values())
+                              or any(report["seeded_option_differences"].values()))
     (output / "shared-wanxiang.json").write_text(json.dumps(report, indent=2) + "\n")
     if not report["verified"]:
         raise RuntimeError(f"Wanxiang profiles differ after deployment: {report}")
