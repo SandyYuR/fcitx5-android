@@ -14,42 +14,51 @@ from sentences import SENTENCES
 from video import analyze, describe
 
 
-def replay(directory, label, bounds, words, cadence, sentence=False, pause_after=0, pause_ms=0):
+def replay(directory, label, bounds, words, cadence, sentence=False, pause_after=0, pause_ms=0, record_video=True):
     directory.mkdir()
     select_product(PACKAGES[label])
     adb("shell", "run-as", HOST, "rm", "-f", "files/touches.json", "files/candidate-editor.json",
         "files/before.png", "files/first-candidates.png", "files/wrong-output.png")
     recorded = "/sdcard/cyime-latency.mp4"
-    adb("shell", "rm", "-f", recorded)
+    if record_video:
+        adb("shell", "rm", "-f", recorded)
     arguments = ["am", "instrument", "--no-hidden-api-checks", "-w", "-e", "package", PACKAGES[label],
                  "-e", "bounds", json.dumps(bounds, separators=(",", ":")),
                  "-e", "words", json.dumps(words, ensure_ascii=False, separators=(",", ":")),
                  "-e", "cadence", str(cadence), "-e", "sentence", str(sentence).lower(),
                  "-e", "pauseAfter", str(pause_after), "-e", "pauseMs", str(pause_ms), HOST + "/.VisualReplay"]
     with (directory / "recorder.txt").open("w") as log:
-        process = subprocess.Popen(["adb", "shell", "screenrecord", "--time-limit", "180", "--bit-rate", "12000000", recorded],
-                                   stdout=log, stderr=subprocess.STDOUT)
+        process = None
         try:
-            time.sleep(1)
-            if not adb("shell", "pidof", "screenrecord", check=False):
-                raise RuntimeError("screenrecord failed to start")
+            if record_video:
+                process = subprocess.Popen(["adb", "shell", "screenrecord", "--time-limit", "180", "--bit-rate", "12000000", recorded],
+                                           stdout=log, stderr=subprocess.STDOUT)
+                time.sleep(1)
+                if not adb("shell", "pidof", "screenrecord", check=False):
+                    raise RuntimeError("screenrecord failed to start")
             response = adb("shell", shlex.join(arguments), timeout=240)
             (directory / "instrumentation.txt").write_text(response)
             if "status=ok" not in response:
                 raise RuntimeError("Replay failed, see instrumentation evidence")
         finally:
-            adb("shell", "pkill", "-INT", "screenrecord", check=False)
-            try:
-                process.wait(timeout=12)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait()
-            adb("pull", recorded, directory / "run.mp4", check=False)
+            if process:
+                adb("shell", "pkill", "-INT", "screenrecord", check=False)
+                try:
+                    process.wait(timeout=12)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
+                adb("pull", recorded, directory / "run.mp4", check=False)
             for name in ("touches.json", "candidate-editor.json", "before.png", "first-candidates.png", "wrong-output.png"):
                 reply = subprocess.run(["adb", "exec-out", "run-as", HOST, "cat", "files/" + name], capture_output=True)
                 if reply.returncode == 0 and reply.stdout:
                     (directory / name).write_bytes(reply.stdout)
             (directory / "logcat.txt").write_text(adb("logcat", "-d", "-t", "1800"))
+    if not record_video:
+        editor = json.loads((directory / "candidate-editor.json").read_text())
+        expected = [word for _, word in words]
+        commits = [item["text"] for item in editor["commits"] if item["text"]]
+        return {"observed_text": editor["text"], "exact_commit": commits == expected and editor["text"] == "".join(expected)}
     result = analyze(directory, bounds, words, cadence, sentence, pause_after, pause_ms)
     (directory / "analysis.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     return result
