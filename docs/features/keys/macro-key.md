@@ -156,6 +156,12 @@ modifier 键 + 主键的组合，比手写 `down`/`up` 简单且自动处理释�
 - **切换系统输入法**：弹出 Android 输入法选择器（与工具栏语言按钮长按同效果）；
 - **弹出 Rime 方案选单**：与长按语言键同一入口。
 
+包含统计快捷入口的构建支持 `settings_input_stats`，直接打开[输入统计与字词云](/features/input-statistics)页面，不自动开启记录：
+
+```json
+{ "type": "app", "id": "settings_input_stats" }
+```
+
 ```json
 { "type": "app", "id": "open_settings" }
 ```
