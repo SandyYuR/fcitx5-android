@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name_release">Fcitx5.fx.rime</string>
     <string name="app_name_debug">Fcitx5.fx.rime (Debug)</string>
     <string name="save">Save</string>
@@ -358,6 +358,7 @@
     <string name="system_default">System default</string>
     <string name="editor_info_inspector">EditorInfo Inspector</string>
     <string name="default_">Default</string>
+    <string name="layout_editor_layer_submode" tools:ignore="MissingTranslation">Layer: %1$s</string>
     <string name="saving">Saving</string>
     <string name="delete_all_pinned_items">Delete all pinned items?</string>
     <string name="vivo_keypress_workaround">vivo Origin OS keypress workaround</string>

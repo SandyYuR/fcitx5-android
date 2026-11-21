@@ -156,16 +156,19 @@ class SubModeManager(
         // Collect from submode layout keys
         val labels = linkedSetOf<String>()
 
-        // 保留标签（层子布局 __layer__: 、分体排列 __variant__:）不是输入方案，出现在方案
-        // 下拉框里只会让用户困惑；见 LayoutJsonUtils.isReservedSubModeLabel。
-        // 仅有分体排列时也保留所属方案；排列本身不会成为单独的选项。
+        // 方案标签排在前；层子布局（__layer__:数字 这类）单独收集、排在方案之后，
+        // 编辑器据此既能查看/编辑主题自带的数字层，又不会把它误当成输入方案。
+        // 分体排列（__variant__:）仍不单独列出：它是子布局的属性。
+        val layerLabels = linkedSetOf<String>()
         entries.keys.mapNotNull { key ->
             LayoutJsonUtils.parseEntryKey(key)?.takeIf { it.layoutName == layoutName }?.subLayout
         }.forEach { subModeLabel ->
-            if (subModeLabel.isNotEmpty() && subModeLabel != "default" &&
-                !LayoutJsonUtils.isReservedSubModeLabel(subModeLabel)
-            ) {
-                labels.add(subModeLabel)
+            if (subModeLabel.isNotEmpty() && subModeLabel != "default") {
+                when {
+                    LayoutJsonUtils.isVariantSubModeLabel(subModeLabel) -> Unit
+                    LayoutJsonUtils.isLayerSubModeLabel(subModeLabel) -> layerLabels.add(subModeLabel)
+                    else -> labels.add(subModeLabel)
+                }
             }
         }
 
@@ -195,6 +198,7 @@ class SubModeManager(
             }
         }
 
+        labels.addAll(layerLabels)
         return labels.toList()
     }
 
