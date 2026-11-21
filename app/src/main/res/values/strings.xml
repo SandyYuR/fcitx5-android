@@ -562,6 +562,7 @@
     <string name="top_right">Top Right</string>
     <string name="bottom_left">Bottom Left</string>
     <string name="bottom_right">Bottom Right</string>
+    <string name="follow_cursor">Follow cursor</string>
     <string name="candidates_font_size">Candidate word font size</string>
     <string name="candidates_padding">Candidate word padding</string>
     <string name="candidate_highlight_radius">Candidate highlight radius</string>

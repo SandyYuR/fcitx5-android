@@ -87,6 +87,7 @@ import org.fcitx.fcitx5.android.data.stats.InputStats
 import org.fcitx.fcitx5.android.data.stats.StatsLayout
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceProvider
 import org.fcitx.fcitx5.android.data.theme.Theme
@@ -2117,7 +2118,17 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onUpdateCursorAnchorInfo(info: CursorAnchorInfo) {
-        val bounds = info.getCharacterBounds(0)
+        // "Follow cursor" anchors the window to the caret itself, while the other
+        // positions stay on the start of the composing span to avoid jitter.
+        val followCursor = prefs.candidates.virtualKeyboardPosition.getValue() ==
+            FloatingCandidatesVirtualKeyboardPosition.FollowCursor
+        val bounds = if (followCursor && info.insertionMarkerHorizontal.isFinite() &&
+            info.insertionMarkerTop.isFinite() && info.insertionMarkerBottom.isFinite()
+        ) {
+            null
+        } else {
+            info.getCharacterBounds(0)
+        }
         if (bounds != null) {
             // anchor to start of composing span instead of insertion mark if available
             val horizontal =

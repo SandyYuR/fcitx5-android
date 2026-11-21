@@ -24,6 +24,7 @@ import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.candidates.floating.CursorFollowingPosition
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesOrientation
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
@@ -261,6 +262,26 @@ class CandidatesView(
         val floatingMode = AppPrefs.getInstance().candidates.mode.getValue()
         val useFloatingAlways = floatingMode == FloatingCandidatesMode.Always
 
+        if (useFloatingAlways &&
+            floatingPosition == FloatingCandidatesVirtualKeyboardPosition.FollowCursor
+        ) {
+            val bottomLimit = if (isVirtualKeyboardVisible && keyboardBounds[1] > 0f)
+                minOf(keyboardBounds[1], parentHeight - bottomInsets)
+            else parentHeight - bottomInsets
+            val (x, y) = CursorFollowingPosition.calculate(
+                width = parentWidth,
+                bottomLimit = bottomLimit,
+                selfWidth = selfWidth,
+                selfHeight = selfHeight,
+                horizontal = horizontal,
+                top = top,
+                bottom = bottom,
+                gap = gap,
+                rtl = layoutDirection == LAYOUT_DIRECTION_RTL
+            )
+            return (x - left) to (y - this.top)
+        }
+
         if (useFloatingAlways) {
             return calculatePositionForAlwaysMode(
                 parentWidth = parentWidth,
@@ -346,7 +367,8 @@ class CandidatesView(
     ): Float {
         return when (floatingPosition) {
             FloatingCandidatesVirtualKeyboardPosition.TopLeft,
-            FloatingCandidatesVirtualKeyboardPosition.BottomLeft -> {
+            FloatingCandidatesVirtualKeyboardPosition.BottomLeft,
+            FloatingCandidatesVirtualKeyboardPosition.FollowCursor -> {
                 gap
             }
             FloatingCandidatesVirtualKeyboardPosition.TopRight,
@@ -371,6 +393,8 @@ class CandidatesView(
         val switchThreshold = selfHeight * 2f
 
         return when (floatingPosition) {
+            FloatingCandidatesVirtualKeyboardPosition.FollowCursor ->
+                bottomReference - gap - selfHeight
             FloatingCandidatesVirtualKeyboardPosition.TopLeft,
             FloatingCandidatesVirtualKeyboardPosition.TopRight -> {
                 val spaceAbove = cursorTop - gap

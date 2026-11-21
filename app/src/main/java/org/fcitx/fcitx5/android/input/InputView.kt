@@ -4166,6 +4166,10 @@ class InputView(
         keyboardView.getLocationInWindow(keyboardLoc)
 
         when (position) {
+            // The window floats by the caret, so keep the aux bar in its default
+            // place above the keyboard instead of fitting it around the candidates.
+            FloatingCandidatesVirtualKeyboardPosition.FollowCursor ->
+                positionAuxBarDefault(scrollView)
             FloatingCandidatesVirtualKeyboardPosition.TopLeft,
             FloatingCandidatesVirtualKeyboardPosition.TopRight -> {
                 val cvBottomInInput = cvLoc[1] + cv.height - inputLoc[1]

@@ -27,5 +27,9 @@ enum class FloatingCandidatesVirtualKeyboardPosition(override val stringRes: Int
     /**
      * Bottom-right corner (above navigation bar, below keyboard)
      */
-    BottomRight(R.string.bottom_right)
+    BottomRight(R.string.bottom_right),
+    /**
+     * Next to the text cursor, flipping above or below it when space is short
+     */
+    FollowCursor(R.string.follow_cursor)
 }

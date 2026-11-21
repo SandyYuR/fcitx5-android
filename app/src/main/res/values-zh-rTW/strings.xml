@@ -462,6 +462,7 @@
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>
     <string name="bottom_right">右下</string>
+    <string name="follow_cursor">跟隨游標</string>
     <string name="candidates_font_size">候選詞字體大小</string>
     <string name="font_size">字體大小</string>
     <string name="font_size_value">%1$d sp</string>
