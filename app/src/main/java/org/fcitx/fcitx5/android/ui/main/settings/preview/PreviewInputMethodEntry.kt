@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.ui.main.settings.preview
 
 import org.fcitx.fcitx5.android.core.InputMethodEntry
+import org.fcitx.fcitx5.android.core.InputMethodSubMode
 
 object PreviewInputMethodEntry {
 
@@ -39,7 +40,13 @@ object PreviewInputMethodEntry {
                     )
                 }
             )
-            ?: InputMethodEntry(layoutName)
+            ?: InputMethodEntry(layoutName).copy(
+                // 没有真实输入法可复制时也要带上子布局标签：预览 entry 只靠 subMode.label
+                // 定位子布局，丢掉它会让「层：数字」这类目标退回基线排列。
+                subMode = if (selectedSubModeLabel.isNotEmpty()) {
+                    InputMethodSubMode(selectedSubModeLabel, selectedSubModeLabel, "")
+                } else InputMethodSubMode()
+            )
     }
 
     /**

@@ -1817,7 +1817,17 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         // 否则会去找 entries["rime:默认"] 这种不存在的键。
         val selectionMap = SubModeManager.buildSpinnerSelectionMap(labels)
         subModeSpinnerSelectionMap = selectionMap
-        val displayItems = selectionMap.map { label -> label ?: getString(R.string.default_) }
+        val displayItems = selectionMap.map { label ->
+            when {
+                label == null -> getString(R.string.default_)
+                // 层子布局在列表里用「层：数字」这种可读文本，但选中值仍是原始 __layer__: 标签。
+                LayoutJsonUtils.isLayerSubModeLabel(label) -> getString(
+                    R.string.layout_editor_layer_submode,
+                    label.removePrefix(LayoutJsonUtils.LAYER_SUBMODE_PREFIX)
+                )
+                else -> label
+            }
+        }
         val adapter = compactSelectorAdapter(displayItems)
         subModeSpinner.adapter = adapter
 
