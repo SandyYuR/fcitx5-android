@@ -17,7 +17,7 @@ import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgePosition
 import org.fcitx.fcitx5.android.input.candidates.expanded.ExpandedCandidateStyle
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesOrientation
-import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesPosition
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase
 import org.fcitx.fcitx5.android.input.keyboard.SpaceKeyLabelMode
@@ -542,9 +542,33 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val virtualKeyboardPosition = enumList(
             R.string.candidates_position,
             "virtual_keyboard_candidates_position",
-            FloatingCandidatesVirtualKeyboardPosition.TopLeft
+            FloatingCandidatesPosition.TopLeft,
+            entryValues = FloatingCandidatesPosition.entries.filterNot { it == FloatingCandidatesPosition.Default }
         ) {
             mode.getValue() == FloatingCandidatesMode.Always
+        }
+
+        val physicalKeyboardPosition = enumList(
+            R.string.physical_keyboard_candidates_position,
+            "physical_keyboard_candidates_position",
+            FloatingCandidatesPosition.Default,
+            entryValues = listOf(FloatingCandidatesPosition.Default) +
+                FloatingCandidatesPosition.entries.filterNot { it == FloatingCandidatesPosition.Default }
+        ) {
+            mode.getValue() == FloatingCandidatesMode.InputDevice &&
+                !physicalKeyboardHorizontalCandidateBar.getValue()
+        }
+
+        internal fun windowPosition(
+            mode: FloatingCandidatesMode,
+            virtualKeyboard: Boolean
+        ): FloatingCandidatesPosition? = when (mode) {
+            FloatingCandidatesMode.Always -> virtualKeyboardPosition.getValue()
+            FloatingCandidatesMode.InputDevice ->
+                if (!virtualKeyboard && !physicalKeyboardHorizontalCandidateBar.getValue()) {
+                    physicalKeyboardPosition.getValue().takeUnless { it == FloatingCandidatesPosition.Default }
+                } else null
+            else -> null
         }
 
         val windowMinWidth = int(
