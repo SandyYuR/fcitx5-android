@@ -2647,8 +2647,7 @@ abstract class BaseKeyboard(
             when (it) {
                 is KeyDef.Behavior.Press -> {
                     val action = it.action
-                    view.letterTapHandoverEnabled = !vivoKeypressWorkaround && action is KeyAction.FcitxKeyAction &&
-                        !action.up && action.states == KeyStates.Virtual && action.act.singleOrNull()?.let { it in 'a'..'z' } == true
+                    view.letterTapHandoverEnabled = !vivoKeypressWorkaround && action.isSingleVirtualLetterTap()
                     view.setOnClickListener { _ ->
                         onAction(action)
                     }

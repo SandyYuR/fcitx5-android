@@ -298,13 +298,17 @@ public final class VisualReplay extends Replay {
 
     private void replayOverlap(JSONObject evidence, String mode) throws Exception {
         JSONObject bounds = new JSONObject(args.getString("bounds"));
-        String code = mode.equals("one-g") ? "zhonguo" : "zhongguo";
+        boolean macroLetter = mode.startsWith("macro-");
+        String code = macroLetter ? "maan" : mode.equals("one-g") ? "zhonguo" : "zhongguo";
+        int overlapIndex = macroLetter ? 1 : 4;
+        boolean overlapping = mode.equals("older-up-first") || mode.equals("newer-up-first") ||
+            mode.equals("cancel-second") || mode.equals("macro-overlap");
         long start = now() + 40_000_000L;
         for (int i = 0; i < code.length(); i++) {
             String key = code.substring(i, i + 1);
             long due = start + i * 120_000_000L;
-            if (i == 4 && (mode.equals("older-up-first") || mode.equals("newer-up-first") || mode.equals("cancel-second"))) {
-                doubleTouch(bounds.getJSONArray(key), due, mode);
+            if (i == overlapIndex && overlapping) {
+                doubleTouch(bounds.getJSONArray(key), due, key, mode);
                 i++;
             } else {
                 touch(bounds.getJSONArray(key), due, key, 0);
@@ -319,8 +323,8 @@ public final class VisualReplay extends Replay {
         screenshot("committed.png");
     }
 
-    private void doubleTouch(JSONArray bounds, long start, String mode) throws Exception {
-        boolean olderUpFirst = mode.equals("older-up-first");
+    private void doubleTouch(JSONArray bounds, long start, String key, String mode) throws Exception {
+        boolean olderUpFirst = mode.equals("older-up-first") || mode.equals("macro-overlap");
         boolean cancel = mode.equals("cancel-second");
         float x = (bounds.getInt(0) + bounds.getInt(2)) / 2f;
         float y = (bounds.getInt(1) + bounds.getInt(3)) / 2f;
@@ -354,7 +358,7 @@ public final class VisualReplay extends Replay {
             try {
                 long at = now();
                 if (!(Boolean) injectTouch.invoke(inputManager, motion, 0)) throw new IllegalStateException("Two-pointer injection failed");
-                touches.put(new JSONObject().put("key", "g").put("action", actions[i]).put("at_ns", at));
+                touches.put(new JSONObject().put("key", key).put("action", actions[i]).put("at_ns", at));
             } finally {
                 motion.recycle();
             }

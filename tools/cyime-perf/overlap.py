@@ -29,7 +29,7 @@ def run(output, label, bounds, mode):
         return {"failure": response}
     evidence = json.loads((directory / "touches.json").read_text())
     preedit = next((item["text"].split("|")[0].strip() for item in evidence["overlap_candidates"]
-                    if item["text"].startswith(("zhong guo", "zhon guo"))), None)
+                    if item["text"].startswith(("zhong guo", "zhon guo", "ma an", "maan", "man"))), None)
     return {"text": evidence["output"], "preedit": preedit,
             "overlap_events": [event for event in evidence["touches"] if "action" in event]}
 
@@ -55,13 +55,17 @@ def main():
     if any("failure" in result for pair in results.values() for result in pair.values()):
         raise RuntimeError("An overlap replay could not inject its touches")
     if args.expect_handover:
-        results["cancel-second"] = {"direct": run(args.output, "direct", products["direct"]["bounds"], "cancel-second")}
+        for mode in ("cancel-second", "macro-sequential", "macro-overlap"):
+            results[mode] = {"direct": run(args.output, "direct", products["direct"]["bounds"], mode)}
         (args.output / "overlap-results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2) + "\n")
         expected = {"sequential": "zhong guo", "one-g": "zhon guo", "older-up-first": "zhong guo",
                     "newer-up-first": "zhong guo", "cancel-second": "zhon guo"}
         for mode, preedit in expected.items():
             if results[mode]["direct"].get("preedit") != preedit:
                 raise RuntimeError(f"{mode}: expected {preedit}, observed {results[mode]['direct']}")
+        macro_pinyin = results["macro-sequential"]["direct"].get("preedit")
+        if not macro_pinyin or macro_pinyin.replace(" ", "") != "maan" or results["macro-overlap"]["direct"].get("preedit") != macro_pinyin:
+            raise RuntimeError(f"Macro-letter replays did not both preserve ma an: {results['macro-overlap']}")
 
 
 if __name__ == "__main__":
