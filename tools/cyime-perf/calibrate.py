@@ -91,8 +91,10 @@ def configure_preferences(package, prefs_name, key, wanxiang_page_size=None):
     settings = ET.fromstring(saved) if saved else ET.Element("map")
     values = {key: ("boolean", "false")}
     if wanxiang_page_size is not None:
+        # CyIME takes emoji from Android settings when it restores the scheme,
+        # overriding the true value in the pinned Wanxiang user.yaml otherwise.
         values.update(current_schema=("string", "wanxiang"), current_schema_dual=("boolean", "true"),
-                      page_size=("int", str(wanxiang_page_size)))
+                      page_size=("int", str(wanxiang_page_size)), candidate_emoji=("boolean", "true"))
     for item in list(settings):
         if item.get("name") in values:
             settings.remove(item)
