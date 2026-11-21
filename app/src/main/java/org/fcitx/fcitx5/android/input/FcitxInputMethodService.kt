@@ -1425,10 +1425,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onWindowShown() {
         super.onWindowShown()
+        FcitxDaemon.setKeyboardWindowVisible(true)
         highlightColor =
             styledColorOrDefault(android.R.attr.colorAccent, DefaultHighlightColor).alpha(0.4f)
         InputFeedbacks.syncSystemPrefs()
         applyPendingThemeIfPossible()
+    }
+
+    override fun onWindowHidden() {
+        FcitxDaemon.setKeyboardWindowVisible(false)
+        super.onWindowHidden()
     }
 
     override fun onCreateInputView(): View? {
@@ -2428,6 +2434,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onDestroy() {
+        FcitxDaemon.setKeyboardWindowVisible(false)
         jsAppDismiss?.invoke()
         editorSession.end()
         endEditorWork()
