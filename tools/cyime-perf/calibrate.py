@@ -96,6 +96,7 @@ def configure_preferences(package, prefs_name, key, wanxiang_page_size=None):
         values.update(current_schema=("string", "wanxiang"), current_schema_dual=("boolean", "true"),
                       page_size=("int", str(wanxiang_page_size)), candidate_emoji=("boolean", "true"),
                       builtin_schemas_merged=("boolean", "true"), cyime_chinese_defaults_v1=("boolean", "true"),
+                      cyime_double_pinyin_defaults_v1=("boolean", "true"),
                       japanese_schemas_added_v1=("boolean", "true"))
     for item in list(settings):
         if item.get("name") in values:
@@ -140,7 +141,8 @@ def seed_profiles(fixture, output, packages, shared):
             (output / "wanxiang-seed-default.custom.yaml").write_bytes(custom.read_bytes())
             for path in sorted(source.rglob("*")):
                 relative = path.relative_to(source)
-                if path.is_file() and relative.parts[0] != "build" and relative.name not in (
+                # Both packages can supply documentation with the same name.
+                if path.is_file() and relative.suffix not in (".md", ".jpg") and relative.parts[0] != "build" and relative.name not in (
                     "default.yaml", "default.custom.yaml", "user.yaml", "installation.yaml"
                 ):
                     digest = hashlib.sha256()
