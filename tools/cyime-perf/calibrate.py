@@ -60,13 +60,19 @@ def install_fixture(fixture, output):
     adb("shell", "am", "start", "-W", "-a", "android.settings.SETTINGS")
     adb("shell", "am", "force-stop", package)
     adb("shell", "am", "force-stop", HOST)
+    staging = physical + ".benchmark-fixture"
     with tempfile.TemporaryDirectory(prefix="cyime-fixture-") as source:
         with zipfile.ZipFile(fixture) as archive:
             if any(Path(n).is_absolute() or ".." in Path(n).parts for n in archive.namelist()):
                 raise ValueError("Invalid fixture path")
             archive.extractall(source)
-        adb("shell", "mkdir", "-p", physical)
-        adb("push", source + "/.", physical)
+        adb("shell", "mkdir", "-p", staging)
+        adb("push", source + "/.", staging)
+    # The empty first startup can leave generated state in rime/. Swap in
+    # the complete fixture rather than overlaying that state.
+    if adb("shell", "ls", "-d", physical, check=False):
+        adb("shell", "mv", physical, physical + ".unseeded")
+    adb("shell", "mv", staging, physical)
     data = str(Path(physical).parent)
     adb("shell", "chown", "-R", f"{uid}:{uid}", data)
     adb("shell", "restorecon", "-RF", data)
@@ -169,6 +175,7 @@ def main():
     if not adb("get-serialno", check=False, timeout=10).startswith("emulator-"):
         raise RuntimeError("The experiment requires a disposable emulator")
     wait_for_root(output)
+    adb("logcat", "-G", "16M", check=False)
     device_abi = adb("shell", "getprop", "ro.product.cpu.abi")
     if args.abi not in adb("shell", "getprop", "ro.product.cpu.abilist").split(","):
         raise RuntimeError(f"The Android image cannot run the configured ABI {args.abi}")
@@ -235,6 +242,9 @@ def main():
             entry["error"] = str(error)
             errors.append(label)
             print(f"{label}: {error}", flush=True)
+            pids = adb("shell", "pidof", package, check=False).split()
+            if pids:
+                (out / "startup-log.txt").write_text(adb("logcat", "-d", "--pid=" + pids[0], check=False))
         finally:
             if not (out / "keyboard.png").exists():
                 capture(out, "keyboard")

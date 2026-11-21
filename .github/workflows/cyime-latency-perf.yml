@@ -132,7 +132,8 @@ jobs:
             python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration --abi "$BENCH_ABI" --measure $BENCH_SUITE $BENCH_DIAGNOSTIC
             if [ "$BENCH_OVERLAP" = yes ]; then
               python3 tools/cyime-perf/overlap.py --output build/cyime-latency
-            else
+            fi
+            if [ "$BENCH_OVERLAP" != yes ] || [ -n "$BENCH_TRACE" ]; then
               python3 tools/cyime-perf/run.py --output build/cyime-latency $BENCH_SUITE $BENCH_DIAGNOSTIC $BENCH_TRACE
             fi
       - uses: actions/upload-artifact@v7
