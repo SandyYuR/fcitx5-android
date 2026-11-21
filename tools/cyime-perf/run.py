@@ -143,11 +143,35 @@ def diagnose_pause(output, bounds):
         adb("shell", shlex.join(("setprop", name, saved)))
 
 
+def trace_long_sentence(output, bounds):
+    """Capture the existing release trace markers alongside the same lyric replay."""
+    capture = Path(__file__).resolve().parent.parent / "input-perf" / "capture.sh"
+    pinyin, text = SENTENCES["lyric"]
+    trace = output / "direct-long.perfetto-trace"
+    with (output / "direct-long-capture.txt").open("w") as log:
+        recorder = subprocess.Popen(["bash", str(capture), str(trace), "45000"], stdout=subprocess.PIPE,
+                                    stderr=log, text=True)
+        try:
+            ready = recorder.stdout.readline()
+            log.write(ready)
+            if "Tracing is ready" not in ready:
+                raise RuntimeError("Perfetto did not start")
+            report = replay(output / "direct-long-traced", "direct", bounds,
+                            [(pinyin.replace(" ", ""), text)], 120, True)
+            (output / "direct-long-result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+        finally:
+            stdout, _ = recorder.communicate(timeout=65)
+            log.write(stdout)
+    if recorder.returncode or not trace.is_file():
+        raise RuntimeError("Perfetto did not save a trace")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--sentences", action="store_true")
     parser.add_argument("--pause-diagnostic", action="store_true")
+    parser.add_argument("--trace-long", action="store_true")
     args = parser.parse_args()
     output = args.output
     if not adb("get-serialno").startswith("emulator-"):
@@ -162,6 +186,9 @@ def main():
 
     if args.pause_diagnostic:
         diagnose_pause(output, products["cyime"]["bounds"])
+        return
+    if args.trace_long:
+        trace_long_sentence(output, products["direct"]["bounds"])
         return
     if args.sentences:
         compare_sentences(output, products)
