@@ -19,7 +19,7 @@ def replay(directory, label, bounds, words, cadence):
         "files/before.png", "files/first-candidates.png", "files/wrong-output.png")
     recorded = "/sdcard/cyime-latency.mp4"
     adb("shell", "rm", "-f", recorded)
-    arguments = ["am", "instrument", "-w", "-e", "package", PACKAGES[label],
+    arguments = ["am", "instrument", "--no-hidden-api-checks", "-w", "-e", "package", PACKAGES[label],
                  "-e", "bounds", json.dumps(bounds, separators=(",", ":")),
                  "-e", "words", json.dumps(words, ensure_ascii=False, separators=(",", ":")),
                  "-e", "cadence", str(cadence), HOST + "/.VisualReplay"]
@@ -47,7 +47,7 @@ def replay(directory, label, bounds, words, cadence):
                 if reply.returncode == 0 and reply.stdout:
                     (directory / name).write_bytes(reply.stdout)
             (directory / "logcat.txt").write_text(adb("logcat", "-d", "-t", "1800"))
-    result = analyze(directory, bounds, words)
+    result = analyze(directory, bounds, words, cadence)
     (directory / "analysis.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     return result
 

@@ -6,12 +6,14 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.InputDevice;
+import android.view.InputEvent;
 import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,8 @@ import java.util.List;
 public final class VisualReplay extends Replay {
     private final JSONArray touches = new JSONArray();
     private VisualHost editorHost;
+    private Object inputManager;
+    private Method injectTouch;
 
     private void awaitReady() throws Exception {
         long deadline = now() + 160_000_000_000L;
@@ -52,7 +56,9 @@ public final class VisualReplay extends Replay {
             motion.setSource(InputDevice.SOURCE_TOUCHSCREEN);
             try {
                 event.put(name + "_ns", now());
-                boolean injected = getUiAutomation().injectInputEvent(motion, true);
+                boolean injected = injectTouch == null
+                    ? getUiAutomation().injectInputEvent(motion, true)
+                    : (Boolean) injectTouch.invoke(inputManager, motion, 0);
                 event.put(name + "_return_ns", now());
                 if (!injected) throw new IllegalStateException("Touch injection failed: " + key);
             } finally {
@@ -264,6 +270,20 @@ public final class VisualReplay extends Replay {
     }
 
     private void replay(JSONObject evidence) throws Exception {
+        // Match the repository cadence probe: avoid synchronizing Android's
+        // surface transactions and animations around every touch.
+        Class<?> inputClass = Class.forName("android.hardware.input.InputManagerGlobal");
+        inputManager = inputClass.getMethod("getInstance").invoke(null);
+        injectTouch = inputClass.getMethod("injectInputEvent", InputEvent.class, int.class);
+        getUiAutomation().adoptShellPermissionIdentity("android.permission.INJECT_EVENTS");
+        try {
+            replayWithCadence(evidence);
+        } finally {
+            getUiAutomation().dropShellPermissionIdentity();
+        }
+    }
+
+    private void replayWithCadence(JSONObject evidence) throws Exception {
         markVideo();
         JSONObject bounds = new JSONObject(args.getString("bounds"));
         JSONArray words = new JSONArray(args.getString("words"));

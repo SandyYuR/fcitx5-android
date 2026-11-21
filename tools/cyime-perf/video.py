@@ -56,7 +56,7 @@ def associate(times, changes, start, end, threshold):
     return None
 
 
-def analyze(directory, bounds, words):
+def analyze(directory, bounds, words, cadence):
     log = json.loads((directory / "touches.json").read_text())
     host = json.loads((directory / "candidate-editor.json").read_text())
     events = log["touches"]
@@ -70,6 +70,13 @@ def analyze(directory, bounds, words):
         raise ValueError("Invalid injection clock or the actual key hold was shorter than 20 ms")
     if any(b["down_ns"] < a["up_return_ns"] for a, b in zip(events, events[1:])):
         raise ValueError("Injection clock moved backwards between touches")
+    intervals = [(b["down_ns"] - a["down_ns"]) / 1e6 for a, b in zip(events, events[1:])
+                 if a["round"] == b["round"] and b["key"] != "select"]
+    cadence_error = describe([abs(interval - cadence) for interval in intervals])
+    (directory / "cadence.json").write_text(json.dumps({"requested_ms": cadence,
+        "intervals_ms": intervals, "absolute_error": cadence_error}, indent=2) + "\n")
+    if cadence_error["n"] and cadence_error["p90_ms"] > 10:
+        raise ValueError(f"Touch cadence missed {cadence} ms: {cadence_error}")
     video = directory / "run.mp4"
     probe = json.loads(subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v:0",
         "-show_frames", "-show_streams", "-show_entries", "frame=best_effort_timestamp_time:stream=width,height",
@@ -93,10 +100,14 @@ def analyze(directory, bounds, words):
     if len(transitions) != 12 or len(marks) != 12:
         raise ValueError(f"Expected 12 visible clock markers, saw {len(transitions)}")
     offsets = [mark / 1e6 - pts[index] for mark, index in zip(marks, transitions)]
-    offset = statistics.median(offsets)
-    drift = statistics.median(offsets[6:]) - statistics.median(offsets[:6])
-    if max(offsets) - min(offsets) > 50 or abs(drift) > 34:
+    # Keep at least five markers at each end within two 60 Hz frames of
+    # the local median. Save every sample so dropped markers remain visible.
+    centers = (statistics.median(offsets[:6]), statistics.median(offsets[6:]))
+    excluded = [i for i, sample in enumerate(offsets) if abs(sample - centers[i // 6]) > 30]
+    drift = centers[1] - centers[0]
+    if sum(i < 6 for i in excluded) > 1 or sum(i >= 6 for i in excluded) > 1 or abs(drift) > 34:
         raise ValueError(f"Unstable video clock: {offsets}")
+    offset = statistics.median(sample for i, sample in enumerate(offsets) if i not in excluded)
     times = [point + offset for point in pts]
     deltas = {key: changes(region) for key, region in frames.items()}
     deltas["frame_ms"] = times
@@ -126,8 +137,10 @@ def analyze(directory, bounds, words):
     metrics = {key: metric(key, rows) for key in ("down_to_feedback", "up_to_candidate", "selection_down_to_commit",
                                                    "selection_up_to_commit", "hold_ms", "schedule_lateness_ms")}
     metrics["warm_up_to_candidate"] = metric("up_to_candidate", letters[1:])
+    metrics["down_interval"] = describe(intervals)
     if not metrics["up_to_candidate"]["n"]:
         raise ValueError("No candidate visual changes were detected in letter windows")
     return {"letters": len(letters), "correct_commits": len(commits), "metrics": metrics,
-            "first_letter": letters[0], "video_clock": {"offset_ms": offset, "drift_ms": drift, "samples_ms": offsets},
+            "first_letter": letters[0], "video_clock": {"offset_ms": offset, "drift_ms": drift,
+                                                        "samples_ms": offsets, "excluded_samples": excluded},
             "video_frames": len(pts), "rows": rows}
