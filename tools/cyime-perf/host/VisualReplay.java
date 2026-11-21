@@ -288,6 +288,9 @@ public final class VisualReplay extends Replay {
         JSONObject bounds = new JSONObject(args.getString("bounds"));
         JSONArray words = new JSONArray(args.getString("words"));
         int cadence = Integer.parseInt(args.getString("cadence"));
+        boolean sentence = "true".equals(args.getString("sentence"));
+        int pauseAfter = Integer.parseInt(args.getString("pauseAfter", "0"));
+        int pauseMs = Integer.parseInt(args.getString("pauseMs", "0"));
         StringBuilder expected = new StringBuilder();
         for (int round = 0; round < words.length(); round++) {
             JSONArray word = words.getJSONArray(round);
@@ -295,10 +298,15 @@ public final class VisualReplay extends Replay {
             long start = SystemClock.uptimeMillis() + 40;
             for (int i = 0; i < code.length(); i++) {
                 String key = code.substring(i, i + 1);
-                touch(bounds.getJSONArray(key), start + i * cadence, key, round);
+                long scheduled = start + i * cadence + (i >= pauseAfter ? pauseMs : 0);
+                touch(bounds.getJSONArray(key), scheduled, key, round);
             }
-            SystemClock.sleep(460);
+            SystemClock.sleep(sentence ? 950 : 460);
             if (round == 0) screenshot("first-candidates.png");
+            if (sentence) {
+                selectSentence(evidence, bounds, word.getString(1), round);
+                continue;
+            }
             touch(bounds.getJSONArray("select"), SystemClock.uptimeMillis(), "select", round);
             expected.append(word.getString(1));
             long deadline = now() + 2_000_000_000L;
@@ -311,5 +319,26 @@ public final class VisualReplay extends Replay {
         }
         markVideo();
         evidence.put("output", editorText()).put("markers", editorHost.markers());
+    }
+
+    private void selectSentence(JSONObject evidence, JSONObject bounds, String expected, int round) throws Exception {
+        JSONArray candidate = bounds.getJSONArray("candidate");
+        JSONArray target = bounds.getJSONArray("select");
+        List<Label> composing = keyboardLabels();
+        List<Label> candidateLabels = new ArrayList<>();
+        for (Label label : composing) {
+            Rect area = label.bounds;
+            if (area.top >= candidate.getInt(1) - 24 && area.bottom <= candidate.getInt(3) + 24) {
+                candidateLabels.add(label);
+                if (label.text.replaceFirst("^\\s*\\d+[.、 ]*", "").trim().equals(expected)) {
+                    target = rect(area);
+                }
+            }
+        }
+        recordLabels(evidence, "sentence_candidates", candidateLabels);
+        evidence.put("sentence_selection", target);
+        touch(target, SystemClock.uptimeMillis(), "select", round);
+        SystemClock.sleep(650);
+        if (!expected.equals(editorText())) screenshot("wrong-output.png");
     }
 }

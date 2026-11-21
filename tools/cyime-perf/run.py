@@ -9,10 +9,11 @@ import subprocess
 import time
 
 from calibrate import HOST, PACKAGES, WORDS, adb, select_product
+from sentences import SENTENCES
 from video import analyze, describe
 
 
-def replay(directory, label, bounds, words, cadence):
+def replay(directory, label, bounds, words, cadence, sentence=False, pause_after=0, pause_ms=0):
     directory.mkdir()
     select_product(PACKAGES[label])
     adb("shell", "run-as", HOST, "rm", "-f", "files/touches.json", "files/candidate-editor.json",
@@ -22,7 +23,8 @@ def replay(directory, label, bounds, words, cadence):
     arguments = ["am", "instrument", "--no-hidden-api-checks", "-w", "-e", "package", PACKAGES[label],
                  "-e", "bounds", json.dumps(bounds, separators=(",", ":")),
                  "-e", "words", json.dumps(words, ensure_ascii=False, separators=(",", ":")),
-                 "-e", "cadence", str(cadence), HOST + "/.VisualReplay"]
+                 "-e", "cadence", str(cadence), "-e", "sentence", str(sentence).lower(),
+                 "-e", "pauseAfter", str(pause_after), "-e", "pauseMs", str(pause_ms), HOST + "/.VisualReplay"]
     with (directory / "recorder.txt").open("w") as log:
         process = subprocess.Popen(["adb", "shell", "screenrecord", "--time-limit", "180", "--bit-rate", "12000000", recorded],
                                    stdout=log, stderr=subprocess.STDOUT)
@@ -47,14 +49,53 @@ def replay(directory, label, bounds, words, cadence):
                 if reply.returncode == 0 and reply.stdout:
                     (directory / name).write_bytes(reply.stdout)
             (directory / "logcat.txt").write_text(adb("logcat", "-d", "-t", "1800"))
-    result = analyze(directory, bounds, words, cadence)
+    result = analyze(directory, bounds, words, cadence, sentence, pause_after, pause_ms)
     (directory / "analysis.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     return result
+
+
+def compare_sentences(output, products):
+    reports = []
+    cadence = 120
+
+    def pair(name, trial, order, pause_ms=0):
+        syllables, text = SENTENCES[name]
+        pause_after = len("".join(syllables.split()[:10])) if pause_ms else 0
+        result = {}
+        for label in order:
+            prefix = f"{name}-{trial}-{label}"
+            report = {"case": name, "trial": trial, "label": label, "order": list(order),
+                      "cadence_ms": cadence, "pinyin": syllables, "expected_text": text,
+                      "pause_after_letters": pause_after, "extra_pause_ms": pause_ms}
+            result[label] = report
+            reports.append(report)
+            print(f"START {prefix}", flush=True)
+            try:
+                report.update(replay(output / prefix, label, products[label]["bounds"],
+                                     [(syllables.replace(" ", ""), text)], cadence, True, pause_after, pause_ms))
+            except (OSError, RuntimeError, ValueError, KeyError, subprocess.SubprocessError) as error:
+                report["failure"] = str(error)
+            print(f"{prefix}: {report.get('failure', report.get('metrics'))}, "
+                  f"exact={report.get('exact_commit')}, text={report.get('observed_text')!r}", flush=True)
+            (output / "sentence-replays.json").write_text(json.dumps(reports, ensure_ascii=False, indent=2) + "\n")
+        return result
+
+    orders = (("direct", "cyime"), ("cyime", "direct"))
+    initial = {name: pair(name, "continuous", orders[i % 2]) for i, name in enumerate(SENTENCES)}
+    common = [name for name, paired in initial.items() if all(result.get("exact_commit") for result in paired.values())]
+    chosen = common[0] if common else "lyric"
+    order = tuple(initial[chosen]["direct"]["order"])
+    pair(chosen, "continuous-repeat", order[::-1])
+    pair(chosen, "pause", order, 650)
+    pair(chosen, "pause-repeat", order[::-1], 650)
+    if not any(all("failure" not in result for result in paired.values()) for paired in initial.values()):
+        raise RuntimeError("No paired continuous sentence recordings passed timing checks")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--sentences", action="store_true")
     args = parser.parse_args()
     output = args.output
     if not adb("get-serialno").startswith("emulator-"):
@@ -65,6 +106,10 @@ def main():
                       "-n", package + "/androidx.profileinstaller.ProfileInstallReceiver", check=False)
         compile_result = adb("shell", "cmd", "package", "compile", "-f", "-m", "speed-profile", package, check=False)
         (output / (label + "-art.txt")).write_text(profile + "\n" + compile_result + "\n" + adb("shell", "dumpsys", "package", package))
+
+    if args.sentences:
+        compare_sentences(output, products)
+        return
 
     reports = []
     for trial, cadence in enumerate((120, 80, 80, 120), start=1):

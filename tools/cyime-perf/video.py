@@ -56,22 +56,23 @@ def associate(times, changes, start, end, threshold):
     return None
 
 
-def analyze(directory, bounds, words, cadence):
+def analyze(directory, bounds, words, cadence, sentence=False, pause_after=0, pause_ms=0):
     log = json.loads((directory / "touches.json").read_text())
     host = json.loads((directory / "candidate-editor.json").read_text())
     events = log["touches"]
     expected = [word for _, word in words]
     commits = [event for event in host["commits"] if event["text"]]
     expected_keys = [key for code, _ in words for key in list(code) + ["select"]]
-    if [event["key"] for event in events] != expected_keys or [event["text"] for event in commits] != expected or host["text"] != "".join(expected):
+    exact = [event["text"] for event in commits] == expected and host["text"] == "".join(expected)
+    if [event["key"] for event in events] != expected_keys or (not sentence and not exact):
         raise ValueError("Touch or exact commit sequence differs from corpus")
     if any(not e["down_ns"] <= e["down_return_ns"] <= e["up_ns"] <= e["up_return_ns"]
            or e["up_ns"] - e["down_ns"] < 20_000_000 for e in events):
         raise ValueError("Invalid injection clock or the actual key hold was shorter than 20 ms")
     if any(b["down_ns"] < a["up_return_ns"] for a, b in zip(events, events[1:])):
         raise ValueError("Injection clock moved backwards between touches")
-    intervals = [(b["down_ns"] - a["down_ns"]) / 1e6 for a, b in zip(events, events[1:])
-                 if a["round"] == b["round"] and b["key"] != "select"]
+    intervals = [(b["down_ns"] - a["down_ns"]) / 1e6 for i, (a, b) in enumerate(zip(events, events[1:]), 1)
+                 if a["round"] == b["round"] and b["key"] != "select" and not (pause_ms and i == pause_after)]
     cadence_error = describe([abs(interval - cadence) for interval in intervals])
     (directory / "cadence.json").write_text(json.dumps({"requested_ms": cadence,
         "intervals_ms": intervals, "absolute_error": cadence_error}, indent=2) + "\n")
@@ -90,7 +91,7 @@ def analyze(directory, bounds, words, cadence):
     if png[:8] != b"\x89PNG\r\n\x1a\n" or struct.unpack(">II", png[16:24]) != (480, 960) or abs(width / 480 - height / 960) > .01:
         raise ValueError("Recording and calibrated 480x960 screen geometry differ")
     x, y = log["markers"]["x"], log["markers"]["y"]
-    crops = {key: rect for key, rect in bounds.items() if key != "select"}
+    crops = {key: bounds[key] for key in sorted(set(expected_keys) - {"select"} | {"candidate"})}
     crops["marker"] = (x - 8, y - 8, x + 8, y + 8)
     frames = read_frames(video, crops, len(pts), width, height)
     states = [frame[0] > frame[2] for frame in frames.pop("marker")]
@@ -113,21 +114,30 @@ def analyze(directory, bounds, words, cadence):
     deltas["frame_ms"] = times
     (directory / "pixel-changes.json").write_text(json.dumps(deltas))
     rows = []
-    selection = iter(commits)
+    settle = []
+    selection = iter(commits if exact else [])
     for i, event in enumerate(events):
         key = event["key"]
         down, up = event["down_ns"] / 1e6, event["up_ns"] / 1e6
         row = {"key": key, "round": event["round"], "hold_ms": up - down,
                "schedule_lateness_ms": (event["down_ns"] - event["due_ns"]) / 1e6}
         if key == "select":
-            commit_time = next(selection)["at_ns"] / 1e6
-            if commit_time < down or (i + 1 < len(events) and commit_time >= events[i + 1]["down_ns"] / 1e6):
-                raise ValueError("Commit cannot be attributed to its selection")
-            row.update(selection_down_to_commit=commit_time - down, selection_up_to_commit=commit_time - up)
+            if exact:
+                commit_time = next(selection)["at_ns"] / 1e6
+                if commit_time < down or (i + 1 < len(events) and commit_time >= events[i + 1]["down_ns"] / 1e6):
+                    raise ValueError("Commit cannot be attributed to its selection")
+                row.update(selection_down_to_commit=commit_time - down, selection_up_to_commit=commit_time - up)
         else:
             stop = min(events[i + 1]["down_ns"] / 1e6, up + 230)
             row["down_to_feedback"] = associate(times, deltas[key], down, up, 12)
             row["up_to_candidate"] = associate(times, deltas["candidate"], up, stop, 7)
+            ending = events[i + 1]["key"] == "select"
+            if sentence and (ending or (pause_ms and i + 1 == pause_after)):
+                end = min(events[i + 1]["down_ns"] / 1e6, up + 850)
+                changes_ms = [round(times[j] - up, 3) for j in range(max(1, bisect_left(times, up)), bisect_left(times, end))
+                              if deltas["candidate"][j - 1] >= 7]
+                settle.append({"after_key": i + 1, "kind": "end" if ending else "pause",
+                               "window_ms": round(end - up, 3), "changes_ms": changes_ms})
         rows.append(row)
 
     def metric(name, group):
@@ -140,7 +150,11 @@ def analyze(directory, bounds, words, cadence):
     metrics["down_interval"] = describe(intervals)
     if not metrics["up_to_candidate"]["n"]:
         raise ValueError("No candidate visual changes were detected in letter windows")
-    return {"letters": len(letters), "correct_commits": len(commits), "metrics": metrics,
+    result = {"letters": len(letters), "correct_commits": len(commits) if exact else 0, "metrics": metrics,
             "first_letter": letters[0], "video_clock": {"offset_ms": offset, "drift_ms": drift,
                                                         "samples_ms": offsets, "excluded_samples": excluded},
             "video_frames": len(pts), "rows": rows}
+    if sentence:
+        result.update(exact_commit=exact, observed_text=host["text"], commits=[event["text"] for event in commits],
+                      candidate_settle=settle)
+    return result

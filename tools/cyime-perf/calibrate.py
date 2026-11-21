@@ -14,6 +14,8 @@ import time
 import xml.etree.ElementTree as ET
 import zipfile
 
+from sentences import LETTERS
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "foxy-perf"))
 from pilot import adb, capture, HOST, selected_ime
 
@@ -122,8 +124,8 @@ def wait_for_keyboard(label, package):
     raise RuntimeError(f"{label}: Rime readiness or visible IME timed out")
 
 
-def calibrate_touch(out, package):
-    keys = "".join(sorted(set("".join(code for code, _ in WORDS))))
+def calibrate_touch(out, package, sentence_suite=False):
+    keys = LETTERS if sentence_suite else "".join(sorted(set("".join(code for code, _ in WORDS))))
     evidence = ("touches.json", "candidate-editor.json", "before.png", "first-candidates.png", "committed.png")
     adb("shell", "run-as", HOST, "rm", "-f", *["files/" + name for name in evidence])
     args = ["am", "instrument", "-w", "-e", "package", package, "-e", "probe", "true",
@@ -159,6 +161,7 @@ def main():
         parser.add_argument(f"--{name}", type=Path, required=True)
     parser.add_argument("--abi", choices=("arm64-v8a", "x86_64"), default="arm64-v8a")
     parser.add_argument("--measure", action="store_true")
+    parser.add_argument("--sentences", action="store_true")
     args = parser.parse_args()
     output = args.output
     output.mkdir(parents=True, exist_ok=True)
@@ -223,7 +226,7 @@ def main():
                 (out / "user.yaml").write_text(user)
             capture(out, "keyboard")
             if args.measure:
-                entry["bounds"] = calibrate_touch(out, package)
+                entry["bounds"] = calibrate_touch(out, package, args.sentences)
         except (RuntimeError, OSError, ValueError, subprocess.SubprocessError) as error:
             entry["error"] = str(error)
             errors.append(label)

@@ -32,6 +32,7 @@ jobs:
     timeout-minutes: 70
     env:
       BENCH_ABI: ${{ contains(github.event.head_commit.message, '[native-x86]') && 'x86_64' || 'arm64-v8a' }}
+      BENCH_SUITE: ${{ contains(github.event.head_commit.message, '[long-sentences]') && '--sentences' || '' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -124,8 +125,8 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -cores 4 -memory 4096 -camera-back none -camera-front none
           disable-animations: true
           script: |
-            python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration --abi "$BENCH_ABI" --measure
-            python3 tools/cyime-perf/run.py --output build/cyime-latency
+            python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration --abi "$BENCH_ABI" --measure $BENCH_SUITE
+            python3 tools/cyime-perf/run.py --output build/cyime-latency $BENCH_SUITE
       - uses: actions/upload-artifact@v7
         if: always()
         with:
