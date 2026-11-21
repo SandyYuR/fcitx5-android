@@ -373,6 +373,12 @@ abstract class KeyView(
         return super.onTouchEvent(event)
     }
 
+    override fun onConfirmedOverlappingTap(x: Float, y: Float) {
+        onStatisticsPress?.invoke(this)
+        if (rippled) onWaterRippleRequest?.invoke(this, x, y)
+        super.onConfirmedOverlappingTap(x, y)
+    }
+
     override fun onDetachedFromWindow() {
         statisticsTouchActive = false
         super.onDetachedFromWindow()
