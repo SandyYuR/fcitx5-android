@@ -375,10 +375,12 @@
     <string name="vertical_reversed">Vertikal (umgekehrt)</string>
     <string name="always">Immer</string>
     <string name="candidates_position">Position des Kandidatenfensters</string>
+    <string name="physical_keyboard_candidates_position">Kandidatenfensterposition bei physischer Tastatur</string>
     <string name="top_left">Oben links</string>
     <string name="top_right">Oben rechts</string>
     <string name="bottom_left">Unten links</string>
     <string name="bottom_right">Unten rechts</string>
+    <string name="follow_cursor">Cursor folgen</string>
     <string name="candidates_font_size">Schriftgröße Kandidaten</string>
     <string name="candidates_padding">Abstand Kandidaten</string>
     <string name="candidate_highlight_radius">Eckradius Kandidaten-Hervorhebung</string>

@@ -6,6 +6,7 @@
 package org.fcitx.fcitx5.android.input
 
 import android.annotation.SuppressLint
+import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.view.View
@@ -24,9 +25,10 @@ import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.candidates.floating.CursorFollowingPosition
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesOrientation
-import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesVirtualKeyboardPosition
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesPosition
 import org.fcitx.fcitx5.android.input.candidates.floating.PagedCandidatesUi
 import org.fcitx.fcitx5.android.input.preedit.PreeditUi
 import splitties.dimensions.dp
@@ -61,8 +63,11 @@ class CandidatesView(
     private val fontSize by candidatesPrefs.fontSize
     private val itemPaddingVertical by candidatesPrefs.itemPaddingVertical
     private val itemPaddingHorizontal by candidatesPrefs.itemPaddingHorizontal
-    private val floatingPosition by candidatesPrefs.virtualKeyboardPosition
+    private val floatingMode by candidatesPrefs.mode
     private val highlightRadius by candidatesPrefs.candidateHighlightRadius
+
+    private val floatingPosition: FloatingCandidatesPosition?
+        get() = candidatesPrefs.windowPosition(floatingMode, isVirtualKeyboardVisible)
 
     /**
      * Gap between candidates window and screen edges/keyboard
@@ -100,17 +105,28 @@ class CandidatesView(
     /**
      * Track whether virtual keyboard is visible
      */
-    private var isVirtualKeyboardVisible = true
+    private val isVirtualKeyboardVisible: Boolean
+        get() = service.inputDeviceManager.isVirtualKeyboard
 
     var onPositionChanged: (() -> Unit)? = null
 
     private var shouldUpdatePosition = false
+    private val containerLocation = IntArray(2)
 
     /**
      * layout update may or may not cause [CandidatesView]'s size [onSizeChanged],
      * in either case, we should reposition it
      */
     private val layoutListener = OnGlobalLayoutListener {
+        if (visibility == VISIBLE && floatingPosition == FloatingCandidatesPosition.FollowCursor) {
+            // Keyboard bounds can change without a new cursor callback, e.g. on rotation.
+            (parent as? View)?.let { container ->
+                parentSize[0] = container.width.toFloat()
+                parentSize[1] = container.height.toFloat()
+                container.getLocationInWindow(containerLocation)
+            }
+            keyboardBounds[1] = service.inputView?.getInputFieldTopY() ?: 0f
+        }
         shouldUpdatePosition = true
     }
 
@@ -210,6 +226,34 @@ class CandidatesView(
     }
 
     private var bottomInsets = 0
+    private var cursorViewportWidth = Int.MAX_VALUE
+    private var cursorViewportHeight = Int.MAX_VALUE
+    private val cursorViewportClip = Rect()
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(
+            limitMeasureSpec(widthMeasureSpec, cursorViewportWidth),
+            limitMeasureSpec(heightMeasureSpec, cursorViewportHeight)
+        )
+    }
+
+    private fun limitMeasureSpec(spec: Int, limit: Int): Int {
+        val mode = MeasureSpec.getMode(spec)
+        val size = MeasureSpec.getSize(spec)
+        return when {
+            limit == Int.MAX_VALUE -> spec
+            mode == MeasureSpec.UNSPECIFIED -> MeasureSpec.makeMeasureSpec(limit, MeasureSpec.AT_MOST)
+            size > limit -> MeasureSpec.makeMeasureSpec(limit, mode)
+            else -> spec
+        }
+    }
+
+    private fun setCursorViewportSize(width: Int, height: Int) {
+        if (cursorViewportWidth == width && cursorViewportHeight == height) return
+        cursorViewportWidth = width
+        cursorViewportHeight = height
+        requestLayout()
+    }
 
     private fun updatePosition() {
         if (visibility != VISIBLE) {
@@ -226,14 +270,24 @@ class CandidatesView(
         
         val w: Int = width
         val h: Int = height
-        val selfWidth = w.toFloat()
-        val selfHeight = h.toFloat()
-        
+
+        val position = floatingPosition
+        if (position == FloatingCandidatesPosition.FollowCursor) {
+            updateCursorFollowingPosition(parentWidth, parentHeight, w, h)
+            shouldUpdatePosition = false
+            onPositionChanged?.invoke()
+            return
+        }
+
+        setCursorViewportSize(Int.MAX_VALUE, Int.MAX_VALUE)
+        if (clipBounds != null) clipBounds = null
+
         val (tX, tY) = calculatePositionByCursorAnchor(
+            position,
             parentWidth,
             parentHeight,
-            selfWidth,
-            selfHeight
+            w.toFloat(),
+            h.toFloat()
         )
         
         if (tX.isNaN() || tY.isNaN()) {
@@ -249,7 +303,54 @@ class CandidatesView(
         onPositionChanged?.invoke()
     }
 
+    private fun updateCursorFollowingPosition(
+        parentWidth: Float,
+        parentHeight: Float,
+        selfWidth: Int,
+        selfHeight: Int
+    ) {
+        val gap = candidatesGap
+        val (offsetX, offsetY) = containerLocation
+        val screenBottom = (parentHeight - bottomInsets).coerceAtLeast(0f)
+        val bottomLimit = if (isVirtualKeyboardVisible)
+            (keyboardBounds[1] - offsetY).coerceIn(0f, screenBottom)
+        else screenBottom
+        setCursorViewportSize(
+            CursorFollowingPosition.maxSize(parentWidth, gap),
+            CursorFollowingPosition.maxSize(bottomLimit, gap)
+        )
+        val (horizontal, bottom, top) = anchorPosition
+        val placement = CursorFollowingPosition.calculate(
+            width = parentWidth,
+            bottomLimit = bottomLimit,
+            selfWidth = selfWidth,
+            selfHeight = selfHeight,
+            horizontal = horizontal - offsetX,
+            top = top - offsetY,
+            bottom = bottom - offsetY,
+            gap = gap,
+            rtl = layoutDirection == LAYOUT_DIRECTION_RTL
+        )
+        val x = placement.x.roundToInt()
+        val y = placement.y.roundToInt()
+        translationX = (x - left).toFloat()
+        translationY = (y - this.top).toFloat()
+        // Clamp drawing and touch together while the constrained layout is pending.
+        if (placement.width < selfWidth || placement.height < selfHeight) {
+            cursorViewportClip.set(0, 0, placement.width, placement.height)
+            clipBounds = cursorViewportClip
+        } else if (clipBounds != null) {
+            clipBounds = null
+        }
+        if (placement.width > 0 && placement.height > 0) {
+            touchEventReceiverWindow.showAt(x + offsetX, y + offsetY, placement.width, placement.height)
+        } else {
+            touchEventReceiverWindow.dismiss()
+        }
+    }
+
     private fun calculatePositionByCursorAnchor(
+        position: FloatingCandidatesPosition?,
         parentWidth: Float,
         parentHeight: Float,
         selfWidth: Float,
@@ -258,11 +359,9 @@ class CandidatesView(
         val (horizontal, bottom, top) = anchorPosition
         val gap = candidatesGap
 
-        val floatingMode = AppPrefs.getInstance().candidates.mode.getValue()
-        val useFloatingAlways = floatingMode == FloatingCandidatesMode.Always
-
-        if (useFloatingAlways) {
-            return calculatePositionForAlwaysMode(
+        if (position != null) {
+            return calculateFixedPosition(
+                position = position,
                 parentWidth = parentWidth,
                 parentHeight = parentHeight,
                 selfWidth = selfWidth,
@@ -287,9 +386,10 @@ class CandidatesView(
     }
 
     /**
-     * Calculate position for "Always" floating mode
+     * Position a window configured to prefer one of the four corners.
      */
-    private fun calculatePositionForAlwaysMode(
+    private fun calculateFixedPosition(
+        position: FloatingCandidatesPosition,
         parentWidth: Float,
         parentHeight: Float,
         selfWidth: Float,
@@ -300,12 +400,11 @@ class CandidatesView(
         isKeyboardVisible: Boolean
     ): Pair<Float, Float> {
         val keyboardTop = keyboardBounds[1].takeIf { it > 0f } ?: cursorBottom
-        this.isVirtualKeyboardVisible = isKeyboardVisible
-        val bottomReference = if (isKeyboardVisible) keyboardTop else parentHeight
+        val bottomReference = if (isKeyboardVisible) keyboardTop else parentHeight - bottomInsets
 
-        val tX = calculateHorizontalPosition(parentWidth, selfWidth, gap)
-        var tY = calculateVerticalPositionForAlwaysMode(
-            parentHeight = parentHeight,
+        val tX = calculateHorizontalPosition(position, parentWidth, selfWidth, gap)
+        var tY = calculateFixedVerticalPosition(
+            position = position,
             selfHeight = selfHeight,
             cursorTop = cursorTop,
             cursorBottom = cursorBottom,
@@ -318,9 +417,9 @@ class CandidatesView(
         // For tall windows (e.g. vertical layout), let the top clip naturally
         // instead of forcing it to the top of the screen.
         if (isKeyboardVisible) {
-            when (floatingPosition) {
-                FloatingCandidatesVirtualKeyboardPosition.BottomLeft,
-                FloatingCandidatesVirtualKeyboardPosition.BottomRight -> {
+            when (position) {
+                FloatingCandidatesPosition.BottomLeft,
+                FloatingCandidatesPosition.BottomRight -> {
                     val candidateBottom = tY + selfHeight
                     val maxAllowedBottom = bottomReference - gap
                     if (candidateBottom > maxAllowedBottom) {
@@ -337,31 +436,29 @@ class CandidatesView(
     }
 
     /**
-     * Calculate horizontal position based on floatingPosition
+     * Calculate horizontal position for the preferred corner.
      */
     private fun calculateHorizontalPosition(
+        position: FloatingCandidatesPosition,
         parentWidth: Float,
         selfWidth: Float,
         gap: Float
     ): Float {
-        return when (floatingPosition) {
-            FloatingCandidatesVirtualKeyboardPosition.TopLeft,
-            FloatingCandidatesVirtualKeyboardPosition.BottomLeft -> {
-                gap
-            }
-            FloatingCandidatesVirtualKeyboardPosition.TopRight,
-            FloatingCandidatesVirtualKeyboardPosition.BottomRight -> {
+        return when (position) {
+            FloatingCandidatesPosition.TopRight,
+            FloatingCandidatesPosition.BottomRight -> {
                 (parentWidth - selfWidth - gap).coerceAtLeast(gap)
             }
+            else -> gap
         }
     }
 
     /**
-     * Calculate vertical position for "Always" mode with hysteresis.
+     * Calculate vertical position with hysteresis.
      * Requires 2x candidate height to switch position, preventing flicker.
      */
-    private fun calculateVerticalPositionForAlwaysMode(
-        parentHeight: Float,
+    private fun calculateFixedVerticalPosition(
+        position: FloatingCandidatesPosition,
         selfHeight: Float,
         cursorTop: Float,
         cursorBottom: Float,
@@ -370,9 +467,10 @@ class CandidatesView(
     ): Float {
         val switchThreshold = selfHeight * 2f
 
-        return when (floatingPosition) {
-            FloatingCandidatesVirtualKeyboardPosition.TopLeft,
-            FloatingCandidatesVirtualKeyboardPosition.TopRight -> {
+        return when (position) {
+            FloatingCandidatesPosition.Default,
+            FloatingCandidatesPosition.TopLeft,
+            FloatingCandidatesPosition.TopRight -> {
                 val spaceAbove = cursorTop - gap
                 if (spaceAbove < switchThreshold) {
                     val belowCursorY = cursorBottom + gap
@@ -382,8 +480,8 @@ class CandidatesView(
                     gap
                 }
             }
-            FloatingCandidatesVirtualKeyboardPosition.BottomLeft,
-            FloatingCandidatesVirtualKeyboardPosition.BottomRight -> {
+            FloatingCandidatesPosition.BottomLeft,
+            FloatingCandidatesPosition.BottomRight -> {
                 // Default placement: right above the keyboard top (bottomReference).
                 // Only shift if the candidate window would overlap the cursor.
                 // Don't coerce to gap here — tall windows (e.g. vertical layout)
@@ -427,10 +525,11 @@ class CandidatesView(
                     }
                 }
             }
+            FloatingCandidatesPosition.FollowCursor -> bottomReference - gap - selfHeight
         }
     }
 
-    @Deprecated("Use inline logic in calculateVerticalPositionForAlwaysMode")
+    @Deprecated("Use inline logic in calculateFixedVerticalPosition")
     private fun calculateTopPosition(
         selfHeight: Float,
         cursorTop: Float,
@@ -450,7 +549,7 @@ class CandidatesView(
         return targetY
     }
 
-    @Deprecated("Use inline logic in calculateVerticalPositionForAlwaysMode")
+    @Deprecated("Use inline logic in calculateFixedVerticalPosition")
     private fun calculateBottomPosition(
         selfHeight: Float,
         cursorTop: Float,
@@ -515,8 +614,7 @@ class CandidatesView(
     fun updateCursorAnchorForFloating(
         @Size(3) anchor: FloatArray,
         @Size(2) parent: FloatArray,
-        keyboardTop: Float = 0f,
-        isKeyboardVisible: Boolean = true
+        keyboardTop: Float
     ) {
         val (horizontal, bottom, top) = anchor
         val (parentWidth, parentHeight) = parent
@@ -531,8 +629,8 @@ class CandidatesView(
         // logic can still make reasonable placement decisions.
         if (top == 0f && bottom == 0f) {
             when (floatingPosition) {
-                FloatingCandidatesVirtualKeyboardPosition.TopLeft,
-                FloatingCandidatesVirtualKeyboardPosition.TopRight -> {
+                FloatingCandidatesPosition.TopLeft,
+                FloatingCandidatesPosition.TopRight -> {
                     // Assume cursor is near the top of the input area.
                     // A small non-zero value triggers "place below cursor"
                     // so the window does not cover the likely cursor position.
@@ -552,7 +650,6 @@ class CandidatesView(
         }
         this.keyboardBounds[1] = keyboardTop
 
-        this.isVirtualKeyboardVisible = isKeyboardVisible
         updatePosition()
     }
 

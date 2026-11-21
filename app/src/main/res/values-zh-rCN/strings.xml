@@ -543,10 +543,12 @@
     <string name="vertical_reversed">纵向倒序</string>
     <string name="always">始终</string>
     <string name="candidates_position">候选窗口位置</string>
+    <string name="physical_keyboard_candidates_position">实体键盘候选窗口位置</string>
     <string name="top_left">左上</string>
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>
     <string name="bottom_right">右下</string>
+    <string name="follow_cursor">跟随光标</string>
     <string name="candidates_font_size">候选词字体大小</string>
     <string name="font_size">字体大小</string>
     <string name="font_size_value">%1$d sp</string>
