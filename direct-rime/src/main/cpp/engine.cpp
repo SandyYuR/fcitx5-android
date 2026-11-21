@@ -545,6 +545,27 @@ std::vector<std::string> Engine::schemaEntries() {
     }
     return result;
 }
+std::vector<std::string> Engine::prewarmAssets() {
+    owner();
+    std::vector<std::string> result;
+    if (gate(generation_) != Ready) return result;
+    char schema[1024]{};
+    if (!api_->get_current_schema(session_, schema, sizeof(schema))) return result;
+    RimeConfig config{};
+    if (!api_->schema_open(schema, &config)) return result;
+    ScopeExit cleanup([&] { api_->config_close(&config); });
+    auto add = [&](const char* key, const char* directory, const char* extension) {
+        auto name = safe(api_->config_get_cstring(&config, key));
+        if (name.empty() || name == "." || name == ".." ||
+            name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") != std::string::npos)
+            return;
+        result.push_back(directory + name + extension);
+    };
+    add("translator/dictionary", "build/", ".table.bin");
+    add("grammar/language", "", ".gram");
+    return result;
+}
+
 std::vector<std::string> Engine::options() {
     owner();
     std::vector<std::string> result;

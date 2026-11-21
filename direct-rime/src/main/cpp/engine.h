@@ -51,6 +51,7 @@ public:
     std::vector<std::string> schemas();
     std::vector<std::string> schemaEntries();
     std::vector<std::string> options();
+    std::vector<std::string> prewarmAssets();
     std::string schemaSelection();
     bool selectSchemas(const std::vector<std::string>& ids);
     bool sync();
