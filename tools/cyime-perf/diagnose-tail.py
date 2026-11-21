@@ -43,12 +43,13 @@ def storage_profile(output, location, uid):
     adb("shell", "chown", f"{uid}:{uid}", PROFILE_CONF, str(Path(PROFILE_CONF).parent))
 
 
-def record(output, name, bounds, location):
+def record(output, name, bounds, location, cold):
     capture = Path(__file__).resolve().parent.parent / "input-perf" / "capture.sh"
     trace = output / f"{name}.perfetto-trace"
     pinyin, expected = SENTENCES["lyric"]
     with (output / f"{name}-capture.txt").open("w") as log:
-        recorder = subprocess.Popen(["bash", str(capture), str(trace), "30000", "storage"], stdout=subprocess.PIPE,
+        duration = "42000" if cold else "30000"
+        recorder = subprocess.Popen(["bash", str(capture), str(trace), duration, "storage"], stdout=subprocess.PIPE,
                                     stderr=log, text=True)
         try:
             ready = recorder.stdout.readline()
@@ -65,6 +66,7 @@ def record(output, name, bounds, location):
             if len(model_paths) != 1 or folder not in model_paths[0]:
                 raise RuntimeError(f"Mapped profile did not use {location}: {model_paths}")
             report["location"] = location
+            report["guest_page_cache_dropped"] = cold
             report["mapped_model"] = model_paths[0]
             (output / name / "result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
             print(f"{name}: {report}", flush=True)
@@ -79,7 +81,9 @@ def record(output, name, bounds, location):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    output = parser.parse_args().output
+    parser.add_argument("--cold", action="store_true")
+    args = parser.parse_args()
+    output = args.output
     if not adb("get-serialno").startswith("emulator-") or adb("shell", "id", "-u") != "0":
         raise RuntimeError("This comparison requires the disposable root Android emulator")
     calibration = output / "calibration"
@@ -102,7 +106,10 @@ def main():
     try:
         for i, location in enumerate(("external", "private", "private", "external"), 1):
             storage_profile(output, location, uid)
-            reports.append(record(output, f"storage-{i}-{location}", bounds, location))
+            if args.cold:
+                # Run only on the root disposable emulator checked above, with both input processes stopped.
+                adb("shell", "sync && echo 3 > /proc/sys/vm/drop_caches")
+            reports.append(record(output, f"storage-{i}-{location}", bounds, location, args.cold))
     finally:
         storage_profile(output, "external", uid)
     if not all(report["exact_commit"] for report in reports):
