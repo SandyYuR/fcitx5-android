@@ -11,10 +11,11 @@ class CursorFollowingPositionTest {
         top: Float,
         bottom: Float,
         rtl: Boolean = false,
-        width: Float = 400f,
-        limit: Float = 600f,
-        height: Float = 80f
-    ) = CursorFollowingPosition.calculate(width, limit, 150f, height, x, top, bottom, 8f, rtl)
+        limit: Float = 600f
+    ): Pair<Float, Float> {
+        val placement = CursorFollowingPosition.calculate(400f, limit, 150, 80, x, top, bottom, 8f, rtl)
+        return placement.x to placement.y
+    }
 
     @Test
     fun tracksBothAxes() {
@@ -41,9 +42,22 @@ class CursorFollowingPositionTest {
     }
 
     @Test
-    fun clampsOffscreenAndHandlesTinyLandscapeViewport() {
+    fun clampsOffscreenCursor() {
         assertEquals(8f to 8f, position(-20f, -90f, 10f, limit = 60f))
         assertEquals(242f to 512f, position(1000f, 900f, 920f))
-        assertEquals(8f to 8f, position(20f, 100f, 120f, width = 100f, limit = 60f))
+    }
+
+    @Test
+    fun fitsBothDrawingAndTouchBoundsInTinyLandscapeViewport() {
+        val placement = CursorFollowingPosition.calculate(100f, 60f, 150, 80, 20f, 100f, 120f, 8f)
+        assertEquals(CursorFollowingPosition.Placement(8f, 8f, 84, 44), placement)
+        assertEquals(92f, placement.x + placement.width)
+        assertEquals(52f, placement.y + placement.height)
+    }
+
+    @Test
+    fun leavesNoTouchableHeightWhenKeyboardFillsViewport() {
+        val placement = CursorFollowingPosition.calculate(400f, 0f, 150, 80, 40f, 100f, 120f, 8f)
+        assertEquals(0, placement.height)
     }
 }

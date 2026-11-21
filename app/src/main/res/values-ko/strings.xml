@@ -292,10 +292,12 @@
     <string name="vertical_reversed">세로 (역순)</string>
     <string name="always">항상</string>
     <string name="candidates_position">후보 창 위치</string>
+    <string name="physical_keyboard_candidates_position">물리 키보드 후보 창 위치</string>
     <string name="top_left">왼쪽 상단</string>
     <string name="top_right">오른쪽 상단</string>
     <string name="bottom_left">왼쪽 하단</string>
     <string name="bottom_right">오른쪽 하단</string>
+    <string name="follow_cursor">커서 따라가기</string>
     <string name="candidates_font_size">후보 글꼴 크기</string>
     <string name="candidates_padding">후보 패딩</string>
     <string name="candidates_window_min_width">후보 창 최소 너비</string>

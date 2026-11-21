@@ -465,10 +465,12 @@
     <string name="vertical_reversed">縦（逆順）</string>
     <string name="always">常に</string>
     <string name="candidates_position">候補ウィンドウの位置</string>
+    <string name="physical_keyboard_candidates_position">物理キーボードの候補ウィンドウ位置</string>
     <string name="top_left">左上</string>
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>
     <string name="bottom_right">右下</string>
+    <string name="follow_cursor">カーソルに追従</string>
     <string name="candidates_font_size">候補のフォントサイズ</string>
     <string name="candidates_padding">候補のパディング</string>
     <string name="candidate_highlight_radius">候補のハイライト角半径</string>

@@ -558,6 +558,7 @@
     <string name="vertical_reversed">Vertical (reversed)</string>
     <string name="always">Always</string>
     <string name="candidates_position">Candidates window position</string>
+    <string name="physical_keyboard_candidates_position">Physical keyboard candidate window position</string>
     <string name="top_left">Top Left</string>
     <string name="top_right">Top Right</string>
     <string name="bottom_left">Bottom Left</string>

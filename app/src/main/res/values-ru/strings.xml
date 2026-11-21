@@ -298,10 +298,12 @@
     <string name="vertical_reversed">Вертикальная (обратная)</string>
     <string name="always">Всегда</string>
     <string name="candidates_position">Позиция окна кандидатов</string>
+    <string name="physical_keyboard_candidates_position">Позиция окна кандидатов для физической клавиатуры</string>
     <string name="top_left">Вверху слева</string>
     <string name="top_right">Вверху справа</string>
     <string name="bottom_left">Внизу слева</string>
     <string name="bottom_right">Внизу справа</string>
+    <string name="follow_cursor">Следовать за курсором</string>
     <string name="candidates_font_size">Размер шрифта слова-кандидата</string>
     <string name="font_size">Размер шрифта</string>
     <string name="font_size_value">%1$d sp</string>

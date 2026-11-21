@@ -458,6 +458,7 @@
     <string name="vertical_reversed">豎向倒序</string>
     <string name="always">始終</string>
     <string name="candidates_position">候選窗口位置</string>
+    <string name="physical_keyboard_candidates_position">實體鍵盤候選視窗位置</string>
     <string name="top_left">左上</string>
     <string name="top_right">右上</string>
     <string name="bottom_left">左下</string>

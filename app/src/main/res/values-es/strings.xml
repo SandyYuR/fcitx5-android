@@ -309,10 +309,12 @@
     <string name="vertical_reversed">Vertical (invertido)</string>
     <string name="always">Siempre</string>
     <string name="candidates_position">Posición de la ventana de candidatos</string>
+    <string name="physical_keyboard_candidates_position">Posición de la ventana de candidatos con teclado físico</string>
     <string name="top_left">Arriba izquierda</string>
     <string name="top_right">Arriba derecha</string>
     <string name="bottom_left">Abajo izquierda</string>
     <string name="bottom_right">Abajo derecha</string>
+    <string name="follow_cursor">Seguir el cursor</string>
     <string name="candidates_font_size">Tamaño de fuente de candidatos</string>
     <string name="candidates_padding">Relleno de candidatos</string>
     <string name="candidates_window_min_width">Ancho mínimo de ventana de candidatos</string>

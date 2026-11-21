@@ -207,6 +207,7 @@ object SettingsSearchIndex {
         R.string.candidates_font_size to "candidates_window_font_size",
         R.string.candidates_window_radius to "candidates_window_radius",
         R.string.candidates_position to "virtual_keyboard_candidates_position",
+        R.string.physical_keyboard_candidates_position to "physical_keyboard_candidates_position",
         R.string.candidates_window_padding to "candidates_window_padding",
         R.string.candidates_orientation to "candidates_window_orientation",
         R.string.candidates_window_min_width to "candidates_window_min_width",
@@ -892,6 +893,11 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.candidates_position, P_ANDROID,
             listOf("position", "候选位置", "位置"),
+            route = SettingsRoute.CandidatesWindow
+        ),
+        SettingsSearchEntry(
+            R.string.physical_keyboard_candidates_position, P_ANDROID,
+            listOf("position", "physical keyboard", "候选位置", "实体键盘", "跟随光标"),
             route = SettingsRoute.CandidatesWindow
         ),
         SettingsSearchEntry(
