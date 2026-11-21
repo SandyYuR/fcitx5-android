@@ -30,6 +30,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private val owner = Executors.newSingleThreadExecutor { Thread(it, "rime-main") }.asCoroutineDispatcher()
     private val interactivePriority = InteractiveThreadPriority()
     private val engineScope = CoroutineScope(SupervisorJob() + owner)
+    private val assetPrewarmer = DirectRimeAssetPrewarmer(this.context, engineScope)
     private val registry = FcitxLifecycleRegistry()
     override val lifecycle: FcitxLifecycle get() = registry
     override val isReady get() = registry.currentState == FcitxLifecycle.State.READY && started
@@ -39,8 +40,12 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private data class Binding(val generation: Long, val program: String, val flags: CapabilityFlags, val needsRime: Boolean)
     @Volatile private var binding: Binding? = null
     override val inputSession get() = epoch.get()
-    override fun invalidateInputSession(): Long = synchronized(bindingLock) {
-        epoch.incrementAndGet().also { binding = null; keyGate.invalidate(it) }
+    override fun invalidateInputSession(): Long {
+        val generation = synchronized(bindingLock) {
+            epoch.incrementAndGet().also { binding = null; keyGate.invalidate(it) }
+        }
+        assetPrewarmer.invalidate()
+        return generation
     }
     override fun prepareInputSession(generation: Long, program: String, flags: CapabilityFlags, needsRime: Boolean) {
         synchronized(bindingLock) {
@@ -60,8 +65,17 @@ class DirectRimeBackend(context: Context) : InputEngine {
         keyGate.prepare(generation, true)
         true
     }
-    override fun captureInputKey() = keyGate.capture { reason ->
-        android.util.Log.w("RimeInputQueue", "key_rejected generation=$inputSession reason=$reason")
+    override fun setKeyboardWindowVisible(visible: Boolean) {
+        if (!directBootMode && assetPrewarmer.setVisible(visible)) engineScope.launch { requestAssetPrewarm() }
+    }
+    override fun onKeyboardTouchStarted() {
+        if (!directBootMode) assetPrewarmer.inputStarted()
+    }
+    override fun captureInputKey(): InputKeyGate.Ticket? {
+        assetPrewarmer.inputStarted()
+        return keyGate.capture { reason ->
+            android.util.Log.w("RimeInputQueue", "key_rejected generation=$inputSession reason=$reason")
+        }
     }
     override fun canDeliverInputKey(ticket: InputKeyGate.Ticket): Boolean {
         val deliver = keyGate.canDeliver(ticket)
@@ -126,6 +140,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             override val inputSession get() = this@DirectRimeBackend.inputSession
             override fun enterMaintenance(): Pair<Long, Binding?> {
                 maintenance = true
+                assetPrewarmer.invalidate()
                 keyGate.block()
                 return synchronized(bindingLock) {
                     val previous = binding
@@ -326,6 +341,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         begin(generation)
     }
     private fun clearBinding(generation: Long) {
+        assetPrewarmer.invalidate()
         snapshot?.let { if (started) Native.end(it.generation) }
         snapshot = null
         appliedNoLearning = null
@@ -404,6 +420,21 @@ class DirectRimeBackend(context: Context) : InputEngine {
             forceCandidates, statistics, statisticsKey,
         )
         if (batch.isNotEmpty()) events.offer(batch)
+        if (previous == null || previous.ready != value.ready || previous.schema != value.schema || previous.ascii != value.ascii) {
+            assetPrewarmer.invalidate()
+            requestAssetPrewarm()
+        }
+    }
+
+    private fun requestAssetPrewarm() {
+        if (directBootMode) return
+        assetPrewarmer.request {
+            val value = snapshot
+            if (!started || maintenance || value?.ready != true || value.generation != inputSession ||
+                value.ascii || value.preedit.isNotEmpty() || forwardsKeysDirectly() ||
+                flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL) null
+            else DirectRimeAssetPrewarmer.Assets(config.user, shared, Native.prewarmAssets())
+        }
     }
 
     private fun buildStatusActions(value: Snapshot): Array<Action> = DirectRimeStatusMenu.build(
@@ -429,6 +460,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     }
 
     override suspend fun sendKey(sym: Int, states: UInt, code: Int, up: Boolean, timestamp: Int) {
+        assetPrewarmer.inputStarted()
         val expected = inputSession
         // Rime can commit on a release too (for example a schema's release binding).
         // Only DOWN produces a key counter, but either half may carry commit metadata.
@@ -609,6 +641,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun setCapFlags(flags: CapabilityFlags) { onOwner {
         this.flags = flags
         val noLearning = directBootMode || flags.flags and CapabilityFlag.PasswordOrSensitive.flag != 0UL
+        if (noLearning) assetPrewarmer.invalidate()
         if (snapshot?.ready == true && appliedNoLearning != noLearning) {
             if (act(8, if (noLearning) 1 else 0, "_no_learning")?.ready == true) appliedNoLearning = noLearning
         }

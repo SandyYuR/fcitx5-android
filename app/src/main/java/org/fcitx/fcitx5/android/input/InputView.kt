@@ -49,6 +49,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlags
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
+import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.SplitKeyboardStateManager
@@ -2306,6 +2307,7 @@ class InputView(
     }
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) FcitxDaemon.onKeyboardTouchStarted()
         if (autoHideFloatingMoveHandlePref != lastAutoHideFloatingMoveHandlePref) {
             updateFloatingHandlesVisibility()
         }
