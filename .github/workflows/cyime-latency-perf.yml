@@ -30,6 +30,10 @@ jobs:
   compare:
     runs-on: ubuntu-22.04
     timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      matrix:
+        storage: ${{ contains(github.event.head_commit.message, '[storage-trace]') && fromJSON('["warm","cold"]') || fromJSON('["default"]') }}
     env:
       BENCH_ABI: ${{ contains(github.event.head_commit.message, '[native-x86]') && 'x86_64' || 'arm64-v8a' }}
       BENCH_SUITE: ${{ contains(github.event.head_commit.message, '[long-sentences]') && '--sentences' || '' }}
@@ -38,7 +42,7 @@ jobs:
       BENCH_OVERLAP: ${{ contains(github.event.head_commit.message, '[same-key-overlap]') && 'yes' || 'no' }}
       BENCH_TRACE: ${{ contains(github.event.head_commit.message, '[long-trace]') && '--trace-long' || '' }}
       BENCH_STORAGE: ${{ contains(github.event.head_commit.message, '[storage-trace]') && 'yes' || 'no' }}
-      BENCH_STORAGE_COLD: ${{ contains(github.event.head_commit.message, '[cold-page-cache]') && '--cold' || '' }}
+      BENCH_STORAGE_COLD: ${{ matrix.storage == 'cold' && '--cold' || '' }}
       BENCH_PATCHED: ${{ contains(github.event.head_commit.message, '[handover-build]') && '--expect-handover' || '' }}
       DIRECT_SHA: ${{ contains(github.event.head_commit.message, '[handover-build]') && github.sha || (contains(github.event.head_commit.message, '[same-key-overlap]') || contains(github.event.head_commit.message, '[long-trace]') || contains(github.event.head_commit.message, '[shared-wanxiang]')) && '899eedbf1b7eb8475f7f2a3e162e6ec014763be5' || '4200b65d9ba9802a4d6e75d00a6619eb2732443e' }}
     steps:
@@ -151,6 +155,6 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: cyime-latency-evidence
+          name: ${{ matrix.storage == 'default' && 'cyime-latency-evidence' || format('cyime-latency-{0}-storage', matrix.storage) }}
           path: build/cyime-latency/
           retention-days: 14

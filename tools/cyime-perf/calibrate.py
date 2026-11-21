@@ -16,7 +16,8 @@ import zipfile
 
 from sentences import LETTERS
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "foxy-perf"))
+# Keep this suite's modules ahead of the helpers with the same filenames.
+sys.path.insert(1, str(Path(__file__).resolve().parent.parent / "foxy-perf"))
 from pilot import adb, capture, HOST, selected_ime
 
 PACKAGES = {"direct": "org.fcitx.fcitx5.android.fx.rime", "cyime": "com.cyletix.cyime"}
