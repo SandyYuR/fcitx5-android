@@ -37,9 +37,15 @@ def selected_ime(package):
     if ime is None:
         raise RuntimeError(f'{package}: service absent from all IMEs: {methods}')
     adb('shell', 'ime', 'enable', ime)
-    response = adb('shell', 'ime', 'set', ime)
-    assert adb('shell', 'settings', 'get', 'secure', 'default_input_method') == ime, response
-    return ime
+    for _ in range(3):
+        response = adb('shell', 'ime', 'set', ime)
+        deadline = time.monotonic() + 2
+        while time.monotonic() < deadline:
+            current = adb('shell', 'settings', 'get', 'secure', 'default_input_method')
+            if current == ime:
+                return ime
+            time.sleep(.2)
+    raise RuntimeError(f'{package}: Android reported {response!r} but the selected IME is {current!r}')
 
 
 def capture(out, name):

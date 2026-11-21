@@ -210,16 +210,20 @@ def verify_shared_profile(out, label, pid, root, checksums, entry):
             (out / name.replace("/", "-")).write_text(data)
 
 
-def verify_shared_comparison(output, support):
+def verify_wanxiang_calibration(output, support):
     import yaml
 
-    schemas = [json.loads((output / label / "effective-schema.json").read_text()) for label in PACKAGES]
-    differences = sorted(key for key in schemas[0].keys() | schemas[1].keys() if schemas[0].get(key) != schemas[1].get(key))
-    defaults = [yaml.safe_load((output / label / "build-default.yaml").read_text()) for label in PACKAGES]
-    default_differences = sorted(key for key in defaults[0].keys() | defaults[1].keys()
-                                 if key != "__build_info" and defaults[0].get(key) != defaults[1].get(key))
+    differences = []
+    default_differences = []
+    if len(support) == 2:
+        schemas = [json.loads((output / label / "effective-schema.json").read_text()) for label in support]
+        differences = sorted(key for key in schemas[0].keys() | schemas[1].keys() if schemas[0].get(key) != schemas[1].get(key))
+        defaults = [yaml.safe_load((output / label / "build-default.yaml").read_text()) for label in support]
+        default_differences = sorted(key for key in defaults[0].keys() | defaults[1].keys()
+                                     if key != "__build_info" and defaults[0].get(key) != defaults[1].get(key))
     seeded = yaml.safe_load((output / "wanxiang-seed-user.yaml").read_text())["var"]["option"]
     report = {
+        "products": list(support),
         "schema_differences": differences,
         "default_differences": default_differences,
         "source_changes": {label: entry["source_changes"] for label, entry in support.items()},
@@ -234,7 +238,7 @@ def verify_shared_comparison(output, support):
     (output / "shared-wanxiang.json").write_text(json.dumps(report, indent=2) + "\n")
     if not report["verified"]:
         raise RuntimeError(f"Wanxiang profiles differ after deployment: {report}")
-    print("Verified both active Wanxiang schemas, saved input options and mapped grammar SHA-256", flush=True)
+    print("Verified active Wanxiang, saved input options and mapped grammar SHA-256 for " + ", ".join(support), flush=True)
 
 
 def select_product(package):
@@ -303,9 +307,12 @@ def main():
     parser.add_argument("--sentences", action="store_true")
     parser.add_argument("--pause-diagnostic", action="store_true")
     parser.add_argument("--shared-wanxiang", action="store_true")
+    parser.add_argument("--direct-only", action="store_true")
     args = parser.parse_args()
     if args.shared_wanxiang and (args.pause_diagnostic or not args.measure):
-        parser.error("--shared-wanxiang requires both products and measured touch calibration")
+        parser.error("--shared-wanxiang requires measured touch calibration")
+    if args.direct_only and args.pause_diagnostic:
+        parser.error("--direct-only and --pause-diagnostic require different IMEs")
     output = args.output
     output.mkdir(parents=True, exist_ok=True)
     if not adb("get-serialno", check=False, timeout=10).startswith("emulator-"):
@@ -332,19 +339,24 @@ def main():
     (output / "device-properties.txt").write_text(adb("shell", "getprop"))
     (output / "display.txt").write_text(adb("shell", "dumpsys", "display"))
     adb("install", "-r", args.host)
-    packages = {"cyime": PACKAGES["cyime"]} if args.pause_diagnostic else PACKAGES
+    packages = PACKAGES
+    if args.pause_diagnostic:
+        packages = {"cyime": PACKAGES["cyime"]}
+    elif args.direct_only:
+        packages = {"direct": PACKAGES["direct"]}
     for label in packages:
         apk = getattr(args, label)
         verify_apk_abi(apk, args.abi)
         adb("install", "-r", apk)
     if "direct" in packages:
         configure_preferences(PACKAGES["direct"], PACKAGES["direct"] + "_preferences", "popup_on_key_press")
-    configure_preferences(PACKAGES["cyime"], "kime_settings", "show_press_bubble_v2",
-                          WANXIANG_PAGE_SIZE if args.shared_wanxiang else None)
-    if not args.shared_wanxiang:
-        (output / "cyime-first-launch.txt").write_text(adb("shell", "am", "start", "-W", "-n",
-            PACKAGES["cyime"] + "/com.kingzcheung.xime.MainActivity", check=False, timeout=45))
-        (output / "cyime-first-launch-crashes.txt").write_text(adb("logcat", "-b", "crash", "-d", "-v", "threadtime"))
+    if "cyime" in packages:
+        configure_preferences(PACKAGES["cyime"], "kime_settings", "show_press_bubble_v2",
+                              WANXIANG_PAGE_SIZE if args.shared_wanxiang else None)
+        if not args.shared_wanxiang:
+            (output / "cyime-first-launch.txt").write_text(adb("shell", "am", "start", "-W", "-n",
+                PACKAGES["cyime"] + "/com.kingzcheung.xime.MainActivity", check=False, timeout=45))
+            (output / "cyime-first-launch-crashes.txt").write_text(adb("logcat", "-b", "crash", "-d", "-v", "threadtime"))
     profiles, checksums = seed_profiles(args.fixture, output, packages, args.shared_wanxiang)
     support = {}
     errors = []
@@ -398,7 +410,7 @@ def main():
     if errors:
         raise RuntimeError(f"Calibration failed for {', '.join(errors)}")
     if args.shared_wanxiang:
-        verify_shared_comparison(output, support)
+        verify_wanxiang_calibration(output, support)
 
 
 if __name__ == "__main__":
