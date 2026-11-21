@@ -465,19 +465,32 @@ class TextKeyboard private constructor(
         }
 
         /**
-         * Resolve the layout used for numeric-only editors from the app preference
-         * "numeric_layout_override" (键盘 → 数字键盘布局). The preference names any
-         * layout key, including IME submode keys such as "rime:wanxiang"; users are
-         * responsible for the value. Returns null when unset or unresolvable, in which
-         * case the built-in number keyboard applies. Deliberately decoupled from the
-         * layout JSON: TextKeyboardLayout.json only defines text keyboard layouts.
+         * Resolve the layout used for numeric-only editors.
+         *
+         * 解析顺序固定为：显式偏好（键盘 → 数字键盘布局，能解析时）→
+         * 当前布局自带的数字层（__layer__:数字 / 数字 / 123 / ?123 这类层子布局）→
+         * 内置数字键盘。成套主题只要在自己的布局文件里带一个数字层，用户就不必再手填布局键；
+         * 换套装之后解析结果随 [textLayoutJson] 自然更新。
+         *
+         * 偏好解析不出来时退回自动发现：换套装后残留的旧布局键很常见，
+         * 让它静默变成内置键盘，用户只会觉得数字键盘「坏了」。
          */
         @Synchronized
         fun resolveNumericLayoutKey(): String? {
             val json = textLayoutJson ?: return null
-            val option = AppPrefs.getInstance().keyboard.numericLayoutOverride.getValue()
-                .trim().takeIf { it.isNotEmpty() } ?: return null
-            return option.takeIf { containsLayoutKey(json, it) }
+            val preference = AppPrefs.getInstance().keyboard.numericLayoutOverride.getValue()
+            return NumericLayoutResolver.resolve(json, preference, numericLayoutPreferredBases())
+        }
+
+        /** 当前输入法对应的基线，按优先级排列；自动发现用于多基线并存时的取舍。 */
+        private fun numericLayoutPreferredBases(): List<String> {
+            val ime = ime
+            return buildList {
+                ime?.uniqueName?.takeIf { it.isNotBlank() }?.let(::add)
+                ime?.displayName?.takeIf { it.isNotBlank() }?.let(::add)
+                ime?.subMode?.name?.takeIf { it.isNotBlank() }?.let(::add)
+                add("default")
+            }.distinct()
         }
 
         /**

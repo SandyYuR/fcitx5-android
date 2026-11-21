@@ -25,6 +25,7 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceFragment
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceUi
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
+import org.fcitx.fcitx5.android.input.keyboard.NumericLayoutResolver
 import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.ui.main.MainViewModel
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupAction
@@ -249,12 +250,22 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
 
     private fun buildNumericLayoutOverrideSummary(): String {
         val value = AppPrefs.getInstance().keyboard.numericLayoutOverride.getValue().trim()
-        if (value.isEmpty()) return getString(R.string.numeric_layout_override_builtin)
-        val available = value in collectLayoutLayerEntries()
-        return if (available) value else getString(
-            R.string.numeric_layout_override_unavailable,
-            value
+        val entries = collectLayoutLayerEntries()
+        val autoKey = NumericLayoutResolver.autoDetect(entries, NUMERIC_PREFERRED_BASES)
+        val autoSummary = getString(
+            R.string.numeric_layout_override_auto_summary,
+            autoKey ?: getString(R.string.numeric_layout_override_builtin)
         )
+        return when {
+            value.isEmpty() -> autoSummary
+            value == NumericLayoutResolver.BUILTIN ->
+                getString(R.string.numeric_layout_override_builtin)
+            value in entries -> value
+            // 旧值多半是上一个套装留下的布局键。运行时已经按自动发现处理，
+            // 摘要必须说清楚真正生效的是哪一项，否则「不可用」看起来像功能坏了。
+            else -> getString(R.string.numeric_layout_override_unavailable, value) +
+                " · " + autoSummary
+        }
     }
 
     /**
@@ -279,16 +290,25 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
     }
 
     private fun showNumericLayoutOverrideDialog() {
+        val auto = getString(R.string.numeric_layout_override_auto)
         val builtin = getString(R.string.numeric_layout_override_builtin)
         val layers = collectLayoutLayerEntries()
-        val items = listOf(builtin) + layers
+        val items = listOf(auto, builtin) + layers
         val current = AppPrefs.getInstance().keyboard.numericLayoutOverride.getValue().trim()
-        val checked = if (current.isEmpty()) 0 else items.indexOf(current).coerceAtLeast(0)
+        val checked = when {
+            current.isEmpty() -> 0
+            current == NumericLayoutResolver.BUILTIN -> 1
+            else -> items.indexOf(current).coerceAtLeast(0)
+        }
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.numeric_layout_override_title)
             .setSingleChoiceItems(items.toTypedArray(), checked) { dialog, which ->
-                AppPrefs.getInstance().keyboard.numericLayoutOverride
-                    .setValue(if (which == 0) "" else items[which])
+                val value = when (which) {
+                    0 -> ""
+                    1 -> NumericLayoutResolver.BUILTIN
+                    else -> items[which]
+                }
+                AppPrefs.getInstance().keyboard.numericLayoutOverride.setValue(value)
                 numericLayoutOverridePreference?.summary = buildNumericLayoutOverrideSummary()
                 dialog.dismiss()
             }
@@ -373,6 +393,12 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
 
     companion object {
         private const val TEXT_LAYOUT_FILE_SELECT_PREF_KEY = "text_keyboard_layout_file_select"
+
+        /**
+         * 设置页没有真实输入法上下文，按本应用的固定基线（rime）优先；
+         * 其他文件交给「只有一套基线带数字层」的兜底规则。
+         */
+        private val NUMERIC_PREFERRED_BASES = listOf("rime", "default")
 
         const val GROUP_LAYOUT = 0
         const val GROUP_BEHAVIOR = 1
