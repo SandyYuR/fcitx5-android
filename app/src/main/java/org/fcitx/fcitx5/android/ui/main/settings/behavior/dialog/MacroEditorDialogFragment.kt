@@ -35,6 +35,7 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.input.action.ButtonAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
@@ -268,13 +269,18 @@ class MacroEditorDialogFragment : DialogFragment() {
          */
         val APP_ACTION_IDS = arrayOf(
             "theme",
+            "theme_toggle",
+            "random_theme",
             "icon_theme",
             "virtual_keyboard",
             "more",
             "browse_user_data_dir",
             "clipboard",
+            "voice_input",
+            "ai_assistant",
             "cursor_move",
             "floating_toggle",
+            "split_keyboard",
             "language_switch",
             "switch_input_method",
             "rime_schema_menu",
@@ -287,12 +293,17 @@ class MacroEditorDialogFragment : DialogFragment() {
             "settings_candidates_window",
             "settings_clipboard",
             "settings_symbol",
+            "settings_input_stats",
+            "settings_js_plugins",
+            "settings_scheme_updates",
+            "settings_data_backup",
             "settings_advanced",
             "settings_developer",
             "settings_about",
             "settings_license",
             "edit_text_keyboard_layout",
             "text_keyboard_layout_file_select",
+            "text_keyboard_layout_profiles",
             "edit_fontset",
             "edit_buttons",
             "split_keyboard_calibration",
@@ -1693,6 +1704,7 @@ class MacroEditorDialogFragment : DialogFragment() {
                 "settings_candidates_window" -> getString(R.string.candidates_window)
                 "settings_clipboard" -> getString(R.string.clipboard)
                 "settings_symbol" -> getString(R.string.emoji_and_symbols)
+                "settings_input_stats" -> getString(R.string.stats_title)
                 "settings_advanced" -> getString(R.string.advanced)
                 "settings_developer" -> getString(R.string.developer)
                 "settings_about" -> getString(R.string.about)
@@ -1707,7 +1719,7 @@ class MacroEditorDialogFragment : DialogFragment() {
                 "edit_buttons" -> getString(R.string.edit_buttons)
                 "split_keyboard_calibration" -> getString(R.string.split_keyboard_calibration_title)
                 "web_editor_bridge" -> getString(R.string.web_editor_bridge_title)
-                else -> actionId
+                else -> ButtonAction.fromId(actionId)?.let { getString(it.defaultLabelRes) } ?: actionId
             }
         }
 

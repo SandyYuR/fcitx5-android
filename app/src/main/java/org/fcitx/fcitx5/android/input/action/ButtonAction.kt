@@ -27,8 +27,12 @@ import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.ButtonsCustomizerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutEditorActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextKeyboardLayoutProfileManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.TextKeyboardLayoutProfilePickerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeListActivity
+import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
+import org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdateActivity
+import org.fcitx.fcitx5.android.ui.main.stats.InputStatsActivity
 import org.fcitx.fcitx5.android.input.voice.js.JsAppButtonBinding
 import org.fcitx.fcitx5.android.utils.AppUtil
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
@@ -163,12 +167,17 @@ sealed class ButtonAction {
                 SettingsCandidatesWindowAction,
                 SettingsClipboardSettingsAction,
                 SettingsSymbolSettingsAction,
+                SettingsInputStatsAction,
+                SettingsJsPluginsAction,
+                SettingsSchemeUpdatesAction,
+                SettingsDataBackupAction,
                 SettingsAdvancedAction,
                 SettingsDeveloperAction,
                 SettingsAboutAction,
                 SettingsLicenseAction,
                 EditTextKeyboardLayoutAction,
                 TextKeyboardLayoutFileSelectAction,
+                TextKeyboardLayoutProfilesAction,
                 EditFontsetAction,
                 SwitchInputMethodAction,
                 RimeSchemaMenuAction,
@@ -800,6 +809,80 @@ data object SettingsSymbolSettingsAction : ButtonAction() {
     }
 }
 
+data object SettingsInputStatsAction : ButtonAction() {
+    override val id = "settings_input_stats"
+    override val defaultIcon = R.drawable.ic_baseline_list_alt_24
+    override val defaultLabelRes = R.string.stats_title
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        context.startActivity(Intent(context, InputStatsActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    }
+}
+
+data object SettingsJsPluginsAction : ButtonAction() {
+    override val id = "settings_js_plugins"
+    override val defaultIcon = R.drawable.ic_baseline_extension_24
+    override val defaultLabelRes = R.string.js_voice_plugins_title
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        context.startActivity(JsVoicePluginsActivity.intent(context).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    }
+}
+
+data object SettingsSchemeUpdatesAction : ButtonAction() {
+    override val id = "settings_scheme_updates"
+    override val defaultIcon = R.drawable.ic_settings_download
+    override val defaultLabelRes = R.string.scheme_update_title
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        context.startActivity(Intent(context, RimeSchemeUpdateActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    }
+}
+
+data object SettingsDataBackupAction : ButtonAction() {
+    override val id = "settings_data_backup"
+    override val defaultIcon = R.drawable.ic_baseline_settings_backup_restore_24
+    override val defaultLabelRes = R.string.settings_group_data
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        AppUtil.launchMainToRoute(context, SettingsRoute.DataBackup)
+    }
+}
+
 data object SettingsAdvancedAction : ButtonAction() {
     override val id = "settings_advanced"
     override val defaultIcon = R.drawable.ic_baseline_more_horiz_24
@@ -902,6 +985,25 @@ data object TextKeyboardLayoutFileSelectAction : ButtonAction() {
         onActionComplete: (() -> Unit)?
     ) {
         context.startActivity(Intent(context, TextKeyboardLayoutProfilePickerActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    }
+}
+
+data object TextKeyboardLayoutProfilesAction : ButtonAction() {
+    override val id = "text_keyboard_layout_profiles"
+    override val defaultIcon = R.drawable.ic_baseline_keyboard_24
+    override val defaultLabelRes = R.string.text_keyboard_layout_manage_title
+
+    override fun execute(
+        context: Context,
+        service: FcitxInputMethodService,
+        fcitx: FcitxConnection,
+        windowManager: InputWindowManager,
+        view: View?,
+        onActionComplete: (() -> Unit)?
+    ) {
+        context.startActivity(Intent(context, TextKeyboardLayoutProfileManagerActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         })
     }
