@@ -30,18 +30,28 @@ start = text.index("val offlineTranslateLibraryHashes = mapOf<String, String>(")
 end = text.index("\nval offlineTranslateLibraryRoot", start)
 translation.write_text(text[:start] + "val offlineTranslateLibraryHashes = emptyMap<String, String>()" + text[end:])
 
-# Every ONNX header succeeded from the official source during the first build.
-# Keep the upstream mirrors as fallback and try the official source first.
+# The published AAR contains the matching headers. Its source tag is absent.
 native = Path("app/build-logic/tasks-native.gradle.kts")
 text = native.read_text()
-start = text.index("fun githubUrls(url: String): List<String> = buildList {")
-end = text.index("\n}", start) + len("\n}")
-native.write_text(text[:start] + '''fun githubUrls(url: String): List<String> = buildList {
-    add(url)
-    ghMirrors.forEach { add("${it.trimEnd('/')}/$url") }
-}''' + text[end:])
+start = text.index("        // 下载 v1.28 core/session/")
+end = text.index("        // 4. Marker", start)
+native.write_text(text[:start] + '''        val headerDir = File(aarDir, "headers")
+        check(File(headerDir, "onnxruntime_c_api.h").isFile) { "AAR missing ONNX Runtime headers" }
+        copy {
+            from(headerDir)
+            into(File(cppDir, "include"))
+        }
+
+''' + text[end:])
 PY
 git diff -- app/build.gradle.kts app/build-logic/tasks-offline-translate.gradle.kts app/build-logic/tasks-native.gradle.kts > "$evidence/cyime-build.patch"
+onnx_aar=app/build/onnxruntime-android-1.28.0.aar
+mkdir -p "$(dirname "$onnx_aar")"
+curl --fail --silent --show-error --location --retry 3 --connect-timeout 15 --max-time 120 \
+  https://repo.maven.apache.org/maven2/com/microsoft/onnxruntime/onnxruntime-android/1.28.0/onnxruntime-android-1.28.0.aar \
+  --output "$onnx_aar"
+printf '%s  %s\n' f351a0638696f54b35184290dbc001d66daae17281ad0b548d2c70347d53b8a9 "$onnx_aar" > "$evidence/cyime-onnx-sha256.txt"
+sha256sum -c "$evidence/cyime-onnx-sha256.txt"
 keystore="$RUNNER_TEMP/cyime-test.keystore"
 keytool -genkeypair -keystore "$keystore" -storepass android -keypass android -alias cyime-test \
   -dname CN=LocalBenchmark -keyalg RSA -validity 30 >/dev/null 2>&1
