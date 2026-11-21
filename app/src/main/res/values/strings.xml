@@ -751,6 +751,8 @@
     <string name="numeric_layout_override_title">Numeric keyboard layout</string>
     <string name="numeric_layout_override_builtin">Built-in number keypad</string>
     <string name="numeric_layout_override_unavailable">%1$s (unavailable in current profile)</string>
+    <string name="numeric_layout_override_auto" tools:ignore="MissingTranslation">Automatic (follow keyboard layout)</string>
+    <string name="numeric_layout_override_auto_summary" tools:ignore="MissingTranslation">Automatic: %1$s</string>
     <string name="text_keyboard_layout_copy_from">Copy from existing layout</string>
     <string name="text_keyboard_layout_name_empty">Layout name cannot be empty</string>
     <string name="text_keyboard_layout_delete_key_confirm">Delete this key?</string>

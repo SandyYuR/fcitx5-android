@@ -253,8 +253,12 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "default"
         ).apply { register() }
         /**
-         * 数字输入框使用的自定义布局键（可为任意布局名或 ime:submode，如 rime:wanxiang）。
-         * 留空表示使用内置数字键盘。仅存于应用设置，与布局文件解耦。
+         * 数字输入框使用的键盘布局。
+         *
+         * 留空表示自动：优先当前布局文件里自带的数字层（__layer__:数字 / 数字 / 123 / ?123
+         * 这类层子布局），没有才回落到内置数字键盘；换成套主题后自动跟随。
+         * [org.fcitx.fcitx5.android.input.keyboard.NumericLayoutResolver.BUILTIN] 表示强制内置键盘，
+         * 其他值按布局键（rime:__layer__:数字）或裸层名（数字）解析。
          */
         val numericLayoutOverride = ManagedPreference.PString(
             sharedPreferences,
