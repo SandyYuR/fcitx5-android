@@ -28,12 +28,16 @@ def run(output, label, bounds, mode):
     if "status=ok" not in response:
         return {"failure": response}
     evidence = json.loads((directory / "touches.json").read_text())
-    return {"text": evidence["output"], "overlap_events": [event for event in evidence["touches"] if "action" in event]}
+    preedit = next((item["text"].split("|")[0].strip() for item in evidence["overlap_candidates"]
+                    if item["text"].startswith(("zhong guo", "zhon guo"))), None)
+    return {"text": evidence["output"], "preedit": preedit,
+            "overlap_events": [event for event in evidence["touches"] if "action" in event]}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--expect-handover", action="store_true")
     args = parser.parse_args()
     if not adb("get-serialno").startswith("emulator-"):
         raise RuntimeError("The experiment requires a disposable emulator")
@@ -50,6 +54,14 @@ def main():
         raise RuntimeError("The sequential control did not commit 中国 in both products")
     if any("failure" in result for pair in results.values() for result in pair.values()):
         raise RuntimeError("An overlap replay could not inject its touches")
+    if args.expect_handover:
+        results["cancel-second"] = {"direct": run(args.output, "direct", products["direct"]["bounds"], "cancel-second")}
+        (args.output / "overlap-results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2) + "\n")
+        expected = {"sequential": "zhong guo", "one-g": "zhon guo", "older-up-first": "zhong guo",
+                    "newer-up-first": "zhong guo", "cancel-second": "zhon guo"}
+        for mode, preedit in expected.items():
+            if results[mode]["direct"].get("preedit") != preedit:
+                raise RuntimeError(f"{mode}: expected {preedit}, observed {results[mode]['direct']}")
 
 
 if __name__ == "__main__":

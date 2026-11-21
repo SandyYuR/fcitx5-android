@@ -36,7 +36,8 @@ jobs:
       BENCH_DIAGNOSTIC: ${{ contains(github.event.head_commit.message, '[pause-diagnostic]') && '--pause-diagnostic' || '' }}
       BENCH_OVERLAP: ${{ contains(github.event.head_commit.message, '[same-key-overlap]') && 'yes' || 'no' }}
       BENCH_TRACE: ${{ contains(github.event.head_commit.message, '[long-trace]') && '--trace-long' || '' }}
-      DIRECT_SHA: ${{ (contains(github.event.head_commit.message, '[same-key-overlap]') || contains(github.event.head_commit.message, '[long-trace]')) && '899eedbf1b7eb8475f7f2a3e162e6ec014763be5' || '4200b65d9ba9802a4d6e75d00a6619eb2732443e' }}
+      BENCH_PATCHED: ${{ contains(github.event.head_commit.message, '[handover-build]') && '--expect-handover' || '' }}
+      DIRECT_SHA: ${{ contains(github.event.head_commit.message, '[handover-build]') && github.sha || (contains(github.event.head_commit.message, '[same-key-overlap]') || contains(github.event.head_commit.message, '[long-trace]')) && '899eedbf1b7eb8475f7f2a3e162e6ec014763be5' || '4200b65d9ba9802a4d6e75d00a6619eb2732443e' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -49,6 +50,7 @@ jobs:
         with:
           packages: platform-tools platforms;android-36 build-tools;36.0.0
       - uses: actions/download-artifact@v6
+        if: env.BENCH_PATCHED == ''
         with:
           artifact-ids: ${{ env.DIRECT_SHA == '899eedbf1b7eb8475f7f2a3e162e6ec014763be5' && '14690585770' || env.BENCH_ABI == 'x86_64' && '14628710616' || '14627779188' }}
           run-id: ${{ env.DIRECT_SHA == '899eedbf1b7eb8475f7f2a3e162e6ec014763be5' && '44861442850' || '44734472106' }}
@@ -77,7 +79,14 @@ jobs:
           persist-credentials: false
           path: cyime-source
       - uses: gradle/actions/setup-gradle@v6
-        if: env.BENCH_ABI == 'x86_64' && steps.cyime-cache.outputs.cache-hit != 'true'
+        if: env.BENCH_PATCHED != '' || (env.BENCH_ABI == 'x86_64' && steps.cyime-cache.outputs.cache-hit != 'true')
+      - name: Build the experimental 中州鹅 x86_64 Release
+        if: env.BENCH_PATCHED != ''
+        env:
+          BUILD_ABI: x86_64
+        run: |
+          python3 tools/prepare-ci-ndk.py
+          bash tools/foxy-perf/build-release.sh "$RUNNER_TEMP/direct-product"
       - name: Build the pinned CyIME source as native x86_64 Release
         if: env.BENCH_ABI == 'x86_64' && steps.cyime-cache.outputs.cache-hit != 'true'
         run: |
@@ -131,7 +140,7 @@ jobs:
           script: |
             python3 tools/cyime-perf/calibrate.py --direct "$RUNNER_TEMP/direct-product/direct.apk" --cyime "$RUNNER_TEMP/cyime.apk" --fixture "$RUNNER_TEMP/study-inputs/fixture.zip" --host "$RUNNER_TEMP/cyime-host/host.apk" --output build/cyime-latency/calibration --abi "$BENCH_ABI" --measure $BENCH_SUITE $BENCH_DIAGNOSTIC
             if [ "$BENCH_OVERLAP" = yes ]; then
-              python3 tools/cyime-perf/overlap.py --output build/cyime-latency
+              python3 tools/cyime-perf/overlap.py --output build/cyime-latency $BENCH_PATCHED
             fi
             if [ "$BENCH_OVERLAP" != yes ] || [ -n "$BENCH_TRACE" ]; then
               python3 tools/cyime-perf/run.py --output build/cyime-latency $BENCH_SUITE $BENCH_DIAGNOSTIC $BENCH_TRACE

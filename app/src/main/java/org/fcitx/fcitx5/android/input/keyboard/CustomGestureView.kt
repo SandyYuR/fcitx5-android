@@ -128,6 +128,9 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     var soundEffect: InputFeedbacks.SoundEffect = InputFeedbacks.SoundEffect.Standard
 
     private val touchSlop: Float = ViewConfiguration.get(ctx).scaledTouchSlop.toFloat()
+    internal var letterTapHandoverEnabled = false
+    private var tapPointerId = -1
+    private var handlingTapHandover = false
 
     init {
         // disable system sound effect and haptic feedback
@@ -194,9 +197,83 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     fun cancelGestures() {
         isPressed = false
         resetState()
+        tapPointerId = -1
+        handlingTapHandover = false
         // reset double tap state on cancel; unconditional for the same reason as resetState
         maybeDoubleTap = false
         lastClickTime = 0
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        val action = event.actionMasked
+        if (action == MotionEvent.ACTION_DOWN) {
+            handlingTapHandover = false
+            tapPointerId = if (letterTapHandoverEnabled) event.getPointerId(0) else -1
+        }
+        if (action == MotionEvent.ACTION_POINTER_DOWN && letterTapHandoverEnabled && isEnabled) {
+            val next = event.actionIndex
+            val old = event.findPointerIndex(tapPointerId)
+            val newX = event.getX(next)
+            val newY = event.getY(next)
+            if (newX >= 0 && newX < width && newY >= 0 && newY < height &&
+                (old >= 0 && isUnmovedLetterTap(event, old) || old < 0 && handlingTapHandover)
+            ) {
+                val keyParent = parent
+                handlingTapHandover = true
+                // Android sends both fingers to one child when the second taps
+                // the same key. Finish the first tap before handing it over.
+                if (old >= 0) dispatchSingleTouch(event, old, MotionEvent.ACTION_UP)
+                tapPointerId = -1
+                if (isEnabled && letterTapHandoverEnabled && parent === keyParent) {
+                    tapPointerId = event.getPointerId(next)
+                    dispatchSingleTouch(event, next, MotionEvent.ACTION_DOWN)
+                }
+                return true
+            }
+        }
+        if (!handlingTapHandover) return super.dispatchTouchEvent(event)
+
+        val pointer = event.findPointerIndex(tapPointerId)
+        when (action) {
+            MotionEvent.ACTION_MOVE -> if (pointer >= 0) dispatchSingleTouch(event, pointer, action)
+            MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP -> {
+                if (pointer >= 0 && event.actionIndex == pointer) {
+                    dispatchSingleTouch(event, pointer, MotionEvent.ACTION_UP)
+                    tapPointerId = -1
+                }
+                if (action == MotionEvent.ACTION_UP) handlingTapHandover = false
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                if (pointer >= 0) dispatchSingleTouch(event, pointer, action) else cancelGestures()
+            }
+        }
+        return true
+    }
+
+    private fun isUnmovedLetterTap(event: MotionEvent, pointer: Int): Boolean {
+        val elapsed = event.eventTime - pressDownTime
+        val x = event.getX(pointer)
+        val y = event.getY(pointer)
+        return isPressed && elapsed in 0L..ViewConfiguration.getTapTimeout().toLong() && elapsed < longPressDelay &&
+            !touchMovedOutside && !holdCancelledByMovement && !longPressTriggered && !gestureConsumed &&
+            !holdSwipeEnabled && !repeatEnabled && !repeatStarted && !swipeRepeatTriggered && !doubleTapEnabled &&
+            pointInView(x, y) && abs(x - pressDownX) <= touchSlop && abs(y - pressDownY) <= touchSlop
+    }
+
+    private fun dispatchSingleTouch(event: MotionEvent, pointer: Int, action: Int) {
+        val properties = MotionEvent.PointerProperties().also { event.getPointerProperties(pointer, it) }
+        val coords = MotionEvent.PointerCoords().also { event.getPointerCoords(pointer, it) }
+        val single = MotionEvent.obtain(
+            if (action == MotionEvent.ACTION_DOWN) event.eventTime else pressDownTime,
+            event.eventTime, action, 1, arrayOf(properties), arrayOf(coords), event.metaState,
+            event.buttonState, event.xPrecision, event.yPrecision, event.deviceId, event.edgeFlags,
+            event.source, event.flags
+        )
+        try {
+            super.dispatchTouchEvent(single)
+        } finally {
+            single.recycle()
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")

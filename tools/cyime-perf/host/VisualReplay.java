@@ -303,8 +303,8 @@ public final class VisualReplay extends Replay {
         for (int i = 0; i < code.length(); i++) {
             String key = code.substring(i, i + 1);
             long due = start + i * 120_000_000L;
-            if (i == 4 && (mode.equals("older-up-first") || mode.equals("newer-up-first"))) {
-                doubleTouch(bounds.getJSONArray(key), due, mode.equals("older-up-first"));
+            if (i == 4 && (mode.equals("older-up-first") || mode.equals("newer-up-first") || mode.equals("cancel-second"))) {
+                doubleTouch(bounds.getJSONArray(key), due, mode);
                 i++;
             } else {
                 touch(bounds.getJSONArray(key), due, key, 0);
@@ -319,7 +319,9 @@ public final class VisualReplay extends Replay {
         screenshot("committed.png");
     }
 
-    private void doubleTouch(JSONArray bounds, long start, boolean olderUpFirst) throws Exception {
+    private void doubleTouch(JSONArray bounds, long start, String mode) throws Exception {
+        boolean olderUpFirst = mode.equals("older-up-first");
+        boolean cancel = mode.equals("cancel-second");
         float x = (bounds.getInt(0) + bounds.getInt(2)) / 2f;
         float y = (bounds.getInt(1) + bounds.getInt(3)) / 2f;
         MotionEvent.PointerProperties[] pointers = new MotionEvent.PointerProperties[2];
@@ -336,9 +338,10 @@ public final class VisualReplay extends Replay {
         }
         int[] offsets = {0, 28, 65, 94};
         int[] actions = {MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN | (1 << MotionEvent.ACTION_POINTER_INDEX_SHIFT),
-            MotionEvent.ACTION_POINTER_UP | ((olderUpFirst ? 0 : 1) << MotionEvent.ACTION_POINTER_INDEX_SHIFT), MotionEvent.ACTION_UP};
+            cancel ? MotionEvent.ACTION_CANCEL : MotionEvent.ACTION_POINTER_UP | ((olderUpFirst ? 0 : 1) << MotionEvent.ACTION_POINTER_INDEX_SHIFT),
+            MotionEvent.ACTION_UP};
         long downTime = 0;
-        for (int i = 0; i < actions.length; i++) {
+        for (int i = 0; i < (cancel ? 3 : actions.length); i++) {
             waitUntil(start + offsets[i] * 1_000_000L);
             long eventTime = SystemClock.uptimeMillis();
             if (i == 0) downTime = eventTime;
