@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.LockSupport;
 
 /** Injects real touches from outside both products, while screenrecord runs separately. */
 public final class VisualReplay extends Replay {
@@ -41,25 +42,35 @@ public final class VisualReplay extends Replay {
         throw new IllegalStateException("Target IME was not ready: " + imePackage);
     }
 
-    private void touch(JSONArray rect, long due, String key, int round) throws Exception {
-        SystemClock.sleep(Math.max(0, due - SystemClock.uptimeMillis()));
+    private void waitUntil(long dueNs) {
+        long remaining;
+        while ((remaining = dueNs - now()) > 0) {
+            if (remaining > 2_000_000L) LockSupport.parkNanos(remaining - 2_000_000L);
+        }
+    }
+
+    private void touch(JSONArray rect, long dueNs, String key, int round) throws Exception {
         float x = (rect.getInt(0) + rect.getInt(2)) / 2f;
         float y = (rect.getInt(1) + rect.getInt(3)) / 2f;
-        JSONObject event = new JSONObject().put("key", key).put("round", round)
-            .put("due_ns", due * 1_000_000L + (now() - SystemClock.uptimeMillis() * 1_000_000L));
+        JSONObject event = new JSONObject().put("key", key).put("round", round).put("due_ns", dueNs);
         touches.put(event);
+        waitUntil(dueNs);
         long down = SystemClock.uptimeMillis();
+        long downAt = 0L;
         for (int action : new int[]{MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP}) {
             String name = action == MotionEvent.ACTION_DOWN ? "down" : "up";
-            if (action == MotionEvent.ACTION_UP) SystemClock.sleep(Math.max(0, down + 32 - SystemClock.uptimeMillis()));
+            if (action == MotionEvent.ACTION_UP) waitUntil(downAt + 32_000_000L);
             MotionEvent motion = MotionEvent.obtain(down, SystemClock.uptimeMillis(), action, x, y, 0);
             motion.setSource(InputDevice.SOURCE_TOUCHSCREEN);
             try {
-                event.put(name + "_ns", now());
+                long injectedAt = now();
                 boolean injected = injectTouch == null
                     ? getUiAutomation().injectInputEvent(motion, true)
                     : (Boolean) injectTouch.invoke(inputManager, motion, 0);
-                event.put(name + "_return_ns", now());
+                long returnedAt = now();
+                if (action == MotionEvent.ACTION_DOWN) downAt = injectedAt;
+                event.put(name + "_ns", injectedAt).put(name + "_return_ns", returnedAt)
+                    .put(name + "_event_uptime_ms", motion.getEventTime());
                 if (!injected) throw new IllegalStateException("Touch injection failed: " + key);
             } finally {
                 motion.recycle();
@@ -120,7 +131,7 @@ public final class VisualReplay extends Replay {
         if (!imePackage.equals("com.cyletix.cyime")) return;
         for (Label label : keyboardLabels()) {
             if (!label.text.equals("展开屏幕键盘")) continue;
-            touch(rect(label.bounds), SystemClock.uptimeMillis(), "setup", -1);
+            touch(rect(label.bounds), now(), "setup", -1);
             touches.remove(touches.length() - 1);
             SystemClock.sleep(550);
             return;
@@ -187,7 +198,7 @@ public final class VisualReplay extends Replay {
             bounds.put(key, rect(keyRect));
         }
         for (String key : new String[]{"n", "i"}) {
-            touch(bounds.getJSONArray(key), SystemClock.uptimeMillis(), key, 0);
+            touch(bounds.getJSONArray(key), now(), key, 0);
             SystemClock.sleep(200);
         }
         SystemClock.sleep(600);
@@ -219,7 +230,7 @@ public final class VisualReplay extends Replay {
         bounds.put("select", rect(selected));
         bounds.put("candidate", rect(new Rect(0, selected.top, 480, selected.bottom)));
         evidence.put("bounds", bounds);
-        touch(bounds.getJSONArray("select"), SystemClock.uptimeMillis(), "select", 0);
+        touch(bounds.getJSONArray("select"), now(), "select", 0);
         SystemClock.sleep(600);
         screenshot("committed.png");
         evidence.put("output", editorText());
@@ -295,10 +306,10 @@ public final class VisualReplay extends Replay {
         for (int round = 0; round < words.length(); round++) {
             JSONArray word = words.getJSONArray(round);
             String code = word.getString(0);
-            long start = SystemClock.uptimeMillis() + 40;
+            long start = now() + 40_000_000L;
             for (int i = 0; i < code.length(); i++) {
                 String key = code.substring(i, i + 1);
-                long scheduled = start + i * cadence + (i >= pauseAfter ? pauseMs : 0);
+                long scheduled = start + (i * cadence + (i >= pauseAfter ? pauseMs : 0)) * 1_000_000L;
                 touch(bounds.getJSONArray(key), scheduled, key, round);
             }
             SystemClock.sleep(sentence ? 950 : 460);
@@ -307,7 +318,7 @@ public final class VisualReplay extends Replay {
                 selectSentence(evidence, bounds, word.getString(1), round);
                 continue;
             }
-            touch(bounds.getJSONArray("select"), SystemClock.uptimeMillis(), "select", round);
+            touch(bounds.getJSONArray("select"), now(), "select", round);
             expected.append(word.getString(1));
             long deadline = now() + 2_000_000_000L;
             while (!expected.toString().equals(editorText()) && now() < deadline) SystemClock.sleep(20);
@@ -337,7 +348,7 @@ public final class VisualReplay extends Replay {
         }
         recordLabels(evidence, "sentence_candidates", candidateLabels);
         evidence.put("sentence_selection", target);
-        touch(target, SystemClock.uptimeMillis(), "select", round);
+        touch(target, now(), "select", round);
         SystemClock.sleep(650);
         if (!expected.equals(editorText())) screenshot("wrong-output.png");
     }

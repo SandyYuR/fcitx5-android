@@ -57,6 +57,7 @@ def replay(directory, label, bounds, words, cadence, sentence=False, pause_after
 
 def compare_sentences(output, products):
     reports = []
+    pairs = []
     cadence = 120
 
     def pair(name, trial, order, pause_ms=0):
@@ -79,6 +80,21 @@ def compare_sentences(output, products):
             print(f"{prefix}: {report.get('failure', report.get('metrics'))}, "
                   f"exact={report.get('exact_commit')}, text={report.get('observed_text')!r}", flush=True)
             (output / "sentence-replays.json").write_text(json.dumps(reports, ensure_ascii=False, indent=2) + "\n")
+        if all("rows" in report for report in result.values()):
+            direct, cyime = result["direct"], result["cyime"]
+            letters = [(a, b) for a, b in zip(direct["rows"], cyime["rows"])
+                       if a["key"] != "select" and a["on_cadence"] and b["on_cadence"]]
+            matched = {"case": name, "trial": trial, "all_letters": direct["letters"],
+                       "letters_with_both_intervals_within_10ms": len(letters),
+                       "exact_both": direct["exact_commit"] and cyime["exact_commit"]}
+            for metric in ("down_to_feedback", "up_to_candidate"):
+                observed = [(a[metric], b[metric]) for a, b in letters if a[metric] is not None and b[metric] is not None]
+                matched[metric] = {"direct": describe([a for a, _ in observed]),
+                                   "cyime": describe([b for _, b in observed]),
+                                   "cyime_minus_direct": describe([b - a for a, b in observed])}
+            pairs.append(matched)
+            print(json.dumps(matched, ensure_ascii=False), flush=True)
+            (output / "paired-sentences.json").write_text(json.dumps(pairs, ensure_ascii=False, indent=2) + "\n")
         return result
 
     orders = (("direct", "cyime"), ("cyime", "direct"))
@@ -89,8 +105,8 @@ def compare_sentences(output, products):
     pair(chosen, "continuous-repeat", order[::-1])
     pair(chosen, "pause", order, 650)
     pair(chosen, "pause-repeat", order[::-1], 650)
-    if not any(all("failure" not in result for result in paired.values()) for paired in initial.values()):
-        raise RuntimeError("No paired continuous sentence recordings passed timing checks")
+    if not any(pair["trial"] == "continuous" and pair["up_to_candidate"]["direct"]["n"] for pair in pairs):
+        raise RuntimeError("No paired, on-cadence candidate observations for continuous sentences")
 
 
 def diagnose_pause(output, bounds):

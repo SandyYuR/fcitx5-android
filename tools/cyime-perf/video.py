@@ -71,13 +71,15 @@ def analyze(directory, bounds, words, cadence, sentence=False, pause_after=0, pa
         raise ValueError("Invalid injection clock or the actual key hold was shorter than 20 ms")
     if any(b["down_ns"] < a["up_return_ns"] for a, b in zip(events, events[1:])):
         raise ValueError("Injection clock moved backwards between touches")
-    intervals = [(b["down_ns"] - a["down_ns"]) / 1e6 for i, (a, b) in enumerate(zip(events, events[1:]), 1)
-                 if a["round"] == b["round"] and b["key"] != "select" and not (pause_ms and i == pause_after)]
-    cadence_error = describe([abs(interval - cadence) for interval in intervals])
+    intervals = {i: (b["down_ns"] - a["down_ns"]) / 1e6 for i, (a, b) in enumerate(zip(events, events[1:]), 1)
+                 if a["round"] == b["round"] and b["key"] != "select" and not (pause_ms and i == pause_after)}
+    cadence_error = describe([abs(interval - cadence) for interval in intervals.values()])
     (directory / "cadence.json").write_text(json.dumps({"requested_ms": cadence,
-        "intervals_ms": intervals, "absolute_error": cadence_error}, indent=2) + "\n")
-    if cadence_error["n"] and cadence_error["p90_ms"] > 10:
+        "intervals_ms": list(intervals.values()), "absolute_error": cadence_error}, indent=2) + "\n")
+    within_cadence = not cadence_error["n"] or cadence_error["p90_ms"] <= 10
+    if not sentence and not within_cadence:
         raise ValueError(f"Touch cadence missed {cadence} ms: {cadence_error}")
+    off_cadence = {index for i, interval in intervals.items() if abs(interval - cadence) > 10 for index in (i - 1, i)}
     video = directory / "run.mp4"
     probe = json.loads(subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v:0",
         "-show_frames", "-show_streams", "-show_entries", "frame=best_effort_timestamp_time:stream=width,height",
@@ -120,7 +122,8 @@ def analyze(directory, bounds, words, cadence, sentence=False, pause_after=0, pa
         key = event["key"]
         down, up = event["down_ns"] / 1e6, event["up_ns"] / 1e6
         row = {"key": key, "round": event["round"], "hold_ms": up - down,
-               "schedule_lateness_ms": (event["down_ns"] - event["due_ns"]) / 1e6}
+               "schedule_lateness_ms": (event["down_ns"] - event["due_ns"]) / 1e6,
+               "on_cadence": i not in off_cadence}
         if key == "select":
             if exact:
                 commit_time = next(selection)["at_ns"] / 1e6
@@ -147,7 +150,7 @@ def analyze(directory, bounds, words, cadence, sentence=False, pause_after=0, pa
     metrics = {key: metric(key, rows) for key in ("down_to_feedback", "up_to_candidate", "selection_down_to_commit",
                                                    "selection_up_to_commit", "hold_ms", "schedule_lateness_ms")}
     metrics["warm_up_to_candidate"] = metric("up_to_candidate", letters[1:])
-    metrics["down_interval"] = describe(intervals)
+    metrics["down_interval"] = describe(list(intervals.values()))
     if not metrics["up_to_candidate"]["n"]:
         raise ValueError("No candidate visual changes were detected in letter windows")
     result = {"letters": len(letters), "correct_commits": len(commits) if exact else 0, "metrics": metrics,
@@ -156,5 +159,5 @@ def analyze(directory, bounds, words, cadence, sentence=False, pause_after=0, pa
             "video_frames": len(pts), "rows": rows}
     if sentence:
         result.update(exact_commit=exact, observed_text=host["text"], commits=[event["text"] for event in commits],
-                      candidate_settle=settle)
+                      candidate_settle=settle, cadence_error=cadence_error, cadence_p90_within_10ms=within_cadence)
     return result
