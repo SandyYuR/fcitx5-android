@@ -1,0 +1,1418 @@
+{
+  "all": {
+    "samples": 3805,
+    "inclusive_counts": {
+      "RimeProcessKey": 3624,
+      "ScriptTranslator::Query": 2906,
+      "Poet/BeamSearch": 303,
+      "Octagram": 219,
+      "Syllabifier": 217,
+      "Dictionary/UserDictionary": 2249,
+      "Lua": 593
+    },
+    "cpu_ms_median": 4.002,
+    "leaf": [
+      [
+        "rime::Table::Query",
+        879
+      ],
+      [
+        "rime::TableQuery::Access",
+        388
+      ],
+      [
+        "[unknown]",
+        244
+      ],
+      [
+        "rime::GramDb::Lookup",
+        181
+      ],
+      [
+        "rime::TableQuery::Walk",
+        176
+      ],
+      [
+        "memset_avx2",
+        130
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        117
+      ],
+      [
+        "scudo::HybridMutex::unlock",
+        93
+      ],
+      [
+        "rime::TableQuery::Advance",
+        93
+      ],
+      [
+        "memmove",
+        84
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate",
+        83
+      ],
+      [
+        "rime::Syllabifier::BuildSyllableGraph",
+        80
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk",
+        69
+      ],
+      [
+        "bool scudo::atomic_compare_exchange_strong<scudo::atomic_u32>",
+        67
+      ],
+      [
+        "luaV_execute",
+        53
+      ]
+    ],
+    "inclusive_symbols": [
+      [
+        "main",
+        3624
+      ],
+      [
+        "direct_rime::Engine::key",
+        3624
+      ],
+      [
+        "rime::ConcreteEngine::ProcessKey",
+        3624
+      ],
+      [
+        "RimeProcessKey",
+        3624
+      ],
+      [
+        "__real_libc_init",
+        3622
+      ],
+      [
+        "rime::Context::PushInput",
+        3610
+      ],
+      [
+        "boost::signals2::detail::signal_impl<void ",
+        3610
+      ],
+      [
+        "boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, rime::Context*>, std::__ndk1::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::__ndk1::pair<boost::signals2::detail::slot_meta_group, boost::optional<int> >, boost::signals2::slot<void ",
+        3610
+      ],
+      [
+        "rime::Speller::ProcessKeyEvent",
+        3609
+      ],
+      [
+        "rime::ConcreteEngine::Compose",
+        3565
+      ],
+      [
+        "rime::ConcreteEngine::TranslateSegments",
+        3539
+      ],
+      [
+        "rime::ScriptTranslator::Query",
+        2906
+      ],
+      [
+        "rime::ScriptTranslation::Evaluate",
+        2905
+      ],
+      [
+        "rime::ScriptTranslation::MakeSentence",
+        2544
+      ],
+      [
+        "rime::ScriptTranslation::PrepareForMakingSentence",
+        2227
+      ],
+      [
+        "rime::Dictionary::Lookup",
+        2182
+      ],
+      [
+        "rime::Table::Query",
+        2115
+      ],
+      [
+        "[unknown]",
+        833
+      ],
+      [
+        "luaD_rawrunprotected",
+        580
+      ],
+      [
+        "rime::TableQuery::Access",
+        540
+      ],
+      [
+        "luaD_precall",
+        507
+      ],
+      [
+        "operator new",
+        492
+      ],
+      [
+        "operator_new_impl",
+        484
+      ],
+      [
+        "malloc",
+        469
+      ],
+      [
+        "luaD_pcall",
+        469
+      ]
+    ]
+  },
+  "40": {
+    "samples": 190,
+    "inclusive_counts": {
+      "RimeProcessKey": 181,
+      "ScriptTranslator::Query": 165,
+      "Poet/BeamSearch": 10,
+      "Octagram": 9,
+      "Syllabifier": 10,
+      "Dictionary/UserDictionary": 140,
+      "Lua": 12
+    },
+    "cpu_ms_median": 24.001,
+    "leaf": [
+      [
+        "rime::Table::Query",
+        52
+      ],
+      [
+        "rime::TableQuery::Access",
+        32
+      ],
+      [
+        "[unknown]",
+        11
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        9
+      ],
+      [
+        "rime::TableQuery::Walk",
+        8
+      ],
+      [
+        "bool scudo::atomic_compare_exchange_strong<scudo::atomic_u32>",
+        8
+      ],
+      [
+        "rime::GramDb::Lookup",
+        8
+      ],
+      [
+        "scudo::HybridMutex::unlock",
+        6
+      ],
+      [
+        "memmove",
+        6
+      ],
+      [
+        "rime::TableQuery::Advance",
+        5
+      ],
+      [
+        "rime::Syllabifier::BuildSyllableGraph",
+        4
+      ],
+      [
+        "memset_avx2",
+        3
+      ],
+      [
+        "rime::UserDictionary::TranslateCodeToString",
+        2
+      ],
+      [
+        "rime::Syllabifier::Transpose",
+        2
+      ],
+      [
+        "operator_new_impl",
+        2
+      ]
+    ],
+    "inclusive_symbols": [
+      [
+        "rime::ConcreteEngine::ProcessKey",
+        181
+      ],
+      [
+        "RimeProcessKey",
+        181
+      ],
+      [
+        "rime::Speller::ProcessKeyEvent",
+        181
+      ],
+      [
+        "boost::signals2::detail::signal_impl<void ",
+        181
+      ],
+      [
+        "boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, rime::Context*>, std::__ndk1::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::__ndk1::pair<boost::signals2::detail::slot_meta_group, boost::optional<int> >, boost::signals2::slot<void ",
+        181
+      ],
+      [
+        "main",
+        181
+      ],
+      [
+        "direct_rime::Engine::key",
+        181
+      ],
+      [
+        "rime::Context::PushInput",
+        181
+      ],
+      [
+        "__real_libc_init",
+        181
+      ],
+      [
+        "rime::ConcreteEngine::Compose",
+        179
+      ],
+      [
+        "rime::ConcreteEngine::TranslateSegments",
+        179
+      ],
+      [
+        "rime::ScriptTranslation::Evaluate",
+        165
+      ],
+      [
+        "rime::ScriptTranslator::Query",
+        165
+      ],
+      [
+        "rime::ScriptTranslation::MakeSentence",
+        148
+      ],
+      [
+        "rime::ScriptTranslation::PrepareForMakingSentence",
+        137
+      ],
+      [
+        "rime::Dictionary::Lookup",
+        136
+      ],
+      [
+        "rime::Table::Query",
+        132
+      ],
+      [
+        "rime::TableQuery::Access",
+        49
+      ],
+      [
+        "operator new",
+        27
+      ],
+      [
+        "operator_new_impl",
+        26
+      ],
+      [
+        "[unknown]",
+        24
+      ],
+      [
+        "malloc",
+        24
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        23
+      ],
+      [
+        "scudo_malloc",
+        23
+      ],
+      [
+        "rime::TableQuery::Advance",
+        14
+      ]
+    ]
+  },
+  "43": {
+    "samples": 247,
+    "inclusive_counts": {
+      "RimeProcessKey": 233,
+      "ScriptTranslator::Query": 215,
+      "Poet/BeamSearch": 17,
+      "Octagram": 15,
+      "Syllabifier": 7,
+      "Dictionary/UserDictionary": 183,
+      "Lua": 13
+    },
+    "cpu_ms_median": 31.781,
+    "leaf": [
+      [
+        "rime::Table::Query",
+        70
+      ],
+      [
+        "rime::TableQuery::Access",
+        35
+      ],
+      [
+        "rime::TableQuery::Walk",
+        16
+      ],
+      [
+        "memset_avx2",
+        10
+      ],
+      [
+        "rime::GramDb::Lookup",
+        10
+      ],
+      [
+        "[unknown]",
+        10
+      ],
+      [
+        "rime::TableQuery::Advance",
+        10
+      ],
+      [
+        "memmove",
+        9
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        8
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk",
+        6
+      ],
+      [
+        "scudo::TransferBatch<scudo::SizeClassAllocator64<scudo::PrimaryConfig<scudo::AndroidNormalConfig> > >::getCount",
+        4
+      ],
+      [
+        "rime::Syllabifier::Transpose",
+        4
+      ],
+      [
+        "scudo::HybridMutex::unlock",
+        4
+      ],
+      [
+        "bool scudo::atomic_compare_exchange_strong<scudo::atomic_u32>",
+        3
+      ],
+      [
+        "luaV_execute",
+        3
+      ]
+    ],
+    "inclusive_symbols": [
+      [
+        "rime::ConcreteEngine::ProcessKey",
+        233
+      ],
+      [
+        "RimeProcessKey",
+        233
+      ],
+      [
+        "rime::Speller::ProcessKeyEvent",
+        233
+      ],
+      [
+        "boost::signals2::detail::signal_impl<void ",
+        233
+      ],
+      [
+        "boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, rime::Context*>, std::__ndk1::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::__ndk1::pair<boost::signals2::detail::slot_meta_group, boost::optional<int> >, boost::signals2::slot<void ",
+        233
+      ],
+      [
+        "main",
+        233
+      ],
+      [
+        "direct_rime::Engine::key",
+        233
+      ],
+      [
+        "rime::Context::PushInput",
+        233
+      ],
+      [
+        "__real_libc_init",
+        233
+      ],
+      [
+        "rime::ConcreteEngine::Compose",
+        231
+      ],
+      [
+        "rime::ConcreteEngine::TranslateSegments",
+        231
+      ],
+      [
+        "rime::ScriptTranslator::Query",
+        215
+      ],
+      [
+        "rime::ScriptTranslation::Evaluate",
+        214
+      ],
+      [
+        "rime::ScriptTranslation::MakeSentence",
+        199
+      ],
+      [
+        "rime::ScriptTranslation::PrepareForMakingSentence",
+        182
+      ],
+      [
+        "rime::Dictionary::Lookup",
+        178
+      ],
+      [
+        "rime::Table::Query",
+        177
+      ],
+      [
+        "rime::TableQuery::Access",
+        45
+      ],
+      [
+        "[unknown]",
+        30
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        28
+      ],
+      [
+        "operator new",
+        28
+      ],
+      [
+        "operator_new_impl",
+        28
+      ],
+      [
+        "malloc",
+        28
+      ],
+      [
+        "rime::TableQuery::Advance",
+        27
+      ],
+      [
+        "scudo_malloc",
+        27
+      ]
+    ]
+  },
+  "47": {
+    "samples": 249,
+    "inclusive_counts": {
+      "RimeProcessKey": 237,
+      "ScriptTranslator::Query": 224,
+      "Poet/BeamSearch": 21,
+      "Octagram": 13,
+      "Syllabifier": 8,
+      "Dictionary/UserDictionary": 182,
+      "Lua": 12
+    },
+    "cpu_ms_median": 31.998,
+    "leaf": [
+      [
+        "rime::Table::Query",
+        74
+      ],
+      [
+        "rime::TableQuery::Access",
+        28
+      ],
+      [
+        "rime::TableQuery::Walk",
+        18
+      ],
+      [
+        "rime::TableQuery::Advance",
+        11
+      ],
+      [
+        "[unknown]",
+        10
+      ],
+      [
+        "memset_avx2",
+        9
+      ],
+      [
+        "rime::GramDb::Lookup",
+        9
+      ],
+      [
+        "memmove",
+        8
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate",
+        8
+      ],
+      [
+        "scudo::HybridMutex::unlock",
+        7
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        6
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk",
+        4
+      ],
+      [
+        "marisa::grimoire::vector::BitVector::select1",
+        4
+      ],
+      [
+        "rime::Line::context",
+        3
+      ],
+      [
+        "rime::Poet::MakeSentenceWithStrategy<rime::BeamSearch>",
+        3
+      ]
+    ],
+    "inclusive_symbols": [
+      [
+        "rime::Context::PushInput",
+        237
+      ],
+      [
+        "main",
+        237
+      ],
+      [
+        "rime::Speller::ProcessKeyEvent",
+        237
+      ],
+      [
+        "boost::signals2::detail::signal_impl<void ",
+        237
+      ],
+      [
+        "direct_rime::Engine::key",
+        237
+      ],
+      [
+        "rime::ConcreteEngine::ProcessKey",
+        237
+      ],
+      [
+        "rime::ConcreteEngine::Compose",
+        237
+      ],
+      [
+        "__real_libc_init",
+        237
+      ],
+      [
+        "RimeProcessKey",
+        237
+      ],
+      [
+        "boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, rime::Context*>, std::__ndk1::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::__ndk1::pair<boost::signals2::detail::slot_meta_group, boost::optional<int> >, boost::signals2::slot<void ",
+        237
+      ],
+      [
+        "rime::ConcreteEngine::TranslateSegments",
+        235
+      ],
+      [
+        "rime::ScriptTranslation::Evaluate",
+        224
+      ],
+      [
+        "rime::ScriptTranslator::Query",
+        224
+      ],
+      [
+        "rime::ScriptTranslation::MakeSentence",
+        209
+      ],
+      [
+        "rime::ScriptTranslation::PrepareForMakingSentence",
+        186
+      ],
+      [
+        "rime::Dictionary::Lookup",
+        179
+      ],
+      [
+        "rime::Table::Query",
+        173
+      ],
+      [
+        "rime::TableQuery::Access",
+        36
+      ],
+      [
+        "operator new",
+        34
+      ],
+      [
+        "operator_new_impl",
+        34
+      ],
+      [
+        "scudo_malloc",
+        33
+      ],
+      [
+        "malloc",
+        33
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        32
+      ],
+      [
+        "rime::TableQuery::Advance",
+        31
+      ],
+      [
+        "[unknown]",
+        24
+      ]
+    ]
+  },
+  "50": {
+    "samples": 247,
+    "inclusive_counts": {
+      "RimeProcessKey": 236,
+      "ScriptTranslator::Query": 218,
+      "Poet/BeamSearch": 20,
+      "Octagram": 13,
+      "Syllabifier": 8,
+      "Dictionary/UserDictionary": 180,
+      "Lua": 11
+    },
+    "cpu_ms_median": 31.998,
+    "leaf": [
+      [
+        "rime::Table::Query",
+        78
+      ],
+      [
+        "rime::TableQuery::Access",
+        33
+      ],
+      [
+        "rime::TableQuery::Walk",
+        17
+      ],
+      [
+        "rime::GramDb::Lookup",
+        12
+      ],
+      [
+        "memmove",
+        10
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate",
+        9
+      ],
+      [
+        "[unknown]",
+        8
+      ],
+      [
+        "scudo::HybridMutex::unlock",
+        7
+      ],
+      [
+        "memset_avx2",
+        5
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        4
+      ],
+      [
+        "rime::TableQuery::Advance",
+        4
+      ],
+      [
+        "rime::TableQuery::TableQuery",
+        4
+      ],
+      [
+        "operator_new_impl",
+        4
+      ],
+      [
+        "void std::__ndk1::vector<int, std::__ndk1::allocator<int> >::__assign_with_size[abi:ne190000]<int*, int*>",
+        3
+      ],
+      [
+        "bool scudo::atomic_compare_exchange_strong<scudo::atomic_u32>",
+        3
+      ]
+    ],
+    "inclusive_symbols": [
+      [
+        "rime::Context::PushInput",
+        236
+      ],
+      [
+        "main",
+        236
+      ],
+      [
+        "rime::Speller::ProcessKeyEvent",
+        236
+      ],
+      [
+        "boost::signals2::detail::signal_impl<void ",
+        236
+      ],
+      [
+        "direct_rime::Engine::key",
+        236
+      ],
+      [
+        "rime::ConcreteEngine::ProcessKey",
+        236
+      ],
+      [
+        "rime::ConcreteEngine::TranslateSegments",
+        236
+      ],
+      [
+        "rime::ConcreteEngine::Compose",
+        236
+      ],
+      [
+        "__real_libc_init",
+        236
+      ],
+      [
+        "RimeProcessKey",
+        236
+      ],
+      [
+        "boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, rime::Context*>, std::__ndk1::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::__ndk1::pair<boost::signals2::detail::slot_meta_group, boost::optional<int> >, boost::signals2::slot<void ",
+        236
+      ],
+      [
+        "rime::ScriptTranslation::Evaluate",
+        218
+      ],
+      [
+        "rime::ScriptTranslator::Query",
+        218
+      ],
+      [
+        "rime::ScriptTranslation::MakeSentence",
+        203
+      ],
+      [
+        "rime::ScriptTranslation::PrepareForMakingSentence",
+        182
+      ],
+      [
+        "rime::Table::Query",
+        178
+      ],
+      [
+        "rime::Dictionary::Lookup",
+        178
+      ],
+      [
+        "rime::TableQuery::Access",
+        46
+      ],
+      [
+        "[unknown]",
+        28
+      ],
+      [
+        "operator new",
+        27
+      ],
+      [
+        "operator_new_impl",
+        27
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate",
+        24
+      ],
+      [
+        "malloc",
+        23
+      ],
+      [
+        "rime::TableQuery::Advance",
+        23
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        22
+      ]
+    ]
+  },
+  "53": {
+    "samples": 251,
+    "inclusive_counts": {
+      "RimeProcessKey": 242,
+      "ScriptTranslator::Query": 229,
+      "Poet/BeamSearch": 22,
+      "Octagram": 17,
+      "Syllabifier": 5,
+      "Dictionary/UserDictionary": 195,
+      "Lua": 12
+    },
+    "cpu_ms_median": 32.001,
+    "leaf": [
+      [
+        "rime::Table::Query",
+        82
+      ],
+      [
+        "rime::TableQuery::Access",
+        33
+      ],
+      [
+        "memset_avx2",
+        16
+      ],
+      [
+        "rime::GramDb::Lookup",
+        16
+      ],
+      [
+        "rime::TableQuery::Walk",
+        12
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        9
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk",
+        8
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate",
+        6
+      ],
+      [
+        "memmove",
+        6
+      ],
+      [
+        "scudo::HybridMutex::unlock",
+        6
+      ],
+      [
+        "bool scudo::atomic_compare_exchange_strong<scudo::atomic_u32>",
+        4
+      ],
+      [
+        "scudo::TransferBatch<scudo::SizeClassAllocator64<scudo::PrimaryConfig<scudo::AndroidNormalConfig> > >::getCount",
+        3
+      ],
+      [
+        "scudo::HybridMutex::tryLock",
+        3
+      ],
+      [
+        "void scudo::atomic_store<scudo::atomic_uptr>",
+        3
+      ],
+      [
+        "rime::TableQuery::Advance",
+        3
+      ]
+    ],
+    "inclusive_symbols": [
+      [
+        "rime::Context::PushInput",
+        242
+      ],
+      [
+        "main",
+        242
+      ],
+      [
+        "rime::Speller::ProcessKeyEvent",
+        242
+      ],
+      [
+        "boost::signals2::detail::signal_impl<void ",
+        242
+      ],
+      [
+        "direct_rime::Engine::key",
+        242
+      ],
+      [
+        "rime::ConcreteEngine::ProcessKey",
+        242
+      ],
+      [
+        "rime::ConcreteEngine::Compose",
+        242
+      ],
+      [
+        "__real_libc_init",
+        242
+      ],
+      [
+        "RimeProcessKey",
+        242
+      ],
+      [
+        "boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, rime::Context*>, std::__ndk1::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::__ndk1::pair<boost::signals2::detail::slot_meta_group, boost::optional<int> >, boost::signals2::slot<void ",
+        242
+      ],
+      [
+        "rime::ConcreteEngine::TranslateSegments",
+        240
+      ],
+      [
+        "rime::ScriptTranslation::Evaluate",
+        229
+      ],
+      [
+        "rime::ScriptTranslator::Query",
+        229
+      ],
+      [
+        "rime::ScriptTranslation::MakeSentence",
+        213
+      ],
+      [
+        "rime::Dictionary::Lookup",
+        194
+      ],
+      [
+        "rime::ScriptTranslation::PrepareForMakingSentence",
+        191
+      ],
+      [
+        "rime::Table::Query",
+        183
+      ],
+      [
+        "rime::TableQuery::Access",
+        49
+      ],
+      [
+        "operator new",
+        44
+      ],
+      [
+        "operator_new_impl",
+        42
+      ],
+      [
+        "malloc",
+        42
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        40
+      ],
+      [
+        "scudo_malloc",
+        40
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate",
+        24
+      ],
+      [
+        "rime::Poet::MakeSentence",
+        22
+      ]
+    ]
+  },
+  "54": {
+    "samples": 267,
+    "inclusive_counts": {
+      "RimeProcessKey": 254,
+      "ScriptTranslator::Query": 237,
+      "Poet/BeamSearch": 23,
+      "Octagram": 18,
+      "Syllabifier": 11,
+      "Dictionary/UserDictionary": 193,
+      "Lua": 13
+    },
+    "cpu_ms_median": 32.002,
+    "leaf": [
+      [
+        "rime::Table::Query",
+        82
+      ],
+      [
+        "rime::TableQuery::Access",
+        36
+      ],
+      [
+        "rime::TableQuery::Walk",
+        19
+      ],
+      [
+        "rime::GramDb::Lookup",
+        15
+      ],
+      [
+        "rime::TableQuery::Advance",
+        11
+      ],
+      [
+        "scudo::HybridMutex::unlock",
+        10
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        8
+      ],
+      [
+        "[unknown]",
+        7
+      ],
+      [
+        "memmove",
+        7
+      ],
+      [
+        "rime::Syllabifier::BuildSyllableGraph",
+        6
+      ],
+      [
+        "memset_avx2",
+        5
+      ],
+      [
+        "marisa::grimoire::trie::LoudsTrie::reverse_lookup",
+        4
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate",
+        4
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk",
+        3
+      ],
+      [
+        "bool scudo::atomic_compare_exchange_strong<scudo::atomic_u32>",
+        3
+      ]
+    ],
+    "inclusive_symbols": [
+      [
+        "rime::Context::PushInput",
+        255
+      ],
+      [
+        "boost::signals2::detail::signal_impl<void ",
+        255
+      ],
+      [
+        "rime::ConcreteEngine::Compose",
+        255
+      ],
+      [
+        "boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, rime::Context*>, std::__ndk1::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::__ndk1::pair<boost::signals2::detail::slot_meta_group, boost::optional<int> >, boost::signals2::slot<void ",
+        255
+      ],
+      [
+        "main",
+        254
+      ],
+      [
+        "rime::Speller::ProcessKeyEvent",
+        254
+      ],
+      [
+        "direct_rime::Engine::key",
+        254
+      ],
+      [
+        "rime::ConcreteEngine::ProcessKey",
+        254
+      ],
+      [
+        "__real_libc_init",
+        254
+      ],
+      [
+        "RimeProcessKey",
+        254
+      ],
+      [
+        "rime::ConcreteEngine::TranslateSegments",
+        252
+      ],
+      [
+        "rime::ScriptTranslation::Evaluate",
+        237
+      ],
+      [
+        "rime::ScriptTranslator::Query",
+        237
+      ],
+      [
+        "rime::ScriptTranslation::MakeSentence",
+        218
+      ],
+      [
+        "rime::ScriptTranslation::PrepareForMakingSentence",
+        193
+      ],
+      [
+        "rime::Dictionary::Lookup",
+        189
+      ],
+      [
+        "rime::Table::Query",
+        185
+      ],
+      [
+        "rime::TableQuery::Access",
+        46
+      ],
+      [
+        "rime::TableQuery::Advance",
+        33
+      ],
+      [
+        "[unknown]",
+        25
+      ],
+      [
+        "operator new",
+        25
+      ],
+      [
+        "operator_new_impl",
+        25
+      ],
+      [
+        "malloc",
+        24
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        23
+      ],
+      [
+        "rime::Poet::MakeSentence",
+        23
+      ]
+    ]
+  },
+  "58": {
+    "samples": 307,
+    "inclusive_counts": {
+      "RimeProcessKey": 299,
+      "ScriptTranslator::Query": 284,
+      "Poet/BeamSearch": 26,
+      "Octagram": 21,
+      "Syllabifier": 9,
+      "Dictionary/UserDictionary": 234,
+      "Lua": 12
+    },
+    "cpu_ms_median": 39.997,
+    "leaf": [
+      [
+        "rime::Table::Query",
+        102
+      ],
+      [
+        "rime::TableQuery::Access",
+        32
+      ],
+      [
+        "rime::TableQuery::Walk",
+        20
+      ],
+      [
+        "rime::GramDb::Lookup",
+        16
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        12
+      ],
+      [
+        "[unknown]",
+        11
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk",
+        11
+      ],
+      [
+        "memset_avx2",
+        10
+      ],
+      [
+        "scudo::HybridMutex::unlock",
+        8
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate",
+        8
+      ],
+      [
+        "rime::TableQuery::Advance",
+        7
+      ],
+      [
+        "bool scudo::atomic_compare_exchange_strong<scudo::atomic_u32>",
+        6
+      ],
+      [
+        "memmove",
+        5
+      ],
+      [
+        "rime::Syllabifier::BuildSyllableGraph",
+        3
+      ],
+      [
+        "rime::UserDictionary::CacheLookup",
+        3
+      ]
+    ],
+    "inclusive_symbols": [
+      [
+        "rime::Context::PushInput",
+        299
+      ],
+      [
+        "main",
+        299
+      ],
+      [
+        "rime::Speller::ProcessKeyEvent",
+        299
+      ],
+      [
+        "boost::signals2::detail::signal_impl<void ",
+        299
+      ],
+      [
+        "direct_rime::Engine::key",
+        299
+      ],
+      [
+        "rime::ConcreteEngine::ProcessKey",
+        299
+      ],
+      [
+        "__real_libc_init",
+        299
+      ],
+      [
+        "RimeProcessKey",
+        299
+      ],
+      [
+        "boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, rime::Context*>, std::__ndk1::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::__ndk1::pair<boost::signals2::detail::slot_meta_group, boost::optional<int> >, boost::signals2::slot<void ",
+        299
+      ],
+      [
+        "rime::ConcreteEngine::TranslateSegments",
+        298
+      ],
+      [
+        "rime::ConcreteEngine::Compose",
+        298
+      ],
+      [
+        "rime::ScriptTranslation::Evaluate",
+        284
+      ],
+      [
+        "rime::ScriptTranslator::Query",
+        284
+      ],
+      [
+        "rime::ScriptTranslation::MakeSentence",
+        266
+      ],
+      [
+        "rime::ScriptTranslation::PrepareForMakingSentence",
+        237
+      ],
+      [
+        "rime::Dictionary::Lookup",
+        227
+      ],
+      [
+        "rime::Table::Query",
+        220
+      ],
+      [
+        "rime::TableQuery::Access",
+        48
+      ],
+      [
+        "operator new",
+        40
+      ],
+      [
+        "operator_new_impl",
+        39
+      ],
+      [
+        "malloc",
+        39
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::allocate",
+        38
+      ],
+      [
+        "scudo_malloc",
+        37
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidNormalConfig, &scudo_malloc_postinit>::deallocate",
+        34
+      ],
+      [
+        "rime::TableQuery::Advance",
+        29
+      ]
+    ]
+  }
+}

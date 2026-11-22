@@ -1,0 +1,57 @@
+{
+  "workflow_run": 44882180485,
+  "workflow_commit": "61472313ee21ed1dab26c47c86194b02cd9d9376",
+  "direct_commit": "899eedbf1b7eb8475f7f2a3e162e6ec014763be5",
+  "cyime_commit": "3341da598dfbf99d624139d792624093a41a9851",
+  "configuration_verified": {
+    "schema_differences": [],
+    "default_differences": [],
+    "source_changes": {
+      "direct": [],
+      "cyime": []
+    },
+    "seeded_option_differences": {
+      "direct": {},
+      "cyime": {}
+    },
+    "verified": true
+  },
+  "products": {
+    "direct": {
+      "apk_sha256": "32400ebc0e59c4a5a09501a19d0fa2afc4a3f37bbe20abad86f9f8b9847685a8",
+      "schema": "wanxiang",
+      "abi": "x86_64",
+      "arm64_translation": false
+    },
+    "cyime": {
+      "apk_sha256": "0d1cbac4023db2285ce96d633eaf2032f7c2fe6df8822ba9008c15ced5a08e5b",
+      "schema": "wanxiang",
+      "abi": "x86_64",
+      "arm64_translation": false
+    }
+  },
+  "wanxiang": {
+    "wanxiang_tag": "v18.1.10",
+    "base": {
+      "id": 720692646,
+      "name": "rime-wanxiang-base.zip",
+      "size": 25394477,
+      "digest": "sha256:ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
+      "browser_download_url": "https://github.com/amzxyz/rime-wanxiang/releases/download/v18.1.10/rime-wanxiang-base.zip",
+      "updated_at": "2026-11-07T12:47:31Z"
+    },
+    "model": {
+      "id": 719554076,
+      "name": "wanxiang-lts-zh-hans.gram",
+      "size": 418080812,
+      "digest": "sha256:769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a",
+      "browser_download_url": "https://github.com/amzxyz/rime-wanxiang-data/releases/download/LTS/wanxiang-lts-zh-hans.gram",
+      "updated_at": "2026-11-07T04:08:51Z"
+    },
+    "original_config_sha256": {
+      "wanxiang.custom.yaml": "42bf76351ceb6f2db87396ae13edf9d9914712a065a61cdf74c66c52900c1319",
+      "user.yaml": "dd82ae3dc637e850446eb6e4170d916bb3d628b08d85572096c6b4c62ccb9a57"
+    },
+    "fixture_sha256": "333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f"
+  }
+}

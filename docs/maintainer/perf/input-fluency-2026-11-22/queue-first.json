@@ -1,0 +1,1291 @@
+{
+  "run": 45011522696,
+  "source": "fe8829ca2bd6c5c750d85160bc2a778289327ad2",
+  "apk_sha256": "8db783c9a7627e68eb2daa4393ad6287b797498f9fbb3b9dd5596ea5541af26c",
+  "fixture": {
+    "schema_version": 1,
+    "recorded_utc": "2026-11-11",
+    "wanxiang_tag": "v18.1.10",
+    "base": {
+      "id": 720692646,
+      "name": "rime-wanxiang-base.zip",
+      "size": 25394477,
+      "digest": "sha256:ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
+      "browser_download_url": "https://github.com/amzxyz/rime-wanxiang/releases/download/v18.1.10/rime-wanxiang-base.zip",
+      "updated_at": "2026-11-07T12:47:31Z"
+    },
+    "model": {
+      "id": 719554076,
+      "name": "wanxiang-lts-zh-hans.gram",
+      "size": 418080812,
+      "digest": "sha256:769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a",
+      "browser_download_url": "https://github.com/amzxyz/rime-wanxiang-data/releases/download/LTS/wanxiang-lts-zh-hans.gram",
+      "updated_at": "2026-11-07T04:08:51Z"
+    },
+    "products": {
+      "fcitx": {
+        "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+        "release": "nightly-0.1.3-715-g5fb6bca3-20261021-205826",
+        "asset": {
+          "id": 663773371,
+          "name": "org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+          "size": 11906742,
+          "digest": "sha256:f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
+          "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-715-g5fb6bca3-20261021-205826/org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+          "updated_at": "2026-10-21T20:58:32Z"
+        }
+      },
+      "direct": {
+        "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+        "release": "nightly-0.1.3-802-g2e48466e-20261107-112347",
+        "asset": {
+          "id": 720494660,
+          "name": "direct.apk",
+          "size": 10238250,
+          "digest": "sha256:b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
+          "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-802-g2e48466e-20261107-112347/direct.apk",
+          "updated_at": "2026-11-07T11:23:53Z"
+        }
+      },
+      "current": {
+        "commit": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+        "release_commit": "090a43e1485b9a6d76a28a31a6503c41e3e3db29",
+        "release": "nightly-0.1.3-823-g090a43e1-20261110-142502",
+        "asset": {
+          "id": 731714993,
+          "name": "direct.apk",
+          "size": 10120461,
+          "digest": "sha256:0a96e27c8ee355e862bcf391804b55d22546062ebc9625ec91a397c8c22dca67",
+          "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-823-g090a43e1-20261110-142502/direct.apk",
+          "updated_at": "2026-11-10T14:25:09Z"
+        },
+        "runtime_equivalence": {
+          "changed_paths": [
+            "AGENTS.md",
+            "DESIGN.md",
+            "README.md"
+          ],
+          "verified_identical_paths": [
+            "app",
+            "direct-rime",
+            "native",
+            "build-logic",
+            "gradle",
+            "settings.gradle.kts",
+            "build.gradle.kts",
+            "gradle.properties"
+          ],
+          "note": "Default HEAD differs from the signed official APK only by documentation; do not relabel the APK commit."
+        }
+      }
+    },
+    "original_config_sha256": {
+      "wanxiang.custom.yaml": "42bf76351ceb6f2db87396ae13edf9d9914712a065a61cdf74c66c52900c1319",
+      "user.yaml": "dd82ae3dc637e850446eb6e4170d916bb3d628b08d85572096c6b4c62ccb9a57"
+    },
+    "comparison_order": [
+      "fcitx",
+      "direct",
+      "current"
+    ],
+    "verified_downloads": {
+      "base": {
+        "file": "upstream-base.zip",
+        "sha256": "ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
+        "asset_id": 720692646
+      },
+      "model": {
+        "file": "wanxiang-lts-zh-hans.gram",
+        "sha256": "769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a",
+        "asset_id": 719554076
+      },
+      "fcitx": {
+        "file": "fcitx.apk",
+        "sha256": "f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
+        "asset_id": 663773371
+      },
+      "direct": {
+        "file": "direct.apk",
+        "sha256": "b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
+        "asset_id": 720494660
+      },
+      "current": {
+        "file": "current.apk",
+        "sha256": "0a96e27c8ee355e862bcf391804b55d22546062ebc9625ec91a397c8c22dca67",
+        "asset_id": 731714993
+      }
+    },
+    "fixture_sha256": "333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f",
+    "restored_model_source": null,
+    "runtime_user_sha256": "ac3b6b2da6ebc3318a35c2c2ff2a2e903a6247fa5d05dbcabb6db9462936e74f",
+    "runtime_adjustment": "Only add context_reorder: true to the saved user options, as in the original comparison."
+  },
+  "calibration": {
+    "products": [
+      "direct"
+    ],
+    "schema_differences": [],
+    "default_differences": [],
+    "source_changes": {
+      "direct": []
+    },
+    "seeded_option_differences": {
+      "direct": {}
+    },
+    "verified": true
+  },
+  "trials": [
+    {
+      "case": "fluency-60-1-pipeline-default",
+      "cadence_ms": 60,
+      "pair": 1,
+      "mode": "pipeline-default",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 5358,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "false"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 9.5456,
+        "p95_ms": 193.8192,
+        "max_ms": 255.4377
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 3.8669,
+        "p95_ms": 95.2764,
+        "max_ms": 169.5516
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 27.6863,
+        "p95_ms": 215.7604,
+        "max_ms": 260.0946
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 3.3862,
+        "p95_ms": 132.6727,
+        "max_ms": 190.7309
+      },
+      "waits_35ms_or_more": 24,
+      "long_wait_native_overlap_percent": 94.22,
+      "app_frames": 113,
+      "app_deadline_missed_percent": 54.87,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 60.0084,
+        "p95_ms": 66.9941,
+        "max_ms": 85.5664
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 3.7949,
+          "p95_ms": 68.1553,
+          "max_ms": 124.1568
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 6.3089,
+          "p95_ms": 48.1908,
+          "max_ms": 151.1896
+        }
+      },
+      "shortest_hold_ms": 22.04,
+      "owner_last_after_final_up_ms": 86.505
+    },
+    {
+      "case": "fluency-60-1-pipeline-owner",
+      "cadence_ms": 60,
+      "pair": 1,
+      "mode": "pipeline-owner",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 5727,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "true"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 3.1962,
+        "p95_ms": 103.6947,
+        "max_ms": 129.5659
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 5.1762,
+        "p95_ms": 35.158,
+        "max_ms": 51.6335
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 3.8676,
+        "p95_ms": 129.5334,
+        "max_ms": 203.3923
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 4.3982,
+        "p95_ms": 90.6097,
+        "max_ms": 199.3248
+      },
+      "waits_35ms_or_more": 13,
+      "long_wait_native_overlap_percent": 98.21,
+      "app_frames": 112,
+      "app_deadline_missed_percent": 58.04,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 60.0007,
+        "p95_ms": 65.0896,
+        "max_ms": 86.4321
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 6.6131,
+          "p95_ms": 61.8814,
+          "max_ms": 194.7946
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 5.1887,
+          "p95_ms": 40.1746,
+          "max_ms": 173.7703
+        }
+      },
+      "shortest_hold_ms": 22.035,
+      "owner_last_after_final_up_ms": 49.809
+    },
+    {
+      "case": "fluency-60-2-pipeline-owner",
+      "cadence_ms": 60,
+      "pair": 2,
+      "mode": "pipeline-owner",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 6079,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "true"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 4.484,
+        "p95_ms": 278.384,
+        "max_ms": 377.643
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 4.9126,
+        "p95_ms": 44.5245,
+        "max_ms": 75.7295
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 6.6515,
+        "p95_ms": 301.95,
+        "max_ms": 410.9498
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 3.9139,
+        "p95_ms": 108.6141,
+        "max_ms": 247.6626
+      },
+      "waits_35ms_or_more": 16,
+      "long_wait_native_overlap_percent": 97.69,
+      "app_frames": 125,
+      "app_deadline_missed_percent": 51.2,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 60.0017,
+        "p95_ms": 64.7572,
+        "max_ms": 72.2631
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 6.054,
+          "p95_ms": 64.1445,
+          "max_ms": 184.8608
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 5.8795,
+          "p95_ms": 49.0901,
+          "max_ms": 171.3324
+        }
+      },
+      "shortest_hold_ms": 22.04,
+      "owner_last_after_final_up_ms": 268.87
+    },
+    {
+      "case": "fluency-60-2-pipeline-default",
+      "cadence_ms": 60,
+      "pair": 2,
+      "mode": "pipeline-default",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 6427,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "false"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 4.0505,
+        "p95_ms": 164.1373,
+        "max_ms": 217.0612
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 2.8585,
+        "p95_ms": 28.1828,
+        "max_ms": 70.2441
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 4.0431,
+        "p95_ms": 188.4893,
+        "max_ms": 237.5499
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 5.4319,
+        "p95_ms": 98.6943,
+        "max_ms": 206.6716
+      },
+      "waits_35ms_or_more": 12,
+      "long_wait_native_overlap_percent": 95.95,
+      "app_frames": 130,
+      "app_deadline_missed_percent": 43.85,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 60.0016,
+        "p95_ms": 64.5995,
+        "max_ms": 73.1797
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 4.8199,
+          "p95_ms": 61.8057,
+          "max_ms": 193.1573
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 4.5611,
+          "p95_ms": 54.3903,
+          "max_ms": 171.9348
+        }
+      },
+      "shortest_hold_ms": 22.03,
+      "owner_last_after_final_up_ms": 119.858
+    },
+    {
+      "case": "fluency-60-3-pipeline-default",
+      "cadence_ms": 60,
+      "pair": 3,
+      "mode": "pipeline-default",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 6767,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "false"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 4.5841,
+        "p95_ms": 134.8421,
+        "max_ms": 160.674
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 5.1588,
+        "p95_ms": 33.6462,
+        "max_ms": 121.9885
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 7.3299,
+        "p95_ms": 139.2869,
+        "max_ms": 220.5305
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 4.2857,
+        "p95_ms": 106.6398,
+        "max_ms": 170.2653
+      },
+      "waits_35ms_or_more": 18,
+      "long_wait_native_overlap_percent": 92.29,
+      "app_frames": 123,
+      "app_deadline_missed_percent": 52.03,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 60.0034,
+        "p95_ms": 63.9323,
+        "max_ms": 65.291
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 5.7001,
+          "p95_ms": 41.7327,
+          "max_ms": 123.3357
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 5.0047,
+          "p95_ms": 46.4366,
+          "max_ms": 104.8048
+        }
+      },
+      "shortest_hold_ms": 22.047,
+      "owner_last_after_final_up_ms": 99.482
+    },
+    {
+      "case": "fluency-60-3-pipeline-owner",
+      "cadence_ms": 60,
+      "pair": 3,
+      "mode": "pipeline-owner",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 7198,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "true"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 2.4812,
+        "p95_ms": 100.5513,
+        "max_ms": 168.5156
+      },
+      "result_to_service": {
+        "count": 118,
+        "p50_ms": 2.8168,
+        "p95_ms": 18.889,
+        "max_ms": 45.4178
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 3.5538,
+        "p95_ms": 122.997,
+        "max_ms": 216.2832
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 5.0629,
+        "p95_ms": 82.3234,
+        "max_ms": 163.5034
+      },
+      "waits_35ms_or_more": 11,
+      "long_wait_native_overlap_percent": 97.12,
+      "app_frames": 121,
+      "app_deadline_missed_percent": 47.11,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 60.0013,
+        "p95_ms": 64.0696,
+        "max_ms": 74.2882
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 4.6464,
+          "p95_ms": 38.8842,
+          "max_ms": 164.3618
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 4.3414,
+          "p95_ms": 33.8021,
+          "max_ms": 200.5565
+        }
+      },
+      "shortest_hold_ms": 22.043,
+      "owner_last_after_final_up_ms": 59.594
+    },
+    {
+      "case": "fluency-60-4-pipeline-owner",
+      "cadence_ms": 60,
+      "pair": 4,
+      "mode": "pipeline-owner",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 7541,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "true"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 2.7711,
+        "p95_ms": 126.7659,
+        "max_ms": 195.4764
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 7.6465,
+        "p95_ms": 52.9935,
+        "max_ms": 155.1996
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 10.9064,
+        "p95_ms": 143.3499,
+        "max_ms": 236.7188
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 5.8724,
+        "p95_ms": 111.5206,
+        "max_ms": 157.4803
+      },
+      "waits_35ms_or_more": 15,
+      "long_wait_native_overlap_percent": 95.71,
+      "app_frames": 116,
+      "app_deadline_missed_percent": 58.62,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 59.9975,
+        "p95_ms": 66.5407,
+        "max_ms": 69.1166
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 7.4497,
+          "p95_ms": 43.7096,
+          "max_ms": 116.3457
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 7.067,
+          "p95_ms": 46.5456,
+          "max_ms": 103.7565
+        }
+      },
+      "shortest_hold_ms": 22.055,
+      "owner_last_after_final_up_ms": 107.695
+    },
+    {
+      "case": "fluency-60-4-pipeline-default",
+      "cadence_ms": 60,
+      "pair": 4,
+      "mode": "pipeline-default",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 7886,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "false"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 1.5941,
+        "p95_ms": 193.0715,
+        "max_ms": 221.1113
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 2.3855,
+        "p95_ms": 30.5945,
+        "max_ms": 45.7706
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 2.269,
+        "p95_ms": 179.0092,
+        "max_ms": 266.1451
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 3.2873,
+        "p95_ms": 86.4138,
+        "max_ms": 219.1196
+      },
+      "waits_35ms_or_more": 15,
+      "long_wait_native_overlap_percent": 94.34,
+      "app_frames": 120,
+      "app_deadline_missed_percent": 51.67,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 59.9999,
+        "p95_ms": 63.6588,
+        "max_ms": 79.4151
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 6.4766,
+          "p95_ms": 38.8638,
+          "max_ms": 150.7827
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 4.6805,
+          "p95_ms": 23.9437,
+          "max_ms": 129.7652
+        }
+      },
+      "shortest_hold_ms": 22.031,
+      "owner_last_after_final_up_ms": 118.171
+    },
+    {
+      "case": "fluency-35-1-pipeline-default",
+      "cadence_ms": 35,
+      "pair": 1,
+      "mode": "pipeline-default",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 8230,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "false"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 148.863,
+        "p95_ms": 346.9262,
+        "max_ms": 386.4778
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 5.2872,
+        "p95_ms": 131.4723,
+        "max_ms": 158.3763
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 163.1502,
+        "p95_ms": 357.6534,
+        "max_ms": 393.8908
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 4.3376,
+        "p95_ms": 83.7292,
+        "max_ms": 162.0492
+      },
+      "waits_35ms_or_more": 51,
+      "long_wait_native_overlap_percent": 93.1,
+      "app_frames": 69,
+      "app_deadline_missed_percent": 53.62,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 35.0024,
+        "p95_ms": 43.1924,
+        "max_ms": 48.9727
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 8.6965,
+          "p95_ms": 99.0688,
+          "max_ms": 162.2903
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 9.3997,
+          "p95_ms": 103.7239,
+          "max_ms": 141.3122
+        }
+      },
+      "shortest_hold_ms": 22.04,
+      "owner_last_after_final_up_ms": 305.756
+    },
+    {
+      "case": "fluency-35-1-pipeline-owner",
+      "cadence_ms": 35,
+      "pair": 1,
+      "mode": "pipeline-owner",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 8580,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "true"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 25.4957,
+        "p95_ms": 303.561,
+        "max_ms": 342.7262
+      },
+      "result_to_service": {
+        "count": 114,
+        "p50_ms": 6.8282,
+        "p95_ms": 54.3125,
+        "max_ms": 62.3016
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 53.7333,
+        "p95_ms": 316.2386,
+        "max_ms": 369.1051
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 3.5838,
+        "p95_ms": 79.7625,
+        "max_ms": 136.7042
+      },
+      "waits_35ms_or_more": 26,
+      "long_wait_native_overlap_percent": 96.05,
+      "app_frames": 67,
+      "app_deadline_missed_percent": 58.21,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 35.0017,
+        "p95_ms": 43.5456,
+        "max_ms": 50.3382
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 7.1624,
+          "p95_ms": 81.1455,
+          "max_ms": 180.5775
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 7.6737,
+          "p95_ms": 57.1204,
+          "max_ms": 159.4391
+        }
+      },
+      "shortest_hold_ms": 22.03,
+      "owner_last_after_final_up_ms": 247.919
+    },
+    {
+      "case": "fluency-35-2-pipeline-owner",
+      "cadence_ms": 35,
+      "pair": 2,
+      "mode": "pipeline-owner",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 8924,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "true"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 50.316,
+        "p95_ms": 356.15,
+        "max_ms": 384.9228
+      },
+      "result_to_service": {
+        "count": 112,
+        "p50_ms": 12.185,
+        "p95_ms": 49.7293,
+        "max_ms": 80.5336
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 57.9376,
+        "p95_ms": 361.9001,
+        "max_ms": 422.5439
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 2.7765,
+        "p95_ms": 87.2394,
+        "max_ms": 182.5862
+      },
+      "waits_35ms_or_more": 35,
+      "long_wait_native_overlap_percent": 96.57,
+      "app_frames": 69,
+      "app_deadline_missed_percent": 62.32,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 35.0053,
+        "p95_ms": 42.702,
+        "max_ms": 53.7041
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 11.6125,
+          "p95_ms": 82.6157,
+          "max_ms": 179.5292
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 10.1255,
+          "p95_ms": 93.1451,
+          "max_ms": 191.3491
+        }
+      },
+      "shortest_hold_ms": 22.032,
+      "owner_last_after_final_up_ms": 344.117
+    },
+    {
+      "case": "fluency-35-2-pipeline-default",
+      "cadence_ms": 35,
+      "pair": 2,
+      "mode": "pipeline-default",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 9263,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "false"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 75.3104,
+        "p95_ms": 454.8451,
+        "max_ms": 496.8331
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 13.3141,
+        "p95_ms": 68.531,
+        "max_ms": 151.9079
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 99.8304,
+        "p95_ms": 478.2122,
+        "max_ms": 544.0179
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 4.0062,
+        "p95_ms": 93.6174,
+        "max_ms": 223.1398
+      },
+      "waits_35ms_or_more": 41,
+      "long_wait_native_overlap_percent": 92.5,
+      "app_frames": 64,
+      "app_deadline_missed_percent": 67.19,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 34.9955,
+        "p95_ms": 43.9906,
+        "max_ms": 71.6407
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 10.9967,
+          "p95_ms": 68.0963,
+          "max_ms": 122.3866
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 13.1243,
+          "p95_ms": 73.0918,
+          "max_ms": 128.4894
+        }
+      },
+      "shortest_hold_ms": 22.037,
+      "owner_last_after_final_up_ms": 445.706
+    },
+    {
+      "case": "fluency-35-3-pipeline-default",
+      "cadence_ms": 35,
+      "pair": 3,
+      "mode": "pipeline-default",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 9621,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "false"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 96.9761,
+        "p95_ms": 485.7814,
+        "max_ms": 533.1728
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 11.7717,
+        "p95_ms": 50.6856,
+        "max_ms": 82.1719
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 106.2603,
+        "p95_ms": 526.8515,
+        "max_ms": 574.572
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 3.4614,
+        "p95_ms": 101.7283,
+        "max_ms": 133.5372
+      },
+      "waits_35ms_or_more": 41,
+      "long_wait_native_overlap_percent": 91.1,
+      "app_frames": 64,
+      "app_deadline_missed_percent": 65.62,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 34.9927,
+        "p95_ms": 42.9978,
+        "max_ms": 50.8094
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 9.3146,
+          "p95_ms": 122.5607,
+          "max_ms": 215.2851
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 10.2338,
+          "p95_ms": 134.9568,
+          "max_ms": 217.0623
+        }
+      },
+      "shortest_hold_ms": 22.045,
+      "owner_last_after_final_up_ms": 480.771
+    },
+    {
+      "case": "fluency-35-3-pipeline-owner",
+      "cadence_ms": 35,
+      "pair": 3,
+      "mode": "pipeline-owner",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 9951,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "true"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 51.8478,
+        "p95_ms": 187.5659,
+        "max_ms": 210.2033
+      },
+      "result_to_service": {
+        "count": 114,
+        "p50_ms": 8.6999,
+        "p95_ms": 79.5147,
+        "max_ms": 187.1296
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 57.2389,
+        "p95_ms": 190.836,
+        "max_ms": 251.4787
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 3.7203,
+        "p95_ms": 80.017,
+        "max_ms": 102.9832
+      },
+      "waits_35ms_or_more": 35,
+      "long_wait_native_overlap_percent": 96.5,
+      "app_frames": 70,
+      "app_deadline_missed_percent": 52.86,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 34.9937,
+        "p95_ms": 40.2814,
+        "max_ms": 84.1934
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 8.0604,
+          "p95_ms": 74.2703,
+          "max_ms": 170.4119
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 6.3398,
+          "p95_ms": 60.9377,
+          "max_ms": 149.0476
+        }
+      },
+      "shortest_hold_ms": 22.038,
+      "owner_last_after_final_up_ms": 168.6
+    },
+    {
+      "case": "fluency-35-4-pipeline-owner",
+      "cadence_ms": 35,
+      "pair": 4,
+      "mode": "pipeline-owner",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 10306,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "true"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 33.5298,
+        "p95_ms": 169.1718,
+        "max_ms": 235.1133
+      },
+      "result_to_service": {
+        "count": 116,
+        "p50_ms": 6.8857,
+        "p95_ms": 58.6777,
+        "max_ms": 71.0493
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 43.6538,
+        "p95_ms": 174.9081,
+        "max_ms": 268.5199
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 3.4587,
+        "p95_ms": 87.7316,
+        "max_ms": 125.9516
+      },
+      "waits_35ms_or_more": 29,
+      "long_wait_native_overlap_percent": 97.55,
+      "app_frames": 68,
+      "app_deadline_missed_percent": 51.47,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 35.0001,
+        "p95_ms": 50.6788,
+        "max_ms": 63.5838
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 8.0228,
+          "p95_ms": 75.4083,
+          "max_ms": 175.5839
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 6.2807,
+          "p95_ms": 87.3353,
+          "max_ms": 181.0137
+        }
+      },
+      "shortest_hold_ms": 22.024,
+      "owner_last_after_final_up_ms": 163.961
+    },
+    {
+      "case": "fluency-35-4-pipeline-default",
+      "cadence_ms": 35,
+      "pair": 4,
+      "mode": "pipeline-default",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 10649,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "owner_queue": [
+        "false"
+      ],
+      "valid": true,
+      "problems": [],
+      "key_to_owner": {
+        "count": 60,
+        "p50_ms": 42.8247,
+        "p95_ms": 250.1713,
+        "max_ms": 272.8103
+      },
+      "result_to_service": {
+        "count": 120,
+        "p50_ms": 9.791,
+        "p95_ms": 49.6345,
+        "max_ms": 207.5515
+      },
+      "enqueue_to_job_start": {
+        "count": 103,
+        "p50_ms": 59.3219,
+        "p95_ms": 258.0929,
+        "max_ms": 305.4634
+      },
+      "rime_process_key": {
+        "count": 103,
+        "p50_ms": 4.0235,
+        "p95_ms": 81.2006,
+        "max_ms": 141.2635
+      },
+      "waits_35ms_or_more": 35,
+      "long_wait_native_overlap_percent": 92.07,
+      "app_frames": 66,
+      "app_deadline_missed_percent": 57.58,
+      "injection_spacing": {
+        "count": 59,
+        "p50_ms": 35.008,
+        "p95_ms": 46.9725,
+        "max_ms": 58.1129
+      },
+      "touch_delivery": {
+        "down": {
+          "count": 60,
+          "p50_ms": 6.7342,
+          "p95_ms": 105.1665,
+          "max_ms": 206.2463
+        },
+        "up": {
+          "count": 60,
+          "p50_ms": 12.2744,
+          "p95_ms": 83.2975,
+          "max_ms": 185.6548
+        }
+      },
+      "shortest_hold_ms": 22.03,
+      "owner_last_after_final_up_ms": 197.802
+    }
+  ]
+}

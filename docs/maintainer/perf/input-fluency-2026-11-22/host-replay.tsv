@@ -1,0 +1,961 @@
+trial	ordinal	letter	start_ns	end_ns	cpu_ns	raw	preedit
+1	1	c	129926196567906	129926212057535	16005000	c	c
+1	2	a	129926212267856	129926213243611	0	ca	ca
+1	3	n	129926213301206	129926214619228	0	can	can
+1	4	g	129926214676473	129926216132529	3992000	cang	cang
+1	5	m	129926216187150	129926218906787	0	cangm	cang m
+1	6	a	129926218979815	129926221554077	4002000	cangma	cang ma
+1	7	n	129926221610621	129926222628358	0	cangman	cang man
+1	8	g	129926222681306	129926223759673	0	cangmang	cang mang
+1	9	d	129926223813042	129926226446633	3999000	cangmangd	cang mang d
+1	10	e	129926226520863	129926228063978	4000000	cangmangde	cang mang de
+1	11	t	129926228120932	129926252137298	23093000	cangmangdet	cang mang de t
+1	12	i	129926252211437	129926255476432	1440000	cangmangdeti	cang mang de ti
+1	13	a	129926255576490	129926257206684	1916000	cangmangdetia	cang mang de ti a
+1	14	n	129926257268216	129926259069062	0	cangmangdetian	cang mang de ti an
+1	15	y	129926259128090	129926270567821	12000000	cangmangdetiany	cang mang de tian y
+1	16	a	129926270654069	129926272778495	3995000	cangmangdetianya	cang mang de tian ya
+1	17	s	129926272852975	129926289059464	15077000	cangmangdetianyas	cang mang de tian ya s
+1	18	h	129926289125782	129926303439460	11998000	cangmangdetianyash	cang mang de tian ya sh
+1	19	i	129926303529283	129926305569854	4005000	cangmangdetianyashi	cang mang de tian ya shi
+1	20	w	129926305627199	129926318649794	11996000	cangmangdetianyashiw	cang mang de tian ya shi w
+1	21	o	129926318715722	129926322452746	4003000	cangmangdetianyashiwo	cang mang de tian ya shi wo
+1	22	d	129926322529459	129926334747352	11924000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+1	23	e	129926334829534	129926337652465	4012000	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+1	24	a	129926337713475	129926339521893	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+1	25	i	129926339580650	129926341525030	3997000	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+1	26	m	129926341585599	129926354319156	11992000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+1	27	i	129926354424822	129926358572735	4003000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+1	28	a	129926358638092	129926361255378	4000000	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+1	29	n	129926361313854	129926362986501	0	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+1	30	y	129926363042073	129926376341608	16012000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+1	31	a	129926376436258	129926379564041	0	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+1	32	n	129926379643228	129926381997715	3987000	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+1	33	d	129926382054979	129926399397791	15998000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+1	34	e	129926399465942	129926404863255	8003000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+1	35	q	129926404926048	129926422548222	16010000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+1	36	i	129926422624154	129926425904782	3993000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+1	37	n	129926425984340	129926428429323	3946000	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+1	38	g	129926428559275	129926432178583	4002000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+1	39	s	129926432237330	129926455088909	19903000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+1	40	h	129926455184910	129926481886538	26166000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+1	41	a	129926481966587	129926484419892	4003000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+1	42	n	129926484541161	129926486420919	0	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+1	43	j	129926486538172	129926519278484	31592000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+1	44	i	129926519390991	129926526623229	6712000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+1	45	a	129926526691119	129926529636251	4005000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+1	46	o	129926529699034	129926532397041	3997000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+1	47	x	129926532457360	129926564746196	31234000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+1	48	i	129926564825683	129926569256672	3993000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+1	49	a	129926569337391	129926572298897	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+1	50	h	129926572360368	129926603179262	27996000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+1	51	u	129926603284117	129926610594650	8005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+1	52	a	129926610659356	129926613695152	3997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+1	53	z	129926613757113	129926644477372	32002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+1	54	h	129926644578341	129926676607834	31960000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+1	55	e	129926676686871	129926680824805	3998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+1	56	n	129926680899506	129926684278139	3981000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+1	57	g	129926684339740	129926687140789	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+1	58	k	129926687213646	129926729109119	44004000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+1	59	a	129926729183619	129926733552565	3997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+1	60	i	129926733619204	129926736440233	4004000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+2	1	c	129926736530787	129926737423486	0	c	c
+2	2	a	129926737474592	129926738283838	0	ca	ca
+2	3	n	129926738334052	129926739237948	0	can	can
+2	4	g	129926739291106	129926740698636	4000000	cang	cang
+2	5	m	129926740756322	129926742889123	0	cangm	cang m
+2	6	a	129926742959467	129926746279233	4003000	cangma	cang ma
+2	7	n	129926746332962	129926747119064	0	cangman	cang man
+2	8	g	129926747169268	129926748043079	3997000	cangmang	cang mang
+2	9	d	129926748100294	129926750031027	0	cangmangd	cang mang d
+2	10	e	129926750085698	129926750872501	0	cangmangde	cang mang de
+2	11	t	129926750923466	129926759959269	7995000	cangmangdet	cang mang de t
+2	12	i	129926760054249	129926761342774	0	cangmangdeti	cang mang de ti
+2	13	a	129926761399888	129926764937767	3996000	cangmangdetia	cang mang de ti a
+2	14	n	129926764993479	129926766004062	0	cangmangdetian	cang mang de ti an
+2	15	y	129926766056490	129926775698758	7996000	cangmangdetiany	cang mang de tian y
+2	16	a	129926775764025	129926776977378	4011000	cangmangdetianya	cang mang de tian ya
+2	17	s	129926777034623	129926788079805	11991000	cangmangdetianyas	cang mang de tian ya s
+2	18	h	129926788177419	129926802047336	11998000	cangmangdetianyash	cang mang de tian ya sh
+2	19	i	129926802116849	129926807217756	4003000	cangmangdetianyashi	cang mang de tian ya shi
+2	20	w	129926807277184	129926817985750	11999000	cangmangdetianyashiw	cang mang de tian ya shi w
+2	21	o	129926818047101	129926819623410	0	cangmangdetianyashiwo	cang mang de tian ya shi wo
+2	22	d	129926819712101	129926831074141	11999000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+2	23	e	129926831138156	129926832757218	4002000	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+2	24	a	129926832816126	129926834334059	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+2	25	i	129926834391774	129926836349327	3999000	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+2	26	m	129926836411058	129926849148031	11998000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+2	27	i	129926849215380	129926855487579	4003000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+2	28	a	129926855580116	129926857057619	4000000	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+2	29	n	129926857117588	129926858588852	0	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+2	30	y	129926858646427	129926871024059	11950000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+2	31	a	129926871089606	129926876138827	8027000	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+2	32	n	129926876204144	129926877827683	0	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+2	33	d	129926877911036	129926892216337	15958000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+2	34	e	129926892284217	129926894050938	0	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+2	35	q	129926894110005	129926909940789	16005000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+2	36	i	129926910008700	129926911876881	0	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+2	37	n	129926911964450	129926913726424	3996000	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+2	38	g	129926913786222	129926919266822	5251000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+2	39	s	129926919328262	129926937330626	18706000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+2	40	h	129926937399297	129926959463954	20009000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+2	41	a	129926959560627	129926961589325	4003000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+2	42	n	129926961651106	129926963479548	0	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+2	43	j	129926963562481	129926998326144	36000000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+2	44	i	129926998399863	129927000977122	4002000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+2	45	a	129927001045082	129927003947792	0	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+2	46	o	129927004061600	129927006483619	0	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+2	47	x	129927006562345	129927037591460	31977000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+2	48	i	129927037672489	129927040397987	4012000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+2	49	a	129927040467129	129927042850432	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+2	50	h	129927042911252	129927077686472	35987000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+2	51	u	129927077780791	129927080421744	4006000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+2	52	a	129927080484096	129927082927396	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+2	53	z	129927082985422	129927112750318	32000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+2	54	h	129927112824318	129927159580037	38377000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+2	55	e	129927159671242	129927162842298	4006000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+2	56	n	129927162910790	129927165654454	3997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+2	57	g	129927165718098	129927168383757	4365000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+2	58	k	129927168445859	129927206358506	33924000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+2	59	a	129927206440347	129927209612514	4003000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+2	60	i	129927209675898	129927212348387	4004000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+3	1	c	129927212419322	129927218228618	3996000	c	c
+3	2	a	129927218287465	129927219098774	0	ca	ca
+3	3	n	129927219151762	129927220402410	4005000	can	can
+3	4	g	129927220459044	129927221264684	0	cang	cang
+3	5	m	129927221315760	129927223104043	0	cangm	cang m
+3	6	a	129927223155859	129927227214056	3997000	cangma	cang ma
+3	7	n	129927227267665	129927228088999	4001000	cangman	cang man
+3	8	g	129927228141987	129927228937002	0	cangmang	cang mang
+3	9	d	129927228988078	129927230901105	0	cangmangd	cang mang d
+3	10	e	129927230955275	129927231767655	0	cangmangde	cang mang de
+3	11	t	129927231819482	129927241585945	11329000	cangmangdet	cang mang de t
+3	12	i	129927241649669	129927242636717	0	cangmangdeti	cang mang de ti
+3	13	a	129927242688714	129927246349153	4002000	cangmangdetia	cang mang de ti a
+3	14	n	129927246405867	129927247449720	0	cangmangdetian	cang mang de ti an
+3	15	y	129927247527034	129927256870892	11997000	cangmangdetiany	cang mang de tian y
+3	16	a	129927256957580	129927258059409	0	cangmangdetianya	cang mang de tian ya
+3	17	s	129927258111906	129927270039593	11346000	cangmangdetianyas	cang mang de tian ya s
+3	18	h	129927270102716	129927286148248	16002000	cangmangdetianyash	cang mang de tian ya sh
+3	19	i	129927286210480	129927287451353	0	cangmangdetianyashi	cang mang de tian ya shi
+3	20	w	129927287530220	129927299200967	13648000	cangmangdetianyashiw	cang mang de tian ya shi w
+3	21	o	129927299265653	129927300748655	1605000	cangmangdetianyashiwo	cang mang de tian ya shi wo
+3	22	d	129927300804086	129927312526609	11981000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+3	23	e	129927312598035	129927314015730	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+3	24	a	129927314070631	129927315395319	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+3	25	i	129927315450801	129927320491009	8009000	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+3	26	m	129927320567342	129927332698950	11302000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+3	27	i	129927332763756	129927334350270	0	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+3	28	a	129927334408236	129927335916044	0	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+3	29	n	129927335990995	129927337633242	4006000	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+3	30	y	129927337694272	129927349795856	11991000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+3	31	a	129927349862524	129927354228236	4002000	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+3	32	n	129927354285571	129927355845335	0	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+3	33	d	129927355900857	129927370810431	15312000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+3	34	e	129927370875327	129927372706573	3998000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+3	35	q	129927372765160	129927388691815	16013000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+3	36	i	129927388759475	129927390791518	0	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+3	37	n	129927390854251	129927392586691	3975000	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+3	38	g	129927392645919	129927399040689	4016000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+3	39	s	129927399100387	129927417077633	19350000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+3	40	h	129927417150611	129927440416573	23174000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+3	41	a	129927440606304	129927442794938	0	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+3	42	n	129927442856239	129927444706553	3998000	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+3	43	j	129927444766091	129927478989927	31328000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+3	44	i	129927479060842	129927481328823	4003000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+3	45	a	129927481386919	129927483641471	0	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+3	46	o	129927483700227	129927485797457	4004000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+3	47	x	129927485855072	129927516800803	31286000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+3	48	i	129927516885738	129927519488084	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+3	49	a	129927519566781	129927521967078	3965000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+3	50	h	129927522027607	129927556732293	35240000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+3	51	u	129927556807715	129927560238735	3389000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+3	52	a	129927560299094	129927562821532	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+3	53	z	129927562880509	129927593011766	31095000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+3	54	h	129927593088029	129927625876043	31583000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+3	55	e	129927626015529	129927636176755	11672000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+3	56	n	129927636249513	129927639023973	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+3	57	g	129927639098142	129927641651595	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+3	58	k	129927641710853	129927677597957	35980000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+3	59	a	129927677680609	129927680744136	3999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+3	60	i	129927680810153	129927683346121	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+4	1	c	129927683414633	129927684409523	4002000	c	c
+4	2	a	129927684489771	129927685291857	0	ca	ca
+4	3	n	129927685343824	129927691525729	6633000	can	can
+4	4	g	129927691586569	129927692578895	1343000	cang	cang
+4	5	m	129927692636911	129927694375150	0	cangm	cang m
+4	6	a	129927694428709	129927695345814	0	cangma	cang ma
+4	7	n	129927695397981	129927696258103	4019000	cangman	cang man
+4	8	g	129927696311642	129927698970341	0	cangmang	cang mang
+4	9	d	129927699024250	129927700965819	3976000	cangmangd	cang mang d
+4	10	e	129927701019929	129927701807353	0	cangmangde	cang mang de
+4	11	t	129927701858969	129927710834383	7997000	cangmangdet	cang mang de t
+4	12	i	129927710900170	129927711912867	0	cangmangdeti	cang mang de ti
+4	13	a	129927711965575	129927712991030	4006000	cangmangdetia	cang mang de ti a
+4	14	n	129927713045030	129927714041593	0	cangmangdetian	cang mang de ti an
+4	15	y	129927714094300	129927726745567	11996000	cangmangdetiany	cang mang de tian y
+4	16	a	129927726811094	129927727908195	0	cangmangdetianya	cang mang de tian ya
+4	17	s	129927727960602	129927738911765	11998000	cangmangdetianyas	cang mang de tian ya s
+4	18	h	129927738976090	129927751315055	12001000	cangmangdetianyash	cang mang de tian ya sh
+4	19	i	129927751377247	129927752753190	4004000	cangmangdetianyashi	cang mang de tian ya shi
+4	20	w	129927752810515	129927766179611	11996000	cangmangdetianyashiw	cang mang de tian ya shi w
+4	21	o	129927766244097	129927767611627	0	cangmangdetianyashiwo	cang mang de tian ya shi wo
+4	22	d	129927767666649	129927778453409	12000000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+4	23	e	129927778540438	129927779950832	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+4	24	a	129927780030169	129927781370530	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+4	25	i	129927781426603	129927782837618	0	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+4	26	m	129927782894913	129927794335490	11997000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+4	27	i	129927794399625	129927799721920	4002000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+4	28	a	129927799780396	129927801227385	4003000	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+4	29	n	129927801285140	129927802731207	0	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+4	30	y	129927802790554	129927814649760	11995000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+4	31	a	129927814713695	129927816370153	4005000	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+4	32	n	129927816432275	129927820951282	3995000	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+4	33	d	129927821009298	129927835152669	12008000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+4	34	e	129927835217405	129927836954462	3982000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+4	35	q	129927837011826	129927852559242	16001000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+4	36	i	129927852630377	129927854395105	0	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+4	37	n	129927854450527	129927856168225	3999000	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+4	38	g	129927856241794	129927857947144	0	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+4	39	s	129927858009696	129927880359304	24002000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+4	40	h	129927880426754	129927902029218	19991000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+4	41	a	129927902103267	129927904211763	4003000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+4	42	n	129927904272583	129927906164629	0	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+4	43	j	129927906223606	129927934302370	27990000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+4	44	i	129927934376150	129927940993619	8000000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+4	45	a	129927941105735	129927943237545	0	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+4	46	o	129927943297394	129927945447732	4003000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+4	47	x	129927945525016	129927974069588	27998000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+4	48	i	129927974143908	129927976828225	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+4	49	a	129927976891799	129927979315190	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+4	50	h	129927979373777	129928008207156	32002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+4	51	u	129928008285011	129928016688550	7998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+4	52	a	129928016757091	129928019488839	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+4	53	z	129928019573774	129928049178604	32001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+4	54	h	129928049284039	129928080259304	32000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+4	55	e	129928080344630	129928083514224	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+4	56	n	129928083581894	129928092809831	11998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+4	57	g	129928092879023	129928095900128	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+4	58	k	129928095964724	129928133374507	40000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+4	59	a	129928133514143	129928137194392	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+4	60	i	129928137268511	129928140425096	4005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+5	1	c	129928140532705	129928141594084	0	c	c
+5	2	a	129928141651538	129928142482136	0	ca	ca
+5	3	n	129928142562655	129928148893120	8001000	can	can
+5	4	g	129928148954721	129928149864656	0	cang	cang
+5	5	m	129928149921750	129928151805664	0	cangm	cang m
+5	6	a	129928151862538	129928152808897	4001000	cangma	cang ma
+5	7	n	129928152863377	129928153690780	0	cangman	cang man
+5	8	g	129928153763878	129928156845181	4000000	cangmang	cang mang
+5	9	d	129928156901855	129928158885657	0	cangmangd	cang mang d
+5	10	e	129928158942390	129928159784114	0	cangmangde	cang mang de
+5	11	t	129928159835690	129928169451140	12001000	cangmangdet	cang mang de t
+5	12	i	129928169561914	129928170602883	0	cangmangdeti	cang mang de ti
+5	13	a	129928170657613	129928171673795	0	cangmangdetia	cang mang de ti a
+5	14	n	129928171727825	129928172781092	4001000	cangmangdetian	cang mang de ti an
+5	15	y	129928172835662	129928185382253	11997000	cangmangdetiany	cang mang de tian y
+5	16	a	129928185480949	129928192122644	8002000	cangmangdetianya	cang mang de tian ya
+5	17	s	129928192187750	129928204462069	12004000	cangmangdetianyas	cang mang de tian ya s
+5	18	h	129928204574265	129928217890303	11988000	cangmangdetianyash	cang mang de tian ya sh
+5	19	i	129928217959716	129928219697203	0	cangmangdetianyashi	cang mang de tian ya shi
+5	20	w	129928219758404	129928231460527	12001000	cangmangdetianyashiw	cang mang de tian ya shi w
+5	21	o	129928231564761	129928237119941	8001000	cangmangdetianyashiwo	cang mang de tian ya shi wo
+5	22	d	129928237180630	129928248697619	12003000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+5	23	e	129928248762896	129928250198417	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+5	24	a	129928250255502	129928251618526	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+5	25	i	129928251701679	129928253125242	4001000	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+5	26	m	129928253183308	129928265584825	11995000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+5	27	i	129928265686345	129928267537561	0	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+5	28	a	129928267602787	129928273428266	8000000	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+5	29	n	129928273488655	129928275125915	0	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+5	30	y	129928275183400	129928287548913	11999000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+5	31	a	129928287614941	129928289315915	4002000	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+5	32	n	129928289375713	129928291072911	0	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+5	33	d	129928291135173	129928310758803	19999000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+5	34	e	129928310834946	129928312884655	4010000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+5	35	q	129928312947738	129928330124281	15975000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+5	36	i	129928330198881	129928332228991	4002000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+5	37	n	129928332288830	129928334115449	0	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+5	38	g	129928334176840	129928335982629	0	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+5	39	s	129928336064690	129928355935454	15996000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+5	40	h	129928356047880	129928384746901	27998000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+5	41	a	129928384821031	129928386920434	0	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+5	42	n	129928386981003	129928388928131	4000000	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+5	43	j	129928388989662	129928420203398	31988000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+5	44	i	129928420298419	129928422984558	0	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+5	45	a	129928423057977	129928431576265	8005000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+5	46	o	129928431671476	129928434231068	4004000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+5	47	x	129928434293330	129928469384287	35994000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+5	48	i	129928469469683	129928472628872	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+5	49	a	129928472699276	129928475546924	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+5	50	h	129928475618740	129928506952815	32000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+5	51	u	129928507050319	129928510445387	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+5	52	a	129928510544553	129928519685091	7998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+5	53	z	129928519764048	129928550259583	31860000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+5	54	h	129928550340152	129928583597129	32003000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+5	55	e	129928583686111	129928586984645	4005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+5	56	n	129928587050022	129928590234097	3997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+5	57	g	129928590300706	129928601319519	11997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+5	58	k	129928601418005	129928641716727	40000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+5	59	a	129928641814221	129928645618513	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+5	60	i	129928645694786	129928648808458	4011000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+6	1	c	129928648886433	129928649925188	0	c	c
+6	2	a	129928649982673	129928650867350	0	ca	ca
+6	3	n	129928650922622	129928651986684	0	can	can
+6	4	g	129928652073863	129928655016131	0	cang	cang
+6	5	m	129928655085704	129928660356473	8000000	cangm	cang m
+6	6	a	129928660417944	129928661585539	0	cangma	cang ma
+6	7	n	129928661643585	129928662720747	0	cangman	cang man
+6	8	g	129928662999539	129928663840742	0	cangmang	cang mang
+6	9	d	129928663895002	129928668339380	7999000	cangmangd	cang mang d
+6	10	e	129928668397596	129928669269825	0	cangmangde	cang mang de
+6	11	t	129928669323524	129928679284635	7995000	cangmangdet	cang mang de t
+6	12	i	129928679347017	129928680432471	4009000	cangmangdeti	cang mang de ti
+6	13	a	129928680488274	129928681535932	0	cangmangdetia	cang mang de ti a
+6	14	n	129928681593457	129928682596059	0	cangmangdetian	cang mang de ti an
+6	15	y	129928682737968	129928692771986	11967000	cangmangdetiany	cang mang de tian y
+6	16	a	129928692837162	129928694613998	0	cangmangdetianya	cang mang de tian ya
+6	17	s	129928694750450	129928710467316	15998000	cangmangdetianyas	cang mang de tian ya s
+6	18	h	129928710564270	129928723604460	11998000	cangmangdetianyash	cang mang de tian ya sh
+6	19	i	129928723755013	129928725248680	4006000	cangmangdetianyashi	cang mang de tian ya shi
+6	20	w	129928725309500	129928736632303	11998000	cangmangdetianyashiw	cang mang de tian ya shi w
+6	21	o	129928736698290	129928742229414	3999000	cangmangdetianyashiwo	cang mang de tian ya shi wo
+6	22	d	129928742288701	129928754119505	11999000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+6	23	e	129928754261194	129928756028807	4000000	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+6	24	a	129928756093332	129928757645566	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+6	25	i	129928757704823	129928759486166	0	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+6	26	m	129928759579253	129928772428141	16005000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+6	27	i	129928772516722	129928774098029	0	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+6	28	a	129928774155203	129928777199662	4003000	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+6	29	n	129928777262646	129928781169029	3994000	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+6	30	y	129928781228226	129928794188848	11997000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+6	31	a	129928794255867	129928796210165	4005000	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+6	32	n	129928796270064	129928797857460	0	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+6	33	d	129928797914855	129928814125250	15997000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+6	34	e	129928814195044	129928819223474	4001000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+6	35	q	129928819282932	129928835066547	15985000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+6	36	i	129928835135159	129928836939866	4003000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+6	37	n	129928837023009	129928838684344	0	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+6	38	g	129928838741969	129928840456372	4000000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+6	39	s	129928840536521	129928858915000	15996000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+6	40	h	129928858985925	129928882240029	24002000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+6	41	a	129928882320148	129928890452325	8005000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+6	42	n	129928890562488	129928892712746	4004000	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+6	43	j	129928892773736	129928923764183	28010000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+6	44	i	129928923842398	129928926140184	3977000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+6	45	a	129928926198000	129928928316461	3997000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+6	46	o	129928928378442	129928934712793	3998000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+6	47	x	129928934773733	129928964978609	32002000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+6	48	i	129928965057586	129928967948538	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+6	49	a	129928968037920	129928970327894	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+6	50	h	129928970385710	129929000692587	32001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+6	51	u	129929000772925	129929003511342	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+6	52	a	129929003571662	129929006106187	3998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+6	53	z	129929006186937	129929042973008	35997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+6	54	h	129929043045205	129929076413946	36005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+6	55	e	129929076515797	129929079571954	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+6	56	n	129929079639293	129929082299875	3998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+6	57	g	129929082361707	129929085046064	3998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+6	58	k	129929085105231	129929131871952	44005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+6	59	a	129929131963227	129929135336582	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+6	60	i	129929135405634	129929138670849	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+7	1	c	129929138747903	129929139882510	0	c	c
+7	2	a	129929139939795	129929140894545	4001000	ca	ca
+7	3	n	129929140952952	129929141891659	0	can	can
+7	4	g	129929141947201	129929142920680	0	cang	cang
+7	5	m	129929142978475	129929145168812	3997000	cangm	cang m
+7	6	a	129929145232346	129929150260516	3996000	cangma	cang ma
+7	7	n	129929150318151	129929151125114	0	cangman	cang man
+7	8	g	129929151175117	129929151955621	0	cangmang	cang mang
+7	9	d	129929152028639	129929154092249	0	cangmangd	cang mang d
+7	10	e	129929154147480	129929156789124	3999000	cangmangde	cang mang de
+7	11	t	129929156844526	129929167640029	7996000	cangmangdet	cang mang de t
+7	12	i	129929167731014	129929168839412	4012000	cangmangdeti	cang mang de ti
+7	13	a	129929168894784	129929169970003	0	cangmangdetia	cang mang de ti a
+7	14	n	129929170023532	129929171247751	0	cangmangdetian	cang mang de ti an
+7	15	y	129929171304244	129929181925891	11989000	cangmangdetiany	cang mang de tian y
+7	16	a	129929181988614	129929183137261	0	cangmangdetianya	cang mang de tian ya
+7	17	s	129929183191751	129929194733007	11999000	cangmangdetianyas	cang mang de tian ya s
+7	18	h	129929195441434	129929213114371	20001000	cangmangdetianyash	cang mang de tian ya sh
+7	19	i	129929213185646	129929214594709	0	cangmangdetianyashi	cang mang de tian ya shi
+7	20	w	129929214653195	129929226176503	12000000	cangmangdetianyashiw	cang mang de tian ya shi w
+7	21	o	129929226238645	129929227674637	0	cangmangdetianyashiwo	cang mang de tian ya shi wo
+7	22	d	129929227847653	129929239714610	12000000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+7	23	e	129929239782230	129929245138626	8001000	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+7	24	a	129929245197393	129929246550051	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+7	25	i	129929246606275	129929247918233	0	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+7	26	m	129929247974456	129929259480600	11998000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+7	27	i	129929259568560	129929261293018	4003000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+7	28	a	129929261514075	129929263088762	0	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+7	29	n	129929263147749	129929264734654	3999000	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+7	30	y	129929264790937	129929281608510	15999000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+7	31	a	129929281675469	129929283291157	0	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+7	32	n	129929283347240	129929284932142	4001000	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+7	33	d	129929285006582	129929300481701	16000000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+7	34	e	129929300596761	129929302594233	0	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+7	35	q	129929302714871	129929323138653	19998000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+7	36	i	129929323206844	129929325096476	3996000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+7	37	n	129929325155413	129929326894373	0	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+7	38	g	129929326952248	129929328734582	4009000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+7	39	s	129929328794811	129929349845751	19990000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+7	40	h	129929349960380	129929375008155	24001000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+7	41	a	129929375090928	129929377401813	4004000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+7	42	n	129929377462683	129929385131355	7996000	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+7	43	j	129929385193697	129929414571681	27995000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+7	44	i	129929414652120	129929416893562	4003000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+7	45	a	129929416953471	129929419043409	0	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+7	46	o	129929419105681	129929421416822	4006000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+7	47	x	129929421479084	129929455875796	31979000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+7	48	i	129929455957146	129929458519613	4005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+7	49	a	129929458579060	129929460879570	3998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+7	50	h	129929460937536	129929490686879	27996000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+7	51	u	129929490783371	129929494149335	4005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+7	52	a	129929494221372	129929498686470	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+7	53	z	129929498763805	129929537440791	39995000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+7	54	h	129929537561880	129929574078704	35771000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+7	55	e	129929574157621	129929577179807	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+7	56	n	129929577238133	129929580037049	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+7	57	g	129929580151077	129929582858008	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+7	58	k	129929582919889	129929619947938	35997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+7	59	a	129929620058392	129929628246313	7997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+7	60	i	129929628328885	129929631136203	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+8	1	c	129929631204895	129929632173005	4001000	c	c
+8	2	a	129929632225803	129929633044213	0	ca	ca
+8	3	n	129929633095939	129929633959245	0	can	can
+8	4	g	129929634010871	129929634796522	0	cang	cang
+8	5	m	129929634847447	129929636701767	4000000	cangm	cang m
+8	6	a	129929636759583	129929641537053	4000000	cangma	cang ma
+8	7	n	129929641601398	129929642405877	0	cangman	cang man
+8	8	g	129929642455340	129929643321299	0	cangmang	cang mang
+8	9	d	129929643373396	129929645541430	4000000	cangmangd	cang mang d
+8	10	e	129929645597694	129929646368923	0	cangmangde	cang mang de
+8	11	t	129929646417395	129929657991699	11998000	cangmangdet	cang mang de t
+8	12	i	129929658054953	129929659035041	0	cangmangdeti	cang mang de ti
+8	13	a	129929659088640	129929660066826	4004000	cangmangdetia	cang mang de ti a
+8	14	n	129929660120265	129929661321200	0	cangmangdetian	cang mang de ti an
+8	15	y	129929661379456	129929671391631	7995000	cangmangdetiany	cang mang de tian y
+8	16	a	129929671460563	129929672777129	4005000	cangmangdetianya	cang mang de tian ya
+8	17	s	129929672833983	129929685133069	11996000	cangmangdetianyas	cang mang de tian ya s
+8	18	h	129929685199297	129929703411771	15968000	cangmangdetianyash	cang mang de tian ya sh
+8	19	i	129929703476246	129929704781796	4002000	cangmangdetianyashi	cang mang de tian ya shi
+8	20	w	129929704836877	129929716446042	12001000	cangmangdetianyashiw	cang mang de tian ya shi w
+8	21	o	129929716535625	129929717952168	0	cangmangdetianyashiwo	cang mang de tian ya shi wo
+8	22	d	129929718010454	129929729201792	11995000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+8	23	e	129929729264645	129929735709410	4002000	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+8	24	a	129929735777911	129929737359238	4006000	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+8	25	i	129929737416202	129929738800307	0	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+8	26	m	129929738858663	129929750904645	11992000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+8	27	i	129929750970542	129929752542065	4005000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+8	28	a	129929752600871	129929754051676	0	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+8	29	n	129929754108750	129929755606313	0	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+8	30	y	129929755662206	129929770604276	15997000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+8	31	a	129929770669453	129929773739450	3999000	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+8	32	n	129929773799288	129929775357260	0	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+8	33	d	129929775414495	129929790184923	15999000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+8	34	e	129929790251942	129929792082737	4003000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+8	35	q	129929792142976	129929808640336	16002000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+8	36	i	129929808717820	129929814787951	3996000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+8	37	n	129929814847649	129929816587029	4005000	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+8	38	g	129929816642912	129929818278819	0	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+8	39	s	129929818334952	129929836838967	19996000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+8	40	h	129929836909602	129929859380770	19986000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+8	41	a	129929859483561	129929862065737	4001000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+8	42	n	129929862128700	129929864159211	4001000	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+8	43	j	129929864223886	129929901910008	35998000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+8	44	i	129929901988935	129929904339779	4005000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+8	45	a	129929904402081	129929906740167	0	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+8	46	o	129929906808588	129929909096639	3997000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+8	47	x	129929909154905	129929940233723	32001000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+8	48	i	129929940316245	129929946927444	4005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+8	49	a	129929947086389	129929949568587	3982000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+8	50	h	129929949630339	129929982574744	31999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+8	51	u	129929982723023	129929985970772	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+8	52	a	129929986036259	129929988874413	3999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+8	53	z	129929988938318	129930020384408	32001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+8	54	h	129930020465318	129930052328885	32000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+8	55	e	129930052409774	129930062171471	7998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+8	56	n	129930062238590	129930065109092	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+8	57	g	129930065168630	129930067964842	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+8	58	k	129930068051009	129930108858594	39995000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+8	59	a	129930108953524	129930112456551	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+8	60	i	129930112554475	129930120737839	7999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+9	1	c	129930120812029	129930121762904	0	c	c
+9	2	a	129930121815141	129930122636335	0	ca	ca
+9	3	n	129930122688702	129930123538228	0	can	can
+9	4	g	129930123588953	129930124409365	4002000	cang	cang
+9	5	m	129930124462944	129930126760179	0	cangm	cang m
+9	6	a	129930126937120	129930127981333	0	cangma	cang ma
+9	7	n	129930128122883	129930130992633	0	cangman	cang man
+9	8	g	129930131049888	129930132616924	4000000	cangmang	cang mang
+9	9	d	129930132671104	129930134932726	0	cangmangd	cang mang d
+9	10	e	129930134989880	129930135878483	0	cangmangde	cang mang de
+9	11	t	129930135961837	129930145986141	11999000	cangmangdet	cang mang de t
+9	12	i	129930146054111	129930149737705	3999000	cangmangdeti	cang mang de ti
+9	13	a	129930149794018	129930150899862	0	cangmangdetia	cang mang de ti a
+9	14	n	129930150956015	129930152027999	4001000	cangmangdetian	cang mang de ti an
+9	15	y	129930152160896	129930162620042	8000000	cangmangdetiany	cang mang de tian y
+9	16	a	129930162742402	129930163995724	0	cangmangdetianya	cang mang de tian ya
+9	17	s	129930164072398	129930175199101	7998000	cangmangdetianyas	cang mang de tian ya s
+9	18	h	129930175263886	129930188547687	16007000	cangmangdetianyash	cang mang de tian ya sh
+9	19	i	129930188621386	129930195255520	3999000	cangmangdetianyashi	cang mang de tian ya shi
+9	20	w	129930195319394	129930207227442	11999000	cangmangdetianyashiw	cang mang de tian ya shi w
+9	21	o	129930207294060	129930208762070	4003000	cangmangdetianyashiwo	cang mang de tian ya shi wo
+9	22	d	129930208818593	129930220232190	11999000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+9	23	e	129930220300742	129930221864132	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+9	24	a	129930221923890	129930227768568	3998000	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+9	25	i	129930227830850	129930229261133	4006000	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+9	26	m	129930229316205	129930242073767	11955000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+9	27	i	129930242146054	129930243726650	0	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+9	28	a	129930243784676	129930245346985	3997000	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+9	29	n	129930245404069	129930246942663	0	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+9	30	y	129930246999086	129930260184691	16003000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+9	31	a	129930260281334	129930265023512	3999000	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+9	32	n	129930265175617	129930267701990	0	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+9	33	d	129930267758273	129930282682939	15998000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+9	34	e	129930282755146	129930284603427	4006000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+9	35	q	129930284661733	129930302477331	15994000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+9	36	i	129930302567104	129930304811210	4004000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+9	37	n	129930304873983	129930311753249	3996000	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+9	38	g	129930311816432	129930313612596	4006000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+9	39	s	129930313678504	129930333432827	19995000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+9	40	h	129930333529930	129930356704607	24003000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+9	41	a	129930356883141	129930359360071	0	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+9	42	n	129930359423255	129930362815418	4010000	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+9	43	j	129930362883168	129930395191743	31970000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+9	44	i	129930395288326	129930404310158	12005000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+9	45	a	129930404431417	129930406955347	0	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+9	46	o	129930407019902	129930409283287	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+9	47	x	129930409340822	129930440286814	31999000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+9	48	i	129930440364218	129930443028285	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+9	49	a	129930443105699	129930450258140	7997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+9	50	h	129930450320892	129930482097521	31988000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+9	51	u	129930482176628	129930484937368	4003000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+9	52	a	129930484999500	129930487416732	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+9	53	z	129930487474888	129930521766723	35996000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+9	54	h	129930521868103	129930556580731	36005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+9	55	e	129930556690734	129930559906566	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+9	56	n	129930559969359	129930570746885	11998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+9	57	g	129930570811271	129930573569867	4007000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+9	58	k	129930573633321	129930616334164	43971000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+9	59	a	129930616439990	129930620174138	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+9	60	i	129930620239405	129930623023449	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+10	1	c	129930623099632	129930628637385	7999000	c	c
+10	2	a	129930628693759	129930629548762	0	ca	ca
+10	3	n	129930629602692	129930630439979	0	can	can
+10	4	g	129930630488771	129930631304747	0	cang	cang
+10	5	m	129930631355963	129930633211745	3998000	cangm	cang m
+10	6	a	129930633265605	129930634159696	0	cangma	cang ma
+10	7	n	129930634211132	129930635156389	0	cangman	cang man
+10	8	g	129930635214125	129930638045258	4038000	cangmang	cang mang
+10	9	d	129930638101932	129930641042307	3961000	cangmangd	cang mang d
+10	10	e	129930641100824	129930641928437	0	cangmangde	cang mang de
+10	11	t	129930641979692	129930651596945	7999000	cangmangdet	cang mang de t
+10	12	i	129930651660569	129930652704021	4009000	cangmangdeti	cang mang de ti
+10	13	a	129930652758702	129930656207909	3999000	cangmangdetia	cang mang de ti a
+10	14	n	129930656263942	129930657289347	0	cangmangdetian	cang mang de ti an
+10	15	y	129930657342185	129930667745649	8001000	cangmangdetiany	cang mang de tian y
+10	16	a	129930667811626	129930668993002	4000000	cangmangdetianya	cang mang de tian ya
+10	17	s	129930669046982	129930680263568	11995000	cangmangdetianyas	cang mang de tian ya s
+10	18	h	129930680329846	129930693473299	11963000	cangmangdetianyash	cang mang de tian ya sh
+10	19	i	129930693582300	129930695470841	0	cangmangdetianyashi	cang mang de tian ya shi
+10	20	w	129930695559852	129930711067830	15999000	cangmangdetianyashiw	cang mang de tian ya shi w
+10	21	o	129930711134128	129930712512454	4003000	cangmangdetianyashiwo	cang mang de tian ya shi wo
+10	22	d	129930712569749	129930724026330	11998000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+10	23	e	129930724096944	129930725560377	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+10	24	a	129930725619745	129930726959965	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+10	25	i	129930727017460	129930731360258	4001000	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+10	26	m	129930731434968	129930743227455	11997000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+10	27	i	129930743322426	129930744918545	4000000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+10	28	a	129930744976410	129930746408506	0	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+10	29	n	129930746466312	129930747945828	0	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+10	30	y	129930748029782	129930760510646	11998000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+10	31	a	129930760660267	129930762685430	0	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+10	32	n	129930762806489	129930766956742	4000000	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+10	33	d	129930767019074	129930783950114	15997000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+10	34	e	129930784042481	129930785793468	0	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+10	35	q	129930785849841	129930803581626	15996000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+10	36	i	129930803654704	129930805826333	4005000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+10	37	n	129930805890568	129930807840068	0	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+10	38	g	129930807901359	129930814724642	7995000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+10	39	s	129930814786434	129930834139694	20001000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+10	40	h	129930834210729	129930859941182	23999000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+10	41	a	129930860082511	129930862543528	0	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+10	42	n	129930862613291	129930864788726	3999000	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+10	43	j	129930864853602	129930895841366	27996000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+10	44	i	129930895931028	129930898678238	4006000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+10	45	a	129930898781531	129930908421686	11998000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+10	46	o	129930908511178	129930911064341	0	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+10	47	x	129930911128336	129930942113525	31995000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+10	48	i	129930942197510	129930945407884	4008000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+10	49	a	129930945475284	129930948667682	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+10	50	h	129930948733449	129930982765931	31982000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+10	51	u	129930982838228	129930985454845	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+10	52	a	129930985541072	129930988119342	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+10	53	z	129930988184398	129931018484055	27998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+10	54	h	129931018584703	129931050595489	32001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+10	55	e	129931050693284	129931053818071	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+10	56	n	129931053881605	129931056759628	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+10	57	g	129931056821660	129931066382989	7998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+10	58	k	129931066449067	129931104942332	40001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+10	59	a	129931105030292	129931108999798	4010000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+10	60	i	129931109071323	129931112067241	3995000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+11	1	c	129931112147319	129931113161157	0	c	c
+11	2	a	129931113222748	129931118957844	3998000	ca	ca
+11	3	n	129931119020406	129931119950220	0	can	can
+11	4	g	129931120046082	129931120901656	0	cang	cang
+11	5	m	129931120955786	129931122875954	0	cangm	cang m
+11	6	a	129931122931305	129931123891554	0	cangma	cang ma
+11	7	n	129931123945214	129931124861638	4002000	cangman	cang man
+11	8	g	129931124916329	129931125739856	0	cangmang	cang mang
+11	9	d	129931125793014	129931130894664	3998000	cangmangd	cang mang d
+11	10	e	129931130952249	129931131799501	0	cangmangde	cang mang de
+11	11	t	129931131853621	129931142221092	12002000	cangmangdet	cang mang de t
+11	12	i	129931142283143	129931143384902	0	cangmangdeti	cang mang de ti
+11	13	a	129931143440113	129931144527981	4000000	cangmangdetia	cang mang de ti a
+11	14	n	129931144587449	129931148518328	3998000	cangmangdetian	cang mang de ti an
+11	15	y	129931148577335	129931158612414	7998000	cangmangdetiany	cang mang de tian y
+11	16	a	129931158678282	129931159826088	0	cangmangdetianya	cang mang de tian ya
+11	17	s	129931159882131	129931171606437	12000000	cangmangdetianyas	cang mang de tian ya s
+11	18	h	129931171671123	129931184820815	16001000	cangmangdetianyash	cang mang de tian ya sh
+11	19	i	129931184887994	129931186337046	0	cangmangdetianyashi	cang mang de tian ya shi
+11	20	w	129931186394741	129931197625968	11998000	cangmangdetianyashiw	cang mang de tian ya shi w
+11	21	o	129931197694089	129931204220694	8009000	cangmangdetianyashiwo	cang mang de tian ya shi wo
+11	22	d	129931204286501	129931216029224	11995000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+11	23	e	129931216095693	129931217593036	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+11	24	a	129931217651903	129931219073313	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+11	25	i	129931219131259	129931220565318	4001000	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+11	26	m	129931220623594	129931235807312	11997000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+11	27	i	129931235871637	129931237418974	4004000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+11	28	a	129931237477060	129931238943848	0	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+11	29	n	129931239018618	129931240559946	4000000	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+11	30	y	129931240617311	129931253121218	11995000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+11	31	a	129931253188668	129931254892346	0	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+11	32	n	129931254950181	129931256572078	4005000	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+11	33	d	129931256631336	129931275758582	15996000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+11	34	e	129931275826432	129931277611440	4005000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+11	35	q	129931277688634	129931295196717	15995000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+11	36	i	129931295303605	129931297850469	4001000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+11	37	n	129931297927012	129931300081936	4004000	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+11	38	g	129931300153592	129931307481040	3996000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+11	39	s	129931307568850	129931327409120	19972000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+11	40	h	129931327486825	129931350638779	24001000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+11	41	a	129931350717034	129931353010904	4000000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+11	42	n	129931353073717	129931355104187	0	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+11	43	j	129931355166980	129931384124243	32011000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+11	44	i	129931384204671	129931386537048	0	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+11	45	a	129931386625219	129931389951585	3977000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+11	46	o	129931390018333	129931397961862	7997000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+11	47	x	129931398026898	129931428599157	32004000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+11	48	i	129931428707447	129931431453315	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+11	49	a	129931431546753	129931434065465	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+11	50	h	129931434126486	129931463611969	27996000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+11	51	u	129931463690285	129931471008990	8000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+11	52	a	129931471073436	129931473873413	4003000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+11	53	z	129931473935845	129931504419674	31989000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+11	54	h	129931504526111	129931536824050	32000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+11	55	e	129931536934724	129931540248541	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+11	56	n	129931540321099	129931543057873	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+11	57	g	129931543120396	129931545768970	3999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+11	58	k	129931545831252	129931588096771	44002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+11	59	a	129931588176529	129931591232605	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+11	60	i	129931591293605	129931594169865	3997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+12	1	c	129931594263373	129931595346624	0	c	c
+12	2	a	129931595404229	129931596477144	4011000	ca	ca
+12	3	n	129931596573948	129931602467117	3988000	can	can
+12	4	g	129931602552523	129931603488115	0	cang	cang
+12	5	m	129931603563907	129931605717410	4003000	cangm	cang m
+12	6	a	129931605777699	129931606790926	0	cangma	cang ma
+12	7	n	129931606848341	129931607800929	0	cangman	cang man
+12	8	g	129931607857442	129931609051487	4010000	cangmang	cang mang
+12	9	d	129931609110253	129931611424303	0	cangmangd	cang mang d
+12	10	e	129931611481988	129931616071721	7790000	cangmangde	cang mang de
+12	11	t	129931616131590	129931625977800	7998000	cangmangdet	cang mang de t
+12	12	i	129931626040924	129931627133478	0	cangmangdeti	cang mang de ti
+12	13	a	129931627186447	129931628264199	4005000	cangmangdetia	cang mang de ti a
+12	14	n	129931628318229	129931629386498	0	cangmangdetian	cang mang de ti an
+12	15	y	129931629440067	129931642347001	11996000	cangmangdetiany	cang mang de tian y
+12	16	a	129931642407170	129931643702304	0	cangmangdetianya	cang mang de tian ya
+12	17	s	129931643761361	129931655009157	11998000	cangmangdetianyas	cang mang de tian ya s
+12	18	h	129931655071880	129931667970540	12003000	cangmangdetianyash	cang mang de tian ya sh
+12	19	i	129931668062537	129931669515238	0	cangmangdetianyashi	cang mang de tian ya shi
+12	20	w	129931669574165	129931680659019	11999000	cangmangdetianyashiw	cang mang de tian ya shi w
+12	21	o	129931680723865	129931682153142	0	cangmangdetianyashiwo	cang mang de tian ya shi wo
+12	22	d	129931682211688	129931700466590	19970000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+12	23	e	129931700562512	129931702141641	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+12	24	a	129931702201379	129931703693078	0	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+12	25	i	129931703752206	129931705302842	4004000	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+12	26	m	129931705363211	129931717899264	11993000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+12	27	i	129931717969158	129931722585794	4002000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+12	28	a	129931722646303	129931724178172	4002000	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+12	29	n	129931724233554	129931725721337	0	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+12	30	y	129931725776859	129931738367263	11996000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+12	31	a	129931738433030	129931740159336	4002000	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+12	32	n	129931740220136	129931741859774	0	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+12	33	d	129931741919913	129931756930661	16000000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+12	34	e	129931756998811	129931762794334	4000000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+12	35	q	129931762854783	129931778880614	15998000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+12	36	i	129931778949166	129931780793957	4002000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+12	37	n	129931780853676	129931782593462	0	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+12	38	g	129931782657266	129931784366767	4003000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+12	39	s	129931784424333	129931807305025	19995000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+12	40	h	129931807379224	129931830250412	24000000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+12	41	a	129931830327225	129931832709663	4013000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+12	42	n	129931832776782	129931834827229	0	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+12	43	j	129931834904503	129931863913009	27973000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+12	44	i	129931863992596	129931866366311	4005000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+12	45	a	129931866429114	129931868631376	4000000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+12	46	o	129931868694930	129931872703285	3998000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+12	47	x	129931872771757	129931908403959	35999000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+12	48	i	129931908538389	129931911833238	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+12	49	a	129931911939465	129931914865258	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+12	50	h	129931914933348	129931945537246	31997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+12	51	u	129931945623374	129931948488236	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+12	52	a	129931948571509	129931956560490	7999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+12	53	z	129931956622822	129931988110628	31461000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+12	54	h	129931988190787	129932020435845	31991000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+12	55	e	129932020547240	129932023719047	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+12	56	n	129932023785375	129932026736515	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+12	57	g	129932026801651	129932029483212	3997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+12	58	k	129932029570591	129932065967247	35997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+12	59	a	129932066046434	129932075385043	8001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+12	60	i	129932075453725	129932078704649	4003000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+13	1	c	129932078807020	129932079839780	0	c	c
+13	2	a	129932079896083	129932080801193	4007000	ca	ca
+13	3	n	129932080857667	129932081771830	0	can	can
+13	4	g	129932081832911	129932086142912	3993000	cang	cang
+13	5	m	129932086201189	129932088138337	3999000	cangm	cang m
+13	6	a	129932088195732	129932089135664	0	cangma	cang ma
+13	7	n	129932089188662	129932090004661	0	cangman	cang man
+13	8	g	129932090056517	129932090863563	0	cangmang	cang mang
+13	9	d	129932090917202	129932093038543	4000000	cangmangd	cang mang d
+13	10	e	129932093095418	129932093958586	0	cangmangde	cang mang de
+13	11	t	129932094014188	129932108680646	16000000	cangmangdet	cang mang de t
+13	12	i	129932108768156	129932110029904	0	cangmangdeti	cang mang de ti
+13	13	a	129932110098115	129932111357460	0	cangmangdetia	cang mang de ti a
+13	14	n	129932111421124	129932112637185	4003000	cangmangdetian	cang mang de ti an
+13	15	y	129932112698095	129932123671264	7995000	cangmangdetiany	cang mang de tian y
+13	16	a	129932123741438	129932128219289	8005000	cangmangdetianya	cang mang de tian ya
+13	17	s	129932128294380	129932140117307	11998000	cangmangdetianyas	cang mang de tian ya s
+13	18	h	129932140186079	129932153530699	11998000	cangmangdetianyash	cang mang de tian ya sh
+13	19	i	129932153600783	129932155121665	0	cangmangdetianyashi	cang mang de tian ya shi
+13	20	w	129932155181544	129932166321750	12000000	cangmangdetianyashiw	cang mang de tian ya shi w
+13	21	o	129932166386406	129932167909912	0	cangmangdetianyashiwo	cang mang de tian ya shi wo
+13	22	d	129932167969430	129932179547014	11999000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+13	23	e	129932179620272	129932187585177	8000000	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+13	24	a	129932187657013	129932189253677	4006000	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+13	25	i	129932189312565	129932190770654	0	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+13	26	m	129932190828760	129932203053041	11994000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+13	27	i	129932203121122	129932204735943	4004000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+13	28	a	129932204796603	129932209935753	3998000	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+13	29	n	129932209994610	129932211629330	0	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+13	30	y	129932211689059	129932224520089	16003000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+13	31	a	129932224589772	129932226285794	0	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+13	32	n	129932226344521	129932228026902	3998000	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+13	33	d	129932228087692	129932243269713	11997000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+13	34	e	129932243338074	129932245258288	4003000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+13	35	q	129932245319829	129932266527803	19998000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+13	36	i	129932266600731	129932268569887	4004000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+13	37	n	129932268634893	129932270408029	0	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+13	38	g	129932270466696	129932272250497	4000000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+13	39	s	129932272309274	129932292452703	19988000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+13	40	h	129932292601643	129932322475240	27995000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+13	41	a	129932322588898	129932324985567	4002000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+13	42	n	129932325052115	129932327167157	0	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+13	43	j	129932327230501	129932357075225	31999000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+13	44	i	129932357155313	129932359579703	0	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+13	45	a	129932359643477	129932361744599	4005000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+13	46	o	129932361803586	129932364066216	3998000	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+13	47	x	129932364128568	129932401746523	35997000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+13	48	i	129932401841864	129932404845933	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+13	49	a	129932404916527	129932407593641	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+13	50	h	129932407673109	129932438310727	31983000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+13	51	u	129932438391517	129932441238292	4003000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+13	52	a	129932441300865	129932443909087	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+13	53	z	129932443972761	129932479869276	35999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+13	54	h	129932479951788	129932512118019	35989000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+13	55	e	129932512210366	129932515467408	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+13	56	n	129932515559134	129932518471507	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+13	57	g	129932518562772	129932521341677	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+13	58	k	129932521403929	129932557873533	35987000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+13	59	a	129932557957898	129932561098469	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+13	60	i	129932561164477	129932570893643	7999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+14	1	c	129932570970817	129932571988594	0	c	c
+14	2	a	129932572064947	129932572892422	0	ca	ca
+14	3	n	129932572946863	129932573850191	0	can	can
+14	4	g	129932573904852	129932574719087	0	cang	cang
+14	5	m	129932574773818	129932578745019	4000000	cangm	cang m
+14	6	a	129932578801332	129932579690119	0	cangma	cang ma
+14	7	n	129932579742296	129932580592375	4002000	cangman	cang man
+14	8	g	129932580646715	129932581385189	0	cangmang	cang mang
+14	9	d	129932581433911	129932583450848	0	cangmangd	cang mang d
+14	10	e	129932583536404	129932584446332	3999000	cangmangde	cang mang de
+14	11	t	129932584523266	129932594073558	7996000	cangmangdet	cang mang de t
+14	12	i	129932594140106	129932598974574	4002000	cangmangdeti	cang mang de ti
+14	13	a	129932599039591	129932600267709	4001000	cangmangdetia	cang mang de ti a
+14	14	n	129932600326046	129932601481416	0	cangmangdetian	cang mang de ti an
+14	15	y	129932601567995	129932612049366	11999000	cangmangdetiany	cang mang de tian y
+14	16	a	129932612115744	129932613378184	0	cangmangdetianya	cang mang de tian ya
+14	17	s	129932613433716	129932628855793	15999000	cangmangdetianyas	cang mang de tian ya s
+14	18	h	129932628920078	129932642344446	11809000	cangmangdetianyash	cang mang de tian ya sh
+14	19	i	129932642415622	129932643810167	0	cangmangdetianyashi	cang mang de tian ya shi
+14	20	w	129932643866881	129932655010993	12000000	cangmangdetianyashiw	cang mang de tian ya shi w
+14	21	o	129932655077221	129932656740344	4005000	cangmangdetianyashiwo	cang mang de tian ya shi wo
+14	22	d	129932656802546	129932668409743	12006000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+14	23	e	129932668476061	129932670019346	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+14	24	a	129932670077863	129932676382769	7995000	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+14	25	i	129932676444300	129932677854379	0	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+14	26	m	129932677910962	129932690797214	11997000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+14	27	i	129932690873087	129932692740612	3973000	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+14	28	a	129932692820450	129932694462431	0	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+14	29	n	129932694545694	129932699576464	4017000	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+14	30	y	129932699638696	129932713006592	15979000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+14	31	a	129932713076605	129932714804724	0	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+14	32	n	129932714865665	129932716555166	4006000	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+14	33	d	129932716616848	129932732030922	15999000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+14	34	e	129932732104852	129932733970675	0	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+14	35	q	129932734031965	129932750144234	15997000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+14	36	i	129932750214217	129932756632882	8000000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+14	37	n	129932756694804	129932758461650	0	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+14	38	g	129932758540437	129932760221957	4004000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+14	39	s	129932760278891	129932778882910	15995000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+14	40	h	129932778951592	129932801385361	23986000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+14	41	a	129932801462615	129932808546235	8002000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+14	42	n	129932808615868	129932810781355	0	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+14	43	j	129932810843176	129932840648502	31991000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+14	44	i	129932840728580	129932843070988	0	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+14	45	a	129932843136045	129932845361550	3998000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+14	46	o	129932845424013	129932847700373	0	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+14	47	x	129932847762475	129932878626949	31997000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+14	48	i	129932878742229	129932887342385	8001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+14	49	a	129932887412739	129932890096503	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+14	50	h	129932890160908	129932920426485	32002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+14	51	u	129932920528847	129932923432546	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+14	52	a	129932923521117	129932926157441	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+14	53	z	129932926222448	129932956954866	32000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+14	54	h	129932957034293	129932993133348	35996000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+14	55	e	129932993213116	129932996191406	4004000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+14	56	n	129932996271124	129932998897183	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+14	57	g	129932998986185	129933001654305	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+14	58	k	129933001718530	129933037417994	35984000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+14	59	a	129933037520025	129933040571694	4004000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+14	60	i	129933040634747	129933043372682	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+15	1	c	129933043445600	129933051917064	7997000	c	c
+15	2	a	129933051983272	129933052872679	4004000	ca	ca
+15	3	n	129933052926839	129933053879530	0	can	can
+15	4	g	129933053934691	129933054760745	0	cang	cang
+15	5	m	129933054814815	129933056764942	3999000	cangm	cang m
+15	6	a	129933056820545	129933060038670	4000000	cangma	cang ma
+15	7	n	129933060096726	129933060924091	0	cangman	cang man
+15	8	g	129933060974516	129933061778587	0	cangmang	cang mang
+15	9	d	129933061829021	129933063886428	0	cangmangd	cang mang d
+15	10	e	129933063941459	129933064841682	4003000	cangmangde	cang mang de
+15	11	t	129933064896504	129933074799278	7994000	cangmangdet	cang mang de t
+15	12	i	129933074863463	129933075975119	0	cangmangdeti	cang mang de ti
+15	13	a	129933076055027	129933080329256	4001000	cangmangdetia	cang mang de ti a
+15	14	n	129933080386671	129933081438108	0	cangmangdetian	cang mang de ti an
+15	15	y	129933081492299	129933091201295	7997000	cangmangdetiany	cang mang de tian y
+15	16	a	129933091263377	129933092415824	4005000	cangmangdetianya	cang mang de tian ya
+15	17	s	129933092471566	129933103946859	7995000	cangmangdetianyas	cang mang de tian ya s
+15	18	h	129933104035760	129933119915795	11995000	cangmangdetianyash	cang mang de tian ya sh
+15	19	i	129933119980591	129933121365091	4006000	cangmangdetianyashi	cang mang de tian ya shi
+15	20	w	129933121422116	129933132575221	11999000	cangmangdetianyashiw	cang mang de tian ya shi w
+15	21	o	129933132645004	129933134218685	0	cangmangdetianyashiwo	cang mang de tian ya shi wo
+15	22	d	129933134280396	129933146154239	11996000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+15	23	e	129933146221408	129933147810912	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+15	24	a	129933147871982	129933149358513	4007000	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+15	25	i	129933149419353	129933155967980	3994000	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+15	26	m	129933156054368	129933168241035	11999000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+15	27	i	129933168305430	129933169923977	0	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+15	28	a	129933169982183	129933171463877	0	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+15	29	n	129933171540781	129933173059680	4005000	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+15	30	y	129933173118698	129933188769783	15991000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+15	31	a	129933188836302	129933190450292	0	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+15	32	n	129933190530010	129933192119473	4004000	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+15	33	d	129933192175126	129933207463204	11997000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+15	34	e	129933207549011	129933209374624	4003000	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+15	35	q	129933209434673	129933225458131	15996000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+15	36	i	129933225552030	129933227461367	0	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+15	37	n	129933227555236	129933234200526	8001000	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+15	38	g	129933234260856	129933236091346	4002000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+15	39	s	129933236149853	129933255036379	15999000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+15	40	h	129933255115386	129933279585010	24001000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+15	41	a	129933279675424	129933282074146	4003000	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+15	42	n	129933282140885	129933289443599	7995000	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+15	43	j	129933289547062	129933319378006	28001000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+15	44	i	129933319457253	129933321916885	4001000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+15	45	a	129933321982162	129933324211794	4002000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+15	46	o	129933324277451	129933326554593	0	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+15	47	x	129933326617556	129933356169275	31998000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+15	48	i	129933356246059	129933358786110	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+15	49	a	129933358846199	129933366580642	8000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+15	50	h	129933366644146	129933397419538	31998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+15	51	u	129933397530973	129933400830839	4004000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+15	52	a	129933400900182	129933403653720	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+15	53	z	129933403747158	129933434842573	32006000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+15	54	h	129933434929832	129933473188576	39975000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+15	55	e	129933473275775	129933476687036	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+15	56	n	129933476753725	129933479727408	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+15	57	g	129933479792895	129933482639420	3999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+15	58	k	129933482702093	129933521587774	39999000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+15	59	a	129933521687612	129933525337016	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+15	60	i	129933525407621	129933528490596	4006000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai
+16	1	c	129933528623913	129933529694498	0	c	c
+16	2	a	129933529755108	129933538566446	7984000	ca	ca
+16	3	n	129933538633635	129933539613366	0	can	can
+16	4	g	129933539691232	129933540619086	4010000	cang	cang
+16	5	m	129933540676651	129933542734278	0	cangm	cang m
+16	6	a	129933542793425	129933543752445	0	cangma	cang ma
+16	7	n	129933543806325	129933547222093	3998000	cangman	cang man
+16	8	g	129933547277845	129933548141134	3997000	cangmang	cang mang
+16	9	d	129933548194343	129933550273772	0	cangmangd	cang mang d
+16	10	e	129933550331317	129933551230228	0	cangmangde	cang mang de
+16	11	t	129933551281224	129933561275142	12000000	cangmangdet	cang mang de t
+16	12	i	129933561342752	129933562459987	0	cangmangdeti	cang mang de ti
+16	13	a	129933562539685	129933563583671	0	cangmangdetia	cang mang de ti a
+16	14	n	129933563639323	129933568104395	8000000	cangmangdetian	cang mang de ti an
+16	15	y	129933568164034	129933578648759	7995000	cangmangdetiany	cang mang de tian y
+16	16	a	129933578714646	129933580117483	4006000	cangmangdetianya	cang mang de tian ya
+16	17	s	129933580180076	129933592278702	12002000	cangmangdetianyas	cang mang de tian ya s
+16	18	h	129933592347404	129933606911820	11993000	cangmangdetianyash	cang mang de tian ya sh
+16	19	i	129933607016645	129933614161766	8001000	cangmangdetianyashi	cang mang de tian ya shi
+16	20	w	129933614264528	129933626695316	11999000	cangmangdetianyashiw	cang mang de tian ya shi w
+16	21	o	129933626774814	129933628451276	4006000	cangmangdetianyashiwo	cang mang de tian ya shi wo
+16	22	d	129933628537784	129933640776566	11998000	cangmangdetianyashiwod	cang mang de tian ya shi wo d
+16	23	e	129933640847101	129933642582010	0	cangmangdetianyashiwode	cang mang de tian ya shi wo de
+16	24	a	129933642648639	129933644264502	4003000	cangmangdetianyashiwodea	cang mang de tian ya shi wo de a
+16	25	i	129933644328927	129933645828678	0	cangmangdetianyashiwodeai	cang mang de tian ya shi wo de ai
+16	26	m	129933645889588	129933664070459	19794000	cangmangdetianyashiwodeaim	cang mang de tian ya shi wo de ai m
+16	27	i	129933664142055	129933665823836	0	cangmangdetianyashiwodeaimi	cang mang de tian ya shi wo de ai mi
+16	28	a	129933665903654	129933667651112	0	cangmangdetianyashiwodeaimia	cang mang de tian ya shi wo de ai mi a
+16	29	n	129933667714235	129933669309448	4004000	cangmangdetianyashiwodeaimian	cang mang de tian ya shi wo de ai mian
+16	30	y	129933669367564	129933682416927	11994000	cangmangdetianyashiwodeaimiany	cang mang de tian ya shi wo de ai mian y
+16	31	a	129933682484958	129933687434257	4002000	cangmangdetianyashiwodeaimianya	cang mang de tian ya shi wo de ai mi an ya
+16	32	n	129933687521376	129933689312468	4002000	cangmangdetianyashiwodeaimianyan	cang mang de tian ya shi wo de ai mian yan
+16	33	d	129933689371155	129933705109630	15965000	cangmangdetianyashiwodeaimianyand	cang mang de tian ya shi wo de ai mian yan d
+16	34	e	129933705178592	129933707031937	0	cangmangdetianyashiwodeaimianyande	cang mang de tian ya shi wo de ai mian yan de
+16	35	q	129933707089462	129933723601393	15999000	cangmangdetianyashiwodeaimianyandeq	cang mang de tian ya shi wo de ai mi a n yan de q
+16	36	i	129933723684956	129933725886056	4006000	cangmangdetianyashiwodeaimianyandeqi	cang mang de tian ya shi wo de ai mian yan de qi
+16	37	n	129933725954267	129933727839308	0	cangmangdetianyashiwodeaimianyandeqin	cang mang de tian ya shi wo de ai mian yan de qin
+16	38	g	129933727901350	129933735494042	7996000	cangmangdetianyashiwodeaimianyandeqing	cang mang de tian ya shi wo de ai mian yan de qing
+16	39	s	129933735579359	129933754624841	20000000	cangmangdetianyashiwodeaimianyandeqings	cang mang de tian ya shi wo de ai mian yan de qing s
+16	40	h	129933754719632	129933777535678	24000000	cangmangdetianyashiwodeaimianyandeqingsh	cang mang de tian ya shi wo de ai mian yan de qing sh
+16	41	a	129933777613543	129933779825328	0	cangmangdetianyashiwodeaimianyandeqingsha	cang mang de tian ya shi wo de ai mian yan de qing sha
+16	42	n	129933779887160	129933781804459	4006000	cangmangdetianyashiwodeaimianyandeqingshan	cang mang de tian ya shi wo de ai mian yan de qing shan
+16	43	j	129933781866210	129933815872766	31995000	cangmangdetianyashiwodeaimianyandeqingshanj	cang mang de tian ya shi wo de ai mian yan de qing shan j
+16	44	i	129933815964241	129933818200873	4005000	cangmangdetianyashiwodeaimianyandeqingshanji	cang mang de tian ya shi wo de ai mian yan de qing shan ji
+16	45	a	129933818261353	129933820556191	3995000	cangmangdetianyashiwodeaimianyandeqingshanjia	cang mang de tian ya shi wo de ai mian yan de qing shan jia
+16	46	o	129933820805530	129933823038236	0	cangmangdetianyashiwodeaimianyandeqingshanjiao	cang mang de tian ya shi wo de ai mian yan de qing shan jiao
+16	47	x	129933823096623	129933854188493	31986000	cangmangdetianyashiwodeaimianyandeqingshanjiaox	cang mang de tian ya shi wo de ai mian yan de qing shan jiao x
+16	48	i	129933854270134	129933857190158	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxi	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xi
+16	49	a	129933857252040	129933859636160	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxia	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia
+16	50	h	129933859697191	129933896033266	40001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiah	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia h
+16	51	u	129933896115428	129933899011066	0	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahu	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hu
+16	52	a	129933899074029	129933901660329	4001000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahua	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua
+16	53	z	129933901721119	129933932745780	32000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuaz	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua z
+16	54	h	129933932826509	129933966287678	31995000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazh	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zh
+16	55	e	129933966374106	129933975326412	8005000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhe	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhe
+16	56	n	129933975395374	129933978429117	3998000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhen	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zhen
+16	57	g	129933978492190	129933981312086	4000000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazheng	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng
+16	58	k	129933981374779	129934019205808	35997000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengk	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng k
+16	59	a	129934019319647	129934022742185	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengka	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng ka
+16	60	i	129934022808904	129934025735948	4002000	cangmangdetianyashiwodeaimianyandeqingshanjiaoxiahuazhengkai	cang mang de tian ya shi wo de ai mian yan de qing shan jiao xia hua zheng kai

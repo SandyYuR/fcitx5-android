@@ -15,6 +15,8 @@
 | 数据恢复进程 | `restoreUiContext` 仅使用资源主题与系统深浅，不读取正在替换的偏好、数据库或启动原生引擎 |
 | 用户键盘画布 | 继续由用户键盘主题、布局和比例控制；辅助界面的一致性规则不能覆盖这些设置 |
 
+`PopupComponent` 复用已挂载的固定尺寸按键气泡，显隐和位置通过可见性与位移更新。`AutoScaleTextView` 在固定边界内重算文字缩放并重绘。主题字体变化刷新缓存，多指气泡按显示先后绘制。`PressPopupReuseTest` 检查文字、字体和重叠绘制。[气泡布局回放](../perf/input-fluency-2026-11-22/#气泡布局)
+
 颜色从 `SettingsUiPreferences` 的选择和 Material 颜色角色读取。Monet、手动色板、对比度、纯黑及跟随键盘取色共用现有设置，不另增一套自动主题状态。
 
 - 页面背景：`colorSurfaceContainer`；浮动面板：`colorSurfaceContainerHigh`。
