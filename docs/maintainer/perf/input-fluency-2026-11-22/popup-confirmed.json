@@ -1,0 +1,1183 @@
+{
+  "artifact_run": 45008329914,
+  "source": "6351ea1a1b2d26378ffbc0aef7776b1f126d22d3",
+  "apk_sha256": "97cb48c65e58581b7b5f6841d1286685889c9549e425c2c3e4de0220240bbe15",
+  "fixture": {
+    "schema_version": 1,
+    "recorded_utc": "2026-11-11",
+    "wanxiang_tag": "v18.1.10",
+    "base": {
+      "id": 720692646,
+      "name": "rime-wanxiang-base.zip",
+      "size": 25394477,
+      "digest": "sha256:ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
+      "browser_download_url": "https://github.com/amzxyz/rime-wanxiang/releases/download/v18.1.10/rime-wanxiang-base.zip",
+      "updated_at": "2026-11-07T12:47:31Z"
+    },
+    "model": {
+      "id": 719554076,
+      "name": "wanxiang-lts-zh-hans.gram",
+      "size": 418080812,
+      "digest": "sha256:769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a",
+      "browser_download_url": "https://github.com/amzxyz/rime-wanxiang-data/releases/download/LTS/wanxiang-lts-zh-hans.gram",
+      "updated_at": "2026-11-07T04:08:51Z"
+    },
+    "products": {
+      "fcitx": {
+        "commit": "5fb6bca3415107ebe088b98751109f5b4f644972",
+        "release": "nightly-0.1.3-715-g5fb6bca3-20261021-205826",
+        "asset": {
+          "id": 663773371,
+          "name": "org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+          "size": 11906742,
+          "digest": "sha256:f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
+          "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-715-g5fb6bca3-20261021-205826/org.fcitx.fcitx5.android.fx.rime-0.1.3-715-g5fb6bca3-arm64-v8a-release.apk",
+          "updated_at": "2026-10-21T20:58:32Z"
+        }
+      },
+      "direct": {
+        "commit": "2e48466efdb6bf600302eea1dae898acf0b3d18c",
+        "release": "nightly-0.1.3-802-g2e48466e-20261107-112347",
+        "asset": {
+          "id": 720494660,
+          "name": "direct.apk",
+          "size": 10238250,
+          "digest": "sha256:b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
+          "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-802-g2e48466e-20261107-112347/direct.apk",
+          "updated_at": "2026-11-07T11:23:53Z"
+        }
+      },
+      "current": {
+        "commit": "0380d70f16efb6a9946a164821d5cad7118ce4ff",
+        "release_commit": "090a43e1485b9a6d76a28a31a6503c41e3e3db29",
+        "release": "nightly-0.1.3-823-g090a43e1-20261110-142502",
+        "asset": {
+          "id": 731714993,
+          "name": "direct.apk",
+          "size": 10120461,
+          "digest": "sha256:0a96e27c8ee355e862bcf391804b55d22546062ebc9625ec91a397c8c22dca67",
+          "browser_download_url": "https://github.com/SandyYuR/fcitx5-android/releases/download/nightly-0.1.3-823-g090a43e1-20261110-142502/direct.apk",
+          "updated_at": "2026-11-10T14:25:09Z"
+        },
+        "runtime_equivalence": {
+          "changed_paths": [
+            "AGENTS.md",
+            "DESIGN.md",
+            "README.md"
+          ],
+          "verified_identical_paths": [
+            "app",
+            "direct-rime",
+            "native",
+            "build-logic",
+            "gradle",
+            "settings.gradle.kts",
+            "build.gradle.kts",
+            "gradle.properties"
+          ],
+          "note": "Default HEAD differs from the signed official APK only by documentation; do not relabel the APK commit."
+        }
+      }
+    },
+    "original_config_sha256": {
+      "wanxiang.custom.yaml": "42bf76351ceb6f2db87396ae13edf9d9914712a065a61cdf74c66c52900c1319",
+      "user.yaml": "dd82ae3dc637e850446eb6e4170d916bb3d628b08d85572096c6b4c62ccb9a57"
+    },
+    "comparison_order": [
+      "fcitx",
+      "direct",
+      "current"
+    ],
+    "verified_downloads": {
+      "base": {
+        "file": "upstream-base.zip",
+        "sha256": "ddebf0372a2a3d9d8f7a5017704b2afd7397a961c32be490a91e49ec3ee90999",
+        "asset_id": 720692646
+      },
+      "model": {
+        "file": "wanxiang-lts-zh-hans.gram",
+        "sha256": "769854c83f6c914a05a1e1abb67c31c00f1ae622a41878e05957bcdee3dbda9a",
+        "asset_id": 719554076
+      },
+      "fcitx": {
+        "file": "fcitx.apk",
+        "sha256": "f608e0bfd75b0a7b3a4822ee65ffa5113bea3fa630309d318c63d34eb6bc1922",
+        "asset_id": 663773371
+      },
+      "direct": {
+        "file": "direct.apk",
+        "sha256": "b6fe5e8eec09dc09fd876af39ed609db83871fd9743168880ca92deb0b700878",
+        "asset_id": 720494660
+      },
+      "current": {
+        "file": "current.apk",
+        "sha256": "0a96e27c8ee355e862bcf391804b55d22546062ebc9625ec91a397c8c22dca67",
+        "asset_id": 731714993
+      }
+    },
+    "fixture_sha256": "333e0a0c8c9beb8a942bd56d3f9c55f1c9123836635a4663744e23f21228404f",
+    "restored_model_source": null,
+    "runtime_user_sha256": "ac3b6b2da6ebc3318a35c2c2ff2a2e903a6247fa5d05dbcabb6db9462936e74f",
+    "runtime_adjustment": "Only add context_reorder: true to the saved user options, as in the original comparison."
+  },
+  "wanxiang": {
+    "products": [
+      "direct"
+    ],
+    "schema_differences": [],
+    "default_differences": [],
+    "source_changes": {
+      "direct": []
+    },
+    "seeded_option_differences": {
+      "direct": {}
+    },
+    "verified": true
+  },
+  "trials": [
+    {
+      "case": "fluency-60-1-popup",
+      "cadence_ms": 60,
+      "pair": 1,
+      "mode": "popup",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 5588,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Original",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 3879.45,
+      "letter_count": 60,
+      "hold_min_ms": 22.04,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 3536.78,
+        "p50_ms": 60.06,
+        "p95_ms": 85.04
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 2261.02,
+        "p50_ms": 22.82,
+        "p95_ms": 124.44
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1935.34,
+        "p50_ms": 18.96,
+        "p95_ms": 106.26
+      },
+      "slices": {
+        "traversal": {
+          "count": 60,
+          "sum_ms": 2736.58,
+          "p50_ms": 38.52,
+          "p95_ms": 100.63
+        },
+        "layout": {
+          "count": 58,
+          "sum_ms": 329.33,
+          "p50_ms": 0.08,
+          "p95_ms": 22.41
+        },
+        "measure": {
+          "count": 58,
+          "sum_ms": 136.06,
+          "p50_ms": 0.78,
+          "p95_ms": 11.24
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 79,
+          "sum_ms": 3188.54,
+          "p50_ms": 6.55,
+          "p95_ms": 247.77
+        },
+        "updateCandidates": {
+          "count": 42,
+          "sum_ms": 6.25,
+          "p50_ms": 0.03,
+          "p95_ms": 0.1
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#346"
+      ],
+      "frames": 60,
+      "missed": 56,
+      "missed_percent": 93.33,
+      "frame_wall": {
+        "count": 60,
+        "sum_ms": 5950.61,
+        "p50_ms": 83.47,
+        "p95_ms": 163.7
+      }
+    },
+    {
+      "case": "fluency-60-1-popup-quick",
+      "cadence_ms": 60,
+      "pair": 1,
+      "mode": "popup-quick",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 5955,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Reused",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 3883.33,
+      "letter_count": 60,
+      "hold_min_ms": 22.05,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 3539.07,
+        "p50_ms": 60.0,
+        "p95_ms": 70.14
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 2032.74,
+        "p50_ms": 22.98,
+        "p95_ms": 100.5
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1699.7,
+        "p50_ms": 16.61,
+        "p95_ms": 92.54
+      },
+      "slices": {
+        "traversal": {
+          "count": 70,
+          "sum_ms": 2475.12,
+          "p50_ms": 29.62,
+          "p95_ms": 78.86
+        },
+        "layout": {
+          "count": 60,
+          "sum_ms": 347.66,
+          "p50_ms": 1.41,
+          "p95_ms": 16.89
+        },
+        "measure": {
+          "count": 60,
+          "sum_ms": 177.3,
+          "p50_ms": 1.04,
+          "p95_ms": 10.42
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 86,
+          "sum_ms": 2971.73,
+          "p50_ms": 7.09,
+          "p95_ms": 197.74
+        },
+        "updateCandidates": {
+          "count": 47,
+          "sum_ms": 2.65,
+          "p50_ms": 0.04,
+          "p95_ms": 0.1
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#395"
+      ],
+      "frames": 70,
+      "missed": 63,
+      "missed_percent": 90.0,
+      "frame_wall": {
+        "count": 69,
+        "sum_ms": 5587.5,
+        "p50_ms": 76.52,
+        "p95_ms": 126.2
+      }
+    },
+    {
+      "case": "fluency-60-1-popup-fixed",
+      "cadence_ms": 60,
+      "pair": 1,
+      "mode": "popup-fixed",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 6310,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 3882.22,
+      "letter_count": 60,
+      "hold_min_ms": 22.05,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 3540.17,
+        "p50_ms": 59.97,
+        "p95_ms": 69.11
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 1407.15,
+        "p50_ms": 14.93,
+        "p95_ms": 74.92
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1627.02,
+        "p50_ms": 17.88,
+        "p95_ms": 69.19
+      },
+      "slices": {
+        "traversal": {
+          "count": 71,
+          "sum_ms": 2552.48,
+          "p50_ms": 29.54,
+          "p95_ms": 78.32
+        },
+        "layout": {
+          "count": 33,
+          "sum_ms": 285.92,
+          "p50_ms": 8.29,
+          "p95_ms": 14.4
+        },
+        "measure": {
+          "count": 33,
+          "sum_ms": 154.53,
+          "p50_ms": 1.66,
+          "p95_ms": 15.42
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 90,
+          "sum_ms": 2972.12,
+          "p50_ms": 7.96,
+          "p95_ms": 175.71
+        },
+        "updateCandidates": {
+          "count": 49,
+          "sum_ms": 11.5,
+          "p50_ms": 0.04,
+          "p95_ms": 0.14
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#443"
+      ],
+      "frames": 71,
+      "missed": 63,
+      "missed_percent": 88.73,
+      "frame_wall": {
+        "count": 70,
+        "sum_ms": 5661.8,
+        "p50_ms": 73.88,
+        "p95_ms": 138.25
+      }
+    },
+    {
+      "case": "fluency-60-2-popup-fixed",
+      "cadence_ms": 60,
+      "pair": 2,
+      "mode": "popup-fixed",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 6674,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 3956.56,
+      "letter_count": 60,
+      "hold_min_ms": 22.04,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 3614.35,
+        "p50_ms": 60.0,
+        "p95_ms": 96.06
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 1506.39,
+        "p50_ms": 14.29,
+        "p95_ms": 88.26
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1371.86,
+        "p50_ms": 12.74,
+        "p95_ms": 68.52
+      },
+      "slices": {
+        "traversal": {
+          "count": 75,
+          "sum_ms": 2402.54,
+          "p50_ms": 25.47,
+          "p95_ms": 83.24
+        },
+        "layout": {
+          "count": 32,
+          "sum_ms": 275.5,
+          "p50_ms": 7.77,
+          "p95_ms": 24.11
+        },
+        "measure": {
+          "count": 32,
+          "sum_ms": 142.07,
+          "p50_ms": 2.02,
+          "p95_ms": 16.49
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 86,
+          "sum_ms": 3067.27,
+          "p50_ms": 5.69,
+          "p95_ms": 191.22
+        },
+        "updateCandidates": {
+          "count": 47,
+          "sum_ms": 1.77,
+          "p50_ms": 0.03,
+          "p95_ms": 0.09
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#491"
+      ],
+      "frames": 75,
+      "missed": 62,
+      "missed_percent": 82.67,
+      "frame_wall": {
+        "count": 72,
+        "sum_ms": 5266.69,
+        "p50_ms": 62.51,
+        "p95_ms": 174.44
+      }
+    },
+    {
+      "case": "fluency-60-2-popup-quick",
+      "cadence_ms": 60,
+      "pair": 2,
+      "mode": "popup-quick",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 7021,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Reused",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 3883.26,
+      "letter_count": 60,
+      "hold_min_ms": 22.04,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 3539.64,
+        "p50_ms": 59.97,
+        "p95_ms": 84.67
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 1802.74,
+        "p50_ms": 16.02,
+        "p95_ms": 88.11
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1674.28,
+        "p50_ms": 16.43,
+        "p95_ms": 77.82
+      },
+      "slices": {
+        "traversal": {
+          "count": 70,
+          "sum_ms": 2495.62,
+          "p50_ms": 26.9,
+          "p95_ms": 87.64
+        },
+        "layout": {
+          "count": 55,
+          "sum_ms": 322.91,
+          "p50_ms": 3.27,
+          "p95_ms": 18.36
+        },
+        "measure": {
+          "count": 55,
+          "sum_ms": 142.72,
+          "p50_ms": 1.03,
+          "p95_ms": 11.52
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 91,
+          "sum_ms": 3103.24,
+          "p50_ms": 8.08,
+          "p95_ms": 180.97
+        },
+        "updateCandidates": {
+          "count": 49,
+          "sum_ms": 7.87,
+          "p50_ms": 0.03,
+          "p95_ms": 0.12
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#539"
+      ],
+      "frames": 70,
+      "missed": 61,
+      "missed_percent": 87.14,
+      "frame_wall": {
+        "count": 70,
+        "sum_ms": 5771.43,
+        "p50_ms": 71.41,
+        "p95_ms": 125.21
+      }
+    },
+    {
+      "case": "fluency-60-2-popup",
+      "cadence_ms": 60,
+      "pair": 2,
+      "mode": "popup",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 7370,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Original",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 3881.7,
+      "letter_count": 60,
+      "hold_min_ms": 22.04,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 3539.54,
+        "p50_ms": 60.08,
+        "p95_ms": 74.44
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 1732.56,
+        "p50_ms": 18.22,
+        "p95_ms": 108.8
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1488.57,
+        "p50_ms": 14.17,
+        "p95_ms": 87.89
+      },
+      "slices": {
+        "traversal": {
+          "count": 77,
+          "sum_ms": 2417.61,
+          "p50_ms": 26.37,
+          "p95_ms": 77.43
+        },
+        "layout": {
+          "count": 74,
+          "sum_ms": 317.55,
+          "p50_ms": 0.07,
+          "p95_ms": 17.46
+        },
+        "measure": {
+          "count": 74,
+          "sum_ms": 141.35,
+          "p50_ms": 0.55,
+          "p95_ms": 9.39
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 85,
+          "sum_ms": 2863.25,
+          "p50_ms": 7.22,
+          "p95_ms": 153.18
+        },
+        "updateCandidates": {
+          "count": 46,
+          "sum_ms": 2.16,
+          "p50_ms": 0.03,
+          "p95_ms": 0.1
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#587"
+      ],
+      "frames": 77,
+      "missed": 69,
+      "missed_percent": 89.61,
+      "frame_wall": {
+        "count": 77,
+        "sum_ms": 5543.51,
+        "p50_ms": 64.12,
+        "p95_ms": 142.68
+      }
+    },
+    {
+      "case": "fluency-35-1-popup",
+      "cadence_ms": 35,
+      "pair": 1,
+      "mode": "popup",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 7728,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Original",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 2413.36,
+      "letter_count": 60,
+      "hold_min_ms": 22.03,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 2067.31,
+        "p50_ms": 34.82,
+        "p95_ms": 46.85
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 1704.45,
+        "p50_ms": 19.73,
+        "p95_ms": 81.9
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1571.23,
+        "p50_ms": 16.5,
+        "p95_ms": 89.18
+      },
+      "slices": {
+        "traversal": {
+          "count": 43,
+          "sum_ms": 1487.36,
+          "p50_ms": 26.27,
+          "p95_ms": 84.48
+        },
+        "layout": {
+          "count": 41,
+          "sum_ms": 240.45,
+          "p50_ms": 3.79,
+          "p95_ms": 17.28
+        },
+        "measure": {
+          "count": 41,
+          "sum_ms": 108.42,
+          "p50_ms": 0.93,
+          "p95_ms": 8.58
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 71,
+          "sum_ms": 2004.29,
+          "p50_ms": 6.16,
+          "p95_ms": 153.55
+        },
+        "updateCandidates": {
+          "count": 39,
+          "sum_ms": 1.76,
+          "p50_ms": 0.04,
+          "p95_ms": 0.14
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#635"
+      ],
+      "frames": 43,
+      "missed": 37,
+      "missed_percent": 86.05,
+      "frame_wall": {
+        "count": 41,
+        "sum_ms": 3303.11,
+        "p50_ms": 72.32,
+        "p95_ms": 129.13
+      }
+    },
+    {
+      "case": "fluency-35-1-popup-quick",
+      "cadence_ms": 35,
+      "pair": 1,
+      "mode": "popup-quick",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 8068,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Reused",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 2412.21,
+      "letter_count": 60,
+      "hold_min_ms": 22.03,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 2070.17,
+        "p50_ms": 34.9,
+        "p95_ms": 51.26
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 2409.03,
+        "p50_ms": 28.69,
+        "p95_ms": 129.07
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 2078.4,
+        "p50_ms": 24.83,
+        "p95_ms": 111.19
+      },
+      "slices": {
+        "traversal": {
+          "count": 42,
+          "sum_ms": 1684.45,
+          "p50_ms": 34.02,
+          "p95_ms": 75.17
+        },
+        "layout": {
+          "count": 38,
+          "sum_ms": 226.74,
+          "p50_ms": 0.13,
+          "p95_ms": 22.13
+        },
+        "measure": {
+          "count": 38,
+          "sum_ms": 118.13,
+          "p50_ms": 1.02,
+          "p95_ms": 14.92
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 71,
+          "sum_ms": 2120.45,
+          "p50_ms": 5.35,
+          "p95_ms": 184.7
+        },
+        "updateCandidates": {
+          "count": 37,
+          "sum_ms": 1.22,
+          "p50_ms": 0.03,
+          "p95_ms": 0.06
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#680"
+      ],
+      "frames": 42,
+      "missed": 35,
+      "missed_percent": 83.33,
+      "frame_wall": {
+        "count": 41,
+        "sum_ms": 3670.39,
+        "p50_ms": 85.21,
+        "p95_ms": 152.82
+      }
+    },
+    {
+      "case": "fluency-35-1-popup-fixed",
+      "cadence_ms": 35,
+      "pair": 1,
+      "mode": "popup-fixed",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 8397,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 2428.98,
+      "letter_count": 60,
+      "hold_min_ms": 22.03,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 2085.31,
+        "p50_ms": 34.63,
+        "p95_ms": 59.92
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 2089.35,
+        "p50_ms": 24.58,
+        "p95_ms": 115.6
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1898.21,
+        "p50_ms": 19.52,
+        "p95_ms": 92.34
+      },
+      "slices": {
+        "traversal": {
+          "count": 41,
+          "sum_ms": 1518.08,
+          "p50_ms": 32.42,
+          "p95_ms": 74.7
+        },
+        "layout": {
+          "count": 24,
+          "sum_ms": 230.96,
+          "p50_ms": 7.21,
+          "p95_ms": 26.95
+        },
+        "measure": {
+          "count": 24,
+          "sum_ms": 115.94,
+          "p50_ms": 3.99,
+          "p95_ms": 12.65
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 71,
+          "sum_ms": 2126.04,
+          "p50_ms": 4.99,
+          "p95_ms": 140.34
+        },
+        "updateCandidates": {
+          "count": 39,
+          "sum_ms": 3.22,
+          "p50_ms": 0.04,
+          "p95_ms": 0.14
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#727"
+      ],
+      "frames": 41,
+      "missed": 36,
+      "missed_percent": 87.8,
+      "frame_wall": {
+        "count": 41,
+        "sum_ms": 3554.82,
+        "p50_ms": 73.51,
+        "p95_ms": 138.52
+      }
+    },
+    {
+      "case": "fluency-35-2-popup-fixed",
+      "cadence_ms": 35,
+      "pair": 2,
+      "mode": "popup-fixed",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 8751,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Fixed",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 2415.02,
+      "letter_count": 60,
+      "hold_min_ms": 22.03,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 2068.78,
+        "p50_ms": 35.04,
+        "p95_ms": 49.76
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 2202.54,
+        "p50_ms": 18.12,
+        "p95_ms": 159.58
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1874.84,
+        "p50_ms": 16.9,
+        "p95_ms": 137.29
+      },
+      "slices": {
+        "traversal": {
+          "count": 43,
+          "sum_ms": 1226.91,
+          "p50_ms": 20.31,
+          "p95_ms": 45.46
+        },
+        "layout": {
+          "count": 21,
+          "sum_ms": 152.12,
+          "p50_ms": 6.31,
+          "p95_ms": 15.72
+        },
+        "measure": {
+          "count": 21,
+          "sum_ms": 92.05,
+          "p50_ms": 2.49,
+          "p95_ms": 11.99
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 57,
+          "sum_ms": 1888.21,
+          "p50_ms": 6.46,
+          "p95_ms": 159.04
+        },
+        "updateCandidates": {
+          "count": 33,
+          "sum_ms": 1.18,
+          "p50_ms": 0.04,
+          "p95_ms": 0.07
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#776"
+      ],
+      "frames": 43,
+      "missed": 36,
+      "missed_percent": 83.72,
+      "frame_wall": {
+        "count": 43,
+        "sum_ms": 3095.66,
+        "p50_ms": 57.68,
+        "p95_ms": 100.17
+      }
+    },
+    {
+      "case": "fluency-35-2-popup-quick",
+      "cadence_ms": 35,
+      "pair": 2,
+      "mode": "popup-quick",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 9082,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Reused",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 2419.91,
+      "letter_count": 60,
+      "hold_min_ms": 22.03,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 2071.35,
+        "p50_ms": 33.97,
+        "p95_ms": 61.48
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 2178.1,
+        "p50_ms": 23.9,
+        "p95_ms": 103.4
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 2176.24,
+        "p50_ms": 22.69,
+        "p95_ms": 108.24
+      },
+      "slices": {
+        "traversal": {
+          "count": 41,
+          "sum_ms": 1504.48,
+          "p50_ms": 25.16,
+          "p95_ms": 107.89
+        },
+        "layout": {
+          "count": 36,
+          "sum_ms": 208.34,
+          "p50_ms": 3.88,
+          "p95_ms": 31.59
+        },
+        "measure": {
+          "count": 36,
+          "sum_ms": 75.45,
+          "p50_ms": 1.04,
+          "p95_ms": 5.95
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 65,
+          "sum_ms": 1769.71,
+          "p50_ms": 5.13,
+          "p95_ms": 152.26
+        },
+        "updateCandidates": {
+          "count": 37,
+          "sum_ms": 5.47,
+          "p50_ms": 0.04,
+          "p95_ms": 0.27
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#824"
+      ],
+      "frames": 41,
+      "missed": 34,
+      "missed_percent": 82.93,
+      "frame_wall": {
+        "count": 39,
+        "sum_ms": 3309.79,
+        "p50_ms": 75.28,
+        "p95_ms": 233.17
+      }
+    },
+    {
+      "case": "fluency-35-2-popup",
+      "cadence_ms": 35,
+      "pair": 2,
+      "mode": "popup",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "pid": 9445,
+      "preferences": [
+        [
+          "true",
+          "false",
+          "Original",
+          "false"
+        ]
+      ],
+      "valid": true,
+      "validation_errors": [],
+      "losses": [],
+      "window_ms": 2409.46,
+      "letter_count": 60,
+      "hold_min_ms": 22.03,
+      "injection_spacing": {
+        "count": 59,
+        "sum_ms": 2065.45,
+        "p50_ms": 34.97,
+        "p95_ms": 45.17
+      },
+      "down_delivery": {
+        "count": 60,
+        "sum_ms": 1844.61,
+        "p50_ms": 15.66,
+        "p95_ms": 107.51
+      },
+      "up_delivery": {
+        "count": 60,
+        "sum_ms": 1796.55,
+        "p50_ms": 20.33,
+        "p95_ms": 115.02
+      },
+      "slices": {
+        "traversal": {
+          "count": 45,
+          "sum_ms": 1526.89,
+          "p50_ms": 29.03,
+          "p95_ms": 66.04
+        },
+        "layout": {
+          "count": 43,
+          "sum_ms": 295.64,
+          "p50_ms": 0.37,
+          "p95_ms": 27.65
+        },
+        "measure": {
+          "count": 43,
+          "sum_ms": 123.88,
+          "p50_ms": 0.9,
+          "p95_ms": 10.48
+        },
+        "fluency.ripple.draw": null,
+        "rime.direct.process_key": {
+          "count": 66,
+          "sum_ms": 2031.62,
+          "p50_ms": 5.29,
+          "p95_ms": 163.25
+        },
+        "updateCandidates": {
+          "count": 36,
+          "sum_ms": 1.24,
+          "p50_ms": 0.03,
+          "p95_ms": 0.07
+        },
+        "DrawFrames": null
+      },
+      "layers_seen": [
+        "TX - InputMethod#872"
+      ],
+      "frames": 45,
+      "missed": 38,
+      "missed_percent": 84.44,
+      "frame_wall": {
+        "count": 44,
+        "sum_ms": 3425.76,
+        "p50_ms": 67.29,
+        "p95_ms": 116.61
+      }
+    }
+  ]
+}

@@ -10,6 +10,8 @@
 
 `InputKeyGate` 的 ticket 在排队之前取得。只在 native 调用前检查当前编辑器，无法分辨“先进入队列的旧按键”与“新编辑器的按键”；ticket、generation 和候选版本共同解决这个问题。维护、停止或新编辑器会使旧请求失效，不能为提高吞吐绕过校验。
 
+`FcitxInputMethodService` 使用单个 FIFO Channel 串联服务任务。队列消费者在 `rime-main` 上逐项 `join`，各任务在出队后启动。按键、候选点选和音节标签与消费者使用同一个 owner 调度器，绑定等普通操作在生命周期作用域执行。等待 Ready 的任务恢复时经 owner 队列派发，使就绪回调和 Ready 事件先完成。引擎结果由原事件排空协程交付至主线程。[PR #50](https://github.com/SandyYuR/fcitx5-android/pull/50) · [顺序回归与调度对照](../perf/input-fluency-2026-11-22/#输入任务排队)
+
 JNI 返回的 `Snapshot` 同时包含本次 commit 和对应展示。提交先成为有序事件，再由原输入连接交付；刷新界面不能重放旧 commit，也不能提前拿候选文字替代引擎真正提交。
 
 ## 谁拥有状态
@@ -52,6 +54,8 @@ JNI 返回的 `Snapshot` 同时包含本次 commit 和对应展示。提交先�
 重部署不能只销毁 session：Lua `require()` 缓存和组件持有的配置、数据库可能仍在运行时中。文件更新的暂存准备可以提前完成，安装/重开数据库的关键部分仍须受到维护协议保护。详细文件事务见[恢复事务](./user-data-restore.md)及[引擎更新](../engine-update.md)。
 
 ## 缓存与可观测性
+
+`DirectRimeAssetPrewarmer` 在键盘显示后延迟 200 ms 获取生效方案的语法模型和主词典路径，按 profile 优先、共享目录回退的顺序定位原文件。低优先级 I/O 使用 `mincore` 判断驻留，按可用内存预算分块读取缺失页，最大读入预算为 512 MiB。实际输入、窗口隐藏及状态失效会取消任务。缓存由内核回收，低内存、省电或高热状态会跳过预热。[冷缓存、预热与资源实测](../perf/cyime-wanxiang-2026-11-21/#冷缓存与预热)
 
 native 只缓存稳定的 `schema_id`、`schema_name`、`ascii_mode`，键包含 generation、session 和 `optionsRevision`，读取前后复查版本。`read_status` span 每次出现，不等于每次都实际调用 `get_status`；真正的调用另有 `rime.direct.get_status` 标记。
 

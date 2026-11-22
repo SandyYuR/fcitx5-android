@@ -1,0 +1,32 @@
+{
+  "storage": "host overlayfs, synthetic file only",
+  "tests": [
+    {
+      "method": "fadvise_all",
+      "requested_mib": 96,
+      "resident_mib_before": 0.0,
+      "resident_mib_at_return": 0.0,
+      "resident_mib_at_300ms": 8.0,
+      "wall_ms": 2.56,
+      "caller_cpu_ms": 0.18
+    },
+    {
+      "method": "fadvise_2MiB_chunks",
+      "requested_mib": 96,
+      "resident_mib_before": 0.0,
+      "resident_mib_at_return": 6.0,
+      "resident_mib_at_300ms": 96.0,
+      "wall_ms": 16.3,
+      "caller_cpu_ms": 4.99
+    },
+    {
+      "method": "pread_2MiB_chunks",
+      "requested_mib": 96,
+      "resident_mib_before": 0.0,
+      "resident_mib_at_return": 96.0,
+      "resident_mib_at_300ms": 96.0,
+      "wall_ms": 217.64,
+      "caller_cpu_ms": 56.53
+    }
+  ]
+}

@@ -132,6 +132,8 @@ const maintenance = [
   { text: '中州鹅 · 历史与证据', collapsed: true, items: [
     { text: '直连版历史阅读路线', link: '/maintainer/history/' },
     { text: '全部验证与性能记录', link: '/maintainer/evidence' },
+    { text: '2026-11-22 气泡、输入调度与长句 CPU', link: '/maintainer/perf/input-fluency-2026-11-22/' },
+    { text: '2026-11-21 CyIME 同方案与冷缓存', link: '/maintainer/perf/cyime-wanxiang-2026-11-21/' },
     { text: '2026-11-14 职责拆分性能对照', link: '/maintainer/history/direct-rime-refactor-performance-2026-11-14' },
     { text: '2026-11-10 输入链路可靠性与优化', link: '/maintainer/history/input-reliability-2026-11-10' },
     { text: '2026-11-06 直连层与同类项目审阅', link: '/maintainer/history/direct-rime-review-2026-11-06' },

@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-21",
+  "workflow_run": 44904395735,
+  "source": "4f6866a2427e7c61c83a7a591a2b253f6ff4a22e",
+  "trials": [
+    {
+      "case": "app-prewarm-idle",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "location": "external",
+      "guest_page_cache_dropped": true,
+      "ready_to_first_touch_ms": 3118.7,
+      "app_prewarm": [
+        {
+          "bytes": 472381484,
+          "cancelled": false
+        }
+      ],
+      "mapped_model": "/storage/emulated/0/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/wanxiang-lts-zh-hans.gram",
+      "first_key_release_to_native_ms": 6.75,
+      "first_key_process_ms": 42.76,
+      "process_key_p95_ms": 74.25,
+      "process_key_max_ms": 147.85,
+      "trace_loss": []
+    },
+    {
+      "case": "app-prewarm-immediate",
+      "observed_text": "苍茫的天涯是我的爱绵延的青山脚下花正开",
+      "exact_commit": true,
+      "location": "external",
+      "guest_page_cache_dropped": true,
+      "ready_to_first_touch_ms": 48.83,
+      "app_prewarm": [
+        {
+          "bytes": 190042112,
+          "cancelled": true
+        }
+      ],
+      "mapped_model": "/storage/emulated/0/Android/data/org.fcitx.fcitx5.android.fx.rime/files/data/rime/wanxiang-lts-zh-hans.gram",
+      "first_key_release_to_native_ms": 19.17,
+      "first_key_process_ms": 51.26,
+      "process_key_p95_ms": 85.02,
+      "process_key_max_ms": 319.25,
+      "trace_loss": []
+    }
+  ]
+}
