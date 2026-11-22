@@ -67,6 +67,6 @@ class PopupEntryUi(override val ctx: Context, theme: Theme, keyHeight: Int, radi
 
     fun setText(text: String) {
         refreshConfiguredFontIfNeeded()
-        textView.text = text
+        textView.setTextInFixedBounds(text)
     }
 }
