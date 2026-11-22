@@ -34,15 +34,14 @@ class CandidateSelectionQueueTest {
         val publicationState: DirectRimePublicationState = ReflectionHelpers.getField(backend, "publicationState")
         FcitxDaemonTestShadow.install(CandidateQueueDaemonDelegate(backend))
         val owner: ExecutorCoroutineDispatcher = ReflectionHelpers.getField(backend, "owner")
+        val ownerScope: CoroutineScope = ReflectionHelpers.getField(backend, "engineScope")
+        val registry: FcitxLifecycleRegistry = ReflectionHelpers.getField(backend, "registry")
         val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
         val jobs: Channel<Job> = ReflectionHelpers.getField(service, "jobs")
         var queueConsumer: Job? = null
         try {
             ReflectionHelpers.setField(backend, "started", true)
             ReflectionHelpers.setField(backend, "schemas", listOf("fixture" to "Fixture"))
-            ReflectionHelpers.getField<FcitxLifecycleRegistry>(backend, "registry").apply {
-                postEvent(FcitxLifecycle.Event.ON_START); postEvent(FcitxLifecycle.Event.ON_READY)
-            }
             val generation = backend.invalidateInputSession()
             backend.prepareInputSession(generation, "editor", CapabilityFlags.DefaultFlags, true)
             ReflectionHelpers.getField<InputKeyGate>(backend, "keyGate").apply {
@@ -50,9 +49,13 @@ class CandidateSelectionQueueTest {
             }
             CandidateSelectionNativeShadow.reset(generation)
             NativeTestShadow.delegate = CandidateSelectionNativeShadow()
+            val waitingForReady = CompletableDeferred<Unit>()
             val connection = object : FcitxConnection {
                 override fun <T> runImmediately(block: suspend FcitxAPI.() -> T): T = runBlocking { block(backend) }
-                override suspend fun <T> runOnReady(block: suspend FcitxAPI.() -> T): T = block(backend)
+                override suspend fun <T> runOnReady(block: suspend FcitxAPI.() -> T): T {
+                    waitingForReady.complete(Unit)
+                    return registry.whenReady { block(backend) }
+                }
                 override fun runIfReady(block: suspend FcitxAPI.() -> Unit) { backend.lifeCycleScope.launch { block(backend) } }
                 override val lifecycleScope get() = backend.lifeCycleScope
                 override val interactiveDispatcher get() = backend.interactiveDispatcher
@@ -64,7 +67,26 @@ class CandidateSelectionQueueTest {
                 val event: FcitxEvent.PagedCandidateEvent = ReflectionHelpers.getField(publicationState, "candidateEventCached")
                 return requireNotNull(event.data.candidates[0].selectionTarget)
             }
-            backend.sendKey('n', 0u, 0, false, 0)
+            val startupOrder = mutableListOf<String>()
+            val readyPublished = CompletableDeferred<Unit>()
+            val lifecycle = EngineLifecycleController(
+                ownerScope, registry, onStarting = {}, initialize = {}, onReady = {},
+                onStopping = {}, finalize = {}, afterReady = {
+                    startupOrder += "ready"
+                    readyPublished.complete(Unit)
+                }
+            )
+            val firstKey = service.postFcitxKeyJob {
+                startupOrder += "key"
+                sendKey('n', 0u, 0, false, 0)
+            }
+            withTimeout(5_000) {
+                waitingForReady.await()
+                lifecycle.start()
+                readyPublished.await()
+                firstKey.awaitServiceCompletion()
+            }
+            assertEquals(listOf("ready", "key"), startupOrder)
             val old = displayedTarget()
             val oldTab = requireNotNull(backend.inputPanelCached.tabs.single().tabTarget)
             val key = service.postFcitxKeyJob { sendKey('x', 0u, 0, false, 0) }
@@ -105,7 +127,7 @@ class CandidateSelectionQueueTest {
             queueConsumer?.cancelAndJoin()
             backend.lifeCycleScope.coroutineContext[Job]?.cancelAndJoin()
             ReflectionHelpers.setField(backend, "started", false)
-            ReflectionHelpers.getField<CoroutineScope>(backend, "engineScope").cancel()
+            ownerScope.cancel()
             val events = ReflectionHelpers.getField<InputEventQueue>(backend, "events")
             ReflectionHelpers.getField<Channel<Unit>>(events, "available").cancel()
             owner.close()

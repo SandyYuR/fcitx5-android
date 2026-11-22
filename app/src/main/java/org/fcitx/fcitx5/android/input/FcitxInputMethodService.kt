@@ -61,7 +61,6 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import kotlin.coroutines.EmptyCoroutineContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.BuildConfig
@@ -805,17 +804,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
-    internal fun startFcitxJobQueue(): Job {
-        val dispatcher = fcitx.interactiveDispatcher
-        return lifecycleScope.launch(dispatcher ?: Dispatchers.Default) {
-            jobs.consumeEach { job ->
-                job.join()
-                // A burst of already buffered keys must leave the native owner
-                // a turn for paging, input invalidation and maintenance.
-                if (dispatcher != null) yield()
-            }
+    internal fun startFcitxJobQueue(): Job =
+        lifecycleScope.launch(fcitx.interactiveDispatcher ?: Dispatchers.Default) {
+            jobs.consumeEach { it.join() }
         }
-    }
 
     override fun onCreate() {
         val startedAt = SystemClock.elapsedRealtime()

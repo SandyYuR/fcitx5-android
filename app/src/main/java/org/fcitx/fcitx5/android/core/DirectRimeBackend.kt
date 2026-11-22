@@ -23,24 +23,15 @@ import timber.log.Timber
 import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.coroutines.ContinuationInterceptor
-import kotlin.coroutines.CoroutineContext
 
 /** Original frontend contract implemented directly on librime's single owner thread. */
 class DirectRimeBackend(context: Context) : InputEngine {
     private val context = FcitxApplication.getInstance().directBootAwareContext
     private val directBootMode = FcitxApplication.getInstance().isDirectBootMode
-    @Volatile private var ownerThread: Thread? = null
-    private val owner = Executors.newSingleThreadExecutor { task ->
-        Thread(task, "rime-main").also { ownerThread = it }
-    }.asCoroutineDispatcher()
-
-    // Start a dequeued key on the current owner turn. Other engine coroutines
-    // keep the ordinary dispatcher and its queueing behavior.
-    override val interactiveDispatcher: CoroutineDispatcher = object : CoroutineDispatcher() {
-        override fun isDispatchNeeded(context: CoroutineContext) = Thread.currentThread() !== ownerThread
-        override fun dispatch(context: CoroutineContext, block: Runnable) = owner.dispatch(context, block)
-    }
+    private val owner = Executors.newSingleThreadExecutor { Thread(it, "rime-main") }.asCoroutineDispatcher()
+    // Ready is published while the lifecycle lock is held. Resume waiting keys
+    // through the owner queue, after the current callback publishes ReadyEvent.
+    override val interactiveDispatcher: CoroutineDispatcher get() = owner
     private val interactivePriority = InteractiveThreadPriority()
     private val engineScope = CoroutineScope(SupervisorJob() + owner)
     private val assetPrewarmer = DirectRimeAssetPrewarmer(this.context, engineScope)
@@ -287,14 +278,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         return try { trace("rime.direct.startup.$name") { block() } }
         finally { android.util.Log.i("RimeLifecycle", "startup phase=$name duration_ms=${SystemClock.elapsedRealtime() - start}") }
     }
-    private suspend fun <T> onOwner(block: () -> T): T {
-        val context = currentCoroutineContext()
-        if (context[ContinuationInterceptor] === interactiveDispatcher && Thread.currentThread() === ownerThread) {
-            context.ensureActive()
-            return block()
-        }
-        return withContext(owner) { block() }
-    }
+    private suspend fun <T> onOwner(block: () -> T): T = withContext(owner) { block() }
     private fun nativeTiming(values: LongArray = Native.operationTiming()): String =
         "core_us=${values[0] / 1000} read_commit_us=${values[1] / 1000} read_context_us=${values[2] / 1000} read_status_us=${values[3] / 1000} input_tabs_us=${values[4] / 1000} core_cpu_us=${if (values[5] < 0) -1 else values[5] / 1000} core_minflt=${values[6]} core_majflt=${values[7]} core_nvcsw=${values[8]} core_nivcsw=${values[9]} io_open_us=${values[10] / 1000} io_read_us=${values[11] / 1000} io_write_us=${values[12] / 1000} io_sync_us=${values[13] / 1000} io_stat_us=${values[14] / 1000} io_calls=${values[15]} input_priority=${interactivePriority.lastPriority}"
     private fun refreshSchemas() {
