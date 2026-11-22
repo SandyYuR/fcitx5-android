@@ -203,6 +203,14 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val inlineSuggestions = switch(R.string.inline_suggestions, "inline_suggestions", true)
         val toolbarNumRowOnPassword =
             switch(R.string.toolbar_num_row_on_password, "toolbar_num_row_on_password", true)
+        // 默认关闭：密码框只把按键直录给编辑器，不进 Rime，因而无法切到中文等方案。
+        // 开启后密码框的按键交给 Rime，但该输入框仍然不学习、不计统计、不开放语音输入。
+        val allowImeInPasswordFields = switch(
+            R.string.allow_ime_in_password_fields,
+            "allow_ime_in_password_fields",
+            false,
+            R.string.allow_ime_in_password_fields_summary
+        )
         val popupOnKeyPress = switch(R.string.popup_on_key_press, "popup_on_key_press", true)
         val keepLettersUppercase = switch(
             R.string.keep_keyboard_letters_uppercase,

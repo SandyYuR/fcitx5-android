@@ -54,7 +54,8 @@ object PreferenceScreenFactory {
         preferenceManager: PreferenceManager,
         fragmentManager: FragmentManager,
         raw: RawConfig,
-        save: () -> Unit
+        save: () -> Unit,
+        decorate: (PreferenceScreen) -> Unit = {}
     ): PreferenceScreen {
         val context = preferenceManager.context
         val screen = preferenceManager.createPreferenceScreen(context)
@@ -64,6 +65,9 @@ object PreferenceScreenFactory {
         // TODO: needs some error handling
         val topLevelDesc = ConfigDescriptor.parseTopLevel(desc).getOrElse { throw it }
         screen.title = topLevelDesc.name
+        // 先追加本应用自己的条目，再加入引擎配置项：列表按加入顺序排列，
+        // 这样追加项稳定落在页面开头，不依赖引擎配置项的 order。
+        decorate(screen)
         topLevelDesc.values.forEach {
             general(context, fragmentManager, cfg.findByName(it.name), screen, it, store, save)
         }

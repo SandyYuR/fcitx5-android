@@ -165,6 +165,7 @@ object SettingsSearchIndex {
         R.string.space_key_label_mode to "space_key_label_mode",
         R.string.space_swipe_move_cursor to "space_swipe_move_cursor",
         R.string.show_lang_switch_key to "show_lang_switch_key",
+        R.string.allow_ime_in_password_fields to "allow_ime_in_password_fields",
 
         /* 键盘 · 按键反馈 */
         R.string.button_haptic_feedback to "haptic_on_keypress",
@@ -296,6 +297,16 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.rime_settings, P_INPUT,
             listOf("rime", "zhongzhouyun", "中州韵", "方案", "schema", "预编辑", "preedit", "部署", "deploy"),
+            route = rimeRoute(context)
+        ),
+        // 2026-11-23 从「键盘 · 按键行为」移入「中州韵」页：该开关决定密码框是否交给
+        // Rime，只对 Rime 生效。关键词保留改版前用户会搜的说法。
+        SettingsSearchEntry(
+            R.string.allow_ime_in_password_fields, P_INPUT,
+            listOf(
+                "password", "密码", "mima", "输入法", "中文",
+                "方案", "schema", "rime", "中州韵"
+            ),
             route = rimeRoute(context)
         ),
         SettingsSearchEntry(

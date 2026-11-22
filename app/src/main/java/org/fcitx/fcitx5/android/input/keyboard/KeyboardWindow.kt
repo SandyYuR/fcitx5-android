@@ -689,14 +689,15 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
             inputClass == InputType.TYPE_CLASS_PHONE
         val inputClassChanged = inputLifecycleTracker.isInputClassChanged(inputClass)
         inputLifecycleTracker.recordInputClass(inputClass)
-        // 密码输入框（含数字 PIN）统一处理：标记 passwordDefaultLayout。它在 getLayout 里
-        // 作为「没有 forced 层时」的基础布局，固定走 default 回退链（ascii 直录那套），
-        // 不沿用缓存的上一个 Rime 方案的九键/二十六键；同时让空格键显示密码提示，而不是
-        // 方案名或占位的「（不可用）」。数字密码框首屏仍由下面 numericLayoutKey 的 forced
-        // 覆盖显示自定义数字盘（forced 优先级高于 passwordDefaultLayout）；切到主文字键盘
-        // 后 forced 释放，落到这里的 default 布局，和文本密码框表现一致。
-        val isPasswordField = capFlags.has(CapabilityFlag.Password)
-        TextKeyboard.setPasswordDefaultLayout(isPasswordField)
+        // 密码输入框（含数字 PIN）默认按「直录」处理：标记 passwordDefaultLayout，让 getLayout
+        // 在「没有 forced 层时」固定走 default 回退链（ascii 直录那套），不沿用缓存的上一个
+        // Rime 方案的九键/二十六键，并让空格键显示密码提示。用户允许在密码框中使用输入法后
+        // （allow_ime_in_password_fields），密码框与普通文本框一致，按键交给 Rime、可切中文。
+        // 数字密码框首屏仍由下面 numericLayoutKey 的 forced 覆盖显示自定义数字盘（forced
+        // 优先级高于 passwordDefaultLayout）；切到主文字键盘后 forced 释放，落到这里的布局。
+        val passwordLockdown = capFlags.has(CapabilityFlag.Password) &&
+            !AppPrefs.getInstance().keyboard.allowImeInPasswordFields.getValue()
+        TextKeyboard.setPasswordDefaultLayout(passwordLockdown)
         // A genuinely different editor supersedes a pending voice layout restore; a same-editor
         // restart does not, because the restart may have preserved a corrupted numeric layout
         // that the voice-session end still needs to roll back.
@@ -720,7 +721,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
         // falls back to the built-in number keyboard instead of a stale custom layout.
         val overrideInvalidated = keepLayoutRequested && TextKeyboard.isNumericLayoutShowing() &&
             TextKeyboard.revalidateNumericLayoutOverride()
-        val keepCurrentLayout = !isPasswordField && keepLayoutRequested && !overrideInvalidated
+        val keepCurrentLayout = !passwordLockdown && keepLayoutRequested && !overrideInvalidated
         // Read before clearForcedLayoutKey below, which can change the resolved height.
         val heightBefore =
             if (keepCurrentLayout) TextKeyboard.currentLayoutHeightPercentOverride() else null

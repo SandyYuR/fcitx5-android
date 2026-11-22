@@ -18,6 +18,7 @@ import org.fcitx.fcitx5.android.core.engine.RimeEngineStore
 import org.fcitx.fcitx5.android.data.WanxiangAdvancedFiles
 import org.fcitx.fcitx5.android.data.RimeProfileImportTransaction
 import org.fcitx.fcitx5.android.data.RimeProfileUpdateInstaller
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import timber.log.Timber
 import java.io.File
 import java.util.concurrent.Executors
@@ -280,8 +281,19 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private fun refreshSchemas() {
         schemas = Native.schemaEntries().toList().chunked(2).map { it[0] to it[1] }
     }
+    /**
+     * Password fields are a direct-input editor unless the user explicitly allows the input
+     * method there (see [allowImeInPasswordFields]); learning, statistics and asset prewarm
+     * stay excluded by [CapabilityFlag.PasswordOrSensitive] either way.
+     */
+    private fun allowImeInPasswordFields(): Boolean =
+        AppPrefs.isInitialized() && AppPrefs.getInstance().keyboard.allowImeInPasswordFields.getValue()
+
+    private fun passwordBlocksIme(): Boolean =
+        flags.flags and CapabilityFlag.Password.flag != 0UL && !allowImeInPasswordFields()
+
     private fun forwardsKeysDirectly(): Boolean = directBootMode ||
-        flags.flags and (CapabilityFlag.Password.flag or CapabilityFlag.Disable.flag) != 0UL
+        flags.flags and CapabilityFlag.Disable.flag != 0UL || passwordBlocksIme()
 
     private fun bindingUsable(value: Snapshot): Boolean = value.ready ||
         // No Chinese schema is expected before first unlock. Direct input still needs the
