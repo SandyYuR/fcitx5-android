@@ -12,7 +12,6 @@ import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
-import org.fcitx.fcitx5.android.input.popup.PopupAction
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import org.fcitx.fcitx5.android.input.wm.EssentialWindow
@@ -133,16 +132,7 @@ class PickerWindow(
     }
 
     private val popupActionListener: PopupActionListener by lazy {
-        PopupActionListener {
-            when (it) {
-                is PopupAction.ShowKeyboardAction -> {
-                    // 长按弹出键盘展示期间不要移动底层列表
-                    pickerLayout.symbolPanel.scrollToTop()
-                }
-                else -> {}
-            }
-            popup.listener.onPopupAction(it)
-        }
+        PopupActionListener { popup.listener.onPopupAction(it) }
     }
 
     override fun onCreateView() = PickerLayout(
