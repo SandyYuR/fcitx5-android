@@ -2,15 +2,19 @@
 package org.fcitx.fcitx5.android.input
 
 import java.lang.reflect.Proxy
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.core.FcitxAPI
@@ -22,6 +26,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicati
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -45,7 +50,8 @@ class FcitxServiceJobQueueTest {
         FcitxAPI::class.java.classLoader,
         arrayOf(FcitxAPI::class.java)
     ) { _, method, _ -> error("Unexpected engine API call: ${method.name}") } as FcitxAPI
-    private val connection = object : FcitxConnection {
+    private fun connection(dispatcher: CoroutineDispatcher?) = object : FcitxConnection {
+        override val interactiveDispatcher = dispatcher
         override val lifecycleScope = engineScope
         override fun <T> runImmediately(block: suspend FcitxAPI.() -> T): T =
             runBlocking { block(api) }
@@ -74,10 +80,10 @@ class FcitxServiceJobQueueTest {
         FcitxDaemonTestShadow.reset()
     }
 
-    private fun service(): FcitxInputMethodService {
+    private fun service(dispatcher: CoroutineDispatcher? = null): FcitxInputMethodService {
         FcitxDaemonTestShadow.install(daemon)
         return Robolectric.buildService(FcitxInputMethodService::class.java).get().also {
-            ReflectionHelpers.setField(it, "fcitx", connection)
+            ReflectionHelpers.setField(it, "fcitx", connection(dispatcher))
         }
     }
 
@@ -146,5 +152,50 @@ class FcitxServiceJobQueueTest {
         assertNull(ReflectionHelpers.getField<Job?>(service, "candidatePagingModeJob"))
         assertNull(ReflectionHelpers.getField<Int?>(service, "pendingCandidatePagingMode"))
         assertTrue(engineJob.isActive)
+    }
+
+    @Test fun ownerConsumerStartsOnlyDequeuedKeysAndKeepsOtherJobsOnTheirScope() = runBlocking {
+        Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { owner ->
+            val service = service(owner)
+            val blockerStarted = CompletableDeferred<Thread>()
+            val releaseBlocker = CompletableDeferred<Unit>()
+            val keyStarted = CompletableDeferred<Thread>()
+            val releaseKey = CompletableDeferred<Unit>()
+            val blocker = service.postFcitxJob {
+                blockerStarted.complete(Thread.currentThread())
+                releaseBlocker.await()
+            }
+            val key = service.postFcitxKeyJob {
+                keyStarted.complete(Thread.currentThread())
+                releaseKey.await()
+            }
+            val last = service.postFcitxKeyJob { error("A buffered key must not execute") }
+            val consumer = service.startFcitxJobQueue()
+            try {
+                withTimeout(5_000) {
+                    val defaultThread = blockerStarted.await()
+                    assertFalse(key.isActive)
+                    releaseBlocker.complete(Unit)
+                    val keyThread = keyStarted.await()
+                    val ownerThread = withContext(owner) { Thread.currentThread() }
+                    assertNotSame(ownerThread, defaultThread)
+                    assertSame(ownerThread, keyThread)
+
+                    jobs(service).cancel()
+                    last.join()
+                    assertTrue(last.isCancelled)
+                    assertTrue(key.isActive)
+                    releaseKey.complete(Unit)
+                    consumer.join()
+                    assertFalse(blocker.isCancelled)
+                    assertFalse(key.isCancelled)
+                    assertEquals(2, releasedTickets.get())
+                }
+            } finally {
+                releaseBlocker.complete(Unit)
+                releaseKey.complete(Unit)
+                consumer.cancel()
+            }
+        }
     }
 }

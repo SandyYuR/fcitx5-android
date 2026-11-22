@@ -52,6 +52,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputContentInfoCompat
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -539,10 +540,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
      * subsequent operations can start if the prior operation is not finished (suspended),
      * [postFcitxJob] ensures that operations are executed sequentially.
      */
-    private fun postFcitxJob(category: String, block: suspend FcitxAPI.() -> Unit): Job {
+    private fun postFcitxJob(
+        category: String,
+        dispatcher: CoroutineDispatcher? = null,
+        block: suspend FcitxAPI.() -> Unit
+    ): Job {
         val diagnostic = org.fcitx.fcitx5.android.core.InputDiagnostics.serviceTask(category)
         val job = fcitx.lifecycleScope.launch(
-            context = diagnostic ?: EmptyCoroutineContext,
+            context = (dispatcher ?: EmptyCoroutineContext) + (diagnostic ?: EmptyCoroutineContext),
             start = CoroutineStart.LAZY
         ) {
             diagnostic?.started()
@@ -567,7 +572,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         return job
     }
 
-    fun postFcitxJob(block: suspend FcitxAPI.() -> Unit): Job = postFcitxJob("operation", block)
+    fun postFcitxJob(block: suspend FcitxAPI.() -> Unit): Job = postFcitxJob("operation", block = block)
 
     /** Capture at the time of the key, before either the service or native owner queues it. */
     private fun postFcitxKeyJob(category: String, block: suspend FcitxAPI.() -> Unit): Job {
@@ -579,7 +584,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         val ticket = FcitxDaemon.captureInputKey() ?: return Job().apply { complete() }
         val statisticsSource = captureStatisticsSource(ticket.generation)
-        return postFcitxJob(category) {
+        return postFcitxJob(category, fcitx.interactiveDispatcher) {
             if (FcitxDaemon.canDeliverInputKey(ticket)) {
                 if (statisticsSource == null) block()
                 else {
@@ -799,15 +804,16 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
+    internal fun startFcitxJobQueue(): Job =
+        lifecycleScope.launch(fcitx.interactiveDispatcher ?: Dispatchers.Default) {
+            jobs.consumeEach { it.join() }
+        }
+
     override fun onCreate() {
         val startedAt = SystemClock.elapsedRealtime()
         android.util.Log.i("FcitxColdStart", "service.onCreate begin")
         fcitx = FcitxDaemon.connect(javaClass.name)
-        // The jobs already run off-main. Drain/join them there too, so layout or
-        // drawing cannot delay starting the next binding/key/candidate operation.
-        lifecycleScope.launch(Dispatchers.Default) {
-            jobs.consumeEach { it.join() }
-        }
+        startFcitxJobQueue()
         lifecycleScope.launch {
             // runImmediately throws FcitxDisconnectedException once this service's connection is
             // gone (see C31), and this collector lives as long as the service does, so a

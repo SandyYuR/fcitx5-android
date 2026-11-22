@@ -29,6 +29,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private val context = FcitxApplication.getInstance().directBootAwareContext
     private val directBootMode = FcitxApplication.getInstance().isDirectBootMode
     private val owner = Executors.newSingleThreadExecutor { Thread(it, "rime-main") }.asCoroutineDispatcher()
+    // Ready is published while the lifecycle lock is held. Resume waiting keys
+    // through the owner queue, after the current callback publishes ReadyEvent.
+    override val interactiveDispatcher: CoroutineDispatcher get() = owner
     private val interactivePriority = InteractiveThreadPriority()
     private val engineScope = CoroutineScope(SupervisorJob() + owner)
     private val assetPrewarmer = DirectRimeAssetPrewarmer(this.context, engineScope)

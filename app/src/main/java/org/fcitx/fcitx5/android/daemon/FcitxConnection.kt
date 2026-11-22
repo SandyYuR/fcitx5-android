@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.daemon
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.core.FcitxAPI
@@ -44,4 +45,6 @@ interface FcitxConnection {
     fun runIfReady(block: suspend FcitxAPI.() -> Unit)
 
     val lifecycleScope: CoroutineScope
+
+    val interactiveDispatcher: CoroutineDispatcher? get() = null
 }
