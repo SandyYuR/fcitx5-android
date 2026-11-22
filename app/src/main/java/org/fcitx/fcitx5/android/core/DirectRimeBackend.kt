@@ -526,7 +526,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
         action: Int,
         index: Int,
         candidateContext: CandidateActionContext? = null,
-        tabContext: CandidateTabActionContext? = null
+        tabContext: CandidateTabActionContext? = null,
+        /** Resolved on the owner only after the target was revalidated; null rejects the action. */
+        value: (() -> String?)? = null,
     ): Snapshot? {
         val expected = snapshot ?: return null
         val statisticsSource = if (action == 1 || action == 11) currentCoroutineContext()[InputStatisticsSource] else null
@@ -542,8 +544,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
                     android.util.Log.i("RimeInputTiming", "select_rejected generation=${expected.generation} service_task=${diagnosticTask?.id ?: 0} reason=stale_snapshot")
                 null
             } else {
+                val argument = if (value == null) "" else value() ?: return@onOwner null
                 val ownerAt = if (BuildConfig.INPUT_DIAGNOSTICS) SystemClock.elapsedRealtimeNanos() else 0L
-                val result = act(action, index, statisticsSource = statisticsSource)
+                val result = act(action, index, argument, statisticsSource = statisticsSource)
                 if (action == 1 || action == 11) {
                     bindingSelections++
                     if (BuildConfig.INPUT_DIAGNOSTICS && (bindingSelections <= 2 || SystemClock.elapsedRealtimeNanos() - ownerAt >= 100_000_000L))
@@ -585,12 +588,43 @@ class DirectRimeBackend(context: Context) : InputEngine {
             }
         }.toTypedArray()
     }
-    override suspend fun getCandidateActions(idx: Int) = arrayOf(CandidateAction(0, "忘记此词", false, "", false, false))
-    override suspend fun triggerCandidateAction(idx: Int, actionIdx: Int) { if (actionIdx == 0) performAction(5, idx) }
-    override suspend fun triggerGlobalCandidateAction(idx: Int, actionIdx: Int) { if (actionIdx == 0) performAction(12, idx) }
+    override suspend fun getCandidateActions(idx: Int): Array<CandidateAction> {
+        val sequence = if (idx < 0) emptyList<CandidateAction>() else DirectRimeCandidateSequence.actions(onOwner { sequenceKeys() })
+        return (listOf(DirectRimeCandidateSequence.forgetAction) + sequence).toTypedArray()
+    }
+    override suspend fun triggerCandidateAction(idx: Int, actionIdx: Int) { candidateAction(idx, actionIdx, false, null) }
+    override suspend fun triggerGlobalCandidateAction(idx: Int, actionIdx: Int) { candidateAction(idx, actionIdx, true, null) }
     override suspend fun triggerCandidateActionIfCurrent(
         idx: Int, actionIdx: Int, global: Boolean, expected: CandidateActionContext
-    ): Boolean = idx >= 0 && actionIdx == 0 && performAction(if (global) 12 else 5, idx, expected)?.ready == true
+    ): Boolean = candidateAction(idx, actionIdx, global, expected)
+
+    private suspend fun candidateAction(
+        idx: Int, actionIdx: Int, global: Boolean, expected: CandidateActionContext?
+    ): Boolean {
+        if (actionIdx == DirectRimeCandidateSequence.FORGET_ID) {
+            // The guarded entry point rejects a negative target before touching JNI; the legacy
+            // entry points still reach native, where delete_candidate(_on_current_page) validates it.
+            if (expected != null && idx < 0) return false
+            return performAction(if (global) 12 else 5, idx, expected)?.ready == true
+        }
+        if (idx < 0) return false
+        if (DirectRimeCandidateSequence.operation(actionIdx) == null) return false
+        // The schema's key is read on the owner after admission, so a stale target never reaches JNI.
+        return performAction(if (global) 15 else 14, idx, expected, value = {
+            DirectRimeCandidateSequence.keyArgument(sequenceKeys(), actionIdx)
+        })?.ready == true
+    }
+
+    /** Owner thread only. Empty unless the bound Wanxiang schema loads a manual ordering processor. */
+    private fun sequenceKeys(): Array<String> {
+        val value = snapshot
+        if (!started || maintenance || value?.ready != true || value.generation != inputSession ||
+            !DirectRimeCandidateSequence.isWanxiangSchema(value.schema)) return emptyArray()
+        return try { Native.sequenceKeys() } catch (e: Exception) {
+            Timber.w(e, "Cannot read manual candidate ordering keys")
+            emptyArray()
+        }
+    }
 
     override suspend fun activateSchemaActionIfCurrent(id: Int, expectedInputSession: Long): Boolean = onOwner {
         val index = DirectRimeStatusMenu.schemaIndex(id, schemas.size)

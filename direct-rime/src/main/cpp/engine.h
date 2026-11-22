@@ -52,6 +52,9 @@ public:
     std::vector<std::string> schemaEntries();
     std::vector<std::string> options();
     std::vector<std::string> prewarmAssets();
+    // Manual candidate ordering keys of the current schema (Wanxiang super_sequence):
+    // up, down, reset, pin. Empty when the schema does not load such a processor.
+    std::vector<std::string> sequenceKeys();
     std::string schemaSelection();
     bool selectSchemas(const std::vector<std::string>& ids);
     bool sync();
@@ -72,6 +75,7 @@ private:
     void owner() const;
     Gate gate(int64_t generation) const;
     Snapshot snapshot(int64_t generation, bool handled = true, int64_t inputStatistics = -1);
+    bool highlightLanded(size_t index, bool pageLocal);
     void invalidateStatusCache();
     void readStatus(Snapshot& snapshot);
     int64_t captureInputStatistics(bool requested) const;
