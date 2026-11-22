@@ -368,6 +368,8 @@
     <string name="notification_permission_message">没有发送通知的权限，我们无法在一些耗时操作完成时通知您。</string>
     <string name="notification_permission_title">没有通知权限</string>
     <string name="toolbar_num_row_on_password">输入密码时在工具栏上显示数字行</string>
+    <string name="allow_ime_in_password_fields">允许在密码框中使用输入法</string>
+    <string name="allow_ime_in_password_fields_summary">密码框也交给 Rime 处理；密码框内输入时，用户词学习、输入统计与语音输入仍然关闭。</string>
     <string name="space_long_press_behavior">空格键长按行为</string>
     <string name="space_behavior_none">无</string>
     <string name="space_behavior_repeat">重复输入空格（按住连续输入）</string>

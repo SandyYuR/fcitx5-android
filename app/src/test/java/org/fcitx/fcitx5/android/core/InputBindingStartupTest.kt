@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.toList
 import org.fcitx.directrime.Snapshot
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.junit.After
 import org.junit.Assert.*
@@ -236,6 +237,23 @@ class InputBindingStartupTest {
         val old = requireNotNull(backend.captureInputKey())
         backend.invalidateInputSession()
         assertFalse(backend.canDeliverInputKey(old))
+    }
+
+    @Test fun passwordOptInUsesRimeButKeepsLearningOff() = runBlocking {
+        createBackend()
+        val optIn = AppPrefs.getInstance().keyboard.allowImeInPasswordFields
+        optIn.setValue(true)
+        try {
+            bind("editor", CapabilityFlags(CapabilityFlag.Password))
+
+            assertTrue("Password editors must still disable user learning", BindingNativeShadow.noLearning)
+            backend.sendKey('N', 0u, 0, false, 1)
+            assertTrue("The opt-in must route password keys through Rime",
+                BindingNativeShadow.calls.any { it.phase == "inline-ascii" })
+            assertEquals("N", currentSnapshot().preedit)
+        } finally {
+            optIn.setValue(false)
+        }
     }
 
     @Test fun directBootAlsoForwardsOrdinaryLockScreenEditorsWithoutASchema() = runBlocking {

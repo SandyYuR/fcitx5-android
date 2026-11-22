@@ -11,6 +11,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceScreen
 import androidx.preference.isEmpty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -122,7 +123,7 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
             configLoaded = hasCfgDesc && protocolCompatible
             preferenceScreen = if (configLoaded) {
                 PreferenceScreenFactory.create(
-                    preferenceManager, parentFragmentManager, raw, ::save
+                    preferenceManager, parentFragmentManager, raw, ::save, ::decoratePreferenceScreen
                 ).apply {
                     if (isEmpty()) {
                         addPreference(R.string.no_config_options)
@@ -151,6 +152,18 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
             scrollToPendingPreference(viewModel)
         }
     }
+
+    /**
+     * 配置页填充前的追加入口。
+     *
+     * 页面内容由引擎返回的 `desc` 树生成，本应用自己的开关不在其中。子类可覆写此方法，
+     * 把这类条目并入对应页面（例如「中州韵」页里的「允许在密码框中使用输入法」）。
+     * 调用发生在引擎配置项加入之前，因此追加项排在页面开头。
+     *
+     * 追加的条目用默认 [androidx.preference.PreferenceManager] 存储（即 AppPrefs 的
+     * SharedPreferences），不要挂 [FcitxRawConfigStore]，否则会写进引擎配置。
+     */
+    open fun decoratePreferenceScreen(screen: PreferenceScreen) = Unit
 
     private fun maxRequiredExternalProtocol(raw: RawConfig): Int {
         val descRoot = raw.findByName("desc") ?: return 0
