@@ -23,6 +23,12 @@ import org.robolectric.util.ReflectionHelpers
 @Config(sdk = [28], application = FcitxApplication::class,
     shadows = [EditorApplicationShadow::class, NativeTestShadow::class, FcitxDaemonTestShadow::class])
 class CandidateSelectionQueueTest {
+    private suspend fun Job.awaitServiceCompletion() {
+        val complete = CompletableDeferred<Unit>()
+        invokeOnCompletion { complete.complete(Unit) }
+        complete.await()
+    }
+
     @Test fun queuedTapKeepsItsDisplayedVersionAndItsNativeIndexOrigin() = runBlocking {
         val backend = DirectRimeBackend(RuntimeEnvironment.getApplication())
         val publicationState: DirectRimePublicationState = ReflectionHelpers.getField(backend, "publicationState")
@@ -30,6 +36,7 @@ class CandidateSelectionQueueTest {
         val owner: ExecutorCoroutineDispatcher = ReflectionHelpers.getField(backend, "owner")
         val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
         val jobs: Channel<Job> = ReflectionHelpers.getField(service, "jobs")
+        var queueConsumer: Job? = null
         try {
             ReflectionHelpers.setField(backend, "started", true)
             ReflectionHelpers.setField(backend, "schemas", listOf("fixture" to "Fixture"))
@@ -48,8 +55,10 @@ class CandidateSelectionQueueTest {
                 override suspend fun <T> runOnReady(block: suspend FcitxAPI.() -> T): T = block(backend)
                 override fun runIfReady(block: suspend FcitxAPI.() -> Unit) { backend.lifeCycleScope.launch { block(backend) } }
                 override val lifecycleScope get() = backend.lifeCycleScope
+                override val interactiveDispatcher get() = backend.interactiveDispatcher
             }
             ReflectionHelpers.setField(service, "fcitx", connection)
+            queueConsumer = service.startFcitxJobQueue()
 
             fun displayedTarget(): CandidateSelectionTarget {
                 val event: FcitxEvent.PagedCandidateEvent = ReflectionHelpers.getField(publicationState, "candidateEventCached")
@@ -58,15 +67,18 @@ class CandidateSelectionQueueTest {
             backend.sendKey('n', 0u, 0, false, 0)
             val old = displayedTarget()
             val oldTab = requireNotNull(backend.inputPanelCached.tabs.single().tabTarget)
-            service.postFcitxKeyJob { sendKey('x', 0u, 0, false, 0) }
-            service.postCandidateSelection(old)
-            service.postCandidateTabAction(oldTab)
-            withTimeout(5_000) { jobs.receive().join(); jobs.receive().join(); jobs.receive().join() }
+            val key = service.postFcitxKeyJob { sendKey('x', 0u, 0, false, 0) }
+            val staleCandidate = service.postCandidateSelection(old)
+            val staleTab = service.postCandidateTabAction(oldTab)
+            withTimeout(5_000) {
+                key.awaitServiceCompletion()
+                staleCandidate.awaitServiceCompletion()
+                staleTab.awaitServiceCompletion()
+            }
             assertTrue("The old tap must not reach native selection", CandidateSelectionNativeShadow.selections.isEmpty())
             assertTrue("The old tab must not be rebound to the new same-label target", CandidateSelectionNativeShadow.tabSelections.isEmpty())
 
-            service.postCandidateSelection(displayedTarget())
-            withTimeout(5_000) { jobs.receive().join() }
+            withTimeout(5_000) { service.postCandidateSelection(displayedTarget()).awaitServiceCompletion() }
             assertEquals(listOf(1 to 0), CandidateSelectionNativeShadow.selections)
             assertEquals("新候选", CandidateSelectionNativeShadow.committed)
 
@@ -74,12 +86,10 @@ class CandidateSelectionQueueTest {
             assertEquals(oldTab.id, currentTab.id)
             assertEquals("同标签", backend.inputPanelCached.tabs.single().text)
             assertTrue(currentTab.context.version > oldTab.context.version)
-            service.postCandidateTabAction(currentTab)
-            withTimeout(5_000) { jobs.receive().join() }
+            withTimeout(5_000) { service.postCandidateTabAction(currentTab).awaitServiceCompletion() }
             assertEquals(listOf(0), CandidateSelectionNativeShadow.tabSelections)
 
-            service.postCandidateTabAction(currentTab.copy(id = -1))
-            withTimeout(5_000) { jobs.receive().join() }
+            withTimeout(5_000) { service.postCandidateTabAction(currentTab.copy(id = -1)).awaitServiceCompletion() }
             assertEquals(1, CandidateSelectionNativeShadow.clearedTabs)
 
             // Expanded data retain their global index even while the compact UI is paged.
@@ -87,12 +97,12 @@ class CandidateSelectionQueueTest {
             val target = requireNotNull(expanded[1].selectionTarget)
             assertEquals(17, target.index)
             assertTrue(target.global)
-            service.postCandidateSelection(target)
-            withTimeout(5_000) { jobs.receive().join() }
+            withTimeout(5_000) { service.postCandidateSelection(target).awaitServiceCompletion() }
             assertEquals(11 to 17, CandidateSelectionNativeShadow.selections.last())
             assertFalse(backend.selectCandidateIfCurrent(old.index, old.global, old.context))
         } finally {
             jobs.cancel()
+            queueConsumer?.cancelAndJoin()
             backend.lifeCycleScope.coroutineContext[Job]?.cancelAndJoin()
             ReflectionHelpers.setField(backend, "started", false)
             ReflectionHelpers.getField<CoroutineScope>(backend, "engineScope").cancel()

@@ -1,8 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.core
 
+import kotlinx.coroutines.CoroutineDispatcher
+
 /** Lifecycle belongs to the daemon; the keyboard and settings only see FcitxAPI. */
 interface InputEngine : FcitxAPI, FcitxLifecycleOwner {
+    /** Dispatcher for the ordered service consumer and its interactive jobs. */
+    val interactiveDispatcher: CoroutineDispatcher? get() = null
     fun start()
     fun stop()
     /** Invalidate input immediately and queue native shutdown without blocking the caller. */
