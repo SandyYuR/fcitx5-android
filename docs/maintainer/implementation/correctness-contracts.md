@@ -35,7 +35,7 @@
 | DOWN 必须有兜底 UP；focus 不覆盖显式 inactive binding | `focus` / `deactivate`、`KeyboardInputLifecycleTrackerTest` |
 | 临时线程优先级必须恢复；提升失败不拒键 | `core/InteractiveThreadPriority.kt` |
 
-无方案时，密码/直接输入绑定仍允许通过同一按键门控转发 DOWN/UP；普通 Rime 编辑器不能因此获得“可用”状态。维护、过期和部署失败状态继续拒绝输入。`Native.beginInput` 内的会话创建、方案/开关恢复与首次状态发布都属于同步绑定阶段，保持交互线程优先级，失败时也必须恢复原优先级。回归入口是 `InputBindingStartupTest`。
+无方案时，密码/直接输入绑定仍允许通过同一按键门控转发 DOWN/UP；普通 Rime 编辑器不能因此获得“可用”状态。密码框是否进入 Rime 由「中州韵设置 → 允许在密码框中使用输入法」决定：默认关闭时沿用上述直录转发；开启后按普通编辑器建立绑定，但仍保留 `noLearning`、统计排除与语音按钮过滤，敏感会话隔离不取消。维护、过期和部署失败状态继续拒绝输入。`Native.beginInput` 内的会话创建、方案/开关恢复与首次状态发布都属于同步绑定阶段，保持交互线程优先级，失败时也必须恢复原优先级。回归入口是 `InputBindingStartupTest`。
 
 新会话的方案与 `ascii_mode` 直接采用 `Native.beginInput` 返回的快照，不能用上一编辑器发布的状态再次调用 `select_schema` 或 `set_option`。方案的 `reset`、已保存的开关值和 `switcher/fix_schema_list_order` 均由 librime 决定；临时西文状态不能由前端回放到下一应用。同应用普通编辑器的 native 会话复用仍保留其实际状态，跨应用与敏感边界创建新会话。真实引擎回归入口是 `DirectRimeFrontendTest.newSessionsRespectRimeAsciiReset`、`newSessionsRespectRimeSchemaOrder`、`newSessionsKeepRimeSavedAscii`、`newSessionsKeepRimeRecentSchema` 与 `newApplicationDoesNotInheritInlineAscii`。
 
