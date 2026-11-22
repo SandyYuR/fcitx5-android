@@ -157,7 +157,13 @@ class AutoScaleTextView @JvmOverloads constructor(
         }
     }
 
-    override fun setText(charSequence: CharSequence?, bufferType: BufferType) {
+    override fun setText(charSequence: CharSequence?, bufferType: BufferType) =
+        updateText(charSequence, affectsSize = true)
+
+    /** The parent fixes both dimensions and anchors this view by its edges. */
+    internal fun setTextInFixedBounds(text: CharSequence) = updateText(text, affectsSize = false)
+
+    private fun updateText(charSequence: CharSequence?, affectsSize: Boolean) {
         // setText can be called from the super constructor; guard against the
         // shadowed `text` field not yet being initialized by comparing safely.
         if (charSequence == null || charSequence != text) {
@@ -165,7 +171,7 @@ class AutoScaleTextView @JvmOverloads constructor(
             needsCalculateTransform = true
             text = charSequence ?: ""
             plainText = text.toString()
-            requestLayout()
+            if (affectsSize) requestLayout()
             invalidate()
         }
     }
