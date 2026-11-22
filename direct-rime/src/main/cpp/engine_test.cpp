@@ -1,4 +1,5 @@
 #include "engine.h"
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <new>
@@ -63,6 +64,12 @@ struct Fake {
     std::vector<std::string> syncMessages = {"start", "success"};
     RimeNotificationHandler callback = nullptr;
     void* context = nullptr;
+    // Manual candidate ordering (super_sequence) fixture.
+    int sym = 0, highlighted = -1;
+    size_t highlightedGlobal = 999;
+    bool highlightFails = false;
+    std::vector<std::string> processors;
+    std::map<std::string, std::string> schemaValues;
 } f;
 void notifyOptionIfRequested(int& count) {
     if (count <= 0) return;
@@ -275,6 +282,71 @@ void testFrontendExtensions() {
     value = engine.action(1, value.revision, 9, 1, ""); CHECK(f.caret == 1);
     engine.begin(2, "second");
     CHECK(engine.candidates(1, 0, 10).empty() && f.freedIterator == 1);
+    engine.stop();
+}
+void testCandidateSequence() {
+    f = {}; auto a = api();
+    a.get_current_schema = [](RimeSessionId, char* id, size_t size) -> Bool {
+        std::snprintf(id, size, "%s", f.schema.c_str()); return true;
+    };
+    a.schema_open = [](const char* id, RimeConfig* config) -> Bool { config->ptr = &f; return f.schema == id; };
+    a.config_list_size = [](RimeConfig*, const char* key) -> size_t {
+        return std::strcmp(key, "engine/processors") ? 0 : f.processors.size();
+    };
+    a.config_get_cstring = [](RimeConfig*, const char* key) -> const char* {
+        const std::string prefix = "engine/processors/@", name(key);
+        if (!name.compare(0, prefix.size(), prefix)) {
+            const auto index = std::strtoul(name.c_str() + prefix.size(), nullptr, 10);
+            return index < f.processors.size() ? f.processors[index].c_str() : nullptr;
+        }
+        const auto found = f.schemaValues.find(name);
+        return found == f.schemaValues.end() ? nullptr : found->second.c_str();
+    };
+    a.process_key = [](RimeSessionId, int sym, int mask) -> Bool { ++f.keys; f.sym = sym; f.mask = mask; return true; };
+    // Mirrors RimeGetContext: the highlighted slot is page-local (selected % page_size).
+    a.get_context = [](RimeSessionId, RimeContext* c) -> Bool {
+        static RimeCandidate candidates[10] = {};
+        for (auto& candidate : candidates) candidate.text = const_cast<char*>("candidate");
+        c->menu.candidates = candidates; c->menu.num_candidates = 10;
+        c->menu.page_size = 5; c->menu.highlighted_candidate_index = f.highlighted;
+        return true;
+    };
+    a.highlight_candidate_on_current_page = [](RimeSessionId, size_t i) -> Bool {
+        if (f.highlightFails) return false;
+        f.highlighted = static_cast<int>(i); return true;
+    };
+    a.highlight_candidate = [](RimeSessionId, size_t i) -> Bool {
+        if (f.highlightFails) return false;
+        f.highlightedGlobal = i; f.highlighted = static_cast<int>(i % 5); return true;
+    };
+    Engine engine(&a); engine.start("shared", "user");
+    auto value = engine.begin(1, "editor");
+    f.processors = {"ascii_composer", "speller"};
+    CHECK(engine.sequenceKeys().empty());
+    f.processors = {"ascii_composer", "lua_processor@*wanxiang.super_sequence*P", "speller"};
+    f.schemaValues["super_sequence/pin"] = "Control+bracketleft";
+    CHECK(engine.sequenceKeys() == std::vector<std::string>({"Control+j", "Control+k", "Control+l", "Control+bracketleft"}));
+    // Page-local target: highlight first, then the schema key with the frontend mask conversion.
+    value = engine.action(1, value.revision, 14, 2, "112 4");
+    CHECK(f.highlighted == 2 && f.keys == 1 && f.sym == 112 && f.mask == 4 && value.handled);
+    value = engine.action(1, value.revision, 15, 7, "106 68");
+    CHECK(f.highlightedGlobal == 7 && f.keys == 2 && f.sym == 106 && f.mask == (4 | 64 | (1 << 26)));
+    // Stale, malformed or unhighlightable targets never send the key.
+    CHECK(engine.action(1, value.revision - 1, 14, 0, "112 4").gate == Stale && f.keys == 2);
+    value = engine.action(1, value.revision, 14, 0, "bogus"); CHECK(f.keys == 2 && f.highlighted == 2);
+    value = engine.action(1, value.revision, 14, -1, "112 4"); CHECK(f.keys == 2);
+    f.highlightFails = true;
+    value = engine.action(1, value.revision, 14, 1, "112 4"); CHECK(f.keys == 2);
+    // librime answers false when the target is already highlighted; the key still applies.
+    f.highlighted = 1;
+    value = engine.action(1, value.revision, 14, 1, "112 4"); CHECK(f.keys == 3);
+    f.highlightFails = false;
+    // Without the highlight entry point the selection must already be the target.
+    f.highlighted = 2;
+    a.highlight_candidate = nullptr;
+    value = engine.action(1, value.revision, 15, 1, "112 4"); CHECK(f.keys == 3 && f.highlightedGlobal == 7);
+    engine.begin(2, "second");
+    CHECK(engine.action(1, value.revision, 14, 0, "112 4").gate == Stale && f.keys == 3);
     engine.stop();
 }
 void testReadOnlyRefresh() {
@@ -688,7 +760,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
+        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequence(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

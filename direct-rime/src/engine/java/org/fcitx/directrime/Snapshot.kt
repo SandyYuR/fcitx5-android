@@ -121,6 +121,8 @@ internal object Native {
     external fun schemaEntries(): Array<String>
     external fun options(): Array<String>
     external fun prewarmAssets(): Array<String>
+    /** Current schema's manual ordering keys (up, down, reset, pin); empty when unsupported. */
+    external fun sequenceKeys(): Array<String>
     external fun schemaSelection(): String
     external fun selectSchemas(ids: Array<String>): Boolean
     external fun sync(): Boolean
