@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.input.popup
 
+import android.content.Context
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,6 @@ import org.mechdancer.dependency.manager.ManagedHandler
 import org.mechdancer.dependency.manager.managedHandler
 import splitties.dimensions.dp
 import splitties.views.dsl.core.add
-import splitties.views.dsl.core.frameLayout
 import splitties.views.dsl.core.lParams
 import java.util.LinkedList
 
@@ -117,8 +117,8 @@ class PopupComponent :
             }
     }
 
-    val root by lazy {
-        context.frameLayout {
+    internal val root: PopupLayer by lazy {
+        PopupLayer(context).apply {
             // we want (0, 0) at top left
             layoutDirection = View.LAYOUT_DIRECTION_LTR
             isClickable = false
@@ -140,6 +140,7 @@ class PopupComponent :
             }
             lastShowTime = System.currentTimeMillis()
             setText(content)
+            this@PopupComponent.root.raise(root)
             return
         }
         val popup = (freeEntryUi.poll()
@@ -147,20 +148,16 @@ class PopupComponent :
             lastShowTime = System.currentTimeMillis()
             setText(content)
         }
-        popup.root.layoutParams = FrameLayout.LayoutParams(popupWidth, popupHeight).apply {
-            // align popup bottom with key border bottom [^1]
-            topMargin = bounds.bottom - popupHeight - keyBottomMargin
-            leftMargin = (bounds.left + bounds.right - popupWidth) / 2
+        val entryRoot = popup.root
+        if (entryRoot.parent !== root) {
+            (entryRoot.parent as? ViewGroup)?.removeView(entryRoot)
+            root.addView(entryRoot, FrameLayout.LayoutParams(popupWidth, popupHeight))
         }
-        // make sure that popup.root does not have parent view before adding it under root container
-        // it's wired that on some devices it would have a parent view despite it was newly created
-        // or just polled from freeEntryUi
-        if (popup.root.parent == null) {
-            root.addView(popup.root)
-        } else if (popup.root.parent !== root) {
-            (popup.root.parent as? ViewGroup)?.removeView(popup.root)
-            root.addView(popup.root)
-        }
+        // Align the popup bottom with the key border bottom [^1].
+        entryRoot.translationX = ((bounds.left + bounds.right - popupWidth) / 2).toFloat()
+        entryRoot.translationY = (bounds.bottom - popupHeight - keyBottomMargin).toFloat()
+        root.raise(entryRoot)
+        entryRoot.visibility = View.VISIBLE
         showingEntryUi[viewId] = popup
     }
 
@@ -315,7 +312,8 @@ class PopupComponent :
 
     private fun dismissPopupEntry(viewId: Int, popup: PopupEntryUi) {
         showingEntryUi.remove(viewId)
-        root.removeView(popup.root)
+        // Keep the fixed-size entry attached so the next preview only updates its drawing.
+        popup.root.visibility = View.INVISIBLE
         freeEntryUi.add(popup)
     }
 
@@ -335,10 +333,7 @@ class PopupComponent :
             showingContainerUi.remove(viewId)?.let { root.removeView(it.root) }
         }
         showingEntryUi.keys.filterTo(mutableListOf()) { it != exceptViewId }.forEach { viewId ->
-            showingEntryUi.remove(viewId)?.let { entry ->
-                root.removeView(entry.root)
-                freeEntryUi.add(entry)
-            }
+            showingEntryUi[viewId]?.let { dismissPopupEntry(viewId, it) }
         }
     }
 
@@ -356,5 +351,33 @@ class PopupComponent :
                 is PopupAction.TriggerAction -> outAction = triggerFocused(viewId)
             }
         }
+    }
+}
+
+/** Preserve insertion order at equal elevation, including the long-press containers. */
+internal class PopupLayer(context: Context) : FrameLayout(context) {
+    private val order = ArrayList<View>()
+
+    init {
+        setChildrenDrawingOrderEnabled(true)
+    }
+
+    override fun onViewAdded(child: View) {
+        super.onViewAdded(child)
+        order.add(child)
+    }
+
+    override fun onViewRemoved(child: View) {
+        order.remove(child)
+        super.onViewRemoved(child)
+    }
+
+    override fun getChildDrawingOrder(childCount: Int, drawingPosition: Int): Int =
+        indexOfChild(order[drawingPosition])
+
+    fun raise(child: View) {
+        if (order.lastOrNull() === child || !order.remove(child)) return
+        order.add(child)
+        invalidate()
     }
 }
