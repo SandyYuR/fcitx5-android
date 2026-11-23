@@ -129,4 +129,4 @@ PC 窗口变窄、右侧属性窗改为底部面板时，预览保持同一套�
 - [键盘布局编辑器](/features/editor/layout-editor)
 - [Popup 编辑器](/features/editor/popup-editor)
 - [主题编辑器](/features/theme/theme-editor)
-- [QR 分享与导入](/features/theme/share-import)
+- [QR 分享与导入](/features/qr-share-import)
