@@ -38,6 +38,8 @@ python docs/scripts/check-links.py
 python docs/scripts/check-legacy-docs.py
 node docs/scripts/check-doc-catalog.mjs
 node docs/scripts/check-doc-search.mjs
+python docs/scripts/check-evidence-index.py
+python docs/scripts/check-coverage-sources.py --code-dir <代码分支工作区>
 git diff --check
 git status --short
 ```
