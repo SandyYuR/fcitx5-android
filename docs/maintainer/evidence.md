@@ -1172,7 +1172,9 @@
 
 ### 2026-11-06 之后的附件目录
 
-下列目录的原始文件由对应报告逐项链接并附 SHA-256 清单，此处只登记目录与说明入口；附件仍保留在原目录。
+下列目录的原始文件由对应报告逐项链接并附 SHA-256 清单，此处只登记目录与说明入口；附件仍保留在原目录。新增附件目录后运行 `python3 docs/scripts/check-evidence-index.py --write` 追加本表的行，再核对生成的说明链接。
+
+<!-- evidence-roots:start -->
 
 | 目录 | 说明与附件入口 |
 | --- | --- |
@@ -1196,6 +1198,8 @@
 | `maintainer/perf/render-wait-2026-11-14/` | [首键与 RenderThread 等待](/maintainer/perf/render-wait-2026-11-14/) |
 | `maintainer/perf/cyime-wanxiang-2026-11-21/` | [CyIME 万象长句与冷缓存](/maintainer/perf/cyime-wanxiang-2026-11-21/) |
 | `maintainer/perf/input-fluency-2026-11-22/` | [按键气泡、输入调度与长句 CPU](/maintainer/perf/input-fluency-2026-11-22/) |
+
+<!-- evidence-roots:end -->
 
 ### perf/2026-11-14-refactor-comparison
 

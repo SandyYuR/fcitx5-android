@@ -41,6 +41,21 @@ jobs:
         working-directory: docs
         run: npm ci
 
+      - name: List code branch files for the coverage check
+        env:
+          CODE_BRANCH: fx-rime-only
+        run: |
+          git clone --quiet --depth 1 --filter=blob:none --no-checkout --branch "$CODE_BRANCH" \
+            "${{ github.server_url }}/${{ github.repository }}.git" "$RUNNER_TEMP/code"
+          git -C "$RUNNER_TEMP/code" -c core.quotePath=false ls-tree -r --name-only HEAD > "$RUNNER_TEMP/code-tree.txt"
+          echo "$CODE_BRANCH at $(git -C "$RUNNER_TEMP/code" rev-parse --short HEAD): $(wc -l < "$RUNNER_TEMP/code-tree.txt") paths"
+
+      - name: Check evidence index and coverage sources
+        run: |
+          python3 -B -m unittest discover -s docs/scripts -p 'test_docs_gates.py'
+          python3 docs/scripts/check-evidence-index.py
+          python3 docs/scripts/check-coverage-sources.py --code-tree "$RUNNER_TEMP/code-tree.txt" --require
+
       - name: Build
         working-directory: docs
         run: npm run build
