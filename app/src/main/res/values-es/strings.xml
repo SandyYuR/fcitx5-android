@@ -455,7 +455,7 @@
     <string name="monet_editor_select_color_resource">Seleccionar recurso de color</string>
     <string name="monet_editor_select">Seleccionar</string>
     <string name="monet_editor_color_mapping_title">Mapeo de colores</string>
-    <string name="monet_editor_description">Asocie cada color del tema a un recurso de color dinámico de Material You. Los cambios se guardarán y aplicarán automáticamente.</string>
+    <string name="monet_editor_description">Asocie cada color del tema a un recurso de color dinámico de Material You. Toque ✓ para guardar y aplicar; si sale sin hacerlo, los cambios se descartan.</string>
     <string name="edit_monet_theme">Editar tema Monet</string>
 
     <string name="text_keyboard_layout_add_submode">Agregar diseño de submodo</string>

@@ -280,7 +280,7 @@
     <string name="monet_editor_select_color_resource">Select Color Resource</string>
     <string name="monet_editor_select">Select</string>
     <string name="monet_editor_color_mapping_title">Color Mapping</string>
-    <string name="monet_editor_description">Map each theme color to a Material You dynamic color resource. Changes will be saved and applied automatically.</string>
+    <string name="monet_editor_description">Map each theme color to a Material You dynamic color resource. Tap ✓ to save and apply; leaving without it discards the changes.</string>
     <string name="edit_monet_theme">Edit Monet Theme</string>
     <string name="skip">Skip</string>
     <string name="none">None</string>

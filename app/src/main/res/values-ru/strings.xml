@@ -650,7 +650,7 @@
     <string name="monet_editor_select_color_resource">Выбрать ресурс цвета</string>
     <string name="monet_editor_select">Выбрать</string>
     <string name="monet_editor_color_mapping_title">Сопоставление цветов</string>
-    <string name="monet_editor_description">Сопоставьте каждый цвет темы с ресурсом динамического цвета Material You. Изменения будут автоматически сохранены и применены.</string>
+    <string name="monet_editor_description">Сопоставьте каждый цвет темы с ресурсом динамического цвета Material You. Нажмите ✓, чтобы сохранить и применить; при выходе без этого изменения не сохраняются.</string>
     <string name="edit_monet_theme">Редактировать тему Monet</string>
 
     <string name="text_keyboard_layout_add_submode">Добавить раскладку подрежима</string>

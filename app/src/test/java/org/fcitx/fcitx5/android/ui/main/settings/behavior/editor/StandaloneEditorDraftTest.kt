@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Parcel
 import androidx.appcompat.view.menu.MenuBuilder
 import org.fcitx.fcitx5.android.FcitxApplication
+import org.fcitx.fcitx5.android.data.BundledPresets
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.PopupEditorActivity
@@ -109,6 +110,20 @@ class StandaloneEditorDraftTest {
             popupEntries(second.get()).clear(); popupEntries(second.get()).putAll(before.mapValues { it.value.toMutableList() })
             assertFalse(ReflectionHelpers.callInstanceMethod(second.get(), "hasChanges"))
         } finally { finish(second) }
+    }
+
+    @Test fun popupStartsFromTheBundledDefaultsTheKeyboardUses() {
+        UserConfigFiles.popupPresetJson()?.delete()
+        val bundled = requireNotNull(BundledPresets.readBundledPopupPreset())
+            .mapValues { (_, values) -> values.map { it.trim() }.filter { it.isNotEmpty() } }
+        // The compiled PopupPreset adds "@" and more accents to "A"; the keyboard shows the asset.
+        assertFalse("@" in bundled.getValue("A"))
+        val editor = Robolectric.buildActivity(PopupEditorActivity::class.java).setup()
+        try {
+            val entries = popupEntries(editor.get())
+            for ((key, values) in bundled) assertEquals(key, values, entries[key])
+            assertFalse(ReflectionHelpers.callInstanceMethod(editor.get(), "hasChanges"))
+        } finally { finish(editor) }
     }
 
     @Test fun fontSelectionsSizesAndDirtySaveButtonSurviveAParcelRoundTrip() {
