@@ -58,7 +58,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/refresh"
             android:src="@android:drawable/ic_popup_sync"
-            android:tint="?attr/colorPrimary" />
+            app:tint="?attr/colorPrimary" />
 
         <ImageButton
             android:id="@+id/btnExport"
@@ -67,7 +67,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/export_log"
             android:src="@android:drawable/ic_menu_save"
-            android:tint="?attr/colorPrimary" />
+            app:tint="?attr/colorPrimary" />
 
         <ImageButton
             android:id="@+id/btnClear"
@@ -76,7 +76,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/clear_log"
             android:src="@android:drawable/ic_menu_delete"
-            android:tint="?attr/colorPrimary" />
+            app:tint="?attr/colorPrimary" />
 
     </LinearLayout>
 

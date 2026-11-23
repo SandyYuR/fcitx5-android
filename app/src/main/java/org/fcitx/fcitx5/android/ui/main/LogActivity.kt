@@ -222,17 +222,17 @@ class LogActivity : SettingsUiActivity() {
 
     private fun setupLevelSpinner() {
         val levels = listOf(
-            "全部级别",
-            "V (Verbose)",
-            "D (Debug)",
-            "I (Info)",
-            "W (Warning)",
-            "E (Error)",
-            "F (Fatal)",
-            "I/W/E (重要)",
-            "W/E/F (警告及错误)",
-            "Rime 引擎日志"
-        )
+            R.string.log_filter_all_levels,
+            R.string.log_filter_level_verbose,
+            R.string.log_filter_level_debug,
+            R.string.log_filter_level_info,
+            R.string.log_filter_level_warning,
+            R.string.log_filter_level_error,
+            R.string.log_filter_level_fatal,
+            R.string.log_filter_important,
+            R.string.log_filter_warnings_errors,
+            R.string.log_filter_rime_engine
+        ).map(::getString)
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, levels)
         levelSpinner.adapter = adapter
