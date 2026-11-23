@@ -8,6 +8,8 @@ import android.os.Process
 import android.os.SystemClock
 import android.util.Log
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -163,8 +165,7 @@ class DefaultFontProvider : FontProviderApi {
                     }
                 if (published != null) {
                     val (callbacks, fonts) = published
-                    Log.i(
-                        "FcitxColdStart",
+                    Logx.i(LogTag.ColdStart,
                         "font preload keys=${keys.size} duration=${SystemClock.elapsedRealtime() - startedAt}ms"
                     )
                     callbacks.forEach { it(fonts) }
@@ -314,8 +315,7 @@ class DefaultFontProvider : FontProviderApi {
             if (retryableFontKeys.isEmpty()) nextFontConfigReadAt = 0L
         }
         if (validPaths.isNotEmpty()) {
-            Log.i(
-                "FcitxColdStart",
+            Logx.i(LogTag.ColdStart,
                 "font key=$key files=${validPaths.size} loaded=${loaded != null} " +
                     "duration=${SystemClock.elapsedRealtime() - startedAt}ms"
             )

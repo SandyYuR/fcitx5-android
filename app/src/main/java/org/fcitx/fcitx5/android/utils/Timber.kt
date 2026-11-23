@@ -16,10 +16,67 @@ class VerboseTree : Timber.DebugTree() {
 }
 
 class ConciseTree : Timber.Tree() {
-    // "tag" is only available when calling with Timber.tag().log(), which we didn't
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
         if (priority < Log.INFO) return
-        Log.println(priority, "[${Thread.currentThread().name}]", message)
+        
+        // Build effective tag: "[thread]" or "[thread] domain"
+        val threadName = Thread.currentThread().name
+        val effectiveTag = if (tag.isNullOrEmpty()) {
+            "[$threadName]"
+        } else {
+            "[$threadName] $tag"
+        }
+        
+        // Append truncated stack trace if present
+        val fullMessage = if (t != null) {
+            message + "\n" + truncateStackTrace(Log.getStackTraceString(t))
+        } else {
+            message
+        }
+        
+        Log.println(priority, effectiveTag, fullMessage)
+    }
+    
+    /**
+     * Truncate stack trace to keep output manageable while preserving diagnostic value.
+     * Keeps up to 40 frames for the main exception and 10 frames for each cause.
+     */
+    private fun truncateStackTrace(stackTrace: String): String {
+        val lines = stackTrace.lines()
+        if (lines.size <= 60) return stackTrace
+        
+        val result = mutableListOf<String>()
+        var currentFrameCount = 0
+        var maxFrames = 40  // main exception gets more frames
+        
+        for (line in lines) {
+            when {
+                line.startsWith("Caused by:") || line.startsWith("Suppressed:") -> {
+                    result.add(line)
+                    currentFrameCount = 0
+                    maxFrames = 10  // subsequent causes get fewer frames
+                }
+                line.trim().startsWith("at ") -> {
+                    if (currentFrameCount < maxFrames) {
+                        result.add(line)
+                        currentFrameCount++
+                    } else if (currentFrameCount == maxFrames) {
+                        result.add("\t... (frames truncated)")
+                        currentFrameCount++
+                    }
+                }
+                line.trim().startsWith("... ") && line.contains("more") -> {
+                    // Preserve "... N more" summary lines
+                    result.add(line)
+                }
+                else -> {
+                    // Exception message lines (first line of each exception)
+                    result.add(line)
+                }
+            }
+        }
+        
+        return result.joinToString("\n")
     }
 }
 

@@ -132,6 +132,7 @@
     <string name="clipboard_entry_file_named">File · %1$s</string>
     <string name="clear">Clear</string>
     <string name="copy">Copy</string>
+    <string name="select_all">Select all</string>
     <string name="search">Search</string>
     <string name="clipboard_search_no_results">No results</string>
     <string name="clipboard_search_hint">Search clipboard</string>
@@ -139,6 +140,8 @@
     <string name="app_crash">Application crashed</string>
     <string name="app_crash_message">Sorry, but we bring you some logs to investigate.</string>
     <string name="crash_logs">Crash logs</string>
+    <string name="log_level_filter">Log level filter</string>
+    <string name="log_filtered_status">Showing %1$d of %2$d lines</string>
     <string name="verbose_log">Verbose logging</string>
     <string name="rime_engine_log">Rime engine logs</string>
     <string name="rime_engine_log_summary">Emit INFO and WARNING from the native engine into real-time logs. Takes effect after the app restarts.</string>
@@ -1294,4 +1297,13 @@
     <string name="rime_engine_version_value">librime version: %1$s</string>
     <string name="rime_engine_api_size_value">RimeApi data size: %1$d bytes</string>
     <string name="rime_engine_capabilities_value">Detected capabilities: %1$s</string>
+    <string name="log_level">Log Level</string>
+    <!-- 日志界面 -->
+    <string name="search_logs">搜索日志…</string>
+    <string name="refresh">刷新</string>
+    <string name="export_log">导出</string>
+    <string name="clear_log">清空</string>
+    <string name="log_status_format">显示 %1$d 条日志</string>
+    <string name="log_status_filtered_format">显示 %1$d 条 · 过滤: %2$s</string>
+
 </resources>

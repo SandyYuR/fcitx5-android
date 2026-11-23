@@ -33,6 +33,8 @@ import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceHostPermissions
 import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoiceHostPermissionDialog
 import org.fcitx.fcitx5.android.utils.appContext
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -46,7 +48,6 @@ data class VoiceInputProviderInfo(
 
 object VoiceInputProviderManager {
     const val ID_PREFIX = "plugin:"
-    private const val TAG = "FcitxVoiceInput"
 
     // 3-second post-speech silence ⇒ provider emits a final segment.
     private const val DEFAULT_SILENCE_MS = 3000L
@@ -294,15 +295,15 @@ object VoiceInputProviderManager {
     // in release, so user-reported issues remain debuggable via the file log.
     // R8 folds away the call in release builds where BuildConfig.DEBUG is false.
     private fun logI(msg: String) {
-        if (BuildConfig.DEBUG) android.util.Log.i(TAG, msg)
+        if (BuildConfig.DEBUG) Logx.i(LogTag.Voice, msg)
     }
 
     private fun logW(msg: String) {
-        if (BuildConfig.DEBUG) android.util.Log.w(TAG, msg)
+        if (BuildConfig.DEBUG) Logx.w(LogTag.Voice, msg)
     }
 
     private fun logW(msg: String, e: Throwable) {
-        if (BuildConfig.DEBUG) android.util.Log.w(TAG, msg, e)
+        if (BuildConfig.DEBUG) Logx.w(LogTag.Voice, msg, e)
     }
 
     // Timber.i is verbose tracing of normal flow; gate it like logI so release

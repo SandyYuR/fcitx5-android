@@ -6,7 +6,7 @@ package org.fcitx.fcitx5.android.ui.main.log
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.HorizontalScrollView
+import android.widget.FrameLayout
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -25,14 +25,14 @@ import splitties.views.dsl.recyclerview.recyclerView
 import splitties.views.recyclerview.verticalLayoutManager
 
 class LogView @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null) :
-    HorizontalScrollView(context, attributeSet) {
+    FrameLayout(context, attributeSet) {
 
     private val logLevelPattern =
         Regex("""^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+\d+\s+\d+\s+([VDIWEF])\s""")
 
     private var logcat: Logcat? = null
 
-    private val logAdapter = LogAdapter()
+    private val logAdapter = LogAdapter(context)
 
     private val rv = recyclerView {
         adapter = logAdapter
@@ -40,7 +40,7 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
     }
 
     init {
-        add(rv, lParams(wrapContent, matchParent))
+        add(rv, lParams(matchParent, matchParent))
     }
 
     override fun onDetachedFromWindow() {
@@ -87,6 +87,18 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
     }
 
     fun currentFilterQuery() = logAdapter.currentFilterQuery()
+
+    fun setLevelFilter(levels: Set<Char>) {
+        logAdapter.setLevelFilter(levels)
+    }
+    
+    fun setContentFilter(filter: String) {
+        logAdapter.setContentFilter(filter)
+    }
+
+    fun currentLevelFilter() = logAdapter.currentLevelFilter()
+
+    fun getFilterStatus(): Pair<Int, Int> = logAdapter.getFilterStatus()
 
     fun setBottomPadding(padding: Int) {
         rv.clipToPadding = false

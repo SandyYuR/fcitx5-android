@@ -70,6 +70,8 @@ import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.SwipeAxis
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
 import org.fcitx.fcitx5.android.utils.DeviceInfoCollector
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import org.fcitx.fcitx5.android.utils.pressHighlightDrawable
 
 // Import Macro types
@@ -915,8 +917,7 @@ abstract class BaseKeyboard(
         keyboardWaterRippleView?.setOccluders(
             keyRows.flatMap { row -> row.children.mapNotNull { it as? KeyView }.toList() }
         )
-        Log.i(
-            "FcitxColdStart",
+        Logx.i(LogTag.ColdStart,
             "${javaClass.simpleName}.reloadLayout rows=${keyRows.size} " +
                 "duration=${SystemClock.elapsedRealtime() - startedAt}ms"
         )

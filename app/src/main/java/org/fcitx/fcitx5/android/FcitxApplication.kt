@@ -40,6 +40,7 @@ import org.fcitx.fcitx5.android.utils.Locales
 import org.fcitx.fcitx5.android.utils.setupForest
 import org.fcitx.fcitx5.android.utils.startActivity
 import org.fcitx.fcitx5.android.utils.userManager
+import org.fcitx.fcitx5.android.utils.LogSink
 import timber.log.Timber
 import kotlin.system.exitProcess
 
@@ -169,6 +170,7 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
         // we don't have AppPrefs available yet
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(ctx)
         Timber.setupForest(verbose = sharedPrefs.getBoolean("verbose_log", false))
+        LogSink.init(this)  // Initialize log file writer
 
         Timber.d("isDirectBootMode=$isDirectBootMode")
 

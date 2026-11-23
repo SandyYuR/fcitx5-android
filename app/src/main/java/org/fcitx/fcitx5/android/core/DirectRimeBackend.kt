@@ -19,6 +19,8 @@ import org.fcitx.fcitx5.android.data.WanxiangAdvancedFiles
 import org.fcitx.fcitx5.android.data.RimeProfileImportTransaction
 import org.fcitx.fcitx5.android.data.RimeProfileUpdateInstaller
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import timber.log.Timber
 import java.io.File
 import java.util.concurrent.Executors
@@ -78,12 +80,12 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override fun captureInputKey(): InputKeyGate.Ticket? {
         assetPrewarmer.inputStarted()
         return keyGate.capture { reason ->
-            android.util.Log.w("RimeInputQueue", "key_rejected generation=$inputSession reason=$reason")
+            Logx.w(LogTag.RimeInputQueue, "key_rejected generation=$inputSession reason=$reason")
         }
     }
     override fun canDeliverInputKey(ticket: InputKeyGate.Ticket): Boolean {
         val deliver = keyGate.canDeliver(ticket)
-        if (ticket.waitedForBinding) android.util.Log.i("RimeInputQueue",
+        if (ticket.waitedForBinding) Logx.i(LogTag.RimeInputQueue,
             "binding_key generation=${ticket.generation} wait_ms=${(System.nanoTime() - ticket.capturedNanos) / 1_000_000} delivered=$deliver")
         return deliver
     }
@@ -276,7 +278,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private inline fun <T> startupStage(name: String, crossinline block: () -> T): T {
         val start = SystemClock.elapsedRealtime()
         return try { trace("rime.direct.startup.$name") { block() } }
-        finally { android.util.Log.i("RimeLifecycle", "startup phase=$name duration_ms=${SystemClock.elapsedRealtime() - start}") }
+        finally { Logx.i(LogTag.RimeLifecycle, "startup phase=$name duration_ms=${SystemClock.elapsedRealtime() - start}") }
     }
     private suspend fun <T> onOwner(block: () -> T): T = withContext(owner) { block() }
     private fun nativeTiming(values: LongArray = Native.operationTiming()): String =
@@ -343,7 +345,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 " publish_us=${(publishDone - publishAt) / 1000}" +
                 if (beginTiming != null) " ${nativeTiming(beginTiming)}" else ""
         }
-        android.util.Log.i("RimeLifecycle", "bind generation=$generation duration_ms=${SystemClock.elapsedRealtime() - startedAt} $details")
+        Logx.i(LogTag.RimeLifecycle, "bind generation=$generation duration_ms=${SystemClock.elapsedRealtime() - startedAt} $details")
     }
     override suspend fun startInputSession(generation: Long, program: String) = onOwner {
         if (generation != inputSession) return@onOwner
@@ -365,7 +367,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         val batch = publicationState.clearBinding(generation)
         keyGate.resolve(generation, false)
         events.offer(batch)
-        android.util.Log.i("RimeLifecycle", "binding_inactive generation=$generation native_create=false")
+        Logx.i(LogTag.RimeLifecycle, "binding_inactive generation=$generation native_create=false")
     }
     private fun act(action: Int, index: Int = 0, value: String = "", forceCandidates: Boolean = false,
                     statisticsSource: InputStatisticsSource? = null): Snapshot? {
@@ -504,7 +506,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
             if (!up && result?.ready == true) {
                 bindingKeys++
                 if (BuildConfig.INPUT_DIAGNOSTICS && (bindingKeys <= 3 || nativeAt - queuedAt >= 100_000_000L))
-                    android.util.Log.i("RimeInputTiming", "key generation=$expected ordinal=$bindingKeys service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
+                    Logx.i(LogTag.RimeInputTiming, "key generation=$expected ordinal=$bindingKeys service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_us=${(nativeAt - ownerAt) / 1000} publish_us=${(SystemClock.elapsedRealtimeNanos() - nativeAt) / 1000} ${nativeTiming()}")
             }
             val keyId = sym to code
             val forward = if (up) forwardedKeys.remove(keyId) else
@@ -544,7 +546,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         return onOwner {
             if (!interactionTargets.actionStillCurrent(expected, candidateContext, tabContext)) {
                 if (action == 1 || action == 11)
-                    android.util.Log.i("RimeInputTiming", "select_rejected generation=${expected.generation} service_task=${diagnosticTask?.id ?: 0} reason=stale_snapshot")
+                    Logx.i(LogTag.RimeInputTiming, "select_rejected generation=${expected.generation} service_task=${diagnosticTask?.id ?: 0} reason=stale_snapshot")
                 null
             } else {
                 val argument = if (value == null) "" else value() ?: return@onOwner null
@@ -553,7 +555,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
                 if (action == 1 || action == 11) {
                     bindingSelections++
                     if (BuildConfig.INPUT_DIAGNOSTICS && (bindingSelections <= 2 || SystemClock.elapsedRealtimeNanos() - ownerAt >= 100_000_000L))
-                        android.util.Log.i("RimeInputTiming", "select generation=${expected.generation} ordinal=$bindingSelections service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_publish_us=${(SystemClock.elapsedRealtimeNanos() - ownerAt) / 1000} ${nativeTiming()}")
+                        Logx.i(LogTag.RimeInputTiming, "select generation=${expected.generation} ordinal=$bindingSelections service_task=${diagnosticTask?.id ?: 0} service_category=${diagnosticTask?.category ?: "none"} admission_wait_us=${(admittedAt - queuedAt) / 1000} owner_wait_us=${(ownerAt - admittedAt) / 1000} native_publish_us=${(SystemClock.elapsedRealtimeNanos() - ownerAt) / 1000} ${nativeTiming()}")
                 }
                 result
             }

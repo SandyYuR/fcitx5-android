@@ -12,6 +12,8 @@ import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.util.Log
 import androidx.core.content.ContextCompat
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import timber.log.Timber
 import kotlin.concurrent.thread
 
@@ -31,7 +33,6 @@ class VoiceInputAudioCapture(
     )
 
     companion object {
-        private const val TAG = "FcitxVoiceInput"
         const val DEFAULT_SAMPLE_RATE = 16000
         const val DEFAULT_BITS_PER_SAMPLE = 16
         const val DEFAULT_CHANNELS = 1
@@ -118,7 +119,7 @@ class VoiceInputAudioCapture(
                     val rms = rmsOf(buf, read)
                     if (pts - lastLevelLogAt >= 1000L) {
                         lastLevelLogAt = pts
-                        Log.i(TAG, "capture level rms=$rms read=$read pts=$pts")
+                        Logx.i(LogTag.Voice, "capture level rms=$rms read=$read pts=$pts")
                     }
                     onLevel?.invoke(rms)
                 }
