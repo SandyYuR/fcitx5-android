@@ -688,6 +688,8 @@
     <string name="theme_name">테마 이름</string>
     <string name="theme_name_empty">테마 이름은 비워 둘 수 없습니다</string>
     <string name="toolbar_num_row_on_password">비밀번호 입력 시 툴바에 숫자 행 표시</string>
+    <string name="allow_ime_in_password_fields">비밀번호 입력란에서 입력기 사용 허용</string>
+    <string name="allow_ime_in_password_fields_summary">비밀번호 입력란에서도 Rime을 사용합니다. 비밀번호 입력 중에는 사용자 단어 학습, 입력 통계, 음성 입력이 비활성화된 상태로 유지됩니다.</string>
     <string name="update_table">테이블 업데이트</string>
     <string name="update_storage_permission_denied">저장소 권한이 거부되었습니다</string>
     <string name="update_invalid_download_url">잘못된 다운로드 URL입니다.</string>

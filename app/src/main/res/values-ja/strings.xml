@@ -209,6 +209,8 @@
     <string name="notification_permission_message">通知の許可がない場合、時間のかかる操作が行われたときに通知することができません。</string>
     <string name="notification_permission_title">通知の権限がありません</string>
     <string name="toolbar_num_row_on_password">パスワード入力時に数字をツールバーに横並びで表示する</string>
+    <string name="allow_ime_in_password_fields">パスワード欄で入力メソッドを許可</string>
+    <string name="allow_ime_in_password_fields_summary">パスワード欄でも Rime を使用します。パスワード欄への入力中は、単語学習、入力統計、音声入力が無効のままです。</string>
     <string name="space_long_press_behavior">スペースキー長押し時の動作</string>
     <string name="space_behavior_none">なし</string>
     <string name="space_behavior_enumerate">有効な Rime スキーマを順に切り替える</string>
