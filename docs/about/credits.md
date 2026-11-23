@@ -48,7 +48,7 @@ fcitx5-android/fcitx5-android  (上游 / upstream)
 ### 直连 librime 与构建
 
 - 保留 Android 前端，主应用通过 JNI 直接驱动 librime；删除原生 Fcitx Core、fcitx5-rime 和 AndroidFrontend。
-- 引擎库为 `libdirect-rime.so`，与 `libc++_shared.so` 一起打包；JS 语音另使用 `libquickjs.so`。librime、引擎插件及其依赖静态链接进引擎库。
+- 引擎库为 `libdirect-rime.so`，与 `libc++_shared.so` 一起打包；JS 插件（语音、AI 助手与文本工具）另使用 `libquickjs.so`。librime、引擎插件及其依赖静态链接进引擎库。
 - 历史构建基础来自 [prebuilder](https://github.com/SandyYuR/prebuilder) 和 [prebuilt](https://github.com/SandyYuR/prebuilt)，相关补丁保留原作者署名。当前引擎源码、依赖构建和 Android SDK 发布集中在 [SandyYuR/librime](https://github.com/SandyYuR/librime/tree/zhongzhou)，更新方法见[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN)。
 - 主包名恢复为 `org.fcitx.fcitx5.android.fx.rime`，与本仓库旧 Fcitx 版同签名时覆盖升级；旧测试包需迁移。
 - 不预装中文方案、完整词典或万象模型；方案需自行导入并部署。
@@ -60,7 +60,7 @@ fcitx5-android/fcitx5-android  (上游 / upstream)
 - 候选词按住上滑选字 / 下滑呼出菜单；忘记词汇连删同音词
 - 退格长按删空编码后保护正文；连删后上滑清空输入框
 - Foxy 风格符号 / 表情 / 颜文字面板（约 6900 条），三类数据可自定义
-- 剪贴板历史实时搜索；设置首页两层六入口 + 顶部搜索框
+- 剪贴板历史实时搜索；设置首页「日常调整」「按需进入」两组共七个入口 + 顶部搜索框
 - 分体键盘按子布局单独配置、断点指定、空白占位键；空格键划动动作与长按重复输入空格
 - 宏按键「显示文本」优先于标签并原样显示
 

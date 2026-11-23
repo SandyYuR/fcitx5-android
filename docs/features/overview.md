@@ -12,8 +12,8 @@
 | 万象更新与高级设置 | 仅万象用户：更新当前目录的方案、词库与模型，以补丁或直写模式编辑配置草稿 | [万象更新](/features/rime-enhancements#万象方案更新与高级设置) |
 | Rime 自定义更新 | 在“Rime方案更新”分组配置网络或本地资源任务，按子目录、排除规则单项或批量更新 | [自定义方案更新](/features/rime-enhancements#自定义方案更新) |
 | 语言、方案与开关 | 语言键短按交给方案切换中英文，长按打开方案菜单；状态区管理分组开关 | [语言键](/features/keys/language-key) |
-| 候选栏与窗口 | 调整字体、注释、序号、间距和圆角；长候选可横向浏览，展开候选与浮动窗口分别配置 | [候选指南](/features/candidate-window) |
-| 选词与退格手势 | 按住候选后滑动选字或打开菜单；合成中长按退格上滑只清编码，正文单独处理 | [Rime 功能](/features/rime-enhancements) · [退格键](/features/keys/backspace-key) |
+| 候选栏与窗口 | 调整字体、注释、序号、间距和圆角；长候选可横向浏览，展开候选与浮动窗口分别配置；浮动窗口可跟随光标，实体键盘另设位置 | [候选指南](/features/candidate-window) |
+| 选词与退格手势 | 按住候选后滑动选字或打开菜单；万象拼音可手动置顶或前后移动候选；合成中长按退格上滑只清编码，正文单独处理 | [Rime 功能](/features/rime-enhancements) · [手动排序](/features/candidate-window#万象拼音手动排序) · [退格键](/features/keys/backspace-key) |
 
 部署、同步或配置重载期间，等待引擎恢复后再输入；这些维护阶段不处理按键。初始化等待与正常输入的事件顺序是另一回事，不能把“部署时继续输入”当作支持的操作。
 
@@ -21,7 +21,7 @@
 
 | 功能 | 能做什么 | 详细说明 |
 | --- | --- | --- |
-| 浮动、分体、单手 | 调整大小和位置；横屏可自动切换形态，浮动移动手柄可自动隐藏 | [浮动](/features/keyboard/float-keyboard) · [分体](/features/keyboard/split-keyboard) · [单手](/features/keyboard/one-handed) |
+| 浮动、分体、单手 | 调整大小和位置；横屏可自动切换形态，浮动移动手柄可自动隐藏 | [浮动](/features/keyboard/float-keyboard) · [分体](/features/keyboard/split-keyboard) · [单手](/features/keyboard/one-handed) · [调整模式](/features/keyboard/adjust-mode) |
 | 布局文件与方案子布局 | 保存多份布局，按方案配置；支持合成态预览、独立分体排列及指定行保持连贯 | [布局编辑器](/features/editor/layout-editor) |
 | 可视化编辑 | 编辑行结构、键位、弹出字符、宏和字体集，支持草稿、保存确认与 JSON | [Popup](/features/editor/popup-editor) · [宏编辑器](/features/editor/macrokey-editor) · [字体](/features/editor/fontset-editor) |
 | 按键类型与字段 | 字母、宏、切层、空格、退格等按键；空白占位键用于排版，显式显示文本保留原样 | [按键参考](/features/keys/overview) |
@@ -33,7 +33,8 @@
 
 | 功能 | 能做什么 | 详细说明 |
 | --- | --- | --- |
-| 键盘主题 | 自定义颜色、图片、圆角、图标、磨砂与字体；随机主题可复制为自定义主题 | [主题编辑器](/features/theme/theme-editor) · [Monet](/features/theme/monet) |
+| 键盘主题 | 自定义颜色、图片、圆角、磨砂与字体；内置水彩、普蓝成套主题可一并换上布局、图标与副字体；随机主题可复制为自定义主题 | [主题编辑器](/features/theme/theme-editor) · [Monet](/features/theme/monet) · [磨砂](/features/theme/frosted-blur) |
+| 图标主题 | 替换按键、工具栏、数字键盘、文本编辑栏与系统按钮图标，可导入导出和二维码分享 | [图标主题](/features/theme/icon-themes) |
 | 设置界面外观 | 明暗、纯黑、Monet、手动配色，Android 11+ 可跟随键盘取色；修改即时生效 | [设置外观](/features/theme/settings-appearance) |
 | 页面动画与返回 | 独立前进/返回样式、350/500/650 ms；Android 14+ 提供预测性返回，默认关闭，保留已有选择 | [动画设置](/features/theme/settings-appearance#动画与返回手势) |
 | Kawaii Bar | 自定义按钮、宏与图标，调整工具栏大小；语音按钮参与排列，收起键盘按钮独立保留 | [工具栏](/features/kawaii-bar) |
@@ -49,6 +50,7 @@
 | 导入自定义 JS | 导入自包含脚本，逐插件批准网络主机；密钥由宿主保存，不交给脚本 | [导入与授权](/features/voice-input-js#导入、覆盖与移除) |
 | AIDL 外部提供方 | 接入实现协议的独立 Android 应用，适合本地模型或厂商 SDK | [外部提供方](/features/voice-input) |
 | AI 文本助手 | 可移动面板，配置三种文本接口协议；生成回复后预览并确认上屏 | [AI 助手](/features/ai-assistant) |
+| JS 工具与翻译 | 工具栏放置 JS 工具按钮，内置有道翻译、哔哩哔哩翻译等 App，面板内可切换工具 | [JS 工具](/features/voice-input-js#js-工具与内置翻译) |
 | 快速切换 | 工具栏语音键短按识别、长按选择首选引擎；JS 引擎可直接进入插件设置 | [语音入口](/features/voice-input) |
 
 ## 数据与常用工具

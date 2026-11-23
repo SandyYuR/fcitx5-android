@@ -55,7 +55,7 @@ JNI 返回的 `Snapshot` 同时包含本次 commit 和对应展示。提交先�
 
 ## 缓存与可观测性
 
-`DirectRimeAssetPrewarmer` 在键盘显示后延迟 200 ms 获取生效方案的语法模型和主词典路径，按 profile 优先、共享目录回退的顺序定位原文件。低优先级 I/O 使用 `mincore` 判断驻留，按可用内存预算分块读取缺失页，最大读入预算为 512 MiB。实际输入、窗口隐藏及状态失效会取消任务。缓存由内核回收，低内存、省电或高热状态会跳过预热。[冷缓存、预热与资源实测](../perf/cyime-wanxiang-2026-11-21/#冷缓存与预热)
+`DirectRimeAssetPrewarmer` 在键盘显示后延迟 200 ms 获取生效方案的语法模型和主词典路径（`Native.prewarmAssets` 返回 `build/<词典>.table.bin` 与 `<语法>.gram`），按 profile 优先、共享目录回退的顺序定位原文件。Direct Boot、ASCII、已有 preedit、直接输入及密码／敏感输入框不预热，Android 8.1 以下不执行。低优先级 I/O 使用 `mincore` 判断驻留，按可用内存预算分块读取缺失页，最大读入预算为 512 MiB。实际输入、窗口隐藏及状态失效会取消任务。缓存由内核回收，低内存、省电或高热状态会跳过预热。[冷缓存、预热与资源实测](../perf/cyime-wanxiang-2026-11-21/#冷缓存与预热)
 
 native 只缓存稳定的 `schema_id`、`schema_name`、`ascii_mode`，键包含 generation、session 和 `optionsRevision`，读取前后复查版本。`read_status` span 每次出现，不等于每次都实际调用 `get_status`；真正的调用另有 `rime.direct.get_status` 标记。
 

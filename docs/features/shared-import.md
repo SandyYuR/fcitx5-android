@@ -12,7 +12,7 @@
 ## ZIP / 7z 自动解压
 
 - 共享接收到的压缩包可选择直接解压到目录
-- 同时支持 **ZIP** 和 **7z** 格式（7z 导入带 SDK 守卫，避开部分 ROM desugar 缺失的 nio API）
+- 同时支持 **ZIP** 和 **7z** 格式；7z 需要 Android 8.0 及以上，较低版本会提示不支持（避开部分 ROM desugar 缺失的 nio API）
 - 大压缩包：解压上限 1 GiB（`MAX_ARCHIVE_EXTRACT_BYTES`），且解压有总量与路径校验，配合主题包的条目限额防御恶意包
 
 ## 入口

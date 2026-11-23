@@ -37,6 +37,7 @@ npm --prefix docs run build
 python docs/scripts/check-links.py
 python docs/scripts/check-legacy-docs.py
 node docs/scripts/check-doc-catalog.mjs
+node docs/scripts/check-doc-search.mjs
 git diff --check
 git status --short
 ```

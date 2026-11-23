@@ -10,7 +10,7 @@
 
 ## 按目录查找全部附件
 
-下面按目录直接链接到原始文件。校验摘要请查看对应报告的元数据或校验清单。旧 Fcitx 原站的素材和快照另由[恢复目录](/legacy/fcitx/contents)及其校验清单保护。
+下面按目录直接链接到原始文件；2026-11-06 之后新增的附件目录由各报告直接链接，见[后续附件目录](#_2026-11-06-之后的附件目录)。校验摘要请查看对应报告的元数据或校验清单。旧 Fcitx 原站的素材和快照另由[恢复目录](/legacy/fcitx/contents)及其校验清单保护。
 
 ### archive
 
@@ -499,11 +499,12 @@
 
 ### changes
 
-说明：[direct-rime](/maintainer/changes/direct-rime) · [feature-coverage](/maintainer/changes/feature-coverage) · [index](/maintainer/changes/) · [inherited](/maintainer/changes/inherited)
+说明：[direct-rime](/maintainer/changes/direct-rime) · [feature-coverage](/maintainer/changes/feature-coverage) · [index](/maintainer/changes/) · [inherited](/maintainer/changes/inherited) · [2026-11-05](/maintainer/changes/2026-11-05)
 
-::: details 原始文件（1 个）
+::: details 原始文件（2 个）
 
 - <a href="/fcitx5-android/maintainer/changes/commit-map-2026-10-30.json" download>commit-map-2026-10-30.json</a>
+- <a href="/fcitx5-android/maintainer/changes/commit-map-2026-11-05.json" download>commit-map-2026-11-05.json</a>
 
 :::
 
@@ -1096,6 +1097,8 @@
 
 ### perf/2026-10-18-rime-rebind/final-e6d31718
 
+说明：[README](/maintainer/perf/2026-10-18-rime-rebind/README)
+
 ::: details 原始文件（13 个）
 
 - <a href="/fcitx5-android/maintainer/perf/2026-10-18-rime-rebind/final-e6d31718/after-commit.txt" download>after-commit.txt</a>
@@ -1165,6 +1168,33 @@
 - <a href="/fcitx5-android/maintainer/perf/2026-10-19-cold-io/validation.json" download>validation.json</a>
 
 :::
+
+### 2026-11-06 之后的附件目录
+
+下列目录的原始文件由对应报告逐项链接并附 SHA-256 清单，此处只登记目录与说明入口；附件仍保留在原目录。
+
+| 目录 | 说明与附件入口 |
+| --- | --- |
+| `maintainer/audit/direct-rime-review-20261106/` | [2026-11-06 直连层与同类项目审阅](/maintainer/history/direct-rime-review-2026-11-06) |
+| `maintainer/audit/engine-input-fixes-20261106/` | [2026-11-06 引擎同步与输入修复](/maintainer/changes/2026-11-06-engine-input-fixes) |
+| `maintainer/audit/device-fixes-20261107/` | [2026-11-06 设备反馈修复](/maintainer/changes/2026-11-06-device-fixes) |
+| `maintainer/audit/history-squash-20261107/` | [2026-11-07 提交分类整理](/maintainer/changes/2026-11-07-history-squash) |
+| `maintainer/perf/wanxiang-2026-11-08/` | [2026-11-08 冻结版本复测](/maintainer/perf/wanxiang-2026-11-08/) 及其[11-11 补充](/maintainer/perf/wanxiang-2026-11-08/supplement-2026-11-11/)、[定向调查](/maintainer/perf/wanxiang-2026-11-08/supplement-2026-11-11/investigation-2026-11-11/) |
+| `maintainer/audit/development-branches-2026-11-12/` | [开发分支源码归档](/maintainer/audit/development-branches-2026-11-12/) |
+| `maintainer/perf/candidate-latency-fix-2026-11-12/` | [候选布局与按键发布优化验证](/maintainer/perf/candidate-latency-fix-2026-11-12/) |
+| `maintainer/perf/input-dispatch-2026-11-12/` | [首个 i 分发等待复核](/maintainer/perf/input-dispatch-2026-11-12/) |
+| `maintainer/perf/pr32-latency-study-2026-11-12/` | [PR #32 输入延迟研究证据](/maintainer/perf/pr32-latency-study-2026-11-12/) |
+| `maintainer/perf/pr32-phase-review-2026-11-12/` | [PR #32 独立发键与触摸时长复核](/maintainer/perf/pr32-phase-review-2026-11-12/) |
+| `maintainer/perf/pr32-review-repair-2026-11-12/` | [PR #32 审阅修复与范围调整](/maintainer/changes/2026-11-12-pr32-review-repair) |
+| `maintainer/perf/current-input-pipeline-2026-11-13/` | [输入链路复核与两项前端改动](/maintainer/perf/current-input-pipeline-2026-11-13/) |
+| `maintainer/perf/pr32-font-confirmation-2026-11-13/` | [PR #32 字体修复验证](/maintainer/perf/pr32-font-confirmation-2026-11-13/) |
+| `maintainer/perf/pr32-reviewed-reapplication-2026-11-13/` | [PR #32 旧优化重新对照](/maintainer/perf/pr32-reviewed-reapplication-2026-11-13/) 及其[第一版筛查](/maintainer/perf/pr32-reviewed-reapplication-2026-11-13/initial-screen/) |
+| `maintainer/audit/pr32-alignment-2026-11-14/` | [PR #32 分支与指引对齐](/maintainer/changes/2026-11-14-pr32-alignment) |
+| `maintainer/audit/pr32-squash-merge-2026-11-14/` | [候选修复与文档压缩合入](/maintainer/changes/2026-11-14-pr32-squash-merge) |
+| `maintainer/perf/pr32-integration-2026-11-14/` | [PR #32 整合与临时分支清理](/maintainer/perf/pr32-integration-2026-11-14/) |
+| `maintainer/perf/render-wait-2026-11-14/` | [首键与 RenderThread 等待](/maintainer/perf/render-wait-2026-11-14/) |
+| `maintainer/perf/cyime-wanxiang-2026-11-21/` | [CyIME 万象长句与冷缓存](/maintainer/perf/cyime-wanxiang-2026-11-21/) |
+| `maintainer/perf/input-fluency-2026-11-22/` | [按键气泡、输入调度与长句 CPU](/maintainer/perf/input-fluency-2026-11-22/) |
 
 ### perf/2026-11-14-refactor-comparison
 
