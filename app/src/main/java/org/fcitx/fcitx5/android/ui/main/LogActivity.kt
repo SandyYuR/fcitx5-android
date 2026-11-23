@@ -289,6 +289,11 @@ class LogActivity : SettingsUiActivity() {
 
         // 清空按钮
         btnClear.setOnClickListener {
+            // 加载中的历史必须在清空前取消：它会继续把清空前的快照 append 回来，
+            // 于是刚清掉的行重新出现在列表里，还能被导出，而底层文件其实已经删除。
+            val loadWasPending = reloadJob?.isActive == true
+            reloadJob?.cancel()
+            reloadJob = null
             logcat.clearLog()
             logView.clear()
             // 持久历史必须通过与 LogSink 同一个 writer 串行清理：
@@ -297,6 +302,12 @@ class LogActivity : SettingsUiActivity() {
             lifecycleScope.launch(Dispatchers.IO) {
                 CrashReportStore(FcitxApplication.getInstance().directBootAwareContext.noBackupFilesDir)
                     .delete()
+            }
+            if (loadWasPending) {
+                // 被取消的加载不会走到 setLogcat，实时 reader 需要在这里补接，
+                // 否则清空之后整段日志都不会再进来，直到用户手动刷新。
+                logcat.shutdownLogFlow()
+                logView.setLogcat(logcat)
             }
             updateStatus()
             toast(R.string.clear_log)
