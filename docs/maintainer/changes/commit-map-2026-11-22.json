@@ -1,0 +1,760 @@
+{
+  "base": "2411d9d135be90d601e27958d1be930930a57223",
+  "head": "b4670127df20e8a8c2a6b3ef59c694df5aa3529e",
+  "source": "fx-rime-only",
+  "documentation_baseline": "docs@e19ec592",
+  "generated": "2026-11-23",
+  "note": "按提交时间顺序；documentation 为文档源文件路径（相对 docs/），首项为本轮对照页。",
+  "commits": [
+    {
+      "sha": "f340e09a4d596c209934e50da2fd7d63038f780b",
+      "subject": "功能(引擎): 更新 Rime 与详细日志、完善九键模糊筛选 (#41)",
+      "files": [
+        "app/licenses/libraries/glog.json",
+        "app/licenses/libraries/spdlog.json",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeEngineLog.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeEngineOperations.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/DeveloperFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/DirectRimeEngineOperationsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/NativeTestShadow.kt",
+        "build-logic/convention/src/main/kotlin/RimeSdkPlugin.kt",
+        "build-logic/convention/src/test/kotlin/RimeSdkArchiveTest.kt",
+        "direct-rime/src/androidTest/java/org/fcitx/directrime/OrderedSpellingTabSdkTest.kt",
+        "direct-rime/src/engine/java/org/fcitx/directrime/Snapshot.kt",
+        "direct-rime/src/main/cpp/CMakeLists.txt",
+        "direct-rime/src/main/cpp/bridge.cpp",
+        "direct-rime/src/main/cpp/engine.cpp",
+        "direct-rime/src/main/cpp/engine.h",
+        "direct-rime/src/main/cpp/engine_test.cpp",
+        "native/README.md",
+        "native/rime-sdk.lock.json",
+        "tools/audit-direct-rime-link.py",
+        "tools/input-perf/build-study-products.sh",
+        "tools/input-perf/fixtures/study-rime-sdk.lock.json",
+        "tools/input-perf/fixtures/upgraded-rime-sdk.lock.json",
+        "tools/input-perf/test_study_product_recovery.py"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/changes/2026-11-16-syllable-fuzzy-filter-fix.md",
+        "maintainer/engine-update.md"
+      ]
+    },
+    {
+      "sha": "95c0fafb21bb29752ae04c4518284fb6138d7307",
+      "subject": "功能(键盘): 空格键支持自定义键面标签",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorForm.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/keys/space-key.md",
+        "maintainer/changes/feature-coverage.md"
+      ]
+    },
+    {
+      "sha": "61c3b2637db60865b3df5467200a49e6bc6c7943",
+      "subject": "功能(工具栏): 语言切换按钮按中英状态切换图标",
+      "files": [
+        "app/src/main/assets/bundled/icon_themes/谷歌.json",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeInputMethodEntryCache.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/BundledPresets.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconTheme.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/action/ButtonAction.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/idle/ButtonsBarUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/config/ButtonsConfig.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorActivity.kt",
+        "app/src/main/res/drawable/ic_language_switch_ascii.xml",
+        "app/src/main/res/drawable/ic_language_switch_zh.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/BundledPresetsUpgradeTest.kt",
+        "app/src/test/resources/bundled/.gitattributes",
+        "app/src/test/resources/bundled/README.md",
+        "app/src/test/resources/bundled/google-icon-theme-before-20261117.json"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/keys/language-key.md",
+        "features/kawaii-bar.md"
+      ]
+    },
+    {
+      "sha": "1ee9d1bfc5dfe3d914254a1829fe61444324561e",
+      "subject": "功能(主题): 副标签可固定显示在按键侧边",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemePrefs.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/AltLabelLayoutTimingTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/theme/theme-editor.md"
+      ]
+    },
+    {
+      "sha": "2d0e2487263d78644c20690fb59867b6c91493d9",
+      "subject": "功能(工具栏): 有道与哔哩哔哩翻译按钮改用官方标志",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/action/ButtonAction.kt",
+        "app/src/main/res/drawable/ic_bilibili_24.xml",
+        "app/src/main/res/drawable/ic_translate_24.xml",
+        "app/src/main/res/drawable/ic_youdao_24.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppButtonBindingTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/theme/icon-themes.md"
+      ]
+    },
+    {
+      "sha": "d20deb92e11215e3a7fe93985547eeccb4cdda3b",
+      "subject": "修复(键盘): 水波纹覆盖辅助栏按键并按窗口坐标换算",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/changes/feature-coverage.md"
+      ]
+    },
+    {
+      "sha": "b856c244de8f344952be37a5d83efbd4ccdc5162",
+      "subject": "修复(键盘): 空格键自定义标签在合成态与重建后丢失",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/SpaceKeyLabelTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/changes/2026-11-18-space-label-deferred-rebuild.md"
+      ]
+    },
+    {
+      "sha": "c74347d3ecf05c2641cc0905b4d5ef63d270ca92",
+      "subject": "修复(工具栏): 旧图标主题在 ASCII 态掉回内置语言图标",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/idle/ButtonsBarUi.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/bar/ui/idle/LanguageSwitchIconFallbackTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "7155f7e30c1e7d6309c95a5ddbc5fffb85c24a8a",
+      "subject": "修复(键盘): 副标签侧边位置在 RTL 下左右翻面",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/AltLabelLayoutTimingTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/AltLabelSideDirectionTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "d73753f12ed65de12983d15378c61b9e540b8d25",
+      "subject": "修复(键盘): 单字母空格键标签被 Caps 改写成大写",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/SpaceKeyLabelTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "8127188008f47e385aa3a660e4e796a31f7d9994",
+      "subject": "修复(键盘): 延迟重建后刷新空格键标签",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/SpaceKeyLabelTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "b3d832f0e1b52208b1042f7aa2b88b654ea404fa",
+      "subject": "构建(Codespaces): 配置中州鹅云端开发与容器验证 (#46)",
+      "files": [
+        ".devcontainer/Dockerfile",
+        ".devcontainer/Dockerfile.dockerignore",
+        ".devcontainer/devcontainer.json",
+        ".devcontainer/post-create.sh",
+        ".devcontainer/test.sh",
+        ".devcontainer/test_lifecycle.py",
+        ".devcontainer/toolchain-check.py",
+        ".devcontainer/verify-build.sh",
+        ".github/workflows/codespaces.yml",
+        ".vscode/tasks.json",
+        "README.md",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md",
+        "maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN.md"
+      ]
+    },
+    {
+      "sha": "b937cb79698312cb24f41042eab8faf269df8708",
+      "subject": "修复(输入统计): 区分热力图频次并兼容 Monet 取色",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/input-statistics.md"
+      ]
+    },
+    {
+      "sha": "abda9da86888aba5cf258c070ec0dd1f8713de30",
+      "subject": "功能(JS 工具): 自动在面板标题栏提供工具切换",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/action/ButtonAction.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppActionRow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppButtonBinding.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppDialog.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppSelection.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsAppSwitcher.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsApps.kt",
+        "app/src/main/res/values-de/strings_js_apps.xml",
+        "app/src/main/res/values-es/strings_js_apps.xml",
+        "app/src/main/res/values-ja/strings_js_apps.xml",
+        "app/src/main/res/values-ko/strings_js_apps.xml",
+        "app/src/main/res/values-ru/strings_js_apps.xml",
+        "app/src/main/res/values-zh-rCN/strings_js_apps.xml",
+        "app/src/main/res/values-zh-rTW/strings_js_apps.xml",
+        "app/src/main/res/values/strings_js_apps.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppSelectionTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppShortcutIntegrationTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/voice-input-js.md",
+        "features/voice-input-js-reference-zh-CN.md"
+      ]
+    },
+    {
+      "sha": "dfc400711058cca38ac2900126e3fbd72e140670",
+      "subject": "修复(工具栏): 内嵌建议态显示返回箭头并可退出",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/IdleUi.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/bar/InlineSuggestionExitButtonTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/changes/2026-11-19-inline-suggestion-exit.md",
+        "features/kawaii-bar.md"
+      ]
+    },
+    {
+      "sha": "34828a3dba117d40f4c876f2e431348e6f14a4a7",
+      "subject": "维护(仓库): issue 模板只保留使用手册入口",
+      "files": [
+        ".github/ISSUE_TEMPLATE/config.yml"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "23b8e70be5269f7295bfbef2869dfa26edd43c54",
+      "subject": "文档(README): 改写为面向用户的项目说明",
+      "files": [
+        "README.md"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "8e6749c927c9fbfe6127e46abb7be5c55fc2692d",
+      "subject": "功能(键盘): 按键支持图标主题槽位并叠加副标签",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconTheme.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemePrefs.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/ReturnKeyDrawableComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDef.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorForm.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/LetterIconKeyTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboardLabelsTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/theme/icon-themes.md",
+        "maintainer/changes/2026-11-17-key-svg-icons.md"
+      ]
+    },
+    {
+      "sha": "da8561cd8df7f500a0a812fadc515761ff1a2ee0",
+      "subject": "功能(界面): 工具栏与标题栏按钮接入图标主题",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/TitleUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/ToolButton.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/editing/FoxyTextEditingUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/editing/TextEditingButton.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/editing/TextEditingUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/status/StatusAreaWindow.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "229d7cd273e24bff9367688d20140025ceceedf9",
+      "subject": "功能(键盘): 增加分体键盘工具栏动作",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconTheme.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/action/ButtonAction.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorActivity.kt",
+        "app/src/main/res/drawable/ic_split_keyboard_24.xml"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/theme/theme-editor.md"
+      ]
+    },
+    {
+      "sha": "460d3939c7a1535806942593bd4f4025347cb166",
+      "subject": "功能(主题): 内置水彩与普蓝成套主题",
+      "files": [
+        "app/src/main/assets/bundled/fonts/字体图标.otf",
+        "app/src/main/assets/bundled/icon_themes/普蓝.json",
+        "app/src/main/assets/bundled/icon_themes/水彩.json",
+        "app/src/main/assets/bundled/keyboard_layouts/TextKeyboardLayout.普蓝.json",
+        "app/src/main/assets/bundled/keyboard_layouts/TextKeyboardLayout.水彩.json",
+        "app/src/main/assets/bundled/themes/普蓝.json",
+        "app/src/main/assets/bundled/themes/水彩.json",
+        "app/src/main/java/org/fcitx/fcitx5/android/FcitxApplication.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/BundledPresets.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ManagedThemePreference.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeKits.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/editing/FoxyTextEditingUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/LayoutKeyColorResolver.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeListFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeThumbnailUi.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/LegacyThemeFilenameTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "d2b992b6b8d8ff740cfa98d828d81b70429aaadc",
+      "subject": "修复(主题): 按评审修正迁移、颜色与图标刷新",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/BundledPresets.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconTheme.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/config/ConfigProvider.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/LayoutKeyColors.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorForm.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeListActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeListFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/ColorLiteral.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/BundledPresetsUpgradeTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/IconThemeManagerCacheSelectionTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/IconThemeSlotCatalogTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/config/FontsetConfigFailureTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboardCapsIconRefreshTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManagerColorTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtilsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeKitFontFailureTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/utils/ColorLiteralTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "577872ddda1fd82723981e0e757ea85b14a94206",
+      "subject": "修复(主题): 统一图标主题扫描与选择的发布边界",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/IconThemeManagerCacheSelectionTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "5fb2acd0e3d93bf713a8ad68236a1017b9069cdb",
+      "subject": "构建(CI): 四 ABI 同时构建并按 ABI 命名发布资产",
+      "files": [
+        ".github/workflows/ci.yml",
+        "tools/foxy-perf/README.md",
+        "tools/foxy-perf/build-release.sh",
+        "tools/foxy-perf/prepare-release-assets.py"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/changes/2026-11-20-ci-three-abi-release.md",
+        "guide/installation.md",
+        "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md"
+      ]
+    },
+    {
+      "sha": "e1014f9cf313c5ba2612170597db4ce5a93da8c3",
+      "subject": "构建(CI): Direct Rime 完整前端构建改为手动",
+      "files": [
+        ".github/workflows/direct-rime.yml"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md",
+        "maintainer/engine-update.md"
+      ]
+    },
+    {
+      "sha": "858e48510f669b23b9e5d006d427037ad94336e6",
+      "subject": "构建(native): 更新 Rime SDK 锁到 android-sdk-20261120-1",
+      "files": [
+        "native/rime-sdk.lock.json"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/engine-update.md",
+        "features/rime-enhancements.md"
+      ]
+    },
+    {
+      "sha": "4200b65d9ba9802a4d6e75d00a6619eb2732443e",
+      "subject": "修复(统计): 按行号还原键盘热力图",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/stats/StatsData.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/stats/StatsModels.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardStatisticsLayout.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/InputStatsActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsHeatmapRows.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/stats/StatsDataTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardStatisticsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsHeatmapRowsTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/input-statistics.md"
+      ]
+    },
+    {
+      "sha": "d2745125e41ef67ff3e2c63c31b7442e01d5ed16",
+      "subject": "修复(设置): 预览键盘改用真实输入法布局",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/SplitKeyboardCalibrationActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/preview/PreviewInputMethodEntry.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/KeyboardPreviewUi.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/preview/ThemePreviewLayoutTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/theme/theme-editor.md",
+        "features/keyboard/split-keyboard.md"
+      ]
+    },
+    {
+      "sha": "f26ea22f404062679ae238fa2cb12134192a0370",
+      "subject": "修复(设置): 布局编辑器可预览与编辑层子布局",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/manager/SubModeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/preview/PreviewInputMethodEntry.kt",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values/strings.xml"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/editor/layout-editor.md"
+      ]
+    },
+    {
+      "sha": "899eedbf1b7eb8475f7f2a3e162e6ec014763be5",
+      "subject": "功能(键盘): 数字键盘自动跟随布局的数字子布局",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/NumericLayoutResolver.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/KeyboardGroupFragment.kt",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/NumericLayoutResolverTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/editor/layout-editor.md"
+      ]
+    },
+    {
+      "sha": "8bb9fe7af7c0d11387fcdf2d00ae1881b043bde6",
+      "subject": "功能(宏按键): 增加输入统计与常用应用动作入口",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/action/ButtonAction.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorDialogFragment.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/MacroAppActionTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/changes/2026-11-21-macrokey-app-actions.md"
+      ]
+    },
+    {
+      "sha": "b50c9dfe1e1b690e8debaa10ef6c5c666ab89a4e",
+      "subject": "功能(网页编辑器): 同步键盘副标签主题偏好",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/ImeWebEditorBridgeServer.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/BridgeThemePrefsTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/changes/2026-11-21-web-editor-parity.md"
+      ]
+    },
+    {
+      "sha": "ee0e8a91b5065ad5ff5c93fd171700fdff4f311b",
+      "subject": "功能(候选窗口): 支持跟随光标及实体键盘位置设置 (#48)",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/ManagedPreferenceCategory.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/CandidatesView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/floating/CursorFollowingPosition.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/floating/FloatingCandidatesPosition.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/floating/FloatingCandidatesVirtualKeyboardPosition.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/CandidatesPositionPreferenceTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/CursorFollowingPositionTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/candidate-window.md"
+      ]
+    },
+    {
+      "sha": "9fe78204dda51c40ec78155f7da2437c77326807",
+      "subject": "修复(键盘): 保留双指同键点按并分别处理取消",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CustomGestureView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyAction.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/LetterTapHandoverTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/OverlappingLetterTapTest.kt",
+        "tools/test-rime-sdk-smoke.sh"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md"
+      ]
+    },
+    {
+      "sha": "1a03df8d17328fae5a22226270f0cf1fb068997a",
+      "subject": "优化(输入): 后台预热 Rime 模型和主词典",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeAssetPrewarmer.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/InputEngine.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/daemon/FcitxDaemon.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/InputView.kt",
+        "direct-rime/src/engine/java/org/fcitx/directrime/Snapshot.kt",
+        "direct-rime/src/main/cpp/bridge.cpp",
+        "direct-rime/src/main/cpp/engine.cpp",
+        "direct-rime/src/main/cpp/engine.h"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/implementation/direct-rime-architecture.md",
+        "maintainer/perf/cyime-wanxiang-2026-11-21/index.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "9a01676c1ba0defed584303783b3118efbed619f",
+      "subject": "修复(符号面板): 恢复长按浮层的滑动选择与松手关闭",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/picker/PickerWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/picker/SymbolPanelUi.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/symbol-panel.md"
+      ]
+    },
+    {
+      "sha": "e50ef7636717a378ef8686258d3e2eaff2d0c814",
+      "subject": "修复(键盘): 密码框可选用 Rime 输入并迁移开关到中州韵设置",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/FcitxPreferenceFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/PreferenceScreenFactory.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/im/InputMethodConfigFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/InputBindingStartupTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/rime-enhancements.md",
+        "features/input-statistics.md"
+      ]
+    },
+    {
+      "sha": "467415cbbbb5ce73ad6374263421ab7846b9cc74",
+      "subject": "功能(候选): 万象拼音支持手动排序菜单 (#51)",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeCandidateSequence.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/DirectRimeCandidateSequenceTest.kt",
+        "direct-rime/src/engine/java/org/fcitx/directrime/Snapshot.kt",
+        "direct-rime/src/main/cpp/bridge.cpp",
+        "direct-rime/src/main/cpp/engine.cpp",
+        "direct-rime/src/main/cpp/engine.h",
+        "direct-rime/src/main/cpp/engine_test.cpp"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "features/candidate-window.md"
+      ]
+    },
+    {
+      "sha": "e1c5ec3ed0c5b02441a5569cdf71ac90c5e0dee6",
+      "subject": "优化(键盘): 复用气泡并直接重绘固定尺寸标签",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/AutoScaleTextView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupEntryUi.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/popup/PressPopupReuseTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/perf/input-fluency-2026-11-22/index.md"
+      ]
+    },
+    {
+      "sha": "8697a7ebbcf0cb88fef90c206191aeaebe3480f9",
+      "subject": "优化(输入): 在 Rime 线程消费交互任务队列",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/InputEngine.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/daemon/FcitxConnection.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/daemon/FcitxDaemon.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/CandidateSelectionQueueTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/FcitxServiceJobQueueTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/implementation/direct-rime-architecture.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "b4670127df20e8a8c2a6b3ef59c694df5aa3529e",
+      "subject": "修复(输入): 等待按键通过 Rime 队列恢复",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/CandidateSelectionQueueTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-22-code-doc-gap-review.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    }
+  ]
+}
