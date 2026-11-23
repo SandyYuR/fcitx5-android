@@ -684,6 +684,8 @@
     <string name="theme_message_follow_system_day_night_mode_enabled">„Systemweiten Tag-/Nachtmodus folgen“ ist aktiviert, Theme kann nicht manuell gewechselt werden.</string>
     <string name="theme_migrated">Theme wurde auf die aktuelle Version migriert</string>
     <string name="toolbar_num_row_on_password">In der Werkzeugleiste bei Passwortfeldern Zahlenreihe anzeigen</string>
+    <string name="allow_ime_in_password_fields">Eingabemethode in Passwortfeldern zulassen</string>
+    <string name="allow_ime_in_password_fields_summary">Auch Passwortfelder mit Rime verarbeiten. Wortlernen, Eingabestatistik und Spracheingabe bleiben bei der Eingabe in Passwortfeldern deaktiviert.</string>
     <string name="remove_from_favorites">Aus Favoriten entfernen</string>
     <string name="update_table">Tabelle aktualisieren</string>
     <string name="update_storage_permission_denied">Speicherberechtigung verweigert</string>
