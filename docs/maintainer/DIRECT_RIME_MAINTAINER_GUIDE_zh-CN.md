@@ -1,6 +1,6 @@
 # 中州鹅直连版维护手册
 
-本页描述默认分支 `fx-rime-only` 的现行维护方式；本轮范围与固定提交见[2026-11-05 代码与文档核对](changes/2026-11-05.md)，此前的完整基线见[2026-10-30 对照](changes/index.md)。功能操作见[用户手册](../manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)。
+本页描述默认分支 `fx-rime-only` 的现行维护方式；本轮范围与固定提交见[2026-11-05 代码与文档核对](changes/2026-11-05.md)，此前的完整基线见[2026-10-30 对照](changes/2026-10-30.md)。功能操作见[用户手册](../manual/DIRECT_RIME_USER_GUIDE_zh-CN.md)。
 历史实验、阶段结论和当时的测试数量在[直连版历史](history/index.md)中保留，含 Fcitx 层的旧版资料在[靓企鹅中州韵档案](../legacy/index.md)中保留。
 
 ## 仓库与模块
@@ -62,7 +62,7 @@ python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/debug/*.apk
 ```
 
 `buildABI` 支持 `armeabi-v7a`、`arm64-v8a`、`x86`、`x86_64`。非空 `BUILD_ABI` 环境变量优先于 `-PbuildABI` 属性；两者均未设置时才构建全部支持 ABI。
-本机日常脚本默认选择 ARM64，设备回归可用 `BUILD_ABI` 或 `-PbuildABI` 构建其他 ABI。默认分支 Commit CI 同时构建 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64` 四种签名 Release，资产统一命名为 `zhongzhoue-<versionName>-<abi>.apk`。PR CI 仍只构建 ARM64 Debug，不要把“Commit CI 发布四 ABI”写成“当前 PR CI 打包四 ABI”。
+本机日常脚本默认选择 ARM64，设备回归可用 `BUILD_ABI` 或 `-PbuildABI` 构建其他 ABI。各 CI 构建的 ABI 与 Release 资产命名见[按改动选择验证门禁](#按改动选择验证门禁)；PR CI 只构建 ARM64 Debug，不要把 Commit CI 的发布矩阵写成 PR CI 的打包范围。
 
 | 包 | 包名 | 用途 |
 | --- | --- | --- |
@@ -153,10 +153,7 @@ cat native/rime-sdk/sdk-manifest.json
 
 SDK 缓存在 `GRADLE_USER_HOME/caches/rime-sdk/<sha256>.zip`。首次在线准备后可以 `--offline` 构建；没有缓存时明确失败，不回退到其他版本。下载包、文件清单、逐文件摘要、源码版本及 ABI 完整性均会校验。Gradle 检测提取目录的内容变化后会从已验证缓存恢复。
 
-现行 SDK 锁为 2026-11-20 的正式 Release `android-sdk-20261120-1`（输入法提交 `858e4851`），librime 源码固定为 `7c61add03d395ca651a1cca9dfd8f31807298a8d`，SDK ZIP SHA-256 为 `fb574ba438a4287325fbe5d984549968b5387f0ce7ecd7e0ab0cdb361713e80f`，官方基线仍为 `bb56876890ba60f446fa2640c244b1794b965eda`。该源码是 `9a317501…` 的直接后继，只增加“音节栏仅对九键数字输入显示”：当前音节为字母时不生成音节栏，确认前缀后剩余的数字音节仍显示。上一版 `android-sdk-20261116-2`（librime `9a3175013def3d4d051fa57eb3acbbb201139e8e`，SDK ZIP SHA-256 `fbfed3c1f6679b9a65f151a22f1afae72db71d54463f3ee8bdf27df29bea6a7c`）保留有序模糊候选筛选，并增加九键字面标签、声母韵母组合模糊候选保护和适用域兼容修订。消费正式标签 ZIP，分支 CI ZIP 与正式 Release ZIP 各有摘要，不能混用；上一版四 ABI 与 881 个 SDK 文件核验见[新版 SDK 消费与默认分支重写](changes/2026-11-16-syllable-fuzzy-filter-fix.md#新版-sdk-消费与默认分支重写)。
-
-2026-11-16 消费上一版 SDK 时，输入法默认分支已重写并以精确 lease 推送为 `f340e09a4d596c209934e50da2fd7d63038f780b`。本机 SDK 准备、下载器、相关 JVM、ARM64 Debug 和 APK 白名单及链接门禁通过；Commit CI 与 Direct Rime CI 全部成功，原始报告核验应用 JVM、归档测试与设备执行，签名 ARM64 Release 和 Nightly 已发布。Windows native 引擎契约实际创建符号链接时报权限不足仍记为本机环境阻塞，Linux native 安全契约及 LevelDB 复用、显式同步与恢复已在本次 CI 通过。设备操作继续遵循独立授权和数据保护约束，各阶段实际范围与恢复依据记入上述日期记录。
-
+版本锁当前固定的标签、librime 源码提交与 SDK ZIP 摘要以 `native/rime-sdk.lock.json` 为准；现行版本说明与历次交付见[引擎、插件与依赖更新](/maintainer/engine-update#两条链路)，本页不再重复版本号。消费正式标签 ZIP，分支 CI ZIP 与正式 Release ZIP 各有摘要，不能混用。
 Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、六个原生依赖、三个插件与引擎，并在主机生成 OpenCC 数据。它不读取旧 prebuilt，四 ABI 均执行最终链接验证，打包前核验全部归档对象的 ELF 架构、API 和来源。prebuilder/prebuilt 保留历史重建用途，不再参与当前更新。
 
 `librime.a` 静态链接进 `libdirect-rime.so`。LevelDB 的 `reuse_logs` 与恢复验证仍由 `tools/input-perf/test-leveldb-open.py` 等工具守护；调整依赖时同步核对实际导出和存储行为。
@@ -233,7 +230,7 @@ tools/test-direct-rime-frontend.sh
 tools/test-material-settings.sh
 ```
 
-默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug`、AndroidTest 节拍探针编译、`tools/input-perf` 工具单测及 APK/链接门禁（推送 `fix/**` 分支也会触发）；Commit CI 同时构建签名 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64` Release（`fail-fast`，四路与 JVM 全部成功才发布 Nightly），运行 ART profile 审计与 JVM；Codespaces CI 在容器改动时以普通开发用户执行初始化、ARM64 APK 与审计、JVM 及严格 JUnit 校验；Direct Rime CI 在 PR 上覆盖原生诊断、引擎设备冒烟与核心前端设备回归，完整前端构建、全量 JVM 与 APK/链接审计由 PR CI 负责，需要时手动选择 `all` 运行完整诊断。Material settings UI 覆盖 MD3 页面。
+默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug`、AndroidTest 节拍探针编译、`tools/input-perf` 工具单测及 APK/链接门禁（推送 `fix/**` 分支也会触发）；Commit CI 同时构建签名 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64` Release（`fail-fast`，四路与 JVM 全部成功才发布 Nightly；产物名为 `direct-rime-frontend-<abi>-release`，Release 资产经 `tools/foxy-perf/prepare-release-assets.py` 校验后统一命名为 `zhongzhoue-<versionName>-<abi>.apk`），运行 ART profile 审计与 JVM；Codespaces CI 在容器改动时以普通开发用户执行初始化、ARM64 APK 与审计、JVM 及严格 JUnit 校验；Direct Rime CI 在 PR 上覆盖原生诊断、引擎设备冒烟与核心前端设备回归，完整前端构建、全量 JVM 与 APK/链接审计由 PR CI 负责，需要时手动选择 `all` 运行完整诊断。Material settings UI 覆盖 MD3 页面。
 实际执行项以 workflow 内容为准；`lintFxDebug` 通过不等于所有构建变体的 lint 均已执行。测试类“仍在仓库里”不等于仍被 CI 执行。
 
 Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/actions/setup-gradle`，使脚本里的首次 Gradle 调用能够使用恢复的缓存；随后由 `tools/prepare-ci-ndk.py` 在 AGP 配置应用前按 `Versions.kt` 安装固定 NDK，下载有限次重试。缓存未命中时，Wrapper 按 `gradle/wrapper/gradle-wrapper.properties` 中固定的官方地址下载 Gradle，网络超时为 60 秒。若日志停在 `Downloading ...gradle-...zip` 并报网络超时，失败发生在 Gradle 启动前；应检查分发包下载与缓存恢复步骤，不能当作编译或业务测试失败。

@@ -5,7 +5,7 @@
 ## 能力
 
 - 检查本仓库的最新 GitHub Release（`releases` 列表最新一条，**含 Nightly 预发布**）
-- 查看 Release 说明并下载主程序 APK。Release 按 ABI 分别提供 `zhongzhoue-<版本>-<ABI>.apk`（arm64-v8a、armeabi-v7a、x86、x86_64），更新页逐个列出全部资产，不会自动挑选；请下载与设备 ABI 一致的那个，多数手机为 arm64-v8a
+- 查看 Release 说明并下载主程序 APK。更新页逐个列出 Release 的全部资产，不会自动挑选；请下载文件名中 ABI 与设备一致的那个，多数手机为 arm64-v8a。可选 ABI 与资产命名见[安装与升级](/guide/installation#下载主应用)
 - 校验资产 SHA-256 摘要（Release 附带时）
 - 调用系统安装器完成升级（保留配置）
 - **镜像规则**：用正则替换改写下载地址，可配置代理 / 镜像加速器；保存前会用示例 Release 下载地址校验正则与替换串能否生成地址（只做本地格式校验，不联网测试连通性），正则长度上限 256 字符

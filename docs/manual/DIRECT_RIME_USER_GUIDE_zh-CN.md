@@ -6,9 +6,8 @@ Rime 方案决定输入规则与词典；键盘布局决定屏幕按键和手势
 
 ## 安装与首次输入
 
-1. 从 Releases 下载“中州鹅”Nightly，或从成功的 `Commit CI` 获取签名 Release 产物
-   **`direct-rime-frontend-<abi>-release`**；常用 ARM64 手机选 `direct-rime-frontend-arm64-v8a-release`。
-   Nightly 同时提供 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64` 四种完整界面 APK，文件名形如 `zhongzhoue-<版本>-<abi>.apk`。
+1. 从 Releases 下载“中州鹅”Nightly，或从成功的 `Commit CI` 获取签名 Release 产物；按设备 ABI 选择安装包，
+   可选 ABI、资产与产物命名见[安装与升级](/guide/installation#下载主应用)。
    `Direct Rime CI` 只在手动运行完整诊断时生成完整界面调试包 `direct-rime-frontend-arm64-debug`；
    `direct-rime-arm64-debug` 仅为引擎诊断工具。
 2. 安装后，在 Android 系统设置中启用并选择“中州鹅”。Debug 包名为 `org.fcitx.fcitx5.android.fx.rime.debug`，可与 Release 共存；两者数据独立，Debug 也要自行导入并部署方案。
@@ -325,7 +324,7 @@ AI、剪贴板搜索和剪贴板编辑面板中的编码区显示在弹框与下
 
 关于页的源码链接固定到正式 APK 的构建提交；用户手册与维护手册指向 `docs` 分支持续更新的文档，旧版操作需结合对应日期记录阅读。
 “版本与更新”或“当前版本”可打开应用内更新器，检查 GitHub Releases、选择下载镜像并下载安装包；
-关于页也会在检测到更新时提示新版本。Nightly 含四个 ABI 的安装包，更新器全部列出，请选文件名中 ABI 与设备一致的那一个。联网失败仍显示当前版本，不影响其他设置。
+关于页也会在检测到更新时提示新版本。更新器列出 Release 的全部安装包，请选文件名中 ABI 与设备一致的那一个（见[安装与升级](/guide/installation#下载主应用)）。联网失败仍显示当前版本，不影响其他设置。
 导入、导出等耗时操作使用随设置主题配色的 Material 3 进度对话框；系统关闭动画时显示“请稍候”。
 更新器的 hosts／镜像页面、日志与崩溃日志、方案导入、图片裁剪及剪贴板编辑也使用同一设置配色。
 剪贴板编辑保持浮动窗口，布局文件选择保持透明背景上的选择弹窗。

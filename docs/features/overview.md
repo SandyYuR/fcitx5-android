@@ -69,5 +69,5 @@
 
 内置引擎及其依赖随 APK 更新；方案文件单独部署。维护者操作见[引擎与依赖更新](/maintainer/engine-update)，图标槽位见[图标主题](/features/theme/icon-themes)。
 
-当前功能由默认分支源码核对，新增功能及固定源码入口见[现行功能对照](/maintainer/changes/feature-coverage)，此前的核对记录见[2026-11-05 对照](/maintainer/changes/2026-11-05)和[2026-10-30 对照](/maintainer/changes/)。继承的前端功能继续由当前功能页说明；旧 Fcitx 引擎实现只在[历史档案](/legacy/)中保留。
+当前功能由默认分支源码核对，新增功能及固定源码入口见[现行功能对照](/maintainer/changes/feature-coverage)，此前的核对记录见[2026-11-05 对照](/maintainer/changes/2026-11-05)和[2026-10-30 对照](/maintainer/changes/2026-10-30)。继承的前端功能继续由当前功能页说明；旧 Fcitx 引擎实现只在[历史档案](/legacy/)中保留。
 云端语音识别效果、设备后台策略以及不同编辑器的输入行为仍受服务和设备环境影响。

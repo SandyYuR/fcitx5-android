@@ -11,7 +11,7 @@
 | 完整用户手册 | `docs/manual/DIRECT_RIME_USER_GUIDE_zh-CN.md` | 把关键流程串起来，细节链接功能页 |
 | 现行维护与环境 | `docs/maintainer/` 的维护手册和环境页 | 固定操作约束，变化的数据现场查询 |
 | 当前接口和数据协议 | `docs/maintainer/implementation/` | 保持契约、预算、兼容边界和测试入口准确 |
-| 代码与文档核对 | `docs/maintainer/changes/` | 固定来源提交、逐项登记覆盖与缺口 |
+| 代码与文档核对 | `docs/maintainer/changes/` | 索引页只做入口；每轮新增日期页与 `commit-map-*.json`，固定来源提交、逐项登记覆盖与缺口 |
 | 中州鹅阶段报告 | `docs/maintainer/history/` | 保留当时事实，不把旧结果改写为新结果 |
 | 原始验证与性能证据 | `docs/maintainer/audit/`、`perf/` 及对应附件 | 正文说明来源，原始文件保留；完整索引见证据目录 |
 | 靓企鹅中州韵原站 | `docs/legacy/fcitx/` 原恢复清单中的页面 | 冻结来源与原文，内部链接、字节校验由恢复清单守护 |
@@ -25,6 +25,25 @@
 先读取默认分支实际代码、资源文案与相关测试，再更新对应功能页和用户手册。构建、引擎、CI 或协议改动同时更新维护页。
 产品首页只放主要能力和入口，不复制历史提交数量、临时 PR 状态或实验 APK 下载地址。
 “默认开启”“可共存”“已验证”“密钥会迁移”等描述必须有直接依据；没有实测的服务或设备范围不能写成验证通过。
+
+## 同一事实只写一处
+
+会随版本变化的事实只在下表的唯一来源维护，其他页面写结论并链接，不复制版本号、ABI 列表或日期：
+
+| 事实 | 唯一来源 | 其他页面 |
+| --- | --- | --- |
+| 发布 ABI、Release 资产与 CI 产物命名（用户） | [安装与升级](/guide/installation#下载主应用) | 用户手册、更新检查只写“按设备 ABI 选择”并链接 |
+| 各 CI 的构建 ABI 与发布条件（维护） | [维护手册 · 按改动选择验证门禁](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN#按改动选择验证门禁) | 引擎更新页链接，不重列矩阵 |
+| 现行 SDK 锁（标签、librime 提交、摘要） | `native/rime-sdk.lock.json` 与[引擎更新 · 两条链路](/maintainer/engine-update#两条链路) | 维护手册、功能页、正确性约束只写行为起始版本 |
+| 历次 SDK 交付与验证 | 对应日期的 `maintainer/changes/` 记录 | 引擎更新页保留版本索引表 |
+| 日常不需要引擎插件 APK | [版本共存与数据隔离](/guide/builds-and-plugins) | 介绍、FAQ、致谢只写结论 |
+| JS 插件与 AI 助手的合入版本 | [JS 插件](/features/voice-input-js) | AI 助手页、两份参考页、宿主协议链接 |
+| AI 助手操作流程 | [AI 文本助手](/features/ai-assistant) | JS 插件页只保留入口 |
+| 现行功能页与源码入口 | [覆盖表](/maintainer/changes/feature-coverage) | 对照页、索引只链接 |
+
+## 提交对照的登记方式
+
+每轮代码核对新增 `maintainer/changes/YYYY-MM-DD-*.md`，并登记到[对照索引](/maintainer/changes/)与侧栏“代码与文档对照”的对应月份。逐提交核对同时提交 `commit-map-YYYY-MM-DD.json`，格式与校验规则见[对照索引的记录约定](/maintainer/changes/#记录约定)；`check-doc-catalog.mjs` 会检查每个提交都映射到现行文档。对照页记录的提交后来被改写或已合入时，只在页首加“后续更正／后续复核”引用块。
 
 ## 新页面与导航
 
