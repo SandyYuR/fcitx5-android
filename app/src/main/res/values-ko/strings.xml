@@ -277,7 +277,7 @@
     <string name="split_keyboard_auto_calibrate_toast">적용됨: %1$ddp, 간격 %2$d%% (%3$s)</string>
     <string name="split_keyboard_reset_toast">기본값으로 재설정됨</string>
     <string name="font_size">글꼴 크기</string>
-    <string name="font_size_value">%1$d sp</string>
+    <string name="font_size_value">%1$s sp</string>
     <string name="font_size_editor_title">%1$s - 글꼴 크기</string>
     <string name="font_size_editor_hint">드래그하여 글꼴 크기 조정 (%1$d–%2$d sp)</string>
     <string name="text_keyboard_layout_submode_already_exists">서브모드 "%1$s" 의 전용 레이아웃이 이미 존재합니다</string>

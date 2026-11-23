@@ -306,7 +306,7 @@
     <string name="follow_cursor">Следовать за курсором</string>
     <string name="candidates_font_size">Размер шрифта слова-кандидата</string>
     <string name="font_size">Размер шрифта</string>
-    <string name="font_size_value">%1$d sp</string>
+    <string name="font_size_value">%1$s sp</string>
     <string name="font_size_editor_title">%1$s - Размер шрифта</string>
     <string name="font_size_editor_hint">Перетащите для изменения размера шрифта (%1$d–%2$d sp)</string>
     <string name="candidates_padding">Отступ от слова-кандидата</string>

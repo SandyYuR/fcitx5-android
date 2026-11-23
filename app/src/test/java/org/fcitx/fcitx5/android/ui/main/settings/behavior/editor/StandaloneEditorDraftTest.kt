@@ -2,12 +2,19 @@
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.editor
 
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
 import android.os.Parcel
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.data.BundledPresets
+import org.fcitx.fcitx5.android.input.config.ConfigProviders
+import org.fcitx.fcitx5.android.input.config.UserConfigFiles
+import org.fcitx.fcitx5.android.input.font.FontProviders
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.PopupEditorActivity
@@ -18,8 +25,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDialog
 import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
@@ -124,6 +133,51 @@ class StandaloneEditorDraftTest {
             for ((key, values) in bundled) assertEquals(key, values, entries[key])
             assertFalse(ReflectionHelpers.callInstanceMethod(editor.get(), "hasChanges"))
         } finally { finish(editor) }
+    }
+
+    @Test fun fractionalFontSizesAreShownAndKeptWhenTheSliderIsUntouched() {
+        assertEquals("10.67", FontsetEditorActivity.formatFontSize(10.67f))
+        assertEquals("20", FontsetEditorActivity.formatFontSize(20f))
+        assertEquals("12.5", FontsetEditorActivity.formatFontSize(12.5f))
+        val editor = Robolectric.buildActivity(FontsetEditorActivity::class.java).setup()
+        try {
+            val views: Map<String, TextView> = ReflectionHelpers.getField(editor.get(), "fontSizeViews")
+            val sizes: Map<String, Float> = ReflectionHelpers.getField(editor.get(), "selectedFontSizes")
+            val label = views.getValue("key_alt_font")
+            assertEquals("10.67 sp", label.text.toString())
+            label.performClick()
+            val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+            dialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals(10.67f, sizes.getValue("key_alt_font"), 0f)
+            assertEquals("10.67 sp", label.text.toString())
+            val menu = MenuBuilder(editor.get())
+            editor.get().onCreateOptionsMenu(menu)
+            assertFalse(menu.getItem(0).isEnabled)
+        } finally { finish(editor) }
+    }
+
+    @Test fun nonFiniteSavedFontSizeFallsBackToTheDefault() {
+        val provider = ConfigProviders.provider
+        val config = requireNotNull(provider.fontsetFile())
+        val previous = config.takeIf { it.isFile }?.readBytes()
+        provider.writeFontsetPathMap(mapOf("key_alt_font_size" to listOf("NaN"))).getOrThrow()
+        try {
+            assertFalse(FontProviders.hasCustomFontSizes())
+            assertNull(FontProviders.parseConfiguredSize("Infinity"))
+            assertNull(FontProviders.parseConfiguredSize("-Infinity"))
+            assertEquals(72f, FontProviders.parseConfiguredSize("99"))
+
+            val editor = Robolectric.buildActivity(FontsetEditorActivity::class.java).setup()
+            try {
+                val views: Map<String, TextView> = ReflectionHelpers.getField(editor.get(), "fontSizeViews")
+                val sizes: Map<String, Float> = ReflectionHelpers.getField(editor.get(), "selectedFontSizes")
+                assertEquals(10.67f, sizes.getValue("key_alt_font"), 0f)
+                assertEquals("10.67 sp", views.getValue("key_alt_font").text.toString())
+            } finally { finish(editor) }
+        } finally {
+            if (previous == null) config.delete() else config.writeBytes(previous)
+        }
     }
 
     @Test fun fontSelectionsSizesAndDirtySaveButtonSurviveAParcelRoundTrip() {

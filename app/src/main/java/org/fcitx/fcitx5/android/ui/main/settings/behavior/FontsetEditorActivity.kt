@@ -216,8 +216,8 @@ class FontsetEditorActivity : SettingsUiActivity() {
             selectedFonts[entry.key] = parsed[entry.key]?.toMutableList() ?: mutableListOf()
             // Load font size if exists (independent from font path)
             val sizeKey = "${entry.key}_size"
-            selectedFontSizes[entry.key] = parsed[sizeKey]?.firstOrNull()?.toFloatOrNull()
-                ?.coerceIn(8f, 72f) ?: entry.defaultFontSize
+            selectedFontSizes[entry.key] =
+                FontProviders.parseConfiguredSize(parsed[sizeKey]?.firstOrNull()) ?: entry.defaultFontSize
         }
         initialFonts = selectedFonts.mapValues { it.value.toList() }
         initialSizes = selectedFontSizes.toMap()
@@ -334,7 +334,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
             // Update font size display
             val fontSizeView = fontSizeViews[entry.key]
             val fontSize = selectedFontSizes[entry.key] ?: entry.defaultFontSize
-            fontSizeView?.text = getString(R.string.font_size_value, fontSize.toInt())
+            fontSizeView?.text = getString(R.string.font_size_value, formatFontSize(fontSize))
         }
     }
 
@@ -517,8 +517,11 @@ class FontsetEditorActivity : SettingsUiActivity() {
             textSize = 24f
             gravity = android.view.Gravity.CENTER
             setPadding(0, dp(8), 0, dp(8))
-            text = getString(R.string.font_size_value, currentSize.toInt())
+            text = getString(R.string.font_size_value, formatFontSize(currentSize))
         }
+        // The slider moves in whole sp. Keep a fractional size such as the 10.67 sp default
+        // until the user actually moves it, instead of truncating it on OK.
+        var pendingSize = currentSize
         
         val previewText = TextView(this).apply {
             text = entry.sample
@@ -545,7 +548,8 @@ class FontsetEditorActivity : SettingsUiActivity() {
             override fun onProgressChanged(seekBar: org.fcitx.fcitx5.android.ui.common.SettingsSlider, progress: Int, fromUser: Boolean) {
                 if (!fromUser) return
                 val newSize = minSize + progress
-                sizeDisplay.text = getString(R.string.font_size_value, newSize.toInt())
+                pendingSize = newSize
+                sizeDisplay.text = getString(R.string.font_size_value, formatFontSize(newSize))
                 previewText.textSize = newSize
             }
             override fun onStartTrackingTouch(seekBar: org.fcitx.fcitx5.android.ui.common.SettingsSlider) {}
@@ -556,8 +560,7 @@ class FontsetEditorActivity : SettingsUiActivity() {
             .setTitle(getString(R.string.font_size_editor_title, getString(entry.titleRes)))
             .setView(container)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                val newSize = minSize + seekBar.progress
-                selectedFontSizes[entry.key] = newSize.coerceIn(minSize, maxSize)
+                selectedFontSizes[entry.key] = pendingSize.coerceIn(minSize, maxSize)
                 updateSaveButtonState()
                 refreshRows()
             }
@@ -572,13 +575,10 @@ class FontsetEditorActivity : SettingsUiActivity() {
 
     private fun saveFontset() {
         // Build font size map (save all font sizes, not just when fonts are set)
-        val fontSizeMap = entries
-            .associate { entry ->
-                "${entry.key}_size" to mutableListOf(
-                    (selectedFontSizes[entry.key] ?: entry.defaultFontSize).toString()
-                )
-            }
-            .filterValues { it.isNotEmpty() && it.firstOrNull()?.toFloatOrNull() != null }
+        val fontSizeMap = entries.associate { entry ->
+            val size = selectedFontSizes[entry.key]?.takeIf { it.isFinite() } ?: entry.defaultFontSize
+            "${entry.key}_size" to listOf(size.toString())
+        }
 
         val nonEmptyMap = entries
             .associate { entry -> entry.key to selectedFonts[entry.key].orEmpty() }
@@ -640,5 +640,14 @@ class FontsetEditorActivity : SettingsUiActivity() {
 
     companion object {
         private const val MENU_SAVE_ID = 1001
+
+        /** Show the stored size (10.67 sp, 20 sp) instead of truncating it to whole sp. */
+        internal fun formatFontSize(size: Float): String {
+            if (!size.isFinite()) return size.toString()
+            return java.math.BigDecimal(size.toString())
+                .setScale(2, java.math.RoundingMode.HALF_UP)
+                .stripTrailingZeros()
+                .toPlainString()
+        }
     }
 }

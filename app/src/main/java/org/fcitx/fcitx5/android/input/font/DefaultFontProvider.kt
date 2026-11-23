@@ -364,7 +364,7 @@ class DefaultFontProvider : FontProviderApi {
         config.paths
             .filterKeys { it.endsWith("_size") }
             .mapValues { (_, values) ->
-                values.firstOrNull()?.trim()?.toFloatOrNull()?.coerceIn(8f, 72f)
+                FontProviders.parseConfiguredSize(values.firstOrNull())
             }
             .filterValues { it != null }
             .mapValues { it.value!! }
