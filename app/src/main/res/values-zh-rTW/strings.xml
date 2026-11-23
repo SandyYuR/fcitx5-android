@@ -888,7 +888,7 @@
     <string name="monet_editor_select_color_resource">選擇顏色資源</string>
     <string name="monet_editor_select">選擇</string>
     <string name="monet_editor_color_mapping_title">顏色對應</string>
-    <string name="monet_editor_description">為每個主題顏色對應一個 Material You 動態顏色資源。變更將自動儲存並套用。</string>
+    <string name="monet_editor_description">為每個主題顏色對應一個 Material You 動態顏色資源。點 ✓ 儲存並套用；直接返回不會儲存變更。</string>
     <string name="edit_monet_theme">編輯 Monet 主題</string>
 
     <string name="text_keyboard_layout_add_submode">新增子模式佈局</string>

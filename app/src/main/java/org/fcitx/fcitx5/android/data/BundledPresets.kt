@@ -29,11 +29,12 @@ import java.io.File
  * - `bundled/icon_themes/<主题名>.json`                       → `icon_themes/`
  * - `bundled/fonts/<字体文件名>`                              → `fonts/`（「字体设定」读取的目录）
  *
- * 安装幂等且不覆盖：每个资源以"asset 路径 + 字节数"为版本标记记录在
+ * 安装幂等且不覆盖用户修改：每个资源以"asset 路径 + 字节数"为版本标记记录在
  * SharedPreferences 中；默认不覆盖已存在的文件，显式登记更新的资源只在
  * 文件大小仍等于上一版内置内容时替换，保留用户自行修改的版本。
- * 登记更新还记录旧字节数，允许修正旧登记后重试仍存在的原版文件。
- * 用户删除已处理版本的文件后不会被再次塞回；更新资源须同步登记旧字节数。
+ * 登记更新还记录旧字节数，允许修正旧登记后重试仍存在的原版文件；更新资源须同步登记旧字节数。
+ * 目标文件不存在时总是按原名重新写出：用户删除的内置资源会在下次安装时补回，
+ * 版本标记只用于判断已存在的文件是否需要更新（见 [installAsset]）。
  */
 object BundledPresets {
 
@@ -46,7 +47,7 @@ object BundledPresets {
         appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     }
 
-    /** 已处理版本及更新来源标记；旧版本标记继续保护已删除的文件。 */
+    /** 已处理版本及更新来源标记；用于判断已存在的文件是否需要更新，不阻止补回已删除的文件。 */
     private val handled: MutableSet<String> by lazy {
         prefs.getStringSet(KEY_INSTALLED, emptySet())?.toMutableSet() ?: mutableSetOf()
     }
