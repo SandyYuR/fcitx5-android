@@ -39,6 +39,8 @@ import org.fcitx.fcitx5.android.ui.main.log.CrashReportStore
 import org.fcitx.fcitx5.android.ui.main.log.LogExportViewModel
 import org.fcitx.fcitx5.android.ui.main.log.LogView
 import org.fcitx.fcitx5.android.ui.main.log.logExportStore
+import org.fcitx.fcitx5.android.ui.main.log.mergePersistedAndLogcat
+import org.fcitx.fcitx5.android.ui.main.log.oldestLogTime
 import org.fcitx.fcitx5.android.utils.DeviceInfo
 import org.fcitx.fcitx5.android.utils.Logcat
 import org.fcitx.fcitx5.android.utils.LogFileManager
@@ -169,6 +171,10 @@ class LogActivity : SettingsUiActivity() {
      * 同一时刻只允许一个加载任务：刷新时取消上一个（包括 onCreate 起的首次加载），
      * 否则两次加载都会走到 setLogcat，而 Logcat.initLogFlow 发现旧 reader 还活着会抛
      * exception_logcat_created。
+     *
+     * 持久化历史和 logcat 是同一批事件的两个来源：Logx 每条日志都同时写文件和 logcat，
+     * 而 logd 会把积压留着，reader 不带起点时先重放整段积压。所以这里取两者的时间窗
+     * 并集，按事件字段消掉重叠的那一份，再让实时 reader 从快照之后接着读。
      */
     private fun reloadLogs(announce: Boolean) {
         reloadJob?.cancel()
@@ -178,18 +184,24 @@ class LogActivity : SettingsUiActivity() {
         btnRefresh.isEnabled = false
         reloadJob = lifecycleScope.launch {
             try {
-                val history = withContext(Dispatchers.IO) {
-                    LogFileManager.readAllLogs(this@LogActivity)
+                val merged = withContext(Dispatchers.IO) {
+                    val history = LogFileManager.readAllLogs(this@LogActivity)
+                    // 快照只取历史起点之后的部分；没有可解析的历史行时不设边界，
+                    // 保留 logcat 里只出现过一次的 native 与直接写 Log 的记录。
+                    val snapshot = logcat.getLogAsync(oldestLogTime(history))
+                        .await()
+                        .getOrDefault(emptyList())
+                    mergePersistedAndLogcat(history, snapshot)
                 }
                 ensureActive()
-                publishHistory(history)
+                publishHistory(merged.lines)
                 crashStackTrace?.takeIf { fromCrash }?.let {
                     logView.append("")
                     logView.append("--------- Crash stacktrace")
                     logView.append(it)
                 }
                 ensureActive()
-                logView.setLogcat(logcat)
+                logView.setLogcat(logcat, merged.resumeFrom)
                 updateStatus()
                 if (announce) toast(R.string.refresh)
             } finally {

@@ -63,12 +63,19 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
         })
     }
 
-    fun setLogcat(logcat: Logcat) {
+    /**
+     * 接上实时 logcat，并从这个 reader 续上订阅。
+     *
+     * [since] 是 epoch 毫秒起点：列表里已有到那一刻为止的行，reader 从它之后开始，
+     * 既不重放 logd 积压（同一事件会第二次出现，且旧行被排到新行之后），
+     * 也不漏掉列表载入之后才写下的日志。
+     */
+    fun setLogcat(logcat: Logcat, since: Long? = null) {
         // 取消之前的收集
         logcatCollectionJob?.cancel()
 
         this.logcat = logcat
-        logcat.initLogFlow()
+        logcat.initLogFlow(since)
         logcatCollectionJob = logcat.logFlow.onEach { line ->
             val level = logLevelOf(line)
             val textColor = if (level == null) {
