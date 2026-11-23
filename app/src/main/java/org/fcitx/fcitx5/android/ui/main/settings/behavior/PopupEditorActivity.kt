@@ -33,8 +33,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.BundledPresets
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.config.ConfigProvider
+import org.fcitx.fcitx5.android.input.popup.PopupPreset
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.JsonFileQrShareManager
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.LayoutQrTransferCodec
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.share.QrChunkCollector
@@ -208,58 +210,24 @@ class PopupEditorActivity : SettingsUiActivity() {
     }
 
     private fun loadState() {
-        // try reading user-provided popup preset JSON; fallback to built-in PopupPreset
+        // User preset first; otherwise start from the same defaults the keyboard falls back to.
         val snapshot = ConfigProviders.readPopupPreset<Map<String, List<String>>>()
         val parsed: Map<String, List<String>> = snapshot?.value
-            ?: readDefaultPresetFromPopupKt()
+            ?: readDefaultPreset()
         parsed.toSortedMap().forEach { (k, v) ->
             entries[k] = v.toMutableList()
         }
         originalEntries = normalizedEntries()
     }
 
-    private fun readDefaultPresetFromPopupKt(): Map<String, List<String>> = runCatching {
-        val holderClass = Class.forName("org.fcitx.fcitx5.android.input.popup.PopupPresetKt")
-        
-        // Try method reflection first
-        val getterValue = runCatching {
-            holderClass.getDeclaredMethod("getPopupPreset").invoke(null)
-        }.onFailure { e ->
-            android.util.Log.w("PopupEditor", "Failed to invoke getPopupPreset method", e)
-        }.getOrNull()
-        
-        // Fallback to field reflection
-        val fieldValue = runCatching {
-            holderClass.getDeclaredField("PopupPreset").apply { 
-                isAccessible = true 
-            }.get(null)
-        }.onFailure { e ->
-            android.util.Log.w("PopupEditor", "Failed to access PopupPreset field", e)
-        }.getOrNull()
-
-        val rawMap = (getterValue ?: fieldValue) as? Map<*, *> ?: run {
-            android.util.Log.w("PopupEditor", "PopupPreset returned null or is not a Map")
-            return@runCatching emptyMap()
+    private fun readDefaultPreset(): Map<String, List<String>> {
+        // Match the keyboard: asset entries win, and absent keys use the compiled table.
+        val compiled = PopupPreset.mapValues { (_, values) -> values.asList() }
+        val defaults = compiled + BundledPresets.readBundledPopupPreset().orEmpty()
+        return defaults.mapValues { (_, values) ->
+            values.map { it.trim() }.filter { it.isNotEmpty() }
         }
-        
-        rawMap.mapNotNull { (key, value) ->
-            val mappedKey = key as? String ?: run {
-                android.util.Log.w("PopupEditor", "Invalid key type: ${key?.javaClass?.simpleName}, skipping")
-                return@mapNotNull null
-            }
-            val mappedValues = when (value) {
-                is Array<*> -> value.mapNotNull { it?.toString()?.trim() }.filter { it.isNotEmpty() }
-                is List<*> -> value.mapNotNull { it?.toString()?.trim() }.filter { it.isNotEmpty() }
-                else -> {
-                    android.util.Log.w("PopupEditor", "Invalid value type for key '$mappedKey': ${value?.javaClass?.simpleName}, expected Array or List")
-                    emptyList()
-                }
-            }
-            mappedKey to mappedValues
-        }.toMap()
-    }.onFailure { e ->
-        android.util.Log.e("PopupEditor", "Failed to read default popup preset", e)
-    }.getOrDefault(emptyMap())
+    }
 
     private fun setupRecyclerView() {
         adapter = PopupAdapter()

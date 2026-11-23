@@ -430,7 +430,7 @@
     <string name="monet_editor_select_color_resource">색상 리소스 선택</string>
     <string name="monet_editor_select">선택</string>
     <string name="monet_editor_color_mapping_title">색상 매핑</string>
-    <string name="monet_editor_description">각 테마 색상을 Material You 동적 색상 리소스에 매핑합니다. 변경 사항은 자동으로 저장되고 적용됩니다.</string>
+    <string name="monet_editor_description">각 테마 색상을 Material You 동적 색상 리소스에 매핑합니다. ✓를 누르면 저장 후 적용되며, 그냥 나가면 변경 사항이 저장되지 않습니다.</string>
     <string name="edit_monet_theme">Monet 테마 편집</string>
 
     <string name="text_keyboard_layout_add_submode">서브모드 레이아웃 추가</string>

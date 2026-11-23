@@ -977,7 +977,7 @@
     <string name="monet_editor_select_color_resource">选择颜色资源</string>
     <string name="monet_editor_select">选择</string>
     <string name="monet_editor_color_mapping_title">颜色映射</string>
-    <string name="monet_editor_description">为每个主题颜色映射一个 Material You 动态颜色资源。更改将自动保存并应用。</string>
+    <string name="monet_editor_description">为每个主题颜色映射一个 Material You 动态颜色资源。点 ✓ 保存并应用；直接返回不会保存更改。</string>
     <string name="edit_monet_theme">编辑 Monet 主题</string>
 
     <string name="text_keyboard_layout_save_failed">保存布局失败。请查看 logcat 获取详细信息。</string>

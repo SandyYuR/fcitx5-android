@@ -602,7 +602,7 @@
     <string name="monet_editor_select_color_resource">カラーリソースを選択</string>
     <string name="monet_editor_select">選択</string>
     <string name="monet_editor_color_mapping_title">カラーマッピング</string>
-    <string name="monet_editor_description">各テーマカラーを Material You ダイナミックカラーリソースにマッピングします。変更は自動的に保存され適用されます。</string>
+    <string name="monet_editor_description">各テーマカラーを Material You ダイナミックカラーリソースにマッピングします。✓ をタップすると保存して適用します。そのまま戻ると変更は保存されません。</string>
     <string name="edit_monet_theme">Monet テーマを編集</string>
 
     <string name="text_keyboard_layout_add_submode">サブモードレイアウトを追加</string>
