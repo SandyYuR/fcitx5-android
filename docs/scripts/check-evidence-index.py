@@ -34,6 +34,11 @@ START, END = '<!-- evidence-roots:start -->', '<!-- evidence-roots:end -->'
 SKIP_NAMES = {'node_modules', '__pycache__'}
 SKIP_TOP = {'scripts', 'public'}
 SITE_BASE = '/fcitx5-android/'
+FENCED_CODE = re.compile(
+    r'^ {0,3}(\x60{3,})[^\n]*\n.*?(?:^ {0,3}\1\x60*[ \t]*$|\Z)'
+    r'|^ {0,3}(~{3,})[^\n]*\n.*?(?:^ {0,3}\2~*[ \t]*$|\Z)',
+    re.M | re.S,
+)
 REFERENCE_DEFINITION = re.compile(
     r'^ {0,3}\[([^\]\n]+)\]:[ \t]*(?:<([^>\n]+)>|([^\s<>]+))[^\n]*$', re.M
 )
@@ -73,7 +78,8 @@ def root_of(path):
 
 def link_targets(page, text):
     base = posixpath.dirname(page)
-    text = re.sub(r'```.*?```', '', text, flags=re.S)
+    text = FENCED_CODE.sub('', text)
+    text = re.sub(r'<!--.*?-->', '', text, flags=re.S)
     text = re.sub(r'(\x60+)[^\x60\n]*\1', '', text)
     references = {}
     for name, bracketed, plain in REFERENCE_DEFINITION.findall(text):
