@@ -215,6 +215,8 @@
     <string name="notification_permission_message">Без разрешения на публикацию уведомлений мы не сможем уведомить вас о выполнении некоторых сложных операций.</string>
     <string name="notification_permission_title">Нет разрешения на уведомление</string>
     <string name="toolbar_num_row_on_password">Показывать строку с цифрами на панели инструментов при вводе пароля</string>
+    <string name="allow_ime_in_password_fields">Разрешить метод ввода в полях пароля</string>
+    <string name="allow_ime_in_password_fields_summary">Использовать Rime и в полях пароля. При вводе пароля обучение пользовательским словам, статистика ввода и голосовой ввод остаются отключёнными.</string>
     <string name="space_long_press_behavior">Поведение при длительном нажатии клавиши пробела</string>
     <string name="space_behavior_none">Нет</string>
     <string name="space_behavior_enumerate">Переключаться между включёнными схемами Rime</string>
