@@ -17,6 +17,10 @@
 
 ReturnKey 会根据当前输入框的 imeOptions 自动显示 "Done" / "Search" / "Send" / "Go" 等图标，无需在 JSON 中配置。
 
+## 长按
+
+长按回车键弹出表情入口菜单（与逗号键长按相同），选中后打开表情面板。
+
 ## 示例
 
 ```json

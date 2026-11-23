@@ -38,6 +38,7 @@
 | `core/DirectRimeManagementCommands` | 解码 Profile、方案导入和方案列表管理请求的字段；保留只读命令头部及分支字段的原读取时点，交回既有维护入口执行 |
 | `core/DirectRimeProfileOperations` | 在后端既有维护 owner 上同步协调工作目录管理、mutation lease、错误登记及导入注册／切换／失败恢复；调用实际 Config／Repository，停止和重启回调由后端提供 |
 | `core/DirectRimeMaintenanceFiles` | 在 owner 上、停机前核对高级设置／自定义更新／万象更新任务，生成包含目标、payload 和策略的安装计划 |
+| `core/DirectRimeAssetPrewarmer` | 键盘显示后在后台单线程 IO 上预读生效方案的主词典与语法模型缺失页；目标在 owner 上经 `Native.prewarmAssets` 取得，真实输入、隐藏、维护或状态变化即取消，不占用 owner 或服务队列 |
 | `data/RimeProfileUpdateInstaller` | 共用停机、资源安装及失败恢复流程；停止和重启回调由后端提供，保留外部引擎启动守卫与 watchdog |
 | `data/RimeProfileImportTransaction` | 负责方案 ZIP 的路径检查、暂存解压、目录安装与登记前失败清理；登记、切换和失败恢复由 `DirectRimeProfileOperations` 协调，重启沿用后端回调 |
 
@@ -61,7 +62,7 @@ python3 tools/audit-direct-rime-link.py app/build/outputs/apk/fx/debug/*.apk
 ```
 
 `buildABI` 支持 `armeabi-v7a`、`arm64-v8a`、`x86`、`x86_64`。非空 `BUILD_ABI` 环境变量优先于 `-PbuildABI` 属性；两者均未设置时才构建全部支持 ABI。
-本机日常脚本默认选择 ARM64，设备回归可用 `BUILD_ABI` 或 `-PbuildABI` 构建其他 ABI。默认分支 Commit CI 同时构建 `arm64-v8a`、`armeabi-v7a`、`x86_64` 三种签名 Release，`x86` 不在发布矩阵内。PR CI 仍只构建 ARM64 Debug，不要把“引擎产物支持四 ABI”写成“当前 PR CI 打包四 ABI”。
+本机日常脚本默认选择 ARM64，设备回归可用 `BUILD_ABI` 或 `-PbuildABI` 构建其他 ABI。默认分支 Commit CI 同时构建 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64` 四种签名 Release，资产统一命名为 `zhongzhoue-<versionName>-<abi>.apk`。PR CI 仍只构建 ARM64 Debug，不要把“Commit CI 发布四 ABI”写成“当前 PR CI 打包四 ABI”。
 
 | 包 | 包名 | 用途 |
 | --- | --- | --- |
@@ -88,13 +89,24 @@ pwsh -File D:\GitHub\fx2-rime\build-release.ps1
 
 环境异常先看[Windows 本机构建](LOCAL_BUILD_ENVIRONMENT_zh-CN.md)。Release 签名、安装到用户设备与对外发布各有独立授权和验证要求。
 
+### GitHub Codespaces 云端开发
+
+代码分支的 `.devcontainer/` 提供 Linux x86_64 云端环境：JDK 17、Android SDK 36、Build Tools 36.1.0、NDK `28.0.13004108`、CMake `3.31.6` 与固定的 Command-line Tools 15859902；`toolchain-check.py` 按 `Versions.kt` 核对实际安装结果。Gradle 缓存放在独立卷，建议规格为 4 核、8 GB 内存、32 GB 存储。创建后 `post-create.sh` 写入缺失的 `local.properties`（保留已有文件），再调用 `prepare_personal_build.sh` 初始化 `native/rime-prelude` 并按锁准备 SDK；初始化可重复执行。
+
+```sh
+bash .devcontainer/verify-build.sh   # ARM64 Debug + APK 白名单与链接审计
+bash .devcontainer/test.sh           # 全量 JVM 与严格 JUnit 校验
+```
+
+两条命令也在 VS Code「Run Task」中提供，两者都固定 `BUILD_ABI=arm64-v8a`。容器内只能构建与跑 JVM，没有模拟器或真机，设备验收仍需另行安排。
+
 ## 输入事件链路
 
 首次阅读先看[Rime 直连架构与职责](implementation/direct-rime-architecture.md)，包含完整事件图、状态归属和维护事务；具体修改边界继续由[正确性契约](implementation/correctness-contracts.md)约束。
 
 ```text
 软键盘 / 物理按键
-  → FcitxInputMethodService 串行队列（入队前获取 ticket）
+  → FcitxInputMethodService 串行队列（入队前获取 ticket，队列消费者运行在 rime-main）
   → DirectRimeBackend 与会话代次校验
   → rime-main 单一 owner 线程 → JNI → librime session
   → commit / preedit / 候选 / 方案 / 状态的一次快照
@@ -102,6 +114,7 @@ pwsh -File D:\GitHub\fx2-rime\build-release.ps1
 ```
 
 `FcitxInputMethodService` 等保留的类名、兼容键名和布局字段不代表旧原生后端仍在运行。
+自 [PR #50](https://github.com/SandyYuR/fcitx5-android/pull/50) 起，服务队列的消费者 `startFcitxJobQueue` 与按键、候选点选、音节标签任务（均经 `postFcitxKeyJob`）都使用后端提供的 `interactiveDispatcher`（即 `rime-main` owner），等待 Ready 的任务也经 owner 队列恢复；绑定等普通操作仍在连接的生命周期作用域执行。队列仍是同一条 FIFO，ticket 与代次校验不变。
 
 | 必须保持 | 源码 / 验证入口 |
 | --- | --- |
@@ -109,7 +122,7 @@ pwsh -File D:\GitHub\fx2-rime\build-release.ps1
 | commit、delete、key down/up 有序且无损 | `InputEventQueue` 保留副作用批次；纯展示状态只在相邻无副作用批次间合并 |
 | 结果消费前校验 session/generation | `prepareInputSession`、`requireInputSession` 与 binding |
 | 组合改变时取消候选分页，批间允许其他工作运行 | 顶层函数 `readCandidatePage`、`CandidatePageReaderTest` |
-| 部署、同步和重载期间不处理按键，结束后恢复 | `maintain`、`maintenanceMutex`、`keyGate` |
+| 部署、同步和重载期间不处理按键，结束后恢复 | `maintain`、`DirectRimeMaintenanceCoordinator`（唯一维护 Mutex）、`keyGate` |
 | 刷新和状态提示不能重放 commit 或移动编码光标 | `refreshPresentation` 使用 native action 13；action 9 只用于真实原始编码光标移动 |
 | DOWN 有兜底 UP，线程优先级在 finally 恢复 | 键盘生命周期、`InteractiveThreadPriority` |
 
@@ -140,9 +153,9 @@ cat native/rime-sdk/sdk-manifest.json
 
 SDK 缓存在 `GRADLE_USER_HOME/caches/rime-sdk/<sha256>.zip`。首次在线准备后可以 `--offline` 构建；没有缓存时明确失败，不回退到其他版本。下载包、文件清单、逐文件摘要、源码版本及 ABI 完整性均会校验。Gradle 检测提取目录的内容变化后会从已验证缓存恢复。
 
-2026-11-16 的现行 SDK 锁为正式 Release `android-sdk-20261116-2`，librime 源码固定为 `9a3175013def3d4d051fa57eb3acbbb201139e8e`，SDK ZIP SHA-256 为 `fbfed3c1f6679b9a65f151a22f1afae72db71d54463f3ee8bdf27df29bea6a7c`。它保留有序模糊候选筛选，并增加九键字面标签、声母韵母组合模糊候选保护和适用域兼容修订。消费正式标签 ZIP，分支 CI ZIP 与正式 Release ZIP 各有摘要，不能混用；四 ABI 与 881 个 SDK 文件核验见[新版 SDK 消费与默认分支重写](changes/2026-11-16-syllable-fuzzy-filter-fix.md#新版-sdk-消费与默认分支重写)。
+现行 SDK 锁为 2026-11-20 的正式 Release `android-sdk-20261120-1`（输入法提交 `858e4851`），librime 源码固定为 `7c61add03d395ca651a1cca9dfd8f31807298a8d`，SDK ZIP SHA-256 为 `fb574ba438a4287325fbe5d984549968b5387f0ce7ecd7e0ab0cdb361713e80f`，官方基线仍为 `bb56876890ba60f446fa2640c244b1794b965eda`。该源码是 `9a317501…` 的直接后继，只增加“音节栏仅对九键数字输入显示”：当前音节为字母时不生成音节栏，确认前缀后剩余的数字音节仍显示。上一版 `android-sdk-20261116-2`（librime `9a3175013def3d4d051fa57eb3acbbb201139e8e`，SDK ZIP SHA-256 `fbfed3c1f6679b9a65f151a22f1afae72db71d54463f3ee8bdf27df29bea6a7c`）保留有序模糊候选筛选，并增加九键字面标签、声母韵母组合模糊候选保护和适用域兼容修订。消费正式标签 ZIP，分支 CI ZIP 与正式 Release ZIP 各有摘要，不能混用；上一版四 ABI 与 881 个 SDK 文件核验见[新版 SDK 消费与默认分支重写](changes/2026-11-16-syllable-fuzzy-filter-fix.md#新版-sdk-消费与默认分支重写)。
 
-输入法默认分支已重写并以精确 lease 推送为 `f340e09a4d596c209934e50da2fd7d63038f780b`。本机 SDK 准备、下载器、相关 JVM、ARM64 Debug 和 APK 白名单及链接门禁通过；Commit CI 与 Direct Rime CI 全部成功，原始报告核验应用 JVM、归档测试与设备执行，签名 ARM64 Release 和 Nightly 已发布。Windows native 引擎契约实际创建符号链接时报权限不足仍记为本机环境阻塞，Linux native 安全契约及 LevelDB 复用、显式同步与恢复已在本次 CI 通过。设备操作继续遵循独立授权和数据保护约束，各阶段实际范围与恢复依据记入上述日期记录。
+2026-11-16 消费上一版 SDK 时，输入法默认分支已重写并以精确 lease 推送为 `f340e09a4d596c209934e50da2fd7d63038f780b`。本机 SDK 准备、下载器、相关 JVM、ARM64 Debug 和 APK 白名单及链接门禁通过；Commit CI 与 Direct Rime CI 全部成功，原始报告核验应用 JVM、归档测试与设备执行，签名 ARM64 Release 和 Nightly 已发布。Windows native 引擎契约实际创建符号链接时报权限不足仍记为本机环境阻塞，Linux native 安全契约及 LevelDB 复用、显式同步与恢复已在本次 CI 通过。设备操作继续遵循独立授权和数据保护约束，各阶段实际范围与恢复依据记入上述日期记录。
 
 Android SDK CI 位于 librime 仓库：从固定来源编译 Boost 头文件、六个原生依赖、三个插件与引擎，并在主机生成 OpenCC 数据。它不读取旧 prebuilt，四 ABI 均执行最终链接验证，打包前核验全部归档对象的 ELF 架构、API 和来源。prebuilder/prebuilt 保留历史重建用途，不再参与当前更新。
 
@@ -220,10 +233,10 @@ tools/test-direct-rime-frontend.sh
 tools/test-material-settings.sh
 ```
 
-默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug` 及 APK/链接门禁；Commit CI 同时构建签名 `arm64-v8a`、`armeabi-v7a`、`x86_64` Release（三路全部成功才发布 Nightly），运行 ART profile 审计与 JVM；Direct Rime CI 在 PR 上覆盖原生诊断、引擎设备冒烟与核心前端设备回归，完整前端构建、全量 JVM 与 APK/链接审计由 PR CI 负责，需要时手动选择 `all` 运行完整诊断。Material settings UI 覆盖 MD3 页面。
+默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug`、AndroidTest 节拍探针编译、`tools/input-perf` 工具单测及 APK/链接门禁（推送 `fix/**` 分支也会触发）；Commit CI 同时构建签名 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64` Release（`fail-fast`，四路与 JVM 全部成功才发布 Nightly），运行 ART profile 审计与 JVM；Codespaces CI 在容器改动时以普通开发用户执行初始化、ARM64 APK 与审计、JVM 及严格 JUnit 校验；Direct Rime CI 在 PR 上覆盖原生诊断、引擎设备冒烟与核心前端设备回归，完整前端构建、全量 JVM 与 APK/链接审计由 PR CI 负责，需要时手动选择 `all` 运行完整诊断。Material settings UI 覆盖 MD3 页面。
 实际执行项以 workflow 内容为准；`lintFxDebug` 通过不等于所有构建变体的 lint 均已执行。测试类“仍在仓库里”不等于仍被 CI 执行。
 
-Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/actions/setup-gradle`，使脚本里的首次 Gradle 调用能够使用恢复的缓存。缓存未命中时，Wrapper 按 `gradle/wrapper/gradle-wrapper.properties` 中固定的官方地址下载 Gradle，网络超时为 60 秒。若日志停在 `Downloading ...gradle-...zip` 并报网络超时，失败发生在 Gradle 启动前；应检查分发包下载与缓存恢复步骤，不能当作编译或业务测试失败。
+Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/actions/setup-gradle`，使脚本里的首次 Gradle 调用能够使用恢复的缓存；随后由 `tools/prepare-ci-ndk.py` 在 AGP 配置应用前按 `Versions.kt` 安装固定 NDK，下载有限次重试。缓存未命中时，Wrapper 按 `gradle/wrapper/gradle-wrapper.properties` 中固定的官方地址下载 Gradle，网络超时为 60 秒。若日志停在 `Downloading ...gradle-...zip` 并报网络超时，失败发生在 Gradle 启动前；应检查分发包下载与缓存恢复步骤，不能当作编译或业务测试失败。
 
 全量 Robolectric 测试使用单个并行 worker 和 1536 MiB 堆，为各 Android SDK 沙箱资源表预留空间。该配置不减少测试；SDK 下载器的 Gradle 测试单独执行并在完成后结束外层构建进程。
 

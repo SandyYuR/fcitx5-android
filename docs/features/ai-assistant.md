@@ -120,8 +120,8 @@ Chat Completions 同样检查 `finish_reason` 和 `refusal`，不会把达到长
 适配版本为 `1.23.3-fx`。保留三协议和动态端点，补齐生成、回复、确认与失败的完整状态处理。
 没有主动替换时，内置助手继续优先于历史同 ID 导入记录，已有设置和密钥沿用。只有从插件设置确认的同 ID 替换才会启用自定义版本；普通“导入插件…”仍保护内置 ID，防止误覆盖。
 
-本次实现针对上述 LLM 插件，支持以上三种协议的非流式文本请求。
-尚不覆盖 Foxy 文档中的所有功能：JS App 的 SSE/WebSocket、旧版 flat fields/buttons 布局、
+内置助手针对上述 LLM 插件，支持以上三种协议的非流式文本请求。
+宿主此后已补齐 JS App 的 SSE 流式 HTTP（`foxy.http.stream`）、App WebSocket（含 `foxy.websocket.authorize()`）、`foxy.capabilities`、`foxy.settings.set` 及旧版 flat `fields` / `buttons` 布局，自定义插件可按需使用，内置助手本身仍走非流式请求；差异见[中文接口参考](./voice-input-js-reference-zh-CN)。
 任意 `js.*` 布局命令仍未实现。已注册的 App 可通过助手选择设置，或在“编辑按钮”中从“JS 工具”模板绑定成直达动作。未加入图像输入、多轮对话和工具执行。
 
 协议参考：[Anthropic Messages](https://platform.claude.com/docs/en/api/messages/create)、

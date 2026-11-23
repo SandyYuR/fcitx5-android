@@ -8,6 +8,8 @@
 
 `input/FcitxInputMethodService.kt` 的 `postFcitxKeyJob` 在入队前取得 ticket，再复用 `postFcitxJob` 的串行队列。`core/DirectRimeBackend.kt` 在单一 owner 线程操作 librime，并校验输入会话代次。
 
+自 [PR #50](https://github.com/SandyYuR/fcitx5-android/pull/50) 起，`startFcitxJobQueue` 在 `fcitx.interactiveDispatcher` 上逐项 `join` 服务任务；`DirectRimeBackend.interactiveDispatcher` 就是 `rime-main` owner。经 `postFcitxKeyJob` 的按键、候选点选与音节标签任务也在该调度器上启动，`postFcitxJob` 的普通任务仍在连接的生命周期作用域执行。等待 Ready 的任务经 owner 队列恢复，使 Ready 回调与 ReadyEvent 先完成。这一调整不改变单一 FIFO、ticket、代次与 `canDeliverInputKey` 校验；不得为此新增第二条按键队列或在 owner 内等待 UI 消费。
+
 当前事件载体是 `core/InputEventQueue.kt`，不是早期报告中的 `Channel(UNLIMITED)`：
 
 - `ArrayDeque` 保存有序事件批次，真实提交、删除、按键转发、Ready 等生命周期事件形成不可跨越的合并边界。
@@ -46,6 +48,8 @@
 Native owner 只缓存 `schema_id`、`schema_name` 与 `ascii_mode` 三个稳定 status 字段，键为 generation、native session 与 `optionsRevision`。本次 context 和 tabs 动态读取完成后才能判断命中；命中和新读都要复查原子版本。读取期间版本变化最多复读一次，持续变化、API 失败或两段文本合计超过 64 KiB 时返回本次完整读取结果但不建立缓存。新 generation、end、stop、维护、部署、同步和重新初始化都失效；过期 generation 请求不得清掉当前编辑器的有效缓存。缓存不保存 `RimeStatus` 指针、不缓存 composing 字段，也不能用来恢复上一编辑器的方案或中英文状态。`read_status` 仍表示整个处理阶段，真实 API 调用另有 `rime.direct.get_status` trace。
 
 Kotlin 的 `DirectRimeInputMethodEntryCache` 只保留最后一个不可变展示对象。中英文模式、中文态的方案 ID／名称或资源显示名变化时重建；西文态忽略没有显示的后台方案字段，回到中文态按当前方案重新比较。该缓存不保存输入绑定，也不改变方案恢复行为。
+
+`core/DirectRimeAssetPrewarmer` 只预读文件页，不进入服务队列或 owner：键盘显示后延迟 200 ms，在 owner 上经 `Native.prewarmAssets` 取得生效方案的 `build/<translator/dictionary>.table.bin` 与 `<grammar/language>.gram` 相对路径，优先 profile、缺失时回退共享目录，再在单线程低优先级 IO 上按 `mincore` 读取缺失页（最大 512 MiB，Android 8.1 以下不执行）。Direct Boot、维护中、未就绪、ASCII、已有 preedit、直接输入及密码／敏感输入框不预热；真实按键或触摸、键盘隐藏、会话失效、方案或中英状态变化都会取消，低内存、省电或高热时预算为零。预热失败只记日志，不影响输入。
 
 ### 维护与绑定恢复协调
 
@@ -89,7 +93,7 @@ expiry 先核提示 ID，匹配时先清 Job、文本与 lifetime，再检查引
 
 音节标签另用 `CandidateTabActionTarget` 保存 generation、`tabsRevision` 与发布列表中的索引。native 比较整组有效 label／span，任一变化都会推进 `tabsRevision`，因此文字相同但跨度变化也必须刷新点击目标。`CandidateAction`、`AuxBarAction`、键盘辅助条、回退辅助条与展开／固定 tabs 都保留该目标，经 `postCandidateTabAction` 进入原有服务队列，并在进入 owner 前后复查；不从最新快照给旧标签重新生成目标。JNI 展示复用与 `Snapshot.isUnchangedRelease` 同样核对 `tabsRevision`。
 
-九键完整音节栏的展示与选中后的候选筛选分别处理。`UseLiteralTabLabels` 仅在方案存在 `derive/fuzz`、跳过真实前导分隔符后的当前位置为数字且存在反向字母映射时启用字面过滤；没有 `derive/fuzz` 的方案保持原有音节栏和选中行为，包括既有补全与简拼标签。启用时，完整音节栏只显示本音节拼写能匹配当前输入边的 label；模糊派生、简拼、补全或纠错可让候选进入图中，不能据此把其他音节名放进完整音节栏。例如用户九键规则下 `9826` 显示 `zuan:4`，不显示经模糊规则得到的 `zhuan`／`zhuang`；`94826` 显示 `zhuan:5`，`948264` 的 `zhuang:6` 边不再提供派生的 `zuan` 标签。展示投影按原 algebra 顺序保留普通变换和删除语义，也保留 `NormalizeT9TabLabel` 前后相同的 normal、非 correction 派生编码分支，例如万象的“小写派生大写，再将大写映射为数字”。不能把全部 `derive` 都视为音变而跳过，否则会丢掉这条九键编码路径。匹配沿真实 delimiter、canonicalizer 和 prism 边界处理，不用 `isalnum` 猜测分隔符；非数字输入、单键简拼和原始按键标签沿原路径处理。
+九键完整音节栏的展示与选中后的候选筛选分别处理。现行 SDK `android-sdk-20261120-1`（librime `7c61add0…`）起，音节栏只对九键数字输入显示：当前音节（跳过方案分隔符后）为字母时不生成音节栏，确认前缀后剩余的数字音节仍显示。`UseLiteralTabLabels` 仅在方案存在 `derive/fuzz`、跳过真实前导分隔符后的当前位置为数字且存在反向字母映射时启用字面过滤；没有 `derive/fuzz` 的方案保持原有音节栏和选中行为，包括既有补全与简拼标签。启用时，完整音节栏只显示本音节拼写能匹配当前输入边的 label；模糊派生、简拼、补全或纠错可让候选进入图中，不能据此把其他音节名放进完整音节栏。例如用户九键规则下 `9826` 显示 `zuan:4`，不显示经模糊规则得到的 `zhuan`／`zhuang`；`94826` 显示 `zhuan:5`，`948264` 的 `zhuang:6` 边不再提供派生的 `zuan` 标签。展示投影按原 algebra 顺序保留普通变换和删除语义，也保留 `NormalizeT9TabLabel` 前后相同的 normal、非 correction 派生编码分支，例如万象的“小写派生大写，再将大写映射为数字”。不能把全部 `derive` 都视为音变而跳过，否则会丢掉这条九键编码路径。匹配沿真实 delimiter、canonicalizer 和 prism 边界处理，不用 `isalnum` 猜测分隔符；非数字输入、单键简拼和原始按键标签沿原路径处理。
 
 引擎侧选中完整音节后的候选筛选仍由 librime 的 `ScriptSyllabifier::ApplyTabConstraints` 处理。模糊关联从原始带调音节按部署顺序重放完整 `speller/algebra`，由实际命中的 `derive`／`fuzz` 建立来源；普通变换只沿已有模糊分支传播，删除规则移除该分支。最终分支须对应实际 prism 中所选输入边的拼写 key，并保留分隔符、canonicalize 与补全边的匹配规则，不能仅凭数字重码或无视前后规则建立关联。选中实际展示的 `zuan:4` 后，方案可达的“转／专／装”和“转速／专属”模糊候选仍应保留；收窄音节栏不等于删除这些候选。字面过滤域内，标签生成、直接比较和派生标签比较共用 `NormalizeT9TabLabel`，在原有去调和大小写处理外统一 `ü/Ü → v`，避免 `lü` 与 `lv` 重复成栏并在选中后拆分同组声调候选；非适用输入继续使用原比较规则，不全局修改 `StripTones`。`xform/^n$/en/` 本身不建立 `n → en` 模糊关系，单键简拼的首字母约束保持。测试的模糊集合按实际规则方向和当前输入图定义，不凭无向“等价类”补出方案未写的反向规则。
 
@@ -97,7 +101,7 @@ expiry 先核提示 ID，匹配时先清 Job、文本与 lifetime，再检查引
 
 横向候选高亮变化只通过专用 RecyclerView payload 调用 `setActive`；结构变化后的高亮位置必须采用 `CandidateUpdatePlan` 已换算的新坐标。高亮与角标位移 payload 可以合并处理，角标仍同时更新全局下标；候选内容、主题、字体或字号变化继续完整绑定。局部 payload 不取消 `setActive` 内对正文／注释前景色和高亮背景的更新，也不改变 holder 的候选目标。
 
-正式 `android-sdk-20261116-2` 已发布，按 `9a317501…` 交付上述修订，881 个文件、四 ABI 来源与链接元数据核验通过。输入法默认分支 `f340e09a…` 已锁定该版本并完成精确 lease 推送，本机应用门禁、Commit CI 与 Direct Rime CI 通过；`OrderedSpellingTabSdkTest` 的 7 项在本次实际设备包中执行，失败、错误和跳过均为 0。Windows native 契约的符号链接权限阻塞仍记录，Linux native 安全契约与 LevelDB 复用、同步、恢复分别在本次 CI 通过。当前产物与各阶段固定身份见[新版 SDK 消费与默认分支重写](../changes/2026-11-16-syllable-fuzzy-filter-fix.md#新版-sdk-消费与默认分支重写)，旧 SDK、旧 fix 和本次 APK 的设备结论分别记录。
+正式 `android-sdk-20261116-2` 已发布，按 `9a317501…` 交付上述修订，881 个文件、四 ABI 来源与链接元数据核验通过。2026-11-16 输入法默认分支 `f340e09a…` 锁定了该版本并完成精确 lease 推送，本机应用门禁、Commit CI 与 Direct Rime CI 通过；`OrderedSpellingTabSdkTest` 的 7 项在本次实际设备包中执行，失败、错误和跳过均为 0。Windows native 契约的符号链接权限阻塞仍记录，Linux native 安全契约与 LevelDB 复用、同步、恢复分别在本次 CI 通过。当时产物与各阶段固定身份见[新版 SDK 消费与默认分支重写](../changes/2026-11-16-syllable-fuzzy-filter-fix.md#新版-sdk-消费与默认分支重写)，旧 SDK、旧 fix 和当次 APK 的设备结论分别记录。此后输入法提交 `858e4851` 把版本锁更新为 `android-sdk-20261120-1`，只增加上文的数字输入音节栏限制。
 
 `InputView` 将分页快照直接交给 `InputBroadcaster`，不先合成列表事件。广播器向每个 `PagedCandidateReceiver` 交付完整页，其他接收方共享一份列表兼容表示；每个接收方只收到一种表示。真实列表事件仍正常广播，分页与列表切换立即生效，不使用 500ms 超时猜测模式。空页须清空两种接收方，相同显示文字的新快照仍须交付其真实选择版本。入口测试为 `CandidateBroadcastTest`。
 

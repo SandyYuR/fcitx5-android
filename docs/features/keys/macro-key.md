@@ -43,7 +43,7 @@
 | [`edit`](#_5-edit-编辑命令) | 复制 / 粘贴 / 全选等系统编辑命令 | `action: string` |
 | [`shortcut`](#_6-shortcut-快捷键组合) | modifier + 主键的组合键 | `modifiers: KeyRef[]`, `key: KeyRef` |
 | [`app`](#_7-app-应用内动作) | 触发应用内预定义动作 | `id: string` |
-| [`layer`](#_8-layer-布局层切换) | 切换 / 单次切换 文本布局层 | `mode: "to"\|"osl"`, `target: string` |
+| [`layer`](#_8-layer-布局层切换) | 切换 / 单次切换 / 返回 文本布局层 | `mode: "to"\|"osl"\|"back"`, `target: string` |
 
 ### KeyRef 引用按键的两种方式
 
@@ -54,7 +54,7 @@
 | `{"fcitx": "<sym>"}` | Fcitx 虚拟键名（**推荐**） | `{"fcitx": "Return"}`, `{"fcitx": "Shift_L"}`, `{"fcitx": "a"}`, `{"fcitx": "space"}` |
 | `{"android": <code>}` | Android 键码（整数，*高级用法*） | `{"android": 29}`（即字母 A） |
 
-> 常用 Fcitx 键名：`Return` / `BackSpace` / `Tab` / `space` / `Escape` / `Shift_L` / `Control_L` / `Alt_L` / `Up` / `Down` / `Left` / `Right` / `Home` / `End` / `Delete` / 字母数字直接小写 / `F1`–`F12`。字母键的大小写由 Shift / Caps 等状态决定；完整分类列表见 [Fcitx 键名速查](/features/keys/fcitx-keys)。
+> 常用 Fcitx 键名：`Return` / `BackSpace` / `Tab` / `space` / `Escape` / `Shift_L` / `Ctrl_L` / `Alt_L` / `Up` / `Down` / `Left` / `Right` / `Home` / `End` / `Delete` / 字母数字直接小写 / `F1`–`F12`。`shortcut` 的修饰键必须写成 `Ctrl_L` 这类形式；单个字母写成大写时会附带 Shift 发送。完整分类列表见 [Fcitx 键名速查](/features/keys/fcitx-keys)。
 
 ::: warning 应用内宏编辑器的 Android KeyRef 限制
 应用内 [MacroKey 编辑器](/features/editor/macrokey-editor) 只暴露 `fcitx` 形式的按键引用。2026-11-21 的网页编辑器修订提供 Android 整数键码输入，并保留导入的 Android 与自定义 Fcitx 引用；发布状态见[在线编辑器](/features/online-editor)。
@@ -163,7 +163,7 @@ modifier 键 + 主键的组合，比手写 `down`/`up` 简单且自动处理释�
 ```
 
 ```json
-{ "type": "app", "id": "open_settings" }
+{ "type": "app", "id": "settings_global_options" }
 ```
 
 ## 显示文本优先于标签（本版）
@@ -187,6 +187,7 @@ modifier 键 + 主键的组合，比手写 `down`/`up` 简单且自动处理释�
 |-----------|------|
 | `to` | 直接切换并停留在目标层 |
 | `osl` | One-Shot Layer：切换到目标层，按下一个键后自动返回 |
+| `back` | 撤销最近一次 `to` 切换，回到切换前的层；`target` 可留空 |
 
 ```json
 { "type": "layer", "mode": "to",  "target": "symbol" }

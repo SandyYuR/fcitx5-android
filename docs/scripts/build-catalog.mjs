@@ -8,6 +8,8 @@ export const docsRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 function topicFor(path) {
   const p = path.toLowerCase()
+  // Dated performance reports keep their own topic even when the slug names a feature (e.g. font, candidate, foxy).
+  if (/^maintainer\/perf\//.test(p)) return '性能与诊断'
   if (/voice|asr/.test(p)) return '语音输入'
   if (/backup|restore|data-directory|shutdown/.test(p)) return '数据与备份'
   if (/clipboard|clipcascade|clearurls|websocket/.test(p)) return '剪贴板与网络'

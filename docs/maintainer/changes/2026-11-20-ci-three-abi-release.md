@@ -2,6 +2,8 @@
 
 本记录对应代码默认分支 `fx-rime-only` 的提交 `c037dc143`（提交标题「构建(CI): 三 ABI 同时构建并按 ABI 命名发布资产」）。本次只改 CI、发布脚本与其说明，不改变输入法运行时代码。
 
+> **后续更正：** 本页记录的 `c037dc143` 未保留在默认分支。默认分支实际合入的是 [`5fb2acd0`](https://github.com/SandyYuR/fcitx5-android/commit/5fb2acd0e3d93bf713a8ad68236a1017b9069cdb)「构建(CI): 四 ABI 同时构建并按 ABI 命名发布资产」：Commit CI 为 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64` 四路矩阵，`prepare-release-assets.py` 以四个期望 ABI 校验（`.github/workflows/ci.yml` 的 `--expected-abis`），资产命名规则不变。下文“三种 ABI、`x86` 不进入发布”及三路验证结果保留为当时记录，不代表现行发布范围；现行说明见[安装与升级](/guide/installation)与[维护手册](/maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN)。四路 Release 的实际运行结果未在本次更正中复核。
+
 ## 现象与处理
 
 | 现象 | 处理 |

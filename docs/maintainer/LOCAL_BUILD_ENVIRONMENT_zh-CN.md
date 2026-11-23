@@ -2,6 +2,7 @@
 
 这页记录在 Windows 上构建、测试与出包的**本机侧**经验，供维护者排查环境问题。
 CI 用的是 GitHub 托管的 Ubuntu，与这里无关；下面的路径是作者机器上的布置，换机时按同名变量自行替换即可。
+不在 Windows 本机开发时，可使用代码分支 `.devcontainer/` 的 Linux 云端环境，见[GitHub Codespaces 云端开发](DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md#github-codespaces-云端开发)。
 
 ## 工具链与一键脚本
 
