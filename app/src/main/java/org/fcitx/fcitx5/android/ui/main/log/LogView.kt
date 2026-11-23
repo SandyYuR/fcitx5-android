@@ -14,22 +14,16 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.utils.Logcat
-import splitties.resources.styledColor
 import splitties.views.bottomPadding
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.lParams
 import splitties.views.dsl.core.matchParent
-import splitties.views.dsl.core.wrapContent
 import splitties.views.dsl.recyclerview.recyclerView
 import splitties.views.recyclerview.verticalLayoutManager
 
 class LogView @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null) :
     FrameLayout(context, attributeSet) {
-
-    private val logLevelPattern =
-        Regex("""^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+\d+\s+\d+\s+([VDIWEF])\s""")
 
     private var logcat: Logcat? = null
     private var logcatCollectionJob: Job? = null
@@ -51,33 +45,38 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
     }
 
     fun append(content: String) {
-        logAdapter.append(content, buildSpannedString {
-            color(styledColor(android.R.attr.colorForeground)) { append(content) }
+        val textColor = context.logDefaultTextColor()
+        logAdapter.append(content, buildSpannedString { color(textColor) { append(content) } })
+    }
+
+    /**
+     * 批量追加历史行。逐条 append 会把每条都变成一次 notifyItemInserted，
+     * 历史量大时主线程直接卡死；这里整块只发一次插入通知。
+     */
+    fun appendAll(lines: List<String>) {
+        if (lines.isEmpty()) return
+        val defaultColor = context.logDefaultTextColor()
+        logAdapter.appendAll(lines.map { line ->
+            val level = logLevelOf(line)
+            val textColor = if (level == null) defaultColor else context.logLevelColor(logLevelStyle(level))
+            line to buildSpannedString { color(textColor) { append(line) } }
         })
     }
 
     fun setLogcat(logcat: Logcat) {
         // 取消之前的收集
         logcatCollectionJob?.cancel()
-        
+
         this.logcat = logcat
         logcat.initLogFlow()
-        logcatCollectionJob = logcat.logFlow.onEach {
-            val level = logLevelPattern.find(it)?.groupValues?.getOrNull(1)?.firstOrNull()
-            val color = styledColor(
-                when (level) {
-                    'V' -> R.attr.colorLogVerbose
-                    'D' -> R.attr.colorLogDebug
-                    'I' -> R.attr.colorLogInfo
-                    'W' -> R.attr.colorLogWarning
-                    'E' -> R.attr.colorLogError
-                    'F' -> R.attr.colorLogFatal
-                    else -> android.R.attr.colorForeground
-                }
-            )
-            logAdapter.append(it, buildSpannedString {
-                color(color) { append(it) }
-            })
+        logcatCollectionJob = logcat.logFlow.onEach { line ->
+            val level = logLevelOf(line)
+            val textColor = if (level == null) {
+                context.logDefaultTextColor()
+            } else {
+                context.logLevelColor(logLevelStyle(level))
+            }
+            logAdapter.append(line, buildSpannedString { color(textColor) { append(line) } })
         }.launchIn(findViewTreeLifecycleOwner()!!.lifecycleScope)
     }
 
@@ -96,7 +95,7 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
     fun setLevelFilter(levels: Set<Char>) {
         logAdapter.setLevelFilter(levels)
     }
-    
+
     fun setContentFilter(filter: String) {
         logAdapter.setContentFilter(filter)
     }

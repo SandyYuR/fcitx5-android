@@ -33,7 +33,7 @@ class LogExportTest {
         lateinit var adapter: LogAdapter
         lateinit var frozen: List<String>
         onMain {
-            adapter = LogAdapter()
+            adapter = LogAdapter(application)
             adapter.append("RimeInputTiming first", "first")
             adapter.append("unrelated", "other")
             adapter.setFilterQuery("RimeInputTiming")

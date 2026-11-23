@@ -9,24 +9,28 @@ import android.util.Log
 import org.fcitx.fcitx5.android.BuildConfig
 import timber.log.Timber
 
+/**
+ * logcat tag 必须是纯业务 tag（例如 RimeLifecycle）。
+ *
+ * logcat 的 `-s RimeLifecycle:I` 是精确 tag 匹配，任何前缀（曾经的 `[thread] RimeLifecycle`）
+ * 都会失配；而 tools/foxy-perf 正是靠这个过滤，再用 `RimeLifecycle: bind ... ready=true`
+ * 正则定位事件。线程身份由 threadtime 的 TID 列承载，不需要塞进 tag。
+ */
+private fun businessTagOrThreadName(tag: String?): String =
+    tag?.takeIf { it.isNotEmpty() } ?: "[${Thread.currentThread().name}]"
+
 class VerboseTree : Timber.DebugTree() {
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-        super.log(priority, "[${Thread.currentThread().name}] $tag", message, t)
+        super.log(priority, businessTagOrThreadName(tag), message, t)
     }
 }
 
 class ConciseTree : Timber.Tree() {
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
         if (priority < Log.INFO) return
-        
-        // Build effective tag: "[thread]" or "[thread] domain"
-        val threadName = Thread.currentThread().name
-        val effectiveTag = if (tag.isNullOrEmpty()) {
-            "[$threadName]"
-        } else {
-            "[$threadName] $tag"
-        }
-        
+
+        val effectiveTag = businessTagOrThreadName(tag)
+
         // Append truncated stack trace if present
         val fullMessage = if (t != null) {
             message + "\n" + truncateStackTrace(Log.getStackTraceString(t))

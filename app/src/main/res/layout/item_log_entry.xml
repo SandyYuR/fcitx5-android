@@ -11,7 +11,7 @@
     android:paddingEnd="8dp"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
-    android:background="?attr/selectableItemBackground">
+    android:foreground="?attr/selectableItemBackground">
 
     <!-- 彩色左侧条 -->
     <View
@@ -39,7 +39,6 @@
         android:layout_weight="1"
         android:textSize="11sp"
         android:fontFamily="monospace"
-        android:textColor="?android:attr/textColorPrimary"
         android:maxLines="2"
         android:ellipsize="end"
         android:scrollHorizontally="false"

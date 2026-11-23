@@ -5,15 +5,21 @@
 package org.fcitx.fcitx5.android.ui.main.log
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
+import android.os.Looper
 import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.style.BackgroundColorSpan
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.res.use
+import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import org.fcitx.fcitx5.android.R
@@ -31,8 +37,22 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
     private var levelFilter: Set<Char> = setOf('V', 'D', 'I', 'W', 'E', 'F')
     private var contentFilter: String = "" // 内容过滤（如 "rime"）
 
-    private val levelRegex = Regex("""^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+\d+\s+\d+\s+([VDIWEF])\s""")
-    private val highlightColor = Color.parseColor("#80FFFF00")
+    private val highlightColor = ContextCompat.getColor(context, R.color.log_search_highlight)
+
+    // 级别颜色按 level 缓存，避免每个条目重复解析主题属性
+    private val levelColors = HashMap<Char?, Int>()
+
+    // 斑马纹覆盖色：只算一次，避免每次 bind 都解析主题背景色
+    private val stripeColor: Int = run {
+        val background = context.logColorOrDefault(
+            android.R.attr.colorBackground,
+            ContextCompat.getColor(context, android.R.color.transparent)
+        )
+        val luminance = (Color.red(background) * 0.299 +
+            Color.green(background) * 0.587 +
+            Color.blue(background) * 0.114) / 255.0
+        if (luminance > 0.5) Color.argb(10, 0, 0, 0) else Color.argb(10, 255, 255, 255)
+    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val colorBar: View = view.findViewById(R.id.colorBar)
@@ -46,61 +66,27 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
         return ViewHolder(view)
     }
 
+    private fun levelColorOf(level: Char?): Int = levelColors.getOrPut(level) {
+        context.logLevelColor(logLevelStyle(level))
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val entry = visibleEntries[position]
-        val level = levelRegex.find(entry.raw)?.groupValues?.get(1)?.firstOrNull() ?: 'I'
-        
-        // 设置级别颜色和图标
-        val (colorAttr, iconRes) = when (level) {
-            'V' -> R.attr.colorLogVerbose to R.drawable.ic_log_verbose
-            'D' -> R.attr.colorLogDebug to R.drawable.ic_log_debug
-            'I' -> R.attr.colorLogInfo to R.drawable.ic_log_info
-            'W' -> R.attr.colorLogWarning to R.drawable.ic_log_warning
-            'E' -> R.attr.colorLogError to R.drawable.ic_log_error
-            'F' -> R.attr.colorLogFatal to R.drawable.ic_log_fatal
-            else -> R.attr.colorLogInfo to R.drawable.ic_log_info
-        }
-        
-        context.theme.obtainStyledAttributes(intArrayOf(colorAttr)).use { ta ->
-            val color = ta.getColor(0, 0)
-            holder.colorBar.setBackgroundColor(color)
-            holder.levelIcon.setImageResource(iconRes)
-            ImageViewCompat.setImageTintList(
-                holder.levelIcon,
-                android.content.res.ColorStateList.valueOf(color)
-            )
-        }
-        
+        val level = logLevelOf(entry.raw)
+        val style = logLevelStyle(level)
+        val color = levelColorOf(level)
+
+        // 级别色同时落在色条、图标和正文上：任何单一元素被主题或布局吃掉时仍能辨认级别
+        holder.colorBar.setBackgroundColor(color)
+        holder.levelIcon.setImageResource(style.iconRes)
+        ImageViewCompat.setImageTintList(holder.levelIcon, ColorStateList.valueOf(color))
+
         // 明暗交替背景（类似 Foxy）
-        val backgroundColor = if (position % 2 == 0) {
-            android.graphics.Color.TRANSPARENT
-        } else {
-            // 使用半透明黑色/白色创建subtle差异
-            context.theme.obtainStyledAttributes(intArrayOf(android.R.attr.colorBackground)).use { ta ->
-                val bgColor = ta.getColor(0, android.graphics.Color.WHITE)
-                // 根据背景亮度选择覆盖色
-                val luminance = (android.graphics.Color.red(bgColor) * 0.299 +
-                                 android.graphics.Color.green(bgColor) * 0.587 +
-                                 android.graphics.Color.blue(bgColor) * 0.114) / 255.0
-                if (luminance > 0.5) {
-                    // 亮色主题：添加淡灰色
-                    android.graphics.Color.argb(10, 0, 0, 0)
-                } else {
-                    // 暗色主题：添加淡白色
-                    android.graphics.Color.argb(10, 255, 255, 255)
-                }
-            }
-        }
-        holder.itemView.setBackgroundColor(backgroundColor)
-        
-        // 设置文本（带高亮）
-        val displayText = if (filterQuery.isNotEmpty()) {
-            highlightMatches(entry.line.toString(), filterQuery)
-        } else {
-            entry.line
-        }
-        holder.textView.text = displayText
-        
+        holder.itemView.setBackgroundColor(if (position % 2 == 0) Color.TRANSPARENT else stripeColor)
+
+        holder.textView.setTextColor(color)
+        holder.textView.text = decorateEntry(entry, level, color)
+
         // 展开/收起逻辑
         val isExpanded = expandedItems.contains(position)
         holder.textView.maxLines = if (isExpanded) Int.MAX_VALUE else 2
@@ -119,15 +105,70 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
         }
     }
 
+    /**
+     * 生成带级别色的正文。保留 [LogEntry.line] 已有的 Span（例如 LogView 传入的整行着色），
+     * 再叠加搜索高亮；有级别的行重新按级别着色并把级别字母加粗，色觉差异之外还能靠字形识别。
+     */
+    private fun decorateEntry(entry: LogEntry, level: Char?, color: Int): CharSequence {
+        val builder = SpannableStringBuilder(entry.line)
+        if (builder.isEmpty()) return builder
+
+        if (level != null) {
+            builder.setSpan(
+                ForegroundColorSpan(color),
+                0,
+                builder.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            logLevelRegex.find(entry.line)?.groups?.get(1)?.range?.let { range ->
+                if (range.last < builder.length) {
+                    builder.setSpan(
+                        StyleSpan(Typeface.BOLD),
+                        range.first,
+                        range.last + 1,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
+        }
+
+        if (filterQuery.isNotEmpty()) {
+            applyHighlight(builder, filterQuery)
+        }
+        return builder
+    }
+
     override fun getItemCount(): Int = visibleEntries.size
 
     // 旧接口：接受两个参数
     fun append(raw: String, line: CharSequence) {
-        val entry = LogEntry(raw, line)
-        allEntries.add(entry)
-        if (matches(entry)) {
-            visibleEntries.add(entry)
-            notifyItemInserted(visibleEntries.size - 1)
+        appendEntries(listOf(LogEntry(raw, line)))
+    }
+
+    /**
+     * 批量追加，只发一次 notifyItemRangeInserted。
+     *
+     * 打开日志页要灌入整个持久历史（可能几十万行），逐条 notify 会把主线程压死；
+     * 调用方按块喂进来即可，块与块之间由调用方 yield。
+     */
+    fun appendAll(entries: List<Pair<String, CharSequence>>) {
+        if (entries.isEmpty()) return
+        appendEntries(entries.map { LogEntry(it.first, it.second) })
+    }
+
+    private fun appendEntries(entries: List<LogEntry>) {
+        if (entries.isEmpty()) return
+        val firstInserted = visibleEntries.size
+        var inserted = 0
+        for (entry in entries) {
+            allEntries.add(entry)
+            if (matches(entry)) {
+                visibleEntries.add(entry)
+                inserted++
+            }
+        }
+        if (inserted > 0) {
+            notifyItemRangeInserted(firstInserted, inserted)
         }
     }
 
@@ -162,7 +203,16 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
 
     fun currentLevelFilter() = levelFilter
 
-    fun snapshotLines(): List<String> = visibleEntries.map { it.raw }
+    /**
+     * 导出用的行快照。只允许主线程取，导出流程在 UI 线程冻结快照后再交给后台写文件；
+     * 否则可能在遍历集合时被 logcat 回调并发修改。
+     */
+    fun snapshotLines(): List<String> {
+        check(Looper.myLooper() == Looper.getMainLooper()) {
+            "Log snapshots must be captured on the main thread"
+        }
+        return visibleEntries.map { it.raw }
+    }
 
     // 旧接口：返回 Pair<Int, Int> (总数, 可见数)
     fun getFilterStatus(): Pair<Int, Int> {
@@ -171,7 +221,7 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
 
     private fun matches(entry: LogEntry): Boolean {
         // 级别过滤
-        val level = levelRegex.find(entry.raw)?.groupValues?.get(1)?.firstOrNull()
+        val level = logLevelOf(entry.raw)
         if (level != null && level !in levelFilter) {
             return false
         }
@@ -196,8 +246,8 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
         notifyDataSetChanged()
     }
 
-    private fun highlightMatches(text: String, query: String): SpannableStringBuilder {
-        val builder = SpannableStringBuilder(text)
+    private fun applyHighlight(builder: SpannableStringBuilder, query: String) {
+        val text = builder.toString()
         var startIndex = 0
         while (true) {
             val index = text.indexOf(query, startIndex, ignoreCase = true)
@@ -206,10 +256,9 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
                 BackgroundColorSpan(highlightColor),
                 index,
                 index + query.length,
-                SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             startIndex = index + query.length
         }
-        return builder
     }
 }

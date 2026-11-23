@@ -42,18 +42,28 @@ object LogSink {
     
     private var writer: BufferedWriter? = null
     private var currentFile: File? = null
+
+    /** 上次执行保留策略的时间；只在 writer 线程上读写 */
+    private var lastCleanupAt = 0L
+
+    /** 保留策略的执行间隔：清理原先只在 init 和文件轮转时跑，进程长期存活时会一直不生效 */
+    private val cleanupIntervalMs = 5 * 60 * 1000L
     
     /**
      * 初始化日志写入器
      * 必须在使用前调用，建议在 Application.onCreate() 中调用
      */
     fun init(context: Context) {
-        this.context = context.applicationContext
+        // 这里不强制换成 applicationContext：调用方可能传的是 device-protected context，
+        // 而日志目录的存储位置由 LogFileManager 统一决定（Direct Boot 前也可写）。
+        this.context = context
         initialized = true
+        lastCleanupAt = 0L
         
-        // 启动时清理旧日志
+        // 启动时清理旧日志（此时还没有打开任何文件，无需保护）
         executor.execute {
             try {
+                lastCleanupAt = System.currentTimeMillis()
                 LogFileManager.cleanupOldLogs(context)
             } catch (e: Exception) {
                 // 忽略清理错误
@@ -111,10 +121,22 @@ object LogSink {
             writer?.close()
             writer = FileOutputStream(file, true).bufferedWriter(Charsets.UTF_8)
             currentFile = file
-            
-            // 文件轮转时执行清理
-            LogFileManager.cleanupOldLogs(context)
+            // 刚轮转出来的文件必须立即参与保留策略，不受节流限制
+            lastCleanupAt = 0L
         }
+
+        maybeCleanup(file)
+    }
+
+    /**
+     * 定期执行保留策略。清理必须跳过正在写的文件，否则会删掉仍被 writer 打开的
+     * 目录项，之后的日志全部写进已 unlink 的文件里，直到进程重启或跨天。
+     */
+    private fun maybeCleanup(activeFile: File) {
+        val now = System.currentTimeMillis()
+        if (now - lastCleanupAt < cleanupIntervalMs) return
+        lastCleanupAt = now
+        LogFileManager.cleanupOldLogs(context, activeFile)
     }
     
     /**
@@ -141,6 +163,33 @@ object LogSink {
         )
     }
     
+    /**
+     * 清空全部持久日志。
+     *
+     * 必须在 writer 的线程上串行执行：先关闭并重置 writer，再删文件。调用方若直接删文件，
+     * 只会删掉目录项，旧的 BufferedWriter 仍指向那个已 unlink 的 inode，之后所有日志都写进
+     * 一个谁也读不到的文件，直到进程重启或跨天换文件。
+     */
+    fun clear() {
+        if (!initialized) return
+        executor.execute {
+            try {
+                writer?.close()
+            } catch (e: Exception) {
+                // 忽略关闭错误，文件仍要被删掉
+            }
+            writer = null
+            currentFile = null
+            // 清空后允许立即重新清理
+            lastCleanupAt = 0L
+            try {
+                LogFileManager.getAllLogFiles(context).forEach { it.delete() }
+            } catch (e: Exception) {
+                // 忽略删除错误
+            }
+        }
+    }
+
     /**
      * 强制刷新缓冲区
      * 一般不需要手动调用，每次写入后会自动 flush

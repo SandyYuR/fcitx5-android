@@ -6,12 +6,12 @@
     </style>
 
     <style name="Theme.FcitxAppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
-        <item name="colorLogFatal">@color/red_A700</item>
-        <item name="colorLogError">@color/red_400</item>
-        <item name="colorLogWarning">@color/yellow_500</item>
-        <item name="colorLogInfo">@color/blue_500</item>
-        <item name="colorLogDebug">@color/grey_400</item>
-        <item name="colorLogVerbose">@color/grey_400</item>
+        <item name="colorLogFatal">@color/log_level_fatal</item>
+        <item name="colorLogError">@color/log_level_error</item>
+        <item name="colorLogWarning">@color/log_level_warning</item>
+        <item name="colorLogInfo">@color/log_level_info</item>
+        <item name="colorLogDebug">@color/log_level_debug</item>
+        <item name="colorLogVerbose">@color/log_level_verbose</item>
     </style>
 
     <style name="Theme.DialogTheme" parent="Theme.Material3Expressive.DayNight.Dialog">

@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.utils
 
 import android.content.Context
+import android.os.Build
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,10 +38,25 @@ object LogFileManager {
     private val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.US)
     
     /**
+     * 日志目录所在的存储 context。
+     *
+     * 必须用 device-protected 存储：LogActivity 声明了 directBootAware，而 Direct Boot
+     * （首解锁之前）读不到 credential-protected 的 noBackupFilesDir，用默认 context 会让
+     * 开机早期整段会话没有文件日志。device-protected 存储首解锁前后都可写，所以只保留
+     * 一个目录，历史不会分裂成两份。
+     */
+    private fun storageContext(context: Context): Context =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            runCatching { context.createDeviceProtectedStorageContext() }.getOrDefault(context)
+        } else {
+            context
+        }
+
+    /**
      * 获取日志目录，如果不存在则创建
      */
     fun getLogDir(context: Context): File {
-        val logDir = File(context.noBackupFilesDir, LOG_DIR_NAME)
+        val logDir = File(storageContext(context).noBackupFilesDir, LOG_DIR_NAME)
         if (!logDir.exists()) {
             logDir.mkdirs()
         }
@@ -84,14 +100,17 @@ object LogFileManager {
      * 清理旧日志文件
      * 1. 删除超过保留期限（3天）的文件
      * 2. 如果总大小超过限制（30MB），删除最旧的文件直到满足限制
+     *
+     * @param protectedFile 当前仍有 writer 打开的文件，任何情况下都不删：
+     * 删掉已 unlink 的文件只会让之后的日志写进黑洞，直到进程重启。
      */
-    fun cleanupOldLogs(context: Context) {
+    fun cleanupOldLogs(context: Context, protectedFile: File? = null) {
         val logFiles = getAllLogFiles(context)
         val cutoffTime = System.currentTimeMillis() - (MAX_AGE_DAYS * 24 * 60 * 60 * 1000L)
         
         // 删除超过保留期限的文件
         logFiles.forEach { file ->
-            if (file.lastModified() < cutoffTime) {
+            if (file != protectedFile && file.lastModified() < cutoffTime) {
                 file.delete()
             }
         }
@@ -102,6 +121,8 @@ object LogFileManager {
         
         for (file in remainingFiles.reversed()) { // 从最旧的开始
             if (totalSize <= MAX_TOTAL_SIZE_BYTES) break
+            // 正在写的文件不参与删除，也不把它的体积算作可回收空间
+            if (file == protectedFile) continue
             totalSize -= file.length()
             file.delete()
         }
