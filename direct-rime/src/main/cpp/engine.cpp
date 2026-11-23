@@ -189,6 +189,7 @@ void Engine::start(const std::string& shared, const std::string& user,
     shared_ = shared; user_ = user; version_ = version;
     minLogLevel_ = std::clamp(minLogLevel, 0, 3);
     initialize(fullCheck);
+    acceptUsableDeployment();
     if (fullCheck && deployFailed_.load()) {
         stop();
         throw std::runtime_error("部署失败，请检查方案文件后重新部署");
@@ -197,6 +198,7 @@ void Engine::start(const std::string& shared, const std::string& user,
 void Engine::initialize(bool fullCheck) {
     invalidateStatusCache();
     deployFailed_.store(false);
+    deployDegraded_.store(false);
     if (fullCheck) {
         // Rime's compiler compares source mtimes with one-second resolution.
         // Explicit redeploy must also rebuild edits copied with unchanged times.
@@ -555,7 +557,32 @@ bool Engine::deploy() {
     // setup/logging remains process-wide and must not be run a second time.
     stop();
     initialize(true);
+    acceptUsableDeployment();
     return !deployFailed_.load();
+}
+bool Engine::deploymentDegraded() const {
+    return deployDegraded_.load();
+}
+bool Engine::deploymentUsable() {
+    // Match the contract other Rime frontends rely on: a deployment that finished the
+    // workspace update produced build/default.yaml. Require at least one loadable schema so
+    // an empty or completely broken result still fails closed.
+    std::error_code ec;
+    const auto build = std::filesystem::path(user_) / "build";
+    if (!std::filesystem::is_regular_file(build / "default.yaml", ec)) return false;
+    if (!api_ || !started_) return false;
+    RimeSchemaList list{};
+    if (!api_->get_schema_list(&list)) return false;
+    const bool usable = list.size > 0;
+    api_->free_schema_list(&list);
+    return usable;
+}
+void Engine::acceptUsableDeployment() {
+    if (!deployFailed_.load() || !deploymentUsable()) return;
+    // Keep the engine: a single failed dictionary unit must not make an otherwise usable
+    // plan unusable. The warning state is queryable by the frontend for its UI.
+    deployFailed_.store(false);
+    deployDegraded_.store(true);
 }
 std::vector<std::string> Engine::schemas() {
     owner();

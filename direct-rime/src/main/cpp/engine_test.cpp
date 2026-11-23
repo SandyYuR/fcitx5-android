@@ -750,6 +750,33 @@ void testGeneratedConfigInvalidation() {
     CHECK(fs::exists(user / "user.yaml") && fs::exists(user / "test.userdb/CURRENT"));
     engine.stop(); CHECK(engine.deploy()); engine.stop();
 }
+void testUsableDeploymentWarning() {
+    namespace fs = std::filesystem;
+    const TemporaryDirectory temporary;
+    const auto root = temporary.path();
+    const fs::path user = root / "user", shared = root / "shared", build = user / "build";
+    fs::create_directories(shared); fs::create_directories(build);
+    // Compiled-only output survives the forced-check invalidation because no source
+    // file shadows it; it stands in for the workspace a partial deployment produced.
+    std::ofstream(build / "default.yaml") << "keep data";
+    f = {}; auto a = api(); Engine engine(&a);
+    f.failDeploy = true;
+    engine.start(shared.string(), user.string(), "development", true);
+    CHECK(engine.deploymentDegraded());
+    CHECK(engine.begin(1, "editor").gate == Ready);
+    // A forced deployment of the same usable workspace is accepted as degraded.
+    CHECK(engine.deploy());
+    CHECK(engine.deploymentDegraded());
+    engine.stop();
+    // Without a produced workspace a failed task still fails closed.
+    f = {}; auto b = api(); Engine rejected(&b); f.failDeploy = true;
+    bool rejectedStart = false;
+    try { rejected.start(shared.string(), (root / "empty").string(), "development", true); }
+    catch (const std::runtime_error& error) {
+        rejectedStart = std::strcmp(error.what(), "部署失败，请检查方案文件后重新部署") == 0;
+    }
+    CHECK(rejectedStart);
+}
 }
 int main(int argc, char** argv) {
     try {
@@ -760,7 +787,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequence(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); std::cout << "engine contract: passed\n";
+        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequence(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); testUsableDeploymentWarning(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }
