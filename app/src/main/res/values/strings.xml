@@ -481,7 +481,7 @@
     <string name="fontset_entry_preedit">Preedit Font</string>
     <string name="fontset_entry_comment">Comment Font</string>
     <string name="font_size">Font Size</string>
-    <string name="font_size_value">%1$d sp</string>
+    <string name="font_size_value">%1$s sp</string>
     <string name="font_size_editor_title">%1$s - Font Size</string>
     <string name="font_size_editor_hint">Drag to adjust font size (%1$d–%2$d sp)</string>
     <string name="fontset_save_failed_io_error">Failed to save fontset: I/O error occurred</string>

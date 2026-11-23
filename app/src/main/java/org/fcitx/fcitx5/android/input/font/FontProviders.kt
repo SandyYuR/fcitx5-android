@@ -120,6 +120,9 @@ object FontProviders {
     val fontGeneration: Long
         get() = provider.fontDataVersion
 
+    internal fun parseConfiguredSize(value: String?): Float? =
+        value?.trim()?.toFloatOrNull()?.takeIf { it.isFinite() }?.coerceIn(8f, 72f)
+
     /**
      * Get font size for a specific key with fallback logic.
      * @param key The font key (e.g., "key_main_font", "cand_font")
@@ -216,7 +219,7 @@ object FontProviders {
         // Check if any font size key exists with valid value
         val sizeKeys = snapshot.value.keys.filter { it.endsWith("_size") }
         return sizeKeys.any { key ->
-            snapshot.value[key]?.firstOrNull()?.toFloatOrNull() != null
+            parseConfiguredSize(snapshot.value[key]?.firstOrNull()) != null
         }
     }
 }
