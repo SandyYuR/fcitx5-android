@@ -27,9 +27,12 @@ const features = [
   { text: '功能地图', items: [
     { text: '全部现有功能', link: '/features/overview' },
     { text: 'Rime 方案、部署与同步', link: '/features/rime-enhancements' },
+    { text: 'Rime 引擎变体', link: '/features/rime-engine-variants' },
+    { text: 'Rime 方案更新', link: '/features/rime-scheme-updates' },
     { text: '符号、表情与颜文字', link: '/features/symbol-panel' },
   ] },
   { text: '键盘与输入', collapsed: false, items: [
+    { text: '分体、浮动与单手键盘', link: '/features/keyboard/keyboard-modes' },
     { text: '浮动键盘与移动手柄', link: '/features/keyboard/float-keyboard' },
     { text: '分体键盘', link: '/features/keyboard/split-keyboard' },
     { text: '单手模式', link: '/features/keyboard/one-handed' },
@@ -54,7 +57,6 @@ const features = [
     { text: 'Monet 动态取色', link: '/features/theme/monet' },
     { text: '磨砂按键', link: '/features/theme/frosted-blur' },
     { text: '设置界面与返回动画', link: '/features/theme/settings-appearance' },
-    { text: '二维码分享与导入', link: '/features/theme/share-import' },
   ] },
   { text: '语音与 JS 插件', collapsed: false, items: [
     { text: '选择引擎与 AIDL 提供方', link: '/features/voice-input' },
@@ -70,6 +72,7 @@ const features = [
     { text: '备份、恢复与密钥迁移', link: '/features/backup-restore' },
     { text: '更新检查与断点下载', link: '/features/update-checker' },
     { text: '系统分享与文件导入', link: '/features/shared-import' },
+    { text: '二维码分享与导入', link: '/features/qr-share-import' },
   ] },
   { text: '按键字段参考', collapsed: true, items: [
     { text: '按键类型与共通字段', link: '/features/keys/overview' },

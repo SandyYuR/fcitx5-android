@@ -26,6 +26,7 @@
 
 ## 相关页面
 
+- [分体、浮动与单手键盘](/features/keyboard/keyboard-modes)
 - [浮动键盘](/features/keyboard/float-keyboard)
 - [分体键盘](/features/keyboard/split-keyboard)
 - [键盘布局编辑器](/features/editor/layout-editor)

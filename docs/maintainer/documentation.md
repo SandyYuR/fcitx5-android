@@ -39,7 +39,14 @@
 | 日常不需要引擎插件 APK | [版本共存与数据隔离](/guide/builds-and-plugins) | 介绍、FAQ、致谢只写结论 |
 | JS 插件与 AI 助手的合入版本 | [JS 插件](/features/voice-input-js) | AI 助手页、两份参考页、宿主协议链接 |
 | AI 助手操作流程 | [AI 文本助手](/features/ai-assistant) | JS 插件页只保留入口 |
+| 分体、浮动与单手键盘的开关、默认值与互斥关系 | [分体、浮动与单手键盘](/features/keyboard/keyboard-modes) | 三个形态页只写各自操作 |
+| 引擎变体、万象与自定义方案更新的细节 | [Rime 引擎变体](/features/rime-engine-variants) · [Rime 方案更新](/features/rime-scheme-updates) | Rime 设置页保留同名小节作摘要和锚点 |
+| 宏编辑器键名与 X11 键名的区别 | [Fcitx 键名速查](/features/keys/fcitx-keys#编辑器键名与手写键名) | MacroKey 页链接 |
 | 现行功能页与源码入口 | [覆盖表](/maintainer/changes/feature-coverage) | 对照页、索引只链接 |
+
+## 功能页结构
+
+功能页按“概述 → 入口与设置 → 行为细节 → 相关页面”组织，「相关页面」固定为最后一节；后补的细节并入对应章节作为三级标题，不追加在「相关页面」之后。三级标题沿用原二级标题文字，原有锚点保持有效。移动页面时旧地址保留 `redirect` 小页面，并同步导航、[覆盖表](/maintainer/changes/feature-coverage)与站内链接。
 
 ## 提交对照的登记方式
 

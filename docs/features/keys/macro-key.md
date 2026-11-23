@@ -54,7 +54,7 @@
 | `{"fcitx": "<sym>"}` | Fcitx 虚拟键名（**推荐**） | `{"fcitx": "Return"}`, `{"fcitx": "Shift_L"}`, `{"fcitx": "a"}`, `{"fcitx": "space"}` |
 | `{"android": <code>}` | Android 键码（整数，*高级用法*） | `{"android": 29}`（即字母 A） |
 
-> 常用 Fcitx 键名：`Return` / `BackSpace` / `Tab` / `space` / `Escape` / `Shift_L` / `Ctrl_L` / `Alt_L` / `Up` / `Down` / `Left` / `Right` / `Home` / `End` / `Delete` / 字母数字直接小写 / `F1`–`F12`。`shortcut` 的修饰键必须写成 `Ctrl_L` 这类形式；单个字母写成大写时会附带 Shift 发送。完整分类列表见 [Fcitx 键名速查](/features/keys/fcitx-keys)。
+> 常用 Fcitx 键名：`Return` / `BackSpace` / `Tab` / `space` / `Escape` / `Shift_L` / `Ctrl_L` / `Alt_L` / `Up` / `Down` / `Left` / `Right` / `Home` / `End` / `Delete` / 字母数字直接小写 / `F1`–`F12`。`shortcut` 的修饰键必须写成 `Ctrl_L` 这类形式；单个字母写成大写时会附带 Shift 发送。编辑器列表里的 `Enter`／`Space` 与手写的 `Return`／`space` 发送方式不同，对照见[编辑器键名与手写键名](/features/keys/fcitx-keys#编辑器键名与手写键名)；完整分类列表见 [Fcitx 键名速查](/features/keys/fcitx-keys)。
 
 ::: warning 应用内宏编辑器的 Android KeyRef 限制
 应用内 [MacroKey 编辑器](/features/editor/macrokey-editor) 只暴露 `fcitx` 形式的按键引用。2026-11-21 的网页编辑器修订提供 Android 整数键码输入，并保留导入的 Android 与自定义 Fcitx 引用；发布状态见[在线编辑器](/features/online-editor)。

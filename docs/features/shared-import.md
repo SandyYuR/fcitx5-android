@@ -22,5 +22,5 @@
 
 ## 相关页面
 
-- [QR 分享与导入](/features/theme/share-import) —— 另一种导入方式
+- [QR 分享与导入](/features/qr-share-import) —— 另一种导入方式
 - [主题编辑器](/features/theme/theme-editor)

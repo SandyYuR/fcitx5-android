@@ -5,11 +5,27 @@
 在 MacroKey 的 step 中，`{"fcitx": "<sym>"}` 形式的 KeyRef 用一个字符串引用一个具体按键。本页给出常用的 `<sym>` 列表与中文说明，并按用途分组。
 
 ::: tip 选用建议
-- 编辑器里直接选 —— 编辑器使用内置的常用键名列表（如 `Enter`、`Space`、`A`–`Z`、`Ctrl_L`），写法与本页的 X11 风格名称不完全相同
+- 编辑器里直接选 —— 编辑器使用内置的常用键名列表（如 `Enter`、`Space`、`A`–`Z`、`Ctrl_L`），与本页 X11 风格名称的区别见[编辑器键名与手写键名](#编辑器键名与手写键名)
 - 手写 JSON 时按本页查
 - 数字 / 字母直接写字面形式（`a`、`1`），不需要 X11 风格的 `KEY_A`
 - 推荐用 `fcitx` 形式而不是 [`android` 键码](/features/keys/macro-key#keyref-引用按键的两种方式)（编辑器不暴露 android 形式）
 :::
+
+## 编辑器键名与手写键名
+
+应用内宏编辑器的键名列表和本页按 X11 习惯列出的名称并不完全相同。两种写法都能保存，但发送方式不同：键名在宿主内置映射里时，宏按 Android 按键事件模拟按下；不在映射里时，按 Fcitx 键名直接交给输入引擎。
+
+| 用途 | 编辑器列表中的名称 | 手写常见名称 | 区别 |
+| --- | --- | --- | --- |
+| 回车 | `Enter` | `Return` | `Enter` 模拟 Android 回车键；`Return` 不在内置映射，作为键名交给引擎 |
+| 空格 | `Space` | `space` | 同上，`Space` 模拟 Android 空格键，`space` 交给引擎 |
+| 退格、删除、Esc、Tab | `BackSpace`、`Delete`、`Escape`、`Tab` | 相同 | 两种写法一致 |
+| 修饰键 | `Ctrl_L` / `Ctrl_R` | `Control_L` / `Control_R` | `shortcut` 的 `modifiers` 只识别 `Ctrl_*`，写 `Control_*` 会被当作非修饰键跳过 |
+| Super | `Super_L` / `Super_R` | 相同 | 宿主按 Meta 键发送 |
+| 字母 | `A`–`Z`（列表为大写） | `a`–`z` | 在 `tap`、`down`、`up` 中，大写字母会附带 Shift，小写不附带；模拟大写锁定开启时两者对调。`shortcut` 的主键字母一律按小写处理，不额外加 Shift |
+| 需要 Shift 的符号 | `exclam`、`at`、`numbersign`、`colon`、`question` 等 | 相同 | 宿主自动附带 Shift，不必再写 `Shift_L` |
+
+需要固定走引擎路径时，手写 JSON 使用本页表中的 X11 名称；需要与实体键盘一致的 Android 按键事件时，使用编辑器列表中的名称。
 
 ## 编辑 / 文本相关
 
