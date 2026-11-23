@@ -6,20 +6,26 @@ import { isHistoricalSource } from '../.vitepress/search-shared.mjs'
 
 export const docsRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
-function topicFor(path) {
+// Directory rules come first, then path keywords; dated reports keep the topic of what they examine.
+// Pages that match no keyword fall back by area: maintenance records to 构建与审阅, user pages to 使用与维护.
+const topicRules = [
+  ['语音输入', /voice|asr|ai-assistant|js-plugin/],
+  ['数据与备份', /backup|restore|data-directory|shutdown|share-import|shared-import/],
+  ['剪贴板与网络', /clipboard|clipcascade|clearurls|websocket/],
+  ['主题与设置', /theme|monet|md3|settings|font|appearance|design-system|icon/],
+  ['键盘与编辑器', /editor|layout|keys\/|keyboard|symbol|swipe|foxy|kawaii|macrokey/],
+  ['输入与候选', /candidate|responsiveness|rebind|status-hint|password|input-statistics|input-reliability|inline-suggestion|session/],
+  ['性能与诊断', /perf\/|screen_perf|cold_io|performance|user_log|latency/],
+  ['Rime 引擎', /engine|source_maintenance|rime-|implementation_2026|decoupling|syllable|evo-profile|redeploy|correctness-contracts/],
+  ['构建与审阅', /build|release|merge|rebase|documentation|review|update|hosts|cleanup|unused|audit|squash|alignment/],
+]
+
+export function topicFor(path) {
   const p = path.toLowerCase()
   // Dated performance reports keep their own topic even when the slug names a feature (e.g. font, candidate, foxy).
-  if (/^maintainer\/perf\//.test(p)) return '性能与诊断'
-  if (/voice|asr/.test(p)) return '语音输入'
-  if (/backup|restore|data-directory|shutdown/.test(p)) return '数据与备份'
-  if (/clipboard|clipcascade|clearurls|websocket/.test(p)) return '剪贴板与网络'
-  if (/theme|monet|md3|settings|font|appearance/.test(p)) return '主题与设置'
-  if (/editor|layout|keys\/|keyboard|symbol|swipe|foxy/.test(p)) return '键盘与编辑器'
-  if (/candidate|responsiveness|rebind|status-hint|password/.test(p)) return '输入与候选'
-  if (/perf\/|screen_perf|cold_io|performance|user_log/.test(p)) return '性能与诊断'
-  if (/engine|source_maintenance|rime-enhancements|implementation_2026|decoupling/.test(p)) return 'Rime 引擎'
-  if (/build|release|merge|rebase|documentation|review|update|hosts|cleanup|unused|audit/.test(p)) return '构建与审阅'
-  return '使用与维护'
+  if (p.startsWith('maintainer/perf/')) return '性能与诊断'
+  for (const [topic, pattern] of topicRules) if (pattern.test(p)) return topic
+  return p.startsWith('maintainer/') ? '构建与审阅' : '使用与维护'
 }
 
 function classify(path) {
