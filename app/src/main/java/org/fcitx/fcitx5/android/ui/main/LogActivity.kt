@@ -40,7 +40,6 @@ import org.fcitx.fcitx5.android.ui.main.log.LogExportViewModel
 import org.fcitx.fcitx5.android.ui.main.log.LogView
 import org.fcitx.fcitx5.android.ui.main.log.logExportStore
 import org.fcitx.fcitx5.android.ui.main.log.mergePersistedAndLogcat
-import org.fcitx.fcitx5.android.ui.main.log.oldestLogTime
 import org.fcitx.fcitx5.android.utils.DeviceInfo
 import org.fcitx.fcitx5.android.utils.Logcat
 import org.fcitx.fcitx5.android.utils.LogFileManager
@@ -175,6 +174,11 @@ class LogActivity : SettingsUiActivity() {
      * 持久化历史和 logcat 是同一批事件的两个来源：Logx 每条日志都同时写文件和 logcat，
      * 而 logd 会把积压留着，reader 不带起点时先重放整段积压。所以这里取两者的时间窗
      * 并集，按事件字段消掉重叠的那一份，再让实时 reader 从快照之后接着读。
+     *
+     * 快照本身不设起点。logd 里可能存在早于持久化历史第一行、且没有持久化孪生的记录：
+     * 首次运行、历史被清空，以及 Application 在 LogSink 初始化之后、startup 标记之前
+     * 打下的诊断都属于这一类。把历史起点当成 logcat 覆盖的起点会把它们整段丢出页面和
+     * 导出；重叠的那一份则由 [mergePersistedAndLogcat] 按字段身份消掉，不需要边界。
      */
     private fun reloadLogs(announce: Boolean) {
         reloadJob?.cancel()
@@ -186,9 +190,8 @@ class LogActivity : SettingsUiActivity() {
             try {
                 val merged = withContext(Dispatchers.IO) {
                     val history = LogFileManager.readAllLogs(this@LogActivity)
-                    // 快照只取历史起点之后的部分；没有可解析的历史行时不设边界，
-                    // 保留 logcat 里只出现过一次的 native 与直接写 Log 的记录。
-                    val snapshot = logcat.getLogAsync(oldestLogTime(history))
+                    // 不传 since：历史起点不是 logcat 覆盖的起点，早于它的记录仍要保留。
+                    val snapshot = logcat.getLogAsync()
                         .await()
                         .getOrDefault(emptyList())
                     mergePersistedAndLogcat(history, snapshot)

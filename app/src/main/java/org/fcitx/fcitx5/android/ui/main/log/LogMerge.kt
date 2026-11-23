@@ -121,18 +121,6 @@ internal fun parseLogLine(line: String, nowMillis: Long): ParsedLogLine? =
     parseLogLine(line, ThreadtimeClock(nowMillis))
 
 /**
- * 持久化历史里最早一行的时间，用作 logcat 快照与实时流的起点。
- * 历史按时间升序存放，所以只扫到第一条可解析的行就够；没有可解析的行时返回 null。
- */
-internal fun oldestLogTime(lines: List<String>, nowMillis: Long = System.currentTimeMillis()): Long? {
-    val clock = ThreadtimeClock(nowMillis)
-    lines.forEach { line ->
-        parseLogLine(line, clock)?.let { return it.epochMillis }
-    }
-    return null
-}
-
-/**
  * 合并结果。[resumeFrom] 是快照覆盖到的最后一刻之后一毫秒。
  *
  * 实时 reader 从这里开始：既不会重放整个 logd 积压（那正是重复与时间线倒置的来源），

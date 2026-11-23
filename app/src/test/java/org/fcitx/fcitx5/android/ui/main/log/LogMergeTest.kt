@@ -124,6 +124,21 @@ class LogMergeTest {
         assertEquals(listOf(older, newer), merged.lines)
     }
 
+    /**
+     * 回归：快照曾经以持久化历史的第一行为起点。首次运行、历史被清空，以及 Application
+     * 在 LogSink 初始化之后、startup 标记之前打下的诊断都早于那一行，而且没有持久化孪生，
+     * 一旦把历史起点当成 logcat 覆盖的起点，它们会整段从页面和导出里消失。
+     */
+    @Test
+    fun startupDiagnosticsOlderThanTheFirstPersistedEventAreKept() {
+        val early = logcat(-30_000, level = 'D', tag = "FcitxApp", message = "isDirectBootMode=false")
+        val merged = merge(
+            persistedLines = listOf(persisted(-1_000)),
+            snapshotLines = listOf(early, logcat(-1_000))
+        )
+        assertEquals(listOf(early, persisted(-1_000)), merged.lines)
+    }
+
     @Test
     fun linesWithoutAThreadtimePrefixFollowTheirPredecessor() {
         val native = logcat(-120_000, tag = "nativeloader", message = "native")
@@ -152,16 +167,6 @@ class LogMergeTest {
         )
         assertEquals(listOf("--------- beginning of main"), merged.lines)
         assertNull(merged.resumeFrom)
-    }
-
-    @Test
-    fun oldestLogTimeSkipsUnparsableLines() {
-        val oldest = oldestLogTime(
-            listOf("--------- beginning of main", "\tat com.example.Foo.bar(Foo.kt:1)", persisted(-9_000)),
-            now
-        )
-        assertEquals(parseLogLine(persisted(-9_000), now)!!.epochMillis, oldest)
-        assertNull(oldestLogTime(listOf("--------- beginning of main"), now))
     }
 
     @Test

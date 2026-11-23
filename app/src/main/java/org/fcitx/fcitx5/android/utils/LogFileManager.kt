@@ -36,6 +36,29 @@ object LogFileManager {
     private const val MAX_AGE_DAYS = 3
     
     private val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.US)
+
+    /**
+     * 文件名里隐含的排序键：日期 + 序号，序号 0 表示当天的基准文件。
+     *
+     * 目录顺序必须由名字决定，不能靠 lastModified：保留策略删掉基准文件后编号文件仍会
+     * 继续被写，修改时间的先后就不再等于日志时间的先后。
+     */
+    private data class LogFileKey(val date: String, val index: Int)
+
+    private fun fileName(date: String, index: Int): String =
+        if (index == 0) "$LOG_FILE_PREFIX$date$LOG_FILE_EXTENSION"
+        else "$LOG_FILE_PREFIX$date-$index$LOG_FILE_EXTENSION"
+
+    private fun fileKey(name: String): LogFileKey? {
+        if (!name.startsWith(LOG_FILE_PREFIX) || !name.endsWith(LOG_FILE_EXTENSION)) return null
+        val stem = name.substring(LOG_FILE_PREFIX.length, name.length - LOG_FILE_EXTENSION.length)
+        val dash = stem.indexOf('-')
+        val date = if (dash < 0) stem else stem.substring(0, dash)
+        if (date.length != 8 || !date.all { it.isDigit() }) return null
+        if (dash < 0) return LogFileKey(date, 0)
+        val index = stem.substring(dash + 1).toIntOrNull() ?: return null
+        return LogFileKey(date, index)
+    }
     
     /**
      * 日志目录所在的存储 context。
@@ -64,36 +87,62 @@ object LogFileManager {
     }
     
     /**
-     * 获取当前应该写入的日志文件
-     * 如果当前日期的文件已超过大小限制，返回带序号的新文件
+     * 获取当前应该写入的日志文件。
+     *
+     * 当天文件超出大小限制时按序号轮转，轮转必须单调：只在**序号最大**的那个文件上继续
+     * 写，写满了才启用下一个序号，绝不回头复用序号更小或不存在的文件。
+     *
+     * 基准文件（无序号）可能已经被保留策略删掉。此时若又把基准文件重新建出来，新事件就
+     * 会落进排在编号文件之前的文件里；等它再写满，搜索又会返回那个没写满的旧编号文件，
+     * 把更新的日志追加到旧内容后面，整个目录的时间顺序就错位了。序号只增不减，可以保证
+     * 「文件名的顺序就是日志时间的顺序」。
+     *
+     * @param active 调用方仍打开着的文件，可省略：它还是今天的、也没写满时直接复用，
+     *              省掉一次目录扫描（每条日志都会调用这里）。
      */
-    fun getCurrentLogFile(context: Context): File {
+    fun getCurrentLogFile(context: Context, active: File? = null): File {
         val logDir = getLogDir(context)
         val today = dateFormat.format(Date())
-        val logFile = File(logDir, "${LOG_FILE_PREFIX}${today}${LOG_FILE_EXTENSION}")
-        
-        // 如果文件超过大小限制，创建新文件（带序号）
-        if (logFile.exists() && logFile.length() > MAX_FILE_SIZE_BYTES) {
-            var index = 1
-            var newFile: File
-            do {
-                newFile = File(logDir, "${LOG_FILE_PREFIX}${today}-${index}${LOG_FILE_EXTENSION}")
-                index++
-            } while (newFile.exists() && newFile.length() > MAX_FILE_SIZE_BYTES)
-            return newFile
+
+        // 快路径：当前文件仍是今天的、也还存在、也没写满，就不必再看目录。
+        // 只有序号最大的文件会被写入，所以它没写满时不可能存在更高的序号。
+        if (active != null && active.exists() && active.length() <= MAX_FILE_SIZE_BYTES &&
+            fileKey(active.name)?.date == today
+        ) {
+            return active
         }
-        
-        return logFile
+
+        val todays = logDir.listFiles()
+            ?.mapNotNull { file ->
+                fileKey(file.name)?.takeIf { it.date == today }?.let { file to it.index }
+            }
+            ?.sortedBy { it.second }
+            ?: emptyList()
+        val highest = todays.lastOrNull() ?: return File(logDir, fileName(today, 0))
+
+        return if (highest.first.length() > MAX_FILE_SIZE_BYTES) {
+            File(logDir, fileName(today, highest.second + 1))
+        } else {
+            highest.first
+        }
     }
     
     /**
-     * 获取所有日志文件，按修改时间降序排列（最新的在前）
+     * 获取所有日志文件，按日期与序号降序排列（最新的在前）。
+     *
+     * 顺序由文件名决定而不是修改时间：保留策略可能删掉基准文件、让编号文件继续被写，
+     * 修改时间的先后就不再等于日志时间的先后。
      */
     fun getAllLogFiles(context: Context): List<File> {
         val logDir = getLogDir(context)
-        return logDir.listFiles { file ->
-            file.name.startsWith(LOG_FILE_PREFIX) && file.name.endsWith(LOG_FILE_EXTENSION)
-        }?.sortedByDescending { it.lastModified() } ?: emptyList()
+        return logDir.listFiles()
+            ?.mapNotNull { file -> fileKey(file.name)?.let { it to file } }
+            ?.sortedWith(
+                compareByDescending<Pair<LogFileKey, File>> { it.first.date }
+                    .thenByDescending { it.first.index }
+            )
+            ?.map { it.second }
+            ?: emptyList()
     }
     
     /**
@@ -130,7 +179,7 @@ object LogFileManager {
     
     /**
      * 读取所有日志文件的内容，返回日志行列表
-     * 按文件修改时间排序，最新的文件最后读取
+     * 按日期与序号排序，最新的文件最后读取
      */
     fun readAllLogs(context: Context): List<String> {
         val logFiles = getAllLogFiles(context).reversed() // 从最旧到最新

@@ -105,10 +105,13 @@ object LogSink {
     }
     
     /**
-     * 确保 writer 可用，如果需要则切换到新文件
+     * 确保 writer 可用，如果需要则切换到新文件。
+     *
+     * [currentFile] 一起传下去：它仍是当天的、也还没写满时可以原样复用，
+     * 省掉每条日志一次目录扫描。
      */
     private fun ensureWriter() {
-        val file = LogFileManager.getCurrentLogFile(context)
+        val file = LogFileManager.getCurrentLogFile(context, currentFile)
         
         // 如果文件变化了（例如新的一天或文件超过大小限制），关闭旧 writer
         if (file != currentFile) {
