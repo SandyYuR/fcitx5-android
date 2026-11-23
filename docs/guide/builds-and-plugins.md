@@ -12,7 +12,7 @@
 | 上游 / fxliang | 通常为 `org.fcitx.fcitx5.android` / `org.fcitx.fcitx5.android.fx`，与主包不同 |
 
 安装包以实际 manifest 中的包名和签名为准，不用 Debug/Release 文件名推断是否可并存。
-主应用已内置 Rime，不加载独立引擎插件 APK。
+主应用已内置 Rime，日常使用不需要独立引擎插件 APK。“输入与候选 → Rime引擎变体”可选加载实现 `org.rime.plugin.MANIFEST` 协议的引擎提供 APK 或导入的 `.so`，内置引擎始终保留为默认与故障回退，见[用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN#rime-引擎变体)。
 
 ## 用户数据边界
 

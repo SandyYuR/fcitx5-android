@@ -9,11 +9,13 @@ docKind: reference
 以下正文描述 **Foxy** 的接口。中州鹅的实际支持范围见[宿主实现](/maintainer/implementation/js-voice-plugins#js-app-test-branch)。
 
 中州鹅的 AI 助手与 JS App 功能已于 2026-11-05 合入默认分支 `fx-rime-only`；较早的 APK 需更新后使用。
-已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP、SSE 流式 HTTP、按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`），以及旧式平铺 `fields` / `buttons` 布局；中州鹅另提供 App 对话框里的 `app` 切换节点。键盘按钮使用本宿主的精确绑定，通用 App 选择器尚未实现。语音 WebSocket 仍可使用。
+已实现 App 注册、权限、结构化原生界面、编辑器、密钥别名、非流式 HTTP、SSE 流式 HTTP、按事件注册的 App WebSocket（含 `foxy.websocket.authorize()`），以及旧式平铺 `fields` / `buttons` 布局；中州鹅另提供 App 对话框里的 `app` 切换节点。键盘按钮使用本宿主的精确绑定，通用 App 选择器尚未实现；App 面板标题栏由宿主自动列出同一插件目录中其他已注册的 App 供切换，属于宿主控件，不进入插件的事件与取值。语音 WebSocket 仍可使用。
 
 Foxy 要求请求主机在静态 `hosts` 中声明。中州鹅的 App 扩展还允许从普通设置中的格式安全端点提取精确主机：HTTP／SSE 只从 HTTPS 设置取主机并继续使用 HTTPS；App WebSocket 可从 HTTPS 或 WSS 设置取主机，但实际连接仍只使用 WSS。两者首次使用时都逐域名授权；内置助手的 `hosts` 为空。这个扩展不等于给原版 Foxy 放开任意域名，语音接口仍按静态清单授权。
 
-“确认”“发送”等标签的含义由插件的按钮事件处理决定，宿主不会自动把它们解释成 AI 请求或上屏操作。
+“确认”“发送”等标签的含义由插件的按钮事件处理决定，宿主不会自动把它们解释成 AI 请求或上屏操作。维护中的内置助手在生成前显示 **发送 AI**，回复就绪后显示 **确认上屏**。
+
+中州鹅的插件设置页把普通服务参数、密钥和授权分组显示；条件可见与联动默认值仍按插件声明，密钥计数只表示当前显示字段的保存状态，不代表远端服务已验证。
 :::
 
 [安装与 AI 助手操作流程](./voice-input-js#ai-assistant) · <a href="/fcitx5-android/reference/js-plugin-README.md" download>下载原始英文 README</a>

@@ -5,9 +5,9 @@
 在 MacroKey 的 step 中，`{"fcitx": "<sym>"}` 形式的 KeyRef 用一个字符串引用一个具体按键。本页给出常用的 `<sym>` 列表与中文说明，并按用途分组。
 
 ::: tip 选用建议
-- 编辑器里直接选 —— 列表来自代码生成的 `KeyMapping` 常量，与本页一致
+- 编辑器里直接选 —— 编辑器使用内置的常用键名列表（如 `Enter`、`Space`、`A`–`Z`、`Ctrl_L`），写法与本页的 X11 风格名称不完全相同
 - 手写 JSON 时按本页查
-- 数字 / 字母直接写小写形式（`a`、`1`），不需要 X11 风格的 `KEY_A`
+- 数字 / 字母直接写字面形式（`a`、`1`），不需要 X11 风格的 `KEY_A`
 - 推荐用 `fcitx` 形式而不是 [`android` 键码](/features/keys/macro-key#keyref-引用按键的两种方式)（编辑器不暴露 android 形式）
 :::
 
@@ -38,10 +38,14 @@
 | `<sym>` | 含义 |
 |---------|------|
 | `Shift_L` / `Shift_R` | 左 / 右 Shift |
-| `Control_L` / `Control_R` | 左 / 右 Ctrl |
+| `Ctrl_L` / `Ctrl_R` | 左 / 右 Ctrl |
 | `Alt_L` / `Alt_R` | 左 / 右 Alt |
 | `Meta_L` / `Meta_R` | 左 / 右 Meta（Win 键） |
+| `Super_L` / `Super_R` | 左 / 右 Super |
+| `Hyper_L` / `Hyper_R` | 左 / 右 Hyper |
 | `Caps_Lock` | 大写锁定 |
+
+`shortcut` step 的 `modifiers` 只识别上表的 `Ctrl_*` / `Shift_*` / `Alt_*` / `Meta_*` / `Super_*` / `Hyper_*`，以及 `Mode_switch`、`ISO_Level3_Shift`、`ISO_Level5_Shift`；写成 X11 的 `Control_L` 会被当作非修饰键忽略。
 
 ::: tip Modifier 与 shortcut step
 通常不需要手写 `down` + `up` 来按住 modifier，用 [`shortcut` step](/features/keys/macro-key#_6-shortcut-快捷键组合) 一步搞定：
@@ -61,9 +65,9 @@
 | 数字 | `0` ~ `9` |
 
 ::: tip 字母按键与大小写
-编辑器里字母键通常显示为大写，这是按键标签显示，不代表固定输出大写。`fcitx` KeyRef 引用的是按键本身；实际大小写由当前 Shift / Caps 等键盘状态决定。
+单个字母的大小写有含义：写小写（如 `a`）按普通按键发送；写大写（如 `A`）会自动附带 Shift 发送，输出大写。应用内宏编辑器的字母列表是 `A`–`Z`，选中后保存的就是大写形式。模拟 Caps Lock 开启时，两者的 Shift 判断反转。
 
-手写 JSON 时字母建议写小写。需要明确的大写输出时，用 [`shortcut` step](/features/keys/macro-key#_6-shortcut-快捷键组合) 加 `Shift`，或用 [`text` step](/features/keys/macro-key#_4-text-直接提交文本) 直接提交字面文本。
+手写 JSON 时需要小写输出就写小写。需要字面固定的文本时，用 [`text` step](/features/keys/macro-key#_4-text-直接提交文本) 直接提交更可靠。
 :::
 
 ## 常用 ASCII 符号
@@ -142,7 +146,7 @@
 
 ## 完整列表去哪查
 
-本页列的是常用子集。代码侧的"完整支持列表"由 `KeyMapping` 常量定义（约 100+ 项），通过 codegen 生成。如果你需要的某个键名不在本页，但属于标准 X11 keysym 命名，多数也能用 —— 实在不确定可在 [issues](https://github.com/SandyYuR/fcitx5-android/issues) 中问。
+本页列的是常用子集。应用内宏编辑器的可选键名是内置列表（含字母、数字、修饰键、方向与编辑键、符号、小键盘、`F1`–`F35` 及多媒体键）。不在内置映射里的名称会按 Fcitx 键名直接交给输入引擎处理，属于标准 X11 keysym 命名的多数也能用 —— 实在不确定可在 [issues](https://github.com/SandyYuR/fcitx5-android/issues) 中问。
 
 ## 相关页面
 

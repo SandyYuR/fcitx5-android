@@ -22,6 +22,10 @@
 - 如果只是在当前输入方案布局内切换"层"，用 [MacroKey](/features/keys/macro-key#_8-layer-布局层切换) 的 `layer` step
 :::
 
+## 长按菜单
+
+长按布局切换键弹出菜单，可直接切到符号面板（Symbols）或内置数字键盘（NumPad）；两项图标分别取图标主题的 `keys.symbols` 与 `keys.numpad` 槽位。
+
 ## 直达符号面板的目标（本版）
 
 编辑器里 `subLabel` 目标列表新增了三个面板选择器目标，可放一枚「一键直达某类面板」的键：
