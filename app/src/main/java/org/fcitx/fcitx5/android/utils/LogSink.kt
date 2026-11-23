@@ -9,6 +9,7 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Calendar
+import java.util.Locale
 import java.util.concurrent.Executors
 
 /**
@@ -89,19 +90,12 @@ object LogSink {
         executor.execute {
             try {
                 ensureWriter()
-                
-                // 写入日志行
-                val line = formatLogLine(level, tag, message, timestamp, tid)
-                writer?.write(line)
-                writer?.newLine()
-                
-                // 如果有异常，写入堆栈
-                throwable?.let {
-                    val stackTrace = it.stackTraceToString()
-                    writer?.write(stackTrace)
+
+                for (line in formatLogLines(level, tag, message, throwable, timestamp, tid)) {
+                    writer?.write(line)
                     writer?.newLine()
                 }
-                
+
                 // 定期 flush（每次写入后）
                 writer?.flush()
             } catch (e: Exception) {
@@ -140,10 +134,50 @@ object LogSink {
     }
     
     /**
+     * 把一条事件渲染成一行或多行 threadtime 记录。
+     *
+     * 事件里的换行（消息自带的多行文本、Throwable 的堆栈）必须拆成各自独立、各自带前缀的行。
+     * 以前堆栈是作为裸行写在事件行之后的：它没有级别和 tag，读取端 [logLevelRegex] 解析不出
+     * 级别，于是级别过滤会删掉事件头却留下全部栈帧（无级别行恒通过级别过滤），"rime" 内容
+     * 过滤又反过来只留事件头、把诊断帧全删掉——同一个异常被两种过滤切成两半。
+     * 逐行带上前缀后，级别、内容、搜索三种过滤对整条异常要么全留要么全删，
+     * 导出的文件也真的符合头部声明的 threadtime 格式。
+     */
+    internal fun formatLogLines(
+        level: Char,
+        tag: String,
+        message: String,
+        throwable: Throwable?,
+        timestamp: Long,
+        tid: Int
+    ): List<String> {
+        val stack = throwable?.stackTraceToString()?.trimEnd('\n')
+        val payload = when {
+            stack.isNullOrEmpty() -> message
+            message.isEmpty() -> stack
+            else -> message + "\n" + stack
+        }
+        // 热路径上的绝大多数日志是单行：不为了找换行而先切分整个字符串
+        if (payload.indexOf('\n') < 0) return listOf(formatLogLine(level, tag, payload, timestamp, tid))
+        return payload.split('\n').map { formatLogLine(level, tag, it, timestamp, tid) }
+    }
+
+    /**
      * 格式化日志行，模拟 logcat threadtime 格式
      * 格式：MM-DD HH:mm:ss.SSS  PID  TID LEVEL TAG: message
+     *
+     * 必须固定 Locale.US：默认 locale 使用非 ASCII 数字时（如 ar-EG 的 ٠١٢…），
+     * String.format 会把月/日/时分秒/毫秒/PID/TID 换成当地数字，
+     * 而读取端 logLevelRegex 只认 ASCII 数字，整批日志会解析不出级别，
+     * 进而按 Info 着色并绕过级别过滤。
      */
-    private fun formatLogLine(level: Char, tag: String, message: String, timestamp: Long, tid: Int): String {
+    internal fun formatLogLine(
+        level: Char,
+        tag: String,
+        message: String,
+        timestamp: Long,
+        tid: Int
+    ): String {
         val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
         
         val month = calendar.get(Calendar.MONTH) + 1
@@ -157,6 +191,7 @@ object LogSink {
         
         // 格式：MM-DD HH:mm:ss.SSS  PID  TID LEVEL TAG: message
         return String.format(
+            Locale.US,
             "%02d-%02d %02d:%02d:%02d.%03d %5d %5d %c %s: %s",
             month, day, hour, minute, second, millis,
             pid, tid, level, tag, message

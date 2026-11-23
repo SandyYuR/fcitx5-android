@@ -38,6 +38,7 @@ import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.log.CrashReportStore
 import org.fcitx.fcitx5.android.ui.main.log.LogExportViewModel
 import org.fcitx.fcitx5.android.ui.main.log.LogView
+import org.fcitx.fcitx5.android.ui.main.log.logExportStore
 import org.fcitx.fcitx5.android.utils.DeviceInfo
 import org.fcitx.fcitx5.android.utils.Logcat
 import org.fcitx.fcitx5.android.utils.LogFileManager
@@ -337,34 +338,51 @@ class LogActivity : SettingsUiActivity() {
         exports.prepare(header, lines)
     }
 
+    /**
+     * 分享与导出必须同源：两者都走 [LogExportStore.render]，都会带上保留的崩溃报告。
+     *
+     * 应用崩溃后重开普通日志页再分享时，崩溃报告是唯一的现场记录——崩溃进程的 logcat
+     * 早已滚掉，而崩溃处理器也不经过 LogSink 写文件。只序列化当前列表会把它漏掉。
+     */
     private fun shareLog() {
         val header = buildExportHeader()
-        val content = logView.snapshotLines()
-        val fullText = header + "\n" + content.joinToString("\n")
-
-        try {
-            // 写入临时文件避免 Binder 事务限制。
-            // 目录与 authority 必须匹配：share.fileprovider 只暴露 cacheDir/shared/。
-            val shareDir = File(cacheDir, "shared").apply { mkdirs() }
-            val tempFile = File(shareDir, "log-${System.currentTimeMillis()}.txt")
-            tempFile.writeText(fullText)
-
-            val uri = FileProvider.getUriForFile(
-                this,
-                "${BuildConfig.APPLICATION_ID}.share.fileprovider",
-                tempFile
-            )
-
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_SUBJECT, "${getString(R.string.app_name)} - ${getString(R.string.real_time_logs)}")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        // 列表快照只能在主线程取；读崩溃报告和写临时文件都在 IO 上做
+        val lines = logView.snapshotLines()
+        val store = logExportStore(application)
+        lifecycleScope.launch {
+            val uri = try {
+                withContext(Dispatchers.IO) {
+                    val fullText = store.render(header, lines)
+                    // 写入临时文件避免 Binder 事务限制。
+                    // 目录与 authority 必须匹配：share.fileprovider 只暴露 cacheDir/shared/。
+                    val shareDir = File(cacheDir, "shared").apply { mkdirs() }
+                    val tempFile = File(shareDir, "log-${System.currentTimeMillis()}.txt")
+                    tempFile.writeText(fullText)
+                    FileProvider.getUriForFile(
+                        this@LogActivity,
+                        "${BuildConfig.APPLICATION_ID}.share.fileprovider",
+                        tempFile
+                    )
+                }
+            } catch (e: Exception) {
+                toast("Failed to share log: ${e.message}")
+                return@launch
             }
 
-            startActivity(Intent.createChooser(intent, getString(R.string.share)))
-        } catch (e: Exception) {
-            toast("Failed to share log: ${e.message}")
+            try {
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    putExtra(
+                        Intent.EXTRA_SUBJECT,
+                        "${getString(R.string.app_name)} - ${getString(R.string.real_time_logs)}"
+                    )
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivity(Intent.createChooser(intent, getString(R.string.share)))
+            } catch (e: Exception) {
+                toast("Failed to share log: ${e.message}")
+            }
         }
     }
 

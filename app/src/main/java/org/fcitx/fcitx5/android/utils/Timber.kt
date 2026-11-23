@@ -31,14 +31,19 @@ class ConciseTree : Timber.Tree() {
 
         val effectiveTag = businessTagOrThreadName(tag)
 
-        // Append truncated stack trace if present
-        val fullMessage = if (t != null) {
-            message + "\n" + truncateStackTrace(Log.getStackTraceString(t))
+        // Timber 的 prepareLog() 已经在 message 末尾拼好堆栈（有 t 时 message += "\n" + 堆栈，
+        // 无 message 只有 t 时 message 就是堆栈），且用的是自己那份不隐藏
+        // UnknownHostException 的 getStackTraceString。所以这里不能再追加一次
+        // Log.getStackTraceString(t)，否则同一份堆栈会打印两遍，而且限长只作用于复制出来的
+        // 那一份，真正打印的 message 仍然无界。
+        //
+        // 单行日志（热路径上的绝大多数）不可能是堆栈，跳过切分以免每次分配行列表。
+        val printable = if (t != null || message.indexOf('\n') >= 0) {
+            truncateStackTrace(message)
         } else {
             message
         }
-        
-        Log.println(priority, effectiveTag, fullMessage)
+        Log.println(priority, effectiveTag, printable)
     }
     
     /**
