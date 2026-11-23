@@ -89,6 +89,8 @@ class EvidenceGateTest(unittest.TestCase):
             '[diagram]: ./diagram.svg',
             '\x60![图][diagram]\x60\n\n[diagram]: ./diagram.svg',
             '\x60\x60\x60markdown\n![图][diagram]\n\x60\x60\x60\n\n[diagram]: ./diagram.svg',
+            '~~~markdown\n![图][diagram]\n~~~~\n\n[diagram]: ./diagram.svg',
+            '<!-- ![图][diagram] -->\n\n[diagram]: ./diagram.svg',
         ):
             with self.subTest(body=body):
                 self.assertEqual(['maintainer/implementation'], self.check_page(body)[1])
