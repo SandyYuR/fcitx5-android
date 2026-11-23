@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.utils
 import android.content.Context
 import java.io.BufferedWriter
 import java.io.File
+import java.io.FileOutputStream
 import java.util.Calendar
 import java.util.concurrent.Executors
 
@@ -71,12 +72,16 @@ object LogSink {
     fun log(level: Char, tag: String, message: String, throwable: Throwable? = null) {
         if (!initialized) return
         
+        // 立即捕获事件时间和线程 ID（在进入 executor 之前）
+        val timestamp = System.currentTimeMillis()
+        val tid = android.os.Process.myTid()
+        
         executor.execute {
             try {
                 ensureWriter()
                 
                 // 写入日志行
-                val line = formatLogLine(level, tag, message)
+                val line = formatLogLine(level, tag, message, timestamp, tid)
                 writer?.write(line)
                 writer?.newLine()
                 
@@ -104,14 +109,11 @@ object LogSink {
         // 如果文件变化了（例如新的一天或文件超过大小限制），关闭旧 writer
         if (file != currentFile) {
             writer?.close()
-            writer = file.bufferedWriter(Charsets.UTF_8, bufferSize = 8192).apply {
-                // append mode
-                val append = file.exists()
-                if (!append) {
-                    file.createNewFile()
-                }
-            }
+            writer = FileOutputStream(file, true).bufferedWriter(Charsets.UTF_8)
             currentFile = file
+            
+            // 文件轮转时执行清理
+            LogFileManager.cleanupOldLogs(context)
         }
     }
     
@@ -119,9 +121,8 @@ object LogSink {
      * 格式化日志行，模拟 logcat threadtime 格式
      * 格式：MM-DD HH:mm:ss.SSS  PID  TID LEVEL TAG: message
      */
-    private fun formatLogLine(level: Char, tag: String, message: String): String {
-        val now = System.currentTimeMillis()
-        val calendar = Calendar.getInstance().apply { timeInMillis = now }
+    private fun formatLogLine(level: Char, tag: String, message: String, timestamp: Long, tid: Int): String {
+        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
         
         val month = calendar.get(Calendar.MONTH) + 1
         val day = calendar.get(Calendar.DAY_OF_MONTH)
@@ -131,7 +132,6 @@ object LogSink {
         val millis = calendar.get(Calendar.MILLISECOND)
         
         val pid = android.os.Process.myPid()
-        val tid = android.os.Process.myTid()
         
         // 格式：MM-DD HH:mm:ss.SSS  PID  TID LEVEL TAG: message
         return String.format(

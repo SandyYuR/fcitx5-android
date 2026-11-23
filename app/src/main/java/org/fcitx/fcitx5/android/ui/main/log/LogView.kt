@@ -11,6 +11,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.fcitx.fcitx5.android.R
@@ -31,6 +32,7 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
         Regex("""^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+\d+\s+\d+\s+([VDIWEF])\s""")
 
     private var logcat: Logcat? = null
+    private var logcatCollectionJob: Job? = null
 
     private val logAdapter = LogAdapter(context)
 
@@ -55,9 +57,12 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
     }
 
     fun setLogcat(logcat: Logcat) {
+        // 取消之前的收集
+        logcatCollectionJob?.cancel()
+        
         this.logcat = logcat
         logcat.initLogFlow()
-        logcat.logFlow.onEach {
+        logcatCollectionJob = logcat.logFlow.onEach {
             val level = logLevelPattern.find(it)?.groupValues?.getOrNull(1)?.firstOrNull()
             val color = styledColor(
                 when (level) {

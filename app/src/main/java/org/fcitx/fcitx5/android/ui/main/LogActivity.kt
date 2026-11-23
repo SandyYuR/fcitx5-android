@@ -16,10 +16,15 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import org.fcitx.fcitx5.android.BuildConfig
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.databinding.ActivityLogBinding
@@ -46,7 +51,7 @@ class LogActivity : SettingsUiActivity() {
     private lateinit var btnClear: ImageButton
     
     private val exports by viewModels<LogExportViewModel>()
-    private val logcat = Logcat.default
+    private lateinit var logcat: Logcat
 
     companion object {
         const val FROM_CRASH = "real_crash"
@@ -55,6 +60,9 @@ class LogActivity : SettingsUiActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // 应用日志颜色主题
+        setTheme(R.style.ThemeOverlay_FcitxSettings_Log)
         
         val binding = ActivityLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -73,11 +81,22 @@ class LogActivity : SettingsUiActivity() {
         
         // 初始化导出器
         launcher = registerForActivityResult(CreateDocument("text/plain")) { uri ->
-            uri?.let { exports.destination(it) }
+            exports.destination(uri)  // 无论是否为 null 都调用
         }
         
-        // 检查是否是崩溃报告
+        // 检查是否是崩溃报告并初始化 logcat
         fromCrash = intent.getBooleanExtra(FROM_CRASH, false)
+        logcat = if (fromCrash) {
+            // 崩溃日志：使用崩溃进程的 PID 获取 logcat
+            try {
+                Logcat(org.fcitx.fcitx5.android.FcitxApplication.getLastPid())
+            } catch (e: Exception) {
+                // 如果获取失败，回退到默认
+                Logcat.default
+            }
+        } else {
+            Logcat.default
+        }
         
         // 设置级别 Spinner
         setupLevelSpinner()
@@ -90,18 +109,28 @@ class LogActivity : SettingsUiActivity() {
         
         // 加载日志
         if (fromCrash) {
-            // 崩溃日志：先加载文件，再加载 logcat，最后添加崩溃堆栈
-            LogFileManager.readAllLogs(this).forEach { logView.append(it) }
-            logView.setLogcat(logcat)
-            intent.getStringExtra(CRASH_STACK_TRACE)?.also {
-                logView.append("")
-                logView.append("--------- Crash stacktrace")
-                logView.append(it)
+            // 崩溃日志：异步加载文件，再加载 logcat，最后添加崩溃堆栈
+            lifecycleScope.launch(Dispatchers.IO) {
+                val history = LogFileManager.readAllLogs(this@LogActivity)
+                withContext(Dispatchers.Main) {
+                    history.forEach { logView.append(it) }
+                    logView.setLogcat(logcat)
+                    intent.getStringExtra(CRASH_STACK_TRACE)?.also {
+                        logView.append("")
+                        logView.append("--------- Crash stacktrace")
+                        logView.append(it)
+                    }
+                }
             }
         } else {
-            // 正常日志：先加载文件，再实时 logcat
-            LogFileManager.readAllLogs(this).forEach { logView.append(it) }
-            logView.setLogcat(logcat)
+            // 正常日志：异步加载文件，再实时 logcat
+            lifecycleScope.launch(Dispatchers.IO) {
+                val history = LogFileManager.readAllLogs(this@LogActivity)
+                withContext(Dispatchers.Main) {
+                    history.forEach { logView.append(it) }
+                    logView.setLogcat(logcat)
+                }
+            }
         }
         
         // 监听导出状态
@@ -200,15 +229,20 @@ class LogActivity : SettingsUiActivity() {
     private fun setupButtons() {
         // 刷新按钮
         btnRefresh.setOnClickListener {
-            // 先停止当前流
+            // 停止当前流
             logcat.shutdownLogFlow()
             // 清空
             logView.clear()
-            // 重新加载
-            LogFileManager.readAllLogs(this).forEach { logView.append(it) }
-            logView.setLogcat(logcat)
-            updateStatus()
-            toast(R.string.refresh)
+            // 异步重新加载
+            lifecycleScope.launch(Dispatchers.IO) {
+                val history = LogFileManager.readAllLogs(this@LogActivity)
+                withContext(Dispatchers.Main) {
+                    history.forEach { logView.append(it) }
+                    logView.setLogcat(logcat)
+                    updateStatus()
+                    toast(R.string.refresh)
+                }
+            }
         }
         
         // 导出按钮（带分享选项）
@@ -220,6 +254,18 @@ class LogActivity : SettingsUiActivity() {
         btnClear.setOnClickListener {
             logcat.clearLog()
             logView.clear()
+            // 清除持久化的日志文件和崩溃报告
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    // 删除所有日志文件
+                    LogFileManager.getAllLogFiles(this@LogActivity).forEach { it.delete() }
+                    // 删除崩溃报告
+                    val crashFile = File(this@LogActivity.noBackupFilesDir, "crash-reports/last-app-crash.txt")
+                    crashFile.delete()
+                } catch (e: Exception) {
+                    // 忽略清理错误
+                }
+            }
             updateStatus()
             toast(R.string.clear_log)
         }
@@ -253,13 +299,28 @@ class LogActivity : SettingsUiActivity() {
         val content = logView.snapshotLines()
         val fullText = header + "\n" + content.joinToString("\n")
         
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, "${getString(R.string.app_name)} - ${getString(R.string.real_time_logs)}")
-            putExtra(Intent.EXTRA_TEXT, fullText)
+        try {
+            // 写入临时文件避免 Binder 事务限制
+            val tempFile = File(cacheDir, "shared-log-${System.currentTimeMillis()}.txt")
+            tempFile.writeText(fullText)
+            
+            val uri = FileProvider.getUriForFile(
+                this,
+                "${BuildConfig.APPLICATION_ID}.fileprovider",
+                tempFile
+            )
+            
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_SUBJECT, "${getString(R.string.app_name)} - ${getString(R.string.real_time_logs)}")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            
+            startActivity(Intent.createChooser(intent, getString(R.string.share)))
+        } catch (e: Exception) {
+            toast("Failed to share log: ${e.message}")
         }
-        
-        startActivity(Intent.createChooser(intent, getString(R.string.share)))
     }
     
     private fun buildExportHeader(): String {

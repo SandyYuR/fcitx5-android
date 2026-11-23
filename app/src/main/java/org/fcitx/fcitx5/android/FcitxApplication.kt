@@ -170,7 +170,7 @@ class FcitxApplication : Application(), androidx.work.Configuration.Provider {
         // we don't have AppPrefs available yet
         val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(ctx)
         Timber.setupForest(verbose = sharedPrefs.getBoolean("verbose_log", false))
-        LogSink.init(this)  // Initialize log file writer
+        LogSink.init(ctx)  // Initialize log file writer with Direct Boot-safe context
 
         Timber.d("isDirectBootMode=$isDirectBootMode")
 
