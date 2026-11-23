@@ -23,4 +23,4 @@
 
 - [键盘布局编辑器](/features/editor/layout-editor)
 - [在线编辑器](/features/online-editor)
-- [QR 分享与导入](/features/theme/share-import)
+- [QR 分享与导入](/features/qr-share-import)

@@ -49,6 +49,7 @@ JSON 中用该行**第一个按键**上的 `"splitRowDisabled": true` 表示行�
 
 ## 相关页面
 
+- [分体、浮动与单手键盘](/features/keyboard/keyboard-modes) —— 全部开关、默认值与形态之间的关系
 - [浮动键盘](/features/keyboard/float-keyboard)
 - [键盘布局编辑器](/features/editor/layout-editor)
 - [调整模式](/features/keyboard/adjust-mode)
