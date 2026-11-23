@@ -71,6 +71,8 @@ python docs/scripts/check-links.py
 python docs/scripts/check-legacy-docs.py
 node docs/scripts/check-doc-catalog.mjs
 node docs/scripts/check-doc-search.mjs
+python docs/scripts/check-evidence-index.py
+python docs/scripts/check-coverage-sources.py --code-dir <代码分支工作区>
 git diff --check
 ```
 
@@ -78,6 +80,12 @@ git diff --check
 `copy-downloads.mjs` 负责把 Markdown 引用的非页面附件按原相对地址发布，不能仅以 VitePress 编译成功判断附件存在。
 
 搜索的索引构建与浏览器查询共用 `.vitepress/search-shared.mjs` 的切词规则，支持中文词组出现在句子中间以及“宏”等单字查询。构建后从 VitePress 的真实索引派生现行索引，默认仅下载该小索引；勾选历史时才加载全集。索引分批恢复，保持加载期间的操作响应。现行功能覆盖表继续参与默认检索；固定日期的核对报告、提交索引、历史证据与上游参考需勾选后查看。目录分组和页面上下文也使用相同的历史分类，不改历史原文。
+
+`check-evidence-index.py` 不需要先构建：它按 `copy-downloads.mjs` 的规则列出 `maintainer/` 下实际发布的附件目录，要求每个目录都在[验证证据目录](/maintainer/evidence)中登记，登记方式有两种：逐文件小节（2026-11-06 前的旧目录），或标记块内表格的一行（之后的报告目录，由报告逐项链接附件）。不在 `audit/`、`perf/` 下的目录，如果其中文件已被页面链接或嵌入（如实现页旁的示意图），可以不登记。新增附件目录后运行 `python docs/scripts/check-evidence-index.py --write` 追加表格行，再核对自动选取的说明链接；逐文件小节缺文件、列出不存在的文件、表格行对应目录已删除或链接页面不存在时都会失败。
+
+`check-coverage-sources.py` 把[覆盖表](/maintainer/changes/feature-coverage)中链接的本仓库源码路径与代码分支的文件列表对照：现行各节须使用固定提交 SHA，分支链接或缺失路径会失败；「增量记录」保留当时的事实，这两种情况只提示。本地可用 `--code-dir` 指向代码仓库，默认检查其 `HEAD`，也可加 `--ref origin/fx-rime-only` 对照已获取的远端默认分支。和 CI 一样，这个检查只读取 Git 跟踪树。也可用 `--code-tree` 传入 `git -c core.quotePath=false ls-tree -r --name-only fx-rime-only` 的输出；两者都不传时跳过。Docs 工作流会以无 blob 的浅克隆取得 `fx-rime-only` 的文件列表，并以 `--require` 运行。代码改名或删除文件后，下一次文档 PR 需要先更新覆盖表。
+
+目录的“主题”由 `build-catalog.mjs` 的 `topicFor` 决定：先按目录（`maintainer/perf/` 一律归“性能与诊断”），再按路径关键词表，都不匹配时维护资料归“构建与审阅”、用户页面归“使用与维护”。新增一类页面时优先在关键词表里补规则，不要依赖兜底分类。
 
 修改搜索后运行 `check-doc-search.mjs`：它读取实际发布索引，检查中文功能词、英文 SDK 查询、现行覆盖表和历史范围；还需检查桌面/手机上的检索、方向键、Enter、Esc 与焦点恢复。
 
