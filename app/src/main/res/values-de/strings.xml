@@ -16,8 +16,7 @@
     <string name="rime_input_types_switched">Eingabetyp gewechselt</string>
     <string name="rime_input_types_saved">Eingabetyp gespeichert, aber die Bereitstellung ist fehlgeschlagen</string>
     <string name="rime_input_types_failed">Eingabetyp konnte nicht gewechselt werden</string>
-    <string name="allow_ime_in_password_fields">Eingabemethode in Passwortfeldern zulassen</string>
-    <string name="allow_ime_in_password_fields_summary">Passwortfelder ebenfalls an Rime übergeben. Beim Tippen in Passwortfeldern bleiben Wortlernen, Eingabestatistik und Spracheingabe deaktiviert.</string>
+
     <string name="addons">Addons</string>
     <string name="conf">Konfiguration</string>
     <string name="global_options">Globale Optionen</string>

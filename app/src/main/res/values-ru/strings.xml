@@ -16,8 +16,7 @@
     <string name="rime_input_types_switched">Тип ввода переключён</string>
     <string name="rime_input_types_saved">Тип ввода сохранён, но развёртывание не удалось</string>
     <string name="rime_input_types_failed">Не удалось переключить тип ввода</string>
-    <string name="allow_ime_in_password_fields">Разрешить способ ввода в полях паролей</string>
-    <string name="allow_ime_in_password_fields_summary">Передавать поля паролей Rime. Во время ввода в них изучение слов, статистика ввода и голосовой ввод остаются отключёнными.</string>
+
     <string name="addons">Дополнения</string>
     <string name="conf">Конфигурация</string>
     <string name="global_options">Глобальные параметры</string>

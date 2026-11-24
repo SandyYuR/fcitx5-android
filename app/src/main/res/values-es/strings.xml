@@ -16,8 +16,7 @@
     <string name="rime_input_types_switched">Tipo de entrada cambiado</string>
     <string name="rime_input_types_saved">Tipo de entrada guardado, pero la implementación falló</string>
     <string name="rime_input_types_failed">No se pudo cambiar el tipo de entrada</string>
-    <string name="allow_ime_in_password_fields">Permitir el método de entrada en campos de contraseña</string>
-    <string name="allow_ime_in_password_fields_summary">Pasar también los campos de contraseña a Rime. Al escribir en ellos, el aprendizaje de palabras, las estadísticas de entrada y la entrada de voz siguen desactivados.</string>
+
     <string name="addons">Complementos</string>
     <string name="conf">Configuración</string>
     <string name="global_options">Opciones globales</string>

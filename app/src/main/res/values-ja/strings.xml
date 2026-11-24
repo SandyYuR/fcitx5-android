@@ -16,8 +16,7 @@
     <string name="rime_input_types_switched">入力タイプを切り替えました</string>
     <string name="rime_input_types_saved">入力タイプは保存されましたが、デプロイに失敗しました</string>
     <string name="rime_input_types_failed">入力タイプの切り替えに失敗しました</string>
-    <string name="allow_ime_in_password_fields">パスワード欄で入力メソッドを使用</string>
-    <string name="allow_ime_in_password_fields_summary">パスワード欄の入力も Rime に任せます。パスワード欄での入力中は、ユーザー単語の学習、入力統計、音声入力は無効のままです。</string>
+
     <string name="addons">アドオン</string>
     <string name="conf">設定</string>
     <string name="global_options">全般オプション</string>
