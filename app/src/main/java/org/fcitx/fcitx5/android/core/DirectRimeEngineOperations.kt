@@ -11,6 +11,8 @@ import org.fcitx.fcitx5.android.core.engine.RimeEngineKind
 import org.fcitx.fcitx5.android.core.engine.RimeEnginePlugins
 import org.fcitx.fcitx5.android.core.engine.RimeEngineRepository
 import org.fcitx.fcitx5.android.core.engine.RimeEngineSelection
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import java.io.File
 
 private const val EXTERNAL_STOP_TIMEOUT_MS = 10_000L
@@ -283,7 +285,7 @@ internal class DirectRimeEngineOperations(
     private fun armExternalOperationWatchdog(delayMillis: Long) {
         cancelExternalOperationWatchdog()
         val watchdog = Runnable {
-            android.util.Log.e("RimeLifecycle", "engine operation timed out; killing guarded process")
+            Logx.e(LogTag.RimeLifecycle, "engine operation timed out; killing guarded process")
             android.os.Process.killProcess(android.os.Process.myPid())
         }
         externalOperationWatchdog = watchdog

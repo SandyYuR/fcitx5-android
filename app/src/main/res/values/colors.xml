@@ -13,4 +13,22 @@
     <color name="zxing_viewfinder_mask">#55000000</color>
     <color name="zxing_viewfinder_laser">#2196F3</color>
     <color name="zxing_possible_result_points">#8033B5E5</color>
+    <color name="log_search_highlight">#80FFFF00</color>
+
+    <!--
+        日志级别配色（浅色）：灰 / 蓝 / 绿 / 琥珀 / 红 / 紫。
+
+        取值同时满足两条硬约束（由 LogLevelStylesTest 守住）：
+        - 对 M3 浅色列表底色（#F3EDF7 等）对比度 >= 4.5:1（WCAG AA 正文）
+        - 任意两级的 CIE Lab ΔE76 >= 25，保证一眼可分辨
+
+        Warning 取琥珀棕而非常见的橙色，是因为橙与 Error 红在 Lab 空间只差 ΔE24，
+        小字号单行列里几乎分不开。
+    -->
+    <color name="log_level_verbose">#6B6B6B</color>
+    <color name="log_level_debug">#1565C0</color>
+    <color name="log_level_info">#2A7030</color>
+    <color name="log_level_warning">#8A5300</color>
+    <color name="log_level_error">#C62828</color>
+    <color name="log_level_fatal">#6A1B9A</color>
 </resources>

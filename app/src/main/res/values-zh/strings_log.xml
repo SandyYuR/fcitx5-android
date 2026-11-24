@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="log_level">日志级别</string>
+    <string name="search_logs">搜索日志</string>
+    <string name="log_filter_label">筛选范围</string>
+    <string name="refresh">刷新</string>
+    <string name="export_log">导出</string>
+    <string name="clear_log">清空</string>
+    <string name="log_empty">暂无日志</string>
+    <string name="log_no_matches">没有符合筛选条件的日志</string>
+    <string name="log_loading">正在加载日志…</string>
+    <string name="log_clearing">正在清空日志…</string>
+    <string name="log_status_format">显示 %1$d 条日志</string>
+    <string name="log_status_filtered_format">显示 %1$d 条 · 过滤: %2$s</string>
+    <string name="log_filter_all_levels">全部级别</string>
+    <string name="log_filter_level_verbose">V (Verbose)</string>
+    <string name="log_filter_level_debug">D (Debug)</string>
+    <string name="log_filter_level_info">I (Info)</string>
+    <string name="log_filter_level_warning">W (Warning)</string>
+    <string name="log_filter_level_error">E (Error)</string>
+    <string name="log_filter_level_fatal">F (Fatal)</string>
+    <string name="log_filter_important">I/W/E (重要)</string>
+    <string name="log_filter_warnings_errors">W/E/F (警告及错误)</string>
+    <string name="log_filter_rime_engine">Rime 引擎日志</string>
+</resources>

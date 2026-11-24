@@ -35,6 +35,8 @@ import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import org.fcitx.fcitx5.android.input.wm.EssentialWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import org.mechdancer.dependency.manager.must
 import splitties.views.dsl.core.add
 import splitties.views.dsl.core.frameLayout
@@ -295,10 +297,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
         keyboardView = context.frameLayout(R.id.keyboard_view)
         attachLayout(TextKeyboard.Name)
         preloadFontsForKeyboard()
-        Log.i(
-            "FcitxColdStart",
-            "KeyboardWindow.onCreateView duration=${SystemClock.elapsedRealtime() - startedAt}ms"
-        )
+        Logx.i(LogTag.ColdStart, "KeyboardWindow.onCreateView duration=${SystemClock.elapsedRealtime() - startedAt}ms")
         return keyboardView
     }
 
@@ -621,8 +620,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
     fun onVoiceInputStarted() {
         if (voiceLayoutSnapshot?.editor?.isCurrent() == true) return
         val editor = service.editorSession.capture() ?: return
-        android.util.Log.i(
-            "FcitxVoiceKbd",
+        Logx.i(LogTag.VoiceKbd,
             "voice started snapshot name=$currentKeyboardName latched=$latchedLayerKey " +
                 "oneShot=$oneShotLayerKey numeric=" + TextKeyboard.snapshotNumericLayoutOverride()
         )
@@ -645,8 +643,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
         val snapshot = voiceLayoutSnapshot ?: return
         voiceLayoutSnapshot = null
         if (!snapshot.editor.isCurrent()) return
-        android.util.Log.i(
-            "FcitxVoiceKbd",
+        Logx.i(LogTag.VoiceKbd,
             "voice finished restore name=${snapshot.currentKeyboardName} " +
                 "latched=${snapshot.latchedLayerKey} oneShot=${snapshot.oneShotLayerKey} " +
                 "numeric=${snapshot.numericOverride} currentName=$currentKeyboardName " +
@@ -665,8 +662,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(KeyboardWin
             currentKeyboard?.refreshStyle()
             notifyBarLayoutChanged()
         }
-        android.util.Log.i(
-            "FcitxVoiceKbd",
+        Logx.i(LogTag.VoiceKbd,
             "voice finished afterRestore name=$currentKeyboardName latched=$latchedLayerKey " +
                 "oneShot=$oneShotLayerKey numeric=" + TextKeyboard.snapshotNumericLayoutOverride()
         )

@@ -4,6 +4,8 @@ import android.os.Build
 import android.os.Trace
 import android.util.Log
 import org.fcitx.fcitx5.android.BuildConfig
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.AbstractCoroutineContextElement
@@ -124,7 +126,7 @@ object InputDiagnostics {
                 counter("rime.events.result_wait_ns", resultWait)
             }
             counter("rime.events.flow_wait_ns", flowWait)
-            if (received % 256L == 0L) Log.i("RimeInputMetrics", "received=$received gaps=$gaps max_age_ns=$maxAge")
+            if (received % 256L == 0L) Logx.i(LogTag.RimeInputMetrics, "received=$received gaps=$gaps max_age_ns=$maxAge")
         }
     }
 }

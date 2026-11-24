@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 日志级别配色（深色）：灰 / 蓝 / 绿 / 橙 / 红 / 紫，对 #141218 对比度均 >= 4.5:1 -->
+    <color name="log_level_verbose">#A8A8A8</color>
+    <color name="log_level_debug">#7FB8F5</color>
+    <color name="log_level_info">#8BC98F</color>
+    <color name="log_level_warning">#FFB74D</color>
+    <color name="log_level_error">#F0736F</color>
+    <color name="log_level_fatal">#CE93D8</color>
+</resources>

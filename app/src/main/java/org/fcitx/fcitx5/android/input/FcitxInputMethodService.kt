@@ -105,6 +105,8 @@ import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.fcitx.fcitx5.android.utils.ClipboardSharedContent
 import org.fcitx.fcitx5.android.utils.ClipboardUriStore
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import org.fcitx.fcitx5.android.utils.alpha
 import org.fcitx.fcitx5.android.utils.forceShowSelf
 import org.fcitx.fcitx5.android.utils.inputMethodManager
@@ -445,7 +447,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             }.getOrNull() ?: return
             VoiceInputProviderManager.deliverFloatingResult(payload.first, final) {
                 val text = payload.second
-                android.util.Log.i("FcitxVoiceInput", "floating result accepted final=$final len=${text.length}")
+                Logx.i(LogTag.Voice, "floating result accepted final=$final len=${text.length}")
                 if (final) {
                     commitVoiceText(text)
                     VoiceInputProviderManager.floatingCommitListener?.invoke(text)
@@ -461,10 +463,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         setInputView(newInputView)
         inputDeviceManager.setInputView(newInputView)
         inputView = newInputView
-        android.util.Log.i(
-            "FcitxColdStart",
-            "replaceInputView duration=${SystemClock.elapsedRealtime() - startedAt}ms"
-        )
+        Logx.i(LogTag.ColdStart, "replaceInputView duration=${SystemClock.elapsedRealtime() - startedAt}ms")
         return newInputView
     }
 
@@ -705,7 +704,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val ordinal = ++timedSelections
         val capturedAt = if (ordinal <= 2) SystemClock.elapsedRealtimeNanos() else 0L
         return postFcitxKeyJob("candidate") {
-            if (capturedAt != 0L) android.util.Log.i("RimeInputTiming",
+            if (capturedAt != 0L) Logx.i(LogTag.RimeInputTiming,
                 "select_queue generation=$generation ordinal=$ordinal service_wait_us=${(SystemClock.elapsedRealtimeNanos() - capturedAt) / 1000}")
             block()
         }
@@ -811,7 +810,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onCreate() {
         val startedAt = SystemClock.elapsedRealtime()
-        android.util.Log.i("FcitxColdStart", "service.onCreate begin")
+        Logx.i(LogTag.ColdStart, "service.onCreate begin")
         fcitx = FcitxDaemon.connect(javaClass.name)
         startFcitxJobQueue()
         lifecycleScope.launch {
@@ -847,7 +846,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             BuildConfig.APPLICATION_ID + ".permission.PLUGIN", null,
             androidx.core.content.ContextCompat.RECEIVER_EXPORTED
         )
-        android.util.Log.i("FcitxVoiceInput", "registered floating voice receiver actions=$voiceIntentFilter")
+        Logx.i(LogTag.Voice, "registered floating voice receiver actions=$voiceIntentFilter")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             postFcitxJob {
                 SubtypeManager.syncWith(enabledIme())
@@ -857,10 +856,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         decorView = window.window!!.decorView
         contentView = decorView.findViewById(android.R.id.content)
         lastKnownConfig = resources.configuration
-        android.util.Log.i(
-            "FcitxColdStart",
-            "service.onCreate duration=${SystemClock.elapsedRealtime() - startedAt}ms"
-        )
+        Logx.i(LogTag.ColdStart, "service.onCreate duration=${SystemClock.elapsedRealtime() - startedAt}ms")
     }
 
     private fun handleFcitxEvent(event: FcitxEvent<*>) {
@@ -884,8 +880,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 }
                 recordStatisticsCommit(event, mainEditor && requestResult == CommitRequestResult.REQUEST_ACCEPTED)
                 if (requestResult == CommitRequestResult.NO_CONNECTION || requestResult == CommitRequestResult.REQUEST_REJECTED)
-                    android.util.Log.w("RimeInputQueue", "commit_request_failed generation=${event.inputSession} result=$requestResult")
-                if (startedAt != 0L) android.util.Log.i("RimeInputTiming",
+                    Logx.w(LogTag.RimeInputQueue, "commit_request_failed generation=${event.inputSession} result=$requestResult")
+                if (startedAt != 0L) Logx.i(LogTag.RimeInputTiming,
                     "commit generation=${event.inputSession} ordinal=$ordinal event_wait_us=${if (event.commitProducedNanos > 0) (startedAt - event.commitProducedNanos) / 1000 else -1} service_commit_us=${(SystemClock.elapsedRealtimeNanos() - startedAt) / 1000} request_result=$requestResult")
             }
             is FcitxEvent.StatisticsKeyEvent -> recordStatisticsKey(event)
@@ -1223,10 +1219,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         composingText = formatted
         selection.predict(composing.end)
         ic.setComposingText(formatted.toSpannedString(highlightColor), 1)
-        android.util.Log.i(
-            "FcitxVoiceInput",
-            "voice composing set len=${text.length} range=$composing",
-        )
+        Logx.i(LogTag.Voice, "voice composing set len=${text.length} range=$composing")
     }
 
     fun clearVoiceComposingText() {
@@ -1239,10 +1232,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     fun commitVoiceText(text: String) {
         val ic = currentInputConnection ?: return
         if (text.isBlank()) return
-        android.util.Log.i(
-            "FcitxVoiceInput",
-            "voice commit len=${text.length} composing=${composing.isNotEmpty()} same=${composingText.toString() == text}",
-        )
+        Logx.i(LogTag.Voice, "voice commit len=${text.length} composing=${composing.isNotEmpty()} same=${composingText.toString() == text}")
         if (composing.isNotEmpty() && composingText.toString() == text) {
             selection.predict(composing.start + text.length)
             resetComposingState()
@@ -1445,12 +1435,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onCreateInputView(): View? {
         val startedAt = SystemClock.elapsedRealtime()
-        android.util.Log.i("FcitxColdStart", "service.onCreateInputView begin")
+        Logx.i(LogTag.ColdStart, "service.onCreateInputView begin")
         replaceInputViews(ThemeManager.activeTheme)
-        android.util.Log.i(
-            "FcitxColdStart",
-            "service.onCreateInputView duration=${SystemClock.elapsedRealtime() - startedAt}ms"
-        )
+        Logx.i(LogTag.ColdStart, "service.onCreateInputView duration=${SystemClock.elapsedRealtime() - startedAt}ms")
         // We will call `setInputView` by ourselves. This is fine.
         return null
     }
@@ -1992,7 +1979,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         jsAppDismiss?.invoke()
         anchorPosition.fill(0f)
         decorLocationUpdated = false
-        android.util.Log.i("FcitxColdStart", "service.onStartInput restarting=$restarting")
+        Logx.i(LogTag.ColdStart, "service.onStartInput restarting=$restarting")
         if (editorSession.start(EditorSessionTracker.Editor(attribute.packageName, attribute.fieldId,
                 attribute.inputType, attribute.imeOptions), restarting)) {
             endEditorWork()
@@ -2011,7 +1998,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             Timber.d("onStartInput: initialSel=${selection.current}, restarting=$restarting")
             val isNullType = attribute.isTypeNull()
             FcitxDaemon.prepareInputSession(engineGeneration, attribute.packageName.orEmpty(), flags, !isNullType)
-            android.util.Log.i("RimeLifecycle", "input_binding generation=$engineGeneration input_type=${attribute.inputType} ime_options=${attribute.imeOptions} needs_rime=${!isNullType} restarting=$restarting")
+            Logx.i(LogTag.RimeLifecycle, "input_binding generation=$engineGeneration input_type=${attribute.inputType} ime_options=${attribute.imeOptions} needs_rime=${!isNullType} restarting=$restarting")
             postFcitxSessionJob(inputSessionGeneration) {
                 startInputSession(engineGeneration, attribute.packageName.orEmpty())
                 setCapFlags(flags)
@@ -2028,7 +2015,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
-        android.util.Log.i("FcitxColdStart", "service.onStartInputView restarting=$restarting")
+        Logx.i(LogTag.ColdStart, "service.onStartInputView restarting=$restarting")
         isInInputLifecycleCriticalPhase = true
         // Android may show a retained keyboard window for a non-editor too.
         // TYPE_NULL terminals are promoted by their first actual key/action.

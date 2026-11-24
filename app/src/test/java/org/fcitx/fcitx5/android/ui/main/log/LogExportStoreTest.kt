@@ -57,6 +57,21 @@ class LogExportStoreTest {
         assertFalse(opened)
     }
 
+    @Test fun shareAndFileExportRenderTheSameTextIncludingTheCrashReport() {
+        // 分享与导出必须同源：崩溃后重开普通日志页再分享时，保留的崩溃报告是唯一的现场记录
+        val report = "--------- Persisted app crash\njava.lang.IllegalStateException: fixture"
+        val withCrash = LogExportStore(temp.root) { report }
+        val rendered = withCrash.render("header\n", listOf("first", "second"))
+        assertEquals("header\n\n$report\nfirst\nsecond", rendered)
+        assertEquals(rendered, withCrash.prepare("header\n", listOf("first", "second")).readText())
+    }
+
+    @Test fun aMissingCrashReportRendersOnlyHeaderAndLines() {
+        assertEquals("header\nline", store.render("header\n", listOf("line")))
+        assertEquals("header\nline", LogExportStore(temp.root) { error("unavailable") }
+            .render("header\n", listOf("line")))
+    }
+
     @Test fun onlyNonemptyPrivateSnapshotsCanBeRestoredAfterRecreation() {
         val file = store.prepare("header\n", listOf("line"))
         assertEquals(file, store.restore(file.name))

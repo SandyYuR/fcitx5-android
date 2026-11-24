@@ -42,10 +42,14 @@ class Logcat(
 
     /**
      * Get a snapshot of logcat
+     *
+     * [since] is an epoch-millisecond boundary: with it the snapshot only covers what was
+     * logged from that moment on, which keeps it in the same window as the persisted history
+     * it is merged with.
      */
-    fun getLogAsync(): Deferred<Result<List<String>>> = async {
+    fun getLogAsync(since: Long? = null): Deferred<Result<List<String>>> = async {
         runCatching {
-            val snapshotProcess = Runtime.getRuntime().exec(logcatArgv("-d"))
+            val snapshotProcess = createProcess(logcatArgv(*boundaryArgs(since), "-d"))
             try {
                 snapshotProcess.inputStream.bufferedReader().use { it.readLines() }
             } finally {
@@ -74,15 +78,20 @@ class Logcat(
 
     /**
      * Create a process reading logcat, sending lines to [logFlow]
+     *
+     * [since] is an epoch-millisecond boundary: with it the reader starts there instead of
+     * replaying everything logd still buffers. Without it the reader re-emits the whole
+     * backlog first, which is what made events that are already in the persisted history
+     * show up a second time and pushed older entries behind newer ones.
      */
-    fun initLogFlow(): Job = synchronized(processLock) {
+    fun initLogFlow(since: Long? = null): Job = synchronized(processLock) {
         if (emittingJob?.isActive == true) errorState(R.string.exception_logcat_created)
         val expected = ++generation
         launch(start = CoroutineStart.LAZY) {
             var child: java.lang.Process? = null
             try {
                 coroutineContext.ensureActive()
-                val created = createProcess(logcatArgv())
+                val created = createProcess(logcatArgv(*boundaryArgs(since)))
                 child = created
                 synchronized(processLock) {
                     // shutdown can win while Runtime.exec is still creating the child.
@@ -99,7 +108,10 @@ class Logcat(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Timber.e(e, "Logcat reader failed")
+                // 主动 shutdown 会 destroy 掉子进程，阻塞在 read() 上的线程随后抛
+                // InterruptedIOException：那是拆解过程的产物，不是读取失败。把它记成 E 级
+                // 并带全栈，会让每次刷新都往用户正在看的日志里喷一段红色错误。
+                if (!isStaleReader(expected)) Timber.e(e, "Logcat reader failed")
             } finally {
                 // Old readers cannot clear or destroy a newer reader's process.
                 synchronized(processLock) {
@@ -110,6 +122,13 @@ class Logcat(
             }
         }.also { emittingJob = it; it.start() }
     }
+
+    /**
+     * Whether [expected] has already been superseded by [shutdownLogFlow] or a newer reader.
+     * Anything a stale reader observes after that is teardown noise, not a failure.
+     */
+    private fun isStaleReader(expected: Long): Boolean =
+        synchronized(processLock) { expected != generation }
 
     /**
      * Destroy the reading process
@@ -136,6 +155,20 @@ class Logcat(
         add("threadtime")
         addAll(extraArgs)
     }.toTypedArray()
+
+    /**
+     * Translate an epoch-millisecond boundary into logcat's `-T` epoch form (`sssss.mmm`).
+     *
+     * The epoch form is used instead of the `MM-DD HH:mm:ss.mmm` form so that a boundary taken
+     * from the persisted history never has to guess a year: logcat writes no year in threadtime
+     * output, and inferring one breaks across a new year.
+     */
+    private fun boundaryArgs(since: Long?): Array<String> {
+        if (since == null || since <= 0L) return emptyArray()
+        val seconds = since / 1000
+        val millis = (since % 1000).toString().padStart(3, '0')
+        return arrayOf("-T", "$seconds.$millis")
+    }
 
     companion object {
         val default by lazy { Logcat() }

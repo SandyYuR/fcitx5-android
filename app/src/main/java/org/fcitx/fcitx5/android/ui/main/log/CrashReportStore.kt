@@ -4,12 +4,41 @@ package org.fcitx.fcitx5.android.ui.main.log
 import java.io.File
 import java.io.FileOutputStream
 
+/**
+ * 软链接探测：崩溃报告只能写进应用私有目录，指向别处的链接会把堆栈写到外部存储。
+ *
+ * 不能直接 `import java.nio.file.Files`：minSdk 是 23，`java.nio.file` 要到 API 26，
+ * 且 core library desugaring 用的 `desugar_jdk_libs` 不覆盖它（同 AtomicFileMove 的说明），
+ * 低版本设备执行到这儿会 NoClassDefFoundError。因此反射取用；取不到就当不可用——
+ * Android/Linux 上 canonical 路径换算本来就会跟随链接，退回只比较 canonical 已经够拦。
+ */
+private object SymbolicLinkProbe {
+    private val probe: ((File) -> Boolean)? = try {
+        val path = Class.forName("java.nio.file.Path")
+        val toPath = File::class.java.getMethod("toPath")
+        val isSymbolicLink = Class.forName("java.nio.file.Files").getMethod("isSymbolicLink", path)
+        val action: (File) -> Boolean = { isSymbolicLink.invoke(null, toPath.invoke(it)) as Boolean }
+        action
+    } catch (_: ClassNotFoundException) {
+        null
+    } catch (_: NoSuchMethodException) {
+        null
+    }
+
+    fun isSymbolicLink(file: File): Boolean =
+        runCatching { probe?.invoke(file) ?: false }.getOrDefault(false)
+}
+
 /** One bounded report in private no-backup storage, retained across process/task recreation. */
 internal class CrashReportStore(private val root: File,
     private val replace: (File, File) -> Boolean = { from, to -> from.renameTo(to) }) {
     private fun directory(): File {
         val directory = File(root.canonicalFile, "crash-reports")
-        require(directory.canonicalFile == directory) { "Invalid crash report directory" }
+        // 两条判定都要：canonical 换算在 Linux/Android 上会跟随链接因而能拦，
+        // 但在 Windows 上它不解析目录链接，只有 nio 的 isSymbolicLink 认得出来。
+        require(directory.canonicalFile == directory && !SymbolicLinkProbe.isSymbolicLink(directory)) {
+            "Invalid crash report directory"
+        }
         return directory
     }
     private val file get() = File(directory(), "last-app-crash.txt")

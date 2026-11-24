@@ -11,6 +11,8 @@ import android.system.Os
 import android.system.OsConstants
 import android.util.Log
 import kotlinx.coroutines.CancellationException
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -63,7 +65,7 @@ internal class DirectRimeAssetPrewarmer(private val context: Context, private va
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.d("RimeAssetPrewarm", "Optional asset prewarm stopped", e)
+                Logx.d(LogTag.RimeAssetPrewarm, "Optional asset prewarm stopped", e)
             }
         }.also { it.start() }
     }
@@ -136,7 +138,7 @@ internal class DirectRimeAssetPrewarmer(private val context: Context, private va
             if (priority != null && priority < Process.THREAD_PRIORITY_BACKGROUND) {
                 runCatching { Process.setThreadPriority(priority) }
             }
-            if (read > 0) Log.i("RimeAssetPrewarm", "bytes=$read cancelled=${!jobContext.isActive}")
+            if (read > 0) Logx.i(LogTag.RimeAssetPrewarm, "bytes=$read cancelled=${!jobContext.isActive}")
         }
     }
 
