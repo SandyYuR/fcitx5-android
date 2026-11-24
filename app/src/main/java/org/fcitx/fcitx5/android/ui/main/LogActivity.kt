@@ -5,23 +5,28 @@
 package org.fcitx.fcitx5.android.ui.main
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.Gravity
+import android.view.Menu
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ImageButton
-import android.widget.Spinner
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.FileProvider
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
@@ -47,6 +52,7 @@ import org.fcitx.fcitx5.android.utils.Logcat
 import org.fcitx.fcitx5.android.utils.LogFileManager
 import org.fcitx.fcitx5.android.utils.LogSink
 import org.fcitx.fcitx5.android.utils.iso8601UTCDateTime
+import org.fcitx.fcitx5.android.utils.settingsColor
 import org.fcitx.fcitx5.android.utils.toast
 
 class LogActivity : SettingsUiActivity() {
@@ -65,12 +71,22 @@ class LogActivity : SettingsUiActivity() {
 
     private lateinit var launcher: ActivityResultLauncher<String>
     private lateinit var logView: LogView
-    private lateinit var searchView: SearchView
-    private lateinit var levelSpinner: Spinner
+    private lateinit var searchView: TextInputEditText
+    private lateinit var searchInputLayout: TextInputLayout
     private lateinit var statusText: TextView
-    private lateinit var btnRefresh: ImageButton
-    private lateinit var btnExport: ImageButton
-    private lateinit var btnClear: ImageButton
+    private lateinit var pageTitle: TextView
+    private lateinit var btnSearch: MaterialButton
+    private lateinit var btnFilter: MaterialButton
+    private lateinit var btnRefresh: MaterialButton
+    private lateinit var btnExport: MaterialButton
+    private lateinit var btnClear: MaterialButton
+    private lateinit var emptyState: TextView
+    private lateinit var loadingIndicator: View
+    private var selectedFilter = 0
+    private var searchExpanded = false
+    private val searchBack = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() = setSearchExpanded(false)
+    }
 
     private val exports by viewModels<LogExportViewModel>()
     private lateinit var logcat: Logcat
@@ -99,6 +115,9 @@ class LogActivity : SettingsUiActivity() {
 
         /** 每次向列表发布的行数，避免一次性 append 几十万行卡住首帧 */
         private const val PUBLISH_CHUNK_SIZE = 500
+        private const val STATE_SEARCH_EXPANDED = "log_search_expanded"
+        private const val STATE_SEARCH_QUERY = "log_search_query"
+        private const val STATE_FILTER = "log_filter"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,15 +130,24 @@ class LogActivity : SettingsUiActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        binding.toolbar.setNavigationOnClickListener { finish() }
 
         // 初始化视图
         logView = binding.logView
         searchView = binding.searchView
-        levelSpinner = binding.levelSpinner
+        searchInputLayout = binding.searchInputLayout
         statusText = binding.statusText
+        pageTitle = binding.pageTitle
+        btnSearch = binding.btnSearch
+        btnFilter = binding.btnFilter
         btnRefresh = binding.btnRefresh
         btnExport = binding.btnExport
         btnClear = binding.btnClear
+        emptyState = binding.emptyState
+        loadingIndicator = binding.loadingIndicator
+        logView.onEntriesChanged = { updateStatus() }
+        onBackPressedDispatcher.addCallback(this, searchBack)
 
         // 初始化导出器
         launcher = registerForActivityResult(CreateDocument("text/plain")) { uri ->
@@ -132,7 +160,7 @@ class LogActivity : SettingsUiActivity() {
         crashStackTrace = restored.stackTrace
         crashStackTraceCleared = restored.cleared
         logcat = if (fromCrash) {
-            supportActionBar?.setTitle(R.string.crash_logs)
+            pageTitle.setText(R.string.crash_logs)
             if (savedInstanceState == null) {
                 crashDialog = MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.app_crash)
@@ -143,15 +171,16 @@ class LogActivity : SettingsUiActivity() {
             // 崩溃日志：读崩溃进程的 PID，进程已死但 logcat 缓冲区还在
             Logcat(FcitxApplication.getLastPid())
         } else {
-            supportActionBar?.setTitle(R.string.real_time_logs)
+            pageTitle.setText(R.string.real_time_logs)
             Logcat.default
         }
 
-        // 设置级别 Spinner
-        setupLevelSpinner()
-
         // 设置搜索框
         setupSearchView()
+        selectedFilter = savedInstanceState?.getInt(STATE_FILTER, 0)?.coerceIn(0, filterLabels.lastIndex) ?: 0
+        applyFilter(selectedFilter)
+        searchView.setText(savedInstanceState?.getString(STATE_SEARCH_QUERY).orEmpty())
+        setSearchExpanded(savedInstanceState?.getBoolean(STATE_SEARCH_EXPANDED) == true, requestInput = false)
 
         // 设置按钮
         setupButtons()
@@ -280,65 +309,93 @@ class LogActivity : SettingsUiActivity() {
         super.onSaveInstanceState(outState)
         // 进程回收后只剩这份状态能证明「崩溃堆栈已经清空」
         outState.putBoolean(STATE_CRASH_STACK_CLEARED, crashStackTraceCleared)
+        outState.putBoolean(STATE_SEARCH_EXPANDED, searchExpanded)
+        outState.putString(STATE_SEARCH_QUERY, searchView.text?.toString())
+        outState.putInt(STATE_FILTER, selectedFilter)
     }
 
-    private fun setupLevelSpinner() {
-        val levels = listOf(
-            R.string.log_filter_all_levels,
-            R.string.log_filter_level_verbose,
-            R.string.log_filter_level_debug,
-            R.string.log_filter_level_info,
-            R.string.log_filter_level_warning,
-            R.string.log_filter_level_error,
-            R.string.log_filter_level_fatal,
-            R.string.log_filter_important,
-            R.string.log_filter_warnings_errors,
-            R.string.log_filter_rime_engine
-        ).map(::getString)
+    // 日志页操作由自己的顶栏承载，跳过 SettingsUiActivity 的键盘测试菜单。
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean = true
 
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, levels)
-        levelSpinner.adapter = adapter
+    private val filterLabels = listOf(
+        R.string.log_filter_all_levels,
+        R.string.log_filter_level_verbose,
+        R.string.log_filter_level_debug,
+        R.string.log_filter_level_info,
+        R.string.log_filter_level_warning,
+        R.string.log_filter_level_error,
+        R.string.log_filter_level_fatal,
+        R.string.log_filter_important,
+        R.string.log_filter_warnings_errors,
+        R.string.log_filter_rime_engine
+    )
 
-        levelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedLevels = when (position) {
-                    1 -> setOf('V')
-                    2 -> setOf('D')
-                    3 -> setOf('I')
-                    4 -> setOf('W')
-                    5 -> setOf('E')
-                    6 -> setOf('F')
-                    7 -> setOf('I', 'W', 'E')
-                    8 -> setOf('W', 'E', 'F')
-                    // 0 与 9（Rime 引擎日志）都显示全部级别，仅内容过滤不同
-                    else -> setOf('V', 'D', 'I', 'W', 'E', 'F')
-                }
-                logView.setLevelFilter(selectedLevels)
+    private fun applyFilter(position: Int) {
+        selectedFilter = position
+        val selectedLevels = when (position) {
+            1 -> setOf('V')
+            2 -> setOf('D')
+            3 -> setOf('I')
+            4 -> setOf('W')
+            5 -> setOf('E')
+            6 -> setOf('F')
+            7 -> setOf('I', 'W', 'E')
+            8 -> setOf('W', 'E', 'F')
+            // 0 与 9（Rime 引擎日志）都显示全部级别，仅内容过滤不同。
+            else -> setOf('V', 'D', 'I', 'W', 'E', 'F')
+        }
+        logView.setLevelFilter(selectedLevels)
+        logView.setContentFilter(if (position == 9) "rime" else "")
+        btnFilter.iconTint = ColorStateList.valueOf(settingsColor(if (position == 0)
+            com.google.android.material.R.attr.colorOnSurface else androidx.appcompat.R.attr.colorPrimary))
+        btnFilter.contentDescription = getString(R.string.log_filter_label) + ": " + getString(filterLabels[position])
+        updateStatus()
+    }
 
-                // Rime 引擎日志：内容过滤
-                logView.setContentFilter(if (position == 9) "rime" else "")
-                updateStatus()
+    private fun showFilterMenu() {
+        PopupMenu(this, btnFilter, Gravity.END, 0, R.style.Widget_Fcitx_LogFilterMenu).apply {
+            filterLabels.forEachIndexed { index, label ->
+                menu.add(0, index + 1, index, label).isChecked = index == selectedFilter
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            menu.setGroupCheckable(0, true, true)
+            setOnMenuItemClickListener { item ->
+                applyFilter(item.itemId - 1)
+                true
+            }
+            show()
         }
     }
 
     private fun setupSearchView() {
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return true
-            }
+        searchView.doAfterTextChanged { text ->
+            logView.setFilterQuery(text?.toString().orEmpty())
+            updateStatus()
+        }
+    }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                logView.setFilterQuery(newText ?: "")
-                updateStatus()
-                return true
+    private fun setSearchExpanded(expanded: Boolean, requestInput: Boolean = true) {
+        searchExpanded = expanded
+        searchBack.isEnabled = expanded
+        searchInputLayout.visibility = if (expanded) View.VISIBLE else View.GONE
+        btnSearch.iconTint = ColorStateList.valueOf(settingsColor(if (expanded)
+            androidx.appcompat.R.attr.colorPrimary else com.google.android.material.R.attr.colorOnSurface))
+        if (expanded && requestInput) {
+            searchView.requestFocus()
+            searchView.post {
+                if (searchExpanded) getSystemService(InputMethodManager::class.java)
+                    .showSoftInput(searchView, InputMethodManager.SHOW_IMPLICIT)
             }
-        })
+        } else if (!expanded) {
+            searchView.text?.clear()
+            searchView.clearFocus()
+            if (requestInput) getSystemService(InputMethodManager::class.java)
+                .hideSoftInputFromWindow(searchView.windowToken, 0)
+        }
     }
 
     private fun setupButtons() {
+        btnSearch.setOnClickListener { setSearchExpanded(!searchExpanded) }
+        btnFilter.setOnClickListener { showFilterMenu() }
         // 刷新按钮
         btnRefresh.setOnClickListener {
             reloadLogs(announce = true)
@@ -405,6 +462,7 @@ class LogActivity : SettingsUiActivity() {
         btnRefresh.isEnabled = !clearing && !loading
         btnExport.isEnabled = !clearing
         btnClear.isEnabled = !clearing
+        updateStatus()
     }
 
     /**
@@ -424,7 +482,7 @@ class LogActivity : SettingsUiActivity() {
             getString(R.string.share)
         )
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.export_log))
             .setItems(options) { _, which ->
                 when (which) {
@@ -520,14 +578,23 @@ class LogActivity : SettingsUiActivity() {
     }
 
     private fun updateStatus() {
-        val (_, visible) = logView.getFilterStatus()
-        val currentFilter = logView.currentLevelFilter()
-
-        statusText.text = if (currentFilter.size == 6) {
+        val (total, visible) = logView.getFilterStatus()
+        loadingIndicator.visibility = if (loading || clearing) View.VISIBLE else View.GONE
+        emptyState.visibility = if (visible == 0) View.VISIBLE else View.GONE
+        emptyState.setText(when {
+            clearing -> R.string.log_clearing
+            loading -> R.string.log_loading
+            total == 0 -> R.string.log_empty
+            else -> R.string.log_no_matches
+        })
+        statusText.text = if (clearing) {
+            getString(R.string.log_clearing)
+        } else if (loading) {
+            getString(R.string.log_loading)
+        } else if (selectedFilter == 0) {
             getString(R.string.log_status_format, visible)
         } else {
-            val levels = currentFilter.sorted().joinToString("/")
-            getString(R.string.log_status_filtered_format, visible, levels)
+            getString(R.string.log_status_format, visible) + " · " + getString(filterLabels[selectedFilter])
         }
     }
 }

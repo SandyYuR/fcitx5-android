@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.Fcitx.LogFilterMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/log_filter_menu_background</item>
+    </style>
+</resources>

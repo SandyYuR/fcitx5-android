@@ -3,7 +3,7 @@ package org.fcitx.fcitx5.android.ui.main.log
 
 import android.app.Application
 import android.content.Intent
-import android.widget.ImageButton
+import android.view.View
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
@@ -74,16 +74,16 @@ class LogClearTest {
             await { lines(first).any { it.contains(fixture) } }
 
             onMain {
-                first.findViewById<ImageButton>(R.id.btnClear).performClick()
+                first.findViewById<View>(R.id.btnClear).performClick()
                 // 清空还没落地：刷新与导出必须立刻关上，否则它们读到的正是还没删掉的历史。
-                assertFalse(first.findViewById<ImageButton>(R.id.btnRefresh).isEnabled)
-                assertFalse(first.findViewById<ImageButton>(R.id.btnExport).isEnabled)
-                assertFalse(first.findViewById<ImageButton>(R.id.btnClear).isEnabled)
+                assertFalse(first.findViewById<View>(R.id.btnRefresh).isEnabled)
+                assertFalse(first.findViewById<View>(R.id.btnExport).isEnabled)
+                assertFalse(first.findViewById<View>(R.id.btnClear).isEnabled)
             }
 
             await {
                 var enabled = false
-                onMain { enabled = first.findViewById<ImageButton>(R.id.btnRefresh).isEnabled }
+                onMain { enabled = first.findViewById<View>(R.id.btnRefresh).isEnabled }
                 enabled && lines(first).none { it.contains(fixture) }
             }
 
@@ -116,7 +116,7 @@ class LogClearTest {
             await { lines(first).any { it.contains(fixture) } }
 
             // 点下清空后立刻重建，不等任何完成信号：这一刻正是「事务已启动、文件还没删」的窗口。
-            onMain { first.findViewById<ImageButton>(R.id.btnClear).performClick() }
+            onMain { first.findViewById<View>(R.id.btnClear).performClick() }
             onMain { first.recreate() }
             await { resumedLogActivity(first)?.let { latest = it; true } ?: false }
 
@@ -124,7 +124,7 @@ class LogClearTest {
             assertTrue(settledLines(latest).none { it.contains(fixture) })
             await {
                 var enabled = false
-                onMain { enabled = latest.findViewById<ImageButton>(R.id.btnRefresh).isEnabled }
+                onMain { enabled = latest.findViewById<View>(R.id.btnRefresh).isEnabled }
                 enabled
             }
             assertTrue(settledLines(latest).none { it.contains(fixture) })

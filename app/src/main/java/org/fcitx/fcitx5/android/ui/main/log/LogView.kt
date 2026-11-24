@@ -27,6 +27,12 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
 
     private var logcat: Logcat? = null
     private var logcatCollectionJob: Job? = null
+    var onEntriesChanged: (() -> Unit)? = null
+    private var changePending = false
+    private val changeNotifier = Runnable {
+        changePending = false
+        onEntriesChanged?.invoke()
+    }
 
     private val logAdapter = LogAdapter(context)
 
@@ -41,12 +47,15 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
 
     override fun onDetachedFromWindow() {
         logcat?.shutdownLogFlow()
+        removeCallbacks(changeNotifier)
+        changePending = false
         super.onDetachedFromWindow()
     }
 
     fun append(content: String) {
         val textColor = context.logDefaultTextColor()
         logAdapter.append(content, buildSpannedString { color(textColor) { append(content) } })
+        notifyEntriesChanged()
     }
 
     /**
@@ -61,6 +70,7 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
             val textColor = if (level == null) defaultColor else context.logLevelColor(logLevelStyle(level))
             line to buildSpannedString { color(textColor) { append(line) } }
         })
+        notifyEntriesChanged()
     }
 
     /**
@@ -84,6 +94,7 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
                 context.logLevelColor(logLevelStyle(level))
             }
             logAdapter.append(line, buildSpannedString { color(textColor) { append(line) } })
+            notifyEntriesChanged()
         }.launchIn(findViewTreeLifecycleOwner()!!.lifecycleScope)
     }
 
@@ -91,20 +102,24 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
 
     fun clear() {
         logAdapter.clear()
+        notifyEntriesChanged()
     }
 
     fun setFilterQuery(query: String) {
         logAdapter.setFilterQuery(query)
+        notifyEntriesChanged()
     }
 
     fun currentFilterQuery() = logAdapter.currentFilterQuery()
 
     fun setLevelFilter(levels: Set<Char>) {
         logAdapter.setLevelFilter(levels)
+        notifyEntriesChanged()
     }
 
     fun setContentFilter(filter: String) {
         logAdapter.setContentFilter(filter)
+        notifyEntriesChanged()
     }
 
     fun currentLevelFilter() = logAdapter.currentLevelFilter()
@@ -114,5 +129,11 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
     fun setBottomPadding(padding: Int) {
         rv.clipToPadding = false
         rv.bottomPadding = padding
+    }
+
+    private fun notifyEntriesChanged() {
+        if (onEntriesChanged == null || changePending) return
+        changePending = true
+        post(changeNotifier)
     }
 }
