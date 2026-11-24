@@ -43,7 +43,7 @@ private:
 
 struct Fake {
     bool maintenance = false, exists = true, hasSchema = true, failDeploy = false, failLaunch = false, noLearning = false;
-    bool ascii = false;
+    bool ascii = false, fixSchemaListOrder = false;
     // Mirrors default.yaml's switcher/save_options and the user config it writes.
     std::vector<std::string> saveOptions{"ascii_punct", "s2t"};
     std::map<std::string, bool> savedOptions;
@@ -59,7 +59,7 @@ struct Fake {
     std::string schema = "test", schemaName = "Test";
     // Ordered regardless of schema_list order: user.yaml restores the previously selected one.
     std::vector<std::pair<std::string, std::string>> schemas{{"test", "Test"}};
-    std::string dictionary = "test";
+    std::string dictionary = "test", inputType, enabledType;
     std::string rawInput;
     size_t rawCaret = 0;
     bool syncLaunch = true, syncPending = false, syncThrows = false, userDbHeld = false, failStartup = false;
@@ -165,8 +165,20 @@ RimeApi api() {
     a.config_close = [](RimeConfig*) -> Bool { return true; };
     a.schema_open = [](const char*, RimeConfig* config) -> Bool { config->ptr = &f; return true; };
     a.config_get_string = [](RimeConfig*, const char* key, char* value, size_t size) -> Bool {
-        if (std::strcmp(key, "translator/dictionary")) return false;
-        std::snprintf(value, size, "%s", f.dictionary.c_str()); return true;
+        if (!std::strcmp(key, "translator/dictionary")) {
+            std::snprintf(value, size, "%s", f.dictionary.c_str()); return true;
+        }
+        if (!std::strcmp(key, "input_types/reset") && !f.inputType.empty()) {
+            std::snprintf(value, size, "%s", f.inputType.c_str()); return true;
+        }
+        if (!std::strcmp(key, "input_types/enabled/@0") && !f.enabledType.empty()) {
+            std::snprintf(value, size, "%s", f.enabledType.c_str()); return true;
+        }
+        return false;
+    };
+    a.config_get_bool = [](RimeConfig*, const char* key, Bool* value) -> Bool {
+        if (std::strcmp(key, "switcher/fix_schema_list_order")) return false;
+        *value = f.fixSchemaListOrder; return true;
     };
     a.config_list_size = [](RimeConfig*, const char* key) -> size_t {
         return std::strcmp(key, "switcher/save_options") ? 0 : f.saveOptions.size();
@@ -776,6 +788,7 @@ void testUsableDeploymentWarning() {
     std::ofstream(build / "default.yaml") << "keep data";
     std::ofstream(build / "test.schema.yaml") << "keep data";
     std::ofstream(build / "test.table.bin") << "keep data";
+    std::ofstream(build / "test.prism.bin") << "keep data";
     f = {}; auto a = api(); Engine engine(&a);
     f.failDeploy = true;
     engine.start(shared.string(), user.string(), "development", true);
@@ -817,6 +830,54 @@ void testUsableDeploymentWarning() {
         noTableRejected = std::strcmp(error.what(), "部署失败，请检查方案文件后重新部署") == 0;
     }
     CHECK(noTableRejected);
+    // The table is written before the prism. A partial dictionary unit leaves a table behind,
+    // but Dictionary::Load needs the prism as well, so that case still fails closed.
+    f = {}; auto e = api(); Engine noPrism(&e); f.failDeploy = true;
+    const fs::path noPrismUser = root / "no-prism", noPrismBuild = noPrismUser / "build";
+    fs::create_directories(noPrismBuild);
+    std::ofstream(noPrismBuild / "default.yaml") << "keep data";
+    std::ofstream(noPrismBuild / "test.schema.yaml") << "keep data";
+    std::ofstream(noPrismBuild / "test.table.bin") << "keep data";
+    bool noPrismRejected = false;
+    try { noPrism.start(shared.string(), noPrismUser.string(), "development", true); }
+    catch (const std::runtime_error& error) {
+        noPrismRejected = std::strcmp(error.what(), "部署失败，请检查方案文件后重新部署") == 0;
+    }
+    CHECK(noPrismRejected);
+    // EVO resolves the dictionary prism through input_types/reset.
+    f = {}; auto g = api(); Engine typed(&g); f.failDeploy = true; f.inputType = "zrm";
+    const fs::path typedUser = root / "typed", typedBuild = typedUser / "build";
+    fs::create_directories(typedBuild);
+    std::ofstream(typedBuild / "default.yaml") << "keep data";
+    std::ofstream(typedBuild / "test.schema.yaml") << "keep data";
+    std::ofstream(typedBuild / "test.table.bin") << "keep data";
+    std::ofstream(typedBuild / "test.zrm.prism.bin") << "keep data";
+    typed.start(shared.string(), typedUser.string(), "development", true);
+    CHECK(typed.deploymentDegraded() && typed.begin(1, "editor").gate == Ready);
+    typed.stop();
+    // InitialOption falls back to the first enabled option when reset is absent.
+    f = {}; auto enabled = api(); Engine enabledEngine(&enabled); f.failDeploy = true; f.enabledType = "zrm";
+    const fs::path enabledUser = root / "enabled", enabledBuild = enabledUser / "build";
+    fs::create_directories(enabledBuild);
+    std::ofstream(enabledBuild / "default.yaml") << "keep data";
+    std::ofstream(enabledBuild / "test.schema.yaml") << "keep data";
+    std::ofstream(enabledBuild / "test.table.bin") << "keep data";
+    std::ofstream(enabledBuild / "test.zrm.prism.bin") << "keep data";
+    enabledEngine.start(shared.string(), enabledUser.string(), "development", true);
+    CHECK(enabledEngine.deploymentDegraded() && enabledEngine.begin(1, "editor").gate == Ready);
+    enabledEngine.stop();
+    // The previously selected schema decides, not merely the first list entry.
+    f = {}; auto h = api(); Engine selected(&h); f.failDeploy = true; f.schemas = {{"first", "First"}, {"second", "Second"}};
+    const fs::path selectedUser = root / "selected", selectedBuild = selectedUser / "build";
+    fs::create_directories(selectedBuild);
+    std::ofstream(selectedBuild / "default.yaml") << "keep data";
+    std::ofstream(selectedBuild / "second.schema.yaml") << "keep data";
+    std::ofstream(selectedBuild / "test.table.bin") << "keep data";
+    std::ofstream(selectedBuild / "test.prism.bin") << "keep data";
+    std::ofstream(selectedUser / "user.yaml") << "var:\n  previously_selected_schema: second\n";
+    selected.start(shared.string(), selectedUser.string(), "development", true);
+    CHECK(selected.deploymentDegraded() && selected.begin(1, "editor").gate == Ready);
+    selected.stop();
 }
 void testCurrentSchemaPreference() {
     namespace fs = std::filesystem;
@@ -829,6 +890,10 @@ void testCurrentSchemaPreference() {
     CHECK(engine.currentSchema() == "first");
     std::ofstream(user / "user.yaml") << "var:\n  previously_selected_schema: second\n";
     CHECK(engine.currentSchema() == "second");
+    // Fixed ordering makes librime ignore the stored preference for a new session.
+    f.fixSchemaListOrder = true;
+    CHECK(engine.currentSchema() == "first");
+    f.fixSchemaListOrder = false;
     std::ofstream(user / "user.yaml") << "var:\n  previously_selected_schema: \"third\"\n";
     CHECK(engine.currentSchema() == "first");
     engine.stop();

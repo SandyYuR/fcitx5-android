@@ -222,6 +222,27 @@ class RimeInputTypesRepositoryTest {
         assertTrue(runCatching { RimeInputTypesRepository.select(dir, "flypy") }.isFailure)
     }
 
+    @Test fun arrayPathPatchChangesTheEffectiveCatalog() {
+        val dir = user(
+            customText = "patch:\n" +
+                "  input_types/options/@0/option: removed_pinyin\n" +
+                "  input_types/enabled: [zrm]\n" +
+                "  input_types/reset: zrm\n"
+        )
+        val types = requireNotNull(RimeInputTypesRepository.read(dir))
+        assertEquals(listOf("removed_pinyin", "zrm", "flypy"), types.types.map { it.option })
+        assertEquals("自然码", types.summary())
+
+        // pinyin no longer exists after the list patch, so it must not be offered or written.
+        assertTrue(runCatching { RimeInputTypesRepository.select(dir, "pinyin") }.isFailure)
+        assertEquals(listOf("zrm"), RimeInputTypesRepository.read(dir)?.enabled)
+
+        // Selecting keeps the item-level override that produced the effective catalog.
+        val selected = RimeInputTypesRepository.select(dir, "zrm")
+        assertEquals(listOf("removed_pinyin", "zrm", "flypy"), selected.types.map { it.option })
+        assertTrue(File(dir, "wanxiang.custom.yaml").readText().contains("input_types/options/@0/option: removed_pinyin"))
+    }
+
     @Test fun sameIndentBlockEnabledListIsRewritten() {
         val dir = user(customText = "patch:\n  input_types/enabled:\n  - zrm\n  input_types/reset: zrm\n")
         RimeInputTypesRepository.select(dir, "flypy")

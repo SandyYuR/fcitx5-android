@@ -88,6 +88,7 @@ private:
     void initialize(bool fullCheck);
     void acceptUsableDeployment();
     bool deploymentUsable();
+    bool fixSchemaListOrder();
     // librime writes var/option/<name> only when its own switcher menu toggles
     // an option listed in switcher/save_options. This frontend sets options
     // directly, so mirror that rule; otherwise every new native session (another

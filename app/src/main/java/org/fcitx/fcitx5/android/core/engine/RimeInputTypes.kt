@@ -8,6 +8,7 @@ import org.yaml.snakeyaml.nodes.MappingNode
 import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.nodes.ScalarNode
 import org.yaml.snakeyaml.nodes.SequenceNode
+import org.yaml.snakeyaml.nodes.Tag
 import java.io.File
 
 /** One selectable input type declared by the schema's `input_types/options`. */
@@ -55,27 +56,12 @@ internal object RimeInputTypesRepository {
         if (!user.isDirectory) return null
         val yaml = WanxiangYaml()
         val schema = findSchema(user, activeSchema, yaml) ?: return null
-        var types = schema.types
-        var enabled = schema.enabled
-        var reset = schema.reset
-        if (schema.customFile.isFile) {
-            val patch = runCatching { patch(yaml, schema.customFile) }.getOrNull()
-            if (patch != null) {
-                // The patch may restate the option catalog as well as the selection. Only the
-                // effective catalog may be used for validation, otherwise an option that the
-                // engine no longer knows would be written and silently break the scheme.
-                val customOptions = scoped(yaml, patch, "input_types/options")
-                if (customOptions != null) {
-                    val parsed = parseTypes(yaml, customOptions as? SequenceNode)
-                    if (parsed.isEmpty()) return null
-                    types = parsed
-                }
-                stringList(scoped(yaml, patch, "input_types/enabled"))
-                    ?.takeIf { it.isNotEmpty() }?.let { enabled = it }
-                (scoped(yaml, patch, "input_types/reset") as? ScalarNode)?.value?.trim()
-                    ?.takeIf { it.isNotEmpty() }?.let { reset = it }
-            }
-        }
+        val group = effectiveGroup(yaml, schema.group, schema.customFile) ?: return null
+        val types = parseTypes(yaml, yaml.member(group, "options") as? SequenceNode)
+        if (types.isEmpty()) return null
+        var enabled = stringList(yaml.member(group, "enabled")).orEmpty()
+        var reset = (yaml.member(group, "reset") as? ScalarNode)?.value?.trim()
+            ?.takeIf { it.isNotEmpty() }
         val known = types.map { it.option }.toSet()
         enabled = enabled.filter { it in known }
         if (reset !in known) reset = null
@@ -99,9 +85,7 @@ internal object RimeInputTypesRepository {
 
     private data class SchemaTypes(
         val id: String,
-        val types: List<RimeInputType>,
-        val enabled: List<String>,
-        val reset: String?,
+        val group: MappingNode,
         val customFile: File
     )
 
@@ -122,17 +106,70 @@ internal object RimeInputTypesRepository {
             val root = runCatching { yaml.document(WanxiangAdvancedFiles.read(file)) }.getOrNull()
                 ?: continue
             val group = yaml.get(root, "input_types") as? MappingNode ?: continue
-            val types = parseTypes(yaml, yaml.member(group, "options") as? SequenceNode)
-            if (types.isEmpty()) continue
-            return SchemaTypes(
-                schemaId,
-                types,
-                stringList(yaml.member(group, "enabled")).orEmpty(),
-                (yaml.member(group, "reset") as? ScalarNode)?.value?.trim()?.takeIf { it.isNotEmpty() },
-                File(user, schemaId + CUSTOM_SUFFIX)
-            )
+            if (parseTypes(yaml, yaml.member(group, "options") as? SequenceNode).isEmpty()) continue
+            return SchemaTypes(schemaId, group, File(user, schemaId + CUSTOM_SUFFIX))
         }
         return null
+    }
+
+    /**
+     * Applies the custom patch with Rime's semantics, not with a plain top-level replacement.
+     * A patch may restate the whole group, merge individual child keys, or address list items
+     * (input_types/options/@0/option). The effective catalog decides which options the engine
+     * will accept, so a replacement-only view could offer an option that breaks deployment.
+     */
+    private fun effectiveGroup(yaml: WanxiangYaml, source: MappingNode, customFile: File): MappingNode? {
+        if (!customFile.isFile) return source
+        val patch = runCatching { patch(yaml, customFile) }.getOrNull() ?: return source
+        val result = yaml.clone(source) as MappingNode
+        patch.value.forEach { entry ->
+            val raw = yaml.key(entry.keyNode)
+            if (raw.startsWith("__")) return@forEach
+            if (raw == "input_types") {
+                val nested = entry.valueNode
+                if (nested is MappingNode) mergeNested(yaml, result, nested)
+                else if (nested is ScalarNode && nested.tag == Tag.NULL) return null
+                else return null
+                return@forEach
+            }
+            if (raw.startsWith("input_types/")) {
+                applyAt(yaml, result, raw.removePrefix("input_types/"), entry.valueNode)
+            }
+        }
+        return result
+    }
+
+    private fun mergeNested(yaml: WanxiangYaml, target: MappingNode, patch: MappingNode) {
+        patch.value.forEach { entry ->
+            val raw = yaml.key(entry.keyNode)
+            if (raw.startsWith("__")) return@forEach
+            val value = entry.valueNode
+            if ('/' in raw) {
+                applyAt(yaml, target, raw, value)
+                return@forEach
+            }
+            val existing = yaml.member(target, raw)
+            when {
+                value is MappingNode && existing is MappingNode -> mergeNested(yaml, existing, value)
+                value is ScalarNode && value.tag == Tag.NULL -> yaml.put(target, raw, null)
+                else -> yaml.put(target, raw, yaml.clone(value))
+            }
+        }
+    }
+
+    /** One patch path, including the append and list-index forms understood by librime. */
+    private fun applyAt(yaml: WanxiangYaml, target: MappingNode, raw: String, value: Node) {
+        val append = raw.endsWith("/+")
+        val path = if (append || raw.endsWith("/=")) raw.dropLast(2) else raw
+        if (path.isEmpty()) return
+        if (append) {
+            val existing = yaml.get(target, path)
+            if (existing is SequenceNode && value is SequenceNode) {
+                existing.value.addAll(value.value.map(yaml::clone))
+                return
+            }
+        }
+        yaml.set(target, path, yaml.clone(value))
     }
 
     private fun parseTypes(yaml: WanxiangYaml, sequence: SequenceNode?): List<RimeInputType> =

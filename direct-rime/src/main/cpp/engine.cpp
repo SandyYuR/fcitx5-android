@@ -577,7 +577,10 @@ bool Engine::deploymentUsable() {
     if (!api_->get_schema_list(&list)) return false;
     ScopeExit cleanup([&] { api_->free_schema_list(&list); });
     if (list.size == 0) return false;
-    const auto schema = safe(list.list[0].schema_id);
+    // The active schema is not necessarily the first entry: librime restores the previously
+    // selected schema (unless fixed ordering is enabled). Inspect the same one a new session
+    // would activate so a usable schema is not rejected because an unused sibling is partial.
+    const auto schema = currentSchema();
     // Never join a schema id containing separators or traversal segments to the build path.
     if (schema.empty() || schema == "." || schema == ".." ||
         schema.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") != std::string::npos)
@@ -602,8 +605,32 @@ bool Engine::deploymentUsable() {
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") !=
                 std::string::npos) return false;
         const auto table = build / (dict + ".table.bin");
-        return std::filesystem::is_regular_file(table, ec) &&
-               std::filesystem::file_size(table, ec) > 0;
+        if (!std::filesystem::is_regular_file(table, ec) ||
+            std::filesystem::file_size(table, ec) == 0) return false;
+        // The compiler writes the table before the prism. A failure in the prism stage leaves
+        // a non-empty table behind, but Dictionary::Load needs both, so check the prism the
+        // active schema will actually load. EVO schemes select it through input_types/reset
+        // (build/<dict>.<option>.prism.bin); other schemes use build/<dict>.prism.bin.
+        std::string prism = dict;
+        // InitialOption prefers input_types/reset, then the first enabled option.
+        auto appendType = [&](const char* key) -> int {
+            char inputType[128]{};
+            if (!RIME_API_AVAILABLE(api_, config_get_string) ||
+                !api_->config_get_string(&config, key, inputType, sizeof(inputType))) return 0;
+            const std::string type = safe(inputType);
+            if (type.empty() || type == "." || type == ".." ||
+                type.find_first_not_of(
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") !=
+                    std::string::npos) return -1;
+            prism += "." + type;
+            return 1;
+        };
+        const int resetType = appendType("input_types/reset");
+        if (resetType < 0) return false;
+        if (resetType == 0 && appendType("input_types/enabled/@0") < 0) return false;
+        const auto compiledPrism = build / (prism + ".prism.bin");
+        return std::filesystem::is_regular_file(compiledPrism, ec) &&
+               std::filesystem::file_size(compiledPrism, ec) > 0;
     }
     return true;
 }
@@ -801,6 +828,16 @@ std::string Engine::schemaSelection() {
     }
     return result.str();
 }
+bool Engine::fixSchemaListOrder() {
+    if (!api_ || !RIME_API_AVAILABLE(api_, config_open) ||
+        !RIME_API_AVAILABLE(api_, config_get_bool) || !RIME_API_AVAILABLE(api_, config_close))
+        return false;
+    RimeConfig config{};
+    if (!api_->config_open("default", &config)) return false;
+    ScopeExit cleanup([&] { api_->config_close(&config); });
+    Bool value = False;
+    return api_->config_get_bool(&config, "switcher/fix_schema_list_order", &value) && value;
+}
 std::string Engine::currentSchema() {
     owner();
     if (started_ && !api_->is_maintenance_mode() && session_ && api_->find_session(session_) &&
@@ -816,6 +853,9 @@ std::string Engine::currentSchema() {
     if (!api_->get_schema_list(&list)) return {};
     ScopeExit cleanup([&] { api_->free_schema_list(&list); });
     if (list.size == 0) return {};
+    // With fixed ordering librime ignores var/previously_selected_schema and activates the
+    // first entry, so reporting the stored preference would disagree with the next session.
+    if (fixSchemaListOrder()) return safe(list.list[0].schema_id);
     std::string preferred;
     if (std::ifstream input{std::filesystem::path(user_) / "user.yaml"}) {
         std::string line;
