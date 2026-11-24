@@ -90,6 +90,170 @@ struct CoreTrace {
 #endif
 };
 std::string safe(const char* value) { return value ? value : ""; }
+// A deployed resource name is joined to the user build directory. Reject separators and
+// traversal segments before the name reaches the filesystem.
+bool safeComponent(const std::string& value) {
+    return !value.empty() && value != "." && value != ".." &&
+           value.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") ==
+               std::string::npos;
+}
+int readConfigString(RimeApi* api, RimeConfig* config, const char* key, std::string& value) {
+    char buffer[512]{};
+    if (!api->config_get_string || !api->config_get_string(config, key, buffer, sizeof(buffer)))
+        return 0;
+    value = safe(buffer);
+    return 1;
+}
+// ConfigMap is ordered by key. Iterating here mirrors the order librime's patch compiler uses.
+bool readConfigMapKeys(RimeApi* api, RimeConfig* config, const std::string& path,
+                       std::vector<std::string>& keys) {
+    keys.clear();
+    RimeConfigIterator iterator{};
+    if (!api->config_begin_map(&iterator, config, path.c_str())) return false;
+    while (api->config_next(&iterator))
+        if (iterator.key) keys.emplace_back(iterator.key);
+    api->config_end(&iterator);
+    return true;
+}
+bool configListExists(RimeApi* api, RimeConfig* config, const std::string& path) {
+    RimeConfigIterator iterator{};
+    if (!api->config_begin_list(&iterator, config, path.c_str())) return false;
+    api->config_end(&iterator);
+    return true;
+}
+bool containsKey(const std::vector<std::string>& keys, const std::string& key) {
+    return std::find(keys.begin(), keys.end(), key) != keys.end();
+}
+// Mirrors librime-evo's InputTypesConfig: options are unique prism selections, enabled is a
+// subset in declaration order, and reset must name an enabled option.
+struct InputTypesConfig {
+    struct Selection {
+        std::string option, name;
+    };
+    std::vector<Selection> options, enabled;
+    std::string reset;
+    std::string initialOption() const {
+        if (!reset.empty()) return reset;
+        return enabled.empty() ? std::string() : enabled.front().option;
+    }
+    bool load(RimeApi* api, RimeConfig* config) {
+        options.clear();
+        enabled.clear();
+        reset.clear();
+        std::vector<std::string> group;
+        if (!readConfigMapKeys(api, config, "input_types", group)) return true;
+        const std::string optionsPath = "input_types/options";
+        if (!configListExists(api, config, optionsPath)) return false;
+        const size_t count = api->config_list_size(config, optionsPath.c_str());
+        for (size_t i = 0; i < count; ++i) {
+            const std::string entryPath = optionsPath + "/@" + std::to_string(i);
+            std::vector<std::string> entry;
+            if (!readConfigMapKeys(api, config, entryPath, entry)) return false;
+            Selection selection;
+            if (!readConfigString(api, config, (entryPath + "/option").c_str(), selection.option) ||
+                selection.option.empty())
+                return false;
+            if (containsKey(entry, "name")) {
+                if (!readConfigString(api, config, (entryPath + "/name").c_str(), selection.name) ||
+                    selection.name.empty())
+                    return false;
+            } else {
+                selection.name = selection.option;
+            }
+            for (const auto& existing : options)
+                if (existing.option == selection.option) return false;
+            options.push_back(selection);
+        }
+        if (containsKey(group, "enabled")) {
+            if (!configListExists(api, config, "input_types/enabled")) return false;
+            const size_t selected = api->config_list_size(config, "input_types/enabled");
+            for (size_t i = 0; i < selected; ++i) {
+                std::string option;
+                if (!readConfigString(api, config,
+                                      ("input_types/enabled/@" + std::to_string(i)).c_str(), option))
+                    return false;
+                const auto found = std::find_if(options.begin(), options.end(), [&](const Selection& item) {
+                    return item.option == option;
+                });
+                if (found == options.end() ||
+                    std::any_of(enabled.begin(), enabled.end(), [&](const Selection& item) {
+                        return item.option == option;
+                    }))
+                    return false;
+                enabled.push_back(*found);
+            }
+        } else {
+            enabled = options;
+        }
+        if (containsKey(group, "reset")) {
+            if (!readConfigString(api, config, "input_types/reset", reset) || reset.empty() ||
+                std::none_of(enabled.begin(), enabled.end(),
+                             [&](const Selection& item) { return item.option == reset; }))
+                return false;
+        }
+        return true;
+    }
+};
+// Mirrors librime-evo's PrismConfig. The dictionary component resolves the primary prism from
+// an explicit prism, a prisms list, or the input_types group, and only then from algebra.
+struct PrismConfig {
+    std::string name;
+    std::vector<InputTypesConfig::Selection> selections;
+    bool followsInputTypes = false;
+    bool load(RimeApi* api, RimeConfig* config, const std::string& nameSpace) {
+        name.clear();
+        selections.clear();
+        followsInputTypes = false;
+        std::vector<std::string> keys;
+        if (!readConfigMapKeys(api, config, nameSpace, keys)) return true;
+        const bool hasPrism = containsKey(keys, "prism");
+        const bool hasPrisms = containsKey(keys, "prisms");
+        if (hasPrism && hasPrisms) return false;
+        if (hasPrism && !readConfigString(api, config, (nameSpace + "/prism").c_str(), name))
+            return false;
+        if (!hasPrisms) return true;
+        std::string reference;
+        if (readConfigString(api, config, (nameSpace + "/prisms").c_str(), reference)) {
+            InputTypesConfig types;
+            if (reference != "input_types" || !types.load(api, config) || types.enabled.empty())
+                return false;
+            selections = types.enabled;
+            followsInputTypes = true;
+            return true;
+        }
+        const std::string listPath = nameSpace + "/prisms";
+        if (!configListExists(api, config, listPath)) return false;
+        const size_t count = api->config_list_size(config, listPath.c_str());
+        if (count == 0) return false;
+        for (size_t i = 0; i < count; ++i) {
+            const std::string entryPath = listPath + "/@" + std::to_string(i);
+            std::vector<std::string> entry;
+            if (!readConfigMapKeys(api, config, entryPath, entry)) return false;
+            InputTypesConfig::Selection selection;
+            if (!readConfigString(api, config, (entryPath + "/name").c_str(), selection.name) ||
+                !readConfigString(api, config, (entryPath + "/option").c_str(), selection.option) ||
+                selection.name.empty() || selection.option.empty())
+                return false;
+            selections.push_back(selection);
+        }
+        return true;
+    }
+};
+// DictionaryComponent::ResolvePrismName: a qualified <dict>.<prism> resource wins when the
+// algebra map names the prism or the qualified file exists; otherwise the bare name is used.
+std::string resolvePrismName(RimeApi* api, RimeConfig* config, const std::filesystem::path& build,
+                             const std::string& dictionary, const std::string& prism) {
+    std::vector<std::string> algebra;
+    readConfigMapKeys(api, config, "build/dictionaries/" + dictionary + "/algebra", algebra);
+    const std::string qualified = dictionary + "." + prism;
+    if (containsKey(algebra, prism)) return qualified;
+    std::error_code error;
+    const auto path = build / (qualified + ".prism.bin");
+    if (safeComponent(qualified) && std::filesystem::is_regular_file(path, error) &&
+        std::filesystem::file_size(path, error) > 0)
+        return qualified;
+    return prism;
+}
 // Exactly the mask used by fcitx5-rime, including IBus's virtual Super and release.
 int rimeMask(int mask, bool release) {
     int states = mask & ((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 6));
@@ -591,48 +755,73 @@ bool Engine::deploymentUsable() {
     // A compiled schema YAML appears before its dictionaries finish compiling. EVO can write
     // it and then fail on the dictionary unit, so also require the active schema's main
     // dictionary table, mirroring what the first keystroke needs.
-    if (RIME_API_AVAILABLE(api_, schema_open) && RIME_API_AVAILABLE(api_, config_get_string) &&
-        RIME_API_AVAILABLE(api_, config_close)) {
-        RimeConfig config{};
-        if (!api_->schema_open(schema.c_str(), &config)) return false;
-        ScopeExit close([&] { api_->config_close(&config); });
-        char dictionary[256]{};
-        if (!api_->config_get_string(
-                &config, "translator/dictionary", dictionary, sizeof(dictionary))) return false;
-        const std::string dict = safe(dictionary);
-        if (dict.empty() || dict == "." || dict == ".." ||
-            dict.find_first_not_of(
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") !=
-                std::string::npos) return false;
-        const auto table = build / (dict + ".table.bin");
-        if (!std::filesystem::is_regular_file(table, ec) ||
-            std::filesystem::file_size(table, ec) == 0) return false;
-        // The compiler writes the table before the prism. A failure in the prism stage leaves
-        // a non-empty table behind, but Dictionary::Load needs both, so check the prism the
-        // active schema will actually load. EVO schemes select it through input_types/reset
-        // (build/<dict>.<option>.prism.bin); other schemes use build/<dict>.prism.bin.
-        std::string prism = dict;
-        // InitialOption prefers input_types/reset, then the first enabled option.
-        auto appendType = [&](const char* key) -> int {
-            char inputType[128]{};
-            if (!RIME_API_AVAILABLE(api_, config_get_string) ||
-                !api_->config_get_string(&config, key, inputType, sizeof(inputType))) return 0;
-            const std::string type = safe(inputType);
-            if (type.empty() || type == "." || type == ".." ||
-                type.find_first_not_of(
-                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") !=
-                    std::string::npos) return -1;
-            prism += "." + type;
-            return 1;
-        };
-        const int resetType = appendType("input_types/reset");
-        if (resetType < 0) return false;
-        if (resetType == 0 && appendType("input_types/enabled/@0") < 0) return false;
-        const auto compiledPrism = build / (prism + ".prism.bin");
+    const bool configReadable = RIME_API_AVAILABLE(api_, schema_open) &&
+        RIME_API_AVAILABLE(api_, config_get_string) && RIME_API_AVAILABLE(api_, config_close);
+    if (!configReadable) return true;
+    RimeConfig config{};
+    if (!api_->schema_open(schema.c_str(), &config)) return false;
+    ScopeExit close([&] { api_->config_close(&config); });
+    std::string dict;
+    if (!readConfigString(api_, &config, "translator/dictionary", dict) || !safeComponent(dict))
+        return false;
+    const auto table = build / (dict + ".table.bin");
+    if (!std::filesystem::is_regular_file(table, ec) ||
+        std::filesystem::file_size(table, ec) == 0) return false;
+    // The compiler writes the table before the prism. A failure in the prism stage leaves a
+    // non-empty table behind, but Dictionary::Load needs both. Resolve the same resource name
+    // DictionaryComponent uses: translator/prism, translator/prisms, the input_types group,
+    // and finally the qualified <dict>.<algebra-key> name.
+    const bool prismResolvable = RIME_API_AVAILABLE(api_, config_begin_map) &&
+        RIME_API_AVAILABLE(api_, config_begin_list) && RIME_API_AVAILABLE(api_, config_next) &&
+        RIME_API_AVAILABLE(api_, config_end) && RIME_API_AVAILABLE(api_, config_list_size);
+    if (prismResolvable) {
+        PrismConfig prism;
+        if (!prism.load(api_, &config, "translator")) return false;
+        std::string prismName = prism.name;
+        if (!prism.selections.empty()) {
+            auto choice = prism.selections.front();
+            if (prism.followsInputTypes) {
+                InputTypesConfig types;
+                if (!types.load(api_, &config)) return false;
+                const std::string option = types.initialOption();
+                const auto found = std::find_if(
+                    prism.selections.begin(), prism.selections.end(),
+                    [&](const InputTypesConfig::Selection& item) { return item.option == option; });
+                if (found == prism.selections.end()) return false;
+                choice = *found;
+            }
+            prismName = choice.name;
+        }
+        if (prismName.empty()) {
+            prismName = dict;
+            std::vector<std::string> algebra;
+            if (readConfigMapKeys(api_, &config, "build/dictionaries/" + dict + "/algebra", algebra) &&
+                !algebra.empty())
+                prismName += "." + algebra.front();
+        } else {
+            prismName = resolvePrismName(api_, &config, build, dict, prismName);
+        }
+        if (!safeComponent(prismName)) return false;
+        const auto compiledPrism = build / (prismName + ".prism.bin");
         return std::filesystem::is_regular_file(compiledPrism, ec) &&
                std::filesystem::file_size(compiledPrism, ec) > 0;
     }
-    return true;
+    // Older imported engines expose no map/list iteration. Keep the previous conservative
+    // check there instead of treating every scheme as usable.
+    std::string prism = dict;
+    auto appendType = [&](const char* key) -> int {
+        std::string type;
+        if (!readConfigString(api_, &config, key, type)) return 0;
+        if (!safeComponent(type)) return -1;
+        prism += "." + type;
+        return 1;
+    };
+    const int resetType = appendType("input_types/reset");
+    if (resetType < 0) return false;
+    if (resetType == 0 && appendType("input_types/enabled/@0") < 0) return false;
+    const auto compiledPrism = build / (prism + ".prism.bin");
+    return std::filesystem::is_regular_file(compiledPrism, ec) &&
+           std::filesystem::file_size(compiledPrism, ec) > 0;
 }
 void Engine::acceptUsableDeployment() {
     if (!deployFailed_.load() || !deploymentUsable()) return;

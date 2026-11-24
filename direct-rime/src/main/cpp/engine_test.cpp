@@ -59,7 +59,16 @@ struct Fake {
     std::string schema = "test", schemaName = "Test";
     // Ordered regardless of schema_list order: user.yaml restores the previously selected one.
     std::vector<std::pair<std::string, std::string>> schemas{{"test", "Test"}};
-    std::string dictionary = "test", inputType, enabledType;
+    std::string dictionary = "test";
+    // EVO prism fixture: input_types group, translator prism/prisms and the algebra map.
+    bool inputTypesPresent = false, enabledPresent = false, resetPresent = false;
+    std::vector<std::pair<std::string, std::string>> inputOptions;
+    std::vector<std::string> enabledTypes;
+    std::string resetType;
+    bool prismSet = false, prismsRefSet = false, prismsListSet = false;
+    std::string prismName, prismsRef;
+    std::vector<std::pair<std::string, std::string>> prismsList;
+    std::vector<std::string> algebraKeys;
     std::string rawInput;
     size_t rawCaret = 0;
     bool syncLaunch = true, syncPending = false, syncThrows = false, userDbHeld = false, failStartup = false;
@@ -74,6 +83,54 @@ struct Fake {
     std::vector<std::string> processors;
     std::map<std::string, std::string> schemaValues;
 } f;
+std::string algebraPath() { return "build/dictionaries/" + f.dictionary + "/algebra"; }
+bool fakeHasMap(const std::string& path) {
+    if (path == "input_types") return f.inputTypesPresent;
+    if (path == "translator") return f.prismSet || f.prismsRefSet || f.prismsListSet;
+    if (path == algebraPath()) return !f.algebraKeys.empty();
+    const std::string optionPrefix = "input_types/options/@";
+    if (path.compare(0, optionPrefix.size(), optionPrefix) == 0) {
+        const auto index = std::strtoul(path.c_str() + optionPrefix.size(), nullptr, 10);
+        return index < f.inputOptions.size();
+    }
+    const std::string prismPrefix = "translator/prisms/@";
+    if (path.compare(0, prismPrefix.size(), prismPrefix) == 0) {
+        const auto index = std::strtoul(path.c_str() + prismPrefix.size(), nullptr, 10);
+        return index < f.prismsList.size();
+    }
+    return false;
+}
+std::vector<std::string> fakeMapKeys(const std::string& path) {
+    if (path == "input_types") {
+        std::vector<std::string> keys{"options"};
+        if (f.enabledPresent) keys.emplace_back("enabled");
+        if (f.resetPresent) keys.emplace_back("reset");
+        return keys;
+    }
+    if (path == "translator") {
+        std::vector<std::string> keys;
+        if (f.prismSet) keys.emplace_back("prism");
+        if (f.prismsRefSet || f.prismsListSet) keys.emplace_back("prisms");
+        return keys;
+    }
+    if (path == algebraPath()) return f.algebraKeys;
+    const std::string optionPrefix = "input_types/options/@";
+    if (path.compare(0, optionPrefix.size(), optionPrefix) == 0) {
+        const auto index = std::strtoul(path.c_str() + optionPrefix.size(), nullptr, 10);
+        std::vector<std::string> keys{"option"};
+        if (index < f.inputOptions.size() && !f.inputOptions[index].second.empty())
+            keys.emplace_back("name");
+        return keys;
+    }
+    const std::string prismPrefix = "translator/prisms/@";
+    if (path.compare(0, prismPrefix.size(), prismPrefix) == 0) return {"name", "option"};
+    return {};
+}
+bool fakeHasList(const std::string& path) {
+    return (path == "input_types/options" && f.inputTypesPresent) ||
+           (path == "input_types/enabled" && f.enabledPresent) ||
+           (path == "translator/prisms" && f.prismsListSet);
+}
 void notifyOptionIfRequested(int& count) {
     if (count <= 0) return;
     --count;
@@ -165,14 +222,54 @@ RimeApi api() {
     a.config_close = [](RimeConfig*) -> Bool { return true; };
     a.schema_open = [](const char*, RimeConfig* config) -> Bool { config->ptr = &f; return true; };
     a.config_get_string = [](RimeConfig*, const char* key, char* value, size_t size) -> Bool {
-        if (!std::strcmp(key, "translator/dictionary")) {
+        const std::string name(key);
+        if (name == "translator/dictionary") {
             std::snprintf(value, size, "%s", f.dictionary.c_str()); return true;
         }
-        if (!std::strcmp(key, "input_types/reset") && !f.inputType.empty()) {
-            std::snprintf(value, size, "%s", f.inputType.c_str()); return true;
+        if (name == "translator/prism" && f.prismSet) {
+            std::snprintf(value, size, "%s", f.prismName.c_str()); return true;
         }
-        if (!std::strcmp(key, "input_types/enabled/@0") && !f.enabledType.empty()) {
-            std::snprintf(value, size, "%s", f.enabledType.c_str()); return true;
+        if (name == "translator/prisms" && f.prismsRefSet) {
+            std::snprintf(value, size, "%s", f.prismsRef.c_str()); return true;
+        }
+        if (name == "input_types/reset" && f.resetPresent) {
+            std::snprintf(value, size, "%s", f.resetType.c_str()); return true;
+        }
+        const std::string enabledPrefix = "input_types/enabled/@";
+        if (name.compare(0, enabledPrefix.size(), enabledPrefix) == 0) {
+            const auto index = std::strtoul(name.c_str() + enabledPrefix.size(), nullptr, 10);
+            if (index < f.enabledTypes.size()) {
+                std::snprintf(value, size, "%s", f.enabledTypes[index].c_str()); return true;
+            }
+            return false;
+        }
+        const std::string prismPrefix = "translator/prisms/@";
+        if (name.compare(0, prismPrefix.size(), prismPrefix) == 0) {
+            const size_t slash = name.find('/', prismPrefix.size());
+            if (slash == std::string::npos) return false;
+            const auto index = std::strtoul(name.substr(prismPrefix.size(), slash - prismPrefix.size()).c_str(), nullptr, 10);
+            if (index >= f.prismsList.size()) return false;
+            const std::string field = name.substr(slash + 1);
+            if (field == "name") {
+                std::snprintf(value, size, "%s", f.prismsList[index].first.c_str()); return true;
+            }
+            if (field == "option") {
+                std::snprintf(value, size, "%s", f.prismsList[index].second.c_str()); return true;
+            }
+        }
+        const std::string optionPrefix = "input_types/options/@";
+        if (name.compare(0, optionPrefix.size(), optionPrefix) == 0) {
+            const size_t slash = name.find('/', optionPrefix.size());
+            if (slash == std::string::npos) return false;
+            const auto index = std::strtoul(name.substr(optionPrefix.size(), slash - optionPrefix.size()).c_str(), nullptr, 10);
+            if (index >= f.inputOptions.size()) return false;
+            const std::string field = name.substr(slash + 1);
+            if (field == "option") {
+                std::snprintf(value, size, "%s", f.inputOptions[index].first.c_str()); return true;
+            }
+            if (field == "name" && !f.inputOptions[index].second.empty()) {
+                std::snprintf(value, size, "%s", f.inputOptions[index].second.c_str()); return true;
+            }
         }
         return false;
     };
@@ -181,7 +278,31 @@ RimeApi api() {
         *value = f.fixSchemaListOrder; return true;
     };
     a.config_list_size = [](RimeConfig*, const char* key) -> size_t {
-        return std::strcmp(key, "switcher/save_options") ? 0 : f.saveOptions.size();
+        const std::string name(key);
+        if (name == "switcher/save_options") return f.saveOptions.size();
+        if (name == "input_types/options") return f.inputOptions.size();
+        if (name == "input_types/enabled") return f.enabledTypes.size();
+        if (name == "translator/prisms") return f.prismsList.size();
+        return 0;
+    };
+    a.config_begin_map = [](RimeConfigIterator* iterator, RimeConfig*, const char* key) -> Bool {
+        if (!fakeHasMap(key)) return false;
+        iterator->map = new std::vector<std::string>(fakeMapKeys(key));
+        iterator->index = 0; iterator->key = nullptr; return true;
+    };
+    a.config_begin_list = [](RimeConfigIterator* iterator, RimeConfig*, const char* key) -> Bool {
+        if (!fakeHasList(key)) return false;
+        iterator->map = new std::vector<std::string>();
+        iterator->index = 0; iterator->key = nullptr; return true;
+    };
+    a.config_next = [](RimeConfigIterator* iterator) -> Bool {
+        auto* keys = static_cast<std::vector<std::string>*>(iterator->map);
+        if (!keys || iterator->index >= static_cast<int>(keys->size())) return false;
+        iterator->key = (*keys)[iterator->index].c_str(); ++iterator->index; return true;
+    };
+    a.config_end = [](RimeConfigIterator* iterator) {
+        delete static_cast<std::vector<std::string>*>(iterator->map);
+        iterator->map = nullptr; iterator->index = 0; iterator->key = nullptr;
     };
     a.config_get_cstring = [](RimeConfig*, const char* key) -> const char* {
         const std::string prefix = "switcher/save_options/@";
@@ -844,8 +965,13 @@ void testUsableDeploymentWarning() {
         noPrismRejected = std::strcmp(error.what(), "部署失败，请检查方案文件后重新部署") == 0;
     }
     CHECK(noPrismRejected);
-    // EVO resolves the dictionary prism through input_types/reset.
-    f = {}; auto g = api(); Engine typed(&g); f.failDeploy = true; f.inputType = "zrm";
+    // EVO resolves the dictionary prism through translator/prisms: input_types and
+    // input_types/reset pick the option whose name is the prism resource.
+    f = {}; auto g = api(); Engine typed(&g); f.failDeploy = true;
+    f.prismsRefSet = true; f.prismsRef = "input_types";
+    f.inputTypesPresent = true; f.inputOptions = {{"zrm", "zrm"}};
+    f.enabledPresent = true; f.enabledTypes = {"zrm"};
+    f.resetPresent = true; f.resetType = "zrm";
     const fs::path typedUser = root / "typed", typedBuild = typedUser / "build";
     fs::create_directories(typedBuild);
     std::ofstream(typedBuild / "default.yaml") << "keep data";
@@ -856,7 +982,10 @@ void testUsableDeploymentWarning() {
     CHECK(typed.deploymentDegraded() && typed.begin(1, "editor").gate == Ready);
     typed.stop();
     // InitialOption falls back to the first enabled option when reset is absent.
-    f = {}; auto enabled = api(); Engine enabledEngine(&enabled); f.failDeploy = true; f.enabledType = "zrm";
+    f = {}; auto enabled = api(); Engine enabledEngine(&enabled); f.failDeploy = true;
+    f.prismsRefSet = true; f.prismsRef = "input_types";
+    f.inputTypesPresent = true; f.inputOptions = {{"zrm", "zrm"}};
+    f.enabledPresent = true; f.enabledTypes = {"zrm"};
     const fs::path enabledUser = root / "enabled", enabledBuild = enabledUser / "build";
     fs::create_directories(enabledBuild);
     std::ofstream(enabledBuild / "default.yaml") << "keep data";
@@ -878,6 +1007,63 @@ void testUsableDeploymentWarning() {
     selected.start(shared.string(), selectedUser.string(), "development", true);
     CHECK(selected.deploymentDegraded() && selected.begin(1, "editor").gate == Ready);
     selected.stop();
+}
+void testEvoPrismResolution() {
+    namespace fs = std::filesystem;
+    const TemporaryDirectory temporary;
+    const auto root = temporary.path(), shared = root / "shared";
+    fs::create_directories(shared);
+    auto workspace = [&](const char* name, const std::vector<std::string>& extra) {
+        const auto user = root / name, build = user / "build";
+        fs::create_directories(build);
+        std::ofstream(build / "default.yaml") << "keep data";
+        std::ofstream(build / "test.schema.yaml") << "keep data";
+        std::ofstream(build / "test.table.bin") << "keep data";
+        for (const auto& file : extra) std::ofstream(build / file) << "keep data";
+        return user;
+    };
+    auto accepted = [&](const fs::path& user) {
+        f.failDeploy = true;
+        auto a = api(); Engine engine(&a);
+        engine.start(shared.string(), user.string(), "development", true);
+        const bool ok = engine.deploymentDegraded() && engine.begin(1, "editor").gate == Ready;
+        engine.stop();
+        return ok;
+    };
+    auto rejected = [&](const fs::path& user) {
+        f.failDeploy = true;
+        auto a = api(); Engine engine(&a);
+        try { engine.start(shared.string(), user.string(), "development", true); }
+        catch (const std::runtime_error& error) {
+            return std::strcmp(error.what(), "部署失败，请检查方案文件后重新部署") == 0;
+        }
+        return false;
+    };
+    // An explicit translator/prism names the resource, so a stale default prism is not enough.
+    f = {}; f.prismSet = true; f.prismName = "named";
+    CHECK(accepted(workspace("named-prism", {"named.prism.bin"})));
+    f = {}; f.prismSet = true; f.prismName = "named";
+    CHECK(rejected(workspace("named-prism-stale-default", {"test.prism.bin"})));
+    // An option name alias overrides the option id when a prisms list is used.
+    f = {}; f.prismsListSet = true; f.prismsList = {{"named", "zrm"}};
+    CHECK(accepted(workspace("prisms-list", {"named.prism.bin"})));
+    // input_types contributes the primary selection only through translator/prisms: input_types.
+    f = {}; f.prismsRefSet = true; f.prismsRef = "input_types";
+    f.inputTypesPresent = true; f.inputOptions = {{"zrm", "zrm_prism"}};
+    f.enabledPresent = true; f.enabledTypes = {"zrm"}; f.resetPresent = true; f.resetType = "zrm";
+    CHECK(accepted(workspace("input-types-alias", {"zrm_prism.prism.bin"})));
+    // Without an explicit prism the dictionary name and the algebra map's first key are used.
+    f = {}; f.algebraKeys = {"zrm"};
+    CHECK(accepted(workspace("algebra-default", {"test.zrm.prism.bin"})));
+    // prism and prisms are mutually exclusive in the compiled schema.
+    f = {}; f.prismSet = true; f.prismName = "named"; f.prismsRefSet = true; f.prismsRef = "input_types";
+    f.inputTypesPresent = true; f.inputOptions = {{"zrm", "zrm"}};
+    CHECK(rejected(workspace("prism-conflict", {"named.prism.bin", "zrm.prism.bin"})));
+    // reset must name an enabled option.
+    f = {}; f.prismsRefSet = true; f.prismsRef = "input_types";
+    f.inputTypesPresent = true; f.inputOptions = {{"zrm", "zrm"}, {"flypy", "flypy"}};
+    f.enabledPresent = true; f.enabledTypes = {"zrm"}; f.resetPresent = true; f.resetType = "flypy";
+    CHECK(rejected(workspace("bad-reset", {"zrm.prism.bin", "flypy.prism.bin"})));
 }
 void testCurrentSchemaPreference() {
     namespace fs = std::filesystem;
@@ -908,7 +1094,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequence(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); testUsableDeploymentWarning(); testCurrentSchemaPreference(); std::cout << "engine contract: passed\n";
+        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequence(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); testUsableDeploymentWarning(); testEvoPrismResolution(); testCurrentSchemaPreference(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

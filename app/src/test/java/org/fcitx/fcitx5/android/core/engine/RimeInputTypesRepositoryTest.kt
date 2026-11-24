@@ -125,7 +125,17 @@ class RimeInputTypesRepositoryTest {
     }
 
     @Test fun selectAcceptsTheNestedForm() {
-        val dir = user(customText = "patch:\n  input_types:\n    enabled: [zrm]\n    reset: zrm\n  menu/page_size: 6\n")
+        val dir = user(
+            customText = "patch:\n" +
+                "  input_types:\n" +
+                "    options:\n" +
+                "      - {option: pinyin, label: 全拼}\n" +
+                "      - {option: zrm, label: 自然码}\n" +
+                "      - {option: flypy, label: 小鹤双拼}\n" +
+                "    enabled: [zrm]\n" +
+                "    reset: zrm\n" +
+                "  menu/page_size: 6\n"
+        )
         RimeInputTypesRepository.select(dir, "pinyin")
 
         val text = File(dir, "wanxiang.custom.yaml").readText()
@@ -192,7 +202,18 @@ class RimeInputTypesRepositoryTest {
     }
 
     @Test fun nestedBlockEnabledListIsRewrittenInPlace() {
-        val dir = user(customText = "patch:\n  input_types:\n    enabled:\n      - zrm\n    reset: zrm\n  menu/page_size: 6\n")
+        val dir = user(
+            customText = "patch:\n" +
+                "  input_types:\n" +
+                "    options:\n" +
+                "      - {option: pinyin, label: 全拼}\n" +
+                "      - {option: zrm, label: 自然码}\n" +
+                "      - {option: flypy, label: 小鹤双拼}\n" +
+                "    enabled:\n" +
+                "      - zrm\n" +
+                "    reset: zrm\n" +
+                "  menu/page_size: 6\n"
+        )
         RimeInputTypesRepository.select(dir, "pinyin")
 
         val text = File(dir, "wanxiang.custom.yaml").readText()
@@ -241,6 +262,56 @@ class RimeInputTypesRepositoryTest {
         val selected = RimeInputTypesRepository.select(dir, "zrm")
         assertEquals(listOf("removed_pinyin", "zrm", "flypy"), selected.types.map { it.option })
         assertTrue(File(dir, "wanxiang.custom.yaml").readText().contains("input_types/options/@0/option: removed_pinyin"))
+    }
+
+    @Test fun wholeGroupPatchIsAppliedBeforeChildPaths() {
+        // Rime sorts patch keys: "input_types" precedes "input_types/options/@0/option".
+        // The group replaces the schema block first, then the child path edits its options.
+        val dir = user(
+            customText = "patch:\n" +
+                "  input_types/options/@0/option: removed_pinyin\n" +
+                "  input_types:\n" +
+                "    enabled: [zrm]\n" +
+                "    reset: zrm\n" +
+                "    options:\n" +
+                "      - {option: pinyin, label: 全拼}\n" +
+                "      - {option: zrm, label: 自然码}\n"
+        )
+        val types = requireNotNull(RimeInputTypesRepository.read(dir))
+        assertEquals(listOf("removed_pinyin", "zrm"), types.types.map { it.option })
+        assertEquals(listOf("zrm"), types.enabled)
+        assertEquals("zrm", types.reset)
+        assertEquals("自然码", types.summary())
+    }
+
+    @Test fun wholeGroupPatchWithoutResetFallsBackToTheFirstEnabledType() {
+        val dir = user(
+            customText = "patch:\n" +
+                "  input_types:\n" +
+                "    enabled: [flypy]\n" +
+                "    options:\n" +
+                "      - {option: pinyin, label: 全拼}\n" +
+                "      - {option: flypy, label: 小鹤双拼}\n"
+        )
+        val types = requireNotNull(RimeInputTypesRepository.read(dir))
+        assertEquals(listOf("flypy"), types.enabled)
+        assertNull(types.reset)
+        assertEquals("小鹤双拼", types.current?.label)
+        assertEquals("小鹤双拼", types.summary())
+    }
+
+    @Test fun missingEnabledListMeansEveryDeclaredTypeIsUsable() {
+        val dir = user(
+            customText = "patch:\n" +
+                "  input_types:\n" +
+                "    options:\n" +
+                "      - {option: pinyin, label: 全拼}\n" +
+                "      - {option: zrm, label: 自然码}\n"
+        )
+        val types = requireNotNull(RimeInputTypesRepository.read(dir))
+        assertEquals(listOf("pinyin", "zrm"), types.enabled)
+        assertNull(types.reset)
+        assertEquals("全拼", types.current?.label)
     }
 
     @Test fun sameIndentBlockEnabledListIsRewritten() {
