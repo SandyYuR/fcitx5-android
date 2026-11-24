@@ -105,6 +105,7 @@ const maintenance = [
     { text: '对照索引', link: '/maintainer/changes/' },
     { text: '最新：11-16～11-22 提交对照', link: '/maintainer/changes/2026-11-22-code-doc-gap-review' },
     { text: '2026-11', collapsed: true, items: [
+        { text: '日志系统与紧凑界面 · 2026-11-24', link: '/maintainer/changes/2026-11-24-log-ui-compact' },
       { text: '网页编辑器源码对齐 · 2026-11-21', link: '/maintainer/changes/2026-11-21-web-editor-parity' },
       { text: 'MacroKey 应用动作入口 · 2026-11-21', link: '/maintainer/changes/2026-11-21-macrokey-app-actions' },
       { text: '默认分支按 ABI 发布 · 2026-11-20', link: '/maintainer/changes/2026-11-20-ci-three-abi-release' },
