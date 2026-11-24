@@ -1030,6 +1030,8 @@
     <string name="settings_home_category_rime_engine">中州韻引擎</string>
     <string name="settings_home_rime_engine_summary">輸入方案、部署與使用者詞典</string>
     <string name="settings_home_rime_scheme_updates_summary">萬象更新與自訂方案更新</string>
+    <string name="allow_ime_in_password_fields">允許在密碼欄中使用輸入法</string>
+    <string name="allow_ime_in_password_fields_summary">密碼欄也交給 Rime 處理；在密碼欄輸入時，使用者詞學習、輸入統計與語音輸入仍會關閉。</string>
     <string name="settings_home_category_daily">日常調整</string>
     <string name="settings_home_category_more">按需進入</string>
     <string name="settings_group_input">輸入與候選</string>

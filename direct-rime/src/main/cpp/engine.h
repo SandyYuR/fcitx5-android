@@ -58,6 +58,9 @@ public:
     // up, down, reset, pin. Empty when the schema does not load such a processor.
     std::vector<std::string> sequenceKeys();
     std::string schemaSelection();
+    // Schema activated for a new session; falls back to the first enabled schema when no
+    // input session exists yet (for example, while the settings page is open).
+    std::string currentSchema();
     bool selectSchemas(const std::vector<std::string>& ids);
     bool sync();
     std::vector<std::string> candidates(int64_t generation, int offset, int limit);

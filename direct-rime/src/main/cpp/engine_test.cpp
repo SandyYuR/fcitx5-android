@@ -274,6 +274,7 @@ void testFrontendExtensions() {
     auto value = engine.begin(1, "editor");
     CHECK(engine.schemaEntries() == std::vector<std::string>({"test", "Test"}));
     CHECK(engine.schemaSelection().empty()); // Levers is optional, including on a shorter API.
+    CHECK(engine.currentSchema() == "test"); // No get_current_schema: fall back to the first schema list entry.
     auto words = engine.candidates(1, 1, 10);
     CHECK(words.size() == 6 && words[0] == "词😀" && words[1] == "注释" && f.freedIterator == 1);
     CHECK(engine.candidates(1, -1, 10).empty() && engine.candidates(1, 0, 257).empty());
@@ -758,7 +759,9 @@ void testUsableDeploymentWarning() {
     fs::create_directories(shared); fs::create_directories(build);
     // Compiled-only output survives the forced-check invalidation because no source
     // file shadows it; it stands in for the workspace a partial deployment produced.
+    // Both the workspace manifest and the active schema's compiled YAML must exist.
     std::ofstream(build / "default.yaml") << "keep data";
+    std::ofstream(build / "test.schema.yaml") << "keep data";
     f = {}; auto a = api(); Engine engine(&a);
     f.failDeploy = true;
     engine.start(shared.string(), user.string(), "development", true);
@@ -776,6 +779,17 @@ void testUsableDeploymentWarning() {
         rejectedStart = std::strcmp(error.what(), "部署失败，请检查方案文件后重新部署") == 0;
     }
     CHECK(rejectedStart);
+    // The workspace manifest alone does not prove the active schema compiled.
+    f = {}; auto c = api(); Engine partial(&c); f.failDeploy = true;
+    const fs::path partialUser = root / "partial", partialBuild = partialUser / "build";
+    fs::create_directories(partialBuild);
+    std::ofstream(partialBuild / "default.yaml") << "keep data";
+    bool partialRejected = false;
+    try { partial.start(shared.string(), partialUser.string(), "development", true); }
+    catch (const std::runtime_error& error) {
+        partialRejected = std::strcmp(error.what(), "部署失败，请检查方案文件后重新部署") == 0;
+    }
+    CHECK(partialRejected);
 }
 }
 int main(int argc, char** argv) {

@@ -787,6 +787,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
         return onOwner { when(path) {
             "profile-manager" -> config.directoryState()
             "schema-selector" -> RawConfig(arrayOf(RawConfig("Items", if (started) Native.schemaSelection() else "")))
+            // The schema a new session would use; settings pages must read the scheme files
+            // belonging to it instead of assuming the fixed Wanxiang file names.
+            "current-schema" -> RawConfig(arrayOf(RawConfig("Schema", if (started) Native.currentSchema() else "")))
             else -> RawConfig()
         } }
     }

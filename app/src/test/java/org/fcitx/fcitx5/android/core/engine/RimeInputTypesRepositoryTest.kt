@@ -43,7 +43,7 @@ class RimeInputTypesRepositoryTest {
     """.trimIndent() + "\n"
 
     private fun user(schemaText: String = schema, customText: String? = custom): File {
-        val dir = temp.newFolder("rime-user")
+        val dir = temp.newFolder()
         File(dir, "wanxiang.schema.yaml").writeText(schemaText)
         if (customText != null) File(dir, "wanxiang.custom.yaml").writeText(customText)
         return dir
@@ -51,7 +51,7 @@ class RimeInputTypesRepositoryTest {
 
     private fun scalar(node: org.yaml.snakeyaml.nodes.Node?) = (node as ScalarNode).value
 
-    private fun patchInputTypes(file: File): Pair<List<String>, String?> {
+    private fun patchInputTypes(file: File = File(temp.root, "wanxiang.custom.yaml")): Pair<List<String>, String?> {
         val yaml = WanxiangYaml()
         val root = yaml.document(file.readText())
         val patch = yaml.member(root, "patch") as MappingNode
@@ -146,5 +146,74 @@ class RimeInputTypesRepositoryTest {
         val file = File(dir, "wanxiang.custom.yaml")
         assertTrue(file.isFile)
         assertEquals(listOf("zrm") to "zrm", patchInputTypes(file))
+    }
+
+    @Test fun readBindsToTheActiveSchemaInsteadOfTheFirstFile() {
+        val dir = user()
+        File(dir, "english.schema.yaml").writeText(
+            schema.replace("wanxiang", "english").replace("自然码", "英文自然码")
+        )
+        File(dir, "english.custom.yaml").writeText("patch:\n  input_types/enabled: [flypy]\n  input_types/reset: flypy\n")
+
+        val english = requireNotNull(RimeInputTypesRepository.read(dir, "english"))
+        assertEquals("english", english.schemaId)
+        assertEquals("小鹤双拼", english.summary())
+        assertEquals(listOf("flypy"), english.enabled)
+        assertEquals("english.custom.yaml", english.customFile.name)
+
+        // An id that is not a plain schema file name never escapes the user directory.
+        assertNull(RimeInputTypesRepository.read(dir, "../wanxiang"))
+    }
+
+    @Test fun selectWritesTheCustomFileOfTheActiveSchemaOnly() {
+        val dir = user()
+        File(dir, "english.schema.yaml").writeText(
+            schema.replace("wanxiang", "english").replace("自然码", "英文自然码")
+        )
+        val wanxiangCustom = File(dir, "wanxiang.custom.yaml")
+        val before = wanxiangCustom.readText()
+
+        val state = RimeInputTypesRepository.select(dir, "pinyin", "english")
+        assertEquals("english", state.schemaId)
+        assertEquals(listOf("pinyin"), state.enabled)
+        assertTrue(before == wanxiangCustom.readText())
+        assertEquals(listOf("pinyin") to "pinyin", patchInputTypes(File(dir, "english.custom.yaml")))
+    }
+
+    @Test fun patchHeaderWithATrailingCommentAndBlockEnabledListIsRewritten() {
+        val dir = user(customText = "patch: # user patches\n  input_types/enabled:\n    - zrm\n  input_types/reset: zrm\n")
+        RimeInputTypesRepository.select(dir, "flypy")
+
+        val file = File(dir, "wanxiang.custom.yaml")
+        val text = file.readText()
+        assertTrue(text.contains("patch: # user patches"))
+        assertTrue(!text.contains("- zrm"))
+        assertEquals(listOf("flypy") to "flypy", patchInputTypes(file))
+    }
+
+    @Test fun nestedBlockEnabledListIsRewrittenInPlace() {
+        val dir = user(customText = "patch:\n  input_types:\n    enabled:\n      - zrm\n    reset: zrm\n  menu/page_size: 6\n")
+        RimeInputTypesRepository.select(dir, "pinyin")
+
+        val text = File(dir, "wanxiang.custom.yaml").readText()
+        assertTrue(!text.contains("- zrm"))
+        val yaml = WanxiangYaml()
+        val patch = yaml.member(yaml.document(text), "patch") as MappingNode
+        val group = yaml.member(patch, "input_types") as MappingNode
+        assertEquals(listOf("pinyin"), (yaml.member(group, "enabled") as SequenceNode).value.map { (it as ScalarNode).value })
+        assertEquals("pinyin", scalar(yaml.member(group, "reset")))
+    }
+
+    @Test fun ambiguousOrDuplicatePatchFormsFailWithoutTouchingTheFile() {
+        val ambiguous = user(
+            customText = "patch:\n  input_types:\n    enabled: [zrm]\n    reset: zrm\n  input_types/enabled: [zrm]\n"
+        )
+        val file = File(ambiguous, "wanxiang.custom.yaml")
+        val before = file.readText()
+        assertTrue(runCatching { RimeInputTypesRepository.select(ambiguous, "pinyin") }.isFailure)
+        assertEquals(before, file.readText())
+
+        val duplicate = user(customText = "patch:\n  input_types/reset: zrm\n  input_types/reset: zrm\n")
+        assertTrue(runCatching { RimeInputTypesRepository.select(duplicate, "pinyin") }.isFailure)
     }
 }

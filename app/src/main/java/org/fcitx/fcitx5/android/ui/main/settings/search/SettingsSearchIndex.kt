@@ -271,8 +271,7 @@ object SettingsSearchIndex {
         R.string.navbar_background to "navbar_background",
         R.string.follow_system_day_night_theme to "follow_system_dark_mode",
         R.string.light_mode_theme to "light_mode_theme",
-        R.string.dark_mode_theme to "dark_mode_theme",
-        R.string.rime_input_types to "rime_input_types"
+        R.string.dark_mode_theme to "dark_mode_theme"
     )
 
     /**
@@ -322,7 +321,10 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.rime_input_types, P_RIME,
             listOf("input types", "输入类型", "双拼", "自然码", "小鹤", "输入方案", "prisms"),
-            route = rimeRoute(context)
+            route = rimeRoute(context),
+            // Not a SharedPreferences key: it is synthesized by InputMethodConfigFragment, so it
+            // must not go through PREFERENCE_KEYS (whose values must exist in the prefs sources).
+            preferenceKey = "rime_input_types"
         ),
         SettingsSearchEntry(
             R.string.wanxiang_group, P_RIME,
@@ -1077,9 +1079,9 @@ object SettingsSearchIndex {
             route = SettingsRoute.RimeSchemeUpdates
         ),
         SettingsSearchEntry(
-            R.string.wanxiang_advanced, P_DATA,
+            R.string.wanxiang_advanced, P_SCHEME,
             listOf("wanxiang settings", "万象高级设置", "拼写方案", "辅助码", "模糊音", "万象补丁"),
-            route = SettingsRoute.DataBackup
+            activityClass = org.fcitx.fcitx5.android.ui.main.wanxiang.WanxiangAdvancedActivity::class.java
         ),
 
         /* ===== Android：高级 ===== */

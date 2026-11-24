@@ -564,18 +564,25 @@ bool Engine::deploymentDegraded() const {
     return deployDegraded_.load();
 }
 bool Engine::deploymentUsable() {
-    // Match the contract other Rime frontends rely on: a deployment that finished the
-    // workspace update produced build/default.yaml. Require at least one loadable schema so
-    // an empty or completely broken result still fails closed.
+    // Foxy only checks that build/default.yaml exists. That is necessary but not enough: a
+    // workspace whose active schema has no compiled YAML cannot serve input either, so a
+    // failed task is downgraded to a warning only when both the workspace manifest and the
+    // first (initially active) schema's compiled output are present and non-empty.
     std::error_code ec;
     const auto build = std::filesystem::path(user_) / "build";
     if (!std::filesystem::is_regular_file(build / "default.yaml", ec)) return false;
-    if (!api_ || !started_) return false;
+    if (!api_ || !started_ || api_->is_maintenance_mode()) return false;
     RimeSchemaList list{};
     if (!api_->get_schema_list(&list)) return false;
-    const bool usable = list.size > 0;
-    api_->free_schema_list(&list);
-    return usable;
+    ScopeExit cleanup([&] { api_->free_schema_list(&list); });
+    if (list.size == 0) return false;
+    const auto schema = safe(list.list[0].schema_id);
+    // Never join a schema id containing separators or traversal segments to the build path.
+    if (schema.empty() || schema == "." || schema == ".." ||
+        schema.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") != std::string::npos)
+        return false;
+    const auto compiled = build / (schema + ".schema.yaml");
+    return std::filesystem::is_regular_file(compiled, ec) && std::filesystem::file_size(compiled, ec) > 0;
 }
 void Engine::acceptUsableDeployment() {
     if (!deployFailed_.load() || !deploymentUsable()) return;
@@ -770,6 +777,21 @@ std::string Engine::schemaSelection() {
         }
     }
     return result.str();
+}
+std::string Engine::currentSchema() {
+    owner();
+    if (started_ && !api_->is_maintenance_mode() && session_ && api_->find_session(session_) &&
+        RIME_API_AVAILABLE(api_, get_current_schema)) {
+        char schema[1024]{};
+        if (api_->get_current_schema(session_, schema, sizeof(schema))) return safe(schema);
+    }
+    // Settings can be opened before any editor created a session. librime then activates the
+    // first schema of schema_list, which is also the first entry get_schema_list returns.
+    if (!started_ || api_->is_maintenance_mode()) return {};
+    RimeSchemaList list{};
+    if (!api_->get_schema_list(&list)) return {};
+    ScopeExit cleanup([&] { api_->free_schema_list(&list); });
+    return list.size > 0 ? safe(list.list[0].schema_id) : std::string();
 }
 bool Engine::selectSchemas(const std::vector<std::string>& ids) {
     owner();

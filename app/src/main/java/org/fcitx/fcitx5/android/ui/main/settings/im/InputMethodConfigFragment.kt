@@ -10,9 +10,12 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.DirectRimeConfig
 import org.fcitx.fcitx5.android.core.DirectRimeStatusMenu
@@ -36,9 +39,25 @@ import timber.log.Timber
 class InputMethodConfigFragment : FcitxPreferenceFragment() {
     val args by lazyRoute<SettingsRoute.InputMethodConfig>()
 
+    /** Schema the engine is actually running, read when the page is created. */
+    private var activeSchema: String? = null
+
     override fun getPageTitle(): String = args.name
 
     override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig {
+        if (args.uniqueName == RIME_UNIQUE_NAME) {
+            // input_types lives in the schema, so bind this page to the schema the engine runs
+            // instead of guessing a file name from the directory listing.
+            activeSchema = try {
+                fcitx.getAddonSubConfig("rime", "current-schema")
+                    .findByName("Schema")?.value?.takeIf { it.isNotBlank() }
+            } catch (c: CancellationException) {
+                throw c
+            } catch (e: Exception) {
+                Timber.w(e, "Failed to read the active schema")
+                null
+            }
+        }
         return fcitx.getImConfig(args.uniqueName)
     }
 
@@ -86,7 +105,14 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
 
     private suspend fun refreshInputTypes(preference: Preference, appContext: Context) {
         val loaded = withContext(Dispatchers.IO) {
-            runCatching { loadInputTypes(appContext) }.getOrNull()
+            try {
+                loadInputTypes(appContext)
+            } catch (c: CancellationException) {
+                throw c
+            } catch (e: Exception) {
+                Timber.w(e, "Failed to load input types")
+                null
+            }
         }
         if (!isAdded) return
         val types = loaded?.types
@@ -117,7 +143,11 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
         val config = DirectRimeConfig(appContext)
         config.load()
         val user = repository.activeExternalProfile()?.let(config::profileDir) ?: config.user
-        return Availability(evo = true, types = RimeInputTypesRepository.read(user), user = user)
+        return Availability(
+            evo = true,
+            types = RimeInputTypesRepository.read(user, activeSchema),
+            user = user
+        )
     }
 
     private fun showInputTypeDialog(types: RimeInputTypes, user: File) {
@@ -129,7 +159,7 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
                 dialog.dismiss()
                 val option = types.types[which].option
                 if (option != types.current?.option) {
-                    switchInputType(option, user)
+                    switchInputType(option, user, types.schemaId)
                 }
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -137,44 +167,77 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
     }
 
     /** Persists the choice, switches the running option, then redeploys so prisms match. */
-    private fun switchInputType(option: String, user: File) {
+    private fun switchInputType(option: String, user: File, schemaId: String?) {
         val preference = findPreference<Preference>(KEY_INPUT_TYPES) ?: return
         val ctx = requireContext()
+        val app = ctx.applicationContext as FcitxApplication
         preference.isEnabled = false
         lifecycleScope.withLoadingDialog(
             ctx, R.string.rime_input_types_switching
         ) {
-            val written = runCatching {
-                withContext(Dispatchers.IO) { RimeInputTypesRepository.select(user, option) }
-            }
-            written.onSuccess { state ->
-                preference.setSummary(state.summary())
-                val engineError = runCatching {
-                    val name = "settings-input-type-${System.nanoTime()}"
-                    try {
-                        FcitxDaemon.connect(name).runOnReady {
-                            setRimeOption(option, true)
-                            activateAction(DirectRimeStatusMenu.DEPLOY_ID)
-                        }
-                    } finally {
-                        FcitxDaemon.disconnect(name)
+            // The transaction is owned by the application scope: leaving this page may stop the
+            // progress dialog, but must not leave the file written and the engine not switched.
+            val outcome = app.coroutineScope.async(Dispatchers.IO) {
+                performInputTypeSwitch(option, user, schemaId)
+            }.await()
+            withContext(Dispatchers.Main) {
+                when {
+                    outcome.persistError != null -> {
+                        Timber.w(outcome.persistError, "Failed to persist input type $option")
+                        if (isAdded) ctx.toast(R.string.rime_input_types_failed)
                     }
-                }.exceptionOrNull()
-                if (engineError == null) {
-                    ctx.toast(R.string.rime_input_types_switched)
-                } else {
-                    Timber.w(engineError, "Failed to redeploy after switching to $option")
-                    ctx.toast(R.string.rime_input_types_saved)
+                    outcome.engineError != null -> {
+                        Timber.w(outcome.engineError, "Failed to redeploy after switching to $option")
+                        if (isAdded) ctx.toast(R.string.rime_input_types_saved)
+                    }
+                    else -> if (isAdded) ctx.toast(R.string.rime_input_types_switched)
                 }
-            }.onFailure {
-                Timber.w(it, "Failed to persist input type $option")
-                ctx.toast(R.string.rime_input_types_failed)
+                if (isAdded) {
+                    outcome.state?.let { preference.setSummary(it.summary()) }
+                    refreshInputTypes(preference, requireContext().applicationContext)
+                }
             }
-            if (isAdded) refreshInputTypes(preference, requireContext().applicationContext)
         }
     }
 
+    private suspend fun performInputTypeSwitch(
+        option: String, user: File, schemaId: String?
+    ): SwitchOutcome {
+        val state = try {
+            withContext(Dispatchers.IO) {
+                RimeInputTypesRepository.select(user, option, schemaId)
+            }
+        } catch (c: CancellationException) {
+            throw c
+        } catch (e: Exception) {
+            return SwitchOutcome(state = null, engineError = null, persistError = e)
+        }
+        val engineError = try {
+            val name = "settings-input-type-${System.nanoTime()}"
+            try {
+                FcitxDaemon.connect(name).runOnReady {
+                    setRimeOption(option, true)
+                    activateAction(DirectRimeStatusMenu.DEPLOY_ID)
+                }
+            } finally {
+                FcitxDaemon.disconnect(name)
+            }
+            null
+        } catch (c: CancellationException) {
+            throw c
+        } catch (e: Exception) {
+            e
+        }
+        return SwitchOutcome(state, engineError, null)
+    }
+
     private data class Availability(val evo: Boolean, val types: RimeInputTypes?, val user: File)
+
+    private data class SwitchOutcome(
+        val state: RimeInputTypes?,
+        val engineError: Throwable?,
+        val persistError: Throwable?
+    )
 
     companion object {
         private const val RIME_UNIQUE_NAME = "rime"
@@ -184,13 +247,18 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
 }
 
 /**
- * Inserts [preference] directly after [anchor], keeping the engine-provided order intact.
+ * Inserts [preference] directly after [anchor].
  *
  * [PreferenceGroup.addPreference] places a child by [Preference.compareTo]: order first, then
- * title. Engine-provided entries carry increasing orders, so taking the anchor's order makes the
- * new entry sort right after it while everything that follows keeps its own order.
+ * title. Engine-provided orders are not guaranteed to be contiguous, so renumber the children
+ * with gaps and give [preference] an odd order inside the gap; sorted order then puts it exactly
+ * after [anchor] regardless of the titles.
  */
 private fun PreferenceGroup.insertAfter(anchor: Preference, preference: Preference) {
-    preference.order = anchor.order
+    val children = (0 until preferenceCount).mapNotNull { getPreference(it) }
+    val index = children.indexOf(anchor)
+    require(index >= 0) { "anchor ${anchor.key} is not a child of this group" }
+    children.forEachIndexed { i, child -> child.order = i * 2 }
+    preference.order = index * 2 + 1
     addPreference(preference)
 }
