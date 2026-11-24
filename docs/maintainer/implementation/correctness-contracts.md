@@ -37,7 +37,7 @@
 | DOWN 必须有兜底 UP；focus 不覆盖显式 inactive binding | `focus` / `deactivate`、`KeyboardInputLifecycleTrackerTest` |
 | 临时线程优先级必须恢复；提升失败不拒键 | `core/InteractiveThreadPriority.kt` |
 
-无方案时，密码/直接输入绑定仍允许通过同一按键门控转发 DOWN/UP；普通 Rime 编辑器不能因此获得“可用”状态。密码框是否进入 Rime 由「中州韵设置 → 允许在密码框中使用输入法」决定：默认关闭时沿用上述直录转发；开启后按普通编辑器建立绑定，但仍保留 `noLearning`、统计排除与语音按钮过滤，敏感会话隔离不取消。维护、过期和部署失败状态继续拒绝输入。`Native.beginInput` 内的会话创建、方案/开关恢复与首次状态发布都属于同步绑定阶段，保持交互线程优先级，失败时也必须恢复原优先级。回归入口是 `InputBindingStartupTest`。
+无方案时，密码/直接输入绑定仍允许通过同一按键门控转发 DOWN/UP；普通 Rime 编辑器不能因此获得“可用”状态。密码框是否进入 Rime 由「中州韵引擎 → 中州韵引擎设置 → 允许在密码框中使用输入法」决定：默认关闭时沿用上述直录转发；开启后按普通编辑器建立绑定，但仍保留 `noLearning`、统计排除与语音按钮过滤，敏感会话隔离不取消。维护、过期和部署失败状态继续拒绝输入。`Native.beginInput` 内的会话创建、方案/开关恢复与首次状态发布都属于同步绑定阶段，保持交互线程优先级，失败时也必须恢复原优先级。回归入口是 `InputBindingStartupTest`。
 
 新会话的方案与 `ascii_mode` 直接采用 `Native.beginInput` 返回的快照，不能用上一编辑器发布的状态再次调用 `select_schema` 或 `set_option`。方案的 `reset`、已保存的开关值和 `switcher/fix_schema_list_order` 均由 librime 决定；临时西文状态不能由前端回放到下一应用。同应用普通编辑器的 native 会话复用仍保留其实际状态，跨应用与敏感边界创建新会话。真实引擎回归入口是 `DirectRimeFrontendTest.newSessionsRespectRimeAsciiReset`、`newSessionsRespectRimeSchemaOrder`、`newSessionsKeepRimeSavedAscii`、`newSessionsKeepRimeRecentSchema` 与 `newApplicationDoesNotInheritInlineAscii`。
 
@@ -183,9 +183,21 @@ rename／delete 先检查 profile 未被引用。活动 profile 的 rename 首�
 
 目标槽以可恢复异常加载或部署失败时，事务先写入 `activationFailed`，再在同一 owner 上启动仍保留的先前／回退槽；恢复成功后重建方案与当前输入绑定，旧 composition、commit 和切换期间的按键不得重放。目标执行原生代码时崩溃、停止或启动超时、回退槽也失败时才允许进程级看门狗结束进程；未清除的守卫使下次进程继续回退，最坏回到内置引擎。外部引擎、授权或绑定目录在稳定运行后失效，也要写入回退原因并按保存的回退链处理。
 
+### EVO 部署降级
+
+`Engine::deploy()`／`start()` 收到 `deploy/failure` 不得改写成成功，也不得忽略失败通知。应用侧把“部署任务失败”和“当前工作区可用”分开判定：只有 `<user>/build/default.yaml` 是普通文件、`get_schema_list` 非空、当前方案的 `build/<schema>.schema.yaml` 非空，且当前方案 `translator/dictionary` 对应 `build/<dict>.table.bin` 与 `build/<prism>.prism.bin` 都存在且非空，才可清除 `deployFailed_` 并置 `deployDegraded_`；任一条件不满足继续失败关闭。主 prism 按方案解析：优先 `translator/prism`；`translator/prisms` 引用 `input_types` 时按当前输入类型取对应 `name`，列表形式取首项；两者都未声明时使用 `build/dictionaries/<dict>/algebra` 的首个分组。显式名称优先限定为 `<dict>.<prism>`。没有活动会话时，按 `switcher/fix_schema_list_order` 和 `user.yaml` 的 `previously_selected_schema` 选择当前方案；命中的方案必须在 `get_schema_list` 中。引擎 API 不完整时退回 YAML 与文件检查。
+
+`gate()` 仍以 `deployFailed_` 为准；降级只解除输入门禁，不等于部署成功、方案完整、词典全部编译或模型能力可用。日志、缺失文件和失败通知保持原样，不自动补文件。回归 `engine_test.cc` 的可用性用例（主词典、主 prism 解析、`input_types/reset`、`enabled/@0`、`fix_schema_list_order` 与缺文件拒绝）和 `RimeEngineVariantDeviceTest` 的原样方案部署。
+
+### EVO 输入类型
+
+输入类型只从当前方案 `input_types/options` 读取，不另存本地状态；`*.custom.yaml` 的 patch 按 Rime 的键排序与整组替换语义应用：平铺 `input_types/enabled` 只改该子键，整组 `input_types` 会替换整个组，因此需重述 `options`。合并后过滤未知项；`enabled` 缺失视为全部声明选项，`reset` 必须属于 `enabled`。按钮只在方案声明 `input_types` 时出现，只有 `RimeEvoEngines.isEvo(state)` 为真时可编辑，非 EVO 仅展示并置灰说明。当前类型优先取 `reset`，否则取 `enabled` 首项；选项按 `label` 显示。
+
+写入前重新核对当前引擎仍是 EVO，且当前工作目录与活动引擎绑定目录 canonical 相等。只改当前方案 `*.custom.yaml` 的 `input_types/enabled` 与 `input_types/reset`，保留注释、键序、换行和其他键；使用原子写并做结构化校验。仅当前运行该 schema 时调用 `set_option(option, true)`，其他方案在下一次激活时由 `reset` 生效，随后重新部署。保存成功但部署失败不回滚已落盘的类型；写入失败不得改文件。回归 `RimeInputTypesRepositoryTest`、`PluginSettingsUiTest`、`SettingsEntryNavigationTest`、`SettingsSearchIndexCoverageTest` 与设备方案行实际切换。
+
 导入暂存只属于当前 Activity 和当前两次确认流程，不跨配置重建恢复。每个 Activity 使用独立 token 子目录；创建时只回收当前进程没有登记为活动的旧 token，销毁时无条件删除自己的暂存。主题、语言、旋转或系统配置导致重建时，旧确认流程取消，用户必须重新选择文件。不能让一个页面实例删除另一个仍在确认的文件，也不能为恢复对话框而让尚未完成第二次授权的代码文件跨 Activity 生命周期存活。
 
-相关回归包括 `RimeEngineElfTest`、`RimeEngineStoreTest`、`RimeEngineProbeServiceTest`、设置搜索覆盖，以及 `RimeEngineVariantDeviceTest` 的真实 DSO/provider 探测、部署、候选上屏和进程内停止重启。方案测试必须区分 API 探测通过、引擎加载失败、方案编译错误与缺失模型；修补过的测试夹具不能表述成原上游方案已经无错误。
+相关回归包括 `RimeEngineElfTest`、`RimeEngineStoreTest`、`RimeEngineProbeServiceTest`、`RimeInputTypesRepositoryTest`、`SettingsSearchIndexCoverageTest`、设置搜索覆盖，以及 `RimeEngineVariantDeviceTest` 的真实 DSO/provider 探测、部署、候选上屏和进程内停止重启。方案测试必须区分 API 探测通过、引擎加载失败、方案编译错误与缺失模型；修补过的测试夹具不能表述成原上游方案已经无错误。
 
 ### 引擎运行协调
 

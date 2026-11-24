@@ -26,9 +26,9 @@ const start = [{ text: '开始使用', items: [
 const features = [
   { text: '功能地图', items: [
     { text: '全部现有功能', link: '/features/overview' },
-    { text: 'Rime 方案、部署与同步', link: '/features/rime-enhancements' },
-    { text: 'Rime 引擎变体', link: '/features/rime-engine-variants' },
-    { text: 'Rime 方案更新', link: '/features/rime-scheme-updates' },
+    { text: '中州韵引擎设置', link: '/features/rime-enhancements' },
+    { text: '中州韵引擎变体', link: '/features/rime-engine-variants' },
+    { text: '中州韵方案更新', link: '/features/rime-scheme-updates' },
     { text: '符号、表情与颜文字', link: '/features/symbol-panel' },
   ] },
   { text: '键盘与输入', collapsed: false, items: [
@@ -105,7 +105,9 @@ const maintenance = [
     { text: '对照索引', link: '/maintainer/changes/' },
     { text: '最新：11-16～11-22 提交对照', link: '/maintainer/changes/2026-11-22-code-doc-gap-review' },
     { text: '2026-11', collapsed: true, items: [
-        { text: '日志系统与紧凑界面 · 2026-11-24', link: '/maintainer/changes/2026-11-24-log-ui-compact' },
+      { text: 'EVO 引擎设置与降级部署 · 2026-11-24', link: '/maintainer/changes/2026-11-24-evo-settings-degraded-deploy' },
+      { text: '日志系统与紧凑界面 · 2026-11-24', link: '/maintainer/changes/2026-11-24-log-ui-compact' },
+      { text: 'EVO Android 构建整理 · 2026-11-23', link: '/maintainer/changes/2026-11-23-evo-android-engine' },
       { text: '网页编辑器源码对齐 · 2026-11-21', link: '/maintainer/changes/2026-11-21-web-editor-parity' },
       { text: 'MacroKey 应用动作入口 · 2026-11-21', link: '/maintainer/changes/2026-11-21-macrokey-app-actions' },
       { text: '默认分支按 ABI 发布 · 2026-11-20', link: '/maintainer/changes/2026-11-20-ci-three-abi-release' },

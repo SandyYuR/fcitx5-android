@@ -10,7 +10,7 @@
 | 内置 Rime 引擎 | 直接调用 librime，无需安装 Rime 引擎插件 APK；中文方案、完整词典与模型需自行导入 | [方案与部署](/features/rime-enhancements) |
 | 方案 ZIP 与数据目录 | 将完整方案导入应用目录或可访问的外部目录，管理多个独立工作目录 | [用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN#导入方案与万象) |
 | 万象更新与高级设置 | 仅万象用户：更新当前目录的方案、词库与模型，以补丁或直写模式编辑配置草稿 | [万象更新](/features/rime-scheme-updates#万象方案更新与高级设置) |
-| Rime 自定义更新 | 在“Rime方案更新”分组配置网络或本地资源任务，按子目录、排除规则单项或批量更新 | [自定义方案更新](/features/rime-scheme-updates#自定义方案更新) |
+| 中州韵方案更新 | 在设置首页「中州韵引擎」的「中州韵方案更新」中配置万象更新或自定义更新，按子目录、排除规则单项或批量更新 | [中州韵方案更新](/features/rime-scheme-updates) |
 | 语言、方案与开关 | 语言键短按交给方案切换中英文，长按打开方案菜单；状态区管理分组开关 | [语言键](/features/keys/language-key) |
 | 候选栏与窗口 | 调整字体、注释、序号、间距和圆角；长候选可横向浏览，展开候选与浮动窗口分别配置；浮动窗口可跟随光标，实体键盘另设位置 | [候选指南](/features/candidate-window) |
 | 选词与退格手势 | 按住候选后滑动选字或打开菜单；万象拼音可手动置顶或前后移动候选；合成中长按退格上滑只清编码，正文单独处理 | [Rime 功能](/features/rime-enhancements) · [手动排序](/features/candidate-window#万象拼音手动排序) · [退格键](/features/keys/backspace-key) |

@@ -89,7 +89,7 @@ Android 构建的依赖版本以 `sources.lock.json` 为准，不能只改 libri
 
 提供 APK 的证书读取遵循系统版本：API 33 及以上使用 `PackageInfoFlags` 重载，API 28–32 使用整数 flags 的 `GET_SIGNING_CERTIFICATES`，两者都取 `SigningInfo.apkContentsSigners` 当前证书；API 27 及以下使用 `GET_SIGNATURES`。不能把历史签名证书误当作当前授权身份，也不能在 API 28–32 调用 API 33 的新重载。`RimeEnginePluginsTest` 在 API 27、28、32、33 的 Robolectric 运行时中调用真实发现、ELF 校验和再次身份核对，设备加载能力仍由单独回归确认。
 
-每次进程准备使用外部引擎，而不只是首次切换，都会在载荷发布和加载前原子写入启动守卫。显式切换或修改活动引擎绑定时还设置完整部署标志；普通稳定启动不因此无条件重编方案。只有 native 初始化、所需部署和方案刷新成功才清除守卫，未完成的下一次启动按保存的前一引擎回退。外部引擎活动期间，兼容保留的 `profile-manager` 不允许直接切换目录，`import-profile` 也不允许导入并切换；应在引擎变体页修改绑定。任何导入引擎、已授权 provider 或内置回退状态仍引用的 profile 均不得重命名或删除。
+每次进程准备使用外部引擎，而不只是首次切换，都会在载荷发布和加载前原子写入启动守卫。显式切换或修改活动引擎绑定时还设置完整部署标志；普通稳定启动不因此无条件重编方案。只有 native 初始化、所需部署和方案刷新成功才清除守卫，未完成的下一次启动按保存的前一引擎回退。外部引擎活动期间，兼容保留的 `profile-manager` 不允许直接切换目录，`import-profile` 也不允许导入并切换；应在「中州韵引擎变体」页修改绑定。任何导入引擎、已授权 provider 或内置回退状态仍引用的 profile 均不得重命名或删除。
 
 `SandyYuR/librime` 的外置引擎工作流在推送 `zhongzhou` 或 `build/android-engine-*`，且改动命中其 `paths` 列表时自动触发；分支与路径条件须同时满足。也可在 GitHub 网页手动构建：
 
@@ -99,7 +99,13 @@ Android 构建的依赖版本以 `sources.lock.json` 为准，不能只改 libri
 
 仓库默认分支现为 `zhongzhou`，其中的 `android-engine.yml` 已声明 `workflow_dispatch`，满足网页手动入口的要求。手动事件不受该文件 `push` 的分支和路径过滤限制。`master` 保留纯官方基线，缺少此工作流和下游构建配方，不能直接选择它构建该外置引擎。
 
-`SandyYuR/librime-evo` 的 `.github/workflows/android-engine.yml` 是另一份完整示例：从固定源码和依赖构建 ARM64 自包含 DSO，检查 ELF、导出和摘要，再把同一字节载荷封装为提供 APK。工作流分别上传 `.so` 与 APK artifact；只有 `main` 分支的非 PR 构建且四个 `ANDROID_ENGINE_*` Secrets 齐备时使用稳定发行签名。未配置 keystore，或属于非 `main`／PR 构建时，生成本次运行专用的测试签名；已进入发行签名分支但其余凭据不完整时，构建会终止。方案兼容仍需单独设备验证，构建成功不代表任意 YAML、词典或模型完整。
+`SandyYuR/librime-evo` 的 [android-engine.yml](https://github.com/SandyYuR/librime-evo/actions/workflows/android-engine.yml) 是另一份完整示例。默认工作分支 `build/android-engine-variants` 以 amzxyz 的 `librime-evo` main 为源码基线，叠加本仓库的 Android 工作流、`downstream/` 配方及独立配置编译失败传播修复；fork 的 `main` 保持上游源码与桌面流程。Lua 插件使用 amzxyz 的 `librime-evo-lua` 并固定 LuaJIT，模型插件使用 amzxyz 的 `librime-evo-octagram`（Evo 整句／前文评分接口与 `.dlm` 格式）。模型属于用户方案，构建只提供引擎能力，不下载或覆盖方案目录中的模型。
+
+手动构建上游 main 时，**Run workflow** 的工作流分支仍选 `build/android-engine-variants`，在 `source_ref` 填 `main`（也可填标签或完整 SHA）。工作流与引擎源码分别检出，`build.py --source-root` 从指定源码 checkout 导出核心并校验模块固定提交；依赖锁和补丁来自配方 checkout。只把工作流执行分支选成 `main` 并不可行，因为该分支没有这套 Android 配方。
+
+自动构建由源码仓库 `main` 的 push 触发：`Commit CI` 成功后，build 分支的 `workflow_run` 构建对应 `head_sha`。工作流核对来源仓库、`head_branch=main`、原事件为 push 且结论 success；失败、PR 或其他仓库的运行不进入。产物清单分别记录引擎提交、源码树与 `android_recipe_commit`，不能只看 APK 文件名判断实际引擎版本。
+
+需要包含部署失败传播修复的构建时，`source_ref` 填 `build/android-engine-variants` 或含修复的完整 SHA；只选 build 作为执行分支、`source_ref` 仍为 `main` 时构建的是纯上游。使用方应按 artifact 名称与 manifest 中实际的引擎 SHA 选择。签名方面，只有工作流执行分支为 `main` 的非 PR 构建且四个 `ANDROID_ENGINE_*` Secrets 齐备时才使用稳定发行签名；未配置 keystore、非 `main`、PR 或手动 `source_ref=main`／`workflow_run` 构建均生成本次运行专用的测试签名，不能原位覆盖已安装的稳定签名包。方案兼容仍需单独设备验证，构建成功不代表任意 YAML、词典或模型完整。
 
 设备门禁的两个 `RimeEngineVariantDeviceTest` 方法必须用两次独立 instrumentation 启动；同一 runner 进程不会卸载第一个 DSO，连续执行会污染第二项。2026-11-12 本机固定的 x86_64 夹具为：内置 SDK 最终链接 DSO SHA-256 `401da5c080b00876e173c9b351c881888f6c0eedc278728aba88ca15df7fabaf`，`librime-evo@8727992e` provider APK SHA-256 `75638150c5d273dc9a497d7b1a91ba51316e1129474cca114e9d7ad59a041f36`，可运行万象 profile ZIP SHA-256 `1bfe7d8652a71977b3cb67aaaefdcd0efc7c71f874c90eb1a615bea968a70788`（方案基线 `45eeda12`）。运行前逐项复核摘要、安装 provider，并把 DSO/ZIP 放到下列固定设备路径；不能用同名未核验文件替代。
 
@@ -129,6 +135,12 @@ adb shell am instrument -w -r \
 从本次部署日志中定位首个 `error applying patch`、`unresolved dependency`、`error building config`，并核对其指向的 `__patch`／`__include` 路径；词典、模型缺失则按明确文件名核对来源和目录。旧编译文件与可枚举的方案名称不能证明本次编译成功。验证错误通知时使用新解压的独立目录，避免旧缓存遮蔽失败，同时检查 `deploy/failure` 与 `deploy/success`，最终仍须输入中文编码并实际选字上屏。
 
 2026-11-12 已在 `librime-evo@06947eedd6236318cbf9a2745e2d0cfc65011af7` 复现：配置 Link 失败、目标编译文件缺失，但维护流程仍发出 `deploy/success`。修复在保留部分解析数据的前提下，将编译结果传给 `ConfigFileUpdate`，并让 `WorkspaceUpdate` 传播默认配置失败；独立设备进程已验证错误通知及自然码诊断包上屏。修复已随 `05037824` 推送至该仓库的开发分支，CI 已生成引擎与提供 APK 产物，但未自动更新设备上的引擎，完整范围见[日期记录](changes/2026-11-12-evo-profile-diagnosis)。上面的 `runnable-v2` 是裁剪过的测试夹具，不代表原始万象 EVO 方案通过。
+
+2026-11-23 的构建整理中，先是 `b456bae` 按用户要求保持 amzxyz 核心、未叠加部署修复 `37a694a`；随后按同一要求把修复恢复到 build 分支并推送 `d7eab4859953a2a7ea701505f1dab652c46b7ef4`。该补丁把配置加载、Link、输出插件和默认配置的失败传播到部署结果，保留已解析的部分数据和重试，但**不补缺失的 `__include`、词典或模型**。用户当时日志实际指向缺少混合编码词典，流程报告失败并回退，不能把传播修复当成补齐文件。上游当前未吸收同等传播；判断可用性须看部署日志、目标编译文件和实际输入，不能只看 `deploy/success`。详见[2026-11-23 记录](changes/2026-11-23-evo-android-engine)。
+
+2026-11-24 应用侧把“部署任务失败”和“当前工作区是否可用”分开判定。收到 `deploy/failure` 后，只有 `<user>/build/default.yaml` 是普通文件、`get_schema_list` 非空、当前方案的 `build/<schema>.schema.yaml` 非空，且 `translator/dictionary` 对应 `build/<dict>.table.bin` 与 `build/<prism>.prism.bin` 都存在且非空，才清除输入门禁并记录降级；任一条件不满足仍失败关闭。主 prism 按方案解析：优先 `translator/prism`；`translator/prisms` 引用 `input_types` 时按当前输入类型取对应 `name`，列表形式取首项；两者都未声明时使用 `build/dictionaries/<dict>/algebra` 的首个分组。显式名称优先限定为 `<dict>.<prism>`。没有活动会话时按 `switcher/fix_schema_list_order` 和 `user.yaml` 的 `previously_selected_schema` 选择当前方案。日志、缺失文件和失败通知不改写，降级不表示方案完整或模型已验证。
+
+设备验证使用 `librime-evo@9d27c24b` 的 x86_64 DSO（SHA-256 `977167F8F977B1230AED7C57B28545D8830346029E09A26D07922D5850E3E2F8`）和原样 EVO 方案 ZIP（含 `wanxiang-lts-zh-hans.dlm`，SHA-256 `2AF5F0A6C3065FAFF958352E38C0B87723EA66ED6E18E9FE3839788805711B86`）。部署仍报 1 failure（缺 `wanxiang_abbrev`、`wanxiang_mixedcode` 包装词典），设备门禁在原样方案上通过，输入 `ni` 出候选并上屏，日志没有 `.dlm` 错误。设置页同时在“启用的输入方案”方案行加入 EVO 输入类型回写，只改当前方案 `*.custom.yaml` 的 `input_types/enabled` 与 `input_types/reset`。完整改动、测试边界和 squash 合并信息见[2026-11-24 记录](changes/2026-11-24-evo-settings-degraded-deploy)。
 
 ## 组件源码在哪里
 
