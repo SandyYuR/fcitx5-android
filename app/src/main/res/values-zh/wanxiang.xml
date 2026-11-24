@@ -17,7 +17,7 @@
     <string name="wanxiang_nothing_changed">没有需要写入的文件</string>
     <string name="wanxiang_nothing_changed_hint">所选文件均被当前保护规则保留，本次未写入文件或重新部署。</string>
     <string name="wanxiang_update">万象更新</string>
-    <string name="wanxiang_group">Rime方案更新</string>
+    <string name="wanxiang_group">中州韵方案更新</string>
     <string name="wanxiang_update_summary">仅适用于万象方案用户，下载更新当前工作目录的方案、词库和模型</string>
     <string name="wanxiang_directory">当前 Rime 工作目录</string>
     <string name="wanxiang_loading_directory">正在读取当前工作目录…</string>

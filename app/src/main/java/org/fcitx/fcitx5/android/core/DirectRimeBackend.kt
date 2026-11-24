@@ -711,6 +711,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
     }
 
+    override suspend fun setRimeOption(name: String, enabled: Boolean): Boolean = onOwner {
+        demandSessionForAction()
+        act(8, if (enabled) 1 else 0, name)?.ready == true
+    }
+
     private suspend fun maintain(refreshAfterOperation: Boolean = true, operation: () -> Unit) =
         maintenanceCoordinator.run(refreshAfterOperation, operation)
     private suspend fun redeploy() = maintain {

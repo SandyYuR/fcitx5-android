@@ -55,7 +55,8 @@ object PreferenceScreenFactory {
         fragmentManager: FragmentManager,
         raw: RawConfig,
         save: () -> Unit,
-        decorate: (PreferenceScreen) -> Unit = {}
+        decorate: (PreferenceScreen) -> Unit = {},
+        postDecorate: (PreferenceScreen) -> Unit = {}
     ): PreferenceScreen {
         val context = preferenceManager.context
         val screen = preferenceManager.createPreferenceScreen(context)
@@ -71,6 +72,8 @@ object PreferenceScreenFactory {
         topLevelDesc.values.forEach {
             general(context, fragmentManager, cfg.findByName(it.name), screen, it, store, save)
         }
+        // 引擎配置项之后再调用一次，供页面把条目放到末尾或指定位置。
+        postDecorate(screen)
         return screen
     }
 

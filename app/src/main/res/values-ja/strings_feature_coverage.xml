@@ -17,7 +17,7 @@
     <string name="direct_rime_about_privacy_summary">端末内の入力データ、任意のネットワーク機能、バックアップ内容</string>
     <string name="direct_rime_about_credits">謝辞</string>
     <string name="direct_rime_about_credits_summary">Fcitx5 for Android と fxliang の Android フロントエンド、および Rime を基にしています。原作者とコミュニティの貢献に感謝します。本プロジェクトは独立して開発されています。</string>
-    <string name="direct_rime_input_summary">Rime スキーマ、候補、音声入力</string>
+    <string name="direct_rime_input_summary">候補バー、候補ウィンドウ、音声入力</string>
     <string name="text_editing_style">テキスト編集のスタイル</string>
     <string name="text_editing_style_default">標準スタイル</string>
     <string name="text_editing_style_foxy_swipe">Foxy スワイプスタイル</string>
@@ -277,7 +277,7 @@
     <string name="settings_home_category_daily">日常の調整</string>
     <string name="settings_home_category_more">必要に応じて</string>
     <string name="settings_group_input">入力と候補</string>
-    <string name="settings_group_input_summary">Rime 設定、候補バー、候補ウィンドウ</string>
+    <string name="settings_group_input_summary">候補バー、候補ウィンドウ、音声入力</string>
     <string name="settings_group_keyboard">キーボード</string>
     <string name="settings_group_keyboard_summary">キー、ツールバー、キーボード配列のカスタマイズ</string>
     <string name="settings_group_appearance">外観</string>

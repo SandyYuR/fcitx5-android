@@ -123,7 +123,12 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
             configLoaded = hasCfgDesc && protocolCompatible
             preferenceScreen = if (configLoaded) {
                 PreferenceScreenFactory.create(
-                    preferenceManager, parentFragmentManager, raw, ::save, ::decoratePreferenceScreen
+                    preferenceManager,
+                    parentFragmentManager,
+                    raw,
+                    ::save,
+                    ::decoratePreferenceScreen,
+                    ::postDecoratePreferenceScreen
                 ).apply {
                     if (isEmpty()) {
                         addPreference(R.string.no_config_options)
@@ -164,6 +169,15 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
      * SharedPreferences），不要挂 [FcitxRawConfigStore]，否则会写进引擎配置。
      */
     open fun decoratePreferenceScreen(screen: PreferenceScreen) = Unit
+
+    /**
+     * 配置页填充完成后的追加入口。
+     *
+     * 与 [decoratePreferenceScreen] 相对：调用发生在引擎配置项加入**之后**，因此适合把条目
+     * 放到页面末尾，或先定位某个引擎项再插到它后面。同样用默认
+     * [androidx.preference.PreferenceManager] 存储。
+     */
+    open fun postDecoratePreferenceScreen(screen: PreferenceScreen) = Unit
 
     private fun maxRequiredExternalProtocol(raw: RawConfig): Int {
         val descRoot = raw.findByName("desc") ?: return 0

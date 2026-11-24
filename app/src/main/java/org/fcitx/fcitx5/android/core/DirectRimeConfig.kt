@@ -90,6 +90,9 @@ internal class DirectRimeConfig(private val context: Context) {
         require(user.isDirectory && user.canRead() && user.canWrite()) { "无法读写当前 Rime 工作目录" }
     }
 
+    /** Resolves a registered working directory without switching the current one. */
+    fun profileDir(name: String): File? = profiles[name]
+
     /** External native code may only start against an existing, non-overlapping writable profile. */
     fun requireExternalEngineProfile(name: String) {
         require(error.isBlank()) { error }
@@ -226,12 +229,12 @@ internal class DirectRimeConfig(private val context: Context) {
             arrayOf(RawConfig("Type", type), RawConfig("Description", title), *attributes))
         fun external(name: String, title: String, path: String) = field(name, "External", title, RawConfig("External", path))
         val options = arrayOf(
+            external("SchemaSelector", "启用的输入方案", "fcitx://multiselect/addon/rime/schema-selector?option=Items&min=1&app_proto=2"),
             field("PreeditMode", "Enum", "编辑器内预编辑", RawConfig("DefaultValue", "No"),
                 RawConfig("Enum", arrayOf(RawConfig("0", "No"), RawConfig("1", "ComposingText"), RawConfig("2", "CommitPreview"))),
                 RawConfig("EnumI18n", arrayOf(RawConfig("0", "不显示"), RawConfig("1", "编码"), RawConfig("2", "候选预览")))),
             external("UserDataDir", "用户数据目录", "xdg-open"),
             external("DataDirManager", "数据目录管理", "fcitx://addon-dir-profile/addon/rime/profile-manager?app_proto=2"),
-            external("SchemaSelector", "启用的输入方案", "fcitx://multiselect/addon/rime/schema-selector?option=Items&min=1&app_proto=2"),
             external("ImportProfile", "导入 Rime 方案 ZIP", "fcitx://direct-rime/import"),
             external("DeployAction", "重新部署", "fcitx://addon-action/addon/rime/deploy?app_proto=2"),
             external("SynchronizeAction", "同步用户词典", "fcitx://addon-action/addon/rime/sync?app_proto=2")
