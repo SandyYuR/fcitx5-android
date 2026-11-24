@@ -129,6 +129,15 @@ interface FcitxAPI {
 
     suspend fun activateAction(id: Int)
 
+    /**
+     * Toggle one Rime engine option in the current input session.
+     *
+     * Evo engines use this to switch the active `input_types` option immediately; the persisted
+     * choice lives in the scheme's custom patch and is applied again on the next deployment.
+     * Returns false when no session is active or the engine rejects the option.
+     */
+    suspend fun setRimeOption(name: String, enabled: Boolean): Boolean = false
+
     suspend fun getCandidates(offset: Int, limit: Int): Array<CandidateWord>
 
     suspend fun getCandidateActions(idx: Int): Array<CandidateAction>

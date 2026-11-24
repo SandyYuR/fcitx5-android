@@ -4,7 +4,7 @@
     <string name="app_name_debug">Fcitx5.fx.rime (Debug)</string>
     <string name="save">Save</string>
     <string name="input_methods">Input Methods</string>
-    <string name="rime_settings">Rime Settings</string>
+    <string name="rime_settings">Rime engine settings</string>
     <string name="addons">Addons</string>
     <string name="conf">Configuration</string>
     <string name="global_options">Global Options</string>
@@ -1073,10 +1073,13 @@
     <string name="settings_search_result_count">%1$d results</string>
 
     <!-- 设置首页分组 -->
+    <string name="settings_home_category_rime_engine">Rime engine</string>
+    <string name="settings_home_rime_engine_summary">Schemes, deployment and user dictionary</string>
+    <string name="settings_home_rime_scheme_updates_summary">Wanxiang update and custom scheme update</string>
     <string name="settings_home_category_daily">Everyday</string>
     <string name="settings_home_category_more">Occasional</string>
     <string name="settings_group_input">Input &amp; candidates</string>
-    <string name="settings_group_input_summary">Rime settings, candidate bar and candidate window</string>
+    <string name="settings_group_input_summary">Candidate bar, candidate window and voice input</string>
     <string name="settings_group_keyboard">Keyboard</string>
     <string name="settings_group_keyboard_summary">Key and toolbar settings, keyboard layout customization</string>
     <string name="settings_group_appearance">Appearance</string>
@@ -1084,7 +1087,7 @@
     <string name="settings_group_convenience">Convenience</string>
     <string name="settings_group_convenience_summary">Clipboard, text editing, symbols and plugin settings</string>
     <string name="settings_group_data">Data &amp; backup</string>
-    <string name="settings_group_data_summary">User data management and Wanxiang scheme updates</string>
+    <string name="settings_group_data_summary">User data management</string>
     <string name="settings_group_advanced">Advanced</string>
     <string name="settings_group_advanced_summary">Addons, compatibility switches, developer options</string>
 
@@ -1235,6 +1238,17 @@
     <string name="js_voice_network_approved_hint">Approved. Press the voice button again to start.</string>
     <string name="js_voice_secret_unavailable">Cannot decrypt on this device; enter the key again</string>
     <string name="rime_engine_variants_title">Rime engine variants</string>
+    <string name="rime_input_types">Input type</string>
+    <string name="rime_input_types_evo_only">Available only with the librime-evo engine</string>
+    <string name="rime_input_types_unsupported">The current scheme does not declare input types</string>
+    <string name="rime_input_types_loading">Reading input types…</string>
+    <string name="rime_input_types_switching">Switching input type…</string>
+    <string name="rime_input_types_switched">Input type switched</string>
+    <string name="rime_input_types_saved">Input type saved, but redeployment failed</string>
+    <string name="rime_input_types_failed">Failed to switch input type</string>
+    <string name="rime_schema_current">Current scheme</string>
+    <string name="rime_input_types_for_scheme">Input type · %1$s</string>
+    <string name="rime_schema_selector_title">Enabled schemes</string>
     <string name="rime_engine_variants_summary">Choose a built-in, imported, or provider engine</string>
     <string name="rime_engine_variants_description">Choose a Rime engine and its working directory. If an external engine is unavailable, the built-in engine takes over.</string>
     <string name="rime_engine_loading">Reading engines and working directories…</string>

@@ -23,6 +23,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.ItemTouchHelper
 import arrow.core.identity
 import com.google.android.material.behavior.HideViewOnScrollBehavior
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import org.fcitx.fcitx5.android.R
@@ -62,6 +63,7 @@ abstract class BaseDynamicListUi<T>(
     enableOrder: Boolean = false,
     initCheckBox: (CheckBox.(T) -> Unit) = { visibility = View.GONE },
     initSettingsButton: (ImageButton.(T) -> Unit) = { visibility = View.GONE },
+    initActionButton: (MaterialButton.(T) -> Unit) = { visibility = View.GONE },
 ) : Ui,
     DynamicListAdapter<T>(
         initialEntries,
@@ -69,7 +71,8 @@ abstract class BaseDynamicListUi<T>(
         enableOrder,
         initCheckBox,
         initEditButton = {},
-        initSettingsButton
+        initSettingsButton,
+        initActionButton
     ) {
 
     protected var shouldShowFab = false

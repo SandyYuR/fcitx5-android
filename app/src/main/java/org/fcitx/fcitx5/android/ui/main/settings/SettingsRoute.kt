@@ -28,6 +28,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.DataBackupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardModesFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsFragment
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.RimeSchemeUpdatesFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.SymbolSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextEditingSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
@@ -110,6 +111,10 @@ sealed class SettingsRoute : Parcelable {
     /** 数据与备份：从「高级」拆出，避免与兼容性开关混在一起。 */
     @Serializable
     data object DataBackup : SettingsRoute()
+
+    /** 中州韵方案更新：原先挂在「数据与备份」里的两个入口，现由设置首页直接进入。 */
+    @Serializable
+    data object RimeSchemeUpdates : SettingsRoute()
 
     @Serializable
     data object Advanced : SettingsRoute()
@@ -237,6 +242,9 @@ sealed class SettingsRoute : Parcelable {
             // 数据与备份从「高级」拆出，见 DataBackupFragment 的说明。
             fragment<DataBackupFragment, DataBackup> {
                 label = ctx.getString(R.string.settings_group_data)
+            }
+            fragment<RimeSchemeUpdatesFragment, RimeSchemeUpdates> {
+                label = ctx.getString(R.string.wanxiang_group)
             }
             fragment<DeveloperFragment, Developer> {
                 label = ctx.getString(R.string.developer)

@@ -9,6 +9,7 @@ import android.content.Context
 import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageButton
+import com.google.android.material.button.MaterialButton
 
 @Suppress("FunctionName")
 fun <T> Context.DynamicListUi(
@@ -17,7 +18,8 @@ fun <T> Context.DynamicListUi(
     enableOrder: Boolean = false,
     initCheckBox: (CheckBox.(T) -> Unit) = { visibility = View.GONE },
     initSettingsButton: (ImageButton.(T) -> Unit) = { visibility = View.GONE },
-    show: (T) -> String
+    show: (T) -> String,
+    initActionButton: (MaterialButton.(T) -> Unit) = { visibility = View.GONE }
 ): BaseDynamicListUi<T> = object :
     BaseDynamicListUi<T>(
         this,
@@ -25,7 +27,8 @@ fun <T> Context.DynamicListUi(
         initialEntries,
         enableOrder,
         initCheckBox,
-        initSettingsButton
+        initSettingsButton,
+        initActionButton
     ) {
     init {
         addTouchCallback()

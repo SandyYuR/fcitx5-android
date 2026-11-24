@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 #include <limits>
 #include <sstream>
 #include <rime_levers_api.h>
@@ -189,6 +190,7 @@ void Engine::start(const std::string& shared, const std::string& user,
     shared_ = shared; user_ = user; version_ = version;
     minLogLevel_ = std::clamp(minLogLevel, 0, 3);
     initialize(fullCheck);
+    acceptUsableDeployment();
     if (fullCheck && deployFailed_.load()) {
         stop();
         throw std::runtime_error("部署失败，请检查方案文件后重新部署");
@@ -197,6 +199,7 @@ void Engine::start(const std::string& shared, const std::string& user,
 void Engine::initialize(bool fullCheck) {
     invalidateStatusCache();
     deployFailed_.store(false);
+    deployDegraded_.store(false);
     if (fullCheck) {
         // Rime's compiler compares source mtimes with one-second resolution.
         // Explicit redeploy must also rebuild edits copied with unchanged times.
@@ -555,7 +558,88 @@ bool Engine::deploy() {
     // setup/logging remains process-wide and must not be run a second time.
     stop();
     initialize(true);
+    acceptUsableDeployment();
     return !deployFailed_.load();
+}
+bool Engine::deploymentDegraded() const {
+    return deployDegraded_.load();
+}
+bool Engine::deploymentUsable() {
+    // Foxy only checks that build/default.yaml exists. That is necessary but not enough: a
+    // workspace whose active schema has no compiled YAML cannot serve input either, so a
+    // failed task is downgraded to a warning only when both the workspace manifest and the
+    // first (initially active) schema's compiled output are present and non-empty.
+    std::error_code ec;
+    const auto build = std::filesystem::path(user_) / "build";
+    if (!std::filesystem::is_regular_file(build / "default.yaml", ec)) return false;
+    if (!api_ || !started_ || api_->is_maintenance_mode()) return false;
+    RimeSchemaList list{};
+    if (!api_->get_schema_list(&list)) return false;
+    ScopeExit cleanup([&] { api_->free_schema_list(&list); });
+    if (list.size == 0) return false;
+    // The active schema is not necessarily the first entry: librime restores the previously
+    // selected schema (unless fixed ordering is enabled). Inspect the same one a new session
+    // would activate so a usable schema is not rejected because an unused sibling is partial.
+    const auto schema = currentSchema();
+    // Never join a schema id containing separators or traversal segments to the build path.
+    if (schema.empty() || schema == "." || schema == ".." ||
+        schema.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") != std::string::npos)
+        return false;
+    const auto compiled = build / (schema + ".schema.yaml");
+    if (!std::filesystem::is_regular_file(compiled, ec) ||
+        std::filesystem::file_size(compiled, ec) == 0) return false;
+    // A compiled schema YAML appears before its dictionaries finish compiling. EVO can write
+    // it and then fail on the dictionary unit, so also require the active schema's main
+    // dictionary table, mirroring what the first keystroke needs.
+    if (RIME_API_AVAILABLE(api_, schema_open) && RIME_API_AVAILABLE(api_, config_get_string) &&
+        RIME_API_AVAILABLE(api_, config_close)) {
+        RimeConfig config{};
+        if (!api_->schema_open(schema.c_str(), &config)) return false;
+        ScopeExit close([&] { api_->config_close(&config); });
+        char dictionary[256]{};
+        if (!api_->config_get_string(
+                &config, "translator/dictionary", dictionary, sizeof(dictionary))) return false;
+        const std::string dict = safe(dictionary);
+        if (dict.empty() || dict == "." || dict == ".." ||
+            dict.find_first_not_of(
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") !=
+                std::string::npos) return false;
+        const auto table = build / (dict + ".table.bin");
+        if (!std::filesystem::is_regular_file(table, ec) ||
+            std::filesystem::file_size(table, ec) == 0) return false;
+        // The compiler writes the table before the prism. A failure in the prism stage leaves
+        // a non-empty table behind, but Dictionary::Load needs both, so check the prism the
+        // active schema will actually load. EVO schemes select it through input_types/reset
+        // (build/<dict>.<option>.prism.bin); other schemes use build/<dict>.prism.bin.
+        std::string prism = dict;
+        // InitialOption prefers input_types/reset, then the first enabled option.
+        auto appendType = [&](const char* key) -> int {
+            char inputType[128]{};
+            if (!RIME_API_AVAILABLE(api_, config_get_string) ||
+                !api_->config_get_string(&config, key, inputType, sizeof(inputType))) return 0;
+            const std::string type = safe(inputType);
+            if (type.empty() || type == "." || type == ".." ||
+                type.find_first_not_of(
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") !=
+                    std::string::npos) return -1;
+            prism += "." + type;
+            return 1;
+        };
+        const int resetType = appendType("input_types/reset");
+        if (resetType < 0) return false;
+        if (resetType == 0 && appendType("input_types/enabled/@0") < 0) return false;
+        const auto compiledPrism = build / (prism + ".prism.bin");
+        return std::filesystem::is_regular_file(compiledPrism, ec) &&
+               std::filesystem::file_size(compiledPrism, ec) > 0;
+    }
+    return true;
+}
+void Engine::acceptUsableDeployment() {
+    if (!deployFailed_.load() || !deploymentUsable()) return;
+    // Keep the engine: a single failed dictionary unit must not make an otherwise usable
+    // plan unusable. The warning state is queryable by the frontend for its UI.
+    deployFailed_.store(false);
+    deployDegraded_.store(true);
 }
 std::vector<std::string> Engine::schemas() {
     owner();
@@ -743,6 +827,57 @@ std::string Engine::schemaSelection() {
         }
     }
     return result.str();
+}
+bool Engine::fixSchemaListOrder() {
+    if (!api_ || !RIME_API_AVAILABLE(api_, config_open) ||
+        !RIME_API_AVAILABLE(api_, config_get_bool) || !RIME_API_AVAILABLE(api_, config_close))
+        return false;
+    RimeConfig config{};
+    if (!api_->config_open("default", &config)) return false;
+    ScopeExit cleanup([&] { api_->config_close(&config); });
+    Bool value = False;
+    return api_->config_get_bool(&config, "switcher/fix_schema_list_order", &value) && value;
+}
+std::string Engine::currentSchema() {
+    owner();
+    if (started_ && !api_->is_maintenance_mode() && session_ && api_->find_session(session_) &&
+        RIME_API_AVAILABLE(api_, get_current_schema)) {
+        char schema[1024]{};
+        if (api_->get_current_schema(session_, schema, sizeof(schema))) return safe(schema);
+    }
+    // Settings can be opened before any editor created a session. librime then restores
+    // var/previously_selected_schema from user.yaml; only when that is absent does it activate
+    // the first schema of schema_list.
+    if (!started_ || api_->is_maintenance_mode()) return {};
+    RimeSchemaList list{};
+    if (!api_->get_schema_list(&list)) return {};
+    ScopeExit cleanup([&] { api_->free_schema_list(&list); });
+    if (list.size == 0) return {};
+    // With fixed ordering librime ignores var/previously_selected_schema and activates the
+    // first entry, so reporting the stored preference would disagree with the next session.
+    if (fixSchemaListOrder()) return safe(list.list[0].schema_id);
+    std::string preferred;
+    if (std::ifstream input{std::filesystem::path(user_) / "user.yaml"}) {
+        std::string line;
+        const std::string key = "previously_selected_schema:";
+        while (std::getline(input, line)) {
+            const auto first = line.find_first_not_of(" \t");
+            if (first == std::string::npos) continue;
+            const std::string trimmed = line.substr(first);
+            if (trimmed.compare(0, key.size(), key)) continue;
+            std::string value = trimmed.substr(key.size());
+            const auto begin = value.find_first_not_of(" \t\"");
+            const auto end = value.find_last_not_of(" \t\"");
+            if (begin != std::string::npos && end != std::string::npos)
+                preferred = value.substr(begin, end - begin + 1);
+            break;
+        }
+    }
+    for (size_t i = 0; i < list.size; ++i) {
+        const auto id = safe(list.list[i].schema_id);
+        if (!preferred.empty() && id == preferred) return id;
+    }
+    return safe(list.list[0].schema_id);
 }
 bool Engine::selectSchemas(const std::vector<std::string>& ids) {
     owner();

@@ -19,20 +19,19 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
 
     override fun getPageTitle(): String = args.name
 
-    override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig {
-        return fcitx.getImConfig(args.uniqueName)
-    }
+    override suspend fun obtainConfig(fcitx: FcitxAPI): RawConfig =
+        fcitx.getImConfig(args.uniqueName)
 
     override suspend fun saveConfig(fcitx: FcitxAPI, newConfig: RawConfig) {
         fcitx.setImConfig(args.uniqueName, newConfig)
     }
 
     /**
-     * 「中州韵」页由引擎的 `desc` 树生成，但「密码框是否交给 Rime」是本应用的开关：
-     * 它决定密码框里的按键是直录给编辑器，还是像普通输入框一样进 Rime。
-     * 该选择只对 Rime 生效，因此只在这一页追加，其它输入法的配置页不受影响。
+     * 「中州韵」页由引擎的 `desc` 树生成，本应用自己的条目在引擎配置项之后追加。
+     * 「输入类型」已迁到「启用的输入方案」页，按方案逐个调整；这里只保留仅对 Rime 生效的
+     * 「密码框是否交给 Rime」开关。
      */
-    override fun decoratePreferenceScreen(screen: PreferenceScreen) {
+    override fun postDecoratePreferenceScreen(screen: PreferenceScreen) {
         if (args.uniqueName != RIME_UNIQUE_NAME) return
         val pref = AppPrefs.getInstance().keyboard.allowImeInPasswordFields
         val switch = MySwitchPreference(requireContext()).apply {

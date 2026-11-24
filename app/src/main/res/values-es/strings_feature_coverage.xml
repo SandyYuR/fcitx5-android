@@ -17,7 +17,7 @@
     <string name="direct_rime_about_privacy_summary">Datos de entrada locales, funciones de red opcionales y contenido de las copias de seguridad</string>
     <string name="direct_rime_about_credits">Agradecimientos</string>
     <string name="direct_rime_about_credits_summary">Basado en la interfaz Android de Fcitx5 for Android y fxliang, con el motor Rime. Gracias a sus autores y a la comunidad. Este es un proyecto independiente.</string>
-    <string name="direct_rime_input_summary">Esquemas de Rime, candidatos y entrada de voz</string>
+    <string name="direct_rime_input_summary">Barra y ventana de candidatos y entrada de voz</string>
     <string name="text_editing_style">Estilo de edición de texto</string>
     <string name="text_editing_style_default">Estilo predeterminado</string>
     <string name="text_editing_style_foxy_swipe">Estilo de deslizamiento Foxy</string>
@@ -277,7 +277,7 @@
     <string name="settings_home_category_daily">Uso diario</string>
     <string name="settings_home_category_more">Según necesidad</string>
     <string name="settings_group_input">Entrada y candidatos</string>
-    <string name="settings_group_input_summary">Ajustes de Rime, barra y ventana de candidatos</string>
+    <string name="settings_group_input_summary">Barra y ventana de candidatos y entrada de voz</string>
     <string name="settings_group_keyboard">Teclado</string>
     <string name="settings_group_keyboard_summary">Ajustes de teclas, barra de herramientas y personalización del diseño</string>
     <string name="settings_group_appearance">Apariencia</string>

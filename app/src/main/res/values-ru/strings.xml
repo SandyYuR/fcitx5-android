@@ -5,6 +5,21 @@
     <string name="save">Сохранить</string>
     <string name="input_methods">Методы ввода</string>
     <string name="rime_settings">Настройки Rime</string>
+    <string name="settings_home_category_rime_engine">Движок Rime</string>
+    <string name="settings_home_rime_engine_summary">Схемы, развёртывание и пользовательский словарь</string>
+    <string name="settings_home_rime_scheme_updates_summary">Обновление Wanxiang и пользовательских схем</string>
+    <string name="rime_input_types">Тип ввода</string>
+    <string name="rime_input_types_evo_only">Доступно только с движком librime-evo</string>
+    <string name="rime_input_types_unsupported">Текущая схема не объявляет типы ввода</string>
+    <string name="rime_input_types_loading">Чтение типов ввода…</string>
+    <string name="rime_input_types_switching">Переключение типа ввода…</string>
+    <string name="rime_input_types_switched">Тип ввода переключён</string>
+    <string name="rime_input_types_saved">Тип ввода сохранён, но развёртывание не удалось</string>
+    <string name="rime_input_types_failed">Не удалось переключить тип ввода</string>
+    <string name="rime_schema_current">Текущая схема</string>
+    <string name="rime_input_types_for_scheme">Тип ввода · %1$s</string>
+    <string name="rime_schema_selector_title">Включённые схемы</string>
+
     <string name="addons">Дополнения</string>
     <string name="conf">Конфигурация</string>
     <string name="global_options">Глобальные параметры</string>

@@ -124,6 +124,8 @@ internal object Native {
     /** Current schema's manual ordering keys (up, down, reset, pin); empty when unsupported. */
     external fun sequenceKeys(): Array<String>
     external fun schemaSelection(): String
+    /** Schema a new session would activate; empty when no schema is available. */
+    external fun currentSchema(): String
     external fun selectSchemas(ids: Array<String>): Boolean
     external fun sync(): Boolean
     external fun candidates(generation: Long, offset: Int, limit: Int): Array<String>

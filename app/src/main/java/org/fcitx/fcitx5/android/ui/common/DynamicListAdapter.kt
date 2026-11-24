@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageButton
+import com.google.android.material.button.MaterialButton
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.CallSuper
@@ -25,7 +26,8 @@ abstract class DynamicListAdapter<T>(
     val enableOrder: Boolean = false,
     val initCheckBox: (CheckBox.(T) -> Unit) = { visibility = View.GONE },
     var initEditButton: (ImageButton.(T) -> Unit) = { visibility = View.GONE },
-    var initSettingsButton: (ImageButton.(T) -> Unit) = { visibility = View.GONE }
+    var initSettingsButton: (ImageButton.(T) -> Unit) = { visibility = View.GONE },
+    var initActionButton: (MaterialButton.(T) -> Unit) = { visibility = View.GONE }
 ) :
     RecyclerView.Adapter<DynamicListAdapter<T>.ViewHolder>() {
 
@@ -77,6 +79,7 @@ abstract class DynamicListAdapter<T>(
         val subText = entryUi.subText
         val editButton = entryUi.editButton
         val settingsButton = entryUi.settingsButton
+        val actionButton = entryUi.actionButton
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
@@ -100,6 +103,8 @@ abstract class DynamicListAdapter<T>(
             subText.visibility = if (subEntry.isNullOrEmpty()) View.GONE else View.VISIBLE
             subText.text = subEntry
 
+            actionButton.visibility = View.GONE
+            actionButton.setOnClickListener(null)
             if (multiselect) {
                 handleImage.visibility = View.GONE
                 multiselectCheckBox.visibility = View.VISIBLE
@@ -115,6 +120,7 @@ abstract class DynamicListAdapter<T>(
                 initCheckBox(checkBox, item)
                 initSettingsButton(settingsButton, item)
                 initEditButton(editButton, item)
+                initActionButton(actionButton, item)
             }
 
             multiselectCheckBox.isChecked = item in selected
@@ -152,6 +158,8 @@ abstract class DynamicListAdapter<T>(
             nameText.setOnClickListener(null)
             settingsButton.setOnClickListener(null)
             editButton.setOnClickListener(null)
+            actionButton.setOnClickListener(null)
+            actionButton.visibility = View.GONE
         }
     }
 
@@ -244,6 +252,17 @@ abstract class DynamicListAdapter<T>(
         _entries[idx] = item
         notifyItemChanged(idx)
         listener?.onItemUpdated(idx, old, item)
+    }
+
+    /**
+     * Replaces a row without treating it as a user edit: no "edited" snackbar and no undo.
+     * Used when a background read refreshes a value the row displays (for example the input
+     * type label after it has been written to the scheme's custom patch).
+     */
+    fun updateItemSilently(idx: Int, item: T) {
+        if (idx !in _entries.indices) return
+        _entries[idx] = item
+        notifyItemChanged(idx)
     }
 
     fun indexItem(item: T): Int = _entries.indexOf(item)
