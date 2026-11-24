@@ -36,10 +36,12 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.databinding.ActivityLogBinding
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import org.fcitx.fcitx5.android.ui.main.log.CrashReportStore
+import org.fcitx.fcitx5.android.ui.main.log.LogClear
 import org.fcitx.fcitx5.android.ui.main.log.LogExportViewModel
 import org.fcitx.fcitx5.android.ui.main.log.LogView
 import org.fcitx.fcitx5.android.ui.main.log.logExportStore
 import org.fcitx.fcitx5.android.ui.main.log.mergePersistedAndLogcat
+import org.fcitx.fcitx5.android.ui.main.log.normalizePersistedWallClock
 import org.fcitx.fcitx5.android.utils.DeviceInfo
 import org.fcitx.fcitx5.android.utils.Logcat
 import org.fcitx.fcitx5.android.utils.LogFileManager
@@ -68,11 +70,20 @@ class LogActivity : SettingsUiActivity() {
     /** 当前正在进行的历史加载任务；刷新会取消它，避免两次加载同时 setLogcat */
     private var reloadJob: Job? = null
 
-    /** 当前正在进行的清空任务：文件真正删掉之前，刷新和导出都会看到将要被清掉的内容 */
+    /** 这一侧对清空事务的观察：事务本身跑在进程作用域上，页面销毁不会取消它 */
     private var clearJob: Job? = null
 
-    /** 清空是否还在进行中；为 true 时三个按钮都不可用 */
-    private var clearing = false
+    /** 历史加载是否还在进行中；为 true 时刷新按钮不可用 */
+    private var loading = false
+
+    /**
+     * 清空是否还在进行中。
+     *
+     * 读的是进程级事务而不是本地字段：清空进行中页面被重建时，新页面的清空状态必须是
+     * 「进行中」，否则它会立刻把还没删掉的历史读回来。
+     */
+    private val clearing: Boolean
+        get() = LogClear.shared.clearing
 
     companion object {
         const val FROM_CRASH = "from_crash"
@@ -187,17 +198,25 @@ class LogActivity : SettingsUiActivity() {
      * 导出；重叠的那一份则由 [mergePersistedAndLogcat] 按字段身份消掉，不需要边界。
      */
     private fun reloadLogs(announce: Boolean) {
-        // 清空还没落地时读到的是还没删掉的历史，那一轮加载必然要把已清掉的行贴回来。
-        if (clearing) return
         reloadJob?.cancel()
         // 旧 reader 必须先停，新 reader 才允许创建
         logcat.shutdownLogFlow()
         logView.clear()
-        btnRefresh.isEnabled = false
+        loading = true
+        updateButtonState()
         reloadJob = lifecycleScope.launch {
             try {
+                // 清空还没落地时读到的是准备删掉的历史，这一轮必然把已清掉的行贴回来。
+                // 等它落地再读，而不是直接跳过：跳过的话，在清空窗口里重建出来的页面
+                // 会既看不到清空、又一直空着，直到用户手动刷新。
+                LogClear.shared.await()
                 val merged = withContext(Dispatchers.IO) {
-                    val history = LogFileManager.readAllLogs(this@LogActivity)
+                    // threadtime 只有当地墙上时间：按文件还原成当前时区下的同一时刻，
+                    // 否则改过时区之后历史会被整体挪几个小时，最新的行甚至落在未来。
+                    val history = normalizePersistedWallClock(
+                        LogFileManager.readAllLogGroups(this@LogActivity),
+                        System.currentTimeMillis()
+                    )
                     // 不传 since：历史起点不是 logcat 覆盖的起点，早于它的记录仍要保留。
                     val snapshot = logcat.getLogAsync()
                         .await()
@@ -216,8 +235,8 @@ class LogActivity : SettingsUiActivity() {
                 updateStatus()
                 if (announce) toast(R.string.refresh)
             } finally {
-                // 清空会取消这一轮加载；按钮的恢复由清空自己的收尾负责。
-                if (!clearing) btnRefresh.isEnabled = true
+                loading = false
+                updateButtonState()
             }
         }
     }
@@ -321,35 +340,37 @@ class LogActivity : SettingsUiActivity() {
             // 于是刚清掉的行重新出现在列表里，还能被导出，而底层文件其实已经删除。
             reloadJob?.cancel()
             reloadJob = null
+            loading = false
             // 实时 reader 也要先停：否则它在清空窗口里读到的行会混进清空后的列表。
             logcat.shutdownLogFlow()
             logView.clear()
+            // 崩溃堆栈也算日志的一部分：只清列表不碰字段和 Intent，刷新或旋转都会把它
+            // 重新贴回来，导出与分享也会再次带上已经清掉的内容。
+            clearCrashStackTrace()
 
-            // 清空不是瞬时完成的：logcat -c 与文件删除都排在各自的队列里，等它们真正
-            // 落地再恢复按钮，刷新和导出才不会读到还没删掉的历史。
-            clearing = true
+            // 删除都排在各自的队列里（logcat 子进程、LogSink 的 writer），从这一刻到文件
+            // 真正消失之间有一个窗口。事务跑在进程作用域上：窗口里页面被重建，删除仍会
+            // 走完，新页面等它落地再读历史，不会把准备删掉的行贴回来。
+            val transaction = LogClear.shared.start {
+                Logcat.default.clearLog().join()
+                // 持久历史必须通过与 LogSink 同一个 writer 串行清理：
+                // 直接删文件会留下仍指向已 unlink 文件的 writer，之后整段诊断全部丢失。
+                LogSink.clear()
+                CrashReportStore(
+                    FcitxApplication.getInstance().directBootAwareContext.noBackupFilesDir
+                ).delete()
+            }
             updateButtonState()
+
             clearJob = lifecycleScope.launch {
                 try {
-                    logcat.clearLog().join()
-                    // 持久历史必须通过与 LogSink 同一个 writer 串行清理：
-                    // 直接删文件会留下仍指向已 unlink 文件的 writer，之后整段诊断全部丢失。
-                    LogSink.clear()
-                    withContext(Dispatchers.IO) {
-                        CrashReportStore(
-                            FcitxApplication.getInstance().directBootAwareContext.noBackupFilesDir
-                        ).delete()
-                    }
-                    // 崩溃堆栈也算日志的一部分：只清列表不字段和 Intent，刷新或旋转都会把它
-                    // 重新贴回来，导出与分享也会再次带上已经清掉的内容。
-                    clearCrashStackTrace()
+                    transaction.join()
                     // 被取消的加载不会走到 setLogcat，实时 reader 需要在这里补接，
                     // 否则清空之后整段日志都不会再进来，直到用户手动刷新。
                     logView.setLogcat(logcat)
                     updateStatus()
                     toast(R.string.clear_log)
                 } finally {
-                    clearing = false
                     clearJob = null
                     updateButtonState()
                 }
@@ -360,9 +381,12 @@ class LogActivity : SettingsUiActivity() {
     /**
      * 清空还没落地时，刷新、导出、清空都不可用：此时重读历史拿到的是还没删掉的行，导出
      * 出来的内容与「已清空」的页面自相矛盾。清空一完成就把三个按钮一起放开。
+     *
+     * 加载中同样要关掉刷新：连续两次加载都会走到 setLogcat，而旧 reader 还活着时
+     * Logcat.initLogFlow 会抛 exception_logcat_created。
      */
     private fun updateButtonState() {
-        btnRefresh.isEnabled = !clearing
+        btnRefresh.isEnabled = !clearing && !loading
         btnExport.isEnabled = !clearing
         btnClear.isEnabled = !clearing
     }

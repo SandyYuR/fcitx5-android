@@ -5,7 +5,10 @@
 package org.fcitx.fcitx5.android.ui.main.log
 
 import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.math.abs
+import org.fcitx.fcitx5.android.utils.LogFileManager
 
 /**
  * 一行 threadtime 日志解析出来的字段。
@@ -72,14 +75,12 @@ private class DuplicateCandidates(timestamps: LongArray) {
 
     /** 消耗掉时间邻域内**最接近**的那条候选；邻域里没有候选时返回 false。 */
     fun consume(epochMillis: Long): Boolean {
-        if (epochMillis < lastQuery) {
-            // 快照时间倒退（不同缓冲区交错）时退回从头扫描，否则游标会越过仍可用的候选
-            cursor = 0
-        } else {
-            val lowerBound = epochMillis - DUPLICATE_TIME_TOLERANCE_MS
-            // 比窗口下界还早的候选不会再匹配任何后续快照行
-            while (cursor < times.size && times[cursor] < lowerBound) cursor++
-        }
+        // 快照时间倒退（不同缓冲区交错）时退回从头扫描，否则游标会越过仍可用的候选。
+        if (epochMillis < lastQuery) cursor = 0
+        val lowerBound = epochMillis - DUPLICATE_TIME_TOLERANCE_MS
+        // 下界对倒退的查询同样成立：只重置游标却不推下界的话，下面的扫描只看上界，
+        // 比邻域早得多的一条同文候选也会被当成「最接近」而消耗掉，新事件跟着一起消失。
+        while (cursor < times.size && times[cursor] < lowerBound) cursor++
         lastQuery = epochMillis
         val upperBound = epochMillis + DUPLICATE_TIME_TOLERANCE_MS
         var best = -1
@@ -253,6 +254,156 @@ internal fun mergePersistedAndLogcat(
         next++
     }
 
-    val anchor = maxOf(persistedMax, snapshotMax)
+    // 实时 reader 的起点不能落在未来：logd 只保留已经发生的记录，拿一个未来时刻当 -T
+    // 的起点会让页面一直空到时钟追上。历史行只有当地墙上时间，改过时区或时钟之后最新的
+    // 那行可能被解释成未来时刻，这里一律压回 now。
+    val anchor = minOf(maxOf(persistedMax, snapshotMax), nowMillis)
     return MergedLogs(merged, if (anchor == Long.MIN_VALUE) null else anchor + 1)
+}
+
+/**
+ * threadtime 前缀的前 18 个字符：MM-DD HH:mm:ss.SSS。
+ *
+ * 与 [threadtimeRegex] 不同，这里只认开头的时间，不去切 tag 与正文——重写时间时后半段
+ * 必须原样保留。
+ */
+private val wallClockPrefix = Regex("""^(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})\.(\d{3})\s""")
+
+/** [wallClockPrefix] 匹配到的长度，重写时从这一位之后原样接回去。 */
+private const val WALL_CLOCK_PREFIX_LENGTH = 18
+
+/** 时区偏移都是整分钟；mtime 与那一行的毫秒差必须抹掉，否则「偏移没变」的快速路径永远不成立。 */
+private const val MILLIS_PER_MINUTE = 60_000.0
+
+/** 现实中的时区偏移都是 15 分钟的整数倍（含 +5:45 这类）。 */
+private const val QUARTER_HOUR_MS = 15 * 60_000L
+
+/** 最大的真实时区偏移（UTC+14）；超出的反推值只可能是 mtime 被改过。 */
+private const val MAX_PLAUSIBLE_OFFSET_MS = 14 * 60 * 60_000L
+
+/**
+ * 把持久化历史里的当地墙上时间重写成当前时区下的同一条时间线。
+ *
+ * 文件里只有 threadtime 的当地月日时分，既没有 epoch 也没有时区，读取端只能用当前默认
+ * 时区把它解释回去。设备改过时区之后，同一份历史会被整体挪几个小时：最新的行可能被解释
+ * 成未来时刻，实时 reader 拿着一个未来的 -T 起点，页面一直空到时钟追上；与 logcat 里那
+ * 批孪生行的时间也不再落进去重容差，同一条事件于是显示两遍。
+ *
+ * 文件最后修改时间就是最后一行写入的 epoch（writer 每条事件都 flush），所以「写入时相对
+ * UTC 的偏移 = 该行的墙上时间按 UTC 解释 − 文件 mtime」可以反推。偏移与当前时区一致时整
+ * 份文件原样返回；不一致时逐行还原成真实 epoch 再按当前时区重新渲染，读取端于是只用一把
+ * 时钟就能解释整份历史。
+ *
+ * 同一文件里跨夏令时写入的行会按文件末尾那个偏移整体平移，误差等于夏令时的差值；这比按
+ * 当前时区整体错开几小时要小得多，也不再影响实时 reader 的起点。
+ */
+internal fun normalizePersistedWallClock(
+    groups: List<LogFileManager.LogFileContent>,
+    nowMillis: Long
+): List<String> {
+    val zone = TimeZone.getDefault()
+    val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    val local = Calendar.getInstance(zone)
+    val normalized = ArrayList<String>(groups.sumOf { it.lines.size })
+    groups.forEach { group ->
+        val anchor = group.file.lastModified().takeIf { it > 0L } ?: nowMillis
+        val written = writtenOffsetMillis(group.lines, anchor, utc)
+        if (written == null || written == zone.getOffset(anchor).toLong()) {
+            // 写这份文件的时区与现在一致：连字符串都不用重新渲染，几十万行也只是一次拷贝。
+            normalized.addAll(group.lines)
+            return@forEach
+        }
+        group.lines.forEach { line ->
+            normalized.add(shiftWallClock(line, written, anchor, utc, local) ?: line)
+        }
+    }
+    return normalized
+}
+
+/**
+ * 反推一个日志文件写入时相对 UTC 的偏移。
+ *
+ * 取文件里最后一条能解析的行：它写下的那一刻就是文件的 mtime。文件为空、或整份都解析
+ * 不出时间时返回 null，调用方按原样使用这些行。
+ */
+private fun writtenOffsetMillis(lines: List<String>, anchorMillis: Long, utc: Calendar): Long? {
+    val last = lines.lastOrNull { wallClockPrefix.containsMatchIn(it) } ?: return null
+    val asIfUtc = asIfUtcMillis(last, anchorMillis, utc) ?: return null
+    // 偏移总是整分钟，现实中也不超过 UTC+14 / UTC-12。mtime 被外部改动过（文件被拷进来、
+    // 整目录恢复）时反推出来的值不会同时满足这两条，此时宁可让这些行原样留着。
+    val offset = Math.round((asIfUtc - anchorMillis) / MILLIS_PER_MINUTE) * 60_000L
+    if (offset % QUARTER_HOUR_MS != 0L || abs(offset) > MAX_PLAUSIBLE_OFFSET_MS) return null
+    return offset
+}
+
+/**
+ * 把一行的时间字段当成 UTC 解释成 epoch。
+ *
+ * 年份的规则与 [ThreadtimeClock] 相同：threadtime 不写年份，比锚点晚太多的行属于上一年。
+ */
+private fun asIfUtcMillis(line: String, anchorMillis: Long, utc: Calendar): Long? {
+    val match = wallClockPrefix.find(line) ?: return null
+    val month = match.groupValues[1].toIntOrNull() ?: return null
+    val day = match.groupValues[2].toIntOrNull() ?: return null
+    val hour = match.groupValues[3].toIntOrNull() ?: return null
+    val minute = match.groupValues[4].toIntOrNull() ?: return null
+    val second = match.groupValues[5].toIntOrNull() ?: return null
+    val millis = match.groupValues[6].toIntOrNull() ?: return null
+    val year = yearOf(anchorMillis, utc)
+    val candidate = atUtc(utc, year, month, day, hour, minute, second, millis)
+    return if (candidate > anchorMillis + YEAR_ROLLOVER_TOLERANCE_MS) {
+        atUtc(utc, year - 1, month, day, hour, minute, second, millis)
+    } else {
+        candidate
+    }
+}
+
+private fun atUtc(
+    utc: Calendar,
+    year: Int,
+    month: Int,
+    day: Int,
+    hour: Int,
+    minute: Int,
+    second: Int,
+    millis: Int
+): Long {
+    utc.clear()
+    utc.set(year, month - 1, day, hour, minute, second)
+    utc.set(Calendar.MILLISECOND, millis)
+    return utc.timeInMillis
+}
+
+private fun yearOf(epochMillis: Long, utc: Calendar): Int {
+    utc.timeInMillis = epochMillis
+    return utc.get(Calendar.YEAR)
+}
+
+/**
+ * 把一行从「写入时区的墙上时间」换成「当前时区的墙上时间」。
+ *
+ * 只替换前 18 个字符，pid／tid／级别／tag／正文原样保留：去重用的身份键里不含时间，改写的
+ * 只有时间本身。
+ */
+private fun shiftWallClock(
+    line: String,
+    writtenOffsetMillis: Long,
+    anchorMillis: Long,
+    utc: Calendar,
+    local: Calendar
+): String? {
+    if (!wallClockPrefix.containsMatchIn(line)) return null
+    val asIfUtc = asIfUtcMillis(line, anchorMillis, utc) ?: return null
+    local.timeInMillis = asIfUtc - writtenOffsetMillis
+    val prefix = String.format(
+        Locale.US,
+        "%02d-%02d %02d:%02d:%02d.%03d",
+        local.get(Calendar.MONTH) + 1,
+        local.get(Calendar.DAY_OF_MONTH),
+        local.get(Calendar.HOUR_OF_DAY),
+        local.get(Calendar.MINUTE),
+        local.get(Calendar.SECOND),
+        local.get(Calendar.MILLISECOND)
+    )
+    return prefix + line.substring(WALL_CLOCK_PREFIX_LENGTH)
 }

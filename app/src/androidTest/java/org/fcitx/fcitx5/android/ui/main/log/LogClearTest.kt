@@ -96,4 +96,40 @@ class LogClearTest {
             onMain { latest.finish() }
         }
     }
+
+    /**
+     * 清空进行中重建页面：删除排在 logcat 子进程与 LogSink writer 各自的队列里，页面正好
+     * 在这个窗口里被重建时，旧页面挂着的等待任务会被取消。事务必须比那一次等待活得久，
+     * 新页面也得等它落地再读历史——否则新页面读到的正是准备删掉的行，而删除已经没有
+     * 人能等，页面从此停在一个自相矛盾的状态上。
+     */
+    @Test fun recreatingWhileTheClearIsStillRunningEndsEmptyToo() {
+        val fixture = "clear-fixture-mid-flight"
+        val first = instrumentation.startActivitySync(
+            Intent(application, LogActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .putExtra(LogActivity.FROM_CRASH, true)
+                .putExtra(LogActivity.CRASH_STACK_TRACE, fixture)
+        ) as LogActivity
+        var latest = first
+        try {
+            await { lines(first).any { it.contains(fixture) } }
+
+            // 点下清空后立刻重建，不等任何完成信号：这一刻正是「事务已启动、文件还没删」的窗口。
+            onMain { first.findViewById<ImageButton>(R.id.btnClear).performClick() }
+            onMain { first.recreate() }
+            await { resumedLogActivity(first)?.let { latest = it; true } ?: false }
+
+            // 新页面自己也要把清空当回事：要么等事务落地，要么至少不能被要求贴回旧内容。
+            assertTrue(settledLines(latest).none { it.contains(fixture) })
+            await {
+                var enabled = false
+                onMain { enabled = latest.findViewById<ImageButton>(R.id.btnRefresh).isEnabled }
+                enabled
+            }
+            assertTrue(settledLines(latest).none { it.contains(fixture) })
+        } finally {
+            onMain { latest.finish() }
+        }
+    }
 }

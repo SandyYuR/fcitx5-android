@@ -150,6 +150,26 @@ class LogMergeTest {
         assertEquals(2, merged.lines.size)
     }
 
+    /**
+     * 回归：快照时间倒退时只重置游标、不重算窗口下界，扫描就只看上界，比邻域早得多的
+     * 一条同文候选也会被当成「最接近」而消耗掉，新的同文事件跟着一起消失。
+     *
+     * 时间倒退本身是真实的：几个 logd 缓冲区交错输出时，快照里会出现比上一行更早的
+     * 记录。
+     */
+    @Test
+    fun aBackwardsSnapshotQueryCannotReachHistoryOutsideTheNeighbourhood() {
+        val older = persisted(-5_000, message = "same message twice")
+        val newer = logcat(0, message = "same message twice")
+        val backwards = logcat(-1_000, message = "same message twice")
+        val merged = merge(
+            persistedLines = listOf(older),
+            snapshotLines = listOf(newer, backwards)
+        )
+        // 两条快照行与 5 秒前的同文历史都不在 500 ms 邻域里，一条都不能被消掉。
+        assertEquals(listOf(older, newer, backwards), merged.lines)
+    }
+
     @Test
     fun anEventFromAnotherProcessIsNotTreatedAsADuplicate() {
         val merged = merge(
@@ -200,6 +220,19 @@ class LogMergeTest {
         val newest = parseLogLine(later, now)
         assertNotNull(newest)
         assertEquals(newest!!.epochMillis + 1, merged.resumeFrom)
+    }
+
+    /**
+     * 回归：实时 reader 的起点不能落在未来。
+     *
+     * 持久历史只有当地墙上时间，改过时区或时钟之后最新那行可能被解释成几小时之后；
+     * 拿它当 logcat -T 的起点，页面会一直空到时钟追上。
+     */
+    @Test
+    fun theResumeBoundaryIsNeverInTheFuture() {
+        val ahead = persisted(3 * 60 * 60 * 1000, message = "misread by a timezone change")
+        val merged = merge(persistedLines = listOf(ahead), snapshotLines = emptyList())
+        assertEquals(now + 1, merged.resumeFrom)
     }
 
     @Test

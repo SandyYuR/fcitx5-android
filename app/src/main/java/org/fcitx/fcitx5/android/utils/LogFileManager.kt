@@ -178,23 +178,35 @@ object LogFileManager {
     }
 
     /**
+     * 一个日志文件连同它读出的行。
+     *
+     * 读取端必须按文件还原时间：行首只有当地墙上时间，没有 epoch 也没有时区，写入时的
+     * 偏移只能按文件单独反推（见 normalizePersistedWallClock）。
+     */
+    internal data class LogFileContent(val file: File, val lines: List<String>)
+
+    /**
+     * 按日期与序号读取所有日志文件，最新的文件最后读取。
+     *
+     * 保留文件边界：每个文件的写入时区要单独判断。
+     */
+    internal fun readAllLogGroups(context: Context): List<LogFileContent> {
+        val logFiles = getAllLogFiles(context).reversed() // 从最旧到最新
+
+        return logFiles.mapNotNull { file ->
+            try {
+                LogFileContent(file, file.bufferedReader().use { it.readLines() })
+            } catch (e: Exception) {
+                // 忽略读取错误，继续读取其他文件
+                null
+            }
+        }
+    }
+
+    /**
      * 读取所有日志文件的内容，返回日志行列表
      * 按日期与序号排序，最新的文件最后读取
      */
-    fun readAllLogs(context: Context): List<String> {
-        val logFiles = getAllLogFiles(context).reversed() // 从最旧到最新
-        val lines = mutableListOf<String>()
-
-        logFiles.forEach { file ->
-            try {
-                file.bufferedReader().use { reader ->
-                    lines.addAll(reader.readLines())
-                }
-            } catch (e: Exception) {
-                // 忽略读取错误，继续读取其他文件
-            }
-        }
-
-        return lines
-    }
+    fun readAllLogs(context: Context): List<String> =
+        readAllLogGroups(context).flatMap { it.lines }
 }
