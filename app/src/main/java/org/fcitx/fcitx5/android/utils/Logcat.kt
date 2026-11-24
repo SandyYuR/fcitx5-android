@@ -108,7 +108,10 @@ class Logcat(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Timber.e(e, "Logcat reader failed")
+                // 主动 shutdown 会 destroy 掉子进程，阻塞在 read() 上的线程随后抛
+                // InterruptedIOException：那是拆解过程的产物，不是读取失败。把它记成 E 级
+                // 并带全栈，会让每次刷新都往用户正在看的日志里喷一段红色错误。
+                if (!isStaleReader(expected)) Timber.e(e, "Logcat reader failed")
             } finally {
                 // Old readers cannot clear or destroy a newer reader's process.
                 synchronized(processLock) {
@@ -119,6 +122,13 @@ class Logcat(
             }
         }.also { emittingJob = it; it.start() }
     }
+
+    /**
+     * Whether [expected] has already been superseded by [shutdownLogFlow] or a newer reader.
+     * Anything a stale reader observes after that is teardown noise, not a failure.
+     */
+    private fun isStaleReader(expected: Long): Boolean =
+        synchronized(processLock) { expected != generation }
 
     /**
      * Destroy the reading process

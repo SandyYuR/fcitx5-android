@@ -28,11 +28,11 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
 
     // 存储原始字符串和格式化的 CharSequence
     private data class LogEntry(val raw: String, val line: CharSequence)
-    
+
     private val allEntries = mutableListOf<LogEntry>()
     private val visibleEntries = mutableListOf<LogEntry>()
     private val expandedItems = mutableSetOf<Int>()
-    
+
     private var filterQuery: String = ""
     private var levelFilter: Set<Char> = setOf('V', 'D', 'I', 'W', 'E', 'F')
     private var contentFilter: String = "" // 内容过滤（如 "rime"）
@@ -90,7 +90,7 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
         // 展开/收起逻辑
         val isExpanded = expandedItems.contains(position)
         holder.textView.maxLines = if (isExpanded) Int.MAX_VALUE else 2
-        
+
         // 点击切换展开状态
         holder.itemView.setOnClickListener {
             val adapterPosition = holder.bindingAdapterPosition
@@ -194,7 +194,7 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
         levelFilter = levels
         updateVisibleEntries()
     }
-    
+
     fun setContentFilter(filter: String) {
         if (filter == contentFilter) return
         contentFilter = filter
@@ -225,17 +225,17 @@ class LogAdapter(private val context: Context) : RecyclerView.Adapter<LogAdapter
         if (level != null && level !in levelFilter) {
             return false
         }
-        
+
         // 内容过滤（如 Rime 引擎日志）
         if (contentFilter.isNotEmpty() && !entry.raw.contains(contentFilter, ignoreCase = true)) {
             return false
         }
-        
+
         // 搜索过滤
         if (filterQuery.isNotEmpty() && !entry.raw.contains(filterQuery, ignoreCase = true)) {
             return false
         }
-        
+
         return true
     }
 

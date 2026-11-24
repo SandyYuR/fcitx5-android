@@ -24,14 +24,14 @@
         android:layout_margin="12dp"
         app:cardElevation="2dp"
         app:cardCornerRadius="8dp">
-        
+
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:iconifiedByDefault="false"
             app:queryHint="@string/search_logs" />
-            
+
     </com.google.android.material.card.MaterialCardView>
 
     <!-- 控制栏 -->

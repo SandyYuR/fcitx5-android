@@ -68,6 +68,12 @@ class LogActivity : SettingsUiActivity() {
     /** 当前正在进行的历史加载任务；刷新会取消它，避免两次加载同时 setLogcat */
     private var reloadJob: Job? = null
 
+    /** 当前正在进行的清空任务：文件真正删掉之前，刷新和导出都会看到将要被清掉的内容 */
+    private var clearJob: Job? = null
+
+    /** 清空是否还在进行中；为 true 时三个按钮都不可用 */
+    private var clearing = false
+
     companion object {
         const val FROM_CRASH = "from_crash"
         const val CRASH_STACK_TRACE = "crash_stack_trace"
@@ -181,6 +187,8 @@ class LogActivity : SettingsUiActivity() {
      * 导出；重叠的那一份则由 [mergePersistedAndLogcat] 按字段身份消掉，不需要边界。
      */
     private fun reloadLogs(announce: Boolean) {
+        // 清空还没落地时读到的是还没删掉的历史，那一轮加载必然要把已清掉的行贴回来。
+        if (clearing) return
         reloadJob?.cancel()
         // 旧 reader 必须先停，新 reader 才允许创建
         logcat.shutdownLogFlow()
@@ -208,7 +216,8 @@ class LogActivity : SettingsUiActivity() {
                 updateStatus()
                 if (announce) toast(R.string.refresh)
             } finally {
-                btnRefresh.isEnabled = true
+                // 清空会取消这一轮加载；按钮的恢复由清空自己的收尾负责。
+                if (!clearing) btnRefresh.isEnabled = true
             }
         }
     }
@@ -230,6 +239,8 @@ class LogActivity : SettingsUiActivity() {
     override fun onDestroy() {
         reloadJob?.cancel()
         reloadJob = null
+        clearJob?.cancel()
+        clearJob = null
         logcat.shutdownLogFlow()
         crashDialog?.dismiss()
         crashDialog = null
@@ -305,32 +316,67 @@ class LogActivity : SettingsUiActivity() {
 
         // 清空按钮
         btnClear.setOnClickListener {
+            if (clearing) return@setOnClickListener
             // 加载中的历史必须在清空前取消：它会继续把清空前的快照 append 回来，
             // 于是刚清掉的行重新出现在列表里，还能被导出，而底层文件其实已经删除。
-            val loadWasPending = reloadJob?.isActive == true
             reloadJob?.cancel()
             reloadJob = null
-            logcat.clearLog()
+            // 实时 reader 也要先停：否则它在清空窗口里读到的行会混进清空后的列表。
+            logcat.shutdownLogFlow()
             logView.clear()
-            // 持久历史必须通过与 LogSink 同一个 writer 串行清理：
-            // 直接删文件会留下仍指向已 unlink 文件的 writer，之后整段诊断全部丢失。
-            LogSink.clear()
-            lifecycleScope.launch(Dispatchers.IO) {
-                CrashReportStore(FcitxApplication.getInstance().directBootAwareContext.noBackupFilesDir)
-                    .delete()
+
+            // 清空不是瞬时完成的：logcat -c 与文件删除都排在各自的队列里，等它们真正
+            // 落地再恢复按钮，刷新和导出才不会读到还没删掉的历史。
+            clearing = true
+            updateButtonState()
+            clearJob = lifecycleScope.launch {
+                try {
+                    logcat.clearLog().join()
+                    // 持久历史必须通过与 LogSink 同一个 writer 串行清理：
+                    // 直接删文件会留下仍指向已 unlink 文件的 writer，之后整段诊断全部丢失。
+                    LogSink.clear()
+                    withContext(Dispatchers.IO) {
+                        CrashReportStore(
+                            FcitxApplication.getInstance().directBootAwareContext.noBackupFilesDir
+                        ).delete()
+                    }
+                    // 崩溃堆栈也算日志的一部分：只清列表不字段和 Intent，刷新或旋转都会把它
+                    // 重新贴回来，导出与分享也会再次带上已经清掉的内容。
+                    clearCrashStackTrace()
+                    // 被取消的加载不会走到 setLogcat，实时 reader 需要在这里补接，
+                    // 否则清空之后整段日志都不会再进来，直到用户手动刷新。
+                    logView.setLogcat(logcat)
+                    updateStatus()
+                    toast(R.string.clear_log)
+                } finally {
+                    clearing = false
+                    clearJob = null
+                    updateButtonState()
+                }
             }
-            if (loadWasPending) {
-                // 被取消的加载不会走到 setLogcat，实时 reader 需要在这里补接，
-                // 否则清空之后整段日志都不会再进来，直到用户手动刷新。
-                logcat.shutdownLogFlow()
-                logView.setLogcat(logcat)
-            }
-            updateStatus()
-            toast(R.string.clear_log)
         }
     }
 
+    /**
+     * 清空还没落地时，刷新、导出、清空都不可用：此时重读历史拿到的是还没删掉的行，导出
+     * 出来的内容与「已清空」的页面自相矛盾。清空一完成就把三个按钮一起放开。
+     */
+    private fun updateButtonState() {
+        btnRefresh.isEnabled = !clearing
+        btnExport.isEnabled = !clearing
+        btnClear.isEnabled = !clearing
+    }
+
+    /**
+     * 丢弃崩溃堆栈的两个副本：内存字段负责当前这一帧，Intent extra 负责旋转重建。
+     */
+    private fun clearCrashStackTrace() {
+        crashStackTrace = null
+        intent.removeExtra(CRASH_STACK_TRACE)
+    }
+
     private fun showExportOptions() {
+        if (clearing) return
         val options = arrayOf(
             getString(R.string.export_log),
             getString(R.string.share)

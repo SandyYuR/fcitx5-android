@@ -5,9 +5,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.*
 import org.junit.Test
+import timber.log.Timber
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.io.InterruptedIOException
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -29,6 +32,38 @@ class LogcatLifecycleTest {
         override fun waitFor(): Int { exited.await(); return 0 }
         override fun exitValue(): Int { check(destroyed.get()); return 0 }
         override fun destroy() { destroyed.set(true); exited.countDown() }
+    }
+
+    /**
+     * A process whose blocking read fails the way a destroyed logcat child does: the platform
+     * throws [InterruptedIOException] instead of turning the pending read into a cancellation.
+     */
+    private class FailingReadProcess(private val failImmediately: Boolean) : java.lang.Process() {
+        val destroyed = AtomicBoolean()
+        val reading = CountDownLatch(1)
+        private val release = CountDownLatch(1)
+        private val input = object : InputStream() {
+            override fun read(): Int {
+                reading.countDown()
+                if (failImmediately) throw InterruptedIOException("read interrupted on its own")
+                release.await()
+                throw InterruptedIOException("read interrupted by destroy")
+            }
+            override fun close() = Unit
+        }
+        override fun getInputStream() = input
+        override fun getErrorStream() = ByteArrayInputStream(byteArrayOf())
+        override fun getOutputStream() = ByteArrayOutputStream()
+        override fun waitFor(): Int { release.await(); return 0 }
+        override fun exitValue() = 0
+        override fun destroy() { destroyed.set(true); release.countDown() }
+    }
+
+    private class RecordingTree : Timber.Tree() {
+        val messages = CopyOnWriteArrayList<String>()
+        override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+            messages += message
+        }
     }
 
     @Test fun processCreatedAfterShutdownIsStillDestroyed(): Unit = runBlocking {
@@ -131,5 +166,38 @@ class LogcatLifecycleTest {
         val args = argv.get().toList()
         assertTrue(args.contains("1700000000.500"))
         assertTrue(args.contains("-d"))
+    }
+
+    @Test fun aReaderStoppedWhileBlockedInReadDoesNotReportAFailure(): Unit = runBlocking {
+        val child = FailingReadProcess(failImmediately = false)
+        val reader = Logcat(pid = null, createProcess = { child })
+        val tree = RecordingTree()
+        Timber.plant(tree)
+        try {
+            val job = reader.initLogFlow()
+            assertTrue(child.reading.await(10, TimeUnit.SECONDS))
+            reader.shutdownLogFlow()
+            withTimeout(10_000) { job.join() }
+        } finally {
+            Timber.uproot(tree)
+        }
+        assertTrue(child.destroyed.get())
+        // 拆解引起的 InterruptedIOException 必须静默：否则每次刷新都会往日志里喷一段 E 级全栈。
+        assertEquals(emptyList<String>(), tree.messages.toList())
+    }
+
+    @Test fun aReaderThatFailsOnItsOwnIsStillReported(): Unit = runBlocking {
+        val child = FailingReadProcess(failImmediately = true)
+        val reader = Logcat(pid = null, createProcess = { child })
+        val tree = RecordingTree()
+        Timber.plant(tree)
+        try {
+            val job = reader.initLogFlow()
+            withTimeout(10_000) { job.join() }
+        } finally {
+            Timber.uproot(tree)
+        }
+        assertEquals(1, tree.messages.size)
+        assertTrue(tree.messages.single().startsWith("Logcat reader failed"))
     }
 }

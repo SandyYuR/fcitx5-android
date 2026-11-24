@@ -45,7 +45,7 @@ class ConciseTree : Timber.Tree() {
         }
         Log.println(priority, effectiveTag, printable)
     }
-    
+
     /**
      * Truncate stack trace to keep output manageable while preserving diagnostic value.
      * Keeps up to 40 frames for the main exception and 10 frames for each cause.
@@ -53,11 +53,11 @@ class ConciseTree : Timber.Tree() {
     private fun truncateStackTrace(stackTrace: String): String {
         val lines = stackTrace.lines()
         if (lines.size <= 60) return stackTrace
-        
+
         val result = mutableListOf<String>()
         var currentFrameCount = 0
         var maxFrames = 40  // main exception gets more frames
-        
+
         for (line in lines) {
             when {
                 line.startsWith("Caused by:") || line.startsWith("Suppressed:") -> {
@@ -84,7 +84,7 @@ class ConciseTree : Timber.Tree() {
                 }
             }
         }
-        
+
         return result.joinToString("\n")
     }
 }

@@ -107,6 +107,49 @@ class LogMergeTest {
         assertEquals(twin, merged.lines[2])
     }
 
+    /**
+     * 回归：同文事件靠身份计数抵消时没有时间约束，于是「历史读取完成之后、logcat 快照完成
+     * 之前」发生的新事件会被一条早已滚出缓冲区的旧同文记录抵消掉，而 resumeFrom 又已经越过
+     * 它，实时 reader 也不会补回来。
+     *
+     * onStartInput 的 restarting 诊断就是这种形状：同一时刻的主线程上可能重复打印同一句话。
+     */
+    @Test
+    fun aNewIdenticalEventIsNotCancelledByAnOlderPersistedTwin() {
+        val persistedLine = persisted(-600_000, message = "service.onStartInput restarting=false")
+        val newEvent = logcat(0, message = "service.onStartInput restarting=false")
+        val merged = merge(persistedLines = listOf(persistedLine), snapshotLines = listOf(newEvent))
+        assertEquals(2, merged.lines.size)
+        assertEquals(persistedLine, merged.lines[0])
+        assertEquals(newEvent, merged.lines[1])
+    }
+
+    /**
+     * LogSink 记的是 System.currentTimeMillis()，logd 记的是接收时刻，同一条事件两边的时间戳
+     * 会差几毫秒到几百毫秒；邻域匹配必须容得下这个偏差，否则去重直接失效。
+     */
+    @Test
+    fun aTwinADeviationApartIsStillTheSameEvent() {
+        val merged = merge(
+            persistedLines = listOf(persisted(-1_000)),
+            snapshotLines = listOf(logcat(-1_000 + 350))
+        )
+        assertEquals(1, merged.lines.size)
+        assertEquals(persisted(-1_000), merged.lines.single())
+    }
+
+    /**
+     * 邻域不能宽到把两条真正的不同事件并成一条：同一句「同一毫秒」之外的同文打印必须都留下。
+     */
+    @Test
+    fun identicalTextOutsideTheToleranceStaysTwoEvents() {
+        val merged = merge(
+            persistedLines = listOf(persisted(-1_000, message = "restarting=false")),
+            snapshotLines = listOf(logcat(-1_000 + 1_500, message = "restarting=false"))
+        )
+        assertEquals(2, merged.lines.size)
+    }
+
     @Test
     fun anEventFromAnotherProcessIsNotTreatedAsADuplicate() {
         val merged = merge(

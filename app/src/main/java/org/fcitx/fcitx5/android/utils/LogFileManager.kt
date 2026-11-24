@@ -12,11 +12,11 @@ import java.util.*
 
 /**
  * 管理应用日志文件的存储、滚动和清理
- * 
+ *
  * 日志文件存储在 noBackupFilesDir/logs/ 目录下，不会被系统备份。
  * 文件命名格式：app-log-yyyyMMdd.txt（每天一个文件）
  * 单文件超过大小限制时，自动创建带序号的新文件（app-log-yyyyMMdd-1.txt）
- * 
+ *
  * 保留策略：
  * - 保留最近 3 天的日志
  * - 总大小不超过 30 MB
@@ -25,16 +25,16 @@ object LogFileManager {
     private const val LOG_DIR_NAME = "logs"
     private const val LOG_FILE_PREFIX = "app-log-"
     private const val LOG_FILE_EXTENSION = ".txt"
-    
+
     /** 单个日志文件的最大大小（10 MB） */
     private const val MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
-    
+
     /** 所有日志文件的总大小限制（30 MB） */
     private const val MAX_TOTAL_SIZE_BYTES = 30 * 1024 * 1024
-    
+
     /** 保留日志的最长时间（3 天） */
     private const val MAX_AGE_DAYS = 3
-    
+
     private val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.US)
 
     /**
@@ -59,7 +59,7 @@ object LogFileManager {
         val index = stem.substring(dash + 1).toIntOrNull() ?: return null
         return LogFileKey(date, index)
     }
-    
+
     /**
      * 日志目录所在的存储 context。
      *
@@ -85,7 +85,7 @@ object LogFileManager {
         }
         return logDir
     }
-    
+
     /**
      * 获取当前应该写入的日志文件。
      *
@@ -126,7 +126,7 @@ object LogFileManager {
             highest.first
         }
     }
-    
+
     /**
      * 获取所有日志文件，按日期与序号降序排列（最新的在前）。
      *
@@ -144,7 +144,7 @@ object LogFileManager {
             ?.map { it.second }
             ?: emptyList()
     }
-    
+
     /**
      * 清理旧日志文件
      * 1. 删除超过保留期限（3天）的文件
@@ -156,18 +156,18 @@ object LogFileManager {
     fun cleanupOldLogs(context: Context, protectedFile: File? = null) {
         val logFiles = getAllLogFiles(context)
         val cutoffTime = System.currentTimeMillis() - (MAX_AGE_DAYS * 24 * 60 * 60 * 1000L)
-        
+
         // 删除超过保留期限的文件
         logFiles.forEach { file ->
             if (file != protectedFile && file.lastModified() < cutoffTime) {
                 file.delete()
             }
         }
-        
+
         // 如果总大小超过限制，删除最旧的文件
         val remainingFiles = getAllLogFiles(context)
         var totalSize = remainingFiles.sumOf { it.length() }
-        
+
         for (file in remainingFiles.reversed()) { // 从最旧的开始
             if (totalSize <= MAX_TOTAL_SIZE_BYTES) break
             // 正在写的文件不参与删除，也不把它的体积算作可回收空间
@@ -176,7 +176,7 @@ object LogFileManager {
             file.delete()
         }
     }
-    
+
     /**
      * 读取所有日志文件的内容，返回日志行列表
      * 按日期与序号排序，最新的文件最后读取
@@ -184,7 +184,7 @@ object LogFileManager {
     fun readAllLogs(context: Context): List<String> {
         val logFiles = getAllLogFiles(context).reversed() // 从最旧到最新
         val lines = mutableListOf<String>()
-        
+
         logFiles.forEach { file ->
             try {
                 file.bufferedReader().use { reader ->
@@ -194,7 +194,7 @@ object LogFileManager {
                 // 忽略读取错误，继续读取其他文件
             }
         }
-        
+
         return lines
     }
 }

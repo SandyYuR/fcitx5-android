@@ -5,25 +5,27 @@
 package org.fcitx.fcitx5.android.utils
 
 import android.content.Context
+import kotlinx.coroutines.CompletableDeferred
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 
 /**
  * 应用日志写入器，将日志异步写入文件
- * 
+ *
  * 日志格式模拟 logcat threadtime：
  * MM-DD HH:mm:ss.SSS  PID  TID LEVEL TAG: message
- * 
+ *
  * 特点：
  * - 异步写入，不阻塞调用线程
  * - 线程安全（使用单线程 Executor）
  * - 自动切换文件（当日期变化或文件超过大小限制）
  * - 批量写入，性能优化
- * 
+ *
  * 使用方式：
  * 1. 在 Application.onCreate() 中调用 init(context)
  * 2. 在 Logx 中集成调用 log() 方法
@@ -32,7 +34,7 @@ import java.util.concurrent.Executors
 object LogSink {
     private var initialized = false
     private lateinit var context: Context
-    
+
     /** 单线程 Executor 保证写入操作串行执行 */
     private val executor = Executors.newSingleThreadExecutor { r ->
         Thread(r, "LogSink-Writer").apply {
@@ -40,7 +42,7 @@ object LogSink {
             priority = Thread.MIN_PRIORITY
         }
     }
-    
+
     private var writer: BufferedWriter? = null
     private var currentFile: File? = null
 
@@ -49,7 +51,7 @@ object LogSink {
 
     /** 保留策略的执行间隔：清理原先只在 init 和文件轮转时跑，进程长期存活时会一直不生效 */
     private val cleanupIntervalMs = 5 * 60 * 1000L
-    
+
     /**
      * 初始化日志写入器
      * 必须在使用前调用，建议在 Application.onCreate() 中调用
@@ -60,7 +62,7 @@ object LogSink {
         this.context = context
         initialized = true
         lastCleanupAt = 0L
-        
+
         // 启动时清理旧日志（此时还没有打开任何文件，无需保护）
         executor.execute {
             try {
@@ -71,10 +73,10 @@ object LogSink {
             }
         }
     }
-    
+
     /**
      * 写入一条日志
-     * 
+     *
      * @param level 日志级别字符（V/D/I/W/E/F）
      * @param tag 日志标签
      * @param message 日志消息
@@ -82,11 +84,11 @@ object LogSink {
      */
     fun log(level: Char, tag: String, message: String, throwable: Throwable? = null) {
         if (!initialized) return
-        
+
         // 立即捕获事件时间和线程 ID（在进入 executor 之前）
         val timestamp = System.currentTimeMillis()
         val tid = android.os.Process.myTid()
-        
+
         executor.execute {
             try {
                 ensureWriter()
@@ -103,7 +105,7 @@ object LogSink {
             }
         }
     }
-    
+
     /**
      * 确保 writer 可用，如果需要则切换到新文件。
      *
@@ -112,7 +114,7 @@ object LogSink {
      */
     private fun ensureWriter() {
         val file = LogFileManager.getCurrentLogFile(context, currentFile)
-        
+
         // 如果文件变化了（例如新的一天或文件超过大小限制），关闭旧 writer
         if (file != currentFile) {
             writer?.close()
@@ -135,7 +137,7 @@ object LogSink {
         lastCleanupAt = now
         LogFileManager.cleanupOldLogs(context, activeFile)
     }
-    
+
     /**
      * 把一条事件渲染成一行或多行 threadtime 记录。
      *
@@ -182,16 +184,16 @@ object LogSink {
         tid: Int
     ): String {
         val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
-        
+
         val month = calendar.get(Calendar.MONTH) + 1
         val day = calendar.get(Calendar.DAY_OF_MONTH)
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
         val second = calendar.get(Calendar.SECOND)
         val millis = calendar.get(Calendar.MILLISECOND)
-        
+
         val pid = android.os.Process.myPid()
-        
+
         // 格式：MM-DD HH:mm:ss.SSS  PID  TID LEVEL TAG: message
         return String.format(
             Locale.US,
@@ -200,32 +202,47 @@ object LogSink {
             pid, tid, level, tag, message
         )
     }
-    
+
     /**
-     * 清空全部持久日志。
+     * 清空全部持久日志，并在文件真正删除之后才返回。
      *
      * 必须在 writer 的线程上串行执行：先关闭并重置 writer，再删文件。调用方若直接删文件，
      * 只会删掉目录项，旧的 BufferedWriter 仍指向那个已 unlink 的 inode，之后所有日志都写进
      * 一个谁也读不到的文件，直到进程重启或跨天换文件。
+     *
+     * 同样因为删除排在 writer 队列里，本函数返回之前文件可能还在磁盘上：调用方必须等它返回
+     * 再去重读历史，否则刚清掉的行会被重新发布到页面和导出里。
      */
-    fun clear() {
+    suspend fun clear() {
         if (!initialized) return
-        executor.execute {
-            try {
-                writer?.close()
-            } catch (e: Exception) {
-                // 忽略关闭错误，文件仍要被删掉
+        val completed = CompletableDeferred<Unit>()
+        try {
+            executor.execute {
+                try {
+                    try {
+                        writer?.close()
+                    } catch (e: Exception) {
+                        // 忽略关闭错误，文件仍要被删掉
+                    }
+                    writer = null
+                    currentFile = null
+                    // 清空后允许立即重新清理
+                    lastCleanupAt = 0L
+                    try {
+                        LogFileManager.getAllLogFiles(context).forEach { it.delete() }
+                    } catch (e: Exception) {
+                        // 忽略删除错误
+                    }
+                } finally {
+                    // 保证等待方一定被唤醒，任何一个删除异常都不能把调用方挂在这里
+                    completed.complete(Unit)
+                }
             }
-            writer = null
-            currentFile = null
-            // 清空后允许立即重新清理
-            lastCleanupAt = 0L
-            try {
-                LogFileManager.getAllLogFiles(context).forEach { it.delete() }
-            } catch (e: Exception) {
-                // 忽略删除错误
-            }
+        } catch (e: RejectedExecutionException) {
+            // writer 已 shutdown，队列里不会再有真实工作，等下去没有意义
+            return
         }
+        completed.await()
     }
 
     /**
@@ -241,7 +258,7 @@ object LogSink {
             }
         }
     }
-    
+
     /**
      * 关闭日志写入器
      * 一般不需要手动调用，系统会在进程结束时自动清理

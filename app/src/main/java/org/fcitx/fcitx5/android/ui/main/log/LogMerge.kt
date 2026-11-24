@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.ui.main.log
 
 import java.util.Calendar
+import kotlin.math.abs
 
 /**
  * 一行 threadtime 日志解析出来的字段。
@@ -22,8 +23,9 @@ internal data class ParsedLogLine(
     val epochMillis: Long
 ) {
     /**
-     * 事件的跨来源身份。时间不参与比较：LogSink 记的是 System.currentTimeMillis()，
-     * logd 记的是接收时刻，同一事件两边会差几毫秒，带上时间反而匹配不上。
+     * 事件的跨来源身份。时间不进这个字符串：LogSink 记的是 System.currentTimeMillis()，
+     * logd 记的是接收时刻，同一事件两边会差几毫秒，要求相等反而匹配不上；两者只在
+     * [DUPLICATE_TIME_TOLERANCE_MS] 的邻域内配对，见 [DuplicateCandidates]。
      * pid 参与比较：历史文件跨进程保留，不同进程里 tid 与正文可能偶然相同。
      */
     val identity: String get() = "$pid\t$tid\t$level\t$tag\t$message"
@@ -40,6 +42,61 @@ private val threadtimeRegex = Regex(
 
 /** 跨年容忍：12 月的历史行在 1 月被读到时会落到未来，那时按上一年解释。 */
 private const val YEAR_ROLLOVER_TOLERANCE_MS = 36L * 60 * 60 * 1000
+
+/**
+ * 同一条事件在两个来源之间的时间差容忍。
+ *
+ * LogSink 记的是 System.currentTimeMillis()，logd 记的是它收到消息的时刻，同一事件两边
+ * 只差几毫秒，要求相等就永远匹配不上。窗口也不能宽：同一个身份对应的就是同一条正文，
+ * 日志里反复出现的同文事件本身是不同事件（例如 "service.onStartInput restarting=false"），
+ * 窗口越宽，越可能拿一条早已被 logcat 缓冲区丢掉的旧记录去抵消新事件。
+ */
+private const val DUPLICATE_TIME_TOLERANCE_MS = 500L
+
+/**
+ * 一个身份在持久历史里的候选时间。
+ *
+ * 匹配必须落在 [DUPLICATE_TIME_TOLERANCE_MS] 的邻域里：只按字段身份计数的话，一条旧的
+ * 同文事件会抵消一次新的同文事件。历史读取完成之后、logcat 快照完成之前写下的那条事件
+ * 正落在这种窗口里——它的 logcat 记录还在缓冲区，计数却被旧记录占着，于是这一行被丢掉，
+ * resumeFrom 又推到它之后，实时 reader 也不会补回来。
+ */
+private class DuplicateCandidates(timestamps: LongArray) {
+
+    private val times = timestamps
+    private val consumed = BooleanArray(times.size)
+
+    /** 上次查询的时间；快照按时间递增，只有递增时才能把游标推到窗口下界。 */
+    private var lastQuery = Long.MIN_VALUE
+    private var cursor = 0
+
+    /** 消耗掉时间邻域内**最接近**的那条候选；邻域里没有候选时返回 false。 */
+    fun consume(epochMillis: Long): Boolean {
+        if (epochMillis < lastQuery) {
+            // 快照时间倒退（不同缓冲区交错）时退回从头扫描，否则游标会越过仍可用的候选
+            cursor = 0
+        } else {
+            val lowerBound = epochMillis - DUPLICATE_TIME_TOLERANCE_MS
+            // 比窗口下界还早的候选不会再匹配任何后续快照行
+            while (cursor < times.size && times[cursor] < lowerBound) cursor++
+        }
+        lastQuery = epochMillis
+        val upperBound = epochMillis + DUPLICATE_TIME_TOLERANCE_MS
+        var best = -1
+        var index = cursor
+        while (index < times.size && times[index] <= upperBound) {
+            if (!consumed[index] &&
+                (best < 0 || abs(times[index] - epochMillis) < abs(times[best] - epochMillis))
+            ) {
+                best = index
+            }
+            index++
+        }
+        if (best < 0) return false
+        consumed[best] = true
+        return true
+    }
+}
 
 /**
  * threadtime 只写月日、不写年份，年份要用读取时刻补全。
@@ -143,14 +200,20 @@ internal fun mergePersistedAndLogcat(
     val clock = ThreadtimeClock(nowMillis)
     val parsedPersisted = persisted.map { parseLogLine(it, clock) }
 
-    // 同一事件在两个来源各有一份时，logcat 那份是多出来的。用计数匹配：
-    // 反复出现的同一条消息各出现几次，就消掉几次，不会多消也不会少消。
-    val duplicated = HashMap<String, Int>()
+    // 同一事件在两个来源各有一份时，logcat 那份是多出来的。匹配按身份找出候选，
+    // 再要求时间落在 DUPLICATE_TIME_TOLERANCE_MS 的邻域里：反复出现的同文事件各消几次，
+    // 但绝不会用一条几秒前的旧记录抵消掉刚写下的新事件。
+    val persistedTimes = HashMap<String, MutableList<Long>>()
     var persistedMax = Long.MIN_VALUE
     parsedPersisted.forEach { parsed ->
         if (parsed == null) return@forEach
-        duplicated[parsed.identity] = (duplicated[parsed.identity] ?: 0) + 1
+        persistedTimes.getOrPut(parsed.identity) { ArrayList(1) }.add(parsed.epochMillis)
         if (parsed.epochMillis > persistedMax) persistedMax = parsed.epochMillis
+    }
+    // 候选必须按时间升序：快照游标只会前进，靠升序才能高效地跳过已过窗口的候选。
+    val duplicated = HashMap<String, DuplicateCandidates>(persistedTimes.size)
+    persistedTimes.forEach { (identity, times) ->
+        duplicated[identity] = DuplicateCandidates(times.sorted().toLongArray())
     }
 
     var snapshotMax = Long.MIN_VALUE
@@ -167,9 +230,7 @@ internal fun mergePersistedAndLogcat(
         }
         cursor = parsed.epochMillis
         if (parsed.epochMillis > snapshotMax) snapshotMax = parsed.epochMillis
-        val remaining = duplicated[parsed.identity] ?: 0
-        if (remaining > 0) {
-            duplicated[parsed.identity] = remaining - 1
+        if (duplicated[parsed.identity]?.consume(parsed.epochMillis) == true) {
             return@forEach
         }
         extras.add(line)
