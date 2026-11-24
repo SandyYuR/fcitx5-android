@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 #include <limits>
 #include <sstream>
 #include <rime_levers_api.h>
@@ -582,7 +583,29 @@ bool Engine::deploymentUsable() {
         schema.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") != std::string::npos)
         return false;
     const auto compiled = build / (schema + ".schema.yaml");
-    return std::filesystem::is_regular_file(compiled, ec) && std::filesystem::file_size(compiled, ec) > 0;
+    if (!std::filesystem::is_regular_file(compiled, ec) ||
+        std::filesystem::file_size(compiled, ec) == 0) return false;
+    // A compiled schema YAML appears before its dictionaries finish compiling. EVO can write
+    // it and then fail on the dictionary unit, so also require the active schema's main
+    // dictionary table, mirroring what the first keystroke needs.
+    if (RIME_API_AVAILABLE(api_, schema_open) && RIME_API_AVAILABLE(api_, config_get_string) &&
+        RIME_API_AVAILABLE(api_, config_close)) {
+        RimeConfig config{};
+        if (!api_->schema_open(schema.c_str(), &config)) return false;
+        ScopeExit close([&] { api_->config_close(&config); });
+        char dictionary[256]{};
+        if (!api_->config_get_string(
+                &config, "translator/dictionary", dictionary, sizeof(dictionary))) return false;
+        const std::string dict = safe(dictionary);
+        if (dict.empty() || dict == "." || dict == ".." ||
+            dict.find_first_not_of(
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") !=
+                std::string::npos) return false;
+        const auto table = build / (dict + ".table.bin");
+        return std::filesystem::is_regular_file(table, ec) &&
+               std::filesystem::file_size(table, ec) > 0;
+    }
+    return true;
 }
 void Engine::acceptUsableDeployment() {
     if (!deployFailed_.load() || !deploymentUsable()) return;
@@ -785,13 +808,36 @@ std::string Engine::currentSchema() {
         char schema[1024]{};
         if (api_->get_current_schema(session_, schema, sizeof(schema))) return safe(schema);
     }
-    // Settings can be opened before any editor created a session. librime then activates the
-    // first schema of schema_list, which is also the first entry get_schema_list returns.
+    // Settings can be opened before any editor created a session. librime then restores
+    // var/previously_selected_schema from user.yaml; only when that is absent does it activate
+    // the first schema of schema_list.
     if (!started_ || api_->is_maintenance_mode()) return {};
     RimeSchemaList list{};
     if (!api_->get_schema_list(&list)) return {};
     ScopeExit cleanup([&] { api_->free_schema_list(&list); });
-    return list.size > 0 ? safe(list.list[0].schema_id) : std::string();
+    if (list.size == 0) return {};
+    std::string preferred;
+    if (std::ifstream input{std::filesystem::path(user_) / "user.yaml"}) {
+        std::string line;
+        const std::string key = "previously_selected_schema:";
+        while (std::getline(input, line)) {
+            const auto first = line.find_first_not_of(" \t");
+            if (first == std::string::npos) continue;
+            const std::string trimmed = line.substr(first);
+            if (trimmed.compare(0, key.size(), key)) continue;
+            std::string value = trimmed.substr(key.size());
+            const auto begin = value.find_first_not_of(" \t\"");
+            const auto end = value.find_last_not_of(" \t\"");
+            if (begin != std::string::npos && end != std::string::npos)
+                preferred = value.substr(begin, end - begin + 1);
+            break;
+        }
+    }
+    for (size_t i = 0; i < list.size; ++i) {
+        const auto id = safe(list.list[i].schema_id);
+        if (!preferred.empty() && id == preferred) return id;
+    }
+    return safe(list.list[0].schema_id);
 }
 bool Engine::selectSchemas(const std::vector<std::string>& ids) {
     owner();

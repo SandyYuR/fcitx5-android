@@ -16,6 +16,9 @@
     <string name="rime_input_types_switched">Тип ввода переключён</string>
     <string name="rime_input_types_saved">Тип ввода сохранён, но развёртывание не удалось</string>
     <string name="rime_input_types_failed">Не удалось переключить тип ввода</string>
+    <string name="rime_schema_current">Текущая схема</string>
+    <string name="rime_input_types_for_scheme">Тип ввода · %1$s</string>
+    <string name="rime_schema_selector_title">Включённые схемы</string>
 
     <string name="addons">Дополнения</string>
     <string name="conf">Конфигурация</string>

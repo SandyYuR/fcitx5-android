@@ -55,22 +55,32 @@ internal object RimeInputTypesRepository {
         if (!user.isDirectory) return null
         val yaml = WanxiangYaml()
         val schema = findSchema(user, activeSchema, yaml) ?: return null
+        var types = schema.types
         var enabled = schema.enabled
         var reset = schema.reset
         if (schema.customFile.isFile) {
             val patch = runCatching { patch(yaml, schema.customFile) }.getOrNull()
             if (patch != null) {
+                // The patch may restate the option catalog as well as the selection. Only the
+                // effective catalog may be used for validation, otherwise an option that the
+                // engine no longer knows would be written and silently break the scheme.
+                val customOptions = scoped(yaml, patch, "input_types/options")
+                if (customOptions != null) {
+                    val parsed = parseTypes(yaml, customOptions as? SequenceNode)
+                    if (parsed.isEmpty()) return null
+                    types = parsed
+                }
                 stringList(scoped(yaml, patch, "input_types/enabled"))
                     ?.takeIf { it.isNotEmpty() }?.let { enabled = it }
                 (scoped(yaml, patch, "input_types/reset") as? ScalarNode)?.value?.trim()
                     ?.takeIf { it.isNotEmpty() }?.let { reset = it }
             }
         }
-        val known = schema.types.map { it.option }.toSet()
+        val known = types.map { it.option }.toSet()
         enabled = enabled.filter { it in known }
         if (reset !in known) reset = null
         if (enabled.isEmpty()) enabled = listOfNotNull(reset)
-        return RimeInputTypes(schema.types, enabled, reset, schema.id, schema.customFile)
+        return RimeInputTypes(types, enabled, reset, schema.id, schema.customFile)
     }
 
     /** Rewrites both keys so that exactly one type is built and active. */
@@ -283,7 +293,12 @@ internal object RimeInputTypesRepository {
                 i++
                 continue
             }
-            if (indentOf(line) <= keyIndent) break
+            val indent = indentOf(line)
+            // YAML allows a block sequence to sit at the same indentation as its key
+            // ("enabled:" followed by "- zrm"). Keep those items inside the block; a regular
+            // sibling key at the same indentation still terminates it.
+            if (indent < keyIndent) break
+            if (indent == keyIndent && !line.trimStart().startsWith("-")) break
             i++
         }
         return i

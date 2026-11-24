@@ -57,6 +57,9 @@ struct Fake {
     int freedIterator = 0, cleared = 0, clearedTabs = 0;
     std::string commit, selectedLabel, preedit, clientApp, distribution, version, tabLabel = "ni";
     std::string schema = "test", schemaName = "Test";
+    // Ordered regardless of schema_list order: user.yaml restores the previously selected one.
+    std::vector<std::pair<std::string, std::string>> schemas{{"test", "Test"}};
+    std::string dictionary = "test";
     std::string rawInput;
     size_t rawCaret = 0;
     bool syncLaunch = true, syncPending = false, syncThrows = false, userDbHeld = false, failStartup = false;
@@ -160,6 +163,11 @@ RimeApi api() {
         ++f.userConfigOpens; config->ptr = &f; return true;
     };
     a.config_close = [](RimeConfig*) -> Bool { return true; };
+    a.schema_open = [](const char*, RimeConfig* config) -> Bool { config->ptr = &f; return true; };
+    a.config_get_string = [](RimeConfig*, const char* key, char* value, size_t size) -> Bool {
+        if (std::strcmp(key, "translator/dictionary")) return false;
+        std::snprintf(value, size, "%s", f.dictionary.c_str()); return true;
+    };
     a.config_list_size = [](RimeConfig*, const char* key) -> size_t {
         return std::strcmp(key, "switcher/save_options") ? 0 : f.saveOptions.size();
     };
@@ -174,8 +182,13 @@ RimeApi api() {
         f.savedOptions[key] = value; return true;
     };
     a.get_schema_list = [](RimeSchemaList* list) -> Bool {
-        static RimeSchemaListItem items[] = {{const_cast<char*>("test"), const_cast<char*>("Test"), nullptr}};
-        list->list = items; list->size = f.hasSchema ? 1 : 0; return true;
+        static std::vector<std::string> ids, names;
+        static std::vector<RimeSchemaListItem> items;
+        ids.clear(); names.clear(); items.clear();
+        for (const auto& entry : f.schemas) { ids.push_back(entry.first); names.push_back(entry.second); }
+        items.reserve(ids.size());
+        for (size_t i = 0; i < ids.size(); ++i) items.push_back({ids[i].data(), names[i].data(), nullptr});
+        list->list = items.data(); list->size = f.hasSchema ? items.size() : 0; return true;
     };
     a.free_schema_list = [](RimeSchemaList*) {};
     a.get_input_tabs = [](RimeSessionId, size_t, char*** labels, size_t** spans, int** sources, size_t* count) -> Bool {
@@ -762,6 +775,7 @@ void testUsableDeploymentWarning() {
     // Both the workspace manifest and the active schema's compiled YAML must exist.
     std::ofstream(build / "default.yaml") << "keep data";
     std::ofstream(build / "test.schema.yaml") << "keep data";
+    std::ofstream(build / "test.table.bin") << "keep data";
     f = {}; auto a = api(); Engine engine(&a);
     f.failDeploy = true;
     engine.start(shared.string(), user.string(), "development", true);
@@ -790,6 +804,34 @@ void testUsableDeploymentWarning() {
         partialRejected = std::strcmp(error.what(), "部署失败，请检查方案文件后重新部署") == 0;
     }
     CHECK(partialRejected);
+    // A compiled schema YAML is written before dictionary units finish; the main table is
+    // what the first keystroke needs, so its absence still fails closed.
+    f = {}; auto d = api(); Engine noTable(&d); f.failDeploy = true;
+    const fs::path noTableUser = root / "no-table", noTableBuild = noTableUser / "build";
+    fs::create_directories(noTableBuild);
+    std::ofstream(noTableBuild / "default.yaml") << "keep data";
+    std::ofstream(noTableBuild / "test.schema.yaml") << "keep data";
+    bool noTableRejected = false;
+    try { noTable.start(shared.string(), noTableUser.string(), "development", true); }
+    catch (const std::runtime_error& error) {
+        noTableRejected = std::strcmp(error.what(), "部署失败，请检查方案文件后重新部署") == 0;
+    }
+    CHECK(noTableRejected);
+}
+void testCurrentSchemaPreference() {
+    namespace fs = std::filesystem;
+    const TemporaryDirectory temporary;
+    const auto root = temporary.path();
+    const fs::path user = root / "user";
+    fs::create_directories(user);
+    f = {}; f.schemas = {{"first", "First"}, {"second", "Second"}};
+    auto a = api(); Engine engine(&a); engine.start("shared", user.string());
+    CHECK(engine.currentSchema() == "first");
+    std::ofstream(user / "user.yaml") << "var:\n  previously_selected_schema: second\n";
+    CHECK(engine.currentSchema() == "second");
+    std::ofstream(user / "user.yaml") << "var:\n  previously_selected_schema: \"third\"\n";
+    CHECK(engine.currentSchema() == "first");
+    engine.stop();
 }
 }
 int main(int argc, char** argv) {
@@ -801,7 +843,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequence(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); testUsableDeploymentWarning(); std::cout << "engine contract: passed\n";
+        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequence(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); testUsableDeploymentWarning(); testCurrentSchemaPreference(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

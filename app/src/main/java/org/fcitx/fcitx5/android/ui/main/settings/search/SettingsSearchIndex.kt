@@ -321,10 +321,10 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.rime_input_types, P_RIME,
             listOf("input types", "输入类型", "双拼", "自然码", "小鹤", "输入方案", "prisms"),
-            route = rimeRoute(context),
-            // Not a SharedPreferences key: it is synthesized by InputMethodConfigFragment, so it
-            // must not go through PREFERENCE_KEYS (whose values must exist in the prefs sources).
-            preferenceKey = "rime_input_types"
+            route = SettingsRoute.MultiSelect(
+                context.getString(R.string.rime_schema_selector_title),
+                "rime", "schema-selector", "Items", 1
+            )
         ),
         SettingsSearchEntry(
             R.string.wanxiang_group, P_RIME,

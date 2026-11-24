@@ -1242,6 +1242,9 @@
     <string name="rime_input_types_switched">输入类型已切换</string>
     <string name="rime_input_types_saved">输入类型已保存，但重新部署失败</string>
     <string name="rime_input_types_failed">切换输入类型失败</string>
+    <string name="rime_schema_current">当前方案</string>
+    <string name="rime_input_types_for_scheme">输入类型 · %1$s</string>
+    <string name="rime_schema_selector_title">启用的输入方案</string>
     <string name="rime_engine_variants_summary">选择内置、导入或插件引擎</string>
     <string name="rime_engine_variants_description">选择要使用的 Rime 引擎及其工作目录。外部引擎不可用时，会自动切回内置引擎。</string>
     <string name="rime_engine_loading">正在读取引擎和工作目录…</string>

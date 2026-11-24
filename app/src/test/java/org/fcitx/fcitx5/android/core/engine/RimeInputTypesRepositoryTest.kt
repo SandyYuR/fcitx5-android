@@ -204,6 +204,35 @@ class RimeInputTypesRepositoryTest {
         assertEquals("pinyin", scalar(yaml.member(group, "reset")))
     }
 
+
+    @Test fun customOptionsOverrideTheSchemaCatalog() {
+        val dir = user(
+            customText = "patch:\n" +
+                "  input_types/options:\n" +
+                "    - {option: pinyin, label: 全拼}\n" +
+                "    - {option: zrm, label: 自然码}\n" +
+                "  input_types/enabled: [zrm]\n" +
+                "  input_types/reset: zrm\n"
+        )
+        val types = requireNotNull(RimeInputTypesRepository.read(dir))
+        assertEquals(listOf("pinyin", "zrm"), types.types.map { it.option })
+        assertEquals("自然码", types.summary())
+
+        // Validation must use the effective catalog: flypy only exists in the schema file.
+        assertTrue(runCatching { RimeInputTypesRepository.select(dir, "flypy") }.isFailure)
+    }
+
+    @Test fun sameIndentBlockEnabledListIsRewritten() {
+        val dir = user(customText = "patch:\n  input_types/enabled:\n  - zrm\n  input_types/reset: zrm\n")
+        RimeInputTypesRepository.select(dir, "flypy")
+
+        val file = File(dir, "wanxiang.custom.yaml")
+        val text = file.readText()
+        assertTrue(!text.contains("- zrm"))
+        assertTrue(text.contains("input_types/reset: flypy"))
+        assertEquals(listOf("flypy") to "flypy", patchInputTypes(file))
+    }
+
     @Test fun ambiguousOrDuplicatePatchFormsFailWithoutTouchingTheFile() {
         val ambiguous = user(
             customText = "patch:\n  input_types:\n    enabled: [zrm]\n    reset: zrm\n  input_types/enabled: [zrm]\n"

@@ -16,6 +16,9 @@
     <string name="rime_input_types_switched">入力タイプを切り替えました</string>
     <string name="rime_input_types_saved">入力タイプは保存されましたが、デプロイに失敗しました</string>
     <string name="rime_input_types_failed">入力タイプの切り替えに失敗しました</string>
+    <string name="rime_schema_current">現在のスキーム</string>
+    <string name="rime_input_types_for_scheme">入力タイプ · %1$s</string>
+    <string name="rime_schema_selector_title">有効な入力スキーム</string>
 
     <string name="addons">アドオン</string>
     <string name="conf">設定</string>

@@ -16,6 +16,9 @@
     <string name="rime_input_types_switched">입력 유형을 전환했습니다</string>
     <string name="rime_input_types_saved">입력 유형은 저장되었지만 배포하지 못했습니다</string>
     <string name="rime_input_types_failed">입력 유형 전환에 실패했습니다</string>
+    <string name="rime_schema_current">현재 방식</string>
+    <string name="rime_input_types_for_scheme">입력 유형 · %1$s</string>
+    <string name="rime_schema_selector_title">사용 중인 방식</string>
 
     <string name="addons">애드온</string>
     <string name="conf">구성</string>

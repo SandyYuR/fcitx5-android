@@ -1246,6 +1246,9 @@
     <string name="rime_input_types_switched">Input type switched</string>
     <string name="rime_input_types_saved">Input type saved, but redeployment failed</string>
     <string name="rime_input_types_failed">Failed to switch input type</string>
+    <string name="rime_schema_current">Current scheme</string>
+    <string name="rime_input_types_for_scheme">Input type · %1$s</string>
+    <string name="rime_schema_selector_title">Enabled schemes</string>
     <string name="rime_engine_variants_summary">Choose a built-in, imported, or provider engine</string>
     <string name="rime_engine_variants_description">Choose a Rime engine and its working directory. If an external engine is unavailable, the built-in engine takes over.</string>
     <string name="rime_engine_loading">Reading engines and working directories…</string>

@@ -16,6 +16,9 @@
     <string name="rime_input_types_switched">Tipo de entrada cambiado</string>
     <string name="rime_input_types_saved">Tipo de entrada guardado, pero la implementación falló</string>
     <string name="rime_input_types_failed">No se pudo cambiar el tipo de entrada</string>
+    <string name="rime_schema_current">Esquema actual</string>
+    <string name="rime_input_types_for_scheme">Tipo de entrada · %1$s</string>
+    <string name="rime_schema_selector_title">Esquemas activados</string>
 
     <string name="addons">Complementos</string>
     <string name="conf">Configuración</string>
