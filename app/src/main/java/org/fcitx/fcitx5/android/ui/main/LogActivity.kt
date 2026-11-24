@@ -53,6 +53,14 @@ class LogActivity : SettingsUiActivity() {
 
     private var fromCrash = false
     private var crashStackTrace: String? = null
+
+    /**
+     * 崩溃堆栈是否已经被用户清空。
+     *
+     * 必须跟着 saved state 走：进程被回收后从最近任务恢复时，系统会把原启动 Intent 原样
+     * 再发一遍，光删本地 extra 拦不住它。
+     */
+    private var crashStackTraceCleared = false
     private var crashDialog: AlertDialog? = null
 
     private lateinit var launcher: ActivityResultLauncher<String>
@@ -119,8 +127,10 @@ class LogActivity : SettingsUiActivity() {
         }
 
         // 检查是否是崩溃报告并初始化 logcat
-        fromCrash = intent.hasExtra(FROM_CRASH)
-        crashStackTrace = intent.getStringExtra(CRASH_STACK_TRACE)
+        val restored = restoreCrashSession(savedInstanceState, intent)
+        fromCrash = restored.fromCrash
+        crashStackTrace = restored.stackTrace
+        crashStackTraceCleared = restored.cleared
         logcat = if (fromCrash) {
             supportActionBar?.setTitle(R.string.crash_logs)
             if (savedInstanceState == null) {
@@ -266,6 +276,12 @@ class LogActivity : SettingsUiActivity() {
         super.onDestroy()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // 进程回收后只剩这份状态能证明「崩溃堆栈已经清空」
+        outState.putBoolean(STATE_CRASH_STACK_CLEARED, crashStackTraceCleared)
+    }
+
     private fun setupLevelSpinner() {
         val levels = listOf(
             R.string.log_filter_all_levels,
@@ -392,10 +408,12 @@ class LogActivity : SettingsUiActivity() {
     }
 
     /**
-     * 丢弃崩溃堆栈的两个副本：内存字段负责当前这一帧，Intent extra 负责旋转重建。
+     * 丢弃崩溃堆栈的三个副本：内存字段负责当前这一帧，Intent extra 负责同进程重建，
+     * saved state 负责进程被回收后重新拉起的那一次。
      */
     private fun clearCrashStackTrace() {
         crashStackTrace = null
+        crashStackTraceCleared = true
         intent.removeExtra(CRASH_STACK_TRACE)
     }
 
@@ -512,4 +530,36 @@ class LogActivity : SettingsUiActivity() {
             getString(R.string.log_status_filtered_format, visible, levels)
         }
     }
+}
+
+/** 清空崩溃堆栈这件事也要跨进程传递，键名固定。 */
+internal const val STATE_CRASH_STACK_CLEARED = "crash_stack_trace_cleared"
+
+/** 崩溃页在 onCreate 时真正要用的三样东西。 */
+internal data class RestoredCrashSession(
+    val fromCrash: Boolean,
+    val cleared: Boolean,
+    val stackTrace: String?
+)
+
+/**
+ * 从 saved state 与启动 Intent 里还原崩溃页。
+ *
+ * 进程被系统回收后从最近任务恢复时，system server 会把原启动 Intent 原样再发一遍——
+ * [android.app.Activity.getIntent] 只读写本地字段，删 extra 拦不住服务端那份。所以清空
+ * 状态必须走 saved state：只要它说清空过，这次启动就当作普通日志页，绝不再贴回旧堆栈。
+ */
+internal fun restoreCrashSession(
+    savedInstanceState: Bundle?,
+    launchIntent: Intent
+): RestoredCrashSession {
+    val cleared = savedInstanceState?.getBoolean(STATE_CRASH_STACK_CLEARED) == true
+    if (cleared) {
+        return RestoredCrashSession(fromCrash = false, cleared = true, stackTrace = null)
+    }
+    return RestoredCrashSession(
+        fromCrash = launchIntent.hasExtra(LogActivity.FROM_CRASH),
+        cleared = false,
+        stackTrace = launchIntent.getStringExtra(LogActivity.CRASH_STACK_TRACE)
+    )
 }

@@ -275,6 +275,9 @@ private const val WALL_CLOCK_PREFIX_LENGTH = 18
 /** 时区偏移都是整分钟；mtime 与那一行的毫秒差必须抹掉，否则「偏移没变」的快速路径永远不成立。 */
 private const val MILLIS_PER_MINUTE = 60_000.0
 
+/** 文件名里记的偏移是分钟，还原成 epoch 要的是毫秒。 */
+private const val MILLIS_PER_MINUTE_EXACT = 60_000L
+
 /** 现实中的时区偏移都是 15 分钟的整数倍（含 +5:45 这类）。 */
 private const val QUARTER_HOUR_MS = 15 * 60_000L
 
@@ -289,12 +292,16 @@ private const val MAX_PLAUSIBLE_OFFSET_MS = 14 * 60 * 60_000L
  * 成未来时刻，实时 reader 拿着一个未来的 -T 起点，页面一直空到时钟追上；与 logcat 里那
  * 批孪生行的时间也不再落进去重容差，同一条事件于是显示两遍。
  *
- * 文件最后修改时间就是最后一行写入的 epoch（writer 每条事件都 flush），所以「写入时相对
- * UTC 的偏移 = 该行的墙上时间按 UTC 解释 − 文件 mtime」可以反推。偏移与当前时区一致时整
- * 份文件原样返回；不一致时逐行还原成真实 epoch 再按当前时区重新渲染，读取端于是只用一把
- * 时钟就能解释整份历史。
+ * 写入偏移优先取文件名里记的那一段：LogFileManager 让每份文件自带一个偏移，时区变了就轮转
+ * 到新文件，所以同一份文件里的行属于同一个偏移。这是权威来源，与内容、mtime 都无关。
+ * 旧版本文件没有这段元数据，才退回用「文件最后修改时间就是最后一行写入的 epoch」反推；
+ * 而且只在 [LogFileManager.LogFileContent.modifiedMillis] 可信（读取期间没有新写入）时才反
+ * 推，否则原样放着——拿一个对不上的 mtime 去算偏移，真实时区没变也会把整份历史挪走。
  *
- * 同一文件里跨夏令时写入的行会按文件末尾那个偏移整体平移，误差等于夏令时的差值；这比按
+ * 偏移与当前时区一致时整份文件原样返回；不一致时逐行还原成真实 epoch 再按当前时区重新
+ * 渲染，读取端于是只用一把时钟就能解释整份历史。
+ *
+ * 同一文件里跨夏令时写入的行会按该文件记录的偏移整体平移，误差等于夏令时的差值；这比按
  * 当前时区整体错开几小时要小得多，也不再影响实时 reader 的起点。
  */
 internal fun normalizePersistedWallClock(
@@ -306,8 +313,13 @@ internal fun normalizePersistedWallClock(
     val local = Calendar.getInstance(zone)
     val normalized = ArrayList<String>(groups.sumOf { it.lines.size })
     groups.forEach { group ->
-        val anchor = group.file.lastModified().takeIf { it > 0L } ?: nowMillis
-        val written = writtenOffsetMillis(group.lines, anchor, utc)
+        val anchor = group.modifiedMillis ?: nowMillis
+        val written = when {
+            group.offsetMinutes != null -> group.offsetMinutes.toLong() * MILLIS_PER_MINUTE_EXACT
+            group.modifiedMillis != null -> writtenOffsetMillis(group.lines, group.modifiedMillis, utc)
+            // 内容与 mtime 对不上、名字里又没有偏移：没有可信的写入时区，原样留着
+            else -> null
+        }
         if (written == null || written == zone.getOffset(anchor).toLong()) {
             // 写这份文件的时区与现在一致：连字符串都不用重新渲染，几十万行也只是一次拷贝。
             normalized.addAll(group.lines)

@@ -15,12 +15,17 @@ import java.io.RandomAccessFile
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
+import kotlin.math.roundToInt
 
 /**
  * 日志文件的轮转与目录顺序。
  *
  * 两者必须只由文件名决定：保留策略会在编号文件仍被写入时删掉当天的基准文件，
  * 一旦轮转回头复用基准文件、或者目录顺序还按 lastModified 排，日志时间线就会错位。
+ *
+ * 文件名还带着写入时的时区偏移（见 [LogFileManager.fileName]）：同一份文件里只能有一种
+ * 偏移，时区变了就必须换一个文件，否则读取端只能拿末尾那个偏移去解释全部历史。
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28])
@@ -30,8 +35,16 @@ class LogFileRotationTest {
     private val today = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
     private val dir: File get() = LogFileManager.getLogDir(context)
 
-    private fun base() = File(dir, "app-log-$today.txt")
-    private fun numbered(index: Int) = File(dir, "app-log-$today-$index.txt")
+    /** 当前默认时区的偏移，新文件一律按它命名。 */
+    private val currentOffsetMinutes: Int
+        get() = (TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60_000.0).roundToInt()
+
+    private fun todayFile(index: Int, offsetMinutes: Int = currentOffsetMinutes) =
+        File(dir, LogFileManager.fileName(today, index, offsetMinutes))
+
+    /** 旧版本留下的文件：名字里没有偏移。 */
+    private fun legacyFile(index: Int) =
+        File(dir, if (index == 0) "app-log-$today.txt" else "app-log-$today-$index.txt")
 
     /** 只改长度不写数据：RandomAccessFile.setLength 在 NTFS 上是稀疏扩展，瞬间完成。 */
     private fun grow(file: File, size: Long) {
@@ -43,16 +56,18 @@ class LogFileRotationTest {
 
     @Test
     fun aFullBaseFileRotatesToTheFirstNumberedFile() {
-        fillToLimit(base())
-        assertEquals(numbered(1).name, LogFileManager.getCurrentLogFile(context).name)
+        fillToLimit(todayFile(0))
+        assertEquals(todayFile(1).name, LogFileManager.getCurrentLogFile(context).name)
     }
 
     @Test
     fun rotationKeepsMovingForwardInsteadOfReusingEarlierIndexes() {
-        fillToLimit(base())
-        assertEquals(numbered(1).name, LogFileManager.getCurrentLogFile(context).name)
-        fillToLimit(numbered(1))
-        assertEquals(numbered(2).name, LogFileManager.getCurrentLogFile(context).name)
+        fillToLimit(todayFile(0))
+        val first = LogFileManager.getCurrentLogFile(context)
+        assertEquals(todayFile(1).name, first.name)
+
+        fillToLimit(first)
+        assertEquals(todayFile(2).name, LogFileManager.getCurrentLogFile(context).name)
     }
 
     /**
@@ -62,17 +77,17 @@ class LogFileRotationTest {
      */
     @Test
     fun aRetentionDeletedBaseFileIsNotRecreatedWhileANumberedFileIsActive() {
-        fillToLimit(base())
+        fillToLimit(todayFile(0))
         val active = LogFileManager.getCurrentLogFile(context)
-        assertEquals(numbered(1).name, active.name)
+        assertEquals(todayFile(1).name, active.name)
         active.appendText("still being written\n")
 
-        assertTrue(base().delete())
+        assertTrue(todayFile(0).delete())
 
-        assertEquals(numbered(1).name, LogFileManager.getCurrentLogFile(context).name)
+        assertEquals(todayFile(1).name, LogFileManager.getCurrentLogFile(context).name)
         // writer 记着自己的活动文件，快路径也必须留在它上面，不能改去写新建的基准文件。
-        assertEquals(numbered(1).name, LogFileManager.getCurrentLogFile(context, active).name)
-        assertFalse("Base file must not be resurrected", base().exists())
+        assertEquals(todayFile(1).name, LogFileManager.getCurrentLogFile(context, active).name)
+        assertFalse("Base file must not be resurrected", todayFile(0).exists())
     }
 
     /**
@@ -81,23 +96,23 @@ class LogFileRotationTest {
      */
     @Test
     fun theHighestNumberedFileKeepsReceivingEventsEvenWhenTheBaseFileIsSmall() {
-        base().appendText("stale, was recreated by the older rotation\n")
-        numbered(1).appendText("older session\n")
-        assertEquals(numbered(1).name, LogFileManager.getCurrentLogFile(context).name)
+        todayFile(0).appendText("stale, was recreated by the older rotation\n")
+        todayFile(1).appendText("older session\n")
+        assertEquals(todayFile(1).name, LogFileManager.getCurrentLogFile(context).name)
     }
 
     @Test
     fun filesAreOrderedByNameNotByModificationTime() {
-        base().appendText("day start\n")
-        numbered(1).appendText("later\n")
-        numbered(2).appendText("latest\n")
+        legacyFile(0).appendText("day start\n")
+        legacyFile(1).appendText("later\n")
+        legacyFile(2).appendText("latest\n")
         // 保留策略删掉基准文件后编号文件继续被写，修改时间与日志时间就不再同序。
-        assertTrue(base().setLastModified(System.currentTimeMillis()))
-        assertTrue(numbered(1).setLastModified(System.currentTimeMillis() - 2_000))
-        assertTrue(numbered(2).setLastModified(System.currentTimeMillis() - 4_000))
+        assertTrue(legacyFile(0).setLastModified(System.currentTimeMillis()))
+        assertTrue(legacyFile(1).setLastModified(System.currentTimeMillis() - 2_000))
+        assertTrue(legacyFile(2).setLastModified(System.currentTimeMillis() - 4_000))
 
         assertEquals(
-            listOf(numbered(2).name, numbered(1).name, base().name),
+            listOf(legacyFile(2).name, legacyFile(1).name, legacyFile(0).name),
             LogFileManager.getAllLogFiles(context).map { it.name }
         )
         assertEquals(
@@ -110,7 +125,40 @@ class LogFileRotationTest {
     fun filesFromOtherDaysAreNotMistakenForTodaysRotation() {
         File(dir, "app-log-19990101.txt").appendText("ancient\n")
         File(dir, "app-log-19990101-3.txt").appendText("ancient, rotated\n")
-        assertEquals(base().name, LogFileManager.getCurrentLogFile(context).name)
+        assertEquals(todayFile(0).name, LogFileManager.getCurrentLogFile(context).name)
+    }
+
+    /** 时区没变时不能无谓地换文件：同一天同一偏移的活动文件要一直被复用。 */
+    @Test
+    fun todaysFileWithTheCurrentOffsetKeepsReceivingEvents() {
+        todayFile(0).appendText("first\n")
+        assertEquals(todayFile(0).name, LogFileManager.getCurrentLogFile(context).name)
+        assertEquals(todayFile(0).name, LogFileManager.getCurrentLogFile(context, todayFile(0)).name)
+    }
+
+    /**
+     * 时区改过之后，旧文件里的行属于上一个偏移。继续往里写，读取端只能拿末尾那个偏移
+     * 解释全部行，旧历史会整体错开几个小时——所以即使没写满也要换文件。
+     */
+    @Test
+    fun aFileWrittenInAnotherOffsetIsNotAppendedToEvenWhenItIsNotFull() {
+        val otherOffset = if (currentOffsetMinutes == 0) 60 else 0
+        val file = todayFile(0, otherOffset).apply { appendText("written in another zone\n") }
+
+        val current = LogFileManager.getCurrentLogFile(context, file)
+        assertEquals(todayFile(1).name, current.name)
+        assertFalse(current.exists())
+    }
+
+    /**
+     * 升级后的第一件事：旧版本文件没有偏移元数据，新事件必须落进一个带偏移的新文件，
+     * 旧文件原样留着，交给读取端按 mtime 反推。
+     */
+    @Test
+    fun aLegacyFileIsRotatedSoNewEventsCarryADefiniteOffset() {
+        legacyFile(0).appendText("from an older version\n")
+        assertEquals(todayFile(1).name, LogFileManager.getCurrentLogFile(context).name)
+        assertEquals("from an older version\n", legacyFile(0).readText())
     }
 
     private companion object {
