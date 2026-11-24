@@ -31,6 +31,13 @@
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>
         <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
         <item name="android:textColorTertiary">?attr/colorOnSurfaceVariant</item>
+        <!-- 日志级别色：日志查看器按级别着色，值随 values-night/colors.xml 切换 -->
+        <item name="colorLogFatal">@color/log_level_fatal</item>
+        <item name="colorLogError">@color/log_level_error</item>
+        <item name="colorLogWarning">@color/log_level_warning</item>
+        <item name="colorLogInfo">@color/log_level_info</item>
+        <item name="colorLogDebug">@color/log_level_debug</item>
+        <item name="colorLogVerbose">@color/log_level_verbose</item>
     </style>
 
     <style name="Theme.FcitxSettings.Base.Light" parent="Theme.Material3Expressive.Light.NoActionBar">
@@ -62,6 +69,13 @@
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>
         <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
         <item name="android:textColorTertiary">?attr/colorOnSurfaceVariant</item>
+        <!-- 日志级别色：日志查看器按级别着色，值随 values-night/colors.xml 切换 -->
+        <item name="colorLogFatal">@color/log_level_fatal</item>
+        <item name="colorLogError">@color/log_level_error</item>
+        <item name="colorLogWarning">@color/log_level_warning</item>
+        <item name="colorLogInfo">@color/log_level_info</item>
+        <item name="colorLogDebug">@color/log_level_debug</item>
+        <item name="colorLogVerbose">@color/log_level_verbose</item>
     </style>
 
     <style name="Theme.FcitxSettings.Base.Dark" parent="Theme.Material3Expressive.Dark.NoActionBar">
@@ -93,6 +107,13 @@
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>
         <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
         <item name="android:textColorTertiary">?attr/colorOnSurfaceVariant</item>
+        <!-- 日志级别色：日志查看器按级别着色，值随 values-night/colors.xml 切换 -->
+        <item name="colorLogFatal">@color/log_level_fatal</item>
+        <item name="colorLogError">@color/log_level_error</item>
+        <item name="colorLogWarning">@color/log_level_warning</item>
+        <item name="colorLogInfo">@color/log_level_info</item>
+        <item name="colorLogDebug">@color/log_level_debug</item>
+        <item name="colorLogVerbose">@color/log_level_verbose</item>
     </style>
 
     <style name="Theme.FcitxSettings.System" parent="Theme.FcitxSettings.Base" />
@@ -100,12 +121,12 @@
     <style name="Theme.FcitxSettings.System.Dark" parent="Theme.FcitxSettings.Base.Dark" />
 
     <style name="Theme.FcitxAppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
-        <item name="colorLogFatal">@color/red_A700</item>
-        <item name="colorLogError">@color/red_400</item>
-        <item name="colorLogWarning">@color/yellow_800</item>
-        <item name="colorLogInfo">@color/blue_500</item>
-        <item name="colorLogDebug">@color/grey_700</item>
-        <item name="colorLogVerbose">@color/grey_700</item>
+        <item name="colorLogFatal">@color/log_level_fatal</item>
+        <item name="colorLogError">@color/log_level_error</item>
+        <item name="colorLogWarning">@color/log_level_warning</item>
+        <item name="colorLogInfo">@color/log_level_info</item>
+        <item name="colorLogDebug">@color/log_level_debug</item>
+        <item name="colorLogVerbose">@color/log_level_verbose</item>
     </style>
 
     <style name="Theme.InputViewTheme" parent="@android:style/Theme.DeviceDefault.Settings" />

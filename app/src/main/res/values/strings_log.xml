@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Log page copy is localized in Chinese; other app locales use the English defaults. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="log_level">Log Level</string>
+    <string name="search_logs">Search logs</string>
+    <string name="log_filter_label">Filter scope</string>
+    <string name="refresh">Refresh</string>
+    <string name="export_log">Export</string>
+    <string name="clear_log">Clear</string>
+    <string name="log_empty">No logs yet</string>
+    <string name="log_no_matches">No logs match these filters</string>
+    <string name="log_loading">Loading logs…</string>
+    <string name="log_clearing">Clearing logs…</string>
+    <string name="log_status_format">Showing %1$d entries</string>
+    <string name="log_status_filtered_format">Showing %1$d entries · Filter: %2$s</string>
+    <string name="log_filter_all_levels">All levels</string>
+    <string name="log_filter_level_verbose">V (Verbose)</string>
+    <string name="log_filter_level_debug">D (Debug)</string>
+    <string name="log_filter_level_info">I (Info)</string>
+    <string name="log_filter_level_warning">W (Warning)</string>
+    <string name="log_filter_level_error">E (Error)</string>
+    <string name="log_filter_level_fatal">F (Fatal)</string>
+    <string name="log_filter_important">I/W/E (Important)</string>
+    <string name="log_filter_warnings_errors">W/E/F (Warnings and errors)</string>
+    <string name="log_filter_rime_engine">Rime engine logs</string>
+</resources>

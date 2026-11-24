@@ -88,6 +88,8 @@ import org.fcitx.fcitx5.android.input.status.StatusAreaWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.utils.AppUtil
+import org.fcitx.fcitx5.android.utils.LogTag
+import org.fcitx.fcitx5.android.utils.Logx
 import org.fcitx.fcitx5.android.utils.loadThumbnailBitmap
 import org.fcitx.fcitx5.android.core.SubtypeManager
 import org.fcitx.fcitx5.android.daemon.launchOnReady
@@ -109,7 +111,6 @@ import kotlin.math.atan2
 import kotlin.math.hypot
 import kotlin.math.min
 
-private const val VOICE_INPUT_TAG = "FcitxVoiceInput"
 
 class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(KawaiiBarComponent::class),
     InputBroadcastReceiver {
@@ -370,8 +371,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private var voiceInputSubtype: Pair<String, InputMethodSubtype>? = null
 
     private val switchToVoiceInputCallback = View.OnClickListener {
-        Log.i(
-            VOICE_INPUT_TAG,
+        Logx.i(LogTag.Voice,
             "toolbar voice click preferred=$preferredVoiceInput " +
                 "isProvider=${VoiceInputProviderManager.isProviderId(preferredVoiceInput)} " +
                 "subtype=${voiceInputSubtype != null}"
@@ -924,7 +924,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         VoiceInputProviderManager.setUiCallbacks(
             owner = this,
             floatingCommit = { text ->
-                Log.i(VOICE_INPUT_TAG, "floating commit reflected in kawaii bar len=${text.length}")
+                Logx.i(LogTag.Voice, "floating commit reflected in kawaii bar len=${text.length}")
                 idleUi.showVoiceStatus(service.getString(R.string.voice_status_committed))
                 idleUi.hideVoiceStatus()
             },

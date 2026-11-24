@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: LGPL-2.1-or-later
+  ~ SPDX-FileCopyrightText: Copyright 2024 Fcitx5 for Android Contributors
+  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+    android:foreground="?attr/selectableItemBackground">
+
+    <!-- 彩色左侧条 -->
+    <View
+        android:id="@+id/colorBar"
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/colorPrimary" />
+
+    <!-- 级别图标 -->
+    <ImageView
+        android:id="@+id/levelIcon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/log_level"
+        android:src="@drawable/ic_log_info" />
+
+    <!-- 日志文本（可展开） -->
+    <TextView
+        android:id="@+id/logText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="11sp"
+        android:fontFamily="monospace"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:scrollHorizontally="false"
+        android:breakStrategy="simple" />
+
+</LinearLayout>
