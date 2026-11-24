@@ -5,6 +5,21 @@
     <string name="save">Speichern</string>
     <string name="input_methods">Eingabemethoden</string>
     <string name="rime_settings">Rime-Einstellungen</string>
+    <string name="settings_home_category_rime_engine">Rime-Engine</string>
+    <string name="settings_home_rime_engine_summary">Schemata, Bereitstellung und Benutzerwörterbuch</string>
+    <string name="settings_home_rime_scheme_updates_summary">Wanxiang-Update und benutzerdefiniertes Schema-Update</string>
+    <string name="rime_input_types">Eingabetyp</string>
+    <string name="rime_input_types_evo_only">Nur mit der librime-evo-Engine verfügbar</string>
+    <string name="rime_input_types_unsupported">Das aktuelle Schema deklariert keine Eingabetypen</string>
+    <string name="rime_input_types_loading">Eingabetypen werden gelesen…</string>
+    <string name="rime_input_types_switching">Eingabetyp wird gewechselt…</string>
+    <string name="rime_input_types_switched">Eingabetyp gewechselt</string>
+    <string name="rime_input_types_saved">Eingabetyp gespeichert, aber die Bereitstellung ist fehlgeschlagen</string>
+    <string name="rime_input_types_failed">Eingabetyp konnte nicht gewechselt werden</string>
+    <string name="rime_schema_current">Aktuelles Schema</string>
+    <string name="rime_input_types_for_scheme">Eingabetyp · %1$s</string>
+    <string name="rime_schema_selector_title">Aktivierte Schemata</string>
+
     <string name="addons">Addons</string>
     <string name="conf">Konfiguration</string>
     <string name="global_options">Globale Optionen</string>

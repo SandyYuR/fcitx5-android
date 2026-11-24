@@ -48,6 +48,8 @@ public:
                     const std::string& value, bool statistics = false);
     std::optional<RawInput> rawInput(int64_t generation, int64_t revision);
     bool deploy();
+    // True when the last forced deployment reported failures but left a usable workspace.
+    bool deploymentDegraded() const;
     std::vector<std::string> schemas();
     std::vector<std::string> schemaEntries();
     std::vector<std::string> options();
@@ -56,6 +58,9 @@ public:
     // up, down, reset, pin. Empty when the schema does not load such a processor.
     std::vector<std::string> sequenceKeys();
     std::string schemaSelection();
+    // Schema activated for a new session; falls back to the first enabled schema when no
+    // input session exists yet (for example, while the settings page is open).
+    std::string currentSchema();
     bool selectSchemas(const std::vector<std::string>& ids);
     bool sync();
     std::vector<std::string> candidates(int64_t generation, int offset, int limit);
@@ -81,6 +86,9 @@ private:
     int64_t captureInputStatistics(bool requested) const;
     void clearSession();
     void initialize(bool fullCheck);
+    void acceptUsableDeployment();
+    bool deploymentUsable();
+    bool fixSchemaListOrder();
     // librime writes var/option/<name> only when its own switcher menu toggles
     // an option listed in switcher/save_options. This frontend sets options
     // directly, so mirror that rule; otherwise every new native session (another
@@ -95,6 +103,10 @@ private:
     enum class SyncResult { Idle, Waiting, Succeeded, Failed };
     std::atomic<SyncResult> syncResult_{SyncResult::Idle};
     std::atomic<bool> deployFailed_{false};
+    // A forced deployment can fail one schema task while still producing the workspace and
+    // the remaining schemas; frontends such as Foxy keep using that engine. Track the
+    // warning state without blocking input.
+    std::atomic<bool> deployDegraded_{false};
     std::atomic<int64_t> optionsRevision_{0};
     RimeSessionId session_ = 0;
     int64_t generation_ = 0, revision_ = 0, tabsRevision_ = 0;

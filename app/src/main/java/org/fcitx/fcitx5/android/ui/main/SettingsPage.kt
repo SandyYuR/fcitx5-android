@@ -29,6 +29,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.DataBackupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardModesFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.KeyboardSettingsFragment
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.RimeSchemeUpdatesFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.SymbolSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.TextEditingSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
@@ -118,6 +119,7 @@ private fun Fragment.settingsPageTitle(): String {
         is TextEditingSettingsFragment -> R.string.text_editing
         is KeyboardModesFragment -> R.string.keyboard_modes_title
         is DataBackupFragment -> R.string.settings_group_data
+        is RimeSchemeUpdatesFragment -> R.string.wanxiang_group
         is AdvancedSettingsFragment -> R.string.advanced
         is DeveloperFragment -> R.string.developer
         is LicensesFragment -> R.string.license

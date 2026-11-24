@@ -4,7 +4,7 @@
     <string name="app_name_debug">靓企鹅·中州韵 (Debug)</string>
     <string name="save">保存</string>
     <string name="input_methods">输入法</string>
-    <string name="rime_settings">中州韵设置</string>
+    <string name="rime_settings">中州韵引擎设置</string>
     <string name="addons">附加组件</string>
     <string name="conf">配置</string>
     <string name="global_options">全局选项</string>
@@ -1069,10 +1069,13 @@
     <string name="settings_search_result_count">找到 %1$d 项</string>
 
     <!-- 设置首页分组 -->
+    <string name="settings_home_category_rime_engine">中州韵引擎</string>
+    <string name="settings_home_rime_engine_summary">输入方案、部署与用户词典</string>
+    <string name="settings_home_rime_scheme_updates_summary">万象更新与自定义方案更新</string>
     <string name="settings_home_category_daily">日常调整</string>
     <string name="settings_home_category_more">按需进入</string>
     <string name="settings_group_input">输入与候选</string>
-    <string name="settings_group_input_summary">中州韵设置、候选栏和候选窗口</string>
+    <string name="settings_group_input_summary">候选栏、候选窗口与语音输入</string>
     <string name="settings_group_keyboard">键盘</string>
     <string name="settings_group_keyboard_summary">按键和工具栏设置、键盘布局自定义</string>
     <string name="settings_group_appearance">外观</string>
@@ -1080,7 +1083,7 @@
     <string name="settings_group_convenience">便捷功能</string>
     <string name="settings_group_convenience_summary">剪贴板、文本编辑、表情符号与插件设置</string>
     <string name="settings_group_data">数据与备份</string>
-    <string name="settings_group_data_summary">用户数据管理、万象方案更新</string>
+    <string name="settings_group_data_summary">用户数据管理</string>
     <string name="settings_group_advanced">高级</string>
     <string name="settings_group_advanced_summary">附加组件、兼容性开关与开发者选项</string>
 
@@ -1230,7 +1233,18 @@
     <string name="js_voice_network_not_approved">插件尚未获准访问网络，请在 JS 语音插件设置中查看并批准主机。</string>
     <string name="js_voice_network_approved_hint">已批准，再次点按语音按钮即可开始。</string>
     <string name="js_voice_secret_unavailable">本机无法解密，请重新填写密钥</string>
-    <string name="rime_engine_variants_title">Rime引擎变体</string>
+    <string name="rime_engine_variants_title">中州韵引擎变体</string>
+    <string name="rime_input_types">输入类型</string>
+    <string name="rime_input_types_evo_only">仅在使用 librime-evo 引擎时可用</string>
+    <string name="rime_input_types_unsupported">当前方案未声明输入类型</string>
+    <string name="rime_input_types_loading">正在读取输入类型…</string>
+    <string name="rime_input_types_switching">正在切换输入类型…</string>
+    <string name="rime_input_types_switched">输入类型已切换</string>
+    <string name="rime_input_types_saved">输入类型已保存，但重新部署失败</string>
+    <string name="rime_input_types_failed">切换输入类型失败</string>
+    <string name="rime_schema_current">当前方案</string>
+    <string name="rime_input_types_for_scheme">输入类型 · %1$s</string>
+    <string name="rime_schema_selector_title">启用的输入方案</string>
     <string name="rime_engine_variants_summary">选择内置、导入或插件引擎</string>
     <string name="rime_engine_variants_description">选择要使用的 Rime 引擎及其工作目录。外部引擎不可用时，会自动切回内置引擎。</string>
     <string name="rime_engine_loading">正在读取引擎和工作目录…</string>

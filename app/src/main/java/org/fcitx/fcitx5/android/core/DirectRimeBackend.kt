@@ -716,6 +716,11 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }
     }
 
+    override suspend fun setRimeOption(name: String, enabled: Boolean): Boolean = onOwner {
+        demandSessionForAction()
+        act(8, if (enabled) 1 else 0, name)?.ready == true
+    }
+
     private suspend fun maintain(refreshAfterOperation: Boolean = true, operation: () -> Unit) =
         maintenanceCoordinator.run(refreshAfterOperation, operation)
     private suspend fun redeploy() = maintain {
@@ -787,6 +792,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
         return onOwner { when(path) {
             "profile-manager" -> config.directoryState()
             "schema-selector" -> RawConfig(arrayOf(RawConfig("Items", if (started) Native.schemaSelection() else "")))
+            // The schema a new session would use; settings pages must read the scheme files
+            // belonging to it instead of assuming the fixed Wanxiang file names.
+            "current-schema" -> RawConfig(arrayOf(RawConfig("Schema", if (started) Native.currentSchema() else "")))
             else -> RawConfig()
         } }
     }

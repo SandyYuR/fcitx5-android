@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.ui.common
 
 import android.content.Context
+import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -31,6 +32,7 @@ import splitties.views.dsl.constraintlayout.startOfParent
 import splitties.views.dsl.constraintlayout.topOfParent
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
 import splitties.views.dsl.core.imageButton
 import splitties.views.dsl.core.imageView
@@ -78,6 +80,41 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
         imageDrawable = drawable(R.drawable.ic_baseline_settings_24)
     }
 
+    /**
+     * Optional inline action at the end of the row. Hidden by default so every existing list
+     * keeps its layout; lists that need a value-carrying action (such as a per-scheme input
+     * type) bind it through [DynamicListAdapter.initActionButton].
+     */
+    val actionButton = MaterialButton(ctx).apply {
+        visibility = View.GONE
+        isAllCaps = false
+        textSize = 13f
+        minWidth = 0
+        minimumWidth = 0
+        minHeight = 0
+        minimumHeight = 0
+        insetTop = 0
+        insetBottom = 0
+        setPadding(dp(12), dp(6), dp(8), dp(6))
+        cornerRadius = dp(18)
+        setSingleLine(true)
+        maxWidth = dp(160)
+        ellipsize = TextUtils.TruncateAt.END
+        backgroundTintList = ctx.settingsColorStateList(
+            com.google.android.material.R.attr.colorSecondaryContainer
+        )
+        setTextColor(ctx.settingsColorStateList(
+            com.google.android.material.R.attr.colorOnSecondaryContainer
+        ))
+        iconTint = ctx.settingsColorStateList(
+            com.google.android.material.R.attr.colorOnSecondaryContainer
+        )
+        setIconResource(R.drawable.ic_baseline_arrow_drop_down_24)
+        iconGravity = MaterialButton.ICON_GRAVITY_TEXT_END
+        iconSize = dp(18)
+        iconPadding = dp(2)
+    }
+
     override val root: View = constraintLayout {
         layoutParams = ViewGroup.LayoutParams(matchParent, wrapContent)
         backgroundColor = settingsColor(com.google.android.material.R.attr.colorSurfaceContainer)
@@ -112,7 +149,7 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
             topOfParent()
             above(subText)
             after(checkBox, paddingStart)
-            before(editButton)
+            before(actionButton)
             verticalChainStyle = ConstraintLayout.LayoutParams.CHAIN_PACKED
         })
 
@@ -122,6 +159,14 @@ class DynamicListEntryUi(override val ctx: Context) : Ui {
             below(nameText)
             bottomOfParent()
             after(checkBox, paddingStart)
+            before(actionButton)
+        })
+
+        add(actionButton, lParams {
+            width = wrapContent
+            height = wrapContent
+            centerVertically()
+            marginEnd = dp(12)
             before(editButton)
         })
 

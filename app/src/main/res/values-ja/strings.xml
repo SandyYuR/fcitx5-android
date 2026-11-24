@@ -5,6 +5,21 @@
     <string name="save">保存</string>
     <string name="input_methods">インプットメソッド</string>
     <string name="rime_settings">Rime 設定</string>
+    <string name="settings_home_category_rime_engine">Rime エンジン</string>
+    <string name="settings_home_rime_engine_summary">入力スキーム、デプロイ、ユーザー辞書</string>
+    <string name="settings_home_rime_scheme_updates_summary">万象アップデートとカスタム入力スキームの更新</string>
+    <string name="rime_input_types">入力タイプ</string>
+    <string name="rime_input_types_evo_only">librime-evo エンジンでのみ使用できます</string>
+    <string name="rime_input_types_unsupported">現在の入力スキームには入力タイプの宣言がありません</string>
+    <string name="rime_input_types_loading">入力タイプを読み込み中…</string>
+    <string name="rime_input_types_switching">入力タイプを切り替え中…</string>
+    <string name="rime_input_types_switched">入力タイプを切り替えました</string>
+    <string name="rime_input_types_saved">入力タイプは保存されましたが、デプロイに失敗しました</string>
+    <string name="rime_input_types_failed">入力タイプの切り替えに失敗しました</string>
+    <string name="rime_schema_current">現在のスキーム</string>
+    <string name="rime_input_types_for_scheme">入力タイプ · %1$s</string>
+    <string name="rime_schema_selector_title">有効な入力スキーム</string>
+
     <string name="addons">アドオン</string>
     <string name="conf">設定</string>
     <string name="global_options">全般オプション</string>

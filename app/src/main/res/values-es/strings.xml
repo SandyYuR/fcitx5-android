@@ -5,6 +5,21 @@
     <string name="save">Guardar</string>
     <string name="input_methods">Métodos de entrada</string>
     <string name="rime_settings">Ajustes de Rime</string>
+    <string name="settings_home_category_rime_engine">Motor de Rime</string>
+    <string name="settings_home_rime_engine_summary">Esquemas, despliegue y diccionario de usuario</string>
+    <string name="settings_home_rime_scheme_updates_summary">Actualización de Wanxiang y de esquemas personalizados</string>
+    <string name="rime_input_types">Tipo de entrada</string>
+    <string name="rime_input_types_evo_only">Disponible solo con el motor librime-evo</string>
+    <string name="rime_input_types_unsupported">El esquema actual no declara tipos de entrada</string>
+    <string name="rime_input_types_loading">Leyendo tipos de entrada…</string>
+    <string name="rime_input_types_switching">Cambiando el tipo de entrada…</string>
+    <string name="rime_input_types_switched">Tipo de entrada cambiado</string>
+    <string name="rime_input_types_saved">Tipo de entrada guardado, pero la implementación falló</string>
+    <string name="rime_input_types_failed">No se pudo cambiar el tipo de entrada</string>
+    <string name="rime_schema_current">Esquema actual</string>
+    <string name="rime_input_types_for_scheme">Tipo de entrada · %1$s</string>
+    <string name="rime_schema_selector_title">Esquemas activados</string>
+
     <string name="addons">Complementos</string>
     <string name="conf">Configuración</string>
     <string name="global_options">Opciones globales</string>

@@ -130,11 +130,10 @@ class PluginSettingsUiTest {
         val fragment = DataBackupFragment()
         show(fragment)
         val groups = (0 until fragment.preferenceScreen.preferenceCount).map { fragment.preferenceScreen.getPreference(it) }
-        val wanxiang = groups.filterIsInstance<PreferenceCategory>().single { it.title == activity.getString(R.string.wanxiang_group) }
-        assertEquals(2, wanxiang.preferenceCount)
-        assertEquals(activity.getString(R.string.wanxiang_update), wanxiang.getPreference(0).title)
-        assertEquals(activity.getString(R.string.scheme_update_title), wanxiang.getPreference(1).title)
-        assertSame(wanxiang, wanxiang.getPreference(0).parent)
+        assertEquals(
+            listOf(activity.getString(R.string.ui_operation_status), activity.getString(R.string.settings_group_data)),
+            groups.filterIsInstance<PreferenceCategory>().map { it.title }
+        )
         ReflectionHelpers.callInstanceMethod<Unit>(fragment, "showOperation",
             ReflectionHelpers.ClassParameter.from(Int::class.javaPrimitiveType, R.string.user_data_exported),
             ReflectionHelpers.ClassParameter.from(String::class.java, null),

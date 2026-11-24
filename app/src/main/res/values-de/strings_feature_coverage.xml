@@ -17,7 +17,7 @@
     <string name="direct_rime_about_privacy_summary">Lokale Eingabedaten, optionale Netzwerkfunktionen und Sicherungsinhalte</string>
     <string name="direct_rime_about_credits">Danksagungen</string>
     <string name="direct_rime_about_credits_summary">Basiert auf der Android-Oberfläche von Fcitx5 for Android und fxliang sowie Rime. Vielen Dank an die ursprünglichen Autoren und die Community. Dies ist ein unabhängiges Projekt.</string>
-    <string name="direct_rime_input_summary">Rime-Schemata, Kandidaten und Spracheingabe</string>
+    <string name="direct_rime_input_summary">Kandidatenleiste, Kandidatenfenster und Spracheingabe</string>
     <string name="text_editing_style">Stil der Textbearbeitung</string>
     <string name="text_editing_style_default">Standardstil</string>
     <string name="text_editing_style_foxy_swipe">Foxy-Wischstil</string>
@@ -277,7 +277,7 @@
     <string name="settings_home_category_daily">Häufig verwendet</string>
     <string name="settings_home_category_more">Bei Bedarf</string>
     <string name="settings_group_input">Eingabe und Kandidaten</string>
-    <string name="settings_group_input_summary">Rime-Einstellungen, Kandidatenleiste und Kandidatenfenster</string>
+    <string name="settings_group_input_summary">Kandidatenleiste, Kandidatenfenster und Spracheingabe</string>
     <string name="settings_group_keyboard">Tastatur</string>
     <string name="settings_group_keyboard_summary">Tasten, Werkzeugleiste und Tastaturlayout anpassen</string>
     <string name="settings_group_appearance">Aussehen</string>

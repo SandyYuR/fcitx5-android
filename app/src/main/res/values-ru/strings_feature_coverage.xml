@@ -17,7 +17,7 @@
     <string name="direct_rime_about_privacy_summary">Локальные данные ввода, дополнительные сетевые функции и содержимое резервных копий</string>
     <string name="direct_rime_about_credits">Благодарности</string>
     <string name="direct_rime_about_credits_summary">Основано на интерфейсе Android от Fcitx5 for Android и fxliang и движке Rime. Спасибо авторам и участникам сообщества. Это независимый проект.</string>
-    <string name="direct_rime_input_summary">Схемы Rime, кандидаты и голосовой ввод</string>
+    <string name="direct_rime_input_summary">Панель и окно кандидатов, голосовой ввод</string>
     <string name="text_editing_style">Стиль редактирования текста</string>
     <string name="text_editing_style_default">Стандартный стиль</string>
     <string name="text_editing_style_foxy_swipe">Стиль жестов Foxy</string>
@@ -276,7 +276,7 @@
     <string name="settings_home_category_daily">На каждый день</string>
     <string name="settings_home_category_more">По необходимости</string>
     <string name="settings_group_input">Ввод и кандидаты</string>
-    <string name="settings_group_input_summary">Настройки Rime, панель и окно кандидатов</string>
+    <string name="settings_group_input_summary">Панель и окно кандидатов, голосовой ввод</string>
     <string name="settings_group_keyboard">Клавиатура</string>
     <string name="settings_group_keyboard_summary">Настройки клавиш, панели инструментов и раскладки</string>
     <string name="settings_group_appearance">Оформление</string>

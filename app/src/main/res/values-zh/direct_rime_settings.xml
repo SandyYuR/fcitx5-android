@@ -17,5 +17,5 @@
     <string name="direct_rime_about_privacy_summary">本地输入数据、可选联网功能及备份内容说明</string>
     <string name="direct_rime_about_credits">致谢</string>
     <string name="direct_rime_about_credits_summary">基于 Fcitx5 for Android 与 fxliang 的 Android 前端，使用 Rime 输入引擎。感谢上游作者与社区贡献者。本项目为独立维护版本。</string>
-    <string name="direct_rime_input_summary">中州韵设置、候选栏和候选窗口</string>
+    <string name="direct_rime_input_summary">候选栏、候选窗口与语音输入</string>
 </resources>

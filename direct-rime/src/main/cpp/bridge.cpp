@@ -323,6 +323,9 @@ extern "C" JNIEXPORT jobjectArray JNICALL JNI_METHOD(sequenceKeys)(JNIEnv* env, 
 extern "C" JNIEXPORT jstring JNICALL JNI_METHOD(schemaSelection)(JNIEnv* env, jobject) {
     try { return string(env, instance().schemaSelection()); } catch (const std::exception& e) { error(env, e); return nullptr; }
 }
+extern "C" JNIEXPORT jstring JNICALL JNI_METHOD(currentSchema)(JNIEnv* env, jobject) {
+    try { return string(env, instance().currentSchema()); } catch (const std::exception& e) { error(env, e); return nullptr; }
+}
 extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(selectSchemas)(JNIEnv* env, jobject, jobjectArray ids) {
     try {
         std::vector<std::string> values;

@@ -108,9 +108,13 @@ object SettingsSearchIndex {
         listOf(R.string.settings_search_group_android, R.string.settings_group_appearance)
     private val P_CONVENIENCE =
         listOf(R.string.settings_search_group_android, R.string.settings_group_convenience)
-    /** 「输入与候选」：2026-09-29 起收着中州韵设置与全局选项。 */
+    /** 「输入与候选」：只剩候选栏、候选窗口与语音输入（中州韵设置已移到首页「中州韵引擎」分栏）。 */
     private val P_INPUT =
         listOf(R.string.settings_search_group_android, R.string.settings_group_input)
+    /** 「中州韵引擎」：首页新分栏里的三个入口。 */
+    private val P_RIME =
+        listOf(R.string.settings_search_group_android, R.string.settings_home_category_rime_engine)
+    private val P_SCHEME = P_RIME + R.string.wanxiang_group
     private val P_CANDIDATES =
         listOf(R.string.settings_search_group_android, R.string.candidates_window)
 
@@ -295,14 +299,14 @@ object SettingsSearchIndex {
 
         // The single Rime engine settings entry.
         SettingsSearchEntry(
-            R.string.rime_settings, P_INPUT,
+            R.string.rime_settings, P_RIME,
             listOf("rime", "zhongzhouyun", "中州韵", "方案", "schema", "预编辑", "preedit", "部署", "deploy"),
             route = rimeRoute(context)
         ),
         // 2026-11-23 从「键盘 · 按键行为」移入「中州韵」页：该开关决定密码框是否交给
         // Rime，只对 Rime 生效。关键词保留改版前用户会搜的说法。
         SettingsSearchEntry(
-            R.string.allow_ime_in_password_fields, P_INPUT,
+            R.string.allow_ime_in_password_fields, P_RIME,
             listOf(
                 "password", "密码", "mima", "输入法", "中文",
                 "方案", "schema", "rime", "中州韵"
@@ -310,9 +314,22 @@ object SettingsSearchIndex {
             route = rimeRoute(context)
         ),
         SettingsSearchEntry(
-            R.string.rime_engine_variants_title, P_INPUT,
+            R.string.rime_engine_variants_title, P_RIME,
             listOf("rime engine", "引擎变体", "引擎切换", "librime", "so", "插件引擎"),
             activityClass = org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity::class.java
+        ),
+        SettingsSearchEntry(
+            R.string.rime_input_types, P_RIME,
+            listOf("input types", "输入类型", "双拼", "自然码", "小鹤", "输入方案", "prisms"),
+            route = SettingsRoute.MultiSelect(
+                context.getString(R.string.rime_schema_selector_title),
+                "rime", "schema-selector", "Items", 1
+            )
+        ),
+        SettingsSearchEntry(
+            R.string.wanxiang_group, P_RIME,
+            listOf("rime scheme updates", "方案更新", "万象更新", "自定义更新"),
+            route = SettingsRoute.RimeSchemeUpdates
         ),
 
 
@@ -1052,19 +1069,19 @@ object SettingsSearchIndex {
         ),
 
         SettingsSearchEntry(
-            R.string.scheme_update_title, P_DATA,
+            R.string.scheme_update_title, P_SCHEME,
             listOf("rime", "Rime方案更新", "自定义更新", "本地方案", "批量更新", "zip", "custom update"),
             activityClass = org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdateActivity::class.java
         ),
         SettingsSearchEntry(
-            R.string.wanxiang_update, P_DATA,
+            R.string.wanxiang_update, P_SCHEME,
             listOf("wanxiang", "万象", "Rime方案更新", "方案更新", "词库更新", "模型下载"),
-            route = SettingsRoute.DataBackup
+            route = SettingsRoute.RimeSchemeUpdates
         ),
         SettingsSearchEntry(
-            R.string.wanxiang_advanced, P_DATA,
+            R.string.wanxiang_advanced, P_SCHEME,
             listOf("wanxiang settings", "万象高级设置", "拼写方案", "辅助码", "模糊音", "万象补丁"),
-            route = SettingsRoute.DataBackup
+            activityClass = org.fcitx.fcitx5.android.ui.main.wanxiang.WanxiangAdvancedActivity::class.java
         ),
 
         /* ===== Android：高级 ===== */

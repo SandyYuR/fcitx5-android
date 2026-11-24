@@ -52,7 +52,6 @@ import org.fcitx.fcitx5.android.ui.common.MaterialSpinner
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeImportActivity
 import org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
-import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
 import org.fcitx.fcitx5.android.ui.setup.SetupActivity
 import org.fcitx.fcitx5.android.ui.main.update.ReleaseInfo
 import org.fcitx.fcitx5.android.ui.main.update.UpdateCheckActivity
@@ -505,11 +504,8 @@ class MaterialSettingsPagesTest {
     }
 
     @Test fun rimeEngineEntrySummaryStaysOnOneLine() {
-        page(MainActivity::class.java, extras = {
-            action = Intent.ACTION_RUN
-            putExtra(MainActivity.EXTRA_SETTINGS_ROUTE,
-                SettingsRoute.SettingsGroup(SettingsGroupSpecs.ID_INPUT))
-        }, ready = { activity ->
+        // The entry now lives on the settings home page instead of the «输入与候选» group.
+        page(MainActivity::class.java, ready = { activity ->
             descendants(activity.window.decorView).filterIsInstance<TextView>().any {
                 it.isShown && it.height > 0 &&
                     it.text == activity.getString(R.string.rime_engine_variants_summary)

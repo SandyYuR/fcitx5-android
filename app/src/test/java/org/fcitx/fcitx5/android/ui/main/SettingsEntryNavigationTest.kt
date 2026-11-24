@@ -19,6 +19,7 @@ import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.testing.FcitxDaemonTestDelegate
 import org.fcitx.fcitx5.android.testing.FcitxDaemonTestShadow
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.RimeSchemeUpdatesFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
 import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
@@ -117,10 +118,19 @@ class SettingsEntryNavigationTest {
     }
 
     @Test fun customSchemeUpdateImmediatelyFollowsWanxiangInTheSameGroup() = page { activity, current ->
-        current().preferenceScreen.find(activity.getString(R.string.settings_group_data)).performClick()
-        val group = current().preferenceScreen.find(activity.getString(R.string.wanxiang_group)) as PreferenceGroup
-        assertEquals(listOf(activity.getString(R.string.wanxiang_update), activity.getString(R.string.scheme_update_title)), group.entries().map { it.title })
-        group.entries()[1].performClick()
+        val rimeEngine = current().preferenceScreen.find(activity.getString(R.string.settings_home_category_rime_engine)) as PreferenceGroup
+        assertEquals(
+            listOf(
+                activity.getString(R.string.rime_settings),
+                activity.getString(R.string.rime_engine_variants_title),
+                activity.getString(R.string.wanxiang_group)
+            ),
+            rimeEngine.entries().map { it.title }
+        )
+        rimeEngine.find(activity.getString(R.string.wanxiang_group)).performClick()
+        val group = current() as RimeSchemeUpdatesFragment
+        assertEquals(listOf(activity.getString(R.string.wanxiang_update), activity.getString(R.string.scheme_update_title)), group.preferenceScreen.entries().map { it.title })
+        group.preferenceScreen.entries()[1].performClick()
         assertEquals(org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdateActivity::class.java.name,
             shadowOf(activity).nextStartedActivity.component?.className)
         val indexed = SettingsSearchIndex.entries(activity).single { it.titleRes == R.string.scheme_update_title }
