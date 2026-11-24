@@ -14,7 +14,7 @@ Fcitx 原生 Core、fcitx5-rime 和 AndroidFrontend 已移除；前端历史类�
 这个包名与本仓库旧 Fcitx 版相同，同签名时可覆盖升级，安装前先备份。
 旧直连测试包 `io.github.sandyyur.rime.direct` 需要导出后在新包恢复。
 
-日常使用不需要安装引擎插件 APK（见[版本共存与数据隔离](/guide/builds-and-plugins)）；“Rime引擎变体”可选接入外部引擎，内置引擎始终保留为默认与回退。APK 不预装中文输入方案、完整词典或万象语言模型；
+日常使用不需要安装引擎插件 APK（见[版本共存与数据隔离](/guide/builds-and-plugins)）；「中州韵引擎变体」可选接入外部引擎，内置引擎始终保留为默认与回退。APK 不预装中文输入方案、完整词典或万象语言模型；
 先按[快速上手](/guide/quick-start)导入方案并部署。
 
 ## 能做什么
