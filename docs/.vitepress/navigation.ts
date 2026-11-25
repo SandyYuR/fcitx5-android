@@ -84,6 +84,7 @@ const features = [
     { text: '语言键', link: '/features/keys/language-key' },
     { text: '符号键', link: '/features/keys/symbol-key' },
     { text: '大小写键', link: '/features/keys/caps-key' },
+    { text: '粘滞修饰键', link: '/features/keys/sticky-modifier-key' },
     { text: '回车键', link: '/features/keys/return-key' },
     { text: '逗号键', link: '/features/keys/comma-key' },
     { text: '兼容键名速查', link: '/features/keys/fcitx-keys' },
@@ -105,6 +106,7 @@ const maintenance = [
     { text: '对照索引', link: '/maintainer/changes/' },
     { text: '最新：11-16～11-22 提交对照', link: '/maintainer/changes/2026-11-22-code-doc-gap-review' },
     { text: '2026-11', collapsed: true, items: [
+      { text: '粘滞修饰键压缩合入 · 2026-11-26', link: '/maintainer/changes/2026-11-26-sticky-modifier-key' },
       { text: 'EVO 引擎设置与降级部署 · 2026-11-24', link: '/maintainer/changes/2026-11-24-evo-settings-degraded-deploy' },
       { text: '日志系统与紧凑界面 · 2026-11-24', link: '/maintainer/changes/2026-11-24-log-ui-compact' },
       { text: 'EVO Android 构建整理 · 2026-11-23', link: '/maintainer/changes/2026-11-23-evo-android-engine' },

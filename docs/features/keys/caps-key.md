@@ -19,6 +19,8 @@
 - **长按 / 双击**：锁定大写
 - **滑动**：配置了 `swipe` 时执行对应宏
 
+要先点亮 Shift、再与下一次单键组合，可使用[StickyModifierKey 粘滞修饰键](/features/keys/sticky-modifier-key)。它与 CapsKey 的大小写状态分别管理；仅启用粘滞 Shift 输入字母后，一次大写会复位，锁定大写保持锁定。
+
 ## 示例
 
 ```json

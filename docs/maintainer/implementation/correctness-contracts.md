@@ -265,6 +265,18 @@ startup 每轮在原 try 外先重置 selection／newActivation，再进入 asse
 
 标点键面与弹出项按布局和预设原文展示，`TextKeyboard.refreshSymbolKeyLabels` 保留样式刷新、辅助标签、字母大小写和显式显示文本的边界，`PopupComponent` 不再通过 Fcitx 标点映射替换标签。旧 `transformPunctuation` 字段继续兼容读取，但不能重接 `PunctuationComponent`、`PunctuationManager`、`chttrans` 页面或旧回调。Rime 的 `punctuator`、通用 YAML 预设和 OpenCC 数据继续保留；`TextKeyboardLabelsTest` 与真实 `DirectRimeFrontendTest.symbolKeysAndPopupsUseRimePunctuation` 分别验证键面和引擎上屏。
 
+### 粘滞修饰键
+
+`StickyModifierController` 是 Ctrl、Shift、Alt 的 Held / Latched 与消费状态的单一来源。有效抬手才锁存或取消；一次消费原子取走所有参与修饰键，消费期间拒绝新 Down，结束、隐藏输入视图、解绑和销毁时清除状态。重复取消与过期手势不得恢复旧组合。
+
+`BaseKeyboard.onStickyConsumableAction` 只接单击、直接派发单键的长按及上下滑单键动作。宏只有一个 `tap` step 且仅含一个 Fcitx 键引用时才视为单键；Repeat、双击、左右滑、弹窗选择、多步宏、文本提交和显式按住/释放宏保持原动作语义，不消费组合。MacroKey 长按弹窗与直接单键长按须分别验证。
+
+快捷键沿 `sendSimulatedKeyEvent` 派发修饰键 Down、目标键 Down/Up，再在 `finally` 中逆序释放修饰键；`releaseMacroKey` 在编辑器失效时只平衡内部计数，不向旧编辑器补发 Up。字面逗号/句号与命名键均使用统一物理键映射，符号必需的 Shift 必须保留并去重；布局把字母写成大写名称不能自动增加快捷键 Shift。仅粘滞 Shift 加字母走虚拟大写字母通道，`TextKeyboard.onStickyShiftLetter` 只消费 `CapsState.Once`，保留 Lock，并只在当前编辑器内配对投递。
+
+`StickyModifierKey.modifier` 仅接受小写 `ctrl` / `shift` / `alt`，缺失或无效值跳过该键。布局编辑器的类型项绑定配置值，不依赖过滤后的下标或本地化标签。`text_editor` 的两个编辑入口和嵌套编辑继承布局上下文，禁止新选或最终保存不支持的粘滞键；旧配置与草稿保留原值、置灰显示，草稿恢复不自动改写类型。
+
+目标回归为 `StickyModifierControllerTest`、`StickyModifierCompositionTest`、`StickyModifierAppearanceTest`、`StickyModifierDispatchTest`、`CustomGestureView*Test`、`MacroKeyReleaseTest`、`KeyEditorFormTest`、`KeyEditorPendingResultsTest`、`LayoutJsonUtilsTest`、`LayoutKeyUiTest`。设备检查另核锁存/取消、多修饰组合、单键长按与弹窗、隐藏后清除及真实目标应用收到的快捷键；JVM 事件队列结果不能代替真实 InputConnection 验证。用户配置见[粘滞修饰键](/features/keys/sticky-modifier-key)。
+
 ## 设置与主题
 
 界面规范与共用组件见[界面设计](./design-system)。AI 面板与设置页通过同一主题入口取色；窗口重新分配标题、正文和操作区时不能重建输入连接或丢掉草稿。授权提示期间隐藏原操作区，关闭后不得重新绑定已失效的编辑器。
