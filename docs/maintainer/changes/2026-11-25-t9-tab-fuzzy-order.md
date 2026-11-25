@@ -39,7 +39,7 @@
 
 ## 交付
 
-librime 定制源码 `8c92891f…`（官方基线 `f70ae3c0b2dab61553cc74516268c0633a93dba0`），标签 `android-sdk-20261125-3`，Release 发布于 2026-11-25T05:04:54Z：
+第一版 librime 定制源码 `8c92891f…`（官方基线 `f70ae3c0b2dab61553cc74516268c0633a93dba0`），标签 `android-sdk-20261125-3`，Release 发布于 2026-11-25T05:04:54Z：
 
 | 产物 | 大小 | SHA-256 |
 | --- | --- | --- |
@@ -49,23 +49,43 @@ librime 定制源码 `8c92891f…`（官方基线 `f70ae3c0b2dab61553cc74516268c
 
 CI：Commit CI #66（`45548608039`）、Android SDK #44（`45548608100`）与 Android ARM64 engine #17（`45548608032`）在 `zhongzhou` push 上通过；Android SDK #45（`45550353907`）在标签 ref 上通过并由 CI 发布。四 ABI 齐全，同日旧标签 `android-sdk-20261125-1`／`-2` 与既有产物未覆盖。
 
+### 同步上游 1.18.0 后重建（`android-sdk-20261125-4`）
+
+`zhongzhou` 随后同步上游 1.18.0，定制源码推进到 `83fbd0810e8c24db87f3b9dc9acce193401c7c4f`（官方基线 `1c0a468e7fff2b2763400abe1e892ed66d08b00e`）。源码 CI 与 Android SDK CI 在 `83fbd081` 上通过（Commit CI 唯一非成功项是 macos-26 构建被取消，按既有约定不计入；Linux／Windows／Docker／lint 全通过），标签 `android-sdk-20261125-4` 在该提交上创建并由 CI 发布：
+
+| 产物 | 大小 | SHA-256 |
+| --- | --- | --- |
+| `rime-android-sdk.zip` | 22,640,937 B | `ed02b4f090a28899389e476082be46312a31e20cb91b3d2782c387ab294d2bfa` |
+| `sdk-manifest.json` | 106,831 B | 由 Release 附带，`api_digest` `54be4177…` |
+| `SHA256SUMS` | 87 B | 内容即上述 ZIP 摘要 |
+
+`sdk-manifest.json` 复核：`schema=1`、`librime_commit=83fbd081…`、`upstream_commit=1c0a468e…`、四 ABI 齐全，与版本锁一致。`-4` 与既有 `-1`／`-2`／`-3` 标签及产物并存，未覆盖任何已发布内容。
+
 ## 输入法消费
 
-`SandyYuR/fcitx5-android` 默认分支提交 `bcfe31fe3`（构建(引擎): 更新 Android SDK 到 android-sdk-20261125-3）把 `native/rime-sdk.lock.json` 更新为标签 `android-sdk-20261125-3`、`librime_commit` `8c92891f…`、`upstream_commit` `f70ae3c0…`、`sha256` `d62efe3d…`。
+`SandyYuR/fcitx5-android` 默认分支原提交 `bcfe31fe3`（构建(引擎): 更新 Android SDK 到 android-sdk-20261125-3）把 `native/rime-sdk.lock.json` 更新为标签 `android-sdk-20261125-3`、`librime_commit` `8c92891f…`、`upstream_commit` `f70ae3c0…`、`sha256` `d62efe3d…`。
 
-- 删除 `native/rime-sdk` 后重跑 `prepareRimeSdk`：BUILD SUCCESSFUL，生成的 `sdk-manifest.json` 记录同一对源码提交。
-- `BUILD_ABI=x86_64 :app:assembleFxDebug` 产出 `…-3-gbcfe31fe3-fx-x86_64-debug.apk`（26,018,533 B）。
-- `tools/verify-direct-rime-apk.py`：APK SHA-256 `f835d0c48b8469362a1b2d6898263e55e5a0f248f5b91b17d50cfd392b6188c3`，native 只有 `libc++_shared`／`libdirect-rime`／`libquickjs`，`fcitx_dependencies` 为空，16 KB 页大小。
-- `tools/audit-direct-rime-link.py`：7 个静态预编译档案（librime 125 个对象），`fcitx_cpp_symbols` 为空，ELF build id `8c545d0372d22a6abea96c6d458fa14416b2110a`。
-- 该 APK 与设备上安装包的 `lib/x86_64/libdirect-rime.so` SHA-256 相同（`7ee360a28092cb2af48ead869a203525dba77d4527bfc87d9fbb48687753be69`），设备结论对应同一 native 二进制。
+`-4` 发布后，该提交按用户授权改写为 `1b8cbf2c0`（同为“构建(引擎): 更新 Android SDK 到 android-sdk-20261125-4”，作者与提交日期保持原样），只把锁改成标签 `android-sdk-20261125-4`、`librime_commit` `83fbd081…`、`upstream_commit` `1c0a468e…`、`sha256` `ed02b4f0…`；其上提交按原样重放为默认分支头 `f48ab5742`。`git diff --stat b063722f5 f48ab5742` 只有 `native/rime-sdk.lock.json` 的 4 行增删，其余树完全一致。
+
+`-3` 阶段的消费记录（已被 `-4` 取代，保留追溯）：删除 `native/rime-sdk` 后重跑 `prepareRimeSdk` 成功；`BUILD_ABI=x86_64 :app:assembleFxDebug` 产出 `…-3-gbcfe31fe3-fx-x86_64-debug.apk`（26,018,533 B），APK SHA-256 `f835d0c48b8469362a1b2d6898263e55e5a0f248f5b91b17d50cfd392b6188c3`，ELF build id `8c545d0372d22a6abea96c6d458fa14416b2110a`。
+
+`-4` 阶段的复验：
+
+- 把 Release 的 `rime-android-sdk.zip` 放进 Gradle 的 SDK 缓存后重跑 `prepareRimeSdk --offline`：BUILD SUCCESSFUL。`RimeSdkArchive.extract` 对 `schema_version`、`librime_commit`、`upstream_commit`、`abis` 的硬校验全部通过，说明标签、源码提交与 ZIP 摘要三者自洽。
+- `BUILD_ABI=x86_64 :app:assembleFxDebug` 产出 `…-4-gf48ab5742-fx-x86_64-debug.apk`（26,057,597 B），APK SHA-256 `c509aacbf7ea55bb05938477b7e018e3b8cfa361dd49dfe744a8fb9d63e90b22`。
+- `tools/verify-direct-rime-apk.py`：native 只有 `libc++_shared`／`libdirect-rime`／`libquickjs`，`fcitx_dependencies` 为空，page size 16384，ClearURLs 206 providers。
+- `tools/audit-direct-rime-link.py`：7 个静态预编译档案（librime 125 个对象、spdlog 5、marisa 9、opencc 19、yaml-cpp 24、leveldb 34、lua 32），`fcitx_cpp_symbols` 为空，ELF build id `c4a7070ea2b1cbd561dcd69db81d216f4a3d31d0`，`apk_native_sha256` `c17164e8b8f29bb8fdbec89263c0f98c6ce5f24d46e6dafe178635ccf14baaa9`，`map_sha256` `9c5baa7d9bbb6ae079231371a748086328557a879a81731dae2992fd4f7a1e06`。
+- 该 APK 用 `adb install -r` 覆盖安装在同一模拟器上（保留数据），设备结论对应本次 `-4` native 二进制。
 
 ## 设备验证
 
-环境：唯一的 AOSP API 35 x86_64 模拟器，输入法内置 `SandyYuR/librime` 引擎，工作目录 `rime-wanxiang`，万象九键方案，键盘测试面板输入。
+环境：唯一的 AOSP API 35 x86_64 模拟器，输入法内置 `SandyYuR/librime` 引擎，工作目录 `rime-wanxiang`，万象九键方案，键盘测试面板输入；安装的是 `-4` 构建的 APK（`adb install -r` 覆盖，保留设备数据）。
 
-1. 九键输入 `743649426`（`shengxiao`）：预编辑为模糊归一后的 `shen xian`，前四候选 `神仙`／`渗线`／`生效`／`笙箫`，不选音节即可出“生效”；音栏为 `sheng:5`、`pie:3`／`qie:3`／`she:3`、`pi:2`／`qi:2`／`ri:2`，跨度 5 的 `sheng` 在最前，同跨度内按字母升序。
-2. 清空后输入 `7436`（`shen`）出现 `shen` 音节栏；选中后 tab 列消失，候选仍含“升／圣／盛”（`sheng` 音节），展开候选为 `神 升 圣 盛 肾 审`、`省 生 剩`、`渗 深 声`、`胜 绳 森`，模糊派生的“生”保留。
+1. 九键输入 `743649426`（`shengxiao`）：预编辑为模糊归一后的 `shen xian`，前四候选 `神仙`／`渗线`／`生效`／`笙箫`，不选音节即可出“生效”；音节栏自上而下为 `sheng`、`shen`、`pie`、`qie`、`she`、`pi`、`qi`，跨度 5 的 `sheng` 在最前，同跨度内按字母升序（`pie`＜`qie`＜`she`、`pi`＜`qi`）。
+2. 清空后单独输入 `7436`（`shen`）：音节栏首位为 `shen`（其后 `pie`／`qie`／`she`／`pi`／`qi`／`ri`）。选中 `shen` 后 tab 列消失，候选仍含“升／圣／盛／生”（`sheng` 音节）；展开候选第二行为 `省 生 剩`，即模糊派生出的“生”在选音节后依然可选，并可正常上屏。
 3. 单键输入（如 `7`）仍显示单字母简拼 `p`／`q`／`r`／`s` 与原始按键 `7`，位置在列表末尾；关闭再重开面板后输入恢复原 T9 布局。
+
+设备侧限制：纵向音节栏是高亮条目自绘视图，`uiautomator` 抓不到节点，`adb shell input tap` 在部分布局下会落到候选行或工具栏行。上表的音节栏顺序与“选中 `shen`”结论通过逐步截图比对与候选区实际内容确认，未使用自动化断言。
 
 ## 未覆盖
 
