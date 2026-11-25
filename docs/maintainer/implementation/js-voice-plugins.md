@@ -103,7 +103,7 @@ configure(ui) {
 - `ui.number(key, label, defaultValue = "", settings = {})`
 - `ui.serviceSelect(key, label, serviceId, version, defaultValue = "", settings = {})`
 
-`settings.description` 追加说明文字。`settings.visibleWhen: {key, value}` 在另一个设置项取指定值时显示；`settings.visibleWhen: {all: [{key, value}, ...]}` 要求全部满足。`settings.defaultWhen: {key, values: {匹配值: 默认值}}` 可随另一字段变化选择联动默认值，例如豆包鉴权方式与资源 ID。`settings.allowCustom: true` 允许用户在下拉框里自填值。select 的选项可以是字符串或 `{label, value}` 对象。
+`settings.description` 追加说明文字。`settings.visibleWhen: {key, value}` 在另一个设置项取指定值时显示；`settings.visibleWhen: {all: [{key, value}, ...]}` 要求全部满足。`settings.defaultWhen: {key, values: {匹配值: 默认值}}` 可随另一字段变化选择联动默认值。`settings.allowCustom: true` 允许用户在下拉框里自填值。select 的选项可以是字符串或 `{label, value}` 对象。
 
 `serviceSelect` 的下拉候选来自已安装插件声明的服务：宿主按 `(serviceId, version)` 遍历插件目录，排除调用方自己，值存被选提供方的插件 ID。用户留空时，候选恰好一个就自动选中；多于一个必须显式选择，避免多提供方环境静默选错。服务提供方被卸载或不再声明该服务后，原选择不再授予任何调用权。
 
@@ -114,7 +114,7 @@ configure(ui) {
 所有回调在同一个 QuickJS 会话里执行，同一时刻只有一个 JavaScript 片段求值。回调可以是 `async` 并返回 Promise。App 等待由 WebSocket／SSE 回调解决的纯 JavaScript Promise 时，宿主在 `__run`／`__pump` 两次求值之间释放会话锁，使网络回调可以交错执行。直接调用 editor／UI、`http.request`、授权或 `waitOpen` 等宿主异步 API 时，`QuickJs.evaluate` 仍会等待本次触发的宿主工作完成后才返回；主线程或传输负责独立完成该工作，等待期间不保证其他脚本回调可以进入。语音生命周期回调及每条连接、每条流内部的事件顺序仍保持。
 
 1. `start(context)`：每次识别会话调用一次，必须返回一个字符串 handle，之后以 `context.socket` 传回。非 WebSocket 模式返回任意哨兵字符串即可，例如 `"single"`。
-2. `audio(context)`：每段 PCM 调用一次，`context.pcm` 是 Base64 编码的 PCM，另有 `sampleRate`、`taskId`、`socket`。流式插件直接转发；单次请求插件可以缓冲，但必须自己限制时长或字节数。
+2. `audio(context)`：每段 PCM 调用一次，`context.pcm` 是 Base64 编码的 PCM，另有 `sampleRate`、`taskId`、`socket`。流式插件直接转发；单次请求插件可以缓冲，但必须自己限制时长或字节数。宿主会把分片对齐到 6 字节（16 位采样的偶数长度 + Base64 的 3 字节量子），因为火山引擎豆包流式识别收到奇数长度的音频包会直接回 55000000；插件自己遍历分片时也不要再切出奇数长度的包。
 3. `onMessage({socket, message})`：文本帧到达时调用，`message` 是原始文本。二进制帧到达时改为 `onMessage({socket, binaryBase64})`，两个键不会同时出现。
 4. `stop(context)`：用户结束识别、排队的音频都送完之后调用，`context` 含 `socket`、`sampleRate`、`taskId`。在这里发结束帧或提交缓冲音频。
 
