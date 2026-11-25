@@ -42,6 +42,7 @@ class CustomGestureViewSwipeTest {
         var moveCountX = 0
         var moveCountY = 0
         var moveEvents = 0
+        var upEvent: CustomGestureView.Event? = null
         private val down = SystemClock.uptimeMillis()
 
         fun touch(action: Int, x: Float, y: Float) {
@@ -79,13 +80,18 @@ class CustomGestureViewSwipeTest {
         view.setOnClickListener { harness.clicks++ }
         view.setOnLongClickListener { harness.longClicks++; true }
         view.onGestureListener = CustomGestureView.OnGestureListener { _, event ->
-            if (event.type == CustomGestureView.GestureType.Move) {
-                harness.moveEvents++
-                harness.moveCountX += event.countX
-                harness.moveCountY += event.countY
-                event.countX != 0
-            } else {
-                false
+            when (event.type) {
+                CustomGestureView.GestureType.Move -> {
+                    harness.moveEvents++
+                    harness.moveCountX += event.countX
+                    harness.moveCountY += event.countY
+                    event.countX != 0
+                }
+                CustomGestureView.GestureType.Up -> {
+                    harness.upEvent = event
+                    false
+                }
+                else -> false
             }
         }
         return harness
@@ -162,6 +168,57 @@ class CustomGestureViewSwipeTest {
             h.touch(MotionEvent.ACTION_UP, 50f + twoCells, 50f)
             assertEquals("两格位移只产生两格，不额外补格", 2, h.moveCountX)
             assertEquals("有格数时不再打空格", 0, h.clicks)
+        } finally {
+            h.destroy()
+        }
+    }
+
+    @Test fun anOrdinaryUpIsClickEligibleAndNotCancelled() {
+        val h = harness()
+        try {
+            h.touch(MotionEvent.ACTION_DOWN, 50f, 50f)
+            h.touch(MotionEvent.ACTION_UP, 50f, 50f)
+            assertEquals(true, h.upEvent?.clickEligible)
+            assertEquals(false, h.upEvent?.cancelled)
+            assertEquals(1, h.clicks)
+        } finally {
+            h.destroy()
+        }
+    }
+
+    @Test fun slidingOutAndLongPressAreNotClickEligible() = withLongPressDelay {
+        val slidOut = harness()
+        try {
+            slidOut.touch(MotionEvent.ACTION_DOWN, 50f, 50f)
+            slidOut.touch(MotionEvent.ACTION_MOVE, 500f, 50f)
+            slidOut.touch(MotionEvent.ACTION_UP, 500f, 50f)
+            assertEquals(false, slidOut.upEvent?.clickEligible)
+            assertEquals(0, slidOut.clicks)
+        } finally {
+            slidOut.destroy()
+        }
+
+        val held = harness()
+        try {
+            held.touch(MotionEvent.ACTION_DOWN, 50f, 50f)
+            held.idle(350)
+            held.touch(MotionEvent.ACTION_UP, 50f, 50f)
+            assertEquals(1, held.longClicks)
+            assertEquals(false, held.upEvent?.clickEligible)
+            assertEquals(0, held.clicks)
+        } finally {
+            held.destroy()
+        }
+    }
+
+    @Test fun actionCancelIsTerminatedAsCancelledAndIneligible() {
+        val h = harness()
+        try {
+            h.touch(MotionEvent.ACTION_DOWN, 50f, 50f)
+            h.touch(MotionEvent.ACTION_CANCEL, 50f, 50f)
+            assertEquals(true, h.upEvent?.cancelled)
+            assertEquals(false, h.upEvent?.clickEligible)
+            assertEquals(0, h.clicks)
         } finally {
             h.destroy()
         }

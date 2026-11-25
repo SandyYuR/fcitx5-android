@@ -705,6 +705,10 @@
     <string name="text_keyboard_layout_placeholder_custom_color">自定义颜色</string>
     <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">宏键</string>
+    <string name="text_keyboard_layout_key_type_sticky_modifier">粘滞修饰键（Ctrl/Shift/Alt）</string>
+    <string name="text_keyboard_layout_sticky_modifier">修饰键</string>
+    <string name="text_keyboard_layout_key_type_unavailable">%1$s（当前布局不可用）</string>
+    <string name="text_keyboard_layout_key_type_unavailable_message">当前布局不支持此按键类型，请选择其他类型。</string>
     <string name="text_keyboard_layout_key_main">主字符</string>
     <string name="text_keyboard_layout_key_alt">副字符</string>
     <string name="text_keyboard_layout_key_display_text">显示文本</string>

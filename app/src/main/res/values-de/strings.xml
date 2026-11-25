@@ -816,4 +816,6 @@
     <string name="theme_kit_theme_only">Nur Farben</string>
     <string name="icon_theme_letter_keys">Buchstabentasten</string>
     <string name="icon_theme_numpad_keys">Zifferntasten</string>
+    <string name="text_keyboard_layout_key_type_unavailable">%1$s (in diesem Layout nicht verfügbar)</string>
+    <string name="text_keyboard_layout_key_type_unavailable_message">Dieser Tastentyp ist in diesem Layout nicht verfügbar. Wählen Sie einen anderen Typ.</string>
 </resources>

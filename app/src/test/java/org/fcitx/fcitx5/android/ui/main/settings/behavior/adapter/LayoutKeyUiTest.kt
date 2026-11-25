@@ -30,6 +30,31 @@ class LayoutKeyUiTest {
         )))
     }
 
+    @Test fun `sticky modifier identity and default width are not customizations`() {
+        for ((modifier, label) in listOf("ctrl" to "Ctrl", "shift" to "Shift", "alt" to "Alt")) {
+            assertFalse(LayoutKeyUi.hasCustomizedProperties(mapOf(
+                "type" to "StickyModifierKey", "modifier" to modifier,
+                "label" to label, "weight" to 0.1f
+            )))
+            assertFalse(LayoutKeyUi.hasCustomizedProperties(mapOf(
+                "type" to "StickyModifierKey", "modifier" to modifier
+            )))
+        }
+    }
+
+    @Test fun `sticky modifier common overrides remain visible`() {
+        assertTrue(LayoutKeyUi.hasCustomizedProperties(mapOf(
+            "type" to "StickyModifierKey", "modifier" to "ctrl", "weight" to 0.2f
+        )))
+        assertTrue(LayoutKeyUi.hasCustomizedProperties(mapOf(
+            "type" to "StickyModifierKey", "modifier" to "shift",
+            "composeOverride" to mapOf("modifier" to "alt")
+        )))
+        assertTrue(LayoutKeyUi.hasCustomizedProperties(mapOf(
+            "type" to "StickyModifierKey", "modifier" to "alt", "textColor" to -1
+        )))
+    }
+
     @Test fun `nondefault widths macros and presentation flags remain visible`() {
         assertTrue(LayoutKeyUi.hasCustomizedProperties(mapOf("type" to "AlphabetKey", "weight" to 0.2f)))
         assertTrue(LayoutKeyUi.hasCustomizedProperties(mapOf("type" to "PlaceholderKey", "transparent" to true)))

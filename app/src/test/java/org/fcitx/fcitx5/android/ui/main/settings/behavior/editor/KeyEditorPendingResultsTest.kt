@@ -66,6 +66,50 @@ class KeyEditorPendingResultsTest {
         } finally { controller.pause().stop().destroy() }
     }
 
+    @Test fun stickyModifierComposeResultSurvivesParcelingAndKeepsBaseDraft() {
+        val pending = KeyEditorPendingResults()
+        pending.offer(KeyEditorPendingResults.Kind.COLOR,
+            ThemeColorEditorActivity.EditorResult("textColor", 0xFF112233.toInt()))
+        pending.offer(KeyEditorPendingResults.Kind.COMPOSE, ActivityResult(Activity.RESULT_OK,
+            Intent().putExtra(KeyEditorForm.EXTRA_RESULT_ACTION, KeyEditorForm.RESULT_ACTION_SAVE)
+                .putExtra(KeyEditorForm.EXTRA_RESULT_KEY_DATA, KeyEditorForm.toSerializableMap(mapOf(
+                    "type" to "StickyModifierKey",
+                    "modifier" to "alt",
+                    "label" to "Compose Alt",
+                    "weight" to 0.4f,
+                    "iconSlot" to "keys.modifier.alt"
+                )))))
+        var restored = pending
+        repeat(2) { restored = KeyEditorPendingResults().apply { restore(parcel(Bundle().also(restored::save))) } }
+        val results = restored.takeAll()
+        assertEquals(listOf(KeyEditorPendingResults.Kind.COLOR, KeyEditorPendingResults.Kind.COMPOSE),
+            results.map { it.first })
+
+        val controller = Robolectric.buildActivity(Activity::class.java)
+        controller.get().setTheme(R.style.Theme_FcitxSettings_Base_Light)
+        controller.setup()
+        try {
+            val form = KeyEditorForm(controller.get(), Intent().putExtra(KeyEditorForm.EXTRA_KEY_DATA,
+                KeyEditorForm.toSerializableMap(mapOf(
+                    "type" to "StickyModifierKey", "modifier" to "shift", "label" to "Base Shift"
+                ))))
+            results.forEach { (kind, value) -> when (kind) {
+                KeyEditorPendingResults.Kind.MACRO -> form.acceptMacroResult(value as ActivityResult)
+                KeyEditorPendingResults.Kind.COLOR -> form.acceptColorResult(value as ThemeColorEditorActivity.EditorResult)
+                KeyEditorPendingResults.Kind.COMPOSE -> form.acceptComposeResult(value as ActivityResult)
+            } }
+            val draft = form.validatedDraft(false)!!
+            assertEquals("shift", draft["modifier"])
+            assertEquals("Base Shift", draft["label"])
+            assertEquals(0xFF112233.toInt(), draft["textColor"])
+            val override = draft["composeOverride"] as Map<*, *>
+            assertEquals("alt", override["modifier"])
+            assertEquals("Compose Alt", override["label"])
+            assertEquals("keys.modifier.alt", override["iconSlot"])
+            assertFalse(override.containsKey("weight"))
+        } finally { controller.pause().stop().destroy() }
+    }
+
     @Test fun clearingAColorAndCancelingAnEditorStayDistinctAfterParceling() {
         val pending = KeyEditorPendingResults()
         pending.offer(KeyEditorPendingResults.Kind.COLOR, ThemeColorEditorActivity.EditorResult("textColor", null))

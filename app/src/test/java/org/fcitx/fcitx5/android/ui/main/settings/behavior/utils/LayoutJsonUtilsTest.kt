@@ -10,7 +10,10 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import org.fcitx.fcitx5.android.core.KeyState
+import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.input.keyboard.AlphabetKey
+import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
 import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroAction
@@ -18,6 +21,9 @@ import org.fcitx.fcitx5.android.input.keyboard.MacroKey
 import org.fcitx.fcitx5.android.input.keyboard.MacroStep
 import org.fcitx.fcitx5.android.input.keyboard.ReturnKey
 import org.fcitx.fcitx5.android.input.keyboard.SpaceKey
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifierAction
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifierKey
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -586,6 +592,159 @@ class LayoutJsonUtilsTest {
         val rowHead = row[0] as JsonObject
         assertEquals(true, rowHead["splitRowDisabled"]?.jsonPrimitive?.booleanOrNull)
         assertNull((row[1] as JsonObject)["splitRowDisabled"])
+    }
+
+    // ==================== 粘滞修饰键 StickyModifierKey ====================
+
+    @Test
+    fun stickyModifierMetadataAndStrictJsonNamesAreStable() {
+        data class Expected(
+            val modifier: StickyModifier,
+            val keyName: String,
+            val state: KeyState,
+            val label: String,
+            val jsonName: String
+        )
+
+        val expected = listOf(
+            Expected(StickyModifier.Ctrl, "Control_L", KeyState.Ctrl, "Ctrl", "ctrl"),
+            Expected(StickyModifier.Shift, "Shift_L", KeyState.Shift, "Shift", "shift"),
+            Expected(StickyModifier.Alt, "Alt_L", KeyState.Alt, "Alt", "alt")
+        )
+        expected.forEach { item ->
+            assertEquals(item.keyName, item.modifier.keyName)
+            assertEquals(item.state, item.modifier.keyState)
+            assertEquals(item.label, item.modifier.defaultLabel)
+            assertEquals(item.jsonName, item.modifier.jsonName)
+            assertEquals(item.modifier, StickyModifier.fromJson(item.jsonName))
+        }
+        listOf(null, "", "CTRL", "Ctrl", " ctrl", "ctrl ", "Shift", "ALT", "control", "super")
+            .forEach { assertNull("invalid modifier must not fall back: $it", StickyModifier.fromJson(it)) }
+
+        val action = KeyAction.SymAction(KeySym(0))
+        assertFalse("SymAction remains a down action by default", action.up)
+        assertTrue(action.copy(up = true).up)
+    }
+
+    @Test
+    fun stickyModifierDefaultsCreateOnePressActionAndOmitDefaultLabels() {
+        StickyModifier.entries.forEach { modifier ->
+            val parsed = LayoutJsonUtils.parseKeyJsonArray(
+                row("""[{"type":"StickyModifierKey","modifier":"${modifier.jsonName}"}]""")
+            ).single()
+            val def = LayoutJsonUtils.createKeyDef(parsed) as StickyModifierKey
+            assertEquals(modifier, def.modifier)
+            assertEquals(modifier.defaultLabel, def.label)
+            assertEquals(0.1f, def.appearance.percentWidth, 1e-5f)
+            assertEquals(KeyDef.Appearance.Variant.Alternative, def.appearance.variant)
+            assertNull(def.popup)
+
+            val appearance = def.appearance as KeyDef.Appearance.Text
+            assertEquals(modifier.defaultLabel, appearance.displayText)
+            assertEquals(android.graphics.Typeface.BOLD, appearance.textStyle)
+            val press = def.behaviors.single() as KeyDef.Behavior.Press
+            assertEquals(StickyModifierAction(modifier), press.action)
+
+            val written = LayoutJsonUtils.keyDefToJson(def)
+            assertEquals("StickyModifierKey", written["type"])
+            assertEquals(modifier.jsonName, written["modifier"])
+            assertNull("the default label is optional", written["label"])
+            assertNull("the default width is optional", written["weight"])
+        }
+    }
+
+    @Test
+    fun stickyModifierWithMissingOrInvalidModifierIsSkipped() {
+        val invalidRows = listOf(
+            """[{"type":"StickyModifierKey"}]""",
+            """[{"type":"StickyModifierKey","modifier":null}]""",
+            """[{"type":"StickyModifierKey","modifier":"CTRL"}]""",
+            """[{"type":"StickyModifierKey","modifier":" ctrl"}]""",
+            """[{"type":"StickyModifierKey","modifier":"control"}]""",
+            """[{"type":"StickyModifierKey","modifier":1}]""",
+            """[{"type":"StickyModifierKey","modifier":true}]""",
+            """[{"type":"StickyModifierKey","modifier":{}}]""",
+            """[{"type":"StickyModifierKey","modifier":[]}]"""
+        )
+        invalidRows.forEach { json ->
+            val parsed = LayoutJsonUtils.parseKeyJsonArray(row(json)).single()
+            assertNull(json, LayoutJsonUtils.createKeyDef(parsed))
+        }
+    }
+
+    @Test
+    fun stickyModifierAppearanceIconAndComposeOverrideSurviveRoundTrip() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "StickyModifierKey",
+                  "modifier": "shift",
+                  "label": "Custom Shift",
+                  "weight": 0.2,
+                  "rowHeightPercent": 80,
+                  "splitAfter": true,
+                  "iconSlot": "keys.modifier.shift",
+                  "textColor": "#112233",
+                  "backgroundColor": "#445566",
+                  "shadowColor": "#778899",
+                  "composeOverride": {
+                    "type": "StickyModifierKey",
+                    "modifier": "alt",
+                    "label": "Compose Alt",
+                    "weight": 0.4,
+                    "rowHeightPercent": 50,
+                    "independentColor": true,
+                    "iconSlot": "keys.modifier.alt",
+                    "textColor": "#abcdef"
+                  }
+                }]
+                """.trimIndent()
+            )
+        ).single()
+        val def = LayoutJsonUtils.createKeyDef(parsed) as StickyModifierKey
+        assertEquals(0.2f, def.appearance.percentWidth, 1e-5f)
+        assertEquals(80f, def.rowHeightPercent!!, 1e-5f)
+        assertTrue(def.splitAfter)
+        assertEquals("keys.modifier.shift", def.iconSlotOverride)
+        assertEquals(0xFF112233.toInt(), def.appearance.textColor)
+        assertEquals(0xFF445566.toInt(), def.appearance.backgroundColor)
+        assertEquals(0xFF778899.toInt(), def.appearance.shadowColor)
+        val override = def.composeOverride as StickyModifierKey
+        assertEquals(StickyModifier.Alt, override.modifier)
+        assertTrue(override.independentColor)
+        assertEquals("keys.modifier.alt", override.iconSlotOverride)
+
+        val written = LayoutJsonUtils.keyDefToJson(def)
+        assertEquals("shift", written["modifier"])
+        assertEquals("Custom Shift", written["label"])
+        assertEquals(0.2f, written["weight"])
+        assertEquals("keys.modifier.shift", written["iconSlot"])
+        val writtenOverride = written["composeOverride"] as Map<*, *>
+        assertEquals("alt", writtenOverride["modifier"])
+        assertEquals("Compose Alt", writtenOverride["label"])
+        assertEquals(true, writtenOverride["independentColor"])
+        assertEquals("keys.modifier.alt", writtenOverride["iconSlot"])
+        assertNull("compose overrides never own a width", writtenOverride["weight"])
+        assertNull("compose overrides never own row height", writtenOverride["rowHeightPercent"])
+
+        val jsonObject = JsonObject(
+            written.mapValues { (_, value) -> LayoutJsonUtils.convertToJsonProperty(value) }
+        )
+        val reparsed = LayoutJsonUtils.createKeyDef(
+            LayoutJsonUtils.parseKeyJsonArray(JsonArray(listOf(jsonObject))).single()
+        ) as StickyModifierKey
+        assertEquals("Custom Shift", reparsed.label)
+        assertEquals(StickyModifier.Shift, reparsed.modifier)
+        assertEquals(0.2f, reparsed.appearance.percentWidth, 1e-5f)
+        assertEquals("keys.modifier.shift", reparsed.iconSlotOverride)
+        assertEquals(StickyModifier.Alt, (reparsed.composeOverride as StickyModifierKey).modifier)
+
+        val accent = StickyModifierKey(
+            StickyModifier.Ctrl,
+            variant = KeyDef.Appearance.Variant.Accent
+        )
+        assertEquals(KeyDef.Appearance.Variant.Accent, accent.appearance.variant)
     }
 
     // ==================== 空白占位键 PlaceholderKey ====================

@@ -176,6 +176,8 @@
     <string name="text_keyboard_layout_placeholder_custom_color">Colores personalizados</string>
     <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">macro (acción personalizada)</string>
+    <string name="text_keyboard_layout_key_type_sticky_modifier">modificador persistente (Ctrl/Mayús/Alt)</string>
+    <string name="text_keyboard_layout_sticky_modifier">Modificador</string>
     <string name="text_keyboard_layout_key_split_after">Dividir el teclado después de esta tecla</string>
     <string name="text_keyboard_layout_key_split_after_helper">Solo afecta al teclado dividido. Normalmente cada fila se divide por el centro. Actívalo para dividirla después de la tecla elegida. Si marcas varias teclas en una fila, se usa la última.</string>
     <string name="text_keyboard_layout_split_layout">Diseño del teclado dividido</string>

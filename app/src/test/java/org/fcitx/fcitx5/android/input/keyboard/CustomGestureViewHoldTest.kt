@@ -30,12 +30,17 @@ class CustomGestureViewHoldTest {
                 val controller = Robolectric.buildActivity(ComponentActivity::class.java).setup()
                 var clicks = 0
                 var longClicks = 0
+                var upEvent: CustomGestureView.Event? = null
                 try {
                     val view = CustomGestureView(controller.get()).apply {
                         holdSwipeEnabled = true
                         longPressFeedbackEnabled = false
                         setOnClickListener { clicks++ }
                         setOnLongClickListener { longClicks++; true }
+                        onGestureListener = CustomGestureView.OnGestureListener { _, event ->
+                            if (event.type == CustomGestureView.GestureType.Up) upEvent = event
+                            false
+                        }
                     }
                     controller.get().setContentView(view)
                     view.setViewTreeLifecycleOwner(controller.get())
@@ -50,6 +55,10 @@ class CustomGestureViewHoldTest {
                     touch(MotionEvent.ACTION_UP)
                     assertEquals("hold=$holdMs", if (holdMs < 300) 1 else 0, clicks)
                     assertEquals("hold=$holdMs", if (holdMs < 300) 0 else 1, longClicks)
+                    assertEquals("hold=$holdMs", holdMs >= 300, upEvent != null)
+                    if (holdMs >= 300) {
+                        assertEquals("hold=$holdMs", false, upEvent?.clickEligible)
+                    }
                 } finally { controller.pause().stop().destroy() }
             }
         } finally { delay.setValue(previous) }

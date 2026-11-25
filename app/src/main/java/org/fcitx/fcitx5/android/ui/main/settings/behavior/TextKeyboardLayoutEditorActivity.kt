@@ -80,6 +80,7 @@ import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapter
 import org.fcitx.fcitx5.android.utils.AppUtil
@@ -463,6 +464,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         selectedKey = position
         selectedLayoutKey = currentEditingLayoutKey()
         val options = Intent().apply {
+            putExtra(KeyEditorActivity.EXTRA_LAYOUT_NAME, currentLayout)
             putExtra(KeyEditorActivity.EXTRA_IS_EDITING_SUBMODE_LAYOUT, selectedLayoutKey != currentLayout)
             putExtra(KeyEditorActivity.EXTRA_CURRENT_SUBMODE_LABEL, previewSubModeLabel)
             putExtra(KeyEditorActivity.EXTRA_HAS_MULTI_SUBMODE_SUPPORT,
@@ -2464,6 +2466,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         }
 
         val launchIntent = Intent(this, KeyEditorActivity::class.java).apply {
+            putExtra(KeyEditorActivity.EXTRA_LAYOUT_NAME, layoutName)
             putExtra(KeyEditorActivity.EXTRA_KEY_DATA, KeyEditorActivity.toSerializableMap(keyData.toMutableMap()))
             putExtra(KeyEditorActivity.EXTRA_ROW_INDEX, rowIndex)
             keyIndex?.let { putExtra(KeyEditorActivity.EXTRA_KEY_INDEX, it) }
@@ -4502,6 +4505,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 val alt = key["alt"] as? String
                 listOfNotNull(main, alt).firstOrNull { !it.isNullOrEmpty() }
                     ?: getString(R.string.text_keyboard_layout_key_label_placeholder)
+            }
+            "StickyModifierKey" -> {
+                (key["label"] as? String)?.takeIf { it.isNotEmpty() }
+                    ?: StickyModifier.fromJson(key["modifier"] as? String)?.defaultLabel
+                    ?: type
             }
             "MacroKey" -> {
                 // 与运行时渲染一致：显式设置的 displayText 优先，未设置时回落到 label。

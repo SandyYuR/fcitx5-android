@@ -718,6 +718,10 @@
     <string name="text_keyboard_layout_placeholder_custom_color">Custom colors</string>
     <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">macro (custom action)</string>
+    <string name="text_keyboard_layout_key_type_sticky_modifier">sticky modifier (Ctrl/Shift/Alt)</string>
+    <string name="text_keyboard_layout_sticky_modifier">Modifier</string>
+    <string name="text_keyboard_layout_key_type_unavailable">%1$s (unavailable in this layout)</string>
+    <string name="text_keyboard_layout_key_type_unavailable_message">This key type is unavailable in this layout. Choose another type.</string>
     <string name="text_keyboard_layout_key_main">Main Character</string>
     <string name="text_keyboard_layout_key_alt">Alt Character</string>
     <string name="text_keyboard_layout_key_display_text">Display Text</string>

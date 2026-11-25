@@ -5,6 +5,7 @@ import android.view.View
 import android.content.Context
 import android.view.inputmethod.BaseInputConnection
 import org.fcitx.fcitx5.android.FcitxApplication
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.junit.Assert.*
 import org.junit.Test
@@ -47,5 +48,22 @@ class MacroKeyReleaseTest {
         assertFalse(service.isSimulatedCapsLockOn())
         assertFalse(ReflectionHelpers.getField<Boolean>(service, "simulatedCapsLockPressed"))
         assertFalse(ReflectionHelpers.getField<Boolean>(service, "simulatedCapsLockPressedFromMacro"))
+    }
+
+    @Test fun endingEditorWorkClearsStickyStateWithoutRepeatingCleanupNotifications() {
+        val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
+        val gesture = service.stickyModifiers.onDown(StickyModifier.Ctrl)!!
+        service.stickyModifiers.onUp(StickyModifier.Ctrl, gesture, clickEligible = true, cancelled = false)
+        service.stickyModifiers.onDown(StickyModifier.Alt)
+        var changes = 0
+        service.stickyModifiers.addListener { changes++ }
+
+        ReflectionHelpers.callInstanceMethod<Unit>(service, "endEditorWork")
+        assertFalse(service.stickyModifiers.hasActiveModifiers)
+        assertFalse(service.stickyModifiers.isLatched(StickyModifier.Ctrl))
+        assertEquals(1, changes)
+
+        ReflectionHelpers.callInstanceMethod<Unit>(service, "endEditorWork")
+        assertEquals("an already empty controller stays silent", 1, changes)
     }
 }
