@@ -400,7 +400,7 @@
     <string name="js_voice_import_failed_save">플러그인을 저장할 수 없습니다: %1$s</string>
     <string name="js_voice_plugins_delete_entry">이 플러그인 제거</string>
     <string name="js_voice_plugins_delete_entry_summary">제공: %1$s</string>
-    <string name="js_voice_provider_tencent_translate">Tencent Cloud 음성 번역 (JS)</string>
+    <string name="js_voice_service_none">선택 안 함</string>
     <string name="choose_voice_engine">음성 엔진 선택</string>
     <string name="js_voice_plugins_settings">JS 음성 플러그인 설정</string>
     <string name="voice_engine_system">시스템 음성 입력</string>

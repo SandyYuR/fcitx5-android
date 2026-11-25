@@ -155,7 +155,7 @@ class JsVoiceImporterTest {
         result as JsVoiceImportResult.Success
         assertEquals("js:tencent-asr", result.meta.providerId)
         assertEquals(listOf("asr.cloud.tencent.com"), result.meta.hosts)
-        assertEquals(12, result.fieldCount)
+        assertEquals(16, result.fieldCount)
         assertEquals(JsVoiceImportResult.Failure.Reason.RESERVED_ID, failureReason(inspect(script)))
     }
 

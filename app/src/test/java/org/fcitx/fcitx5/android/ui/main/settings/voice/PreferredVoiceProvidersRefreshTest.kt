@@ -86,7 +86,7 @@ class PreferredVoiceProvidersRefreshTest {
         assertEquals(1, specs.size)
         assertTrue(specs.single().builtIn)
         assertTrue(specs.single().source is JsVoiceProviders.Source.Asset)
-        assertEquals("1.0.7", specs.single().version)
+        assertEquals("1.2.0", specs.single().version)
         assertEquals("1234567890", JsVoiceSettingsStore.value(tencent.providerId, "appId"))
         assertEquals("// old imported script", JsVoicePluginStore.readScript(tencent.id))
         val preference = ManagedPreferenceUi.VoiceInputList(R.string.preferred_voice_input, "preferred_voice_input", "")

@@ -3,6 +3,7 @@ package org.fcitx.fcitx5.android.input.voice.js
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
@@ -158,6 +159,29 @@ class JsAppDialogTest {
             assertEquals("draft", dialog.values().text("input"))
             service.commitText(" preserved")
             assertEquals("draft preserved", dialog.values().text("input"))
+        } finally { dialog.dismiss() }
+    }
+
+    @Test fun hostHeaderReplacesADuplicateScriptTitleButKeepsStatusText() {
+        val service = Robolectric.buildService(FcitxInputMethodService::class.java).get()
+        val tools = JsAppPanelTools("哔哩哔哩翻译",
+            listOf(JsAppPanelEntry(JsAppButtonBinding.Target("js:llm-assistant", "llm_assistant"), "AI 助手")),
+            { _ -> })
+        val dialog = JsAppDialog(service, { _, _ -> }, { service.jsAppInputConnection = null }, tools = tools)
+        fun texts() = descendants(dialog.findViewById(android.R.id.content))
+            .filterIsInstance<TextView>().map { it.text.toString() }
+        try {
+            dialog.render(Json.parseToJsonElement("""{"maxWidth":380,"maxHeight":440,"layout":{"type":"column","children":[
+                {"type":"text","text":"哔哩哔哩翻译","size":13,"bold":true},
+                {"type":"input","id":"input","value":""}]}}""").jsonObject)
+            // 宿主标题栏已经显示插件名，脚本自己的同名标题不再重复占一行。
+            assertEquals(1, texts().count { it == "哔哩哔哩翻译" })
+
+            dialog.render(Json.parseToJsonElement("""{"maxWidth":380,"maxHeight":440,"layout":{"type":"column","children":[
+                {"type":"text","text":"日本語 · 翻译结果 · 确认上屏或清空","size":13,"bold":true},
+                {"type":"input","id":"input","value":""}]}}""").jsonObject)
+            assertEquals(1, texts().count { it == "哔哩哔哩翻译" })
+            assertEquals(1, texts().count { it == "日本語 · 翻译结果 · 确认上屏或清空" })
         } finally { dialog.dismiss() }
     }
 

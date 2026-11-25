@@ -18,12 +18,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.input.voice.js.JsServiceDescriptor
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceField
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceFields
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceHostPermissions
 import org.fcitx.fcitx5.android.input.voice.js.JsVoicePluginMeta
 import org.fcitx.fcitx5.android.input.voice.js.JsVoicePluginStore
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceProviders
+import org.fcitx.fcitx5.android.input.voice.js.JsVoiceServices
 import org.fcitx.fcitx5.android.input.voice.js.JsVoiceSettingsStore
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 
@@ -42,6 +44,9 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     private var loaded = false
     private val secretStates = mutableMapOf<String, JsVoiceSettingsStore.SecretState>()
     private var refreshOverview: (() -> Unit)? = null
+
+    /** 服务下拉框的候选：页面加载时求值一次目录，避免每建一个控件都把全部脚本跑一遍。 */
+    private var serviceCatalog: List<JsServiceDescriptor> = emptyList()
 
     private val replaceLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (view != null) load()
@@ -98,13 +103,21 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
                     val states = fields.filter { it.isSecret }.associate { field ->
                         field.key to JsVoiceSettingsStore.secretState(pluginId, field.key)
                     }
-                    fields to states
+                    // 目录要排除自己：一个插件不能把自己声明成可调用的服务方。
+                    val catalog = if (fields.any { it.kind == JsVoiceField.KIND_SERVICE_SELECT }) {
+                        JsVoiceServices.catalog(
+                            java.util.Locale.getDefault().toLanguageTag(),
+                            excludePluginId = pluginId,
+                        )
+                    } else emptyList()
+                    Triple(fields, states, catalog)
                 }
             }
             if (!isAdded) return@launch
-            result.onSuccess { (fields, states) ->
+            result.onSuccess { (fields, states, catalog) ->
                 secretStates.clear()
                 secretStates.putAll(states)
+                serviceCatalog = catalog
                 render(fields)
             }
                 .onFailure {
@@ -401,6 +414,7 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
             selectPreference(field, values, onChanged)
         }
         JsVoiceField.KIND_NUMBER -> textPreference(field, values, onChanged, InputType.TYPE_CLASS_NUMBER)
+        JsVoiceField.KIND_SERVICE_SELECT -> serviceSelectPreference(field, values, onChanged)
         else -> textPreference(field, values, onChanged, InputType.TYPE_CLASS_TEXT)
     }
 
@@ -484,6 +498,47 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
         }
     }
 
+    /**
+     * 服务方下拉框：候选是「别的插件按 (serviceId, version) 声明、且本机已安装」的服务。
+     *
+     * 空选项永远存在，表示「未选择」；目录里恰好只有一个提供方时脚本会自动用它，
+     * 页面因此也不会替用户写死一个 ID——写死会让「只有一个提供方」变成一条看不见的隐式配置。
+     */
+    private fun serviceSelectPreference(
+        field: JsVoiceField,
+        values: MutableMap<String, String>,
+        onChanged: () -> Unit,
+    ): ListPreference = ListPreference(requireContext()).apply {
+        key = field.key
+        title = field.label
+        isPersistent = false
+        isIconSpaceReserved = false
+        isSingleLineTitle = false
+        val candidates = serviceCandidates(field)
+        entries = (listOf(getString(R.string.js_voice_service_none)) +
+            candidates.map { it.label.ifBlank { it.pluginLabel.ifBlank { it.pluginId } } }).toTypedArray()
+        entryValues = (listOf("") + candidates.map { it.pluginId }).toTypedArray()
+        // 提供方可能已被卸载：存值无效就退回「未选择」，而不是留一个选不中的值。
+        val initial = values[field.key]?.takeIf { stored -> candidates.any { it.pluginId == stored } }.orEmpty()
+        values[field.key] = initial
+        value = initial
+        summary = describe(field, initial)
+        setOnPreferenceChangeListener { preference, newValue ->
+            val value = (newValue as? String).orEmpty()
+            values[field.key] = value
+            JsVoiceSettingsStore.setValue(pluginId, field.key, value)
+            (preference as ListPreference).value = value
+            preference.summary = describe(field, value)
+            onChanged()
+            true
+        }
+    }
+
+    private fun serviceCandidates(field: JsVoiceField): List<JsServiceDescriptor> {
+        val version = field.serviceVersion.trim().toIntOrNull() ?: return emptyList()
+        return serviceCatalog.filter { it.serviceId == field.serviceId && it.version == version }
+    }
+
     private fun switchPreference(
         field: JsVoiceField,
         values: MutableMap<String, String>,
@@ -550,7 +605,14 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
     }
 
     private fun describe(field: JsVoiceField, value: String?): String {
-        val shown = field.options.firstOrNull { it.value == value }?.label ?: value.orEmpty()
+        val shown = when (field.kind) {
+            JsVoiceField.KIND_SERVICE_SELECT -> {
+                val provider = serviceCandidates(field).firstOrNull { it.pluginId == value }
+                provider?.label?.ifBlank { provider.pluginLabel.ifBlank { provider.pluginId } }
+                    ?: getString(R.string.js_voice_service_none)
+            }
+            else -> field.options.firstOrNull { it.value == value }?.label ?: value.orEmpty()
+        }
         return if (field.description.isBlank()) shown else field.description + " · " + shown
     }
 

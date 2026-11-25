@@ -3,6 +3,10 @@ const PATH_PREFIX = "/asr/v2/";
 const DEFAULT_ENGINE = "16k_zh";
 const SIGNATURE_TTL_SECONDS = 60 * 60;
 const DEFAULT_STRIP_CHARACTERS = ".,!?;:，。！？；：、…⋯~～";
+const TRANSLATION_SERVICE_ID = "text.translate";
+const TRANSLATION_SERVICE_VERSION = 1;
+const DEFAULT_TRANSLATION_PROVIDER = "";
+const TRANSLATION_TARGETS = ["Chinese", "English", "Japanese", "Korean", "French", "German", "Spanish"];
 
 const ENGINES = [
   {value: "16k_zh", label: "中文（普通话） · 16k_zh"},
@@ -28,7 +32,7 @@ const ENGINES = [
 
 const STRINGS = {
   en: {
-    name: "Tencent Cloud Real-Time ASR (Standard)",
+    name: "Tencent Cloud Real-Time ASR",
     appId: "AppID",
     appIdDescription: "10-digit APPID from Console > Account Information, not the 12-digit UIN.",
     appIdRequired: "Tencent Cloud ASR: AppID is required",
@@ -59,10 +63,18 @@ const STRINGS = {
     convertNumbersMath: "Math-aware conversion",
     stripPunctuation: "Strip trailing punctuation",
     stripCharacters: "Punctuation to strip",
-    stripCharactersDescription: "Characters removed from the end of each final result."
+    stripCharactersDescription: "Characters removed from the end of each final result.",
+    translate: "Translate final result",
+    translationProvider: "Translation service provider",
+    translationProviderDescription: "Select an installed plugin providing text.translate v1. A single provider is selected automatically.",
+    translationTarget: "Translation target language",
+    translationFallback: "Keep source text if translation fails",
+    translationServiceMissing: "Tencent ASR: install a plugin providing text.translate v1",
+    translationProviderAmbiguous: "Tencent ASR: select a text.translate provider in plugin settings",
+    translationFailed: "Tencent ASR translation failed: %1"
   },
   "zh-CN": {
-    name: "腾讯云实时语音识别（普通版）",
+    name: "腾讯云实时语音识别",
     appId: "AppID",
     appIdDescription: "控制台「账号信息」中的 10 位 APPID，不是 12 位账号 ID（UIN）。",
     appIdRequired: "腾讯云语音识别：请填写 AppID",
@@ -93,10 +105,18 @@ const STRINGS = {
     convertNumbersMath: "数学相关转换",
     stripPunctuation: "去除末尾标点",
     stripCharacters: "去除的标点字符",
-    stripCharactersDescription: "从每次最终结果的末尾移除这些字符。"
+    stripCharactersDescription: "从每次最终结果的末尾移除这些字符。",
+    translate: "翻译最终识别结果",
+    translationProvider: "翻译服务提供方",
+    translationProviderDescription: "选择已安装且提供 text.translate v1 的插件；只有一个提供方时会自动选择。",
+    translationTarget: "翻译目标语言",
+    translationFallback: "翻译失败时保留原文",
+    translationServiceMissing: "腾讯 ASR：请安装提供 text.translate v1 的插件",
+    translationProviderAmbiguous: "腾讯 ASR：请在插件设置中选择一个 text.translate 服务提供方",
+    translationFailed: "腾讯 ASR 翻译失败：%1"
   },
   "zh-TW": {
-    name: "騰訊雲即時語音辨識（普通版）",
+    name: "騰訊雲即時語音辨識",
     appId: "AppID",
     appIdDescription: "主控台「帳號資訊」中的 10 位 APPID，不是 12 位帳號 ID（UIN）。",
     appIdRequired: "騰訊雲語音辨識：請填寫 AppID",
@@ -127,7 +147,15 @@ const STRINGS = {
     convertNumbersMath: "數學相關轉換",
     stripPunctuation: "去除結尾標點",
     stripCharacters: "去除的標點字元",
-    stripCharactersDescription: "從每次最終結果的結尾移除這些字元。"
+    stripCharactersDescription: "從每次最終結果的結尾移除這些字元。",
+    translate: "翻譯最終辨識結果",
+    translationProvider: "翻譯服務提供者",
+    translationProviderDescription: "選擇已安裝且提供 text.translate v1 的外掛；只有一個提供者時會自動選擇。",
+    translationTarget: "翻譯目標語言",
+    translationFallback: "翻譯失敗時保留原文",
+    translationServiceMissing: "騰訊 ASR：請安裝提供 text.translate v1 的外掛",
+    translationProviderAmbiguous: "騰訊 ASR：請在外掛設定中選擇一個 text.translate 服務提供者",
+    translationFailed: "騰訊 ASR 翻譯失敗：%1"
   }
 };
 
@@ -155,7 +183,11 @@ function newSessionState() {
     legacyPartial: "",
     voiceId: "",
     stripPunctuation: false,
-    stripChars: ""
+    stripChars: "",
+    translationEnabled: false,
+    translationProvider: DEFAULT_TRANSLATION_PROVIDER,
+    translationTarget: "English",
+    translationFallback: true
   };
 }
 
@@ -363,7 +395,7 @@ function sendEnd(socket) {
 foxy.plugin.register({
   id: "tencent-asr",
   name: stringsFor(foxy.locale).name,
-  version: "1.0.7",
+  version: "1.2.0",
   hosts: [HOST],
   features: [{type: "voice.asr", id: "tencent-asr", label: stringsFor(foxy.locale).name, sampleRate: 16000}],
   configure(ui, locale) {
@@ -395,6 +427,17 @@ foxy.plugin.register({
       visibleWhen: {key: "stripPunctuation", value: "true"},
       description: t.stripCharactersDescription
     });
+    ui.switch("translationEnabled", t.translate, false);
+    ui.serviceSelect("translationProvider", t.translationProvider, TRANSLATION_SERVICE_ID, TRANSLATION_SERVICE_VERSION, DEFAULT_TRANSLATION_PROVIDER, {
+      visibleWhen: {key: "translationEnabled", value: "true"},
+      description: t.translationProviderDescription
+    });
+    ui.select("translationTarget", t.translationTarget, TRANSLATION_TARGETS, "English", {
+      visibleWhen: {key: "translationEnabled", value: "true"}
+    });
+    ui.switch("translationFallback", t.translationFallback, true, {
+      visibleWhen: {key: "translationEnabled", value: "true"}
+    });
   },
   async start(context) {
     state = newSessionState();
@@ -410,6 +453,23 @@ foxy.plugin.register({
     state.stripChars = context.stripCharacters != null
       ? String(context.stripCharacters)
       : DEFAULT_STRIP_CHARACTERS;
+    state.translationEnabled = context.translationEnabled === "true";
+    state.translationProvider = setting(context, "translationProvider") || DEFAULT_TRANSLATION_PROVIDER;
+    state.translationFallback = context.translationFallback !== "false";
+    const preferredTarget = setting(context, "translationTarget");
+    state.translationTarget = TRANSLATION_TARGETS.indexOf(preferredTarget) !== -1 ? preferredTarget : "English";
+
+    if (state.translationEnabled) {
+      const services = foxy.services.list(TRANSLATION_SERVICE_ID).filter(item =>
+        item.serviceId === TRANSLATION_SERVICE_ID && item.version === TRANSLATION_SERVICE_VERSION);
+      if (!state.translationProvider) {
+        if (services.length === 1) state.translationProvider = services[0].pluginId;
+        else if (services.length > 1) throw new Error(t.translationProviderAmbiguous);
+      }
+      if (!state.translationProvider || !services.some(item => item.pluginId === state.translationProvider)) {
+        throw new Error(t.translationServiceMissing + (state.translationProvider ? " (" + state.translationProvider + ")" : ""));
+      }
+    }
 
     const params = buildParams(context, selectedEngine(context));
     const signature = foxy.crypto.hmacSha1Base64("secretKey", signSource(appId, params));
@@ -437,7 +497,8 @@ foxy.plugin.register({
     await flushPending(context.socket, Infinity);
     await sendEnd(context.socket);
   },
-  onMessage(event) {
+  async onMessage(event) {
+    const t = stringsFor(foxy.locale);
     if (!event.message) return {};
     let packet;
     try {
@@ -451,11 +512,27 @@ foxy.plugin.register({
     if (text) state.lastText = text;
 
     if (Number(packet.final) === 1) {
-      const final = finalText(
+      let final = finalText(
         text || state.lastText,
         state.stripPunctuation,
         state.stripChars
       );
+      if (final && state.translationEnabled) {
+        const sourceFinal = final;
+        try {
+          const result = await foxy.services.call(
+            state.translationProvider,
+            TRANSLATION_SERVICE_ID,
+            TRANSLATION_SERVICE_VERSION,
+            {text: final, targetLanguage: state.translationTarget}
+          );
+          final = String(result && result.translatedText || "").trim();
+          if (!final) throw new Error("empty translation result");
+        } catch (error) {
+          if (state.translationFallback) return {final: sourceFinal, ended: true};
+          return {error: String(t.translationFailed).replace("%1", error.message || error)};
+        }
+      }
       return final ? {final: final, ended: true} : {ended: true};
     }
 

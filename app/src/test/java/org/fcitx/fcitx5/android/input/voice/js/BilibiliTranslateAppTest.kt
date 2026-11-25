@@ -18,7 +18,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
-/** Runs the bundled Bilibili translation App through the production QuickJS prelude without Android UI. */
+/**
+ * 跑打包的哔哩哔哩翻译 App（1.5）：走生产前奏，但对话框与编辑器是记录型桩。
+ *
+ * 1.5 与旧版的两处结构差别决定了这些用例的形状：
+ * ① HTTP 改走 `foxy.http.request`，宿主返回 {status,ok,headers,body} 的信封，状态码不再由传输层抛出；
+ * ② 翻译结果只留在面板里，确认直接提交「上一次成功的结果」，不再有 result 输入框与「请重新翻译」路径。
+ */
 class BilibiliTranslateAppTest {
     private val assetDir = File("src/main/assets/bundled/js-apps")
     private val scriptFile = File(assetDir, "bilibili-translate.js")
@@ -32,6 +38,7 @@ class BilibiliTranslateAppTest {
     ) : AutoCloseable {
         private val js = JsVoiceRuntime.create()
         val editorCalls = mutableListOf<Pair<String, String>>()
+        val settingsWrites = mutableListOf<Pair<String, String>>()
         val httpRequests = mutableListOf<JsonObject>()
         var httpResponse = buildJsonObject {
             put("status", 200)
@@ -50,7 +57,12 @@ class BilibiliTranslateAppTest {
             }
             js.function("__n_appHttp") { args ->
                 httpRequests += Json.parseToJsonElement(args[0].toString()).jsonObject
+                // 1.5 自己解析状态码，传输层只负责把信封交回去。
                 httpResponse
+            }
+            js.function("__n_appSettings") { args ->
+                settingsWrites += args[0].toString() to args[1].toString()
+                null
             }
             runBlocking { JsVoiceRuntime.initialize(js, JsVoicePrelude.SOURCE + "\n" + script) }
         }
@@ -100,7 +112,7 @@ class BilibiliTranslateAppTest {
 
         assertEquals(manifest, inspected.meta)
         assertEquals("bilibili-translate", inspected.meta.id)
-        assertEquals("1.3.0", inspected.meta.version)
+        assertEquals("1.5", inspected.meta.version)
         assertEquals(listOf("index-translate.bilibili.com"), inspected.meta.hosts)
         assertEquals(emptyList<String>(), inspected.meta.rejectedHosts)
         assertNull(inspected.meta.voiceAsr)
@@ -124,8 +136,9 @@ class BilibiliTranslateAppTest {
             assertTrue(rendered.contains("\"value\":\"こんにちは\""))
             assertTrue(rendered.contains("\"id\":\"target\""))
             assertTrue(rendered.contains("\"value\":\"English\""))
+            // 1.5 的结果留在 title 里显示，面板本身没有 result 输入框。
             assertFalse(rendered.contains("\"id\":\"result\""))
-            assertFalse(rendered.contains("\"id\":\"confirm\""))
+            assertTrue(rendered.contains("\"id\":\"confirm\""))
             assertTrue(harness.httpRequests.isEmpty())
             assertEquals(listOf("getSelection" to ""), harness.editorCalls)
         }
@@ -140,6 +153,7 @@ class BilibiliTranslateAppTest {
 
             assertEquals("https://index-translate.bilibili.com/v1/chat/completions", request.text("url"))
             assertEquals("POST", request.text("method"))
+            assertEquals("application/json", request["headers"]!!.jsonObject.text("Content-Type"))
             assertEquals("Index-Translate-35B-A3B", body.text("model"))
             assertEquals("0", body.text("temperature"))
             assertFalse(body["chat_template_kwargs"]!!.jsonObject["enable_thinking"]!!.jsonPrimitive.boolean)
@@ -151,12 +165,11 @@ class BilibiliTranslateAppTest {
             assertEquals("setComposition" to "こんにちは", harness.editorCalls.last())
             assertFalse(harness.editorCalls.any { it.first == "commit" })
             val rendered = translated.toString()
-            assertTrue(rendered.contains("\"id\":\"result\""))
-            assertTrue(rendered.contains("\"readOnly\":true"))
-            assertTrue(rendered.contains("\"value\":\"こんにちは\""))
+            assertTrue(rendered.contains("\"text\":\"日本語 · 翻译结果 · 确认上屏或清空\""))
+            assertFalse(rendered.contains("\"id\":\"result\""))
             assertTrue(rendered.contains("\"id\":\"confirm\""))
-            assertTrue(rendered.contains("\"id\":\"use_result\""))
-            assertTrue(rendered.contains("\"label\":\"再译\""))
+            // 用户选过目标语言就记成下次的默认值。
+            assertTrue(harness.settingsWrites.contains("defaultTarget" to "Japanese"))
 
             val confirmed = harness.invoke("confirm", input = "hello", target = "Japanese")
             assertTrue(confirmed["close"]!!.jsonPrimitive.boolean)
@@ -180,34 +193,31 @@ class BilibiliTranslateAppTest {
     }
 
     @Test
-    fun changingInputOrTargetInvalidatesOldResult() = runBlocking {
-        suspend fun verifyChanged(input: String, target: String) {
-            Harness(script).use { harness ->
-                harness.invoke("translate", input = "hello", target = "Japanese")
-                val rejected = harness.invoke("confirm", input = input, target = target)
-                assertEquals("clearComposition" to "", harness.editorCalls.last())
-                assertTrue(rejected.toString().contains("请重新翻译"))
-                assertFalse(harness.editorCalls.any { it.first == "commit" })
-            }
-        }
+    fun confirmCommitsTheLastTranslationEvenIfFieldsChanged() = runBlocking {
+        // 1.5 的 confirm 不再比对输入框与目标语言：结果在翻译那一刻就已定稿，
+        // 事后改字段只影响下一次翻译，不能让用户点「上屏」时被一句提示打发。
+        Harness(script).use { harness ->
+            harness.invoke("translate", input = "hello", target = "Japanese")
+            val confirmed = harness.invoke("confirm", input = "changed", target = "English")
 
-        verifyChanged(input = "changed", target = "Japanese")
-        verifyChanged(input = "hello", target = "English")
+            assertTrue(confirmed["close"]!!.jsonPrimitive.boolean)
+            assertEquals("commit" to "こんにちは", harness.editorCalls.last())
+            assertEquals(1, harness.editorCalls.count { it.first == "commit" })
+        }
     }
 
     @Test
-    fun rejectedTemporaryPreviewKeepsTranslationConfirmable() = runBlocking {
+    fun rejectedPreviewIsReportedAsFailureWithoutConfirming() = runBlocking {
+        // setComposition 失败说明当前输入框放不下临时预览：这时结果没有落到编辑框，
+        // lastResult 必须一起清掉，否则随后的「上屏」会提交一段用户没见过的文本。
         Harness(script, rejectPreview = true).use { harness ->
             val translated = harness.invoke("translate", input = "hello", target = "Japanese")
 
-            assertEquals("setComposition" to "こんにちは", harness.editorCalls.last())
-            assertTrue(translated.toString().contains("当前输入框不支持临时预览"))
-            assertTrue(translated.toString().contains("\"value\":\"こんにちは\""))
-            assertFalse(translated.toString().contains("翻译失败"))
+            assertTrue(translated.toString().contains("翻译失败：Editor rejected preview"))
+            assertFalse(translated.toString().contains("翻译结果"))
 
-            val confirmed = harness.invoke("confirm", input = "hello", target = "Japanese")
-            assertTrue(confirmed["close"]!!.jsonPrimitive.boolean)
-            assertEquals("commit" to "こんにちは", harness.editorCalls.last())
+            harness.invoke("confirm", input = "hello", target = "Japanese")
+            assertFalse(harness.editorCalls.any { it.first == "commit" })
         }
     }
 
@@ -217,7 +227,7 @@ class BilibiliTranslateAppTest {
             val result = harness.invoke("translate", input = "   ", target = "Japanese")
 
             assertTrue(harness.httpRequests.isEmpty())
-            assertTrue(result.toString().contains("请输入要翻译的文本"))
+            assertTrue(result.toString().contains("请先输入文本"))
             assertFalse(harness.editorCalls.any { it.first == "commit" })
         }
     }
@@ -234,7 +244,7 @@ class BilibiliTranslateAppTest {
             val result = harness.invoke("translate", input = "hello", target = "Japanese")
 
             assertEquals(1, harness.httpRequests.size)
-            assertTrue(result.toString().contains("翻译失败：HTTP 状态码 503"))
+            assertTrue(result.toString().contains("翻译失败：HTTP 503 upstream unavailable"))
             assertFalse(harness.editorCalls.any { it.first == "setComposition" })
             assertFalse(harness.editorCalls.any { it.first == "commit" })
             assertEquals("clearComposition" to "", harness.editorCalls.last())
@@ -244,10 +254,10 @@ class BilibiliTranslateAppTest {
     @Test
     fun malformedResponseBodiesAreReportedWithoutPreview() = runBlocking {
         val cases = listOf(
-            """not json""" to "不是有效 JSON",
-            """{"choices":[]}""" to "空的翻译结果",
-            """{"choices":[{"message":{"content":"   "}}]}""" to "空的翻译结果",
-            """[1,2,3]""" to "接口返回格式异常",
+            """not json""" to "翻译失败：unexpected token",
+            """{"choices":[]}""" to "接口返回了空的翻译结果",
+            """{"choices":[{"message":{"content":"   "}}]}""" to "接口返回了空的翻译结果",
+            """[1,2,3]""" to "接口返回了空的翻译结果",
         )
         for ((body, expected) in cases) {
             Harness(script).use { harness ->
@@ -304,10 +314,7 @@ class BilibiliTranslateAppTest {
     fun translatedTextCanBeTranslatedAgainToAnotherLanguage() = runBlocking {
         Harness(script).use { harness ->
             harness.invoke("translate", input = "hello", target = "Japanese")
-            val reused = harness.invoke("use_result", input = "hello", target = "Japanese")
-            assertTrue(reused.toString().contains("\"value\":\"こんにちは\""))
-            assertFalse(reused.toString().contains("\"id\":\"result\""))
-
+            // 1.5 没有「再译」动作：直接把上一次的结果当输入再翻一次即可。
             harness.httpResponse = buildJsonObject {
                 put("status", 200)
                 put("ok", true)
@@ -320,7 +327,7 @@ class BilibiliTranslateAppTest {
                 harness.httpRequests.last().requestBody()["messages"]!!.jsonArray.single().jsonObject
                     .text("content").startsWith("Translate the following text into English."),
             )
-            assertTrue(second.toString().contains("\"value\":\"Hello\""))
+            assertTrue(second.toString().contains("\"value\":\"こんにちは\""))
             assertEquals("setComposition" to "Hello", harness.editorCalls.last())
 
             val confirmed = harness.invoke("confirm", input = "こんにちは", target = "English")

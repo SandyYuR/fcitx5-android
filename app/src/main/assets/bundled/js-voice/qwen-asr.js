@@ -18,6 +18,10 @@ const LEGACY_QWEN_ENDPOINTS = {
   flashEndpoint: "https://maas.qianwenaiapi.com/api/v1/services/aigc/multimodal-generation/generation"
 };
 
+const TRANSLATION_SERVICE_ID = "text.translate";
+const TRANSLATION_SERVICE_VERSION = 1;
+const TRANSLATION_TARGETS = ["Chinese", "English", "Japanese", "Korean", "French", "German", "Spanish"];
+
 const STREAM_MODELS = [
   "qwen-audio-3.0-asr-flash-streaming",
   "qwen-audio-3.1-asr-flash-streaming",
@@ -56,7 +60,15 @@ const STRINGS = {
     itn: "Normalize spoken numbers and dates",
     stripPunctuation: "Strip trailing punctuation",
     stripCharacters: "Punctuation to strip",
-    stripCharactersDescription: "Characters removed from the end of each final result."
+    stripCharactersDescription: "Characters removed from the end of each final result.",
+    translate: "Translate final result",
+    translationProvider: "Translation service provider",
+    translationProviderDescription: "Select an installed plugin providing text.translate v1. A single provider is selected automatically.",
+    translationTarget: "Translation target language",
+    translationFallback: "Keep source text if translation fails",
+    translationServiceMissing: "Qwen ASR: install a plugin providing text.translate v1",
+    translationProviderAmbiguous: "Qwen ASR: select a text.translate provider in plugin settings",
+    translationFailed: "Qwen ASR translation failed: %1"
   },
   "zh-CN": {
     name: "通义千问语音识别",
@@ -82,7 +94,15 @@ const STRINGS = {
     itn: "规范化口语数字和日期",
     stripPunctuation: "去除末尾标点",
     stripCharacters: "去除的标点字符",
-    stripCharactersDescription: "从每次最终结果的末尾移除这些字符。"
+    stripCharactersDescription: "从每次最终结果的末尾移除这些字符。",
+    translate: "翻译最终识别结果",
+    translationProvider: "翻译服务提供方",
+    translationProviderDescription: "选择已安装且提供 text.translate v1 的插件；只有一个提供方时会自动选择。",
+    translationTarget: "翻译目标语言",
+    translationFallback: "翻译失败时保留原文",
+    translationServiceMissing: "通义千问语音识别：请安装提供 text.translate v1 的插件",
+    translationProviderAmbiguous: "通义千问语音识别：请在插件设置中选择一个 text.translate 服务提供方",
+    translationFailed: "通义千问语音识别翻译失败：%1"
   },
   "zh-TW": {
     name: "通義千問語音辨識",
@@ -108,7 +128,15 @@ const STRINGS = {
     itn: "正規化口語數字和日期",
     stripPunctuation: "去除結尾標點",
     stripCharacters: "去除的標點字元",
-    stripCharactersDescription: "從每次最終結果的結尾移除這些字元。"
+    stripCharactersDescription: "從每次最終結果的結尾移除這些字元。",
+    translate: "翻譯最終辨識結果",
+    translationProvider: "翻譯服務提供者",
+    translationProviderDescription: "選擇已安裝且提供 text.translate v1 的外掛；只有一個提供者時會自動選擇。",
+    translationTarget: "翻譯目標語言",
+    translationFallback: "翻譯失敗時保留原文",
+    translationServiceMissing: "通義千問語音辨識：請安裝提供 text.translate v1 的外掛",
+    translationProviderAmbiguous: "通義千問語音辨識：請在外掛設定中選擇一個 text.translate 服務提供者",
+    translationFailed: "通義千問語音辨識翻譯失敗：%1"
   }
 };
 
@@ -123,7 +151,77 @@ function stringsFor(locale) {
 
 const MAX_FLASH_AUDIO_SECONDS = 30;
 const DEFAULT_STRIP_CHARACTERS = ".,!?;:，。！？；：、…⋯~～";
-let state = { mode: "streaming", chunks: [], bytes: 0, stripPunctuation: false, stripChars: "" };
+let state = newSessionState();
+
+function newSessionState(mode = "streaming") {
+  return {
+    mode,
+    chunks: [],
+    bytes: 0,
+    stripPunctuation: false,
+    stripChars: "",
+    translationEnabled: false,
+    translationProvider: "",
+    translationTarget: "English",
+    translationFallback: true
+  };
+}
+
+function setting(context, key) {
+  const value = context[key];
+  return value === undefined || value === null ? "" : String(value).trim();
+}
+
+function configureTranslation(ui, t) {
+  ui.switch("translationEnabled", t.translate, false);
+  ui.serviceSelect("translationProvider", t.translationProvider, TRANSLATION_SERVICE_ID, TRANSLATION_SERVICE_VERSION, "", {
+    visibleWhen: {key: "translationEnabled", value: "true"},
+    description: t.translationProviderDescription
+  });
+  ui.select("translationTarget", t.translationTarget, TRANSLATION_TARGETS, "English", {
+    visibleWhen: {key: "translationEnabled", value: "true"}
+  });
+  ui.switch("translationFallback", t.translationFallback, true, {
+    visibleWhen: {key: "translationEnabled", value: "true"}
+  });
+}
+
+function resolveTranslationProvider(context, t) {
+  const services = foxy.services.list(TRANSLATION_SERVICE_ID).filter(item =>
+    item.serviceId === TRANSLATION_SERVICE_ID && item.version === TRANSLATION_SERVICE_VERSION);
+  let provider = setting(context, "translationProvider");
+  if (!provider) {
+    if (services.length === 1) provider = services[0].pluginId;
+    else if (services.length > 1) throw new Error(t.translationProviderAmbiguous);
+  }
+  if (!provider || !services.some(item => item.pluginId === provider)) {
+    throw new Error(t.translationServiceMissing + (provider ? " (" + provider + ")" : ""));
+  }
+  return provider;
+}
+
+async function translateFinal(text, session, t, endSession) {
+  const source = String(text || "").trim();
+  if (!source || !session.translationEnabled) {
+    return source ? {final: source, ...(endSession ? {ended: true} : {})} : (endSession ? {ended: true} : {});
+  }
+  try {
+    const result = await foxy.services.call(
+      session.translationProvider,
+      TRANSLATION_SERVICE_ID,
+      TRANSLATION_SERVICE_VERSION,
+      {text: source, targetLanguage: session.translationTarget}
+    );
+    const translated = String(result && result.translatedText || "").trim();
+    if (!translated) throw new Error("empty translation result");
+    return {final: translated, ...(endSession ? {ended: true} : {})};
+  } catch (error) {
+    if (session.translationFallback) {
+      return {final: source, ...(endSession ? {ended: true} : {})};
+    }
+    return {error: String(t.translationFailed).replace("%1", error && (error.message || error) || error)};
+  }
+}
 
 function platform(context) {
   return context.platform === "qwen-ai" ? "qwen-ai" : "bailian";
@@ -172,9 +270,9 @@ function parseTranscript(body) {
 foxy.plugin.register({
   id: "qwen-asr",
   name: stringsFor(foxy.locale).name,
-  version: "1.6.3",
+  version: "1.8.0",
   hosts: ["dashscope.aliyuncs.com", "maas.qianwenaiapi.com", "cn-beijing.maas.qianwenaiapi.com"],
-  features: [{type: "voice.asr", id: "qwen-asr", label: stringsFor(foxy.locale).name, sampleRate: 16000}],
+  features: [{type: "voice.asr", id: "qwen-asr", label: "Qwen ASR", sampleRate: 16000}],
   configure(ui, locale) {
     const t = stringsFor(locale);
     ui.secret("apiKey", t.apiKey, {
@@ -224,15 +322,19 @@ foxy.plugin.register({
         {key: "platform", value: "qwen-ai"}
       ]}
     });
+    configureTranslation(ui, t);
   },
   async start(context) {
-    state = {
-      mode: context.mode === "flash" ? "flash" : "streaming",
-      chunks: [],
-      bytes: 0,
-      stripPunctuation: context.stripPunctuation !== "false",
-      stripChars: context.stripCharacters != null ? String(context.stripCharacters) : DEFAULT_STRIP_CHARACTERS
-    };
+    state = newSessionState(context.mode === "flash" ? "flash" : "streaming");
+    state.stripPunctuation = context.stripPunctuation !== "false";
+    state.stripChars = context.stripCharacters != null ? String(context.stripCharacters) : DEFAULT_STRIP_CHARACTERS;
+    state.translationEnabled = context.translationEnabled === "true";
+    state.translationFallback = context.translationFallback !== "false";
+    const preferredTarget = setting(context, "translationTarget");
+    state.translationTarget = TRANSLATION_TARGETS.indexOf(preferredTarget) !== -1 ? preferredTarget : "English";
+    if (state.translationEnabled) {
+      state.translationProvider = resolveTranslationProvider(context, stringsFor(foxy.locale));
+    }
     if (state.mode === "flash") {
       foxy.voice.ready();
       return "flash";
@@ -265,7 +367,7 @@ foxy.plugin.register({
   },
   async audio(context) {
     if (state.mode === "flash") {
-      const chunkBytes = foxy.binary.byteLength(context.pcm);
+      const chunkBytes = Math.floor(context.pcm.length * 3 / 4);
       const limit = Math.max(1, Number(context.sampleRate) || 16000) * 2 * MAX_FLASH_AUDIO_SECONDS;
       if (state.bytes + chunkBytes > limit) throw new Error("Flash recognition is limited to 30 seconds of audio");
       state.bytes += chunkBytes;
@@ -276,10 +378,9 @@ foxy.plugin.register({
   },
   async stop(context) {
     if (state.mode === "flash") {
-      const pcm = foxy.binary.concatBase64(state.chunks);
-      const stripPunctuation = state.stripPunctuation;
-      const stripChars = state.stripChars;
-      state = {mode: "streaming", chunks: [], bytes: 0, stripPunctuation: false, stripChars: ""};
+      const session = state;
+      const pcm = state.chunks.join("");
+      state = newSessionState();
       if (!pcm) return {ended: true};
 
       const endpoint = resolve(context, "flashEndpoint");
@@ -303,8 +404,8 @@ foxy.plugin.register({
         },
         parameters: parameters
       }), JSON.stringify({"X-DashScope-SSE": "disable"}));
-      const text = finalText(parseTranscript(body), stripPunctuation, stripChars);
-      return text ? {final: text, ended: true} : {ended: true};
+      const text = finalText(parseTranscript(body), session.stripPunctuation, session.stripChars);
+      return translateFinal(text, session, stringsFor(foxy.locale), true);
     }
 
     await foxy.websocket.send(context.socket, JSON.stringify({
@@ -312,7 +413,7 @@ foxy.plugin.register({
       payload: {input: {}}
     }));
   },
-  onMessage(message) {
+  async onMessage(message) {
     const packet = JSON.parse(message.message);
     const event = packet.header && packet.header.event;
     if (event === "task-started") return {ready: true};
@@ -322,7 +423,7 @@ foxy.plugin.register({
     const sentence = packet.payload && packet.payload.output && packet.payload.output.sentence;
     if (!sentence || sentence.heartbeat || !sentence.text) return {};
     return sentence.sentence_end
-      ? {final: finalText(sentence.text, state.stripPunctuation, state.stripChars)}
+      ? translateFinal(finalText(sentence.text, state.stripPunctuation, state.stripChars), state, stringsFor(foxy.locale), false)
       : {partial: sentence.text};
   }
 });
