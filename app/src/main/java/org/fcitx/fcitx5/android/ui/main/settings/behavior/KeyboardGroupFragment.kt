@@ -46,7 +46,7 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
     private val group: Int get() = arguments?.getInt("group", -1) ?: -1
     private val viewModel: MainViewModel by activityViewModels()
 
-    private var textLayoutFileSelectPreference: Preference? = null
+    private var textLayoutManagerPreference: Preference? = null
     private var webEditorBridgePreference: Preference? = null
     private var numericLayoutOverridePreference: Preference? = null
     private var customKeySoundPreference: Preference? = null
@@ -80,18 +80,13 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
         // Group 5 extras: keyboard definition tools
         if (group == GROUP_EDITORS) {
             val managerEntry = SettingsGroupSpecs.keyboardLayoutManager
-            addTool(screen, "tool_text_layout_manager",
+            textLayoutManagerPreference = addTool(screen, "tool_text_layout_manager",
                 managerEntry.title, buildCurrentTextLayoutFileSummary()
             ) { startActivity(Intent(requireContext(), (managerEntry.action as SettingsGroupAction.Launch).activityClass)) }
 
             addTool(screen, "tool_text_layout_editor",
                 R.string.edit_text_keyboard_layout, ""
             ) { startActivity(Intent(requireContext(), TextKeyboardLayoutEditorActivity::class.java)) }
-
-            textLayoutFileSelectPreference = addTool(screen, TEXT_LAYOUT_FILE_SELECT_PREF_KEY,
-                R.string.text_keyboard_layout_file_select_title,
-                buildCurrentTextLayoutFileSummary()
-            ) { showSelectTextLayoutFileDialog() }
 
             numericLayoutOverridePreference = addTool(screen, "tool_numeric_layout_override",
                 R.string.numeric_layout_override_title,
@@ -154,7 +149,7 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             customKeySoundPreference?.summary = buildCustomKeySoundSummary()
         }
         if (group == GROUP_EDITORS) {
-            textLayoutFileSelectPreference?.summary = buildCurrentTextLayoutFileSummary()
+            updateTextLayoutManagerSummary()
             numericLayoutOverridePreference?.summary = buildNumericLayoutOverrideSummary()
             updateWebEditorBridgeStatus()
         }
@@ -232,6 +227,14 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
                 requireContext().toast(R.string.custom_key_sound_invalid)
             }
         }
+    }
+
+    /**
+     * 在管理页切换或启用另一份布局后返回，本页会走 onResume；
+     * 管理入口必须重读偏好，不能只在创建时填一次摘要，否则返回后仍显示旧文件名。
+     */
+    private fun updateTextLayoutManagerSummary() {
+        textLayoutManagerPreference?.summary = buildCurrentTextLayoutFileSummary()
     }
 
     private fun buildCurrentTextLayoutFileSummary() = getString(
@@ -317,30 +320,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
             .show()
     }
 
-    private fun showSelectTextLayoutFileDialog() {
-        val profiles = UserConfigFiles.listTextKeyboardLayoutProfiles().toMutableList()
-        val current = currentTextLayoutProfile()
-        if (current !in profiles) profiles += current
-        val sortedProfiles = profiles.distinct()
-            .sortedWith(compareBy(
-                { it != UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE }, { it }
-            ))
-        val labels = sortedProfiles.map { displayProfile(it) }.toTypedArray()
-        val initial = sortedProfiles.indexOf(current).coerceAtLeast(0)
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.text_keyboard_layout_file_select_title)
-            .setSingleChoiceItems(labels, initial) { dialog, which ->
-                val sel = sortedProfiles.getOrNull(which) ?: return@setSingleChoiceItems
-                AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(sel)
-                ConfigProviders.provider = ConfigProviders.provider
-                textLayoutFileSelectPreference?.summary = buildCurrentTextLayoutFileSummary()
-                numericLayoutOverridePreference?.summary = buildNumericLayoutOverrideSummary()
-                dialog.dismiss()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
     private fun toggleWebEditorBridge() {
         val session = ImeWebEditorBridgeServer.currentSession()
         if (session != null) {
@@ -392,8 +371,6 @@ class KeyboardGroupFragment : ManagedPreferenceFragment(AppPrefs.getInstance().k
     }
 
     companion object {
-        private const val TEXT_LAYOUT_FILE_SELECT_PREF_KEY = "text_keyboard_layout_file_select"
-
         /**
          * 设置页没有真实输入法上下文，按本应用的固定基线（rime）优先；
          * 其他文件交给「只有一套基线带数字层」的兜底规则。
