@@ -144,6 +144,8 @@ abstract class KeyView(
     var onWaterRippleRequest: ((keyView: KeyView, localX: Float, localY: Float) -> Unit)? = null
     internal var statisticsKeyLabel: String? = null
     internal var onStatisticsPress: ((KeyView) -> Unit)? = null
+    internal var stickyModifier: StickyModifier? = null
+    internal var stickyModifierGesture: StickyModifierGesture? = null
     private var statisticsTouchActive = false
 
     /**
@@ -297,15 +299,20 @@ abstract class KeyView(
             insetPillDrawable(
                 hMargin, vMargin,
                 if (rippled) Color.WHITE else theme.keyPressHighlightColor
-            )
+            ),
+            insetPillDrawable(hMargin, vMargin, theme.keyPressHighlightColor)
         )
     }
 
-    private fun setupPressHighlight(mask: Drawable? = null) {
+    private fun setupPressHighlight(mask: Drawable? = null, activatedHighlight: Drawable? = null) {
+        val persistentHighlight = activatedHighlight ?: highlightMaskDrawable(theme.keyPressHighlightColor)
         if (rippled) {
             background = null
+            val activatedBackground = StateListDrawable().apply {
+                addState(intArrayOf(android.R.attr.state_activated), persistentHighlight)
+            }
             appearanceView.foreground = RippleDrawable(
-                ColorStateList.valueOf(theme.keyPressHighlightColor), null,
+                ColorStateList.valueOf(theme.keyPressHighlightColor), activatedBackground,
                 mask ?: highlightMaskDrawable(Color.WHITE)
             )
             return
@@ -314,6 +321,7 @@ abstract class KeyView(
         background = null
         appearanceView.foreground = if (bordered && borderStroke && mask == null) {
             StateListDrawable().apply {
+                addState(intArrayOf(android.R.attr.state_activated), persistentHighlight)
                 addState(
                     intArrayOf(android.R.attr.state_pressed),
                     borderedKeyBackgroundDrawable(
@@ -324,6 +332,7 @@ abstract class KeyView(
             }
         } else {
             StateListDrawable().apply {
+                addState(intArrayOf(android.R.attr.state_activated), persistentHighlight)
                 addState(
                     intArrayOf(android.R.attr.state_pressed),
                     // use mask drawable as highlight directly
@@ -432,7 +441,8 @@ abstract class KeyView(
                     insetRadiusDrawable(
                         hInset, vInset, bkgRadius,
                         if (rippled) Color.WHITE else theme.keyPressHighlightColor
-                    )
+                    ),
+                    insetRadiusDrawable(hInset, vInset, bkgRadius, theme.keyPressHighlightColor)
                 )
             }
             R.id.button_return -> {

@@ -820,4 +820,6 @@
     <string name="theme_kit_theme_only">Solo colores</string>
     <string name="icon_theme_letter_keys">Teclas de letras</string>
     <string name="icon_theme_numpad_keys">Teclas numericas</string>
+    <string name="text_keyboard_layout_key_type_unavailable">%1$s (no disponible en esta distribución)</string>
+    <string name="text_keyboard_layout_key_type_unavailable_message">Este tipo de tecla no está disponible en esta distribución. Elige otro tipo.</string>
 </resources>

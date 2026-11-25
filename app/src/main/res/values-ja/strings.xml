@@ -818,4 +818,6 @@
     <string name="theme_kit_theme_only">配色のみ</string>
     <string name="icon_theme_letter_keys">英字キー</string>
     <string name="icon_theme_numpad_keys">数字キー</string>
+    <string name="text_keyboard_layout_key_type_unavailable">%1$s（このレイアウトでは使用できません）</string>
+    <string name="text_keyboard_layout_key_type_unavailable_message">このレイアウトではこのキーの種類を使用できません。別の種類を選択してください。</string>
 </resources>

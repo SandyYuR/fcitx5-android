@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.input.keyboard
 
+import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.core.ScancodeMapping
@@ -58,6 +59,29 @@ sealed class KeyRef {
     data class Android(val code: Int) : KeyRef()
 }
 
+enum class StickyModifier(
+    val keyName: String,
+    val keyState: KeyState,
+    val defaultLabel: String,
+    val jsonName: String
+) {
+    Ctrl("Control_L", KeyState.Ctrl, "Ctrl", "ctrl"),
+    Shift("Shift_L", KeyState.Shift, "Shift", "shift"),
+    Alt("Alt_L", KeyState.Alt, "Alt", "alt");
+
+    companion object {
+        /** Layout JSON uses exact lower-case names; aliases and mixed case are rejected. */
+        fun fromJson(value: String?): StickyModifier? = when (value) {
+            "ctrl" -> Ctrl
+            "shift" -> Shift
+            "alt" -> Alt
+            else -> null
+        }
+    }
+}
+
+data class StickyModifierAction(val modifier: StickyModifier) : KeyAction()
+
 @Serializable
 data class MacroAction(val steps: List<MacroStep>) : KeyAction()
 
@@ -72,7 +96,11 @@ sealed class KeyAction {
         val up: Boolean = false
     ) : KeyAction()
 
-    data class SymAction(val sym: KeySym, val states: KeyStates = KeyStates.Virtual) : KeyAction()
+    data class SymAction(
+        val sym: KeySym,
+        val states: KeyStates = KeyStates.Virtual,
+        val up: Boolean = false
+    ) : KeyAction()
 
     data class CommitAction(val text: String) : KeyAction()
 

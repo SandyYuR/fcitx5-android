@@ -235,7 +235,7 @@ class CommonKeyActionListener :
                     sendKey(action.act, action.states.states, action.code, action.up)
                 }
                 is SymAction -> service.postFcitxKeyJob {
-                    sendKey(action.sym, action.states)
+                    sendKey(action.sym, action.states, up = action.up)
                 }
                 is CommitAction -> service.postFcitxJob {
                     commitAndReset()

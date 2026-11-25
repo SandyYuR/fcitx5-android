@@ -176,6 +176,8 @@
     <string name="text_keyboard_layout_placeholder_custom_color">사용자 색상</string>
     <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">매크로 (사용자 동작)</string>
+    <string name="text_keyboard_layout_key_type_sticky_modifier">고정 수정 키 (Ctrl/Shift/Alt)</string>
+    <string name="text_keyboard_layout_sticky_modifier">수정 키</string>
     <string name="text_keyboard_layout_key_split_after">이 키 뒤에서 키보드 분할</string>
     <string name="text_keyboard_layout_key_split_after_helper">분할 키보드에만 적용됩니다. 기본적으로 각 행의 가운데에서 나누지만, 선택하면 지정한 키 뒤에서 나눕니다. 한 행에 여러 키를 지정하면 마지막 지정이 적용됩니다.</string>
     <string name="text_keyboard_layout_split_layout">분할 키보드 레이아웃</string>

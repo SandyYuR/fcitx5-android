@@ -176,6 +176,8 @@
     <string name="text_keyboard_layout_placeholder_custom_color">Свои цвета</string>
     <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">макрос (своё действие)</string>
+    <string name="text_keyboard_layout_key_type_sticky_modifier">залипающий модификатор (Ctrl/Shift/Alt)</string>
+    <string name="text_keyboard_layout_sticky_modifier">модификатор</string>
     <string name="text_keyboard_layout_key_split_after">Разделять клавиатуру после этой клавиши</string>
     <string name="text_keyboard_layout_key_split_after_helper">Действует только для разделённой клавиатуры. Обычно строка делится посередине. Включите, чтобы разделять после выбранной клавиши. Если отмечено несколько клавиш, используется последняя.</string>
     <string name="text_keyboard_layout_split_layout">Раскладка разделённой клавиатуры</string>

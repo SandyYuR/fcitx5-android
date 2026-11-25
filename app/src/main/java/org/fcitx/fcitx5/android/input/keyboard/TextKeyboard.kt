@@ -1704,6 +1704,12 @@ class TextKeyboard private constructor(
         super.onAction(transformed, source)
     }
 
+    override fun onStickyShiftLetter() {
+        // The composed letter already has its final keysym/states. Do not run onAction
+        // again (which would rewrite them), or consume Once separately for its Up.
+        if (capsState == CapsState.Once) switchCapsState()
+    }
+
     override fun preprocessMacroAction(
         action: MacroAction,
         source: KeyActionListener.Source

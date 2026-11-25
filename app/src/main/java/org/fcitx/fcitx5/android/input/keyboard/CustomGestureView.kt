@@ -36,7 +36,9 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         val countX: Int,
         val countY: Int,
         val totalX: Int,
-        val totalY: Int
+        val totalY: Int,
+        val cancelled: Boolean = false,
+        val clickEligible: Boolean = false
     )
 
     fun interface OnGestureListener {
@@ -56,6 +58,11 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
 
     @Volatile
     private var longPressTriggered = false
+    /** 长按延时到、performLongClick 被调用过（无论返回 true 还是 false）。
+     *  用来抑制释放时的 click：弹窗类长按返回 false 不消费，但已发生过长按动作，
+     *  不应回落成 click。与 [longPressTriggered] 的区别：后者仅当监听器返回 true 时为 true。 */
+    @Volatile
+    private var longPressFired = false
     var longPressEnabled = false
     private var longPressJob: Job? = null
 
@@ -124,6 +131,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     var onRepeatStartListener: ((View) -> Unit)? = null
     var onRepeatMoveListener: ((View, Float, Float) -> Unit)? = null
     var onGestureListener: OnGestureListener? = null
+    internal var onCancelGesturesListener: ((View) -> Unit)? = null
 
     var soundEffect: InputFeedbacks.SoundEffect = InputFeedbacks.SoundEffect.Standard
 
@@ -176,6 +184,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         // repeatStarted stuck at true, which makes shouldPerformClick permanently false
         // and the key stop responding to taps.
         longPressTriggered = false
+        longPressFired = false
         longPressJob?.cancel()
         longPressJob = null
         repeatStarted = false
@@ -199,6 +208,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
 
     fun cancelGestures() {
         resetTapPointers()
+        onCancelGesturesListener?.invoke(this)
         cancelPress()
     }
 
@@ -378,6 +388,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                         if (longPressFeedbackEnabled) {
                             InputFeedbacks.hapticFeedback(this@CustomGestureView, true)
                         }
+                        longPressFired = true
                         longPressTriggered = performLongClick()
                     }
                 }
@@ -411,19 +422,27 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 if (!holdSwipeEnabled) {
                     commitSwipeStepIfPending(event.x, event.y, event.eventTime)
                 }
+                // 未进入「已按住」的快速点击照常触发 click（候选词即选词）；
+                // 已按住时不再触发 click，由上面的长按回落/手势监听接管。
+                // 在 Up 监听之前计算预判值：监听者可以据此知道「当前是 click 候选」，
+                // 但 Up 派发本身的消费（gestureConsumed 被置 true）仍会抑制最终 click。
+                val clickEligiblePredicted = !holdSwipeWasArmed && !(touchMovedOutside ||
+                        longPressFired ||
+                        repeatStarted ||
+                        swipeRepeatTriggered ||
+                        gestureConsumed)
                 if (!holdSwipeEnabled || holdSwipeWasArmed) {
-                    dispatchGestureEvent(GestureType.Up, event.x, event.y)
+                    dispatchGestureEvent(
+                        GestureType.Up, event.x, event.y,
+                        clickEligible = clickEligiblePredicted
+                    )
                 }
                 // 已按住但一次滑动都没被消费（原地没怎么动）：回落到长按语义，
                 // 候选词那里就是呼出操作菜单。必须在 resetState() 前取值。
                 val holdSwipeFallbackLongClick = holdSwipeWasArmed && !gestureConsumed
-                // 未进入「已按住」的快速点击照常触发 click（候选词即选词）；
-                // 已按住时不再触发 click，由上面的长按回落/手势监听接管。
-                val shouldPerformClick = !holdSwipeWasArmed && !(touchMovedOutside ||
-                        longPressTriggered ||
-                        repeatStarted ||
-                        swipeRepeatTriggered ||
-                        gestureConsumed)
+                // Up 派发可能让 gestureConsumed 变 true（长按弹窗未选中、或手势监听
+                // 返回 true），最终判定必须兜住这种情况——否则弹窗键释放时会多触发 click。
+                val shouldPerformClick = clickEligiblePredicted && !gestureConsumed
                 resetState()
                 if (holdSwipeFallbackLongClick) {
                     performLongClick()
@@ -508,7 +527,10 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
             MotionEvent.ACTION_CANCEL -> {
                 // 与 ACTION_UP 同样的配对规则：只有派发过 Down 才派发 Up。
                 if (!holdSwipeEnabled || holdSwipeArmed) {
-                    dispatchGestureEvent(GestureType.Up, event.x, event.y)
+                    dispatchGestureEvent(
+                        GestureType.Up, event.x, event.y,
+                        cancelled = true, clickEligible = false
+                    )
                 }
                 cancelPress()
                 return true
@@ -552,9 +574,14 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         x: Float,
         y: Float,
         countX: Int = 0,
-        countY: Int = 0
+        countY: Int = 0,
+        cancelled: Boolean = false,
+        clickEligible: Boolean = false
     ) {
-        val event = Event(type, gestureConsumed, x, y, countX, countY, swipeTotalX, swipeTotalY)
+        val event = Event(
+            type, gestureConsumed, x, y, countX, countY, swipeTotalX, swipeTotalY,
+            cancelled, clickEligible
+        )
         val consumed = onGestureListener?.onGesture(this, event) ?: return
         if (consumed && !gestureConsumed) {
             gestureConsumed = true

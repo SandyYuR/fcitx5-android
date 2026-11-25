@@ -148,6 +148,7 @@ object LayoutJsonUtils {
 
     private val KEY_FIELD_ORDER = listOf(
         "type",
+        "modifier",
         "main",
         "alt",
         "displayText",
@@ -406,6 +407,7 @@ object LayoutJsonUtils {
         } else null
         return KeyJson(
             type = type,
+            modifier = (obj["modifier"] as? JsonPrimitive)?.contentOrNull,
             // contentOrNull, not content: JsonNull.content is the literal string "null",
             // which would otherwise be rendered and committed as text on the key.
             main = obj["main"]?.jsonPrimitive?.contentOrNull,
@@ -895,6 +897,7 @@ object LayoutJsonUtils {
      */
     data class KeyJson(
         val type: String,
+        val modifier: String? = null,
         val main: String? = null,
         val alt: String? = null,
         val displayText: JsonElement? = null,  // AlphabetKey 和 MacroKey 共用
@@ -1017,6 +1020,7 @@ object LayoutJsonUtils {
             is NumPadKey -> "NumPadKey"
             is MiniSpaceKey -> "MiniSpaceKey"
             is PlaceholderKey -> "PlaceholderKey"
+            is StickyModifierKey -> "StickyModifierKey"
             else -> "SpaceKey"
         }
 
@@ -1093,6 +1097,12 @@ object LayoutJsonUtils {
                 // 只在"与默认相反"时写：占位键默认透明，写 false 的唯一理由是用户开了
                 // 自定义颜色、需要一块真实底色（见 KeyJson.transparent 的说明）。
                 if (!appearance.transparentBackground) json["transparent"] = false
+            }
+            is StickyModifierKey -> {
+                json["modifier"] = keyDef.modifier.jsonName
+                keyDef.label.takeIf { it.isNotEmpty() && it != keyDef.modifier.defaultLabel }
+                    ?.let { json["label"] = it }
+                json["weight"] = appearance.percentWidth.takeIf { it != 0.1f }
             }
             is MacroKey -> {
                 json["label"] = keyDef.label
@@ -1417,6 +1427,24 @@ object LayoutJsonUtils {
                 shadowColor = key.shadowColor,
                 shadowColorMonet = key.shadowColorMonet
             )
+            "StickyModifierKey" -> {
+                val modifier = StickyModifier.fromJson(key.modifier) ?: run {
+                    Log.w(TAG, "Skipping StickyModifierKey with invalid 'modifier': " + key.modifier)
+                    return null
+                }
+                StickyModifierKey(
+                    modifier = modifier,
+                    label = key.label?.takeIf { it.isNotEmpty() } ?: modifier.defaultLabel,
+                    percentWidth = key.weight ?: 0.1f,
+                    variant = KeyDef.Appearance.Variant.Alternative,
+                    textColor = key.textColor,
+                    textColorMonet = key.textColorMonet,
+                    backgroundColor = key.backgroundColor,
+                    backgroundColorMonet = key.backgroundColorMonet,
+                    shadowColor = key.shadowColor,
+                    shadowColorMonet = key.shadowColorMonet
+                )
+            }
             "MacroKey" -> {
                 // A MacroKey without a tap action cannot do anything. Skip the key instead of
                 // throwing: the throw used to propagate out of BaseKeyboard.init and crash the

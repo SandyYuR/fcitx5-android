@@ -12,7 +12,8 @@ internal object LayoutKeyUi {
         "LayoutSwitchKey" to setOf("type", "label", "subLabel"),
         "SymbolKey" to setOf("type", "label"),
         "NumPadKey" to setOf("type", "label"),
-        "MacroKey" to setOf("type", "label", "tap")
+        "MacroKey" to setOf("type", "label", "tap"),
+        "StickyModifierKey" to setOf("type", "modifier", "label")
     )
     private val wideKeys = setOf("CapsKey", "LayoutSwitchKey", "ReturnKey", "BackspaceKey", "MiniSpaceKey")
 

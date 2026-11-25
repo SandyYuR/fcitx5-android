@@ -110,6 +110,9 @@ abstract class BaseKeyboard(
     private val auxBarKeysProvider: () -> List<KeyDef> = { emptyList() }
 ) : ConstraintLayout(context) {
     private val previewMacroInput = MacroInputController { Timber.w(it, "Macro key cleanup failed") }
+    private var observedStickyModifierController: StickyModifierController? = null
+    private val stickyModifierChangeListener: () -> Unit = { refreshStickyModifierAppearance() }
+    private var dispatchingMacroKeyAction = false
     private val statisticsKeys = WeakHashMap<KeyView, Unit>()
     private var statisticsLayout: org.fcitx.fcitx5.android.data.stats.StatsLayout? = null
     private var statisticsCapturePosted = false
@@ -120,7 +123,15 @@ abstract class BaseKeyboard(
         val editor: org.fcitx.fcitx5.android.input.EditorSessionTracker.Token?
     )
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        syncStickyModifierController()
+        refreshStickyModifierAppearance()
+    }
+
     override fun onDetachedFromWindow() {
+        observedStickyModifierController?.removeListener(stickyModifierChangeListener)
+        observedStickyModifierController = null
         previewMacroInput.cancelAll()
         statisticsLayout = null
         super.onDetachedFromWindow()
@@ -917,6 +928,7 @@ abstract class BaseKeyboard(
         keyboardWaterRippleView?.setOccluders(
             keyRows.flatMap { row -> row.children.mapNotNull { it as? KeyView }.toList() }
         )
+        refreshStickyModifierAppearance()
         Logx.i(LogTag.ColdStart,
             "${javaClass.simpleName}.reloadLayout rows=${keyRows.size} " +
                 "duration=${SystemClock.elapsedRealtime() - startedAt}ms"
@@ -1694,6 +1706,24 @@ abstract class BaseKeyboard(
             }
         }
         rows.forEach(::visit)
+    }
+
+    private fun syncStickyModifierController() {
+        val controller = getService()?.stickyModifiers
+        if (observedStickyModifierController === controller) return
+        observedStickyModifierController?.removeListener(stickyModifierChangeListener)
+        observedStickyModifierController = controller
+        controller?.addListener(stickyModifierChangeListener)
+    }
+
+    private fun refreshStickyModifierAppearance(view: KeyView) {
+        val modifier = view.stickyModifier
+        view.isActivated = modifier != null &&
+            getService()?.stickyModifiers?.isLatched(modifier) == true
+    }
+
+    private fun refreshStickyModifierAppearance() {
+        forEachKeyViewIncludingCachedRows(::refreshStickyModifierAppearance)
     }
 
     fun refreshIconTheme() {
@@ -2612,6 +2642,37 @@ abstract class BaseKeyboard(
         }
     }
 
+    private fun bindStickyModifierGesture(view: KeyView, action: StickyModifierAction?) {
+        val oldOnGestureListener = view.onGestureListener ?: OnGestureListener.Empty
+        view.onGestureListener = OnGestureListener { currentView, event ->
+            currentView as KeyView
+            when (event.type) {
+                GestureType.Down -> if (action != null && currentView.stickyModifierGesture == null) {
+                    val id = getService()?.stickyModifiers?.onDown(action.modifier)
+                    if (id != null) {
+                        currentView.stickyModifierGesture = StickyModifierGesture(action.modifier, id)
+                    }
+                }
+                GestureType.Up -> finishStickyModifierGesture(
+                    currentView, event.clickEligible, event.cancelled
+                )
+                else -> {}
+            }
+            oldOnGestureListener.onGesture(currentView, event)
+        }
+        view.onCancelGesturesListener = { currentView ->
+            finishStickyModifierGesture(currentView as KeyView, clickEligible = false, cancelled = true)
+        }
+    }
+
+    private fun finishStickyModifierGesture(view: KeyView, clickEligible: Boolean, cancelled: Boolean) {
+        val gesture = view.stickyModifierGesture ?: return
+        view.stickyModifierGesture = null
+        getService()?.stickyModifiers?.onUp(
+            gesture.modifier, gesture.id, clickEligible, cancelled
+        )
+    }
+
     private fun applyBehaviorPopupBindings(
         view: KeyView,
         baseline: GestureBaseline,
@@ -2632,6 +2693,12 @@ abstract class BaseKeyboard(
         view.swipeThresholdX = baseline.swipeThresholdX
         view.swipeThresholdY = baseline.swipeThresholdY
         view.onGestureListener = baseline.onGestureListener
+        view.onCancelGesturesListener = null
+        val stickyAction = behaviors.asSequence()
+            .mapNotNull { (it as? KeyDef.Behavior.Press)?.action as? StickyModifierAction }
+            .firstOrNull()
+        view.stickyModifier = stickyAction?.modifier
+        refreshStickyModifierAppearance(view)
 
         val interactive = behaviors.isNotEmpty() || !popup.isNullOrEmpty()
         view.isEnabled = interactive
@@ -2642,6 +2709,9 @@ abstract class BaseKeyboard(
         // （那样缓存行会带着旧值，改设置不生效）。方法开头刚清空过 repeat 回调，
         // 这里统一重绑：创建、compose 重绑、行复用之外的路径都经过本方法。
         refreshSpaceRepeatBinding(view)
+        if (stickyAction != null || view.stickyModifierGesture != null) {
+            bindStickyModifierGesture(view, stickyAction)
+        }
 
         var hasLongPressBehavior = false
         behaviors.forEach {
@@ -2649,14 +2719,17 @@ abstract class BaseKeyboard(
                 is KeyDef.Behavior.Press -> {
                     val action = it.action
                     view.letterTapHandoverEnabled = !vivoKeypressWorkaround && action.isSingleVirtualLetterTap()
-                    view.setOnClickListener { _ ->
-                        onAction(action)
+                    if (action !is StickyModifierAction) {
+                        view.setOnClickListener { _ ->
+                            onStickyConsumableAction(action)
+                        }
                     }
                 }
                 is KeyDef.Behavior.LongPress -> {
                     hasLongPressBehavior = true
                     view.setOnLongClickListener { _ ->
-                        onAction(it.action)
+                        // 长按行为等价于单键 tap 时同样消费粘滞组合，否则普通派发。
+                        onStickyConsumableAction(it.action)
                         true
                     }
                 }
@@ -2682,7 +2755,9 @@ abstract class BaseKeyboard(
                             GestureType.Up -> {
                                 val action = selectSwipeAction(currentView, event.totalY, it)
                                 if (!event.consumed && action != null) {
-                                    onAction(action)
+                                    // 该入口只产生上滑/下滑动作（按 totalY 判定），
+                                    // 单键行为同样消费粘滞组合；左右滑动不走这里。
+                                    onStickyConsumableAction(action)
                                     true
                                 } else {
                                     false
@@ -3048,6 +3123,151 @@ abstract class BaseKeyboard(
         }
     }
 
+    /**
+     * 可消费粘滞修饰键的手势入口：单击 tap、长按、上滑、下滑共用。
+     *
+     * 判定看「最终动作」而不是手势：只有动作等价于一次单键 tap
+     * （[KeyAction.FcitxKeyAction] / [KeyAction.SymAction] / 单键 Tap 宏）才消费组合，
+     * 其余动作（多步宏、文本、弹窗等）仍走普通 [onAction]。
+     * Repeat、双击、左右滑动与弹窗不经过这里，永不消费。
+     */
+    private fun onStickyConsumableAction(action: KeyAction) {
+        val service = getService()
+        val listener = keyActionListener
+        if (service == null || listener == null || !service.stickyModifiers.hasActiveModifiers) {
+            onAction(action)
+            return
+        }
+        // 自定义布局的普通字母/符号是「单键 Tap 宏」，与普通按键等价，同样消费粘滞组合。
+        val stickyAction: KeyAction? = when (action) {
+            is KeyAction.FcitxKeyAction, is KeyAction.SymAction -> action
+            is MacroAction -> action.singleFcitxTapCode()?.let { code ->
+                val key = resolveMacroKey(code)
+                KeyAction.FcitxKeyAction(code, key.scanCode, key.states)
+            }
+            else -> null
+        }
+        if (stickyAction != null && consumeStickyTap(service, listener, stickyAction)) return
+        onAction(action)
+    }
+
+    /**
+     * 消费粘滞组合并投递这一次按键。
+     *
+     * - 仅 Shift + 字母：大写 keysym 走虚拟键，交给 Rime 组成候选（不上屏原文）。
+     * - 其它组合（含 Ctrl/Alt，或仅 Shift + 非字母）：模拟物理修饰键与按键，
+     *   先由 Rime 处理；未消费的事件由服务端带 metaState 转发给宿主应用，
+     *   从而实现 Ctrl+A 之类的真实快捷键，且不会 `commitText`。
+     *
+     * 返回 false 表示没有可消费的组合（调用方继续普通派发）。
+     */
+    private fun consumeStickyTap(
+        service: org.fcitx.fcitx5.android.input.FcitxInputMethodService,
+        listener: KeyActionListener,
+        action: KeyAction
+    ): Boolean {
+        val editor = service.editorSession.capture() ?: return false
+        val consumption = service.stickyModifiers.consume() ?: return false
+        try {
+            val shiftLetter = action.stickyShiftLetterAction()
+                ?.takeIf { consumption.modifiers == listOf(StickyModifier.Shift) }
+            if (shiftLetter != null) {
+                onStickyShiftLetter()
+                listener.onKeyAction(shiftLetter, KeyActionListener.Source.Keyboard)
+                // 与旧行为一致：编辑器已失效时不再补发残留 Up。
+                if (editor.isCurrent()) {
+                    listener.onKeyAction(
+                        when (shiftLetter) {
+                            is KeyAction.FcitxKeyAction -> shiftLetter.copy(up = true)
+                            is KeyAction.SymAction -> shiftLetter.copy(up = true)
+                            else -> shiftLetter
+                        },
+                        KeyActionListener.Source.Keyboard
+                    )
+                }
+                return true
+            }
+            val target = stickyShortcutTarget(action)
+            if (target == null) {
+                Timber.w("Sticky modifier shortcut has no Android key code: %s", action)
+                return true
+            }
+            val modifiers = if (target.shift && StickyModifier.Shift !in consumption.modifiers) {
+                consumption.modifiers + StickyModifier.Shift
+            } else consumption.modifiers
+            sendStickyShortcut(service, editor, modifiers, target.keyCode, target.scanCode)
+            return true
+        } finally {
+            service.stickyModifiers.finish(consumption)
+        }
+    }
+
+    /** A physical key plus the Shift needed to produce its symbol (e.g. underscore). */
+    private data class StickyShortcutTarget(
+        val keyCode: Int,
+        val scanCode: Int,
+        val shift: Boolean
+    )
+
+    private fun stickyShortcutTarget(action: KeyAction): StickyShortcutTarget? = when (action) {
+        is KeyAction.FcitxKeyAction -> {
+            val key = resolveMacroKey(action.act)
+            if (key.keyCode >= 0) {
+                // Layouts also use uppercase names such as "A" for ordinary shortcut keys.
+                // Only a symbol's required Shift is implicit here; sticky Shift is explicit.
+                StickyShortcutTarget(key.keyCode, key.scanCode, shouldShiftSymbol(action.act))
+            } else null
+        }
+        is KeyAction.SymAction -> {
+            val symbol = action.sym.sym.takeIf { it in 0x20..0x7e }?.toChar()?.toString()
+            val key = symbol?.let(::resolveMacroKey)
+            val keyCode = key?.keyCode?.takeIf { it >= 0 } ?: action.sym.keyCode
+            if (keyCode == KeyEvent.KEYCODE_UNKNOWN) null else {
+                StickyShortcutTarget(
+                    keyCode,
+                    mapFcitxToScanCode(symbol.orEmpty(), keyCode),
+                    symbol?.let(::shouldShiftSymbol) == true
+                )
+            }
+        }
+        else -> null
+    }
+
+    /** Called once for a composed virtual letter, before its matching Down/Up pair. */
+    protected open fun onStickyShiftLetter() = Unit
+
+    /**
+     * 按 [stickyShortcutEvents] 的顺序投递模拟物理键。
+     *
+     * 所有仍在按下的键都在 finally 里逆序释放，异常或编辑器切换都不会留下按住的修饰键；
+     * 释放统一走 [FcitxInputMethodService.releaseMacroKey]，编辑器已失效时只平衡计数、不投递。
+     */
+    private fun sendStickyShortcut(
+        service: org.fcitx.fcitx5.android.input.FcitxInputMethodService,
+        editor: org.fcitx.fcitx5.android.input.EditorSessionTracker.Token,
+        modifiers: List<StickyModifier>,
+        keyCode: Int,
+        scanCode: Int
+    ) {
+        val held = mutableListOf<StickyShortcutEvent>()
+        try {
+            for (event in stickyShortcutEvents(modifiers, keyCode, scanCode)) {
+                if (!event.down) continue
+                if (!editor.isCurrent()) break
+                service.sendSimulatedKeyEvent(
+                    event.keyCode, event.scanCode, KeyEvent.ACTION_DOWN, fromMacro = true
+                )
+                held += event
+            }
+        } finally {
+            held.asReversed().forEach {
+                service.releaseMacroKey(
+                    it.keyCode, it.scanCode, editor, cancelled = !editor.isCurrent()
+                )
+            }
+        }
+    }
+
     private fun selectPhysicalSwipeMacro(
         totalY: Int,
         behavior: KeyDef.Behavior.Swipe
@@ -3394,7 +3614,7 @@ abstract class BaseKeyboard(
             "Enter" -> android.view.KeyEvent.KEYCODE_ENTER
             "Tab" -> android.view.KeyEvent.KEYCODE_TAB
             "Escape" -> android.view.KeyEvent.KEYCODE_ESCAPE
-            "Space" -> android.view.KeyEvent.KEYCODE_SPACE
+            "Space", " " -> android.view.KeyEvent.KEYCODE_SPACE
             "Delete" -> android.view.KeyEvent.KEYCODE_FORWARD_DEL
             "BackSpace" -> android.view.KeyEvent.KEYCODE_DEL
             "Home" -> android.view.KeyEvent.KEYCODE_MOVE_HOME
@@ -3454,38 +3674,38 @@ abstract class BaseKeyboard(
             "8" -> android.view.KeyEvent.KEYCODE_8
             "9" -> android.view.KeyEvent.KEYCODE_9
             // Shift+number symbols on standard layouts.
-            "exclam", "Exclam" -> android.view.KeyEvent.KEYCODE_1
-            "at", "At" -> android.view.KeyEvent.KEYCODE_2
-            "numbersign", "Numbersign" -> android.view.KeyEvent.KEYCODE_3
-            "dollar", "Dollar" -> android.view.KeyEvent.KEYCODE_4
-            "percent", "Percent" -> android.view.KeyEvent.KEYCODE_5
-            "asciicircum", "Asciicircum" -> android.view.KeyEvent.KEYCODE_6
-            "ampersand", "Ampersand" -> android.view.KeyEvent.KEYCODE_7
-            "asterisk", "Asterisk", "multiply", "Multiply" -> android.view.KeyEvent.KEYCODE_8
+            "exclam", "Exclam", "!" -> android.view.KeyEvent.KEYCODE_1
+            "at", "At", "@" -> android.view.KeyEvent.KEYCODE_2
+            "numbersign", "Numbersign", "#" -> android.view.KeyEvent.KEYCODE_3
+            "dollar", "Dollar", "$" -> android.view.KeyEvent.KEYCODE_4
+            "percent", "Percent", "%" -> android.view.KeyEvent.KEYCODE_5
+            "asciicircum", "Asciicircum", "^" -> android.view.KeyEvent.KEYCODE_6
+            "ampersand", "Ampersand", "&" -> android.view.KeyEvent.KEYCODE_7
+            "asterisk", "Asterisk", "multiply", "Multiply", "*" -> android.view.KeyEvent.KEYCODE_8
             // Parentheses are produced from Shift+9/Shift+0 on standard layouts.
-            "parenleft", "Parenleft" -> android.view.KeyEvent.KEYCODE_9
-            "parenright", "Parenright" -> android.view.KeyEvent.KEYCODE_0
+            "parenleft", "Parenleft", "(" -> android.view.KeyEvent.KEYCODE_9
+            "parenright", "Parenright", ")" -> android.view.KeyEvent.KEYCODE_0
             // Symbol keys (only Android-supported keycodes)
-            "minus", "Minus" -> android.view.KeyEvent.KEYCODE_MINUS
-            "underscore", "Underscore" -> android.view.KeyEvent.KEYCODE_MINUS
-            "equal", "Equal" -> android.view.KeyEvent.KEYCODE_EQUALS
-            "plus", "Plus", "Add" -> android.view.KeyEvent.KEYCODE_EQUALS
-            "bracketleft", "Bracketleft", "Bracket_L" -> android.view.KeyEvent.KEYCODE_LEFT_BRACKET
-            "braceleft", "Braceleft" -> android.view.KeyEvent.KEYCODE_LEFT_BRACKET
-            "bracketright", "Bracketright", "Bracket_R" -> android.view.KeyEvent.KEYCODE_RIGHT_BRACKET
-            "braceright", "Braceright" -> android.view.KeyEvent.KEYCODE_RIGHT_BRACKET
-            "backslash", "Backslash" -> android.view.KeyEvent.KEYCODE_BACKSLASH
-            "bar", "Bar" -> android.view.KeyEvent.KEYCODE_BACKSLASH
-            "semicolon", "Semicolon" -> android.view.KeyEvent.KEYCODE_SEMICOLON
-            "colon", "Colon" -> android.view.KeyEvent.KEYCODE_SEMICOLON
-            "apostrophe", "Apostrophe" -> android.view.KeyEvent.KEYCODE_APOSTROPHE
-            "quotedbl", "Quotedbl" -> android.view.KeyEvent.KEYCODE_APOSTROPHE
-            "comma", "Comma", "less", "Less", "Separator" -> android.view.KeyEvent.KEYCODE_COMMA
-            "period", "Period", "greater", "Greater" -> android.view.KeyEvent.KEYCODE_PERIOD
-            "slash", "Slash", "question", "Question", "Divide" -> android.view.KeyEvent.KEYCODE_SLASH
-            "grave", "Grave" -> android.view.KeyEvent.KEYCODE_GRAVE
+            "minus", "Minus", "-" -> android.view.KeyEvent.KEYCODE_MINUS
+            "underscore", "Underscore", "_" -> android.view.KeyEvent.KEYCODE_MINUS
+            "equal", "Equal", "=" -> android.view.KeyEvent.KEYCODE_EQUALS
+            "plus", "Plus", "Add", "+" -> android.view.KeyEvent.KEYCODE_EQUALS
+            "bracketleft", "Bracketleft", "Bracket_L", "[" -> android.view.KeyEvent.KEYCODE_LEFT_BRACKET
+            "braceleft", "Braceleft", "{" -> android.view.KeyEvent.KEYCODE_LEFT_BRACKET
+            "bracketright", "Bracketright", "Bracket_R", "]" -> android.view.KeyEvent.KEYCODE_RIGHT_BRACKET
+            "braceright", "Braceright", "}" -> android.view.KeyEvent.KEYCODE_RIGHT_BRACKET
+            "backslash", "Backslash", "\\" -> android.view.KeyEvent.KEYCODE_BACKSLASH
+            "bar", "Bar", "|" -> android.view.KeyEvent.KEYCODE_BACKSLASH
+            "semicolon", "Semicolon", ";" -> android.view.KeyEvent.KEYCODE_SEMICOLON
+            "colon", "Colon", ":" -> android.view.KeyEvent.KEYCODE_SEMICOLON
+            "apostrophe", "Apostrophe", "'" -> android.view.KeyEvent.KEYCODE_APOSTROPHE
+            "quotedbl", "Quotedbl", "\"" -> android.view.KeyEvent.KEYCODE_APOSTROPHE
+            "comma", "Comma", "less", "Less", "Separator", ",", "<" -> android.view.KeyEvent.KEYCODE_COMMA
+            "period", "Period", "greater", "Greater", ".", ">" -> android.view.KeyEvent.KEYCODE_PERIOD
+            "slash", "Slash", "question", "Question", "Divide", "/", "?" -> android.view.KeyEvent.KEYCODE_SLASH
+            "grave", "Grave", "`" -> android.view.KeyEvent.KEYCODE_GRAVE
             // KEYCODE_GRAVE + Shift can produce '~', so map asciitilde aliases here too.
-            "asciitilde", "Asciitilde", "tilde", "Tilde" -> android.view.KeyEvent.KEYCODE_GRAVE
+            "asciitilde", "Asciitilde", "tilde", "Tilde", "~" -> android.view.KeyEvent.KEYCODE_GRAVE
             // Special keys
             "Print" -> android.view.KeyEvent.KEYCODE_SYSRQ
             "Menu" -> android.view.KeyEvent.KEYCODE_MENU
@@ -3559,7 +3779,9 @@ abstract class BaseKeyboard(
             "exclam", "at", "numbersign", "dollar", "percent",
             "asciicircum", "ampersand", "asterisk", "multiply", "parenleft", "parenright",
             "add",
-            "asciitilde", "tilde" -> true
+            "asciitilde", "tilde",
+            "_", "+", "{", "}", "|", ":", "\"", "<", ">", "?",
+            "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "~" -> true
             else -> false
         }
     }
@@ -3636,6 +3858,15 @@ abstract class BaseKeyboard(
         }
     }
 
+    private fun dispatchMacroKeyAction(action: KeyAction) {
+        dispatchingMacroKeyAction = true
+        try {
+            onAction(action)
+        } finally {
+            dispatchingMacroKeyAction = false
+        }
+    }
+
     private fun sendFcitxKeyDown(code: String, macro: MacroContext): MacroInputController.Press {
         val press = macro.execution.press(KeyRef.Fcitx(code))
         val key = resolveMacroKey(code)
@@ -3652,10 +3883,10 @@ abstract class BaseKeyboard(
             send(key.keyCode, key.scanCode)
         } else {
             press.send(
-                down = { onAction(KeyAction.FcitxKeyAction(key.action, key.scanCode, key.states, up = false)) },
+                down = { dispatchMacroKeyAction(KeyAction.FcitxKeyAction(key.action, key.scanCode, key.states, up = false)) },
                 up = {
                     if (macro.execution.isCurrent) {
-                        onAction(KeyAction.FcitxKeyAction(key.action, key.scanCode, key.states, up = true))
+                        dispatchMacroKeyAction(KeyAction.FcitxKeyAction(key.action, key.scanCode, key.states, up = true))
                     }
                 }
             )
@@ -3671,7 +3902,7 @@ abstract class BaseKeyboard(
             if (service != null && key.keyCode >= 0) {
                 service.sendSimulatedKeyEvent(key.keyCode, key.scanCode, KeyEvent.ACTION_UP, fromMacro = true)
                 if (key.shift) service.sendSimulatedKeyEvent(shiftKeyCode, shiftScanCode, KeyEvent.ACTION_UP, fromMacro = true)
-            } else onAction(KeyAction.FcitxKeyAction(key.action, key.scanCode, key.states, up = true))
+            } else dispatchMacroKeyAction(KeyAction.FcitxKeyAction(key.action, key.scanCode, key.states, up = true))
         }
     }
 

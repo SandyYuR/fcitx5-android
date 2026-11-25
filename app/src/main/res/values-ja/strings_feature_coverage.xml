@@ -176,6 +176,8 @@
     <string name="text_keyboard_layout_placeholder_custom_color">個別の色</string>
     <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">マクロ（カスタム操作）</string>
+    <string name="text_keyboard_layout_key_type_sticky_modifier">固定修飾キー（Ctrl/Shift/Alt）</string>
+    <string name="text_keyboard_layout_sticky_modifier">修飾キー</string>
     <string name="text_keyboard_layout_key_split_after">このキーの後でキーボードを分割</string>
     <string name="text_keyboard_layout_key_split_after_helper">分割キーボードにのみ適用されます。通常は各行の中央で分割しますが、有効にすると選択したキーの後で分割します。同じ行で複数指定した場合は最後の指定を使用します。</string>
     <string name="text_keyboard_layout_split_layout">分割キーボードの配列</string>

@@ -819,4 +819,6 @@
     <string name="theme_kit_theme_only">Только цвета</string>
     <string name="icon_theme_letter_keys">Буквенные клавиши</string>
     <string name="icon_theme_numpad_keys">Цифровые клавиши</string>
+    <string name="text_keyboard_layout_key_type_unavailable">%1$s (недоступно в этой раскладке)</string>
+    <string name="text_keyboard_layout_key_type_unavailable_message">Этот тип клавиши недоступен в этой раскладке. Выберите другой тип.</string>
 </resources>

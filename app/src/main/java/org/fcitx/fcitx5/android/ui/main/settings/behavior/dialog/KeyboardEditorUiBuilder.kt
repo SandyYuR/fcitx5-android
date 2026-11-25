@@ -24,6 +24,7 @@ import android.widget.Toast
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
 import splitties.dimensions.dp
 import org.fcitx.fcitx5.android.utils.settingsColor
 
@@ -48,6 +49,10 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
         override fun toString(): String = label
     }
 
+    data class KeyTypeOption(val type: String, val label: String, val enabled: Boolean) {
+        override fun toString(): String = label
+    }
+
     companion object {
         private const val DIALOG_LABEL_TEXT_SIZE_SP = 13f
         private const val DIALOG_CONTENT_TEXT_SIZE_SP = 14f
@@ -56,7 +61,7 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
          * 按键类型的**配置值**，这些字符串会写进布局 JSON，必须保持英文原名。
          *
          * 下拉框显示的是「英文名 + 本地化说明」（见 [KEY_TYPE_LABELS] 与
-         * [describeKeyType]）；读取选中项一律按位置查本数组，不要读 `selectedItem`
+         * [describeKeyType]）；读取选中项一律使用 [KeyTypeOption.type]，不要解析显示
          * 文本（与 subMode 下拉框同一纪律，见 TextKeyboardLayoutEditorActivity 的
          * subModeSpinnerSelectionMap）。
          */
@@ -73,7 +78,8 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
             "NumPadKey",
             "MiniSpaceKey",
             "PlaceholderKey",
-            "MacroKey"
+            "MacroKey",
+            "StickyModifierKey"
         )
 
         /**
@@ -95,7 +101,8 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
             R.string.text_keyboard_layout_key_type_numpad,
             R.string.text_keyboard_layout_key_type_mini_space,
             R.string.text_keyboard_layout_key_type_placeholder,
-            R.string.text_keyboard_layout_key_type_macro
+            R.string.text_keyboard_layout_key_type_macro,
+            R.string.text_keyboard_layout_key_type_sticky_modifier
         )
 
         val SWITCH_TARGET_OPTIONS = listOf(
@@ -133,7 +140,7 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
     /**
      * Create type selector spinner
      *
-     * 下拉框显示英文类型名和简洁的本地化名称；选中值按位置取 [KEY_TYPES]。
+     * 显示名与配置值绑定在 [KeyTypeOption]，筛选键型后仍使用原配置值。
      *
      * @param container Parent container
      * @param keyData Current key data
@@ -141,7 +148,8 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
      */
     fun setupTypeSpinner(
         container: LinearLayout,
-        keyData: Map<String, Any?>
+        keyData: Map<String, Any?>,
+        supportedTypes: List<String> = KEY_TYPES.toList()
     ): Spinner {
         val typeLabel = TextView(activity).apply {
             text = activity.getString(R.string.text_keyboard_layout_key_type)
@@ -152,11 +160,23 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
         val typeSpinner = MaterialSpinner(activity, cornerRadiusDp = 12).apply {
             layoutParams = LinearLayout.LayoutParams(-1, -2)
         }
-        val displayNames = Array(KEY_TYPES.size) { describeKeyType(it) }
-        typeSpinner.adapter = object : ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, displayNames) {
+        val currentType = keyData["type"] as? String ?: "AlphabetKey"
+        // Keep an unsupported existing type visible without turning it into another key on open.
+        val types = (supportedTypes + currentType).distinct()
+        val options = types.map { type ->
+            val enabled = type in supportedTypes
+            val label = describeKeyType(KEY_TYPES.indexOf(type)).ifEmpty { type }
+            KeyTypeOption(type, if (enabled) label else activity.getString(
+                R.string.text_keyboard_layout_key_type_unavailable, label), enabled)
+        }
+        typeSpinner.adapter = object : ArrayAdapter<KeyTypeOption>(activity, android.R.layout.simple_spinner_item, options) {
+            override fun areAllItemsEnabled(): Boolean = options.all { it.enabled }
+            override fun isEnabled(position: Int): Boolean = options[position].enabled
             private fun label(position: Int, recycled: View?, dropdown: Boolean) =
                 ((recycled as? TextView) ?: TextView(activity)).apply {
-                    text = getItem(position)
+                    text = getItem(position)?.label
+                    isEnabled = options[position].enabled
+                    alpha = if (isEnabled) 1f else 0.5f
                     textSize = DIALOG_CONTENT_TEXT_SIZE_SP
                     setTextColor(activity.settingsColor(com.google.android.material.R.attr.colorOnSurface))
                     gravity = Gravity.CENTER_VERTICAL
@@ -171,8 +191,7 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
                 label(position, convertView, true)
         }
 
-        val currentType = keyData["type"] as? String ?: "AlphabetKey"
-        val typePosition = KEY_TYPES.indexOf(currentType)
+        val typePosition = types.indexOf(currentType)
         if (typePosition >= 0) typeSpinner.setSelection(typePosition)
 
         val typeRow = LinearLayout(activity).apply {
@@ -356,6 +375,40 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
         spinner.setSelection(options.indexOfFirst { it.sym == currentSym })
+        val row = LinearLayout(activity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, activity.dp(4), 0, activity.dp(4))
+            addView(labelView)
+            addView(spinner)
+        }
+        container.addView(row)
+        return spinner
+    }
+
+    /** Create the modifier selector for a sticky modifier key. */
+    fun createStickyModifierSpinner(
+        container: LinearLayout,
+        currentValue: String?
+    ): Spinner {
+        val labelView = TextView(activity).apply {
+            text = activity.getString(R.string.text_keyboard_layout_sticky_modifier)
+            textSize = DIALOG_LABEL_TEXT_SIZE_SP
+            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
+            layoutParams = LinearLayout.LayoutParams(activity.dp(96), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                rightMargin = activity.dp(8)
+            }
+        }
+        val spinner = MaterialSpinner(activity, cornerRadiusDp = 12).apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                weight = 1f
+            }
+        }
+        val options = StickyModifier.entries
+        val adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, options)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+        spinner.setSelection(StickyModifier.fromJson(currentValue)?.ordinal ?: 0)
         val row = LinearLayout(activity).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL

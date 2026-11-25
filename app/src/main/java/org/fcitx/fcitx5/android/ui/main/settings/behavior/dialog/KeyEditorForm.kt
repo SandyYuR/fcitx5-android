@@ -28,6 +28,7 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.SystemColorResourceId
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemeMonet
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 import org.fcitx.fcitx5.android.ui.main.settings.theme.SystemColorResourcePickerDialog
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeColorEditorActivity
@@ -98,7 +99,7 @@ class KeyEditorForm(
             row.tag = section
         }
         listOf(alphabetWeightEdit, layoutSwitchWeightEdit, symbolWeightEdit, macroWeightEdit,
-            simpleWeightEdit, placeholderWeightEdit).forEach { sectionFor(it, 2) }
+            simpleWeightEdit, placeholderWeightEdit, stickyModifierWeightEdit).forEach { sectionFor(it, 2) }
         listOf(nonMacroSwipeLabelEdit, nonMacroSwipeUpLabelEdit, nonMacroSwipeDownLabelEdit,
             macroLongPressLabelEdit).forEach { sectionFor(it, 1) }
         val children = (0 until fieldsContainer.childCount).map(fieldsContainer::getChildAt)
@@ -133,6 +134,11 @@ class KeyEditorForm(
     private var disableWeightEditing: Boolean = false
     private var composeOverrideEditorMode: Boolean = false
     private var hasInitialComposeOverride: Boolean = false
+    private var layoutName: String? = null
+    private val supportedKeyTypes: List<String>
+        get() = KeyboardEditorUiBuilder.KEY_TYPES.filterNot {
+            layoutName == "text_editor" && it == "StickyModifierKey"
+        }
     private var availableLayoutTargets: List<String> = emptyList()
     private var independentColor: Boolean = false
     private var keyData: MutableMap<String, Any?> = mutableMapOf()
@@ -160,6 +166,10 @@ class KeyEditorForm(
 
     private var numPadLabelEdit: EditText? = null
     private var numPadSymSpinner: Spinner? = null
+
+    private var stickyModifierSpinner: Spinner? = null
+    private var stickyModifierLabelEdit: EditText? = null
+    private var stickyModifierWeightEdit: EditText? = null
 
     private var symbolLabelEdit: EditText? = null
     private var symbolWeightEdit: EditText? = null
@@ -318,6 +328,7 @@ class KeyEditorForm(
     }
 
     private fun readIntentExtras() {
+        layoutName = intent.getStringExtra(EXTRA_LAYOUT_NAME)
         rowIndex = intent.getIntExtra(EXTRA_ROW_INDEX, -1)
         keyIndex = intent.takeIf { it.hasExtra(EXTRA_KEY_INDEX) }?.getIntExtra(EXTRA_KEY_INDEX, -1)?.takeIf { it >= 0 }
         isEditingSubModeLayout = intent.getBooleanExtra(EXTRA_IS_EDITING_SUBMODE_LAYOUT, false)
@@ -356,7 +367,7 @@ class KeyEditorForm(
 
     private fun buildForm() {
         contentContainer.removeAllViews()
-        typeSpinner = uiBuilder.setupTypeSpinner(contentContainer, keyData)
+        typeSpinner = uiBuilder.setupTypeSpinner(contentContainer, keyData, supportedKeyTypes)
         if (lockTypeSelection) {
             typeSpinner.isEnabled = false
             typeSpinner.alpha = 0.6f
@@ -370,7 +381,10 @@ class KeyEditorForm(
         if (!lockTypeSelection) {
             typeSpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                    val newType = KeyboardEditorUiBuilder.KEY_TYPES[position]
+                    val option = parent?.getItemAtPosition(position) as? KeyboardEditorUiBuilder.KeyTypeOption
+                        ?: return
+                    if (!option.enabled) return
+                    val newType = option.type
                     if (newType == selectedType) return
                     persistCurrentDraft()
                     selectedType = newType
@@ -409,6 +423,9 @@ class KeyEditorForm(
         layoutSwitchWeightEdit = null
         numPadLabelEdit = null
         numPadSymSpinner = null
+        stickyModifierSpinner = null
+        stickyModifierLabelEdit = null
+        stickyModifierWeightEdit = null
         symbolLabelEdit = null
         symbolWeightEdit = null
         macroLabelEdit = null
@@ -919,6 +936,51 @@ class KeyEditorForm(
                 }
             }
 
+            "StickyModifierKey" -> {
+                val currentModifier = StickyModifier.fromJson(keyData["modifier"] as? String)
+                    ?: StickyModifier.Ctrl
+                stickyModifierSpinner = uiBuilder.createStickyModifierSpinner(
+                    fieldsContainer,
+                    currentModifier.jsonName
+                )
+                val labelEdit = uiBuilder.createEditField(
+                    getString(R.string.text_keyboard_layout_key_label),
+                    keyData["label"] as? String ?: currentModifier.defaultLabel
+                )
+                stickyModifierLabelEdit = labelEdit.second
+                fieldsContainer.addView(labelEdit.first)
+                stickyModifierSpinner?.onItemSelectedListener =
+                    object : android.widget.AdapterView.OnItemSelectedListener {
+                        private var selectedModifier = currentModifier
+                        override fun onItemSelected(
+                            parent: android.widget.AdapterView<*>?,
+                            view: android.view.View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            val modifier = parent?.getItemAtPosition(position) as? StickyModifier ?: return
+                            if (modifier == selectedModifier) return
+                            selectedModifier = modifier
+                            val current = stickyModifierLabelEdit?.text?.toString().orEmpty()
+                            val synced = current.isEmpty() ||
+                                StickyModifier.entries.any { it.defaultLabel == current }
+                            if (synced) stickyModifierLabelEdit?.setText(modifier.defaultLabel)
+                            updateActionButtonState()
+                        }
+                        override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {
+                            updateActionButtonState()
+                        }
+                    }
+                if (!disableWeightEditing) {
+                    val weightEdit = uiBuilder.createEditField(
+                        getString(R.string.text_keyboard_layout_key_weight),
+                        (keyData["weight"] as? Number)?.toString() ?: ""
+                    )
+                    stickyModifierWeightEdit = weightEdit.second
+                    fieldsContainer.addView(weightEdit.first)
+                }
+            }
+
             "MiniSpaceKey" -> {
                 if (!disableWeightEditing) {
                     val weightEdit = uiBuilder.createEditField(
@@ -1125,6 +1187,7 @@ class KeyEditorForm(
             editorData["independentColor"] = false
         }
         val intent = Intent(this, KeyEditorActivity::class.java).apply {
+            putExtra(EXTRA_LAYOUT_NAME, layoutName)
             putExtra(EXTRA_KEY_DATA, toSerializableMap(editorData))
             putExtra(EXTRA_BASE_KEY_COLOR_DATA, toSerializableMap(keyColorOverrides))
             putExtra(EXTRA_ROW_INDEX, -1)
@@ -1744,6 +1807,19 @@ class KeyEditorForm(
                 }
             }
 
+            "StickyModifierKey" -> {
+                val modifier = stickyModifierSpinner?.selectedItem as? StickyModifier
+                    ?: StickyModifier.Ctrl
+                draft["modifier"] = modifier.jsonName
+                val label = stickyModifierLabelEdit?.text?.toString()
+                    ?.ifEmpty { modifier.defaultLabel }
+                    .orEmpty()
+                if (label.isNotEmpty()) draft["label"] = label
+                if (!disableWeightEditing) {
+                    parseWeight(stickyModifierWeightEdit?.text?.toString())?.let { draft["weight"] = it }
+                }
+            }
+
             "MiniSpaceKey" -> {
                 if (!disableWeightEditing) {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { draft["weight"] = it }
@@ -1989,6 +2065,10 @@ class KeyEditorForm(
     }
 
     fun validatedDraft(showErrors: Boolean = true): MutableMap<String, Any?>? {
+        if (layoutName == "text_editor" && selectedType == "StickyModifierKey") {
+            if (showErrors) Toast.makeText(this, R.string.text_keyboard_layout_key_type_unavailable_message, Toast.LENGTH_LONG).show()
+            return null
+        }
         showValidationErrors = showErrors
         return validateAndSave(
             selectedType,
@@ -2123,7 +2203,7 @@ class KeyEditorForm(
         }
 
         val widthFields = listOf(alphabetWeightEdit, layoutSwitchWeightEdit, symbolWeightEdit,
-            macroWeightEdit, simpleWeightEdit, placeholderWeightEdit)
+            macroWeightEdit, simpleWeightEdit, placeholderWeightEdit, stickyModifierWeightEdit)
         val invalidWidth = widthFields.filterNotNull().firstOrNull {
             it.text.isNotBlank() && parseWeight(it.text.toString()) == null
         }
@@ -2276,6 +2356,18 @@ class KeyEditorForm(
                 }
             }
 
+            "StickyModifierKey" -> {
+                val modifier = stickyModifierSpinner?.selectedItem as? StickyModifier
+                    ?: StickyModifier.Ctrl
+                newKey["modifier"] = modifier.jsonName
+                newKey["label"] = stickyModifierLabelEdit?.text?.toString()
+                    ?.ifEmpty { modifier.defaultLabel }
+                    .orEmpty()
+                if (!disableWeightEditing) {
+                    parseWeight(stickyModifierWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
+                }
+            }
+
             "MiniSpaceKey" -> {
                 if (!disableWeightEditing) {
                     parseWeight(simpleWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
@@ -2404,6 +2496,7 @@ class KeyEditorForm(
             bundle.getSerializable(key) as? T
         }
 
+        const val EXTRA_LAYOUT_NAME = "layout_name"
         const val EXTRA_KEY_DATA = "key_data"
         const val EXTRA_ROW_INDEX = "row_index"
         const val EXTRA_KEY_INDEX = "key_index"
