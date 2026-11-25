@@ -86,6 +86,16 @@ abstract class KeyView(
     protected val cornerLabelHorizontalSafeInset: Int
     protected val cornerLabelTopSafeInset: Int
 
+    /**
+     * 当前实际绘制出来的按键填充色；`null` 表示这枚键不画填充。
+     *
+     * 水波纹层画在所有按键下方，透明键本来应该让波纹直接透过去。若把它也当成遮挡物
+     * 在涟漪层上挖空，键内没有波纹而周围有，交界处就会显出一条按键轮廓。这里记录
+     * 填充色而不是事后猜 Drawable 的颜色：描边、阴影和按压高亮都可能让 Drawable 的
+     * alpha 看起来不是 0，只有实际填进键底的那个颜色能回答「这枚键是否透明」。
+     */
+    private var waterRippleFillColor: Int? = null
+
     init {
         val prefs = ThemeManager.prefs
         bordered = prefs.keyBorder.getValue()
@@ -164,12 +174,15 @@ abstract class KeyView(
             // 用户要的是"看不见的占位"，任何一层底色都会让它变成"没字的按键"。
             appearanceView.background = null
             appearanceView.foreground = null
+            waterRippleFillColor = null
         } else if (usesSpecialBackground()) {
             appearanceView.background = null
             appearanceView.foreground = null
+            waterRippleFillColor = null
         } else if ((bordered && def.border != Border.Off) || def.border == Border.On) {
             applyStandardBackground(theme)
         } else {
+            waterRippleFillColor = null
             setupPressHighlight()
         }
         add(appearanceView, lParams(matchParent, matchParent))
@@ -232,8 +245,23 @@ abstract class KeyView(
         else -> false
     }
 
+    /**
+     * 这枚键要不要作为水波纹的遮挡物。
+     *
+     * 水波纹层在按键下方，遮挡物的作用是把按键区域从涟漪里 [PorterDuff.Mode.CLEAR][android.graphics.PorterDuff.Mode.CLEAR]
+     * 掉，避免半透明键底透出波纹。完全透明（没有填充或填充 alpha 为 0）的键没有
+     * 需要遮挡的内容，挖空只会让「键内无波纹 / 键外有波纹」的交界显成轮廓。
+     */
+    internal fun shouldOccludeWaterRipple(): Boolean {
+        if (def.transparentBackground) return false
+        val fill = waterRippleFillColor ?: return false
+        if (Color.alpha(fill) == 0) return false
+        return (bordered && def.border != Border.Off) || def.border == Border.On
+    }
+
     private fun applyStandardBackground(theme: Theme) {
         val bkgColor = resolveBackgroundColor(theme, defaultBackgroundColor(theme))
+        waterRippleFillColor = bkgColor
         val borderOrShadowWidth = dp(1)
         appearanceView.background = if (borderStroke) borderedKeyBackgroundDrawable(
             bkgColor, resolveShadowColor(theme),
@@ -247,6 +275,7 @@ abstract class KeyView(
 
     private fun applyPillBackground(theme: Theme) {
         val bkgColor = resolveBackgroundColor(theme, defaultBackgroundColor(theme))
+        waterRippleFillColor = bkgColor
         val borderOrShadowWidth = dp(1)
         appearanceView.background = if (bordered) {
             if (borderStroke) {
@@ -393,9 +422,9 @@ abstract class KeyView(
                 val minHeight = dp(26)
                 val hInset = dp(10)
                 val vInset = if (h < minHeight) 0 else min((h - minHeight) / 2, dp(16))
-                appearanceView.background = insetRadiusDrawable(
-                    hInset, vInset, bkgRadius, resolveBackgroundColor(theme, theme.spaceBarColor)
-                )
+                val bkgColor = resolveBackgroundColor(theme, theme.spaceBarColor)
+                waterRippleFillColor = bkgColor
+                appearanceView.background = insetRadiusDrawable(hInset, vInset, bkgRadius, bkgColor)
                 // InsetDrawable sets padding to container view; remove padding to prevent text from bing clipped
                 appearanceView.padding = 0
                 // apply press highlight for background area
@@ -431,13 +460,16 @@ abstract class KeyView(
             // 换主题不能把占位键的"看不见"弄丢：见 init 里的同一分支。
             appearanceView.background = null
             appearanceView.foreground = null
+            waterRippleFillColor = null
         } else if (usesSpecialBackground()) {
             appearanceView.background = null
             appearanceView.foreground = null
+            waterRippleFillColor = null
         } else if ((bordered && def.border != Border.Off) || def.border == Border.On) {
             applyStandardBackground(newTheme)
         } else {
             appearanceView.background = null
+            waterRippleFillColor = null
             setupPressHighlight()
         }
 
