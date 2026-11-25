@@ -464,6 +464,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         selectedKey = position
         selectedLayoutKey = currentEditingLayoutKey()
         val options = Intent().apply {
+            putExtra(KeyEditorActivity.EXTRA_LAYOUT_NAME, currentLayout)
             putExtra(KeyEditorActivity.EXTRA_IS_EDITING_SUBMODE_LAYOUT, selectedLayoutKey != currentLayout)
             putExtra(KeyEditorActivity.EXTRA_CURRENT_SUBMODE_LABEL, previewSubModeLabel)
             putExtra(KeyEditorActivity.EXTRA_HAS_MULTI_SUBMODE_SUPPORT,
@@ -2465,6 +2466,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         }
 
         val launchIntent = Intent(this, KeyEditorActivity::class.java).apply {
+            putExtra(KeyEditorActivity.EXTRA_LAYOUT_NAME, layoutName)
             putExtra(KeyEditorActivity.EXTRA_KEY_DATA, KeyEditorActivity.toSerializableMap(keyData.toMutableMap()))
             putExtra(KeyEditorActivity.EXTRA_ROW_INDEX, rowIndex)
             keyIndex?.let { putExtra(KeyEditorActivity.EXTRA_KEY_INDEX, it) }

@@ -572,6 +572,8 @@
     <string name="text_keyboard_layout_key_type_macro">巨集鍵</string>
     <string name="text_keyboard_layout_key_type_sticky_modifier">黏滯修飾鍵（Ctrl/Shift/Alt）</string>
     <string name="text_keyboard_layout_sticky_modifier">修飾鍵</string>
+    <string name="text_keyboard_layout_key_type_unavailable">%1$s（目前配置無法使用）</string>
+    <string name="text_keyboard_layout_key_type_unavailable_message">目前配置不支援此按鍵類型，請選擇其他類型。</string>
     <string name="text_keyboard_layout_key_main">主字元</string>
     <string name="text_keyboard_layout_key_alt">副字元</string>
     <string name="text_keyboard_layout_key_display_text">顯示文字</string>

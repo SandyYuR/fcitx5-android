@@ -4,6 +4,8 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.editor
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
+import android.os.Parcel
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
@@ -19,6 +21,7 @@ import com.google.android.material.textfield.TextInputLayout
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorForm
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyboardEditorUiBuilder
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
@@ -29,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -420,6 +424,146 @@ class KeyEditorFormTest {
         assertEquals("StickyModifierKey", adapter.buildKeyLabel(mapOf(
             "type" to "StickyModifierKey", "modifier" to "SHIFT"
         )))
+    }
+
+    private fun typeSpinner(root: ViewGroup): Spinner = root.descendants.filterIsInstance<Spinner>().single {
+        it.adapter?.getItem(0) is KeyboardEditorUiBuilder.KeyTypeOption
+    }
+
+    private fun typeOptions(spinner: Spinner) = (0 until spinner.adapter.count).map {
+        spinner.adapter.getItem(it) as KeyboardEditorUiBuilder.KeyTypeOption
+    }
+
+    private fun chooseType(spinner: Spinner, type: String) {
+        spinner.setSelection(typeOptions(spinner).indexOfFirst { it.type == type })
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun parcel(state: Bundle): Bundle {
+        val data = Parcel.obtain()
+        return try {
+            data.writeBundle(state)
+            data.setDataPosition(0)
+            data.readBundle(javaClass.classLoader)!!
+        } finally { data.recycle() }
+    }
+
+    @Test fun textEditingLayoutFiltersStickyKeysAndKeepsSelectedConfigValuesAfterRecreation() = page { activity ->
+        val args = options(mapOf(
+            "type" to "AlphabetKey", "main" to "a", "alt" to "A",
+            "weight" to 0.25f, "textColor" to 0xFF112233.toInt()
+        )).putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "text_editor")
+        val form = KeyEditorForm(activity, args)
+        activity.setContentView(form.view)
+        val types = typeSpinner(form.view as ViewGroup)
+        assertEquals(KeyboardEditorUiBuilder.KEY_TYPES.filterNot { it == "StickyModifierKey" },
+            typeOptions(types).map { it.type })
+        chooseType(types, "MacroKey")
+        field(form, activity.getString(R.string.text_keyboard_layout_key_label)).setText("Copy")
+        val recreated = KeyEditorForm(activity, args, parcel(Bundle().also(form::saveState)))
+        val saved = recreated.validatedDraft(false)!!
+        assertEquals("MacroKey", saved["type"])
+        assertEquals("Copy", saved["label"])
+        assertEquals(0.25f, saved["weight"])
+        assertEquals(0xFF112233.toInt(), saved["textColor"])
+        assertFalse(typeOptions(typeSpinner(recreated.view as ViewGroup)).any { it.type == "StickyModifierKey" })
+    }
+
+    @Test fun unsupportedTextEditingKeyStaysVisibleAndUnchangedUntilExplicitlyReplaced() = page { activity ->
+        val args = options(mapOf(
+            "type" to "StickyModifierKey", "modifier" to "alt", "label" to "Option",
+            "weight" to 0.3f, "iconSlot" to "keys.modifier.alt", "textColor" to 0xFF445566.toInt()
+        )).putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "text_editor")
+        var form = KeyEditorForm(activity, args)
+        repeat(2) {
+            activity.setContentView(form.view)
+            shadowOf(Looper.getMainLooper()).idle()
+            val types = typeSpinner(form.view as ViewGroup)
+            val selected = types.selectedItem as KeyboardEditorUiBuilder.KeyTypeOption
+            assertEquals("StickyModifierKey", selected.type)
+            assertFalse(selected.enabled)
+            assertFalse((types.adapter as android.widget.ListAdapter).isEnabled(types.selectedItemPosition))
+            assertTrue(selected.label.contains(activity.getString(R.string.text_keyboard_layout_key_type_sticky_modifier)))
+            assertEquals(StickyModifier.Alt, modifierSpinner(form).selectedItem)
+            assertEquals("Option", field(form, activity.getString(R.string.text_keyboard_layout_key_label)).text.toString())
+            assertFalse(form.hasChanges())
+            assertNull(form.validatedDraft(false))
+            form = KeyEditorForm(activity, args, parcel(Bundle().also(form::saveState)))
+        }
+        activity.setContentView(form.view)
+        chooseType(typeSpinner(form.view as ViewGroup), "MacroKey")
+        val saved = form.validatedDraft(false)!!
+        assertEquals("MacroKey", saved["type"])
+        assertEquals("Option", saved["label"])
+        assertEquals(0.3f, saved["weight"])
+        assertEquals("keys.modifier.alt", saved["iconSlot"])
+        assertEquals(0xFF445566.toInt(), saved["textColor"])
+        assertFalse(saved.containsKey("modifier"))
+    }
+
+    @Test fun textEditingInlineInspectorUsesTheSameKeyTypeRestriction() = page { activity ->
+        val inspector = KeyboardKeyInspector(activity)
+        var emitted: Map<String, Any?>? = null
+        inspector.onDraft = { emitted = it }
+        inspector.bind(EditorKeyPosition(0, 0), mapOf("type" to "AlphabetKey", "main" to "a", "alt" to "A"),
+            Intent().putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "text_editor"))
+        activity.setContentView(inspector)
+        assertFalse(typeOptions(typeSpinner(inspector)).any { it.type == "StickyModifierKey" })
+        inspector.descendants.filterIsInstance<EditText>().first { it.text.toString() == "a" }.setText("b")
+        assertTrue(inspector.validate())
+        assertEquals("AlphabetKey", emitted?.get("type"))
+        assertEquals("b", emitted?.get("main"))
+    }
+
+    @Test fun textEditingComposeEditorInheritsTheRestriction() = page { activity ->
+        var launched: Intent? = null
+        val args = options(mapOf(
+            "type" to "MacroKey", "label" to "Copy",
+            "composeOverride" to mapOf("type" to "StickyModifierKey", "modifier" to "ctrl", "label" to "Ctrl")
+        )).putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "text_editor")
+        val form = KeyEditorForm(activity, args, launchCompose = { launched = it })
+        activity.setContentView(form.view)
+        (form.view as ViewGroup).descendants.filterIsInstance<TextView>().single {
+            it.text == activity.getString(R.string.text_keyboard_layout_compose_override_edit_button)
+        }.performClick()
+        assertEquals("text_editor", launched?.getStringExtra(KeyEditorForm.EXTRA_LAYOUT_NAME))
+        val nested = KeyEditorForm(activity, launched!!)
+        val types = typeSpinner(nested.view as ViewGroup)
+        assertEquals("StickyModifierKey", (types.selectedItem as KeyboardEditorUiBuilder.KeyTypeOption).type)
+        assertFalse(typeOptions(types).single { it.type == "StickyModifierKey" }.enabled)
+        assertNull(nested.validatedDraft(false))
+    }
+
+    @Test fun keyboardLayoutsStillAllowStickyKeysWithExplicitLayoutContext() = page { activity ->
+        val form = KeyEditorForm(activity, options(mapOf("type" to "MacroKey", "label" to "Ctrl"))
+            .putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "rime"))
+        activity.setContentView(form.view)
+        val types = typeSpinner(form.view as ViewGroup)
+        assertTrue(typeOptions(types).single { it.type == "StickyModifierKey" }.enabled)
+        chooseType(types, "StickyModifierKey")
+        assertEquals("StickyModifierKey", form.validatedDraft(false)!!["type"])
+        assertEquals("ctrl", form.validatedDraft(false)!!["modifier"])
+    }
+
+    @Test fun standaloneTextEditingKeyEditorReturnsTheFilteredConfigType() {
+        val args = options(mapOf("type" to "AlphabetKey", "main" to "a", "alt" to "A"))
+            .putExtra(KeyEditorActivity.EXTRA_LAYOUT_NAME, "text_editor")
+        val controller = Robolectric.buildActivity(KeyEditorActivity::class.java, args).setup()
+        try {
+            val activity = controller.get()
+            val root = activity.findViewById<ViewGroup>(android.R.id.content)
+            val types = typeSpinner(root)
+            assertFalse(typeOptions(types).any { it.type == "StickyModifierKey" })
+            chooseType(types, "MacroKey")
+            root.descendants.filterIsInstance<TextInputLayout>().single {
+                it.hint == activity.getString(R.string.text_keyboard_layout_key_label)
+            }.editText!!.setText("Copy")
+            activity.onOptionsItemSelected(android.widget.PopupMenu(activity, View(activity)).menu.add(0, 1, 0, "Save"))
+            assertEquals(Activity.RESULT_OK, shadowOf(activity).resultCode)
+            @Suppress("DEPRECATION")
+            val key = shadowOf(activity).resultIntent.getSerializableExtra(KeyEditorForm.EXTRA_RESULT_KEY_DATA) as Map<*, *>
+            assertEquals("MacroKey", key["type"])
+        } finally { controller.pause().stop().destroy() }
     }
 
     private object NoOpListener : KeyboardLayoutAdapter.Listener {

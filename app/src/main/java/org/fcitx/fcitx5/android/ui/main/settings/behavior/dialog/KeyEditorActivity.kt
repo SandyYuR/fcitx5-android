@@ -97,6 +97,7 @@ class KeyEditorActivity : SettingsUiActivity() {
 
     companion object {
         const val EXTRA_SECTION = KeyEditorForm.EXTRA_SECTION
+        const val EXTRA_LAYOUT_NAME = KeyEditorForm.EXTRA_LAYOUT_NAME
         const val EXTRA_KEY_DATA = KeyEditorForm.EXTRA_KEY_DATA
         const val EXTRA_ROW_INDEX = KeyEditorForm.EXTRA_ROW_INDEX
         const val EXTRA_KEY_INDEX = KeyEditorForm.EXTRA_KEY_INDEX
