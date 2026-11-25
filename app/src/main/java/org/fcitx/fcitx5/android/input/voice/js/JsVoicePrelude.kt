@@ -5,6 +5,7 @@ internal enum class JsHostSession(val wireName: String) {
     DESCRIBE("describe"),
     APP("app"),
     VOICE("voice"),
+    SERVICE("service"),
 }
 
 /**
@@ -27,6 +28,8 @@ var __events = [];
 var __fields = [];
 var __plugin = null;
 var __apps = {};
+// foxy.service 注册的服务定义；一个插件可以同时提供 App、语音与文字服务。
+var __services = [];
 var __pending = {};
 var __nextInvocation = 1;
 // foxy.websocket 的回调按种类各注册一个，宿主收到帧后按种类调用；与语音会话的
@@ -40,16 +43,23 @@ var __native = {
   httpPost: __n_httpPost, concatBase64: __n_concatBase64, wavBase64: __n_wavBase64, utf8Base64: __n_utf8Base64,
   base64Utf8: __n_base64Utf8, byteLength: __n_byteLength, sliceBase64: __n_sliceBase64,
   readUInt8: __n_readUInt8, readInt32BE: __n_readInt32BE, gunzipUtf8: __n_gunzipUtf8,
-  hmacSha1Base64: __n_hmacSha1Base64
+  hmacSha1Base64: __n_hmacSha1Base64, servicesCatalog: __n_servicesCatalog, serviceCall: __n_serviceCall
 };
 function __str(value) { return value === undefined || value === null ? "" : String(value); }
 var __hostSession = typeof __n_hostSession === "function" ? __str(__n_hostSession()) : "describe";
 var __isAppSession = __hostSession === "app";
 var __isVoiceSession = __hostSession === "voice";
+// 服务会话：本插件作为 text.translate 之类的提供方被别的插件调用。
+var __isServiceSession = __hostSession === "service";
 // describe/import discovers the union of runtime APIs so conditional registration cannot hide an
 // App or voice feature forever. Its stub still refuses live network/editor operations.
 var __hasAppApi = __isAppSession || __hostSession === "describe";
 var __hasVoiceApi = __isVoiceSession || __hostSession === "describe";
+// 服务目录每个会话都能读（设置页要用它渲染下拉框），但服务会话自身不能再发起服务调用：
+// 宿主只在一次调用里跑一层，嵌套调用没有预算也没有死锁保护。
+var __hasServiceCall = !__isServiceSession;
+// 服务提供方要发 HTTPS，所以 http.request 的可用范围比 App 宽。
+var __hasHttp = __hasAppApi || __isServiceSession;
 // 只有宿主真的能落盘时才挂 foxy.settings：设置页用的占位宿主没有 __n_appSettings，
 // 挂一个必定抛错的函数会让插件误以为能存。
 var __hasSettings = typeof __n_appSettings === "function";
@@ -57,6 +67,48 @@ var foxy = {
   locale: __native.locale(),
   plugin: {
     register: function (p) { __plugin = p; return p; }
+  },
+  // 服务提供方注册：id + version 唯一定位一个服务，输入/输出声明只是给调用方与文档看的，
+  // 宿主不做 schema 校验（与 foxy 一致）。
+  service: {
+    register: function (service) {
+      var id = __str(service && service.id);
+      var version = Number(service && service.version);
+      if (!id || typeof (service && service.handle) !== "function" ||
+          !isFinite(version) || version <= 0 || Math.floor(version) !== version) {
+        throw new Error("Invalid service definition");
+      }
+      for (var i = 0; i < __services.length; i++) {
+        if (__services[i].id === id && __services[i].version === version) {
+          throw new Error("Duplicate service: " + id + " v" + version);
+        }
+      }
+      __services.push({
+        id: id, version: version, label: __str(service.label),
+        description: __str(service.description), permissions: service.permissions || [],
+        input: service.input || null, output: service.output || null, handle: service.handle
+      });
+      return service;
+    }
+  },
+  services: {
+    // 由宿主注入的目录，只含别的插件声明的服务；本插件自己不出现，避免自调用。
+    list: function (serviceId) {
+      var all = JSON.parse(__native.servicesCatalog());
+      if (serviceId === undefined || serviceId === null) return all;
+      var wanted = __str(serviceId);
+      var out = [];
+      for (var i = 0; i < all.length; i++) if (all[i].serviceId === wanted) out.push(all[i]);
+      return out;
+    },
+    call: function (pluginId, serviceId, version, input) {
+      var raw = __native.serviceCall(
+        __str(pluginId), __str(serviceId), __str(version),
+        JSON.stringify(input === undefined ? null : input));
+      return Promise.resolve(raw).then(function (text) {
+        return text === null || text === undefined || text === "" ? {} : JSON.parse(text);
+      });
+    }
   },
   app: {
     sleep: function (milliseconds) { return __n_appSleep(Number(milliseconds)); },
@@ -91,6 +143,13 @@ var foxy = {
     },
     number: function (key, label, defaultValue, settings) {
       __fields.push(__field("number", key, label, defaultValue, settings, null)); return defaultValue;
+    },
+    // 服务方下拉框：值是被选插件 ID，候选由宿主按 (serviceId, version) 从服务目录里取。
+    // 空值表示「未选择」；目录里恰好只有一个提供方时宿主按 foxy 语义自动选中它。
+    serviceSelect: function (key, label, serviceId, version, defaultValue, settings) {
+      __fields.push(__field(
+        "serviceSelect", key, label, defaultValue, settings, null, __str(serviceId), __str(version)));
+      return defaultValue;
     },
     dialog: {
       show: function (spec) { return spec; },
@@ -171,8 +230,10 @@ var foxy = {
     locale: true,
     plugin: { register: true },
     app: { register: true, sleep: __hasAppApi },
+    service: { register: true },
+    services: { list: true, call: __hasServiceCall },
     ui: {
-      text: true, secret: true, select: true, switch: true, number: true,
+      text: true, secret: true, select: true, switch: true, number: true, serviceSelect: true,
       dialog: {
         show: true, update: __hasAppApi, setValue: __hasAppApi, setEnabled: __hasAppApi,
         setLoading: __hasAppApi, setError: __hasAppApi, close: __hasAppApi
@@ -195,7 +256,7 @@ var foxy = {
       onBinary: __hasAppApi, onError: __hasAppApi, onClose: __hasAppApi
     },
     http: {
-      request: __hasAppApi, post: __hasVoiceApi, supportsConfiguredEndpoints: __hasAppApi,
+      request: __hasHttp, post: __hasVoiceApi, supportsConfiguredEndpoints: __hasHttp,
       stream: __hasAppApi, cancelStream: __hasAppApi, onChunk: __hasAppApi,
       onEnd: __hasAppApi, onError: __hasAppApi
     },
@@ -214,7 +275,7 @@ if (__hasSettings) foxy.settings = {
   set: function (key, value) { return __n_appSettings(__str(key), __str(value)); }
 };
 
-function __field(kind, key, label, defaultValue, settings, options) {
+function __field(kind, key, label, defaultValue, settings, options, serviceId, serviceVersion) {
   var s = settings || {};
   return {
     kind: kind,
@@ -225,7 +286,9 @@ function __field(kind, key, label, defaultValue, settings, options) {
     options: options || [],
     allowCustom: s.allowCustom === true,
     visibleWhen: s.visibleWhen || null,
-    defaultWhen: s.defaultWhen || null
+    defaultWhen: s.defaultWhen || null,
+    serviceId: __str(serviceId),
+    serviceVersion: __str(serviceVersion)
   };
 }
 function __options(list) {
@@ -253,6 +316,21 @@ function __describe(locale) {
     __fields = [];
   }
   return JSON.stringify(__fields);
+}
+
+// 返回本插件以 foxy.service.register 声明的服务清单。宿主用它构建服务目录（谁提供什么），
+// 设置页的 serviceSelect 下拉框则读别处的目录。任何字段缺失都按空串处理，坏了不抛。
+function __servicesJson() {
+  var out = [];
+  try {
+    for (var i = 0; i < __services.length; i++) {
+      var s = __services[i];
+      out.push({
+        id: __str(s.id), version: s.version, label: __str(s.label), description: __str(s.description)
+      });
+    }
+  } catch (e) {}
+  return JSON.stringify(out);
 }
 
 // 返回插件 register() 里的完整元信息。导入流程用它判断「这是不是一个本宿主能跑的语音插件」，
@@ -302,6 +380,24 @@ function __errorText(e) {
 }
 function __invoke(name, ctx) {
   if (name === "app") return __apps[ctx.appId].onOpen(ctx);
+  if (name === "service") {
+    var service = null;
+    for (var si = 0; si < __services.length; si++) {
+      if (__services[si].id === __str(ctx.serviceId) &&
+          __services[si].version === Number(ctx.version)) {
+        service = __services[si];
+        break;
+      }
+    }
+    if (!service) throw new Error("Service is not provided by this plugin: " + __str(ctx.serviceId));
+    return service.handle({
+      input: ctx.input === undefined ? {} : ctx.input,
+      settings: ctx.settings === undefined ? {} : ctx.settings,
+      locale: foxy.locale,
+      serviceId: service.id,
+      version: service.version
+    });
+  }
   if (name === "start") return __plugin.start(ctx);
   if (name === "audio") return __plugin.audio(ctx);
   if (name === "stop") return __plugin.stop(ctx);

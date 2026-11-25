@@ -511,6 +511,13 @@ internal class JsAppDialog(
                     (column.getChildAt(0) as? TextView)?.also(column::removeView)
                 }
             } else null
+            // 插件按 Foxy 的「没有宿主标题栏」约定写了自己的标题文本；这里已经有同名标题栏，重复的一行只会挤掉内容。
+            if (legacyTitle == null && scriptColumn != null && scriptColumn.childCount > 0) {
+                val duplicate = scriptColumn.getChildAt(0) as? TextView
+                if (duplicate != null && duplicate.text?.toString()?.trim() == tools?.title?.trim()) {
+                    scriptColumn.removeView(duplicate)
+                }
+            }
             headerForTools(scriptHeader, legacyTitle).apply { insertSwitcher(shortcuts) }
         }
         layoutColumn = scriptColumn ?: headerView?.let {

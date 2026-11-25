@@ -400,7 +400,7 @@
     <string name="js_voice_import_failed_save">No se pudo guardar el complemento: %1$s</string>
     <string name="js_voice_plugins_delete_entry">Eliminar este complemento</string>
     <string name="js_voice_plugins_delete_entry_summary">De %1$s</string>
-    <string name="js_voice_provider_tencent_translate">Traducción de voz Tencent Cloud (JS)</string>
+    <string name="js_voice_service_none">Sin seleccionar</string>
     <string name="choose_voice_engine">Elegir motor de voz</string>
     <string name="js_voice_plugins_settings">Ajustes de complementos de voz JS</string>
     <string name="voice_engine_system">Entrada de voz del sistema</string>

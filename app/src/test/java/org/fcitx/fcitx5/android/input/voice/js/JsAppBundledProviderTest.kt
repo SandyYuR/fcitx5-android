@@ -41,7 +41,7 @@ class JsAppBundledProviderTest {
         val spec = JsVoiceProviders.builtInSpecOf("js:bilibili-translate")!!
         assertTrue(spec.builtIn)
         assertFalse(spec.hasVoice)
-        assertEquals("1.3.0", spec.version)
+        assertEquals("1.5", spec.version)
         assertEquals(setOf("index-translate.bilibili.com"), spec.hosts)
         assertEquals("bilibili_translate", spec.apps.single().id)
         assertEquals("bilibili-translate.js", spec.originName)

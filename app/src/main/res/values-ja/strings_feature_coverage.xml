@@ -400,7 +400,7 @@
     <string name="js_voice_import_failed_save">プラグインを保存できませんでした: %1$s</string>
     <string name="js_voice_plugins_delete_entry">このプラグインを削除</string>
     <string name="js_voice_plugins_delete_entry_summary">提供元: %1$s</string>
-    <string name="js_voice_provider_tencent_translate">Tencent Cloud 音声翻訳（JS）</string>
+    <string name="js_voice_service_none">未選択</string>
     <string name="choose_voice_engine">音声エンジンを選択</string>
     <string name="js_voice_plugins_settings">JS 音声プラグイン設定</string>
     <string name="voice_engine_system">システムの音声入力</string>

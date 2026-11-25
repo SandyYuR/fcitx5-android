@@ -19,7 +19,7 @@ import okio.utf8Size
  * 拼成 `start(context)` 的入参。两者共用同一份声明，才不会出现「设置页改了但引擎没生效」。
  */
 internal data class JsVoiceField(
-    /** text / secret / select / switch / number */
+    /** text / secret / select / switch / number / serviceSelect */
     val kind: String,
     val key: String,
     val label: String,
@@ -30,6 +30,9 @@ internal data class JsVoiceField(
     val visibleWhen: JsonObject? = null,
     /** Default chosen by another ordinary setting: {key: "authMode", values: {apiKey: "..."}}. */
     val defaultWhen: JsonObject? = null,
+    /** serviceSelect：只会被选中的插件 ID 成为值；这一对字段定义候选服务。 */
+    val serviceId: String = "",
+    val serviceVersion: String = "",
 ) {
     val isSecret: Boolean get() = kind == KIND_SECRET
 
@@ -39,6 +42,9 @@ internal data class JsVoiceField(
         const val KIND_SELECT = "select"
         const val KIND_SWITCH = "switch"
         const val KIND_NUMBER = "number"
+
+        /** 值是被选插件 ID 的下拉框；候选来自各插件声明的服务目录。 */
+        const val KIND_SERVICE_SELECT = "serviceSelect"
     }
 }
 
@@ -81,6 +87,8 @@ internal object JsVoiceFields {
             allowCustom = obj["allowCustom"]?.jsonPrimitive?.booleanOrNull == true,
             visibleWhen = obj["visibleWhen"] as? JsonObject,
             defaultWhen = obj["defaultWhen"] as? JsonObject,
+            serviceId = obj["serviceId"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+            serviceVersion = obj["serviceVersion"]?.jsonPrimitive?.contentOrNull.orEmpty(),
         )
     }
 
@@ -98,6 +106,7 @@ internal object JsVoiceFields {
                 JsVoiceField.KIND_SELECT,
                 JsVoiceField.KIND_SWITCH,
                 JsVoiceField.KIND_NUMBER,
+                JsVoiceField.KIND_SERVICE_SELECT,
             )
         }
     }

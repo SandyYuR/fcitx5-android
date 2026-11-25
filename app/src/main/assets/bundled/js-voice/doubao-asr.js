@@ -1,159 +1,73 @@
-// Doubao (Volcengine) bigmodel ASR plugin for Foxy — mirrors the qwen-asr.js voice.asr contract.
-//
-// Protocol: Volcengine bigmodel WebSocket binary framing (docs/6561/1354869).
-//   Frame = [Header 4B][Sequence 4B?][PayloadSize 4B][Payload]
-//   Header byte0 = (protoVer<<4)|headerSize = 0x11
-//            byte1 = (messageType<<4)|flags: 0x10 full request, 0x20 audio, 0x22 audio last,
-//                    server 0x91/0x93 response, 0xF0 error
-//            byte2 = (serialization<<4)|compression: 0x11 JSON+Gzip, 0x01 raw+Gzip
-//   Host API used:
-//     foxy.websocket.connect(endpoint, secretKeyName, authHeaderName, authPrefix, extraHeadersJson)
-//     foxy.websocket.sendGzipFrame(socket, prefixBase64, payloadBase64)
-//       -> host gzips payload and sends prefix || be32(gzipLen) || gzip(payload)
-//     binary frames arrive on onMessage as message.binaryBase64
-//
-// Streaming:  wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async
-// Single-shot: wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream (streaming input, one result)
-
-const DEFAULTS = {
-  streamEndpoint: "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async",
-  flashEndpoint: "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream",
-  resourceIds: {
-    apiKey: "volc.seedasr.sauc.duration",
-    legacy: "volc.bigasr.sauc.duration"
-  }
-};
-
-const STREAM_MODELS = ["bigmodel", "doubao-seed-asr-2.0"];
-const FLASH_MODELS = ["bigmodel", "doubao-seed-asr-2.0"];
-
-const RESOURCE_IDS = {
-  "volc.bigasr.sauc.duration": "1.0 小时版",
-  "volc.bigasr.sauc.concurrent": "1.0 并发版",
-  "volc.seedasr.sauc.duration": "2.0 小时版",
-  "volc.seedasr.sauc.concurrent": "2.0 并发版"
-};
-
+const ENDPOINT = "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async";
+const TRANSLATION_SERVICE_ID = "text.translate";
+const TRANSLATION_SERVICE_VERSION = 1;
+const TRANSLATION_TARGETS = ["Chinese", "English", "Japanese", "Korean", "French", "German", "Spanish"];
 const STRINGS = {
   en: {
-    name: "Doubao ASR",
-    apiKey: "Volcengine API key",
-    apiKeyDescription: "Stored securely by Foxy; never exposed to the plugin script.",
-    authMode: "Auth mode",
-    apiKeyMode: "X-Api-Key (new console)",
-    legacyAuthMode: "App ID + Access Token (legacy console)",
-    appId: "App ID",
-    appIdDescription: "Sent as X-Api-App-Key; the Access Token is injected securely.",
-    accessToken: "Access Token",
-    authModeDescription: "Choose the credential type issued by the Volcengine console.",
-    resourceId: "Resource ID",
-    resourceIdDescription: "Changing auth mode selects 2.0 hourly for X-Api-Key or 1.0 hourly for legacy auth. You can then choose another resource granted to your key.",
-    mode: "Mode",
-    streaming: "Streaming (WebSocket)",
-    flash: "Single-shot (nostream)",
-    modeDescription: "Streaming shows text as you speak; single-shot returns one result after release.",
-    streamEndpoint: "Streaming endpoint",
-    streamEndpointDescription: "Keep the default for Volcengine bigmodel_async.",
-    streamModel: "Streaming model",
-    streamModelDescription: "Choose a preset or enter a model name.",
-    enableItn: "Normalize spoken numbers and dates",
-    enablePunc: "Enable punctuation",
-    enableDdc: "Semantic smoothing",
-    enableNonstream: "Second-pass refinement (async only)",
-    resultType: "Result type",
-    resultFull: "Full (cumulative)",
-    resultSingle: "Single (incremental)",
-    showUtterances: "Return sentence segmentation",
-    stripTrailingPunc: "Remove trailing punctuation",
-    stripTrailingPuncDescription: "Trims the closing punctuation mark from recognition results.",
-    stripTrailingPuncChars: "Custom trailing punctuation",
-    stripTrailingPuncCharsDescription: "Characters stripped from the end of results. Pre-filled with the defaults; edits take effect.",
-    flashEndpoint: "Single-shot endpoint",
-    flashEndpointDescription: "Keep the default for Volcengine bigmodel_nostream.",
-    flashModel: "Single-shot model",
-    flashModelDescription: "Choose a preset or enter a model name.",
-    errorMissingAppId: "App ID is required for legacy auth",
-    errorEmptyAudio: "No audio captured"
+    name: "Doubao ASR (V3)",
+    apiKey: "API key",
+    apiKeyDescription: "Stored by Foxy and injected into the approved host request.",
+    resource: "Resource ID",
+    endpoint: "WebSocket endpoint",
+    endpointDescription: "Must use the approved openspeech.bytedance.com host.",
+    model10Hourly: "Big Model 1.0 · hourly",
+    model10Concurrent: "Big Model 1.0 · concurrency",
+    model20Hourly: "Big Model 2.0 · hourly",
+    model20Concurrent: "Big Model 2.0 · concurrency",
+    itn: "Normalize numbers and dates",
+    punctuation: "Add punctuation",
+    translate: "Translate final result",
+    translationProvider: "Translation service provider",
+    translationProviderDescription: "Select an installed plugin providing text.translate v1. A single provider is selected automatically.",
+    translationTarget: "Translation target language",
+    translationFallback: "Keep source text if translation fails",
+    translationServiceMissing: "Doubao ASR: install a plugin providing text.translate v1",
+    translationProviderAmbiguous: "Doubao ASR: select a text.translate provider in plugin settings",
+    translationFailed: "Doubao ASR translation failed: %1"
   },
   "zh-CN": {
-    name: "豆包语音识别",
-    apiKey: "火山引擎 API Key",
-    apiKeyDescription: "由 Foxy 加密保存，不会传给插件脚本。",
-    authMode: "鉴权方式",
-    apiKeyMode: "X-Api-Key（新版控制台）",
-    legacyAuthMode: "App ID + Access Token（旧版控制台）",
-    appId: "App ID",
-    appIdDescription: "以 X-Api-App-Key 发送；Access Token 由系统安全注入。",
-    accessToken: "Access Token",
-    authModeDescription: "按火山引擎控制台签发的凭据类型选择。",
-    resourceId: "资源 ID",
-    resourceIdDescription: "切换鉴权时，新版自动选用 2.0 小时版，旧版选用 1.0 小时版；之后可按密钥授权手动调整。",
-    mode: "识别模式",
-    streaming: "实时流式识别（WebSocket）",
-    flash: "单次识别（nostream）",
-    modeDescription: "流式模式边说边显示文字；单次模式在松开后返回整段结果。",
-    streamEndpoint: "流式识别地址",
-    streamEndpointDescription: "保持默认值即可使用火山引擎 bigmodel_async。",
-    streamModel: "流式识别模型",
-    streamModelDescription: "可选预设模型，也可输入模型名称。",
-    enableItn: "规范化口语数字和日期",
-    enablePunc: "启用标点",
-    enableDdc: "语义顺滑",
-    enableNonstream: "二遍识别（仅 async 模式）",
-    resultType: "结果类型",
-    resultFull: "全量（累计）",
-    resultSingle: "增量（单句）",
-    showUtterances: "返回分句信息",
-    stripTrailingPunc: "去除句末标点",
-    stripTrailingPuncDescription: "识别结果末尾的标点符号会被去掉。",
-    stripTrailingPuncChars: "自定义句末标点",
-    stripTrailingPuncCharsDescription: "识别结果末尾会被去除的字符，已预填默认句末标点，修改后按新内容生效。",
-    flashEndpoint: "单次识别地址",
-    flashEndpointDescription: "保持默认值即可使用火山引擎 bigmodel_nostream。",
-    flashModel: "单次识别模型",
-    flashModelDescription: "可选预设模型，也可输入模型名称。",
-    errorMissingAppId: "旧版鉴权需要填写 App ID",
-    errorEmptyAudio: "未采集到音频"
+    name: "豆包语音识别（V3）",
+    apiKey: "API Key",
+    apiKeyDescription: "由 Foxy 加密保存，并注入已授权主机的请求。",
+    resource: "资源 ID",
+    endpoint: "WebSocket 地址",
+    endpointDescription: "必须使用已授权的 openspeech.bytedance.com 主机。",
+    model10Hourly: "大模型 1.0 · 按小时",
+    model10Concurrent: "大模型 1.0 · 并发版",
+    model20Hourly: "大模型 2.0 · 按小时",
+    model20Concurrent: "大模型 2.0 · 并发版",
+    itn: "规范化数字和日期",
+    punctuation: "添加标点",
+    translate: "翻译最终识别结果",
+    translationProvider: "翻译服务提供方",
+    translationProviderDescription: "选择已安装且提供 text.translate v1 的插件；只有一个提供方时会自动选择。",
+    translationTarget: "翻译目标语言",
+    translationFallback: "翻译失败时保留原文",
+    translationServiceMissing: "豆包语音识别：请安装提供 text.translate v1 的插件",
+    translationProviderAmbiguous: "豆包语音识别：请在插件设置中选择一个 text.translate 服务提供方",
+    translationFailed: "豆包语音识别翻译失败：%1"
   },
   "zh-TW": {
-    name: "豆包語音辨識",
-    apiKey: "火山引擎 API Key",
-    apiKeyDescription: "由 Foxy 加密儲存，不會傳給外掛指令碼。",
-    authMode: "鑑權方式",
-    apiKeyMode: "X-Api-Key（新版控制台）",
-    legacyAuthMode: "App ID + Access Token（舊版控制台）",
-    appId: "App ID",
-    appIdDescription: "以 X-Api-App-Key 傳送；Access Token 由系統安全注入。",
-    accessToken: "Access Token",
-    authModeDescription: "按火山引擎控制台簽發的憑據類型選擇。",
-    resourceId: "資源 ID",
-    resourceIdDescription: "切換驗證方式時，新版自動選用 2.0 小時版，舊版選用 1.0 小時版；之後可按金鑰授權手動調整。",
-    mode: "辨識模式",
-    streaming: "即時串流辨識（WebSocket）",
-    flash: "單次辨識（nostream）",
-    modeDescription: "串流模式邊說邊顯示文字；單次模式在放開後回傳整段結果。",
-    streamEndpoint: "串流辨識端點",
-    streamEndpointDescription: "保持預設值即可使用火山引擎 bigmodel_async。",
-    streamModel: "串流辨識模型",
-    streamModelDescription: "可選預設模型，也可輸入模型名稱。",
-    enableItn: "正規化口語數字和日期",
-    enablePunc: "啟用標點",
-    enableDdc: "語義順滑",
-    enableNonstream: "二遍辨識（僅 async 模式）",
-    resultType: "結果類型",
-    resultFull: "全量（累計）",
-    resultSingle: "增量（單句）",
-    showUtterances: "回傳分句資訊",
-    stripTrailingPunc: "去除句末標點",
-    stripTrailingPuncDescription: "辨識結果末尾的標點符號會被去掉。",
-    stripTrailingPuncChars: "自訂句末標點",
-    stripTrailingPuncCharsDescription: "辨識結果末尾會被去除的字元，已預填預設句末標點，修改後依新內容生效。",
-    flashEndpoint: "單次辨識端點",
-    flashEndpointDescription: "保持預設值即可使用火山引擎 bigmodel_nostream。",
-    flashModel: "單次辨識模型",
-    flashModelDescription: "可選預設模型，也可輸入模型名稱。",
-    errorMissingAppId: "舊版鑑權需要填寫 App ID",
-    errorEmptyAudio: "未採集到音訊"
+    name: "豆包語音辨識（V3）",
+    apiKey: "API Key",
+    apiKeyDescription: "由 Foxy 加密儲存，並注入已授權主機的請求。",
+    resource: "資源 ID",
+    endpoint: "WebSocket 端點",
+    endpointDescription: "必須使用已授權的 openspeech.bytedance.com 主機。",
+    model10Hourly: "大模型 1.0 · 按小時",
+    model10Concurrent: "大模型 1.0 · 併發版",
+    model20Hourly: "大模型 2.0 · 按小時",
+    model20Concurrent: "大模型 2.0 · 併發版",
+    itn: "正規化數字和日期",
+    punctuation: "加入標點",
+    translate: "翻譯最終辨識結果",
+    translationProvider: "翻譯服務提供者",
+    translationProviderDescription: "選擇已安裝且提供 text.translate v1 的外掛；只有一個提供者時會自動選擇。",
+    translationTarget: "翻譯目標語言",
+    translationFallback: "翻譯失敗時保留原文",
+    translationServiceMissing: "豆包語音辨識：請安裝提供 text.translate v1 的外掛",
+    translationProviderAmbiguous: "豆包語音辨識：請在外掛設定中選擇一個 text.translate 服務提供者",
+    translationFailed: "豆包語音辨識翻譯失敗：%1"
   }
 };
 
@@ -166,182 +80,81 @@ function stringsFor(locale) {
   return STRINGS.en;
 }
 
-// ---- Volcengine binary framing helpers ----
-
-const B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-function bytesToBase64(bytes) {
-  let out = "";
-  for (let i = 0; i < bytes.length; i += 3) {
-    const b0 = bytes[i];
-    const b1 = i + 1 < bytes.length ? bytes[i + 1] : undefined;
-    const b2 = i + 2 < bytes.length ? bytes[i + 2] : undefined;
-    out += B64_ALPHABET[b0 >> 2];
-    out += B64_ALPHABET[((b0 & 0x03) << 4) | (b1 === undefined ? 0 : b1 >> 4)];
-    out += b1 === undefined ? "=" : B64_ALPHABET[((b1 & 0x0f) << 2) | (b2 === undefined ? 0 : b2 >> 6)];
-    out += b2 === undefined ? "=" : B64_ALPHABET[b2 & 0x3f];
-  }
-  return out;
-}
-
-// headerSize=1 (4 bytes), protocol version 1
-function volcPrefix(messageType, flags, serialization, compression) {
-  return bytesToBase64([
-    0x11,
-    ((messageType & 0x0f) << 4) | (flags & 0x0f),
-    ((serialization & 0x0f) << 4) | (compression & 0x0f),
-    0x00
-  ]);
-}
-
 function uuid() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x03) | 0x08;
-    return v.toString(16);
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, ch => {
+    const random = Math.floor(Math.random() * 16);
+    return (ch === "x" ? random : (random & 3) | 8).toString(16);
   });
 }
 
-function boolOf(value, fallback) {
-  if (value === true || value === "true") return true;
-  if (value === false || value === "false") return false;
-  return !!fallback;
-}
+const START_PREFIX = "ERARAA==";
+const AUDIO_PREFIX = "ESABAA==";
+const FINAL_AUDIO_PREFIX = "ESIBAA==";
+let state = newSessionState();
 
-// Default trailing punctuation (CJK + ASCII + fullwidth); user can override via stripTrailingPuncChars.
-const DEFAULT_STRIP_CHARACTERS = "。．.！？!?；;，,、~～…";
-
-// Drop trailing marks listed in `chars`, keep inner punctuation. Empty `chars` strips nothing.
-function stripTrailingPunc(text, chars) {
-  const set = chars == null ? DEFAULT_STRIP_CHARACTERS : String(chars);
-  const value = String(text || "");
-  if (!set) return value;
-  let end = value.length;
-  while (end > 0 && set.indexOf(value.charAt(end - 1)) !== -1) end--;
-  return value.slice(0, end);
-}
-
-// Full client request: type=1, flags=0 (no sequence), JSON, Gzip. Host appends be32(gzipLen)+gzip(json).
-function sendFullRequest(socket, payload) {
-  return foxy.websocket.sendGzipFrame(
-    socket,
-    volcPrefix(0x01, 0x00, 0x01, 0x01),
-    foxy.binary.utf8Base64(JSON.stringify(payload))
-  );
-}
-
-// Audio-only packet: type=2, flags=0 (more coming) or 0x02 (last packet), raw, Gzip.
-// pcmBase64 is the raw PCM bytes already base64-encoded; the host gzips them.
-function sendAudioPacket(socket, pcmBase64, isLast) {
-  return foxy.websocket.sendGzipFrame(
-    socket,
-    volcPrefix(0x02, isLast ? 0x02 : 0x00, 0x00, 0x01),
-    pcmBase64 || ""
-  );
-}
-
-function buildRequestPayload(context, model) {
+function newSessionState() {
   return {
-    user: { uid: "foxy" },
-    audio: {
-      format: "pcm",
-      rate: Number(context.sampleRate) || 16000,
-      bits: 16,
-      channel: 1,
-      codec: "raw"
-    },
-    request: {
-      model_name: model || "bigmodel",
-      enable_itn: boolOf(context.enableItn, true),
-      enable_punc: boolOf(context.enablePunc, true),
-      enable_ddc: boolOf(context.enableDdc, false),
-      enable_nonstream: boolOf(context.enableNonstream, false),
-      show_utterances: boolOf(context.showUtterances, true),
-      result_type: context.resultType === "single" ? "single" : "full"
-    }
+    ending: false,
+    lastPartial: "",
+    finalUtterances: new Map(),
+    translationEnabled: false,
+    translationProvider: "",
+    translationTarget: "English",
+    translationFallback: true
   };
 }
 
-function connectVolc(endpoint, context) {
-  const defaultResource = context.authMode === "legacy" ? DEFAULTS.resourceIds.legacy : DEFAULTS.resourceIds.apiKey;
-  const extras = {
-    "X-Api-Resource-Id": String(context.resourceId || defaultResource),
-    "X-Api-Request-Id": uuid(),
-    "X-Api-Connect-Id": uuid(),
-    "X-Api-Sequence": "-1"
-  };
-  if (context.authMode === "legacy") {
-    if (context.appId) extras["X-Api-App-Key"] = String(context.appId);
-    // Access Token is the secret: injected as X-Api-Access-Key by the host.
-    return foxy.websocket.connect(endpoint, "accessToken", "X-Api-Access-Key", "", JSON.stringify(extras));
-  }
-  // New console: secret injected as X-Api-Key (empty prefix).
-  return foxy.websocket.connect(endpoint, "apiKey", "X-Api-Key", "", JSON.stringify(extras));
+function setting(context, key) {
+  const value = context[key];
+  return value === undefined || value === null ? "" : String(value).trim();
 }
 
-// Parse one server binary frame from message.binaryBase64 (fallback message.message).
-// onMessage is invoked with only the message argument, so the strip options are captured by the
-// plugin through `settings` set in start().
-let settings = { stripTrailingPunc: false, stripChars: DEFAULT_STRIP_CHARACTERS };
+function configureTranslation(ui, t) {
+  ui.switch("translationEnabled", t.translate, false);
+  ui.serviceSelect("translationProvider", t.translationProvider, TRANSLATION_SERVICE_ID, TRANSLATION_SERVICE_VERSION, "", {
+    visibleWhen: {key: "translationEnabled", value: "true"},
+    description: t.translationProviderDescription
+  });
+  ui.select("translationTarget", t.translationTarget, TRANSLATION_TARGETS, "English", {
+    visibleWhen: {key: "translationEnabled", value: "true"}
+  });
+  ui.switch("translationFallback", t.translationFallback, true, {
+    visibleWhen: {key: "translationEnabled", value: "true"}
+  });
+}
 
-function parseVolcFrame(message) {
-  const raw = message.binaryBase64 || message.message;
-  if (!raw) return {};
-  const total = foxy.binary.byteLength(raw);
-  if (!total || total < 4) return {};
-
-  const b1 = foxy.binary.readUInt8(raw, 1);
-  const b2 = foxy.binary.readUInt8(raw, 2);
-  const messageType = (b1 >> 4) & 0x0f;
-  const flags = b1 & 0x0f;
-  const compression = b2 & 0x0f;
-  const isFinal = (flags & 0x02) !== 0;
-
-  // Error frame: [Header 4B][code 4B][msgSize 4B][msg UTF-8] — no payload-size field.
-  if (messageType === 0x0f) {
-    let detail = "Volc ASR error";
-    let code = 0;
-    if (total >= 12) {
-      code = foxy.binary.readInt32BE(raw, 4);
-      const msgSize = foxy.binary.readInt32BE(raw, 8);
-      if (msgSize > 0 && 12 + msgSize <= total) {
-        detail = foxy.binary.base64Utf8(foxy.binary.sliceBase64(raw, 12, msgSize)) || detail;
-      }
-    }
-    return { error: (code ? code + ": " : "") + detail };
+function resolveTranslationProvider(context, t) {
+  const services = foxy.services.list(TRANSLATION_SERVICE_ID).filter(item =>
+    item.serviceId === TRANSLATION_SERVICE_ID && item.version === TRANSLATION_SERVICE_VERSION);
+  let provider = setting(context, "translationProvider");
+  if (!provider) {
+    if (services.length === 1) provider = services[0].pluginId;
+    else if (services.length > 1) throw new Error(t.translationProviderAmbiguous);
   }
-  // Full server response: type=9, flags 0b0001 (seq) / 0b0011 (final, negative seq).
-  if (messageType !== 0x09) return {};
+  if (!provider || !services.some(item => item.pluginId === provider)) {
+    throw new Error(t.translationServiceMissing + (provider ? " (" + provider + ")" : ""));
+  }
+  return provider;
+}
 
-  const seqBytes = (flags & 0x01) !== 0 ? 4 : 0;
-  const sizeOffset = 4 + seqBytes;
-  if (total < sizeOffset + 4) return isFinal ? { ended: true } : {};
-  const payloadSize = foxy.binary.readInt32BE(raw, sizeOffset);
-  if (payloadSize <= 0 || sizeOffset + 4 + payloadSize > total) return isFinal ? { ended: true } : {};
-
-  const payload = foxy.binary.sliceBase64(raw, sizeOffset + 4, payloadSize);
-  let text;
+async function translateFinal(text) {
+  const source = String(text || "").trim();
+  if (!source || !state.translationEnabled) return {final: source, ended: true};
   try {
-    text = compression === 0x01 ? foxy.binary.gunzipUtf8(payload) : foxy.binary.base64Utf8(payload);
-  } catch (e) {
-    return { error: "Failed to decode Volc ASR response" };
+    const result = await foxy.services.call(
+      state.translationProvider,
+      TRANSLATION_SERVICE_ID,
+      TRANSLATION_SERVICE_VERSION,
+      {text: source, targetLanguage: state.translationTarget}
+    );
+    const translated = String(result && result.translatedText || "").trim();
+    if (!translated) throw new Error("empty translation result");
+    return {final: translated, ended: true};
+  } catch (error) {
+    if (state.translationFallback) return {final: source, ended: true};
+    const t = stringsFor(foxy.locale);
+    return {error: String(t.translationFailed).replace("%1", error && (error.message || error) || error)};
   }
-  let json;
-  try {
-    json = JSON.parse(text);
-  } catch (e) {
-    return isFinal ? { ended: true } : {};
-  }
-  const result = json && json.result;
-  let transcript =
-    result && typeof result.text === "string"
-      ? result.text
-      : typeof json.text === "string"
-        ? json.text
-        : "";
-  if (settings.stripTrailingPunc) transcript = stripTrailingPunc(transcript, settings.stripChars);
-  if (!transcript) return isFinal ? { ended: true } : {};
-  return isFinal ? { final: transcript, ended: true } : { partial: transcript };
 }
 
 foxy.plugin.register({
@@ -349,105 +162,252 @@ foxy.plugin.register({
   name: stringsFor(foxy.locale).name,
   version: "1.2.0",
   hosts: ["openspeech.bytedance.com"],
-  features: [{ type: "voice.asr", id: "doubao-asr", label: "Doubao ASR", sampleRate: 16000 }],
+  features: [{type: "voice.asr", id: "doubao-asr", label: stringsFor(foxy.locale).name, sampleRate: 16000}],
   configure(ui, locale) {
     const t = stringsFor(locale);
-    ui.secret("apiKey", t.apiKey, {
-      visibleWhen: { key: "authMode", value: "apiKey" },
-      description: t.apiKeyDescription
-    });
-    ui.select("authMode", t.authMode, [
-      { label: t.apiKeyMode, value: "apiKey" },
-      { label: t.legacyAuthMode, value: "legacy" }
-    ], "apiKey", { description: t.authModeDescription });
-    ui.text("appId", t.appId, "", {
-      visibleWhen: { key: "authMode", value: "legacy" },
-      description: t.appIdDescription
-    });
-    ui.secret("accessToken", t.accessToken, {
-      visibleWhen: { key: "authMode", value: "legacy" }
-    });
-    ui.select("resourceId", t.resourceId, Object.keys(RESOURCE_IDS).map(function (v) {
-      return { label: RESOURCE_IDS[v], value: v };
-    }), DEFAULTS.resourceIds.apiKey, {
-      allowCustom: true,
-      defaultWhen: { key: "authMode", values: DEFAULTS.resourceIds },
-      description: t.resourceIdDescription
-    });
-    ui.select("mode", t.mode, [
-      { label: t.streaming, value: "streaming" },
-      { label: t.flash, value: "flash" }
-    ], "streaming", { description: t.modeDescription });
-
-    ui.text("streamEndpoint", t.streamEndpoint, DEFAULTS.streamEndpoint, {
-      visibleWhen: { key: "mode", value: "streaming" },
-      description: t.streamEndpointDescription
-    });
-    ui.select("streamModel", t.streamModel, STREAM_MODELS, "bigmodel", {
-      visibleWhen: { key: "mode", value: "streaming" },
-      allowCustom: true,
-      description: t.streamModelDescription
-    });
-    ui.select("resultType", t.resultType, [
-      { label: t.resultFull, value: "full" },
-      { label: t.resultSingle, value: "single" }
-    ], "full", { visibleWhen: { key: "mode", value: "streaming" } });
-
-    ui.text("flashEndpoint", t.flashEndpoint, DEFAULTS.flashEndpoint, {
-      visibleWhen: { key: "mode", value: "flash" },
-      description: t.flashEndpointDescription
-    });
-    ui.select("flashModel", t.flashModel, FLASH_MODELS, "bigmodel", {
-      visibleWhen: { key: "mode", value: "flash" },
-      allowCustom: true,
-      description: t.flashModelDescription
-    });
-
-    // Slider-style (toggle) options grouped together and placed last.
-    ui.switch("enableItn", t.enableItn, true, { visibleWhen: { key: "mode", value: "streaming" } });
-    ui.switch("enablePunc", t.enablePunc, true, { visibleWhen: { key: "mode", value: "streaming" } });
-    ui.switch("enableDdc", t.enableDdc, false, { visibleWhen: { key: "mode", value: "streaming" } });
-    ui.switch("enableNonstream", t.enableNonstream, false, { visibleWhen: { key: "mode", value: "streaming" } });
-    ui.switch("showUtterances", t.showUtterances, true, { visibleWhen: { key: "mode", value: "streaming" } });
-    ui.switch("stripTrailingPunc", t.stripTrailingPunc, false, {
-      description: t.stripTrailingPuncDescription
-    });
-    ui.text("stripTrailingPuncChars", t.stripTrailingPuncChars, DEFAULT_STRIP_CHARACTERS, {
-      visibleWhen: { key: "stripTrailingPunc", value: "true" },
-      description: t.stripTrailingPuncCharsDescription
-    });
+    ui.secret("apiKey", t.apiKey, {description: t.apiKeyDescription});
+    ui.select("resourceId", t.resource, [
+      {label: t.model10Hourly, value: "volc.bigasr.sauc.duration"},
+      {label: t.model10Concurrent, value: "volc.bigasr.sauc.concurrent"},
+      {label: t.model20Hourly, value: "volc.seedasr.sauc.duration"},
+      {label: t.model20Concurrent, value: "volc.seedasr.sauc.concurrent"}
+    ], "volc.bigasr.sauc.duration");
+    ui.text("endpoint", t.endpoint, ENDPOINT, {description: t.endpointDescription});
+    ui.switch("enableItn", t.itn, true);
+    ui.switch("enablePunctuation", t.punctuation, true);
+    configureTranslation(ui, t);
   },
   async start(context) {
-    const t = stringsFor(foxy.locale);
-    const isFlash = context.mode === "flash";
-    settings.stripTrailingPunc = boolOf(context.stripTrailingPunc, false);
-    settings.stripChars = context.stripTrailingPuncChars != null
-      ? String(context.stripTrailingPuncChars)
-      : DEFAULT_STRIP_CHARACTERS;
-    if (context.authMode === "legacy" && !context.appId) {
-      throw new Error(t.errorMissingAppId);
+    state = newSessionState();
+    state.translationEnabled = context.translationEnabled === "true";
+    state.translationFallback = context.translationFallback !== "false";
+    const preferredTarget = setting(context, "translationTarget");
+    state.translationTarget = TRANSLATION_TARGETS.includes(preferredTarget) ? preferredTarget : "English";
+    if (state.translationEnabled) {
+      state.translationProvider = resolveTranslationProvider(context, stringsFor(foxy.locale));
     }
-    const endpoint = isFlash
-      ? (context.flashEndpoint || DEFAULTS.flashEndpoint)
-      : (context.streamEndpoint || DEFAULTS.streamEndpoint);
-    const model = isFlash
-      ? (context.flashModel || "bigmodel")
-      : (context.streamModel || "bigmodel");
-
-    const socket = connectVolc(endpoint, context);
+    const socket = foxy.websocket.connect(
+      context.endpoint || ENDPOINT,
+      "apiKey",
+      "X-Api-Key",
+      "",
+      JSON.stringify({
+        "X-Api-Resource-Id": context.resourceId || "volc.bigasr.sauc.duration",
+        "X-Api-Request-Id": context.taskId || uuid(),
+        "X-Api-Connect-Id": uuid(),
+        "X-Api-Sequence": "-1"
+      })
+    );
     await foxy.websocket.waitOpen(socket);
-    await sendFullRequest(socket, buildRequestPayload(context, model));
+    const request = {
+      user: {uid: "foxy"},
+      audio: {format: "pcm", rate: context.sampleRate, bits: 16, channel: 1, codec: "raw"},
+      request: {
+        model_name: "bigmodel",
+        enable_itn: context.enableItn !== "false",
+        enable_punc: context.enablePunctuation !== "false",
+        show_utterances: true,
+        result_type: "full"
+      }
+    };
+    foxy.websocket.sendGzipFrame(socket, START_PREFIX, foxy.binary.utf8Base64(JSON.stringify(request)));
     foxy.voice.ready();
     return socket;
   },
   async audio(context) {
-    await sendAudioPacket(context.socket, context.pcm, false);
+    foxy.websocket.sendGzipFrame(context.socket, AUDIO_PREFIX, context.pcm);
   },
   async stop(context) {
-    // Last packet flag 0x22 closes the audio stream; the server then returns the final result.
-    await sendAudioPacket(context.socket, "", true);
+    state.ending = true;
+    foxy.websocket.sendGzipFrame(context.socket, FINAL_AUDIO_PREFIX, "");
   },
-  onMessage(message) {
-    return parseVolcFrame(message);
+  async onMessage(event) {
+    if (event.binaryBase64) {
+      const decoded = decodeServerFrame(event.binaryBase64);
+      if (!decoded) return {};
+      if (decoded.error) return {error: decoded.error};
+      return transcriptAction(decoded.payload, decoded.isLast);
+    }
+    if (event.message) {
+      try {
+        return transcriptAction(JSON.parse(event.message), false);
+      } catch (_) {
+        return {};
+      }
+    }
+    return {};
   }
 });
+
+function decodeServerFrame(base64) {
+  const total = foxy.binary.byteLength(base64);
+  if (total < 4) return null;
+  const first = foxy.binary.readUInt8(base64, 0);
+  const headerBytes = (first & 0x0f) * 4;
+  if (headerBytes < 4 || headerBytes > total) throw new Error("Invalid V3 response header");
+  const typeAndFlags = foxy.binary.readUInt8(base64, 1);
+  const type = typeAndFlags >>> 4;
+  const flags = typeAndFlags & 0x0f;
+  const compression = foxy.binary.readUInt8(base64, 2) & 0x0f;
+  let offset = headerBytes;
+  if ((flags & 0x01) !== 0) {
+    if (total < offset + 4) return null;
+    offset += 4;
+  }
+
+  if (type === 0x0f) {
+    if (total < offset + 8) throw new Error("Truncated V3 error frame");
+    const code = foxy.binary.readInt32BE(base64, offset);
+    offset += 4;
+    const size = foxy.binary.readInt32BE(base64, offset);
+    offset += 4;
+    const message = decodePayload(base64, offset, size, compression);
+    let detail = message;
+    try {
+      const error = JSON.parse(message);
+      detail = error.message || (error.error && error.error.message) || message;
+    } catch (_) {}
+    return {error: "Doubao ASR error " + code + ": " + detail};
+  }
+  if (type !== 0x09 && type !== 0x0b) return null;
+  if (total < offset + 4) return null;
+  const size = foxy.binary.readInt32BE(base64, offset);
+  offset += 4;
+  if (size <= 0) return null;
+  if (total < offset + size) throw new Error("Truncated V3 response payload");
+  const payload = decodePayload(base64, offset, size, compression);
+  if (!payload.trim()) return null;
+  try {
+    return {isLast: (flags & 0x02) !== 0, payload: JSON.parse(payload)};
+  } catch (_) {
+    return null;
+  }
+}
+
+function decodePayload(base64, offset, size, compression) {
+  if (size < 0) throw new Error("Invalid V3 payload size");
+  const payload = foxy.binary.sliceBase64(base64, offset, size);
+  if (compression === 0x01) return foxy.binary.gunzipUtf8(payload);
+  if (compression === 0x00) return foxy.binary.base64Utf8(payload);
+  throw new Error("Unsupported V3 response compression: " + compression);
+}
+
+async function transcriptAction(payload, isLast) {
+  const error = extractError(payload);
+  if (error) return {error: error};
+  const utterances = extractUtterances(payload);
+  let transcript = "";
+  if (utterances.length > 0) {
+    let partial = "";
+    utterances.forEach(utterance => {
+      if (utterance.definite) {
+        const key = utterance.start !== "" || utterance.end !== ""
+          ? utterance.start + ":" + utterance.end
+          : utterance.resultIndex + ":" + utterance.utteranceIndex + ":" + utterance.text;
+        state.finalUtterances.set(key, utterance.text);
+      } else {
+        partial = utterance.text;
+      }
+    });
+    transcript = joinTexts(Array.from(state.finalUtterances.values()).concat(partial));
+  } else {
+    transcript = extractText(payload).trim();
+  }
+  if (transcript) state.lastPartial = transcript;
+  if (isLast && state.ending) {
+    const finalText = transcript || state.lastPartial;
+    return finalText ? translateFinal(finalText) : {ended: true};
+  }
+  return transcript ? {partial: transcript} : {};
+}
+
+function extractError(value) {
+  if (!value || typeof value !== "object") return "";
+  const code = Number(value.code || 0);
+  if (code !== 0 && code !== 1000 && code !== 1002) return value.message || "Doubao ASR failed";
+  if (value.error && value.error.message) return value.error.message;
+  if (value.payload_msg) return extractError(value.payload_msg);
+  return "";
+}
+
+function extractUtterances(value) {
+  if (!value || typeof value !== "object") return [];
+  if (value.payload_msg) return extractUtterances(value.payload_msg);
+  const out = [];
+  appendUtterances(value.utterances, out);
+  if (value.result && !Array.isArray(value.result)) appendUtterances(value.result.utterances, out);
+  appendResults(value.result, out);
+  appendResults(value.results, out);
+  return out;
+}
+
+function appendResults(results, out) {
+  if (!Array.isArray(results)) return;
+  results.forEach((result, index) => {
+    if (result && typeof result === "object") appendUtterances(result.utterances, out, index);
+  });
+}
+
+function appendUtterances(items, out, resultIndex = -1) {
+  if (!Array.isArray(items)) return;
+  items.forEach((item, utteranceIndex) => {
+    if (!item || typeof item !== "object") return;
+    const text = String(item.text || item.utterance || "").trim();
+    if (!text) return;
+    out.push({
+      text: text,
+      definite: !!item.definite,
+      start: firstPresent(item.start_time, item.startTime, item.start),
+      end: firstPresent(item.end_time, item.endTime, item.end),
+      resultIndex: resultIndex,
+      utteranceIndex: utteranceIndex
+    });
+  });
+}
+
+function firstPresent(...values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null && value !== "") return String(value);
+  }
+  return "";
+}
+
+function extractText(value) {
+  if (!value || typeof value !== "object") return "";
+  if (typeof value.text === "string" && value.text.trim()) return value.text.trim();
+  if (value.result && typeof value.result.text === "string") return value.result.text.trim();
+  if (Array.isArray(value.result)) {
+    return joinTexts(value.result.map(item => item && (item.text || item.utterance || "")));
+  }
+  if (Array.isArray(value.results)) {
+    return joinTexts(value.results.map(item => item && (item.text || item.utterance || "")));
+  }
+  if (value.payload_msg) return extractText(value.payload_msg);
+  return "";
+}
+
+function joinTexts(parts) {
+  let output = "";
+  parts.filter(Boolean).forEach(part => {
+    const text = String(part).trim();
+    if (!text) return;
+    if (output && needsSpace(output[output.length - 1], text[0])) output += " ";
+    output += text;
+  });
+  return output;
+}
+
+function needsSpace(previous, next) {
+  const noSpaceBefore = "，。！？、；：,.!?;:)]}）】》";
+  const noSpaceAfter = "([{（【《";
+  if (/\s/.test(previous) || /\s/.test(next) || noSpaceBefore.includes(next) || noSpaceAfter.includes(previous)) return false;
+  return !isCjk(previous) && !isCjk(next);
+}
+
+function isCjk(char) {
+  const code = char.charCodeAt(0);
+  return (code >= 0x2e80 && code <= 0x9fff) ||
+    (code >= 0xf900 && code <= 0xfaff) ||
+    (code >= 0x3040 && code <= 0x30ff) ||
+    (code >= 0xac00 && code <= 0xd7af);
+}

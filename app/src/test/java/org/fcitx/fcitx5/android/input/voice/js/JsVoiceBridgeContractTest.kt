@@ -40,7 +40,6 @@ class JsVoiceBridgeContractTest {
     private val scriptFile = File(scriptDir, "qwen-asr.js")
     private val doubaoFile = File(scriptDir, "doubao-asr.js")
     private val tencentFile = File(scriptDir, "tencent-asr.js")
-    private val translateFile = File(scriptDir, "tencent-translate.js")
 
     private inner class Harness {
         val sent = mutableListOf<String>()
@@ -56,6 +55,14 @@ class JsVoiceBridgeContractTest {
         var closed = false
         var postResponse =
             """{"output":{"choices":[{"message":{"content":[{"text":"你好世界。"}]}}]}}"""
+
+        /** 宿主注入的服务目录；默认只有哔哩哔哩翻译，够跑翻译链路。 */
+        var serviceCatalog =
+            """[{"pluginId":"bilibili-translate","pluginLabel":"哔哩哔哩翻译",""" +
+                """"serviceId":"text.translate","version":1,"label":"Bilibili text translation",""" +
+                """"description":""}]"""
+        var serviceResult = """{"translatedText":"Hello"}"""
+        val serviceCalls = mutableListOf<List<String>>()
 
         fun install(js: QuickJs, locale: String = "zh-CN") {
             js.function("__n_locale") { locale }
@@ -120,6 +127,16 @@ class JsVoiceBridgeContractTest {
                 JsVoiceHelpers.readInt32BE(decode(args[0].toString()), args[1].toString().toInt())
             }
             js.function("__n_gunzipUtf8") { args -> String(JsVoiceHelpers.gunzip(decode(args[0].toString()))) }
+            js.function("__n_servicesCatalog") { serviceCatalog }
+            js.function("__n_serviceCall") { args ->
+                serviceCalls += listOf(
+                    args.getOrNull(0)?.toString().orEmpty(),
+                    args.getOrNull(1)?.toString().orEmpty(),
+                    args.getOrNull(2)?.toString().orEmpty(),
+                    args.getOrNull(3)?.toString().orEmpty(),
+                )
+                serviceResult
+            }
         }
     }
 
@@ -180,17 +197,25 @@ class JsVoiceBridgeContractTest {
     @Test
     fun bundledPluginDescribesItsSettings() = withPlugin { js, _ ->
         val meta = JsVoicePluginMeta.parse(js.evaluate<String>("__meta()"))!!
-        assertEquals("1.6.3", meta.version)
-        assertEquals("通义千问语音识别", meta.voiceAsr!!.label)
+        assertEquals("1.8.0", meta.version)
+        // 1.8.0 起 feature label 是插件自报的英文名（不再走宿主的本地化资源）。
+        assertEquals("Qwen ASR", meta.voiceAsr!!.label)
         val raw = js.evaluate<String>("__describe('zh-CN')")
         val fields = JsVoiceFields.parse(raw)
         assertEquals(
             listOf(
                 "apiKey", "platform", "mode", "stripPunctuation", "stripCharacters",
                 "streamEndpoint", "streamModel", "heartbeat", "flashEndpoint", "flashModel", "itn",
+                "translationEnabled", "translationProvider", "translationTarget", "translationFallback",
             ),
             fields.map { it.key },
         )
+        // 翻译服务方是服务下拉框：候选由宿主从各插件声明的服务目录里给，脚本只声明要哪一项。
+        val provider = fields.first { it.key == "translationProvider" }
+        assertEquals(JsVoiceField.KIND_SERVICE_SELECT, provider.kind)
+        assertEquals("text.translate", provider.serviceId)
+        assertEquals("1", provider.serviceVersion)
+        assertEquals("translationEnabled", provider.visibleWhen!!.getValue("key").jsonPrimitive.content)
         val apiKey = fields.first { it.key == "apiKey" }
         assertTrue("apiKey must be a secret", apiKey.isSecret)
         assertEquals("平台 API 密钥", apiKey.label)
@@ -214,7 +239,8 @@ class JsVoiceBridgeContractTest {
         assertEquals("flash", resultOf(start)?.jsonPrimitive?.contentOrNull)
         assertTrue(events(start).any { it["ready"]?.jsonPrimitive?.booleanOrNull == true })
 
-        val pcm = encode(ByteArray(3200) { 1 })
+        // 分片按宿主对齐后的尺寸投递：长度是 3 的整数倍时 base64 不带填充，插件 `join("")` 才拼得合法。
+        val pcm = encode(ByteArray(3201) { 1 })
         val audio = runCallback(
             js, "audio",
             """{"platform":"bailian","sampleRate":16000,"pcm":"$pcm","socket":"flash"}""",
@@ -222,7 +248,7 @@ class JsVoiceBridgeContractTest {
         assertTrue(events(audio).isEmpty())
 
         // Capture delivers independently padded packets, including a short tail.
-        val second = encode(ByteArray(3200) { 2 })
+        val second = encode(ByteArray(3201) { 2 })
         val tail = encode(byteArrayOf(3, 4))
         for (chunk in listOf(second, tail)) {
             runCallback(js, "audio", """{"sampleRate":16000,"pcm":"$chunk","socket":"flash"}""")
@@ -244,7 +270,7 @@ class JsVoiceBridgeContractTest {
         val encodedWav = body.substringAfter("data:audio/wav;base64,").substringBefore('"')
         val wav = decode(encodedWav)
         org.junit.Assert.assertArrayEquals(
-            ByteArray(3200) { 1 } + ByteArray(3200) { 2 } + byteArrayOf(3, 4),
+            ByteArray(3201) { 1 } + ByteArray(3201) { 2 } + byteArrayOf(3, 4),
             wav.copyOfRange(44, wav.size),
         )
         assertTrue(body.contains("qwen-audio-3.0-asr-flash"))
@@ -363,7 +389,7 @@ class JsVoiceBridgeContractTest {
             runBlocking {
                 js.evaluate<Any?>(JsVoicePrelude.SOURCE + "\n" + script)
                 val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
-                assertEquals(11, fields.size)
+                assertEquals(15, fields.size)
                 assertTrue(fields.first { it.key == "apiKey" }.isSecret)
             }
         } finally {
@@ -397,6 +423,36 @@ class JsVoiceBridgeContractTest {
         assertTrue(JsVoiceHelpers.isAllowedUrl("wss://dashscope.aliyuncs.com/api-ws/v1/inference", declared))
     }
 
+    @Test
+    fun qwenTranslatesFinalResultThroughTheSelectedService() = withPlugin { js, harness ->
+        // 翻译由另一个插件声明的 text.translate 服务承担：宿主只把「用户选中的服务方」交给本插件，
+        // 本插件看不到对方密钥，也拿不到对方脚本。
+        runCallback(
+            js, "start",
+            """{"mode":"streaming","platform":"bailian","sampleRate":16000,"taskId":"t-tr",""" +
+                """"translationEnabled":"true","translationProvider":"bilibili-translate",""" +
+                """"translationTarget":"English"}""",
+        )
+        val final = runCallback(
+            js, "onMessage",
+            buildJsonObject {
+                put("socket", "socket-1")
+                put(
+                    "message",
+                    """{"header":{"event":"result-generated"},"payload":{"output":{"sentence":""" +
+                        """{"text":"你好世界。","sentence_end":true}}}}""",
+                )
+            }.toString(),
+        )
+        assertEquals("Hello", fieldValue(final, "final")?.contentOrNull)
+        assertTrue(harness.posts.isEmpty())
+        val call = harness.serviceCalls.single()
+        assertEquals("bilibili-translate", call[0])
+        assertEquals("text.translate", call[1])
+        assertEquals("1", call[2])
+        assertTrue(call[3].contains("你好世界"))
+    }
+
     // ---- 豆包（火山引擎）插件：二进制帧协议 ----
 
     /** 按火山引擎 bigmodel 协议拼一帧服务器响应：header || seq || payloadSize || payload。 */
@@ -420,83 +476,9 @@ class JsVoiceBridgeContractTest {
         decode(frame.first).map { it.toInt() and 0xff }
 
     @Test
-    fun translateSignsTheTranslationPathAndExposesItsSettings() = withPlugin(translateFile) { js, harness ->
-        val meta = JsVoicePluginMeta.parse(js.evaluate<String>("__meta()"))!!
-        assertEquals("tencent-translate", meta.id)
-        assertEquals(listOf("asr.cloud.tencent.com"), meta.hosts)
-        assertEquals("1.0.0", meta.version)
-        val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
-        assertEquals(11, fields.size)
-        assertTrue(fields.first { it.key == "secretKey" }.isSecret)
-        val values = JsVoiceFields.currentValues(fields, mapOf("appId" to "1234567890", "secretId" to "AKIDTEST"))
-        assertFalse(values.containsKey("secretKey"))
-        runCallback(js, "start", buildJsonObject { values.forEach { (key, value) -> put(key, value) } }.toString())
-        val uri = java.net.URI(harness.connectUrl)
-        assertEquals("/asr/speech_translate/1234567890", uri.path)
-        val query = uri.rawQuery.split('&').associate { part ->
-            val pair = part.split('=', limit = 2)
-            java.net.URLDecoder.decode(pair[0], "UTF-8") to java.net.URLDecoder.decode(pair[1], "UTF-8")
-        }
-        assertEquals("zh", query["source"])
-        assertEquals("en", query["target"])
-        assertEquals("hunyuan-translation-lite", query["trans_model"])
-        assertEquals("1", query["voice_format"])
-        assertEquals(3600L, query.getValue("expired").toLong() - query.getValue("timestamp").toLong())
-        val canonical = "asr.cloud.tencent.com" + uri.path + "?" + query.filterKeys { it != "signature" }
-            .toSortedMap().map { (key, value) -> "$key=$value" }.joinToString("&")
-        assertEquals("secretKey" to canonical, harness.signatures.single())
-        assertEquals(encode(JsVoiceCrypto.hmacSha1("secretKey", canonical) { "test-secret" }), query["signature"])
-        assertTrue(harness.connectHeaders.isEmpty())
-        assertFalse(harness.connectUrl.contains("test-secret"))
-    }
-
-    @Test
-    fun translateBuffersUntilReadyAndAssemblesRevisedSentencesOnce() = withPlugin(translateFile) { js, harness ->
-        runCallback(js, "start", """{"appId":"1234567890","secretId":"AKIDTEST","source":"zh","target":"en"}""")
-        runCallback(js, "audio", """{"socket":"socket-1","pcm":"AQID"}""")
-        assertTrue(harness.sentBinary.isEmpty())
-        val ready = runCallback(js, "onMessage", """{"socket":"socket-1","message":"{\"code\":0}"}""")
-        assertEquals(true, fieldValue(ready, "ready")?.booleanOrNull)
-        runCallback(js, "audio", """{"socket":"socket-1","pcm":"BAUG"}""")
-        assertEquals(listOf("AQID", "BAUG"), harness.sentBinary)
-        for (packet in listOf(
-            """{"code":0,"sentence_id":0,"result":{"source_text":"你好","target_text":"Hello"}}""",
-            """{"code":0,"sentence_id":0,"result":{"source_text":"你好，","target_text":"Hello,"}}""",
-            """{"code":0,"sentence_id":1,"result":{"source_text":"世界。","target_text":"world."}}""",
-        )) {
-            runCallback(js, "onMessage", buildJsonObject { put("socket", "socket-1"); put("message", packet) }.toString())
-        }
-        runCallback(js, "stop", """{"socket":"socket-1"}""")
-        assertEquals("""{"type":"end"}""", harness.sent.single())
-        val final = runCallback(js, "onMessage", """{"socket":"socket-1","message":"{\"code\":0,\"final\":1}"}""")
-        assertEquals("Hello, world.", fieldValue(final, "final")?.contentOrNull)
-        assertEquals(true, fieldValue(final, "ended")?.booleanOrNull)
-    }
-
-    @Test
-    fun translateCanInsertSourceAndReportsProviderErrors() = withPlugin(translateFile) { js, _ ->
-        runCallback(js, "start", """{"appId":"1234567890","secretId":"AKIDTEST","output":"source"}""")
-        val packet = """{"code":0,"sentence_id":0,"result":{"source_text":"你好。","target_text":"Hello."},"final":1}"""
-        val final = runCallback(js, "onMessage", buildJsonObject { put("message", packet) }.toString())
-        assertEquals("你好。", fieldValue(final, "final")?.contentOrNull)
-        val error = runCallback(js, "onMessage", """{"message":"{\"code\":4001,\"message\":\"quota exceeded\"}"}""")
-        assertEquals("Tencent Cloud translation 4001: quota exceeded", fieldValue(error, "error")?.contentOrNull)
-    }
-
-    @Test
-    fun translateRejectsUnsupportedLanguagePairsBeforeSigning() = withPlugin(translateFile) { js, harness ->
-        val error = runCatching {
-            runCallback(js, "start", """{"appId":"1234567890","secretId":"AKIDTEST","source":"ja","target":"ru"}""")
-        }.exceptionOrNull()
-        assertTrue(error?.message.orEmpty().contains("目标语言"))
-        assertTrue(harness.signatures.isEmpty())
-        assertEquals("", harness.connectUrl)
-    }
-
-    @Test
     fun tencentDescribesCredentialsAndSignsTheCanonicalWebSocketUrl() = withPlugin(tencentFile) { js, harness ->
         val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
-        assertEquals(12, fields.size)
+        assertEquals(16, fields.size)
         assertTrue(fields.first { it.key == "secretKey" }.isSecret)
         assertFalse(JsVoiceFields.currentValues(fields, emptyMap()).containsKey("secretKey"))
         val start = runCallback(
@@ -552,34 +534,25 @@ class JsVoiceBridgeContractTest {
     }
 
     @Test
-    fun doubaoPluginDescribesAuthModes() = withPlugin(doubaoFile) { js, _ ->
+    fun doubaoDescribesItsSettings() = withPlugin(doubaoFile) { js, _ ->
         val raw = js.evaluate<String>("__describe('zh-CN')")
         val fields = JsVoiceFields.parse(raw)
         assertEquals(
             listOf(
-                "apiKey", "authMode", "appId", "accessToken", "resourceId", "mode",
-                "streamEndpoint", "streamModel", "resultType", "flashEndpoint", "flashModel",
-                "enableItn", "enablePunc", "enableDdc", "enableNonstream", "showUtterances",
-                "stripTrailingPunc", "stripTrailingPuncChars",
+                "apiKey", "resourceId", "endpoint", "enableItn", "enablePunctuation",
+                "translationEnabled", "translationProvider", "translationTarget", "translationFallback",
             ),
             fields.map { it.key },
         )
-        // 两条凭据互斥：互斥可见性正是宿主判断「哪个密钥必填」的依据。
+        // 新版接口只认控制台签发的 API Key，不再有「App ID + Access Token」那一套。
         val apiKey = fields.first { it.key == "apiKey" }
         assertTrue("apiKey must be a secret", apiKey.isSecret)
-        assertEquals("authMode", apiKey.visibleWhen!!.getValue("key").jsonPrimitive.content)
-        assertEquals("apiKey", apiKey.visibleWhen!!.getValue("value").jsonPrimitive.content)
-        val token = fields.first { it.key == "accessToken" }
-        assertTrue(token.isSecret)
-        assertEquals("legacy", token.visibleWhen!!.getValue("value").jsonPrimitive.content)
-        assertEquals("legacy", fields.first { it.key == "appId" }.visibleWhen!!.getValue("value").jsonPrimitive.content)
-        val values = JsVoiceFields.currentValues(fields, emptyMap())
-        assertFalse(values.containsKey("apiKey"))
-        assertFalse(values.containsKey("accessToken"))
-        val resource = fields.first { it.key == "resourceId" }
-        assertEquals("authMode", resource.defaultWhen!!.getValue("key").jsonPrimitive.content)
-        assertEquals("volc.seedasr.sauc.duration", values["resourceId"])
-        assertEquals("volc.bigasr.sauc.duration", JsVoiceFields.currentValues(fields, mapOf("authMode" to "legacy"))["resourceId"])
+        assertFalse(JsVoiceFields.currentValues(fields, emptyMap()).containsKey("apiKey"))
+        assertEquals("volc.bigasr.sauc.duration", fields.first { it.key == "resourceId" }.defaultValue)
+        val provider = fields.first { it.key == "translationProvider" }
+        assertEquals(JsVoiceField.KIND_SERVICE_SELECT, provider.kind)
+        assertEquals("text.translate", provider.serviceId)
+        assertEquals("1", provider.serviceVersion)
     }
 
     @Test
@@ -590,63 +563,30 @@ class JsVoiceBridgeContractTest {
         }
         runCallback(js, "start", context.toString())
         assertEquals("test-secret", harness.connectHeaders["X-Api-Key"])
-        assertEquals("volc.seedasr.sauc.duration", harness.connectHeaders["X-Api-Resource-Id"])
+        assertEquals("volc.bigasr.sauc.duration", harness.connectHeaders["X-Api-Resource-Id"])
         assertFalse(harness.connectHeaders.containsKey("Authorization"))
         assertFalse(harness.connectHeaders.containsKey("X-Api-Access-Key"))
         assertFalse(harness.connectHeaders.containsKey("X-Api-App-Key"))
     }
 
     @Test
-    fun doubaoLegacyAuthInjectsAppIdAndRawAccessToken() = withPlugin(doubaoFile) { js, harness ->
+    fun doubaoExplicitEndpointAndResourceOverrideDefaults() = withPlugin(doubaoFile) { js, harness ->
         runCallback(
             js, "start",
-            """{"authMode":"legacy","appId":"12345","mode":"streaming"}""",
+            """{"sampleRate":16000,"taskId":"t-d0",""" +
+                """"resourceId":"volc.seedasr.sauc.concurrent",""" +
+                """"endpoint":"wss://openspeech.bytedance.com/custom"}""",
         )
-        assertEquals("accessToken", harness.connectSecretField)
-        assertEquals("12345", harness.connectHeaders["X-Api-App-Key"])
-        assertEquals("test-secret", harness.connectHeaders["X-Api-Access-Key"])
-        assertEquals("volc.bigasr.sauc.duration", harness.connectHeaders["X-Api-Resource-Id"])
-        assertFalse(harness.connectHeaders.containsKey("Authorization"))
-        assertFalse(harness.connectHeaders.containsKey("X-Api-Key"))
-    }
-
-    @Test
-    fun doubaoChangingToApiKeyReplacesTheLegacyResourceInTheActualRequest() = withPlugin(doubaoFile) { js, harness ->
-        val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
-        val values = JsVoiceFields.currentValues(
-            fields, mapOf("authMode" to "legacy", "resourceId" to "volc.bigasr.sauc.duration"),
-        ).toMutableMap()
-        values["authMode"] = "apiKey"
-        values.putAll(JsVoiceFields.defaultsAfterChange(fields, "authMode", values))
-        runCallback(js, "start", buildJsonObject { values.forEach { (key, value) -> put(key, value) } }.toString())
-        assertEquals("volc.seedasr.sauc.duration", harness.connectHeaders["X-Api-Resource-Id"])
-        assertEquals("test-secret", harness.connectHeaders["X-Api-Key"])
-        assertFalse(harness.connectHeaders.containsKey("X-Api-Access-Key"))
-    }
-
-    @Test
-    fun doubaoSingleShotWithoutResourceUsesSeedHourlyByDefault() = withPlugin(doubaoFile) { js, harness ->
-        runCallback(js, "start", """{"authMode":"apiKey","mode":"flash"}""")
-        assertTrue(harness.connectUrl.endsWith("/bigmodel_nostream"))
-        assertEquals("volc.seedasr.sauc.duration", harness.connectHeaders["X-Api-Resource-Id"])
-    }
-
-    @Test
-    fun doubaoExplicitResourceStillWorksAfterSelectingApiKey() = withPlugin(doubaoFile) { js, harness ->
-        val fields = JsVoiceFields.parse(js.evaluate<String>("__describe('zh-CN')"))
-        val values = JsVoiceFields.currentValues(
-            fields, mapOf("authMode" to "apiKey", "resourceId" to "volc.seedasr.sauc.concurrent"),
-        )
-        runCallback(js, "start", buildJsonObject { values.forEach { (key, value) -> put(key, value) } }.toString())
+        assertEquals("wss://openspeech.bytedance.com/custom", harness.connectUrl)
         assertEquals("volc.seedasr.sauc.concurrent", harness.connectHeaders["X-Api-Resource-Id"])
+        assertEquals("apiKey", harness.connectSecretField)
     }
 
     @Test
     fun doubaoStreamingStartSendsFullRequestFrame() = withPlugin(doubaoFile) { js, harness ->
         val start = runCallback(
             js, "start",
-            """{"authMode":"apiKey","mode":"streaming","sampleRate":16000,"taskId":"t-d1",""" +
-                """"resourceId":"volc.bigasr.sauc.duration","streamModel":"bigmodel"}""",
+            """{"sampleRate":16000,"taskId":"t-d1","resourceId":"volc.bigasr.sauc.duration"}""",
         )
         assertEquals("socket-1", resultOf(start)?.jsonPrimitive?.contentOrNull)
         assertTrue(events(start).any { it["ready"]?.jsonPrimitive?.booleanOrNull == true })
@@ -667,6 +607,7 @@ class JsVoiceBridgeContractTest {
         val req = request["request"]!!.jsonObject
         assertEquals("bigmodel", req["model_name"]!!.jsonPrimitive.content)
         assertEquals(true, req["enable_itn"]!!.jsonPrimitive.booleanOrNull)
+        assertEquals(true, req["enable_punc"]!!.jsonPrimitive.booleanOrNull)
         assertEquals(true, req["show_utterances"]!!.jsonPrimitive.booleanOrNull)
         assertEquals("full", req["result_type"]!!.jsonPrimitive.content)
     }
@@ -675,7 +616,7 @@ class JsVoiceBridgeContractTest {
     fun doubaoAudioAndStopSendGzipFrames() = withPlugin(doubaoFile) { js, harness ->
         runCallback(
             js, "start",
-            """{"authMode":"apiKey","mode":"streaming","sampleRate":16000,"taskId":"t-d2"}""",
+            """{"sampleRate":16000,"taskId":"t-d2"}""",
         )
         val pcm = encode(ByteArray(320) { 3 })
         runCallback(js, "audio", """{"sampleRate":16000,"pcm":"$pcm","socket":"socket-1"}""")
@@ -691,11 +632,10 @@ class JsVoiceBridgeContractTest {
     }
 
     @Test
-    fun doubaoBinaryServerFrameBecomesPartialAndFinal() = withPlugin(doubaoFile) { js, _ ->
+    fun doubaoBinaryServerFrameBecomesPartialAndFinal() = withPlugin(doubaoFile) { js, harness ->
         runCallback(
             js, "start",
-            """{"authMode":"apiKey","mode":"streaming","sampleRate":16000,"taskId":"t-d3",""" +
-                """"stripTrailingPunc":"true"}""",
+            """{"sampleRate":16000,"taskId":"t-d3"}""",
         )
         val partialFrame = volcServerFrame("""{"result":{"text":"你好"}}""", final = false)
         val partial = runCallback(
@@ -704,13 +644,14 @@ class JsVoiceBridgeContractTest {
         )
         assertEquals("你好", actions(partial).first()["partial"]?.jsonPrimitive?.contentOrNull)
 
+        // 终句只在 stop 之后才算 final：新脚本用 state.ending 区分「中间帧」与「服务端确认结束」。
+        runCallback(js, "stop", """{"socket":"socket-1"}""")
         val finalFrame = volcServerFrame("""{"result":{"text":"你好世界。"}}""", final = true)
         val finished = runCallback(
             js, "onMessage",
             """{"socket":"socket-1","binaryBase64":"$finalFrame"}""",
         )
-        // stripTrailingPunc 在 start 里落到插件状态，末句的句号要被去掉。
-        assertEquals("你好世界", actions(finished).first()["final"]?.jsonPrimitive?.contentOrNull)
+        assertEquals("你好世界。", actions(finished).first()["final"]?.jsonPrimitive?.contentOrNull)
         assertEquals(true, fieldValue(finished, "ended")?.booleanOrNull)
     }
 
@@ -718,13 +659,14 @@ class JsVoiceBridgeContractTest {
     fun doubaoErrorFrameReportsCodeAndMessage() = withPlugin(doubaoFile) { js, _ ->
         runCallback(
             js, "start",
-            """{"authMode":"apiKey","mode":"streaming","sampleRate":16000,"taskId":"t-d4"}""",
+            """{"sampleRate":16000,"taskId":"t-d4"}""",
         )
         val detail = "quota exceeded".toByteArray()
         val out = java.nio.ByteBuffer.allocate(12 + detail.size)
         out.put(0x11)
         out.put(0xf0.toByte())
-        out.put(0x11)
+        // 错误帧正文是明文 JSON：serialization=JSON(0x10)、compression=none(0x00)。
+        out.put(0x10)
         out.put(0x00)
         out.putInt(45000001)
         out.putInt(detail.size)
@@ -734,25 +676,7 @@ class JsVoiceBridgeContractTest {
             js, "onMessage",
             """{"socket":"socket-1","binaryBase64":"$frame"}""",
         )
-        assertEquals("45000001: quota exceeded", fieldValue(failed, "error")?.contentOrNull)
-    }
-
-    @Test
-    fun doubaoLegacyAuthRequiresAppId() = withPlugin(doubaoFile) { js, _ ->
-        val failure = try {
-            runCallback(
-                js, "start",
-                """{"authMode":"legacy","mode":"streaming","sampleRate":16000,"taskId":"t-d5"}""",
-            )
-            null
-        } catch (e: Exception) {
-            e
-        }
-        assertTrue("legacy 鉴权缺 App ID 必须当场失败，实际没有", failure != null)
-        assertTrue(
-            "错误文案应说明缺 App ID，实际：" + failure!!.message,
-            failure.message.orEmpty().contains("App ID"),
-        )
+        assertEquals("Doubao ASR error 45000001: quota exceeded", fieldValue(failed, "error")?.contentOrNull)
     }
 
     @Test

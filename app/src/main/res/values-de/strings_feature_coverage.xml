@@ -400,7 +400,7 @@
     <string name="js_voice_import_failed_save">Plugin konnte nicht gespeichert werden: %1$s</string>
     <string name="js_voice_plugins_delete_entry">Dieses Plugin entfernen</string>
     <string name="js_voice_plugins_delete_entry_summary">Von %1$s</string>
-    <string name="js_voice_provider_tencent_translate">Tencent Cloud-Sprachübersetzung (JS)</string>
+    <string name="js_voice_service_none">Nicht ausgewählt</string>
     <string name="choose_voice_engine">Sprach-Engine auswählen</string>
     <string name="js_voice_plugins_settings">Einstellungen für JS-Sprachplugins</string>
     <string name="voice_engine_system">System-Spracheingabe</string>

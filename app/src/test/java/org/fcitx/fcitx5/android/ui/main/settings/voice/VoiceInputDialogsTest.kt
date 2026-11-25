@@ -97,20 +97,20 @@ class VoiceInputDialogsTest {
     @Test fun pickerChecksCurrentEnginePersistsSelectionAndCancelKeepsIt() {
         val context = controller.get()
         val choices = VoiceInputChoices.list(context)
-        val targetIndex = choices.indexOfFirst { it.id == JsVoiceProviders.TENCENT_TRANSLATE_ID }
+        val targetIndex = choices.indexOfFirst { it.id == JsVoiceProviders.TENCENT_ASR_ID }
         assertTrue(targetIndex >= 0)
         var selected: String? = null
         val dialog = VoiceInputPickerDialog.build(context) { selected = it }.apply { show() }
         assertEquals(choices.indexOfFirst { it.id == JsVoiceProviders.QWEN_ASR_ID }, dialog.listView.checkedItemPosition)
         dialog.listView.performItemClick(null, targetIndex, targetIndex.toLong())
-        assertEquals(JsVoiceProviders.TENCENT_TRANSLATE_ID, selected)
-        assertEquals(JsVoiceProviders.TENCENT_TRANSLATE_ID, AppPrefs.getInstance().keyboard.preferredVoiceInput.getValue())
+        assertEquals(JsVoiceProviders.TENCENT_ASR_ID, selected)
+        assertEquals(JsVoiceProviders.TENCENT_ASR_ID, AppPrefs.getInstance().keyboard.preferredVoiceInput.getValue())
 
         val next = VoiceInputPickerDialog.build(context) { fail("Cancel must not select an engine") }.apply { show() }
         assertEquals(targetIndex, next.listView.checkedItemPosition)
         next.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
         shadowOf(Looper.getMainLooper()).idle()
-        assertEquals(JsVoiceProviders.TENCENT_TRANSLATE_ID, AppPrefs.getInstance().keyboard.preferredVoiceInput.getValue())
+        assertEquals(JsVoiceProviders.TENCENT_ASR_ID, AppPrefs.getInstance().keyboard.preferredVoiceInput.getValue())
     }
 
     @Test fun pickerRadioColorsFollowMaterialRolesInLightAndDarkMode() {

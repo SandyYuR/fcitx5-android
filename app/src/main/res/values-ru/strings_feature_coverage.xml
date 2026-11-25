@@ -399,7 +399,7 @@
     <string name="js_voice_import_failed_save">Не удалось сохранить плагин: %1$s</string>
     <string name="js_voice_plugins_delete_entry">Удалить этот плагин</string>
     <string name="js_voice_plugins_delete_entry_summary">От %1$s</string>
-    <string name="js_voice_provider_tencent_translate">Перевод речи Tencent Cloud (JS)</string>
+    <string name="js_voice_service_none">Не выбрано</string>
     <string name="choose_voice_engine">Выбрать голосовой движок</string>
     <string name="js_voice_plugins_settings">Настройки голосовых JS-плагинов</string>
     <string name="voice_engine_system">Системный голосовой ввод</string>
