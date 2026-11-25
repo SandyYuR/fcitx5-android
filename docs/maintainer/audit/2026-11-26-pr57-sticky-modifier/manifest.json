@@ -1,0 +1,313 @@
+{
+  "recorded": "2026-11-26 Asia/Shanghai",
+  "base": "6a42fa288f5bea20564873ea9b1a2fc8c0aa3495",
+  "candidate": "11d1efa6fd628c5d832d88f2f0a1ca6f1449295a",
+  "candidate_tree": "0b893fcb547e7a1b80d2ad5e6abd7a3d6aedc59e",
+  "squash_commit": "c1307b794f6376977e17145c0a24b433f952e0bc",
+  "single_parent_and_new_commit_count": 1,
+  "squash_tree_matches_candidate": true,
+  "candidate_ci": {
+    "pr_ci": {
+      "run_id": 45674039183,
+      "conclusion": "success"
+    },
+    "direct_rime_ci": {
+      "run_id": 45674039262,
+      "conclusion": "success",
+      "frontend_tests": 60,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "junit_reports": 19,
+  "junit": {
+    "tests": 188,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "device_scope": "No local installation, AVD operations, or fresh manual host/native InputConnection end-to-end validation. Historical 081136d3f remote frontend evidence is separate from the final candidate.",
+  "archive": {
+    "file": "validation-evidence.zip",
+    "bytes": 3649433,
+    "sha256": "4ee2dbaa0dae103d72f5a6c928860c155225538792f809fc4ca56cb14fc8d40f"
+  },
+  "entries": [
+    {
+      "entry": "history/pr57-ci-and-pr-update-081136d3f.txt",
+      "bytes": 4093,
+      "sha256": "cf09c8fa9172c0d802740a4ef820e0f002293e62a2da2706dac9daf627854ebb"
+    },
+    {
+      "entry": "history/pr57-ci-dispatch-081136d3f.json",
+      "bytes": 60,
+      "sha256": "4ff5080bacbf9ae184fefbc1dac248265dde95d3a2059e401c7917e5bca86874"
+    },
+    {
+      "entry": "history/pr57-ci-dispatch-dd0149db1.json",
+      "bytes": 49,
+      "sha256": "7219ee840ed3af33360310afafac39248bc05a3ece9039dfff3a2ac276431fae"
+    },
+    {
+      "entry": "history/pr57-ci-ref-dd0149db1.json",
+      "bytes": 113,
+      "sha256": "f185c8cfe74e9264a7a19b26ddaa47284759a1749d48040b5685f0bf41dde3a8"
+    },
+    {
+      "entry": "history/pr57-final-merged-comment.json",
+      "bytes": 1527,
+      "sha256": "5fd30773248abd3bfcde6102ada5cedbd63e3dbb148542369721da32e46503c6"
+    },
+    {
+      "entry": "history/pr57-final-merged-description.md",
+      "bytes": 3872,
+      "sha256": "fcccd38f96d3914b4eb6f5cd1b4d39129b520e5f9d012f75b473a1c0f6b16fc3"
+    },
+    {
+      "entry": "history/pr57-final-merged-update.json",
+      "bytes": 4015,
+      "sha256": "e93cf616933845338b5eb6093ce7dbe55fab59cfc80a6d8fde252b0d7428526e"
+    },
+    {
+      "entry": "history/pr57-final-pr-update-receipt.json",
+      "bytes": 289,
+      "sha256": "1ee4c22f5264ada2def9ac274405cf4a9513a69bd15763627dc0229f63ca2e60"
+    },
+    {
+      "entry": "history/pr57-fix-final-source-excerpts.txt",
+      "bytes": 15111,
+      "sha256": "04895e654227d9d5f599066d6049b5ecabe36386c89663d810a5a2366d954a41"
+    },
+    {
+      "entry": "history/pr57-fix-final-verification.txt",
+      "bytes": 5296,
+      "sha256": "a94bdb2f5d8d441b69436352cb0fd7f9f522cbf43371129130da595cc901a4e2"
+    },
+    {
+      "entry": "history/pr57-fix-verification.txt",
+      "bytes": 5237,
+      "sha256": "c4669abb8fa2771e74b1875b64c1248d8ebfa555d87e33b06dd88ed14e4f7635"
+    },
+    {
+      "entry": "candidate-11d1efa6f/pr57-merge-advisor-final.json",
+      "bytes": 35237,
+      "sha256": "a188a95a83b7429c21f6c4aa8797b4ab109a7ca77de5a90bff69222d83111dfd"
+    },
+    {
+      "entry": "candidate-11d1efa6f/pr57-merge-git-junit-raw.txt",
+      "bytes": 6973,
+      "sha256": "ae0353b65f14d95c36bad1ae5afe8a46c1c910be3e7533ae3dafc65fd225294a"
+    },
+    {
+      "entry": "candidate-11d1efa6f/pr57-merge-rebase-debug-lint-raw.txt",
+      "bytes": 7699,
+      "sha256": "261ee14eada20ca4908fb747d2e5ae1518a3b749bfed260d821a29bd61d3f21e"
+    },
+    {
+      "entry": "candidate-11d1efa6f/pr57-merge-rebase-tests-raw.txt",
+      "bytes": 8630,
+      "sha256": "7a0f9f4650b4c61b937890dbbdcff43765550c902b10ab9bef967310754e0a5a"
+    },
+    {
+      "entry": "candidate-11d1efa6f/pr57-merge-source-verification.txt",
+      "bytes": 3835,
+      "sha256": "799dfa999cf23cac2ba9073cfa73cbde599db546999d9ba4d3365b15da91132d"
+    },
+    {
+      "entry": "history/pr57-rebase-review-evidence-124f2ade.txt",
+      "bytes": 12127,
+      "sha256": "089cffaa3a226786298fc6b30efd8c2ca5ab6cd2be5c3e4e91c41a2e59061da2"
+    },
+    {
+      "entry": "history/pr57-review-comment.json",
+      "bytes": 7030,
+      "sha256": "7ce5243ad76c450d5bf5ba4254223cfceef3ad35972e30d539bfa57994a9cc92"
+    },
+    {
+      "entry": "history/pr57-review-comment.md",
+      "bytes": 6927,
+      "sha256": "e1ca2d6ae63e7fbd2249da1acbd42ca1ba6ab71708bfad257d3955280eeaefc7"
+    },
+    {
+      "entry": "history/pr57-review-probe-before.kt",
+      "bytes": 5181,
+      "sha256": "cb792654f40cb5f63bedffdceb798eb5d9ab1674d6496d5aa3895eba54e35a69"
+    },
+    {
+      "entry": "candidate-11d1efa6f/pr57-squash-merge-receipt.json",
+      "bytes": 111,
+      "sha256": "605035e0ff4bed871ce980065957852076a5911444620396020c2fb4e83496b6"
+    },
+    {
+      "entry": "candidate-11d1efa6f/pr57-squash-merge-request.json",
+      "bytes": 886,
+      "sha256": "297b2aefe634d05a23cbea4d16ffcf691281cd733ec9a7098ac79d6e9ebcf29d"
+    },
+    {
+      "entry": "candidate-11d1efa6f/pr57-squash-verification-raw.txt",
+      "bytes": 4735,
+      "sha256": "cb52883fefcae62741d2524c134b084f9a4a91dc66964413ad0e826019dcca93"
+    },
+    {
+      "entry": "history/pr57-text-editor-debug-build-raw.txt",
+      "bytes": 6690,
+      "sha256": "3ad320b7dce2a687879a7d35c849ba3dc6b7ac7fdf04e5fc5b76e1b32ae2940f"
+    },
+    {
+      "entry": "history/pr57-text-editor-fix-verification.txt",
+      "bytes": 30186,
+      "sha256": "e283b592a7d10826120577b81e1f367bfc0b1a1b3b9ca19fec85a25c4cc307b8"
+    },
+    {
+      "entry": "history/pr57-update-081136d3f.json",
+      "bytes": 4554,
+      "sha256": "63de366d2073f41143b21cea314cafdb58654a86b104eb3244b35dfb85fc69d9"
+    },
+    {
+      "entry": "history/pr57-update-comment-081136d3f.json",
+      "bytes": 2366,
+      "sha256": "8ec0b176a97f7ee92dc502d81bcfba291567d9550d0289f4c3b1e790b6feea32"
+    },
+    {
+      "entry": "history/pr57-update-comment-081136d3f.md",
+      "bytes": 2328,
+      "sha256": "7215bbd25f5faec864b35b2574141f0bbebfe675587689896b120244e14e2ed5"
+    },
+    {
+      "entry": "history/pr57-updated-body-081136d3f.md",
+      "bytes": 4404,
+      "sha256": "84db14750effcd63c1c6e9ea19244ee64409a2b15bf786aebd7ab5c64f493141"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.CustomGestureViewHoldTest.xml",
+      "bytes": 713,
+      "sha256": "bc6fe3904ff00d709c36abfc0b9e8ccb0ce68aebd97d143e12579b7f7977982b"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.CustomGestureViewLongPressPopupTest.xml",
+      "bytes": 541,
+      "sha256": "2142397946bfe3f59008b3d15bc1cac4295eb11798689959f8fd40d88bc934aa"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.CustomGestureViewSwipeTest.xml",
+      "bytes": 2595,
+      "sha256": "2929be4734ee559da10677b8bd15aa034b1c740b0f6992465085c6cfdedb24be"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.KeyboardInputLifecycleTrackerTest.xml",
+      "bytes": 1470,
+      "sha256": "8540cdcd4a95c7b210c817b3e1318e60ee3f6969e6f6c3705bde8a4a0e94c262"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.LetterTapHandoverTest.xml",
+      "bytes": 641,
+      "sha256": "323378849a8e57507a7ec8cdda8a93a0c5a0fcc92616f44049c4cd7364eb0e49"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.MacroInputControllerTest.xml",
+      "bytes": 2128,
+      "sha256": "11643020d6049c0f943c7ee73df3e9fd14bb1062e86b456a31e4b21a51b64851"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.OverlappingLetterTapTest.xml",
+      "bytes": 979,
+      "sha256": "f5c1c584975c4f826bb32c84ec1aa5bb207bbc3b9a59fa5642f3a18d3691d5b1"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.StickyModifierAppearanceTest.xml",
+      "bytes": 1727,
+      "sha256": "28ef9e586edb394c8186a97ef1d47f68a2ebdd37524d1a46f2e5adaf69268bae"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.StickyModifierCompositionTest.xml",
+      "bytes": 1338,
+      "sha256": "c4ef83ef19abbd06a2fb18a316199a3e558e98adf4198b339b28da978b96b2ae"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.StickyModifierControllerTest.xml",
+      "bytes": 1639,
+      "sha256": "629604286c7ea01e3a7455bb23b530d98c6699938a668c09c2cbfa99f9c09518"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.StickyModifierDispatchTest.xml",
+      "bytes": 2315,
+      "sha256": "e56948d344fcce841d3bfa20ef71faf235ee718313c7adbca6a8d0e1ec8a5331"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.TextKeyboardCapsIconRefreshTest.xml",
+      "bytes": 525,
+      "sha256": "78ae0a46cc7b6f58271f8f73375dded4df0d8e623ec58eaf9f7705b4b4c87dcd"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.keyboard.TextKeyboardLabelsTest.xml",
+      "bytes": 1317,
+      "sha256": "a3421676fffb9f617bf9be0d22d3de3c9ce7f9d11820a5ff74a5beb70b76768e"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.MacroKeyReleaseTest.xml",
+      "bytes": 807,
+      "sha256": "59091852185ca1139664c09a56bd9d249711fd74fd11c036cc0e2eca39b6d2c6"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.input.voice.js.JsVoicePcmAlignerTest.xml",
+      "bytes": 1265,
+      "sha256": "d0a5bd1f03410ebc69e16883577fecd49fa8eda45b40301e8b36f80bd50abe25"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.LayoutKeyUiTest.xml",
+      "bytes": 1455,
+      "sha256": "b58a9d3875d8fd6eb11dd3c7de8c187bc1d5befd4ffaac6ec8fc7b5a3a5d108c"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.KeyEditorFormTest.xml",
+      "bytes": 4714,
+      "sha256": "a87700d50abd04ac24e92962f035090ef652773a45a450130c47f439e8d5d9bc"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.KeyEditorPendingResultsTest.xml",
+      "bytes": 2522,
+      "sha256": "cd77983754db6b8decf067b866523223f93a5713ea289aeb95814e7fb873ba90"
+    },
+    {
+      "entry": "candidate-11d1efa6f/junit/TEST-org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtilsTest.xml",
+      "bytes": 9718,
+      "sha256": "7b720ef0acba36b9c4c4888424ee471847077dfd9507dc3cc0db8f39a09a50f8"
+    },
+    {
+      "entry": "candidate-11d1efa6f/lint/lint-results-fxDebug.html",
+      "bytes": 866299,
+      "sha256": "b3b701c290b56654f9ed78e5a1ba7672b84bb9060b7d9e064ef9c71e2ea510fa"
+    },
+    {
+      "entry": "candidate-11d1efa6f/lint/lint-results-fxDebug.sarif",
+      "bytes": 2574057,
+      "sha256": "c8cdedbbd043dbe97a863d91796d88a176dcc7318d8bb223b01ed445c744f5d3"
+    },
+    {
+      "entry": "candidate-11d1efa6f/lint/lint-results-fxDebug.txt",
+      "bytes": 310084,
+      "sha256": "052f1048d897721930c218d58cf5c0c48f212cec8a1b63f861e4a9444a39a06d"
+    },
+    {
+      "entry": "candidate-11d1efa6f/lint/lint-results-fxDebug.xml",
+      "bytes": 817768,
+      "sha256": "14cabe7e139b814e05c3345040c66b6897b11ac3c31bd865e70cd9e99b1f21f8"
+    },
+    {
+      "entry": "historical-ci-081136d3f/frontend-results.zip",
+      "bytes": 1451413,
+      "sha256": "dcbe251bef69f7c1d241a716962a2267f70252794af1972846cfe5263d0667ac"
+    },
+    {
+      "entry": "candidate-11d1efa6f/remote/frontend-results.zip",
+      "bytes": 1430594,
+      "sha256": "339eb691c0b1d9ebc64be5afd6cdb4ba843a437d75cc3510ec5b1a6ade61338f"
+    },
+    {
+      "entry": "candidate-11d1efa6f/remote/smoke-results.zip",
+      "bytes": 428697,
+      "sha256": "3e918f2c7ea529b6967ee94f63ed6759017b2f22cc4094c818da78e39ab9dedf"
+    }
+  ]
+}

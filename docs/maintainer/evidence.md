@@ -499,13 +499,14 @@
 
 ### changes
 
-说明：[direct-rime](/maintainer/changes/direct-rime) · [feature-coverage](/maintainer/changes/feature-coverage) · [index](/maintainer/changes/) · [2026-10-30](/maintainer/changes/2026-10-30) · [inherited](/maintainer/changes/inherited) · [2026-11-05](/maintainer/changes/2026-11-05) · [2026-11-22](/maintainer/changes/2026-11-22-code-doc-gap-review)
+说明：[direct-rime](/maintainer/changes/direct-rime) · [feature-coverage](/maintainer/changes/feature-coverage) · [index](/maintainer/changes/) · [2026-10-30](/maintainer/changes/2026-10-30) · [inherited](/maintainer/changes/inherited) · [2026-11-05](/maintainer/changes/2026-11-05) · [2026-11-22](/maintainer/changes/2026-11-22-code-doc-gap-review) · [2026-11-26](/maintainer/changes/2026-11-26-sticky-modifier-key)
 
-::: details 原始文件（3 个）
+::: details 原始文件（4 个）
 
 - <a href="/fcitx5-android/maintainer/changes/commit-map-2026-10-30.json" download>commit-map-2026-10-30.json</a>
 - <a href="/fcitx5-android/maintainer/changes/commit-map-2026-11-05.json" download>commit-map-2026-11-05.json</a>
 - <a href="/fcitx5-android/maintainer/changes/commit-map-2026-11-22.json" download>commit-map-2026-11-22.json</a>
+- <a href="/fcitx5-android/maintainer/changes/commit-map-2026-11-26.json" download>commit-map-2026-11-26.json</a>
 
 :::
 
@@ -1198,6 +1199,7 @@
 | `maintainer/perf/render-wait-2026-11-14/` | [首键与 RenderThread 等待](/maintainer/perf/render-wait-2026-11-14/) |
 | `maintainer/perf/cyime-wanxiang-2026-11-21/` | [CyIME 万象长句与冷缓存](/maintainer/perf/cyime-wanxiang-2026-11-21/) |
 | `maintainer/perf/input-fluency-2026-11-22/` | [按键气泡、输入调度与长句 CPU](/maintainer/perf/input-fluency-2026-11-22/) |
+| `maintainer/audit/2026-11-26-pr57-sticky-modifier/` | [粘滞修饰键压缩合入](/maintainer/changes/2026-11-26-sticky-modifier-key) |
 
 <!-- evidence-roots:end -->
 

@@ -15,6 +15,7 @@
 | `LayoutSwitchKey` | 切换到指定文本布局 | `label` | [详情](/features/keys/layout-switch-key) |
 | `SymbolKey` | 标点键（默认发 `.`，由方案处理） | `label` | [详情](/features/keys/symbol-key) |
 | `CapsKey` | 大小写切换键 | — | [详情](/features/keys/caps-key) |
+| `StickyModifierKey` | 点亮 Ctrl / Shift / Alt，与下一次单键组合 | `modifier` | [详情](/features/keys/sticky-modifier-key) |
 | `BackspaceKey` | 退格键，支持左右滑动选择删除范围 | — | [详情](/features/keys/backspace-key) |
 | `ReturnKey` | 回车键 | — | [详情](/features/keys/return-key) |
 | `SpaceKey` | 空格键，含切换/光标移动等隐含行为 | — | [详情](/features/keys/space-key) |
@@ -59,6 +60,7 @@
 |---------|:----------:|---------|
 | `AlphabetKey` | `0.1` | 标准字母键宽 |
 | `MacroKey` | `0.1` | 与字母键同宽 |
+| `StickyModifierKey` | `0.1` | 与字母键同宽 |
 | `SymbolKey` | `0.1` | 与字母键同宽 |
 | `CommaKey` | `0.1` | 与字母键同宽 |
 | `LanguageKey` | `0.1` | 与字母键同宽 |

@@ -1,0 +1,84 @@
+{
+  "recorded": "2026-11-26 Asia/Shanghai",
+  "merged_commit": "c1307b794f6376977e17145c0a24b433f952e0bc",
+  "archive_sha256": "4ee2dbaa0dae103d72f5a6c928860c155225538792f809fc4ca56cb14fc8d40f",
+  "archive_entries_verified": 55,
+  "remote_deleted": {
+    "repository": "SandyYuR/fcitx5-android",
+    "branch": "ci/pr57-sticky-modifier-dd0149db1",
+    "expected_old_commit": "081136d3fb1fa7531fb2f8485d36a9d390b98222",
+    "method": "git push delete with exact force-with-lease; ls-remote confirmed absent"
+  },
+  "worktree_deleted": {
+    "path": "D:/GitHub/fx2-rime/.verify/pr57-review",
+    "branch": "fix-pr57-sticky-dispatch",
+    "head": "11d1efa6fd628c5d832d88f2f0a1ca6f1449295a",
+    "status_before": "clean; uninitialized prelude; no deinit performed",
+    "method": "git -c core.longpaths=true worktree remove --force",
+    "exit_code": 0
+  },
+  "local_branches_deleted": [
+    {
+      "ref": "fix-pr57-sticky-dispatch",
+      "head": "11d1efa6fd628c5d832d88f2f0a1ca6f1449295a"
+    },
+    {
+      "ref": "backup/pr57-before-sdk4-rebase-20261125",
+      "head": "fd2a6dd9293b28e43f5891fb2a9dbce7044322f0"
+    }
+  ],
+  "stale_tracking_ref_deleted": {
+    "ref": "refs/remotes/pr57-author/feat/sticky-modifier",
+    "expected_old_commit": "c73610dc51f7cb9b70d722467ad65a495f331777"
+  },
+  "temporary_files_removed": [
+    "D:/GitHub/fx2-rime/.verify/pr57-review-probe-before.kt",
+    "D:/GitHub/fx2-rime/.verify/pr57-review-comment.md",
+    "D:/GitHub/fx2-rime/.verify/pr57-review-comment.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-fix-verification.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-fix-final-source-excerpts.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-fix-final-verification.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-rebase-review-evidence-124f2ade.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-text-editor-debug-build-raw.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-text-editor-fix-verification.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-ci-ref-dd0149db1.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-ci-dispatch-dd0149db1.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-ci-dispatch-081136d3f.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-updated-body-081136d3f.md",
+    "D:/GitHub/fx2-rime/.verify/pr57-update-081136d3f.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-update-comment-081136d3f.md",
+    "D:/GitHub/fx2-rime/.verify/pr57-update-comment-081136d3f.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-extract-apk-081136d3f.py",
+    "D:/GitHub/fx2-rime/.verify/pr57-ci-and-pr-update-081136d3f.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-merge-rebase-tests-raw.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-merge-rebase-debug-lint-raw.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-squash-merge-request.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-merge-git-junit-raw.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-squash-merge-receipt.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-squash-verification-raw.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-merge-source-verification.txt",
+    "D:/GitHub/fx2-rime/.verify/pr57-archive-evidence.py",
+    "D:/GitHub/fx2-rime/.verify/pr57-merge-advisor-final.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-final-merged-description.md",
+    "D:/GitHub/fx2-rime/.verify/pr57-final-merged-update.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-final-merged-comment.json",
+    "D:/GitHub/fx2-rime/.verify/pr57-final-pr-update-receipt.json"
+  ],
+  "ci_download_directories_removed": [
+    "D:/GitHub/fx2-rime/.verify/pr57-ci-081136d3f",
+    "D:/GitHub/fx2-rime/.verify/pr57-ci-11d1efa6f"
+  ],
+  "preserved": {
+    "author_fork_branch": "lihuichang/fcitx5-android:feat/sticky-modifier",
+    "primary": "D:/GitHub/fx2-rime/fx-rime-only",
+    "docs": "D:/GitHub/fx2-rime/docs-site-worktree",
+    "unrelated_detached_worktree": "C:/Users/yurun/.codex/worktrees/codespaces-docs/fx-rime-only",
+    "prelude": {
+      "sha": "082425ea0684bca36474415d4a0e8db9b016487e",
+      "active": true,
+      "url": "https://github.com/rime/rime-prelude.git"
+    },
+    "other_shared_submodule_configuration_unchanged": true,
+    "local_avd_and_shared_caches_untouched": true
+  }
+}
