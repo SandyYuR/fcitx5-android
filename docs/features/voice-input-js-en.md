@@ -86,6 +86,7 @@ Available declarations:
 - `ui.select(key, label, options, defaultValue = "", settings = {})`
 - `ui.switch(key, label, defaultValue = false, settings = {})`
 - `ui.number(key, label, defaultValue = "", settings = {})`
+- `ui.serviceSelect(key, label, serviceId, version, defaultValue = "", settings = {})`
 
 Select options may be strings or `{label, value}` objects. `allowCustom: true` permits a custom value. `settings.description` adds supporting text. `settings.visibleWhen` supports `{key, value}` or `{all: [{key, value}, ...]}`. Ordinary values are passed as strings; switches are `"true"` or `"false"`. Secret values are encrypted by Foxy and never included in plugin callback context.
 
@@ -243,6 +244,8 @@ In a running session, an entry that reads `false` means that session does not im
 | Running App | Editor/dialog APIs, `http.request`, SSE stream APIs, App WebSocket and callbacks, and `settings.set`; no voice events, legacy `http.post`, or HMAC signing |
 | Running voice provider | Voice events, legacy `http.post`, HMAC signing, audio/binary helpers, and voice WebSocket; no App request/stream, editor, or settings-write APIs |
 
+`foxy.service.register` is available in settings declaration, App, and voice sessions; `foxy.services.list/call` are available in App and voice sessions, while a service provider's own runtime session does not report `call`.
+
 `foxy.settings.set(key, value)` writes a value back into the plugin's own ordinary settings. Only non-secret fields declared in `configure()` are accepted; secret fields and undeclared keys throw. Values are stored as strings, limited to 64 KiB of UTF-8 per value and 256 KiB for all ordinary settings in one App session. The object is absent in settings/import description and voice sessions.
 
 ## Streaming HTTP / SSE
@@ -313,6 +316,29 @@ foxy.websocket.close(socketId);
 WebSocket handlers are registered once per JS runtime. `onClose` receives `expected = true` for a plugin-requested close.
 
 中州鹅 wires both the voice and App sessions through one transport. The four per-kind handlers above are available in App sessions; voice sessions still deliver text or binary frames through `plugin.onMessage` and do not report these handlers in their capability table. Because `connect` is synchronous, call `await foxy.websocket.authorize(...)` before connecting to an unapproved host; connecting to an unauthorized host throws. App handlers are registered once per kind, not per socket. The second `onClose` argument is a boolean: the host reports `true` when the socket closed with code 1000, so a plugin-requested close and a server-side normal close both read as `true`, while an abnormal close reads as `false`. An App session buffers at most eight inbound WebSocket events; a ninth closes that connection instead of growing the IME process queue without bound.
+
+## Cross-Plugin Text Services
+
+A plugin can declare a text service for other plugins to call:
+
+```javascript
+foxy.service.register({
+  id: "text.translate",
+  version: 1,
+  label: "Example translation",
+  description: "Translate text into a target language.",
+  async handle(context) {
+    // context: {input, settings, locale, serviceId, version}
+    return {translatedText: "..."};
+  }
+});
+```
+
+- Declarations only register metadata; the settings page collects candidates from installed plugins, skipping broken scripts.
+- Callers declare `ui.serviceSelect(key, label, serviceId, version)` in `configure()`, then read candidates with `await foxy.services.list(serviceId)` (`{pluginId, pluginLabel, serviceId, version, label, description}`, excluding the caller).
+- `await foxy.services.call(pluginId, serviceId, version, input)` runs in the provider's own runtime; the provider reads its own settings and secrets. Input is serialized as JSON, capped at 256 KiB, with a 20-second budget per call.
+- Only one level is allowed: calling `foxy.services.call` from inside a service handler throws `Nested service calls are not supported`.
+- A plugin cannot call itself or a provider the user did not select in `serviceSelect`. The bundled Bilibili translate plugin provides `text.translate` v1.
 
 ## Editor APIs
 
@@ -415,4 +441,4 @@ These namespaces are provided to plugin runtimes that need them:
 - [Qwen ASR](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/qwen-asr.js): WebSocket recognition, bounded single-request mode, provider response parsing, localized settings.
 - [Doubao ASR](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/doubao-asr.js): V3 secret-backed handshake and gzip binary frames. Legacy V2 credentials in request bodies are intentionally unsupported.
 - [Tencent ASR](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/tencent-asr.js): URL signing via `foxy.crypto`, bounded audio backlog, server-side punctuation filtering.
-- [Tencent Translate](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/tencent-translate.js): real-time speech translation using a signed WebSocket endpoint.
+- [Bilibili Translate](https://github.com/SandyYuR/fcitx5-android/blob/fx-rime-only/app/src/main/assets/bundled/js-apps/bilibili-translate.js): `foxy.http.request` translation app that also provides a `text.translate` v1 service for voice plugins.
