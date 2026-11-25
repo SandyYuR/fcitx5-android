@@ -15,6 +15,7 @@
 
 ### 2026-11
 
+- [2026-11-25 九键音节栏排序与模糊保留](./2026-11-25-t9-tab-fuzzy-order)记录九键音节标签按跨度降序、同跨度字母序排列，选中 `shen` 后保留模糊派生的 `sheng` 音节，以及 `android-sdk-20261125-3` 的发布、输入法锁更新与设备回归。
 - [2026-11-22 提交对照登记](./2026-11-22-code-doc-gap-review)逐条列出 11-16 至 11-22 的 41 个代码提交、对应文档与仍需补写的现行页面；机器可校验的映射见 [JSON](./commit-map-2026-11-22.json)。
 - [2026-11-21 MacroKey 应用动作](./2026-11-21-macrokey-app-actions)与[网页编辑器源码对齐](./2026-11-21-web-editor-parity)分别记录 `8bb9fe7a` 的宏选择器新增项，以及网页编辑器按 `899eedbf` 对齐后的验证与未验证范围。
 - [2026-11-20 默认分支三 ABI 发布](./2026-11-20-ci-three-abi-release)记录 Commit CI 同时构建 `arm64-v8a`、`armeabi-v7a`、`x86_64` 三种签名包、按 ABI 命名资产与精简 Release 描述，以及本地脚本和校验边界。该页对应的 `c037dc143` 已不在默认分支；现行 [`5fb2acd0`](https://github.com/SandyYuR/fcitx5-android/commit/5fb2acd0e3d93bf713a8ad68236a1017b9069cdb) 的 Commit CI 为四 ABI，另含 `x86`，差异见[2026-11-22 对照登记](./2026-11-22-code-doc-gap-review#需要更新的现行页面)。
