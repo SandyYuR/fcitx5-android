@@ -3172,6 +3172,7 @@ abstract class BaseKeyboard(
             val shiftLetter = action.stickyShiftLetterAction()
                 ?.takeIf { consumption.modifiers == listOf(StickyModifier.Shift) }
             if (shiftLetter != null) {
+                onStickyShiftLetter()
                 listener.onKeyAction(shiftLetter, KeyActionListener.Source.Keyboard)
                 // 与旧行为一致：编辑器已失效时不再补发残留 Up。
                 if (editor.isCurrent()) {
@@ -3191,33 +3192,49 @@ abstract class BaseKeyboard(
                 Timber.w("Sticky modifier shortcut has no Android key code: %s", action)
                 return true
             }
-            sendStickyShortcut(service, editor, consumption.modifiers, target.first, target.second)
+            val modifiers = if (target.shift && StickyModifier.Shift !in consumption.modifiers) {
+                consumption.modifiers + StickyModifier.Shift
+            } else consumption.modifiers
+            sendStickyShortcut(service, editor, modifiers, target.keyCode, target.scanCode)
             return true
         } finally {
             service.stickyModifiers.finish(consumption)
         }
     }
 
-    /** Fcitx 键名 / keysym → Android keyCode + scanCode；无法映射时返回 null。 */
-    private fun stickyShortcutTarget(action: KeyAction): Pair<Int, Int>? = when (action) {
+    /** A physical key plus the Shift needed to produce its symbol (e.g. underscore). */
+    private data class StickyShortcutTarget(
+        val keyCode: Int,
+        val scanCode: Int,
+        val shift: Boolean
+    )
+
+    private fun stickyShortcutTarget(action: KeyAction): StickyShortcutTarget? = when (action) {
         is KeyAction.FcitxKeyAction -> {
             val key = resolveMacroKey(action.act)
-            if (key.keyCode >= 0) key.keyCode to key.scanCode else null
+            if (key.keyCode >= 0) {
+                // Layouts also use uppercase names such as "A" for ordinary shortcut keys.
+                // Only a symbol's required Shift is implicit here; sticky Shift is explicit.
+                StickyShortcutTarget(key.keyCode, key.scanCode, shouldShiftSymbol(action.act))
+            } else null
         }
         is KeyAction.SymAction -> {
-            val keyCode = action.sym.keyCode
+            val symbol = action.sym.sym.takeIf { it in 0x20..0x7e }?.toChar()?.toString()
+            val key = symbol?.let(::resolveMacroKey)
+            val keyCode = key?.keyCode?.takeIf { it >= 0 } ?: action.sym.keyCode
             if (keyCode == KeyEvent.KEYCODE_UNKNOWN) null else {
-                val scanCode = try {
-                    ScancodeMapping.keyCodeToScancode(keyCode)
-                } catch (e: Exception) {
-                    Timber.w("keyCodeToScancode failed for keyCode=$keyCode: ${e.message}")
-                    0
-                }
-                keyCode to scanCode
+                StickyShortcutTarget(
+                    keyCode,
+                    mapFcitxToScanCode(symbol.orEmpty(), keyCode),
+                    symbol?.let(::shouldShiftSymbol) == true
+                )
             }
         }
         else -> null
     }
+
+    /** Called once for a composed virtual letter, before its matching Down/Up pair. */
+    protected open fun onStickyShiftLetter() = Unit
 
     /**
      * 按 [stickyShortcutEvents] 的顺序投递模拟物理键。
@@ -3597,7 +3614,7 @@ abstract class BaseKeyboard(
             "Enter" -> android.view.KeyEvent.KEYCODE_ENTER
             "Tab" -> android.view.KeyEvent.KEYCODE_TAB
             "Escape" -> android.view.KeyEvent.KEYCODE_ESCAPE
-            "Space" -> android.view.KeyEvent.KEYCODE_SPACE
+            "Space", " " -> android.view.KeyEvent.KEYCODE_SPACE
             "Delete" -> android.view.KeyEvent.KEYCODE_FORWARD_DEL
             "BackSpace" -> android.view.KeyEvent.KEYCODE_DEL
             "Home" -> android.view.KeyEvent.KEYCODE_MOVE_HOME
@@ -3657,38 +3674,38 @@ abstract class BaseKeyboard(
             "8" -> android.view.KeyEvent.KEYCODE_8
             "9" -> android.view.KeyEvent.KEYCODE_9
             // Shift+number symbols on standard layouts.
-            "exclam", "Exclam" -> android.view.KeyEvent.KEYCODE_1
-            "at", "At" -> android.view.KeyEvent.KEYCODE_2
-            "numbersign", "Numbersign" -> android.view.KeyEvent.KEYCODE_3
-            "dollar", "Dollar" -> android.view.KeyEvent.KEYCODE_4
-            "percent", "Percent" -> android.view.KeyEvent.KEYCODE_5
-            "asciicircum", "Asciicircum" -> android.view.KeyEvent.KEYCODE_6
-            "ampersand", "Ampersand" -> android.view.KeyEvent.KEYCODE_7
-            "asterisk", "Asterisk", "multiply", "Multiply" -> android.view.KeyEvent.KEYCODE_8
+            "exclam", "Exclam", "!" -> android.view.KeyEvent.KEYCODE_1
+            "at", "At", "@" -> android.view.KeyEvent.KEYCODE_2
+            "numbersign", "Numbersign", "#" -> android.view.KeyEvent.KEYCODE_3
+            "dollar", "Dollar", "$" -> android.view.KeyEvent.KEYCODE_4
+            "percent", "Percent", "%" -> android.view.KeyEvent.KEYCODE_5
+            "asciicircum", "Asciicircum", "^" -> android.view.KeyEvent.KEYCODE_6
+            "ampersand", "Ampersand", "&" -> android.view.KeyEvent.KEYCODE_7
+            "asterisk", "Asterisk", "multiply", "Multiply", "*" -> android.view.KeyEvent.KEYCODE_8
             // Parentheses are produced from Shift+9/Shift+0 on standard layouts.
-            "parenleft", "Parenleft" -> android.view.KeyEvent.KEYCODE_9
-            "parenright", "Parenright" -> android.view.KeyEvent.KEYCODE_0
+            "parenleft", "Parenleft", "(" -> android.view.KeyEvent.KEYCODE_9
+            "parenright", "Parenright", ")" -> android.view.KeyEvent.KEYCODE_0
             // Symbol keys (only Android-supported keycodes)
-            "minus", "Minus" -> android.view.KeyEvent.KEYCODE_MINUS
-            "underscore", "Underscore" -> android.view.KeyEvent.KEYCODE_MINUS
-            "equal", "Equal" -> android.view.KeyEvent.KEYCODE_EQUALS
-            "plus", "Plus", "Add" -> android.view.KeyEvent.KEYCODE_EQUALS
-            "bracketleft", "Bracketleft", "Bracket_L" -> android.view.KeyEvent.KEYCODE_LEFT_BRACKET
-            "braceleft", "Braceleft" -> android.view.KeyEvent.KEYCODE_LEFT_BRACKET
-            "bracketright", "Bracketright", "Bracket_R" -> android.view.KeyEvent.KEYCODE_RIGHT_BRACKET
-            "braceright", "Braceright" -> android.view.KeyEvent.KEYCODE_RIGHT_BRACKET
-            "backslash", "Backslash" -> android.view.KeyEvent.KEYCODE_BACKSLASH
-            "bar", "Bar" -> android.view.KeyEvent.KEYCODE_BACKSLASH
-            "semicolon", "Semicolon" -> android.view.KeyEvent.KEYCODE_SEMICOLON
-            "colon", "Colon" -> android.view.KeyEvent.KEYCODE_SEMICOLON
-            "apostrophe", "Apostrophe" -> android.view.KeyEvent.KEYCODE_APOSTROPHE
-            "quotedbl", "Quotedbl" -> android.view.KeyEvent.KEYCODE_APOSTROPHE
-            "comma", "Comma", "less", "Less", "Separator" -> android.view.KeyEvent.KEYCODE_COMMA
-            "period", "Period", "greater", "Greater" -> android.view.KeyEvent.KEYCODE_PERIOD
-            "slash", "Slash", "question", "Question", "Divide" -> android.view.KeyEvent.KEYCODE_SLASH
-            "grave", "Grave" -> android.view.KeyEvent.KEYCODE_GRAVE
+            "minus", "Minus", "-" -> android.view.KeyEvent.KEYCODE_MINUS
+            "underscore", "Underscore", "_" -> android.view.KeyEvent.KEYCODE_MINUS
+            "equal", "Equal", "=" -> android.view.KeyEvent.KEYCODE_EQUALS
+            "plus", "Plus", "Add", "+" -> android.view.KeyEvent.KEYCODE_EQUALS
+            "bracketleft", "Bracketleft", "Bracket_L", "[" -> android.view.KeyEvent.KEYCODE_LEFT_BRACKET
+            "braceleft", "Braceleft", "{" -> android.view.KeyEvent.KEYCODE_LEFT_BRACKET
+            "bracketright", "Bracketright", "Bracket_R", "]" -> android.view.KeyEvent.KEYCODE_RIGHT_BRACKET
+            "braceright", "Braceright", "}" -> android.view.KeyEvent.KEYCODE_RIGHT_BRACKET
+            "backslash", "Backslash", "\\" -> android.view.KeyEvent.KEYCODE_BACKSLASH
+            "bar", "Bar", "|" -> android.view.KeyEvent.KEYCODE_BACKSLASH
+            "semicolon", "Semicolon", ";" -> android.view.KeyEvent.KEYCODE_SEMICOLON
+            "colon", "Colon", ":" -> android.view.KeyEvent.KEYCODE_SEMICOLON
+            "apostrophe", "Apostrophe", "'" -> android.view.KeyEvent.KEYCODE_APOSTROPHE
+            "quotedbl", "Quotedbl", "\"" -> android.view.KeyEvent.KEYCODE_APOSTROPHE
+            "comma", "Comma", "less", "Less", "Separator", ",", "<" -> android.view.KeyEvent.KEYCODE_COMMA
+            "period", "Period", "greater", "Greater", ".", ">" -> android.view.KeyEvent.KEYCODE_PERIOD
+            "slash", "Slash", "question", "Question", "Divide", "/", "?" -> android.view.KeyEvent.KEYCODE_SLASH
+            "grave", "Grave", "`" -> android.view.KeyEvent.KEYCODE_GRAVE
             // KEYCODE_GRAVE + Shift can produce '~', so map asciitilde aliases here too.
-            "asciitilde", "Asciitilde", "tilde", "Tilde" -> android.view.KeyEvent.KEYCODE_GRAVE
+            "asciitilde", "Asciitilde", "tilde", "Tilde", "~" -> android.view.KeyEvent.KEYCODE_GRAVE
             // Special keys
             "Print" -> android.view.KeyEvent.KEYCODE_SYSRQ
             "Menu" -> android.view.KeyEvent.KEYCODE_MENU
@@ -3762,7 +3779,9 @@ abstract class BaseKeyboard(
             "exclam", "at", "numbersign", "dollar", "percent",
             "asciicircum", "ampersand", "asterisk", "multiply", "parenleft", "parenright",
             "add",
-            "asciitilde", "tilde" -> true
+            "asciitilde", "tilde",
+            "_", "+", "{", "}", "|", ":", "\"", "<", ">", "?",
+            "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "~" -> true
             else -> false
         }
     }
