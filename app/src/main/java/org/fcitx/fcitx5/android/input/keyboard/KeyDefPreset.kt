@@ -732,6 +732,34 @@ class NumPadKey(
     )
 )
 
+class StickyModifierKey(
+    val modifier: StickyModifier,
+    val label: String = modifier.defaultLabel,
+    percentWidth: Float = 0.1f,
+    variant: Variant = Variant.Alternative,
+    textColor: Int? = null,
+    textColorMonet: String? = null,
+    backgroundColor: Int? = null,
+    backgroundColorMonet: String? = null,
+    shadowColor: Int? = null,
+    shadowColorMonet: String? = null
+) : KeyDef(
+    Appearance.Text(
+        displayText = label,
+        textSize = 16f,
+        textStyle = Typeface.BOLD,
+        percentWidth = percentWidth,
+        variant = variant,
+        textColor = textColor,
+        textColorMonet = textColorMonet,
+        backgroundColor = backgroundColor,
+        backgroundColorMonet = backgroundColorMonet,
+        shadowColor = shadowColor,
+        shadowColorMonet = shadowColorMonet
+    ),
+    setOf(Behavior.Press(StickyModifierAction(modifier)))
+)
+
 /**
  * Macro 按键，支持自定义 tap/swipe/longPress 行为
  *

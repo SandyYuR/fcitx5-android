@@ -176,6 +176,8 @@
     <string name="text_keyboard_layout_placeholder_custom_color">Eigene Farben</string>
     <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">Makro (eigene Aktion)</string>
+    <string name="text_keyboard_layout_key_type_sticky_modifier">Sticky-Modifikator (Strg/Umschalt/Alt)</string>
+    <string name="text_keyboard_layout_sticky_modifier">Modifikator</string>
     <string name="text_keyboard_layout_key_split_after">Geteilte Tastatur nach dieser Taste trennen</string>
     <string name="text_keyboard_layout_key_split_after_helper">Gilt nur für die geteilte Tastatur. Normalerweise wird jede Zeile in der Mitte getrennt. Aktivieren Sie dies, um hinter der gewählten Taste zu trennen. Sind mehrere Tasten einer Zeile markiert, gilt die letzte.</string>
     <string name="text_keyboard_layout_split_layout">Layout der geteilten Tastatur</string>

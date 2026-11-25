@@ -100,6 +100,7 @@ import org.fcitx.fcitx5.android.input.voice.js.JsAppDialog
 import org.fcitx.fcitx5.android.input.voice.js.JsAppInputConnection
 import org.fcitx.fcitx5.android.input.cursor.CursorTracker
 import org.fcitx.fcitx5.android.input.keyboard.SpaceLongPressBehavior
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifierController
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
@@ -190,10 +191,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     internal val macroInput = org.fcitx.fcitx5.android.input.keyboard.MacroInputController {
         Timber.w(it, "Failed to release a macro key")
     }
+    internal val stickyModifiers = StickyModifierController()
 
     private fun endEditorWork() {
         statisticsStore?.endSession()
         jsAppDismiss?.invoke()
+        stickyModifiers.cancelAll()
         macroInput.cancelAll()
         if (VoiceInputProviderManager.isActive()) VoiceInputProviderManager.stop(this)
     }
@@ -2370,6 +2373,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     override fun onFinishInputView(finishingInput: Boolean) {
         statisticsStore?.endSession()
         Timber.d("onFinishInputView: finishingInput=$finishingInput")
+        stickyModifiers.cancelAll()
         macroInput.cancelAll()
         onBackspaceGuardSessionChanged()
         MainService.stopSyncService(this)

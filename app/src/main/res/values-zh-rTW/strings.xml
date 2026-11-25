@@ -570,6 +570,8 @@
     <string name="text_keyboard_layout_placeholder_custom_color">自訂顏色</string>
     <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">巨集鍵</string>
+    <string name="text_keyboard_layout_key_type_sticky_modifier">黏滯修飾鍵（Ctrl/Shift/Alt）</string>
+    <string name="text_keyboard_layout_sticky_modifier">修飾鍵</string>
     <string name="text_keyboard_layout_key_main">主字元</string>
     <string name="text_keyboard_layout_key_alt">副字元</string>
     <string name="text_keyboard_layout_key_display_text">顯示文字</string>

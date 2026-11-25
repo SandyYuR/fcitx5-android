@@ -24,6 +24,7 @@ import android.widget.Toast
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorUi
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
 import splitties.dimensions.dp
 import org.fcitx.fcitx5.android.utils.settingsColor
 
@@ -73,7 +74,8 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
             "NumPadKey",
             "MiniSpaceKey",
             "PlaceholderKey",
-            "MacroKey"
+            "MacroKey",
+            "StickyModifierKey"
         )
 
         /**
@@ -95,7 +97,8 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
             R.string.text_keyboard_layout_key_type_numpad,
             R.string.text_keyboard_layout_key_type_mini_space,
             R.string.text_keyboard_layout_key_type_placeholder,
-            R.string.text_keyboard_layout_key_type_macro
+            R.string.text_keyboard_layout_key_type_macro,
+            R.string.text_keyboard_layout_key_type_sticky_modifier
         )
 
         val SWITCH_TARGET_OPTIONS = listOf(
@@ -356,6 +359,40 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
         spinner.setSelection(options.indexOfFirst { it.sym == currentSym })
+        val row = LinearLayout(activity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, activity.dp(4), 0, activity.dp(4))
+            addView(labelView)
+            addView(spinner)
+        }
+        container.addView(row)
+        return spinner
+    }
+
+    /** Create the modifier selector for a sticky modifier key. */
+    fun createStickyModifierSpinner(
+        container: LinearLayout,
+        currentValue: String?
+    ): Spinner {
+        val labelView = TextView(activity).apply {
+            text = activity.getString(R.string.text_keyboard_layout_sticky_modifier)
+            textSize = DIALOG_LABEL_TEXT_SIZE_SP
+            setTextColor(activity.settingsColor(android.R.attr.textColorSecondary))
+            layoutParams = LinearLayout.LayoutParams(activity.dp(96), LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                rightMargin = activity.dp(8)
+            }
+        }
+        val spinner = MaterialSpinner(activity, cornerRadiusDp = 12).apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                weight = 1f
+            }
+        }
+        val options = StickyModifier.entries
+        val adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, options)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+        spinner.setSelection(StickyModifier.fromJson(currentValue)?.ordinal ?: 0)
         val row = LinearLayout(activity).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL

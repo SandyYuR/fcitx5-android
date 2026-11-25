@@ -18,6 +18,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputLayout
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorForm
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyboardEditorUiBuilder
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.MacroEditorDialogFragment
@@ -46,6 +47,12 @@ class KeyEditorFormTest {
     private fun field(form: KeyEditorForm, label: String): EditText {
         return (form.view as ViewGroup).descendants.filterIsInstance<TextInputLayout>()
             .first { it.hint?.toString() == label }.editText!!
+    }
+
+    private fun modifierSpinner(form: KeyEditorForm): Spinner {
+        return (form.view as ViewGroup).descendants.filterIsInstance<Spinner>().single {
+            it.adapter?.count == StickyModifier.entries.size && it.adapter.getItem(0) is StickyModifier
+        }
     }
 
     @Test fun fullFormShowsAllSectionsAndEveryEventHasItsOwnInlineEditButton() = page { activity ->
@@ -324,6 +331,95 @@ class KeyEditorFormTest {
         val result = KeyEditorForm(activity, options(key)).validatedDraft(false)
         assertNotNull(result)
         assertEquals(0xFF5C6B89.toInt(), result!!["backgroundColor"])
+    }
+
+    @Test fun stickyModifierFormBackfillsAndSavesCommonFields() = page { activity ->
+        val args = options(mapOf(
+            "type" to "StickyModifierKey",
+            "modifier" to "alt",
+            "label" to "Option",
+            "iconSlot" to "keys.modifier.alt",
+            "textColor" to 0xFF112233.toInt(),
+            "composeOverride" to mapOf(
+                "type" to "StickyModifierKey",
+                "modifier" to "shift",
+                "label" to "Compose Shift",
+                "iconSlot" to "keys.modifier.shift"
+            )
+        ))
+        val form = KeyEditorForm(activity, args)
+        assertEquals(StickyModifier.Alt, modifierSpinner(form).selectedItem)
+        assertEquals("Option", field(form, activity.getString(R.string.text_keyboard_layout_key_label)).text.toString())
+        field(form, activity.getString(R.string.layout_editor_width)).setText("20")
+
+        val saved = form.validatedDraft(false)!!
+        assertEquals("StickyModifierKey", saved["type"])
+        assertEquals("alt", saved["modifier"])
+        assertEquals("Option", saved["label"])
+        assertEquals(0.2f, saved["weight"])
+        assertEquals("keys.modifier.alt", saved["iconSlot"])
+        assertEquals(0xFF112233.toInt(), saved["textColor"])
+        val override = saved["composeOverride"] as Map<*, *>
+        assertEquals("shift", override["modifier"])
+        assertEquals("Compose Shift", override["label"])
+        assertEquals("keys.modifier.shift", override["iconSlot"])
+    }
+
+    @Test fun stickyModifierDraftSurvivesTypeSwitchModifierChangesAndRecreation() = page { activity ->
+        val args = options(mapOf(
+            "type" to "MacroKey",
+            "label" to "Ctrl",
+            "iconSlot" to "keys.modifier.ctrl",
+            "textColor" to 0xFF445566.toInt(),
+            "composeOverride" to mapOf(
+                "type" to "StickyModifierKey",
+                "modifier" to "ctrl",
+                "label" to "Compose Ctrl"
+            )
+        ))
+        val form = KeyEditorForm(activity, args)
+        activity.setContentView(form.view)
+        val typeSpinner = (form.view as ViewGroup).descendants.filterIsInstance<Spinner>().single {
+            it.adapter?.count == KeyboardEditorUiBuilder.KEY_TYPES.size
+        }
+        typeSpinner.setSelection(KeyboardEditorUiBuilder.KEY_TYPES.indexOf("StickyModifierKey"))
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        assertEquals(StickyModifier.Ctrl, modifierSpinner(form).selectedItem)
+
+        modifierSpinner(form).setSelection(StickyModifier.Shift.ordinal)
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        assertEquals("Shift", field(form, activity.getString(R.string.text_keyboard_layout_key_label)).text.toString())
+        field(form, activity.getString(R.string.text_keyboard_layout_key_label)).setText("Custom modifier")
+        modifierSpinner(form).setSelection(StickyModifier.Alt.ordinal)
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        assertEquals("Custom modifier", field(form, activity.getString(R.string.text_keyboard_layout_key_label)).text.toString())
+        field(form, activity.getString(R.string.layout_editor_width)).setText("20")
+
+        val recreated = KeyEditorForm(activity, args, Bundle().also(form::saveState))
+        assertEquals(StickyModifier.Alt, modifierSpinner(recreated).selectedItem)
+        val restored = recreated.validatedDraft(false)!!
+        assertEquals("StickyModifierKey", restored["type"])
+        assertEquals("alt", restored["modifier"])
+        assertEquals("Custom modifier", restored["label"])
+        assertEquals(0.2f, restored["weight"])
+        assertEquals("keys.modifier.ctrl", restored["iconSlot"])
+        assertEquals(0xFF445566.toInt(), restored["textColor"])
+        val override = restored["composeOverride"] as Map<*, *>
+        assertEquals("ctrl", override["modifier"])
+        assertEquals("Compose Ctrl", override["label"])
+    }
+
+    @Test fun stickyModifierStructureLabelsUseCustomTextOrModifierDefaults() = page { activity ->
+        val adapter = KeyboardLayoutAdapter(activity, emptyList(), NoOpListener)
+        assertEquals("Option", adapter.buildKeyLabel(mapOf(
+            "type" to "StickyModifierKey", "modifier" to "alt", "label" to "Option"
+        )))
+        assertEquals("Shift", adapter.buildKeyLabel(mapOf(
+            "type" to "StickyModifierKey", "modifier" to "shift"
+        )))
+        assertEquals("StickyModifierKey", adapter.buildKeyLabel(mapOf(
+            "type" to "StickyModifierKey", "modifier" to "SHIFT"
+        )))
     }
 
     private object NoOpListener : KeyboardLayoutAdapter.Listener {

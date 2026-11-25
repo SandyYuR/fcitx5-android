@@ -80,6 +80,7 @@ import org.fcitx.fcitx5.android.input.config.UserConfigFiles
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarPosition
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter.KeyboardLayoutAdapter
 import org.fcitx.fcitx5.android.utils.AppUtil
@@ -4502,6 +4503,11 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                 val alt = key["alt"] as? String
                 listOfNotNull(main, alt).firstOrNull { !it.isNullOrEmpty() }
                     ?: getString(R.string.text_keyboard_layout_key_label_placeholder)
+            }
+            "StickyModifierKey" -> {
+                (key["label"] as? String)?.takeIf { it.isNotEmpty() }
+                    ?: StickyModifier.fromJson(key["modifier"] as? String)?.defaultLabel
+                    ?: type
             }
             "MacroKey" -> {
                 // 与运行时渲染一致：显式设置的 displayText 优先，未设置时回落到 label。

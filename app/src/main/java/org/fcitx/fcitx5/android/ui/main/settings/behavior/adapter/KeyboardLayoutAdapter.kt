@@ -19,6 +19,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorKeyPositi
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.LayoutKeyOperations
 import com.google.android.material.button.MaterialButton
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.input.keyboard.StickyModifier
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.DraggableFlowLayout
 import splitties.dimensions.dp
 import org.fcitx.fcitx5.android.utils.settingsColor
@@ -741,6 +742,11 @@ class KeyboardLayoutAdapter(
                 val alt = key["alt"] as? String
                 val text = listOfNotNull(main, alt).firstOrNull { !it.isNullOrEmpty() }
                 text ?: context.getString(R.string.text_keyboard_layout_key_label_placeholder)
+            }
+            "StickyModifierKey" -> {
+                (key["label"] as? String)?.takeIf { it.isNotEmpty() }
+                    ?: StickyModifier.fromJson(key["modifier"] as? String)?.defaultLabel
+                    ?: type
             }
             "MacroKey" -> {
                 // 与运行时渲染一致：显式设置的 displayText 优先，未设置时回落到 label。
