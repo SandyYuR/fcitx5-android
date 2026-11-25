@@ -82,6 +82,7 @@ configure(ui) {
 - `ui.select(key, label, options, defaultValue = "", settings = {})`
 - `ui.switch(key, label, defaultValue = false, settings = {})`
 - `ui.number(key, label, defaultValue = "", settings = {})`
+- `ui.serviceSelect(key, label, serviceId, version, defaultValue = "", settings = {})`
 
 下拉选项可以是字符串，也可以是 `{label, value}` 对象。`allowCustom: true` 允许自定义值。`settings.description` 增加说明文字。`settings.visibleWhen` 支持 `{key, value}` 或 `{all: [{key, value}, ...]}`。
 
@@ -247,6 +248,8 @@ if (foxy.capabilities.http.stream) {
 | 运行中的 App | 编辑器／对话框、`http.request`、SSE、App WebSocket 及回调、`settings.set`；没有语音事件、旧式 `http.post` 或 HMAC |
 | 运行中的语音提供方 | 语音事件、旧式 `http.post`、HMAC、音频／二进制工具和语音 WebSocket；没有 App request/stream、编辑器或设置写入 |
 
+`foxy.service.register` 在设置声明、App 与语音会话都可用；`foxy.services.list/call` 在 App 与语音会话可用，服务提供方自己的运行会话不报告 `call`。
+
 `foxy.settings.set(key, value)` 把值写回插件自己的普通设置项。只接受 `configure()` 中声明过的非密钥字段；密钥字段和未声明的键都会抛错。值按字符串保存，单值 UTF-8 内容最多 64 KiB，同一 App 会话全部普通设置合计最多 256 KiB；设置声明／导入求值和语音会话中没有该对象。
 
 ## 流式 HTTP / SSE
@@ -316,6 +319,29 @@ foxy.websocket.close(socketId);
 `connect(url, secretField, authHeader = "Authorization", authPrefix = "Bearer ", headersJson = "{}")` 返回不透明句柄。预签名 URL 可以传入空的密钥字段名。`sendGzipFrame(socketId, prefixBase64, payloadBase64)` 发送 `prefix + 4 字节大端压缩长度 + gzip(payload)` 二进制帧。帧大小有界。
 
 连接使用 WSS、不跟随重定向，并核对插件声明和批准的主机及 `network.request` 权限。每个 JS 运行时注册一次事件处理器；插件主动关闭时，`onClose` 收到 `expected = true`。
+
+## 插件间文字服务
+
+插件可以在顶层声明一个文字处理服务，供其他插件调用：
+
+```javascript
+foxy.service.register({
+  id: "text.translate",
+  version: 1,
+  label: "Example translation",
+  description: "Translate text into a target language.",
+  async handle(context) {
+    // context: {input, settings, locale, serviceId, version}
+    return {translatedText: "..."};
+  }
+});
+```
+
+- 声明只登记定义，不启动运行时；设置页的候选由已安装插件的声明汇总，坏脚本跳过。
+- 调用方在 `configure()` 中用 `ui.serviceSelect(key, label, serviceId, version)` 让用户选择提供方，再用 `await foxy.services.list(serviceId)` 读取候选（`{pluginId, pluginLabel, serviceId, version, label, description}`，已剔除自己）。
+- `await foxy.services.call(pluginId, serviceId, version, input)` 在提供方自己的运行时中执行，提供方读自己的设置与密钥；输入序列化为 JSON，上限 256 KiB，单次调用 20 秒。
+- 只允许单层调用：服务实现内部再调用 `foxy.services.call` 会抛 `Nested service calls are not supported`。
+- 调用方不能调用自己，也不能调用用户未在 `serviceSelect` 中选中的提供方。内置哔哩哔哩翻译插件提供 `text.translate` v1。
 
 ## 编辑器 API
 
@@ -424,4 +450,4 @@ Foxy 回调的等待上限分别是：`start` 10 秒、`audio` 3 秒、`onMessag
 - [通义千问识别](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/qwen-asr.js)：WebSocket 识别、有界单次请求、本地化设置。
 - [豆包识别](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/doubao-asr.js)：V3 密钥握手、gzip 二进制帧；不支持将 V2 凭据写入请求体。
 - [腾讯云识别](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/tencent-asr.js)：HMAC URL 签名、有界音频队列、服务端标点处理。
-- [腾讯云翻译](https://github.com/SandyYuR/fcitx5-android/blob/7cb141aa1e9ebf110e6a8a7e4059fb2095209989/app/src/main/assets/bundled/js-voice/tencent-translate.js)：签名 WebSocket 实时语音翻译。
+- [哔哩哔哩翻译](https://github.com/SandyYuR/fcitx5-android/blob/fx-rime-only/app/src/main/assets/bundled/js-apps/bilibili-translate.js)：`foxy.http.request` 翻译 App，同时提供 `text.translate` v1 服务供语音插件调用。

@@ -32,7 +32,7 @@ features:
     link: /features/theme/settings-appearance
     linkText: 调整界面外观
   - title: 多种语音输入方式
-    details: 内置千问、豆包、腾讯云识别与翻译 JS 插件，也支持导入脚本或接入 AIDL 应用。
+    details: 内置千问、豆包与腾讯云识别 JS 插件，也支持导入脚本或接入 AIDL 应用。
     link: /features/voice-input-js
     linkText: 开始语音输入
   - title: 数据有备份，工具能互通
