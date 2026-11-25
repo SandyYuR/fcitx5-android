@@ -170,10 +170,7 @@ class KeyboardWaterRippleView @JvmOverloads constructor(
 
             val keyView = view as? KeyView
             if (keyView != null) {
-                val hasBorderMask =
-                    (keyView.bordered && keyView.def.border != KeyDef.Appearance.Border.Off) ||
-                        keyView.def.border == KeyDef.Appearance.Border.On
-                if (!hasBorderMask) return@forEach
+                if (!keyView.shouldOccludeWaterRipple()) return@forEach
                 val maskWidth = (r - l).toInt().coerceAtLeast(1)
                 val maskHeight = (b - t).toInt().coerceAtLeast(1)
                 val corner = keyView.blurClipRadius(maskWidth, maskHeight)
