@@ -13,6 +13,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
 import com.google.android.material.appbar.MaterialToolbar as Toolbar
 import androidx.core.view.ViewCompat
@@ -64,6 +65,10 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
         val header = horizontal().apply { setPadding(dp(16), dp(8), dp(8), dp(8)) }
         summary = label("", 14f)
         header.addView(summary, LinearLayout.LayoutParams(0, -2, 1f))
+        header.addView(icon(R.drawable.ic_baseline_swap_horiz_24,
+            R.string.text_keyboard_layout_file_switch) {
+            showSwitchProfileDialog()
+        })
         header.addView(icon(R.drawable.ic_baseline_edit_24, R.string.text_keyboard_layout_file_rename) {
             openEditor(action = TextKeyboardLayoutEditorActivity.ACTION_RENAME_PROFILE)
         })
@@ -129,6 +134,28 @@ class TextKeyboardLayoutProfileManagerActivity : SettingsUiActivity() {
 
     private fun display(name: String): String = if (name == UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE)
         getString(R.string.default_) else name
+
+    private fun showSwitchProfileDialog() {
+        val current = activeProfile()
+        val profiles = (UserConfigFiles.listTextKeyboardLayoutProfiles() + current).distinct()
+            .sortedWith(compareBy(
+                { it != UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE }, { it }
+            ))
+        val labels = profiles.map { display(it) }.toTypedArray()
+        val checked = profiles.indexOf(current).coerceAtLeast(0)
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.text_keyboard_layout_file_select_title)
+            .setSingleChoiceItems(labels, checked) { dialog, which ->
+                val target = profiles.getOrNull(which) ?: return@setSingleChoiceItems
+                AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(target)
+                ConfigProviders.provider = ConfigProviders.provider
+                selected = target
+                render()
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
 
     private fun render() {
         summary.text = getString(R.string.text_keyboard_layout_manage_active, display(activeProfile()))

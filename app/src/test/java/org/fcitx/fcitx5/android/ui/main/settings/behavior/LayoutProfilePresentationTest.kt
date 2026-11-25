@@ -10,7 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.ListView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.descendants
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
@@ -23,6 +26,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadows.ShadowDialog
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.util.ReflectionHelpers
@@ -72,5 +76,32 @@ class LayoutProfilePresentationTest {
                 bitmap.recycle()
             }
         } finally { controller.pause().stop().destroy(); prefs.setValue(previous) }
+    }
+
+    @Test fun headerShowsSwitchIconThatOpensTheProfilePicker() {
+        val prefs = AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile
+        val previous = prefs.getValue()
+        prefs.setValue(UserConfigFiles.DEFAULT_TEXT_KEYBOARD_LAYOUT_PROFILE)
+        val controller = Robolectric.buildActivity(TextKeyboardLayoutProfileManagerActivity::class.java).setup()
+        var dialog: AlertDialog? = null
+        try {
+            val activity = controller.get()
+            val content = activity.findViewById<ViewGroup>(android.R.id.content)
+            val switch = content.descendants.filterIsInstance<ImageButton>().single {
+                it.contentDescription == activity.getString(R.string.text_keyboard_layout_file_switch)
+            }
+            switch.performClick()
+            val shown = requireNotNull(ShadowDialog.getLatestDialog() as? AlertDialog)
+            dialog = shown
+            assertTrue(shown.isShowing)
+            val list = requireNotNull(shown.listView)
+            assertEquals(UserConfigFiles.listTextKeyboardLayoutProfiles().distinct().size, list.count)
+            assertEquals(ListView.CHOICE_MODE_SINGLE, list.choiceMode)
+            assertTrue(list.checkedItemPosition >= 0)
+        } finally {
+            dialog?.dismiss()
+            controller.pause().stop().destroy()
+            prefs.setValue(previous)
+        }
     }
 }
