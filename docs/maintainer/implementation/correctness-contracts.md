@@ -256,14 +256,24 @@ startup 每轮在原 try 外先重置 selection／newActivation，再进入 asse
 | `AlphabetKey.displayText` 是否显式设置按 JSON 字段存在性判断，不用值是否等于字符判断 | 显式文本不作 Shift/Caps 改写 |
 | 默认子模式可合法映射 null，不以 null 判越界 | `SubModeManager.isValidSpinnerPosition`、`SubModeSpinnerSelectionTest` |
 | 分体行标记只位于行首，首键隐藏或被移动/删除/替换时仍保留；复制单键不复制整行设置 | `SplitRowLayoutPolicy`、`LayoutKeyOperations`、`LayoutJsonUtils.parseKeyJsonArray` |
-| “合成中”只改变布局预览，不修改保存内容或实际输入状态；文本编辑面板不提供该开关 | `KeyboardPreviewManager`、`TextKeyboardLayoutEditorActivity` |
+| “合成中”只作用于普通键盘布局预览，不修改保存内容或实际输入状态；常规文本编辑布局与 Foxy `text_editor` 的专用面板预览都不叠加合成态 | `KeyboardPreviewManager`、`TextKeyboardLayoutEditorActivity` |
 | 候选预设是写值动作，不切换模式，数值保持偏好允许范围 | `AppPrefs.Candidates`、`CandidatesPresetsTest` |
 | 符号、表情、颜文字使用 catalog 与 locale 回退，面板独占键盘区 | 不改 `recentKey` / `Emoticon`；中文术语用“自定义/自訂” |
-| 文本编辑底栏只从 `text_editor` 布局读取，不硬编码另一排按钮 | 新动作必须进入 `TextEditingWindow.executeTextEditingAction` 白名单 |
+| 常规文本编辑按偏好解析当前 profile，Foxy 底栏固定读取 `text_editor`，两条读取路径独立 | `TextEditingLayoutResolver`、`TextEditingLayoutLoader.load` / `loadSwipeBar`；新动作仍须进入 `TextEditingWindow.executeTextEditingAction` |
 
 字段的用户说明见[按键参考](/features/keys/overview)和[布局编辑器](/features/editor/layout-editor)。特别注意：当前 SymbolKey 默认发送标准句号供方案处理，键面标签不等于上屏字符。
 
 标点键面与弹出项按布局和预设原文展示，`TextKeyboard.refreshSymbolKeyLabels` 保留样式刷新、辅助标签、字母大小写和显式显示文本的边界，`PopupComponent` 不再通过 Fcitx 标点映射替换标签。旧 `transformPunctuation` 字段继续兼容读取，但不能重接 `PunctuationComponent`、`PunctuationManager`、`chttrans` 页面或旧回调。Rime 的 `punctuator`、通用 YAML 预设和 OpenCC 数据继续保留；`TextKeyboardLabelsTest` 与真实 `DirectRimeFrontendTest.symbolKeysAndPopupsUseRimePunctuation` 分别验证键面和引擎上屏。
+
+### 常规文本编辑布局与 Foxy 底栏
+
+默认文本编辑风格的 `layoutOverride` 只解析当前 profile。空值按当前基线编辑层 → 独立编辑布局 → 其他基线中唯一编辑层的顺序自动发现，自动发现须排除专用于 Foxy 的 `text_editor`；显式条目仍可指定它。`@builtin` 固定内置面板；显式条目缺失或解析失败后重新自动发现，仍不可用才回退内置。歧义的其他基线编辑层不能被任意选中。设置页的编辑入口在默认风格下优先定位显式选中的文件条目，再使用设置页的自动识别结果；不能把已选中的有效常规编辑条目重定向到 `text_editor`。内置面板没有可编辑的文件条目。Foxy 经 `loadSwipeBar` 固定读取 `text_editor`，不读取常规布局偏好；Foxy 参数仅在滑动风格启用。
+
+`TextEditingLayoutLoader` 的网格行号取外层行数组索引，`column` 从 0 开始；任意键出现 `column` / `columnSpan` / `rowSpan` 即启用整个布局的网格校验，每键必须有合法 `column`，两个 span 缺省为 1。数值必须有限且为整数，列号为 0–127，列跨度为 1–128，行跨度为 1–32；列结束位置不超过 128，行结束位置不超过实际行数，任何占用格重叠均拒绝整个布局。布局限 1–32 行、最多 512 键；网格中的不支持类型不能像普通行布局那样被跳过而留下部分面板。
+
+`ConfiguredTextEditingUi` 对每个源按键只建一个视图，跨行仅影响边界，不复制按键。预览点击仍绑定原始 `(row, index)`，更改其他字段不得丢失网格位置与跨度。水彩、普蓝 `editor` 固定为 26 列、4 行、15 键，左右方向键分别从第 0 行跨 3 行；Foxy 六键底栏独立保留。方向键缺少显式重复动作时沿用其方向动作，选择锁定后方向、行首、行尾和翻页动作保留 Shift 扩选语义，复制／剪切／粘贴清除用户选择锁。布局图标、文字、逐键配色与主题回退由同一按键定义提供。
+
+回归须覆盖显式选择、失效回退、自动识别优先级与歧义、`@builtin`、Foxy 隔离，以及跨行唯一视图、预览源索引、网格重叠／越界／缺列／非整数和字段保存。设备另核方向长按、选择锁与真实输入框收到的编辑操作；组件测试或示意图不能代替真实 InputConnection 验证。用户说明见[文本编辑](/features/text-editor)和[布局编辑器](/features/editor/layout-editor#常规文本编辑布局)。
 
 ### 粘滞修饰键
 

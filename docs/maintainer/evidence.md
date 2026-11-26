@@ -1200,6 +1200,7 @@
 | `maintainer/perf/cyime-wanxiang-2026-11-21/` | [CyIME 万象长句与冷缓存](/maintainer/perf/cyime-wanxiang-2026-11-21/) |
 | `maintainer/perf/input-fluency-2026-11-22/` | [按键气泡、输入调度与长句 CPU](/maintainer/perf/input-fluency-2026-11-22/) |
 | `maintainer/audit/2026-11-26-pr57-sticky-modifier/` | [粘滞修饰键压缩合入](/maintainer/changes/2026-11-26-sticky-modifier-key) |
+| `maintainer/audit/foxy-themes-editor-2026-11-26/` | [水彩／普蓝资源与常规编辑布局 · 2026-11-26](/maintainer/changes/2026-11-26-foxy-themes-editor) |
 
 <!-- evidence-roots:end -->
 

@@ -62,7 +62,7 @@
 | 完整备份与恢复 | 默认密码加密 `.fcbak`，可选兼容 ZIP；备份布局、偏好、Rime 数据与导入插件 | [备份](/features/backup-restore) |
 | 更新与下载 | 本仓库 Release/Nightly、镜像与 hosts，受支持路径可后台下载和断点恢复 | [更新](/features/update-checker) |
 | 分享导入 | 从系统分享识别支持的布局、主题等文件，处理压缩包 | [共享导入](/features/shared-import) |
-| 文本编辑 | 光标、选择、复制粘贴和可配置文本编辑栏 | [文本编辑](/features/text-editor) |
+| 文本编辑 | 光标、选择、复制粘贴；默认风格可选择编辑布局，Foxy 使用独立滑动底栏 | [文本编辑](/features/text-editor) |
 | 设置搜索与按键反馈 | 中文名、别名和拼音查找设置；自定义音效、振动与反馈 | [用户手册](/manual/DIRECT_RIME_USER_GUIDE_zh-CN#设置搜索与按键反馈) |
 
 ## 文档与版本对应

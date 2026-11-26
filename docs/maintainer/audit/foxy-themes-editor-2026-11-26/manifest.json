@@ -1,0 +1,814 @@
+{
+  "codeBase": "c1307b794f6376977e17145c0a24b433f952e0bc",
+  "uncommitted": true,
+  "junit": {
+    "suites": 19,
+    "tests": 209,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "details": [
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.editing.TextEditingLayoutResolverTest.xml",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.editing.TextEditingLayoutLoaderTest.xml",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.editing.ConfiguredTextEditingUiTest.xml",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.keyboard.IconTextKeyViewTest.xml",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.KeyEditorFormTest.xml",
+        "tests": 26,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.data.theme.IconThemeSlotCatalogTest.xml",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.bar.ui.idle.LanguageSwitchIconFallbackTest.xml",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.voice.js.JsAppButtonBindingTest.xml",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.keyboard.LetterIconKeyTest.xml",
+        "tests": 22,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.keyboard.NumericLayoutResolverTest.xml",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.ui.main.settings.preview.ThemePreviewLayoutTest.xml",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.keyboard.BundledThemeLayoutTest.xml",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.data.BundledPresetsUpgradeTest.xml",
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.data.theme.IconThemeGrayPaletteTest.xml",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.picker.SymbolPanelColorTest.xml",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.picker.SymbolPanelIconThemeTest.xml",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.input.picker.SymbolPanelTabRadiusTest.xml",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeEditorPreviewTest.xml",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "TEST-org.fcitx.fcitx5.android.data.theme.IconThemeManagerCacheSelectionTest.xml",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "apks": [
+    {
+      "name": "org.fcitx.fcitx5.android.fx.rime-nightly-0.1.3-877-ge3ea3af9-20261124-143052-5-gc1307b794-fx-x86_64-debug.apk",
+      "bytes": 29178629,
+      "sha256": "d9df1a82b9468e595e8ed543af988476fadbff959394fc524f3dd0cb1a36c927"
+    },
+    {
+      "name": "org.fcitx.fcitx5.android.fx.rime-nightly-0.1.3-877-ge3ea3af9-20261124-143052-5-gc1307b794-fx-debug-androidTest.apk",
+      "bytes": 1060359,
+      "sha256": "38680761535c2bd00f47a7d4784c6a47951a6c034918baff2794c96afbeb931f"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "app/src/androidTest/java/org/fcitx/fcitx5/android/input/editing/TextEditingDeviceTest.kt",
+      "sha256": "2aa0097fc8db825f6f9dda22fadf62252448dc59d765d2bad5bddf37f39cce24",
+      "bytes": 27161,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/assets/bundled/fonts/字体图标.otf",
+      "sha256": "04298dac652dde1facff9941bc41f93ea2a33d48530cdc5b999ea5e91d8373c1",
+      "bytes": 19580,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/assets/bundled/icon_themes/普蓝.json",
+      "sha256": "6415c4fa8ba382600508b23f34c0a147c411e3f1a9235dab3298487f5c4c3ecf",
+      "bytes": 102311,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/assets/bundled/icon_themes/水彩.json",
+      "sha256": "dfcf4977d931834089aff9c2de2fc6e9704bf1b060cf4cfa482bb4dfb1af6ab9",
+      "bytes": 273016,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/assets/bundled/keyboard_layouts/TextKeyboardLayout.普蓝.json",
+      "sha256": "fb6ebe556c8c2af1cc4e3dfa89f4d572fe8ccbb2e4e9bd9d7aa2fd815f206865",
+      "bytes": 13406,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/assets/bundled/keyboard_layouts/TextKeyboardLayout.水彩.json",
+      "sha256": "e489a451b6958287270148ed46b094f72c1020fc74f20aaca2f9b7951b1fe330",
+      "bytes": 35426,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/assets/bundled/themes/水彩.json",
+      "sha256": "96c8650919c640a6e772a1eb1ee82f4964903a7ac82b1c907abcd453e7ef2117",
+      "bytes": 844,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/BundledPresets.kt",
+      "sha256": "cdf35b87f5cfedbd0d32941dba38901045f63d27566856c1b68a74f524097cb0",
+      "bytes": 15595,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt",
+      "sha256": "7efa61e459f22aedc35298bfbfa180596cc5eadf5d223f0e3ff58ee43cacfcc8",
+      "bytes": 38039,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconTheme.kt",
+      "sha256": "3ec41b7d16a9a52f2c22592c43aaf6af36bf59a2a96801e4c96e1407bb307296",
+      "bytes": 8619,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt",
+      "sha256": "6c6a437f41f1e2095e57f0465583677f3d9f97d28f904b8dec88966860322ece",
+      "bytes": 56066,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/action/ButtonAction.kt",
+      "sha256": "b061bc144d724cf93037d994b6e0db1ed8d97947d66dfa175b344ece0f135a81",
+      "bytes": 39495,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+      "sha256": "addb6817c1e3f08403dd06ff40f3c2f39f0d700f38c7b66ef187a8d9a3cf5c5e",
+      "bytes": 51184,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/idle/ButtonsBarUi.kt",
+      "sha256": "59140d1b5dfebee84b8ada5097fa8ddee539dba0fcdc4b7ffd576ba4e95fa3d2",
+      "bytes": 12761,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/editing/ConfiguredTextEditingUi.kt",
+      "sha256": "b46a67534087e21bdf2cdf7d7dfdd86b3391f68571dc8c0f7c76ee6a44064df7",
+      "bytes": 8954,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/editing/TextEditingButton.kt",
+      "sha256": "ca3d811b086f36a1c7fa0d4d406358512a9f39f8125d606f022b3bed4a432265",
+      "bytes": 10237,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/editing/TextEditingLayout.kt",
+      "sha256": "723516742f4c1aab32d6a1b9e93c55c29fb913c34dc79403f2838df870196219",
+      "bytes": 7103,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/editing/TextEditingLayoutResolver.kt",
+      "sha256": "a21ba1fa41848840a282c94114eced0e9f30174e63fa892c0d105cbabf173d7d",
+      "bytes": 9177,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/editing/TextEditingUi.kt",
+      "sha256": "ee5c357cc5b318b829d0460cfe4feae2ed4c9af9af33df0a2574ccc56d28eba2",
+      "bytes": 9138,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/editing/TextEditingWindow.kt",
+      "sha256": "4ddd65a9dfeae0eefb7ef94045e5cb8555239679b53c43cea19dee29195e686d",
+      "bytes": 15411,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+      "sha256": "264e3bd657056eb41ecb363b0343836a853dedef2d6ed7007d8db7033b5e4df1",
+      "bytes": 215921,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/IconTextKeyView.kt",
+      "sha256": "218c74c1b3af767e8996dd61a18296fde010f854c03a4436a47276bc88ac68d2",
+      "bytes": 3032,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+      "sha256": "8c24accf27f813506ab296f6ec5c1b3de08ee7ca5635b6cad51c0fe4e07e12e6",
+      "bytes": 103961,
+      "scope": "parallel-session"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/input/picker/SymbolPanelUi.kt",
+      "sha256": "e92e23a38ef8e433bccd848ca2cf9aaf8f00fb33670bf7cd26abb713adff5eed",
+      "bytes": 33900,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextEditingSettingsFragment.kt",
+      "sha256": "466982c79305e91720250f4b3e9b985cf101462be6d6c9ac204e6c928b1c3d97",
+      "bytes": 8427,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+      "sha256": "ed9fe9c9e7236eb1b38b1ddc45a83e8051bc800453433b1ed2e69fd3c3069971",
+      "bytes": 226140,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorForm.kt",
+      "sha256": "4e777f16d682b41a52a2d2eaf67e24c83d3f37b9afc7989be4deaab5e8557ff1",
+      "bytes": 125047,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/preview/KeyboardPreviewManager.kt",
+      "sha256": "3e2b47abecafa96b7aa874fa026bb98694fce139344635f17fc7e3bbbb98ce9e",
+      "bytes": 26834,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorActivity.kt",
+      "sha256": "33cb6629ce8a050a53a7684eabd166f49526a2dd8f079017b1c1e4eebfa54f0e",
+      "bytes": 41168,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/res/values-de/strings.xml",
+      "sha256": "f279d20e31056d360269b488183767264c1cab309590422bc7d1304a0ccea3e0",
+      "bytes": 71818,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/res/values-es/strings.xml",
+      "sha256": "bf3500bc3c28941210edfa80237b03d3aba49bf222066ca8076b68e3140f5d89",
+      "bytes": 72669,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/res/values-ja/strings.xml",
+      "sha256": "0e6b66b7b05eec0568da570df587fdfd2c5f1bed01fdf425ca159052fdb44fad",
+      "bytes": 78793,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/res/values-ko/strings.xml",
+      "sha256": "c8bf446daee90b9bbede69d21d752de09b333f68fc6d246735af027bd483c6d1",
+      "bytes": 73181,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/res/values-ru/strings.xml",
+      "sha256": "29ee056f1fcd2547e64b898a3cd0f94989b2d9788bc48e81c2c9e0df3650a9f0",
+      "bytes": 92010,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/res/values-zh-rCN/strings.xml",
+      "sha256": "1729b41b7fda78436c318e22783c6a600e91753f65c1498bcc1cd1bc9b9ce523",
+      "bytes": 106320,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/res/values-zh-rTW/strings.xml",
+      "sha256": "b422981adf08d130a700fd165ad649c33be9532712bd5257fdd4b3e068f46da4",
+      "bytes": 103874,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/main/res/values/strings.xml",
+      "sha256": "fe1f7bdce264fe349ede422cbc0338ecb807e8ac5189943e382fba83ef25be82",
+      "bytes": 109378,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/data/BundledPresetsUpgradeTest.kt",
+      "sha256": "4ec53a3313799081780254fcb111f0bb418bbf43a376c11df38d74b7d5fdcb3d",
+      "bytes": 9188,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/data/theme/IconThemeGrayPaletteTest.kt",
+      "sha256": "fa3965d95a2c8b110072c994509a49875556dbeabba235c5ab433afb2b8834da",
+      "bytes": 3103,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/data/theme/IconThemeSlotCatalogTest.kt",
+      "sha256": "20205484ca489427e8647cc2a0ce3f49a18e09df885cba0d78a75be66ae14411",
+      "bytes": 5981,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/bar/ui/idle/LanguageSwitchIconFallbackTest.kt",
+      "sha256": "f29fcb658bcabca71ba53cae43d0f90f6927d83aefe96c94fcdc4e1436b05891",
+      "bytes": 6754,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/editing/ConfiguredTextEditingUiTest.kt",
+      "sha256": "ae07ca31d86b7fa73764bdb158499475d33edb319726615e31c94e10cf0b3f0d",
+      "bytes": 14928,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/editing/TextEditingLayoutLoaderTest.kt",
+      "sha256": "8f96ae5ca551807a5853e1d8dd1101f885549f1347535d8e45a2d6d3260559c3",
+      "bytes": 7019,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/editing/TextEditingLayoutResolverTest.kt",
+      "sha256": "0ac74de368d09138770cedce4855ff2323c2286eb4aa2d2c8604a424224a0571",
+      "bytes": 4606,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/BundledThemeLayoutTest.kt",
+      "sha256": "eaffaa7f20ddce360e2ca8266ccdd5a7f4fa3198cf2220f5a3a97ec453ceecbc",
+      "bytes": 4693,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/IconTextKeyViewTest.kt",
+      "sha256": "75f3f8d99243b8a3b47912390b041ab5b0c6cfff94f493eeb91dd26f81d55f40",
+      "bytes": 4868,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/KeyPressHighlightGeometryTest.kt",
+      "sha256": "b9cb0af67d15817a7c0b2de26f28b46660737a3e568308f5abc02d5652d67ab5",
+      "bytes": 9542,
+      "scope": "parallel-session"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/picker/SymbolPanelColorTest.kt",
+      "sha256": "8a337411c73132804ad27607eb9f56b909392fd140a2115d9f6311d4302c7a9f",
+      "bytes": 6986,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/picker/SymbolPanelIconThemeTest.kt",
+      "sha256": "2fc707c2b53a7e3ad4d34f1cf3e07e4f38e26c4c35b12d34266053af066dd2b5",
+      "bytes": 7252,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppButtonBindingTest.kt",
+      "sha256": "fb5d1288eef2d86d9c8f03e3d4e51fc7592734518bafa866cb48e296e986fb65",
+      "bytes": 2056,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt",
+      "sha256": "23bf40db1b9eff69cc9a6a7af1fcb05ae2f6356c59d494514c32da5592d15e22",
+      "bytes": 35076,
+      "scope": "foxy-themes-editor"
+    },
+    {
+      "path": "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorPreviewTest.kt",
+      "sha256": "2c51604514b2d1932bf703e5467c70a33a244adc4cad9a54a33588d1d1cac98b",
+      "bytes": 8260,
+      "scope": "foxy-themes-editor"
+    }
+  ],
+  "members": [
+    {
+      "path": "device/device-wrapper-notes.txt",
+      "bytes": 510,
+      "sha256": "7302015675406fc4c5de186354e28aa9fdaabe36db4365824d7aa655e4a5313b"
+    },
+    {
+      "path": "device/editor-review-evidence.txt",
+      "bytes": 14584,
+      "sha256": "cee71d9a7a50705171ad453abe50668c04ce5295d5e2fef536f8b255c7dcbdd9"
+    },
+    {
+      "path": "device/numeric-edge-bounds.json",
+      "bytes": 798,
+      "sha256": "97be2069094cff8815f7e6bd1003cca22c4066443a8585e40046e37b204dc566"
+    },
+    {
+      "path": "device/post-install-assets.json",
+      "bytes": 1160,
+      "sha256": "29d98f27b361988e4de037f2553e57c64bd1cea02efa35de74e1403326bf269b"
+    },
+    {
+      "path": "device/pre-install-assets-latest.json",
+      "bytes": 1160,
+      "sha256": "714cbb4308d35044e88d6f989385b1c29f369dc8fc0a920f5210ddebc9307dd4"
+    },
+    {
+      "path": "device/pre-install-assets-visual.json",
+      "bytes": 1163,
+      "sha256": "7e2d06916a57654e56dbdea111edd30e4330c5696c3439a90b2256e0f5fe90bd"
+    },
+    {
+      "path": "device/pre-install-assets.json",
+      "bytes": 480,
+      "sha256": "cdb18424ccc4eb7dca7a6796f16d268d0cefc5bbd9c5874ffd08123e6ee04e84"
+    },
+    {
+      "path": "device/screenshots-manifest.json",
+      "bytes": 2763,
+      "sha256": "c88c1b73e6c77db736adcf702c16f5ad76c11c95d224c570e031d9d421a12687"
+    },
+    {
+      "path": "earlier-failures/device-startup-fixture-failure-1452.log",
+      "bytes": 5005,
+      "sha256": "9625f15fa93824025432a9d330df9b5877a2866b1d5b161ef21184d94a62ef10"
+    },
+    {
+      "path": "earlier-failures/jvm-bitmap-fixture-failure-131804.zip",
+      "bytes": 3297,
+      "sha256": "2433e45c271c0482b38b187e8574426bc2369f7a3dd56456e2712478d169cb58"
+    },
+    {
+      "path": "earlier-failures/jvm-compile-failure-130219.log",
+      "bytes": 5002,
+      "sha256": "bd9a428f017359cb4e8a3ec186e49bcf747c70e94f1292fa381ccf750bebc8a1"
+    },
+    {
+      "path": "earlier-failures/jvm-fixture-failure-131351.zip",
+      "bytes": 5232,
+      "sha256": "c5e186a674f4d2e3df56264721f858f0b3e0ddb9ed1278c0df598a8d5a6e219f"
+    },
+    {
+      "path": "earlier-failures/jvm-visual-compile-failure-1445.log",
+      "bytes": 7485,
+      "sha256": "0c386b69ab149120cfd4c93411b63b0c4b82dab42fec10e71ab7838aa478f328"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.data.BundledPresetsUpgradeTest.xml",
+      "bytes": 3470,
+      "sha256": "b4aa2ce85065db4a5fe7b9dc9585bb91ce1119affb1931c13fb4fb138c50546d"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.data.theme.IconThemeGrayPaletteTest.xml",
+      "bytes": 1290,
+      "sha256": "4b1c07a7e3fb1f12285862b3ebb31831053b41e7af55df45de176051b13589a8"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.data.theme.IconThemeManagerCacheSelectionTest.xml",
+      "bytes": 2814,
+      "sha256": "7bf1276ea82b080f635557dc870345b3d41ae5151a38909a7b3f504334e118ad"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.data.theme.IconThemeSlotCatalogTest.xml",
+      "bytes": 965,
+      "sha256": "6a894582fa23367a2999e7c4e6dfd5795397da49cde6602ed53219bf16f2bff0"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.bar.ui.idle.LanguageSwitchIconFallbackTest.xml",
+      "bytes": 3240,
+      "sha256": "fa785df346a18f33bc405496ba4e99f47aa16245ab73f6a0880c15bd892c0942"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.editing.ConfiguredTextEditingUiTest.xml",
+      "bytes": 2451,
+      "sha256": "f28056d431f85ba1be28e52ed1a13e0703a5c9c7ed760f455f8b61d3b48dce4a"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.editing.TextEditingLayoutLoaderTest.xml",
+      "bytes": 2472,
+      "sha256": "2231c217d1cc091395e4742a3d6a10817bac26f4554842d63160362979f2ec7e"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.editing.TextEditingLayoutResolverTest.xml",
+      "bytes": 2087,
+      "sha256": "6ef1bf898a4b1cb089f0671d4ff3be19f040c7324dd9153ca5befda9542b48db"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.keyboard.BundledThemeLayoutTest.xml",
+      "bytes": 1013,
+      "sha256": "963960db37f253e48a0e5e857918cd863fa46a97e8d9689a69a667a98681e28f"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.keyboard.IconTextKeyViewTest.xml",
+      "bytes": 1381,
+      "sha256": "273270b69be9c16482b133a3f04e1bcf7cdb3cb0d49a3ab49a626e44c9f0f13a"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.keyboard.LetterIconKeyTest.xml",
+      "bytes": 3608,
+      "sha256": "f1b33796eb9252080724c8484b0fd8ad6d5ff475cfb01f69dafb09198ee95775"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.keyboard.NumericLayoutResolverTest.xml",
+      "bytes": 2844,
+      "sha256": "72fc2cb868371447ab0169227743915bd48a576bcf777433173bab96ba2b817f"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.picker.SymbolPanelColorTest.xml",
+      "bytes": 1010,
+      "sha256": "630d170ec276d014ebef57db4d079ed3c3d57ee25177a11a21bb1cd5cb6c39d6"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.picker.SymbolPanelIconThemeTest.xml",
+      "bytes": 1052,
+      "sha256": "f79f71eee67d04b13b46ab71de101316aee115711ca3096e484bc8d66d53eaaf"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.picker.SymbolPanelTabRadiusTest.xml",
+      "bytes": 1390,
+      "sha256": "777ab4258dd7bc57d58f3f3063b9ba0b0bd195c62530ead36a3e953041b1e56f"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.input.voice.js.JsAppButtonBindingTest.xml",
+      "bytes": 828,
+      "sha256": "816299f82c2b0dba1feba17350fcafc78551ecea9ff893d90b44b16edcaed11e"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.KeyEditorFormTest.xml",
+      "bytes": 5102,
+      "sha256": "604236c0f053fb406086dff5fa96a0441b9b47b5e7c0ddfcee4ef960f5e8e580"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.ui.main.settings.icon.IconThemeEditorPreviewTest.xml",
+      "bytes": 2160,
+      "sha256": "9acad518fb6cc2768522561d50e6eb52097c388591f59cfcb19895860afd2a6a"
+    },
+    {
+      "path": "junit/TEST-org.fcitx.fcitx5.android.ui.main.settings.preview.ThemePreviewLayoutTest.xml",
+      "bytes": 2027,
+      "sha256": "53091dbdeadc0fc303197ee58c418754fe1f4d29d46f711a192164bcdca271e4"
+    },
+    {
+      "path": "logs/final-build.log",
+      "bytes": 9508,
+      "sha256": "6221339f73d070c134fc33e874e7759b08460bb61d07e8940c86329d15813218"
+    },
+    {
+      "path": "logs/final-device.log",
+      "bytes": 878,
+      "sha256": "8d56b3027c31df15ee7ee7d7ec77b10ddb62c31e0a2a75c3e0b7f0cf4cccff69"
+    },
+    {
+      "path": "logs/final-instrumentation-build.log",
+      "bytes": 9508,
+      "sha256": "6221339f73d070c134fc33e874e7759b08460bb61d07e8940c86329d15813218"
+    },
+    {
+      "path": "logs/final-jvm.log",
+      "bytes": 5305,
+      "sha256": "f65d64c7dbeadc19c15134208bcd63bfd3b9cdaf3f129794ed3b53b077c5afb2"
+    },
+    {
+      "path": "resources/packaged-assets.json",
+      "bytes": 2822,
+      "sha256": "a0d6cabcf5cb0ca7e9715f259f3e84b0226566cb7f12d12ac5e9d2b5d2f5e2af"
+    },
+    {
+      "path": "review/s1-final-1.txt",
+      "bytes": 10475,
+      "sha256": "223bf780ab323a1669912de16ee74b6ccc1343ce7bde020a1ef3685d0a3a6c3b"
+    },
+    {
+      "path": "review/s1-final-2.txt",
+      "bytes": 9038,
+      "sha256": "acbf2e3fd29b290206e7ba8d7c21d04e73d29cd78f3a51c2d8323f11e6678693"
+    },
+    {
+      "path": "review/s1-final-3.txt",
+      "bytes": 12551,
+      "sha256": "0a7e21bb8611b702e0e5f843d77566923d6fabedc4eedf7d3c8ea3a64549374d"
+    },
+    {
+      "path": "review/s1-final-4.txt",
+      "bytes": 8162,
+      "sha256": "d5bbe8adb58da223474541d6e0a8d39b01a484583b4f8125e0f9895278d0fed8"
+    },
+    {
+      "path": "review/s1-review-result.json",
+      "bytes": 4854,
+      "sha256": "99292c500ef8d9d8f8b4dc684bb64fa3ed367557c5d68b577e56df0721a79aca"
+    },
+    {
+      "path": "source/rime-sdk.lock.json",
+      "bytes": 433,
+      "sha256": "23a768040c62a7642523058792673c75c619448a8b0ee5fc2eff2de8b06e0a02"
+    },
+    {
+      "path": "source/source-manifest.json",
+      "bytes": 12125,
+      "sha256": "b3ba92fdaff80dd1733143fdf5f5c2b4740ff4b64f386b69ec4904a967905080"
+    },
+    {
+      "path": "source/untracked/app/src/androidTest/java/org/fcitx/fcitx5/android/input/editing/TextEditingDeviceTest.kt",
+      "bytes": 27161,
+      "sha256": "2aa0097fc8db825f6f9dda22fadf62252448dc59d765d2bad5bddf37f39cce24"
+    },
+    {
+      "path": "source/untracked/app/src/main/java/org/fcitx/fcitx5/android/input/editing/ConfiguredTextEditingUi.kt",
+      "bytes": 8954,
+      "sha256": "b46a67534087e21bdf2cdf7d7dfdd86b3391f68571dc8c0f7c76ee6a44064df7"
+    },
+    {
+      "path": "source/untracked/app/src/main/java/org/fcitx/fcitx5/android/input/editing/TextEditingLayoutResolver.kt",
+      "bytes": 9177,
+      "sha256": "a21ba1fa41848840a282c94114eced0e9f30174e63fa892c0d105cbabf173d7d"
+    },
+    {
+      "path": "source/untracked/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/IconTextKeyView.kt",
+      "bytes": 3032,
+      "sha256": "218c74c1b3af767e8996dd61a18296fde010f854c03a4436a47276bc88ac68d2"
+    },
+    {
+      "path": "source/untracked/app/src/test/java/org/fcitx/fcitx5/android/data/theme/IconThemeGrayPaletteTest.kt",
+      "bytes": 3103,
+      "sha256": "fa3965d95a2c8b110072c994509a49875556dbeabba235c5ab433afb2b8834da"
+    },
+    {
+      "path": "source/untracked/app/src/test/java/org/fcitx/fcitx5/android/input/editing/ConfiguredTextEditingUiTest.kt",
+      "bytes": 14928,
+      "sha256": "ae07ca31d86b7fa73764bdb158499475d33edb319726615e31c94e10cf0b3f0d"
+    },
+    {
+      "path": "source/untracked/app/src/test/java/org/fcitx/fcitx5/android/input/editing/TextEditingLayoutLoaderTest.kt",
+      "bytes": 7019,
+      "sha256": "8f96ae5ca551807a5853e1d8dd1101f885549f1347535d8e45a2d6d3260559c3"
+    },
+    {
+      "path": "source/untracked/app/src/test/java/org/fcitx/fcitx5/android/input/editing/TextEditingLayoutResolverTest.kt",
+      "bytes": 4606,
+      "sha256": "0ac74de368d09138770cedce4855ff2323c2286eb4aa2d2c8604a424224a0571"
+    },
+    {
+      "path": "source/untracked/app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/BundledThemeLayoutTest.kt",
+      "bytes": 4693,
+      "sha256": "eaffaa7f20ddce360e2ca8266ccdd5a7f4fa3198cf2220f5a3a97ec453ceecbc"
+    },
+    {
+      "path": "source/untracked/app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/IconTextKeyViewTest.kt",
+      "bytes": 4868,
+      "sha256": "75f3f8d99243b8a3b47912390b041ab5b0c6cfff94f493eeb91dd26f81d55f40"
+    },
+    {
+      "path": "source/untracked/app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/KeyPressHighlightGeometryTest.kt",
+      "bytes": 9542,
+      "sha256": "b9cb0af67d15817a7c0b2de26f28b46660737a3e568308f5abc02d5652d67ab5"
+    },
+    {
+      "path": "source/untracked/app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/icon/IconThemeEditorPreviewTest.kt",
+      "bytes": 8260,
+      "sha256": "2c51604514b2d1932bf703e5467c70a33a244adc4cad9a54a33588d1d1cac98b"
+    },
+    {
+      "path": "source/worktree.patch",
+      "bytes": 767991,
+      "sha256": "82787f60526ba08494fcd8d52f4183ef615091df939dd510cb4c94481fc88ab1"
+    },
+    {
+      "path": "tools/align_numeric_columns.py",
+      "bytes": 2086,
+      "sha256": "0eb13429cf024b4e3d0fe00ff9f327f045aa60374e26bd59d7c9a89bd9a7ec97"
+    },
+    {
+      "path": "tools/build_review_evidence.py",
+      "bytes": 1851,
+      "sha256": "243e65b37d59e04f2c194716a25d7e90a7bf5e662bbaedcf401964a48a81dfe7"
+    },
+    {
+      "path": "tools/build_s1_final.py",
+      "bytes": 2979,
+      "sha256": "2b14fb91f314162578bf17962b4cea93d1a047b6b7ec97d05c5ab2d3d76e1103"
+    },
+    {
+      "path": "tools/check_layouts.py",
+      "bytes": 1542,
+      "sha256": "038174eb217ed86ab1cd290eeaffb2a2e88e6d9dc9d960b7d0240aee15ec8435"
+    },
+    {
+      "path": "tools/collect_evidence.py",
+      "bytes": 6573,
+      "sha256": "1d441f32dce8d31a5473e10d8b4f310dbb7b1269424d0828593a445f1a58d269"
+    },
+    {
+      "path": "tools/gen_icons.py",
+      "bytes": 10373,
+      "sha256": "d0949f0e5aa693356573c3ae9d41495a28f0aed8ac20cff90aca0db716046582"
+    },
+    {
+      "path": "tools/make_contact_sheet.ps1",
+      "bytes": 1566,
+      "sha256": "d365373670cfe83495873a5c71e75ff67fb770c459d47ce6e482667cad13bf7a"
+    },
+    {
+      "path": "tools/make_screenshots.py",
+      "bytes": 1631,
+      "sha256": "479712be9d21a28c873b250b1fc1fde10326a6ce1fa20ad83819b7384b61e174"
+    },
+    {
+      "path": "tools/verify_installed.py",
+      "bytes": 1205,
+      "sha256": "2d1e285d89d3586f5b88d60be604fcced19b79718e41b822a655ff568fb20ae4"
+    },
+    {
+      "path": "tools/verify_packaged.py",
+      "bytes": 4799,
+      "sha256": "d04c72e549f5e6c294e16244dbdf371ee3996e3228110dd1d2f0d6db32e22824"
+    }
+  ],
+  "archive": {
+    "name": "validation-evidence.zip",
+    "bytes": 288695,
+    "sha256": "b31c3a53a5fa44cbe8baf3c283f68988c1f8c3ff9b970cc805e2dfceb9471394"
+  }
+}
