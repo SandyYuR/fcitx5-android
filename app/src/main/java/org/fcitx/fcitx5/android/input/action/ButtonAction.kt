@@ -23,6 +23,7 @@ import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
 import org.fcitx.fcitx5.android.input.editing.TextEditingWindow
 import org.fcitx.fcitx5.android.input.status.StatusAreaWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
+import org.fcitx.fcitx5.android.input.voice.VoiceInputProviderManager
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.ButtonsCustomizerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.FontsetEditorActivity
@@ -71,6 +72,9 @@ sealed class ButtonAction {
      * 这个槽位时回落到 [iconSlot]，因此未适配的旧主题表现不变。
      */
     open val iconSlotAlt: String? = null
+
+    /** Dedicated icon theme slot while this action is active; falls back to [iconSlot]. */
+    open val iconSlotActive: String? = null
 
     /**
      * 第二状态的内置图标，与 [iconSlotAlt] 配套。为空时回落到 [defaultIcon]。
@@ -290,6 +294,7 @@ data object FloatingToggleAction : ButtonAction() {
     override val defaultIcon = R.drawable.ic_floating_toggle_24
     override val defaultLabelRes = R.string.floating_keyboard
     override val iconSlot = "toolbar.floating_toggle"
+    override val iconSlotActive = "toolbar.floating_toggle_active"
     override val hasLongPress = true
 
     override fun isActive(service: FcitxInputMethodService): Boolean {
@@ -336,6 +341,7 @@ data object SplitKeyboardAction : ButtonAction() {
     override val defaultIcon = R.drawable.ic_split_keyboard_24
     override val defaultLabelRes = R.string.keyboard_modes_category_split
     override val iconSlot = "toolbar.split_keyboard"
+    override val iconSlotActive = "toolbar.split_keyboard_active"
 
     override fun isActive(service: FcitxInputMethodService): Boolean {
         return AppPrefs.getInstance().keyboard.splitKeyboardEnabled.getValue()
@@ -377,8 +383,11 @@ data object VoiceInputAction : ButtonAction() {
     override val id = "voice_input"
     override val defaultIcon = R.drawable.ic_baseline_keyboard_voice_24
     override val defaultLabelRes = R.string.switch_to_voice_input
-    override val iconSlot = "system.voice_input"
+    override val iconSlot = "toolbar.voice_input"
+    override val iconSlotActive = "toolbar.voice_input_active"
     override val hasLongPress = true
+
+    override fun isActive(service: FcitxInputMethodService): Boolean = VoiceInputProviderManager.isActive()
 
     override fun execute(
         context: Context,
@@ -683,6 +692,7 @@ data object OneHandedKeyboardAction : ButtonAction() {
     override val defaultIcon = R.drawable.ic_baseline_keyboard_tab_24
     override val defaultLabelRes = R.string.one_handed_keyboard
     override val iconSlot = "toolbar.one_handed_keyboard"
+    override val iconSlotActive = "toolbar.one_handed_keyboard_active"
 
     override fun isActive(service: FcitxInputMethodService): Boolean {
         return service.isOneHandKeyboardEnabled()
@@ -1056,7 +1066,11 @@ internal data class JsAppButtonAction(
     override val id = requireNotNull(JsAppButtonBinding.encode(pluginId, appId))
     override val defaultIcon = JsAppButtonBinding.Target(pluginId, appId).icon
     override val defaultLabelRes = R.string.js_tools
-    override val iconSlot = "toolbar.js_tools"
+    override val iconSlot = when (pluginId to appId) {
+        "js:youdao-free-translate" to "youdao_translate" -> "toolbar.js_app.youdao_translate"
+        "js:bilibili-translate" to "bilibili_translate" -> "toolbar.js_app.bilibili_translate"
+        else -> "toolbar.js_tools"
+    }
     override val hasLongPress = true
 
     override fun execute(context: Context, service: FcitxInputMethodService, fcitx: FcitxConnection,

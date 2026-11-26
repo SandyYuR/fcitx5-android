@@ -135,9 +135,10 @@ class KeyEditorForm(
     private var composeOverrideEditorMode: Boolean = false
     private var hasInitialComposeOverride: Boolean = false
     private var layoutName: String? = null
+    private var isTextEditingLayout: Boolean = false
     private val supportedKeyTypes: List<String>
         get() = KeyboardEditorUiBuilder.KEY_TYPES.filterNot {
-            layoutName == "text_editor" && it == "StickyModifierKey"
+            isTextEditingLayout && it == "StickyModifierKey"
         }
     private var availableLayoutTargets: List<String> = emptyList()
     private var independentColor: Boolean = false
@@ -329,6 +330,8 @@ class KeyEditorForm(
 
     private fun readIntentExtras() {
         layoutName = intent.getStringExtra(EXTRA_LAYOUT_NAME)
+        isTextEditingLayout = layoutName == "text_editor" ||
+            intent.getBooleanExtra(EXTRA_IS_TEXT_EDITING_LAYOUT, false)
         rowIndex = intent.getIntExtra(EXTRA_ROW_INDEX, -1)
         keyIndex = intent.takeIf { it.hasExtra(EXTRA_KEY_INDEX) }?.getIntExtra(EXTRA_KEY_INDEX, -1)?.takeIf { it >= 0 }
         isEditingSubModeLayout = intent.getBooleanExtra(EXTRA_IS_EDITING_SUBMODE_LAYOUT, false)
@@ -1188,6 +1191,7 @@ class KeyEditorForm(
         }
         val intent = Intent(this, KeyEditorActivity::class.java).apply {
             putExtra(EXTRA_LAYOUT_NAME, layoutName)
+            putExtra(EXTRA_IS_TEXT_EDITING_LAYOUT, isTextEditingLayout)
             putExtra(EXTRA_KEY_DATA, toSerializableMap(editorData))
             putExtra(EXTRA_BASE_KEY_COLOR_DATA, toSerializableMap(keyColorOverrides))
             putExtra(EXTRA_ROW_INDEX, -1)
@@ -1844,6 +1848,9 @@ class KeyEditorForm(
         // 用户只改宽度或动作时，保存后不该连带清掉这个键的主题图标（含嵌套合成态编辑器的入口）。
         keyData["iconSlot"]?.let { draft["iconSlot"] = it }
         if (!composeOverrideEditorMode) {
+            listOf("column", "columnSpan", "rowSpan").forEach { field ->
+                keyData[field]?.let { draft[field] = it }
+            }
             // Row height stays in row settings; the split boundary can also be edited on this key.
             keyData["rowHeightPercent"]?.let { draft["rowHeightPercent"] = it }
             if (splitAfterCheckBox?.isChecked == true) draft["splitAfter"] = true
@@ -2065,7 +2072,7 @@ class KeyEditorForm(
     }
 
     fun validatedDraft(showErrors: Boolean = true): MutableMap<String, Any?>? {
-        if (layoutName == "text_editor" && selectedType == "StickyModifierKey") {
+        if (isTextEditingLayout && selectedType == "StickyModifierKey") {
             if (showErrors) Toast.makeText(this, R.string.text_keyboard_layout_key_type_unavailable_message, Toast.LENGTH_LONG).show()
             return null
         }
@@ -2392,6 +2399,9 @@ class KeyEditorForm(
         // 进入子表单，所以这里保留的一定是当前这一层自己的槽位，不需要按模式排除。
         keyData["iconSlot"]?.let { newKey["iconSlot"] = it }
         if (!composeOverrideEditorMode) {
+            listOf("column", "columnSpan", "rowSpan").forEach { field ->
+                keyData[field]?.let { newKey[field] = it }
+            }
             // Row height stays in row settings; the split boundary can also be edited on this key.
             keyData["rowHeightPercent"]?.let { newKey["rowHeightPercent"] = it }
             if (splitAfterCheckBox?.isChecked == true) newKey["splitAfter"] = true
@@ -2497,6 +2507,7 @@ class KeyEditorForm(
         }
 
         const val EXTRA_LAYOUT_NAME = "layout_name"
+        const val EXTRA_IS_TEXT_EDITING_LAYOUT = "is_text_editing_layout"
         const val EXTRA_KEY_DATA = "key_data"
         const val EXTRA_ROW_INDEX = "row_index"
         const val EXTRA_KEY_INDEX = "key_index"

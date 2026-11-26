@@ -215,7 +215,7 @@ open class TextEditingUi(
         applyThemeToolbarIcon(button, "toolbar.clipboard", R.drawable.ic_clipboard)
     }
 
-    fun refreshThemedIcons() {
+    open fun refreshThemedIcons() {
         upButton.setThemedIcon("keys.cursor_up", R.drawable.ic_baseline_keyboard_arrow_up_24)
         downButton.setThemedIcon("keys.cursor_down", R.drawable.ic_baseline_keyboard_arrow_down_24)
         leftButton.setThemedIcon("keys.cursor_left", R.drawable.ic_baseline_keyboard_arrow_left_24)

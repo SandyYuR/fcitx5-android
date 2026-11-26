@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="text_editing_layout_override_title">Раскладка редактирования текста</string>
+    <string name="text_editing_layout_override_auto">Автоматически (из текущего профиля)</string>
+    <string name="text_editing_layout_override_builtin">Встроенная стандартная раскладка</string>
+    <string name="text_editing_layout_override_auto_summary">Автоматически: %1$s</string>
+    <string name="text_editing_layout_override_unavailable">%1$s (недоступна в текущем профиле)</string>
     <string name="app_name_release">Fcitx5.fx.rime</string>
     <string name="app_name_debug">Fcitx5.fx.rime (Отладка)</string>
     <string name="save">Сохранить</string>

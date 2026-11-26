@@ -746,13 +746,19 @@ object IconThemeManager {
                 setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
                 setInput(ByteArrayInputStream(clean.toByteArray()), null)
             }
+            // Multiple gray shades can encode highlights and shadows, just like a color palette.
+            // Tinting the whole drawable would flatten those shades into the key text color.
+            val colors = mutableSetOf<Int>()
             var event = parser.eventType
             while (event != XmlPullParser.END_DOCUMENT) {
                 if (event == XmlPullParser.START_TAG) {
-                    val fill = parseSvgColor(getAttr(parser, "fill"))
-                    if (fill != null && !isGray(fill)) return false
-                    val stroke = parseSvgColor(getAttr(parser, "stroke"))
-                    if (stroke != null && !isGray(stroke)) return false
+                    for (attribute in listOf("fill", "stroke")) {
+                        val color = parseSvgColor(getAttr(parser, attribute)) ?: continue
+                        if (Color.alpha(color) == 0) continue
+                        if (!isGray(color)) return false
+                        colors.add(color)
+                        if (colors.size > 1) return false
+                    }
                 }
                 event = parser.next()
             }

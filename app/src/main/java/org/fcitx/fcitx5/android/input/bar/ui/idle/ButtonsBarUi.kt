@@ -24,6 +24,19 @@ import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.view
 
 private const val LANGUAGE_SWITCH_ID = "language_switch"
+private const val VOICE_INPUT_ID = "voice_input"
+
+/** Ordered theme slots; voice input retains its former system slot as a last fallback. */
+internal fun resolveButtonIconSlots(
+    action: ButtonAction,
+    active: Boolean,
+    asciiMode: Boolean
+): List<String> = buildList {
+    if (active) action.iconSlotActive?.let(::add)
+    if (asciiMode && action.id == LANGUAGE_SWITCH_ID) action.iconSlotAlt?.let(::add)
+    action.iconSlot?.let(::add)
+    if (action.id == VOICE_INPUT_ID) add("system.voice_input")
+}.distinct()
 
 /**
  * The configurable button strip in the middle of the Kawaii Bar.
@@ -152,17 +165,14 @@ class ButtonsBarUi(
     private fun loadFileIcon(path: String) = ButtonIconFile.loadDrawable(path)
 
     /**
-     * 语言切换按钮在 ASCII mode 下优先用成对槽位，其余按钮与方案状态无关。
-     *
-     * 返回的是**候选槽位链**而不是单个槽位：[ButtonAction.iconSlotAlt] 是按钮定义里的常量，
-     * 恒为非空，写成 `iconSlotAlt ?: iconSlot` 会让主槽位永远查不到——只配了
-     * `toolbar.language_switch` 的旧主题切到 ASCII 后会掉回内置图标，而不是沿用主槽位。
-     * 这里按「专用槽位 → 主槽位」排好序交给调用方逐个查，都查不到才回落内置图标。
+     * Resolve theme slots in priority order, including the legacy voice input slot.
      */
     private fun resolveIconSlots(action: ButtonAction): List<String> =
-        if (asciiMode && action.id == LANGUAGE_SWITCH_ID)
-            listOfNotNull(action.iconSlotAlt, action.iconSlot).distinct()
-        else listOfNotNull(action.iconSlot)
+        resolveButtonIconSlots(
+            action = action,
+            active = buttonActiveMap[action.id] == true,
+            asciiMode = asciiMode
+        )
 
     /**
      * 语言切换按钮在 ASCII mode 下优先用它自己的图标。只配了一个图标时两个状态共用，
@@ -244,13 +254,20 @@ class ButtonsBarUi(
     }
 
     fun setFloatingState(isFloating: Boolean) {
-        buttonActiveMap["floating_toggle"] = isFloating
-        buttonMap["floating_toggle"]?.setActive(isFloating)
+        setButtonActiveState("floating_toggle", isFloating)
     }
 
     fun setOneHandKeyboardState(isOneHanded: Boolean) {
-        buttonActiveMap["one_handed_keyboard"] = isOneHanded
-        buttonMap["one_handed_keyboard"]?.setActive(isOneHanded)
+        setButtonActiveState("one_handed_keyboard", isOneHanded)
+    }
+
+    private fun setButtonActiveState(buttonId: String, active: Boolean) {
+        val previous = buttonActiveMap.put(buttonId, active)
+        buttonMap[buttonId]?.setActive(active)
+        if (previous == active) return
+        val button = buttonMap[buttonId] ?: return
+        val config = buttons.firstOrNull { it.id == buttonId } ?: return
+        applyIconAndText(button, config)
     }
 
     /**
@@ -286,9 +303,7 @@ class ButtonsBarUi(
      */
     fun updateButtonsState(service: FcitxInputMethodService) {
         ButtonAction.allConfigurableActions.forEach { action ->
-            val active = action.isActive(service)
-            buttonActiveMap[action.id] = active
-            buttonMap[action.id]?.setActive(active)
+            setButtonActiveState(action.id, action.isActive(service))
         }
     }
 }

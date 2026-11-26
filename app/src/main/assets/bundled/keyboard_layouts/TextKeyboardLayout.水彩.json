@@ -5,7 +5,6 @@
         {
           "type": "MacroKey",
           "label": "q",
-          "altLabel": "1",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -19,7 +18,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "1",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -35,7 +35,6 @@
         {
           "type": "MacroKey",
           "label": "w",
-          "altLabel": "2",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -49,7 +48,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "2",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -65,7 +65,6 @@
         {
           "type": "MacroKey",
           "label": "e",
-          "altLabel": "3",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -79,7 +78,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "3",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -95,7 +95,6 @@
         {
           "type": "MacroKey",
           "label": "r",
-          "altLabel": "4",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -109,7 +108,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "4",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -125,7 +125,6 @@
         {
           "type": "MacroKey",
           "label": "t",
-          "altLabel": "5",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -139,7 +138,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "5",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -155,7 +155,6 @@
         {
           "type": "MacroKey",
           "label": "y",
-          "altLabel": "6",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -169,7 +168,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "6",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -185,7 +185,6 @@
         {
           "type": "MacroKey",
           "label": "u",
-          "altLabel": "7",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -199,7 +198,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "7",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -215,7 +215,6 @@
         {
           "type": "MacroKey",
           "label": "i",
-          "altLabel": "8",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -229,7 +228,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "8",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -245,7 +245,6 @@
         {
           "type": "MacroKey",
           "label": "o",
-          "altLabel": "9",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -259,7 +258,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "9",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -275,7 +275,6 @@
         {
           "type": "MacroKey",
           "label": "p",
-          "altLabel": "0",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -289,7 +288,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "0",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -311,7 +311,6 @@
         {
           "type": "MacroKey",
           "label": "a",
-          "altLabel": "@",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -325,7 +324,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "@",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -341,7 +341,6 @@
         {
           "type": "MacroKey",
           "label": "s",
-          "altLabel": "/",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -355,7 +354,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "/",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -371,7 +371,6 @@
         {
           "type": "MacroKey",
           "label": "d",
-          "altLabel": "`",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -385,7 +384,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "`",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -401,7 +401,6 @@
         {
           "type": "MacroKey",
           "label": "f",
-          "altLabel": "-",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -415,7 +414,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "-",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -431,7 +431,6 @@
         {
           "type": "MacroKey",
           "label": "g",
-          "altLabel": "=",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -445,7 +444,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "=",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -461,7 +461,6 @@
         {
           "type": "MacroKey",
           "label": "h",
-          "altLabel": "'",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -475,7 +474,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "'",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -491,7 +491,6 @@
         {
           "type": "MacroKey",
           "label": "j",
-          "altLabel": "\"",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -505,7 +504,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "\"",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -521,7 +521,6 @@
         {
           "type": "MacroKey",
           "label": "k",
-          "altLabel": "?",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -535,7 +534,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "?",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -551,7 +551,6 @@
         {
           "type": "MacroKey",
           "label": "l",
-          "altLabel": "\\",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -565,7 +564,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "\\",
+          "swipeUp": {
             "macro": [
               {
                 "type": "tap",
@@ -594,7 +594,6 @@
         {
           "type": "MacroKey",
           "label": "z",
-          "altLabel": "全",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -608,7 +607,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "全",
+          "swipeUp": {
             "macro": [
               {
                 "type": "edit",
@@ -620,7 +620,6 @@
         {
           "type": "MacroKey",
           "label": "x",
-          "altLabel": "切",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -634,7 +633,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "剪",
+          "swipeUp": {
             "macro": [
               {
                 "type": "edit",
@@ -646,7 +646,6 @@
         {
           "type": "MacroKey",
           "label": "c",
-          "altLabel": "复",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -660,7 +659,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "复",
+          "swipeUp": {
             "macro": [
               {
                 "type": "edit",
@@ -672,7 +672,6 @@
         {
           "type": "MacroKey",
           "label": "v",
-          "altLabel": "贴",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -686,7 +685,8 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "贴",
+          "swipeUp": {
             "macro": [
               {
                 "type": "edit",
@@ -698,7 +698,6 @@
         {
           "type": "MacroKey",
           "label": "b",
-          "altLabel": "撤",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -712,11 +711,20 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "清",
+          "swipeUp": {
             "macro": [
               {
                 "type": "edit",
-                "action": "undo"
+                "action": "selectAll"
+              },
+              {
+                "type": "tap",
+                "keys": [
+                  {
+                    "fcitx": "BackSpace"
+                  }
+                ]
               }
             ]
           }
@@ -724,7 +732,6 @@
         {
           "type": "MacroKey",
           "label": "n",
-          "altLabel": "重",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -738,11 +745,12 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "撤",
+          "swipeUp": {
             "macro": [
               {
                 "type": "edit",
-                "action": "redo"
+                "action": "undo"
               }
             ]
           }
@@ -750,7 +758,6 @@
         {
           "type": "MacroKey",
           "label": "m",
-          "altLabel": "首",
           "weight": 0.1,
           "tap": {
             "macro": [
@@ -764,15 +771,12 @@
               }
             ]
           },
-          "swipe": {
+          "swipeUpLabel": "重",
+          "swipeUp": {
             "macro": [
               {
-                "type": "tap",
-                "keys": [
-                  {
-                    "fcitx": "Home"
-                  }
-                ]
+                "type": "edit",
+                "action": "redo"
               }
             ]
           }
@@ -823,7 +827,37 @@
           },
           "backgroundColor": -3152434,
           "shadowColor": -4072768,
-          "textColor": -15592166
+          "textColor": -15592166,
+          "swipeUpLabel": "容",
+          "altTextColor": "#FF558353",
+          "swipeUp": {
+            "macro": [
+              {
+                "type": "layer",
+                "mode": "to",
+                "target": "Emoji"
+              }
+            ]
+          }
+        },
+        {
+          "type": "LayoutSwitchKey",
+          "label": "符",
+          "subLabel": "Symbol",
+          "weight": 0.1,
+          "iconSlot": "keys.symbols",
+          "backgroundColor": "#FFFEF0E7",
+          "shadowColor": "#FFF4DDD0",
+          "textColor": "#FFB99683"
+        },
+        {
+          "backgroundColor": -1840650,
+          "shadowColor": -2827286,
+          "textColor": "#FF646D94",
+          "type": "SpaceKey",
+          "weight": 0.3,
+          "iconSlot": "keys.space",
+          "label": "空格"
         },
         {
           "type": "LanguageKey",
@@ -831,13 +865,6 @@
           "backgroundColor": -69401,
           "shadowColor": -729648,
           "textColor": -15592166
-        },
-        {
-          "backgroundColor": -1840650,
-          "shadowColor": -2827286,
-          "textColor": "#FF5C6B89",
-          "type": "SpaceKey",
-          "weight": 0.4
         },
         {
           "type": "MacroKey",
@@ -873,7 +900,7 @@
       [
         {
           "type": "MacroKey",
-          "weight": 0.16,
+          "weight": 0.15,
           "iconSlot": "keys.numpad.add",
           "tap": {
             "macro": [
@@ -889,12 +916,11 @@
           },
           "label": "+",
           "backgroundColor": -1032,
-          "shadowColor": -729648,
-          "textColor": -15592166
+          "shadowColor": -729648
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.1",
           "tap": {
             "macro": [
@@ -912,7 +938,7 @@
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.2",
           "tap": {
             "macro": [
@@ -930,7 +956,7 @@
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.3",
           "tap": {
             "macro": [
@@ -950,17 +976,16 @@
           "type": "LayoutSwitchKey",
           "label": "ABC",
           "subLabel": "Text",
-          "weight": 0.15,
           "iconSlot": "keys.numpad.layout",
+          "weight": 0.15,
           "backgroundColor": -2040075,
-          "shadowColor": -3355930,
-          "textColor": -15592166
+          "shadowColor": -3355930
         }
       ],
       [
         {
           "type": "MacroKey",
-          "weight": 0.16,
+          "weight": 0.15,
           "iconSlot": "keys.numpad.subtract",
           "tap": {
             "macro": [
@@ -976,12 +1001,11 @@
           },
           "label": "−",
           "backgroundColor": -1032,
-          "shadowColor": -729648,
-          "textColor": -15592166
+          "shadowColor": -729648
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.4",
           "tap": {
             "macro": [
@@ -999,7 +1023,7 @@
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.5",
           "tap": {
             "macro": [
@@ -1017,7 +1041,7 @@
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.6",
           "tap": {
             "macro": [
@@ -1051,14 +1075,13 @@
           },
           "label": "空格",
           "backgroundColor": -3152434,
-          "shadowColor": -4072768,
-          "textColor": -15592166
+          "shadowColor": -4072768
         }
       ],
       [
         {
           "type": "MacroKey",
-          "weight": 0.16,
+          "weight": 0.15,
           "iconSlot": "keys.numpad.multiply",
           "tap": {
             "macro": [
@@ -1074,12 +1097,11 @@
           },
           "label": "×",
           "backgroundColor": -1032,
-          "shadowColor": -729648,
-          "textColor": -15592166
+          "shadowColor": -729648
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.7",
           "tap": {
             "macro": [
@@ -1097,7 +1119,7 @@
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.8",
           "tap": {
             "macro": [
@@ -1115,7 +1137,7 @@
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.9",
           "tap": {
             "macro": [
@@ -1135,14 +1157,13 @@
           "type": "BackspaceKey",
           "weight": 0.15,
           "backgroundColor": -663580,
-          "shadowColor": -1257258,
-          "textColor": -15592166
+          "shadowColor": -1257258
         }
       ],
       [
         {
           "type": "MacroKey",
-          "weight": 0.16,
+          "weight": 0.15,
           "iconSlot": "keys.numpad.divide",
           "tap": {
             "macro": [
@@ -1158,12 +1179,11 @@
           },
           "label": "÷",
           "backgroundColor": -1032,
-          "shadowColor": -729648,
-          "textColor": -15592166
+          "shadowColor": -729648
         },
         {
           "type": "MacroKey",
-          "weight": 0.115,
+          "weight": 0.11666666666666665,
           "iconSlot": "keys.numpad.at",
           "tap": {
             "macro": [
@@ -1179,12 +1199,11 @@
           },
           "label": "@",
           "backgroundColor": -69401,
-          "shadowColor": -729648,
-          "textColor": -15592166
+          "shadowColor": -729648
         },
         {
           "type": "MacroKey",
-          "weight": 0.115,
+          "weight": 0.11666666666666665,
           "iconSlot": "keys.numpad.equal",
           "tap": {
             "macro": [
@@ -1200,12 +1219,11 @@
           },
           "label": "=",
           "backgroundColor": -1447447,
-          "shadowColor": -2566175,
-          "textColor": -15592166
+          "shadowColor": -2566175
         },
         {
           "type": "MacroKey",
-          "weight": 0.23,
+          "weight": 0.2333333333333333,
           "iconSlot": "keys.numpad.0",
           "tap": {
             "macro": [
@@ -1223,7 +1241,7 @@
         },
         {
           "type": "MacroKey",
-          "weight": 0.115,
+          "weight": 0.11666666666666665,
           "iconSlot": "keys.numpad.decimal",
           "tap": {
             "macro": [
@@ -1239,12 +1257,11 @@
           },
           "label": ".",
           "backgroundColor": -1447447,
-          "shadowColor": -2566175,
-          "textColor": -15592166
+          "shadowColor": -2566175
         },
         {
           "type": "MacroKey",
-          "weight": 0.115,
+          "weight": 0.11666666666666665,
           "iconSlot": "keys.numpad.percent",
           "tap": {
             "macro": [
@@ -1260,15 +1277,13 @@
           },
           "label": "%",
           "backgroundColor": -1840650,
-          "shadowColor": -2827286,
-          "textColor": -15592166
+          "shadowColor": -2827286
         },
         {
           "type": "ReturnKey",
           "weight": 0.15,
           "backgroundColor": -3481622,
-          "shadowColor": -4534052,
-          "textColor": -15592166
+          "shadowColor": -4534052
         }
       ]
     ]
@@ -1280,7 +1295,7 @@
         "label": "ABC",
         "subLabel": "Text",
         "weight": 0.16666666666666666,
-        "iconSlot": "keys.numpad.layout",
+        "iconSlot": "text_editor.layout",
         "backgroundColor": -2040075,
         "shadowColor": -3355930,
         "textColor": -15592166
@@ -1297,7 +1312,8 @@
               "action": "selectAll"
             }
           ]
-        }
+        },
+        "backgroundColor": -1
       },
       {
         "type": "MacroKey",
@@ -1311,7 +1327,8 @@
               "action": "cut"
             }
           ]
-        }
+        },
+        "backgroundColor": -1
       },
       {
         "type": "MacroKey",
@@ -1325,7 +1342,8 @@
               "action": "copy"
             }
           ]
-        }
+        },
+        "backgroundColor": -1
       },
       {
         "type": "MacroKey",
@@ -1339,7 +1357,8 @@
               "action": "paste"
             }
           ]
-        }
+        },
+        "backgroundColor": -1
       },
       {
         "type": "BackspaceKey",
@@ -1347,6 +1366,225 @@
         "backgroundColor": -663580,
         "shadowColor": -1257258,
         "textColor": -15592166
+      }
+    ]
+  ],
+  "editor": [
+    [
+      {
+        "type": "NumPadKey",
+        "label": "左",
+        "sym": 65361,
+        "weight": 0.23076923076923078,
+        "column": 0,
+        "columnSpan": 6,
+        "rowSpan": 3,
+        "iconSlot": "keys.cursor_left",
+        "backgroundColor": -1
+      },
+      {
+        "type": "NumPadKey",
+        "label": "上",
+        "sym": 65362,
+        "weight": 0.23076923076923078,
+        "column": 6,
+        "columnSpan": 6,
+        "rowSpan": 1,
+        "iconSlot": "keys.cursor_up",
+        "backgroundColor": -1
+      },
+      {
+        "type": "NumPadKey",
+        "label": "右",
+        "sym": 65363,
+        "weight": 0.23076923076923078,
+        "column": 12,
+        "columnSpan": 6,
+        "rowSpan": 3,
+        "iconSlot": "keys.cursor_right",
+        "backgroundColor": -1
+      },
+      {
+        "type": "MacroKey",
+        "label": "全选",
+        "tap": {
+          "macro": [
+            {
+              "type": "edit",
+              "action": "selectAll"
+            }
+          ]
+        },
+        "weight": 0.15384615384615385,
+        "column": 18,
+        "columnSpan": 4,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.select_all",
+        "backgroundColor": -515,
+        "textColor": -11777200
+      },
+      {
+        "type": "MacroKey",
+        "label": "剪切",
+        "tap": {
+          "macro": [
+            {
+              "type": "edit",
+              "action": "cut"
+            }
+          ]
+        },
+        "weight": 0.15384615384615385,
+        "column": 22,
+        "columnSpan": 4,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.cut",
+        "backgroundColor": -515,
+        "textColor": -11777200
+      }
+    ],
+    [
+      {
+        "type": "MacroKey",
+        "label": "选择",
+        "tap": {
+          "macro": [
+            {
+              "type": "edit",
+              "action": "toggleSelection"
+            }
+          ]
+        },
+        "weight": 0.23076923076923078,
+        "column": 6,
+        "columnSpan": 6,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.select",
+        "backgroundColor": -1
+      },
+      {
+        "type": "MacroKey",
+        "label": "复制",
+        "tap": {
+          "macro": [
+            {
+              "type": "edit",
+              "action": "copy"
+            }
+          ]
+        },
+        "weight": 0.15384615384615385,
+        "column": 18,
+        "columnSpan": 4,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.copy",
+        "backgroundColor": -515,
+        "textColor": -11777200
+      },
+      {
+        "type": "MacroKey",
+        "label": "粘贴",
+        "tap": {
+          "macro": [
+            {
+              "type": "edit",
+              "action": "paste"
+            }
+          ]
+        },
+        "weight": 0.15384615384615385,
+        "column": 22,
+        "columnSpan": 4,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.paste",
+        "backgroundColor": -515,
+        "textColor": -11777200
+      }
+    ],
+    [
+      {
+        "type": "NumPadKey",
+        "label": "下",
+        "sym": 65364,
+        "weight": 0.23076923076923078,
+        "column": 6,
+        "columnSpan": 6,
+        "rowSpan": 1,
+        "iconSlot": "keys.cursor_down",
+        "backgroundColor": -1
+      },
+      {
+        "type": "NumPadKey",
+        "label": "行首",
+        "sym": 65360,
+        "weight": 0.15384615384615385,
+        "column": 18,
+        "columnSpan": 4,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.home",
+        "backgroundColor": -515,
+        "textColor": -11777200
+      },
+      {
+        "type": "NumPadKey",
+        "label": "行尾",
+        "sym": 65367,
+        "weight": 0.15384615384615385,
+        "column": 22,
+        "columnSpan": 4,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.end",
+        "backgroundColor": -515,
+        "textColor": -11777200
+      }
+    ],
+    [
+      {
+        "type": "LayoutSwitchKey",
+        "label": "ABC",
+        "subLabel": "Text",
+        "weight": 0.23076923076923078,
+        "column": 0,
+        "columnSpan": 6,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.layout",
+        "backgroundColor": -2040075,
+        "shadowColor": -3355930,
+        "textColor": -11777200
+      },
+      {
+        "type": "MiniSpaceKey",
+        "label": "空格",
+        "weight": 0.23076923076923078,
+        "column": 6,
+        "columnSpan": 6,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.space",
+        "backgroundColor": -3152434,
+        "shadowColor": -4072768,
+        "textColor": -11777200
+      },
+      {
+        "type": "BackspaceKey",
+        "weight": 0.23076923076923078,
+        "column": 12,
+        "columnSpan": 6,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.backspace",
+        "backgroundColor": -663580,
+        "shadowColor": -1257258,
+        "textColor": -11777200
+      },
+      {
+        "type": "ReturnKey",
+        "weight": 0.3076923076923077,
+        "column": 18,
+        "columnSpan": 8,
+        "rowSpan": 1,
+        "iconSlot": "text_editor.return",
+        "backgroundColor": -3416340,
+        "shadowColor": -4534052,
+        "textColor": -1
       }
     ]
   ]

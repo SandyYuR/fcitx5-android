@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="text_editing_layout_override_title">Distribución de edición de texto</string>
+    <string name="text_editing_layout_override_auto">Automático (detectar del perfil actual)</string>
+    <string name="text_editing_layout_override_builtin">Distribución normal integrada</string>
+    <string name="text_editing_layout_override_auto_summary">Automático: %1$s</string>
+    <string name="text_editing_layout_override_unavailable">%1$s (no disponible en el perfil actual)</string>
     <string name="app_name_release">Fcitx5.fx.rime</string>
     <string name="app_name_debug">Fcitx5.fx.rime (Debug)</string>
     <string name="save">Guardar</string>

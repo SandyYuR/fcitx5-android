@@ -23,7 +23,14 @@ class JsAppButtonBindingTest {
         assertEquals("js:youdao-free-translate", action.pluginId)
         assertEquals("youdao_translate", action.appId)
         assertEquals(R.drawable.ic_youdao_24, action.defaultIcon)
-        assertEquals("toolbar.js_tools", action.iconSlot)
+        assertEquals("toolbar.js_app.youdao_translate", action.iconSlot)
+    }
+
+    @Test fun bilibiliUsesItsDedicatedStableIdentitySlot() {
+        val id = JsAppButtonBinding.encode("js:bilibili-translate", "bilibili_translate")!!
+        val action = ButtonAction.fromId(id) as JsAppButtonAction
+        assertEquals(R.drawable.ic_bilibili_24, action.defaultIcon)
+        assertEquals("toolbar.js_app.bilibili_translate", action.iconSlot)
     }
 
     @Test fun malformedOrUnnamespacedIdsCannotBecomeJsAppActions() {

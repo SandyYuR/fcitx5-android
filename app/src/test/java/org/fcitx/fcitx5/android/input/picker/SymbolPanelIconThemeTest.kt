@@ -91,6 +91,8 @@ class SymbolPanelIconThemeTest {
             panel.attach()
             val keyboard = key(panel, R.string.back_to_keyboard) as ImageKeyView
             val backspace = key(panel, R.string.backspace) as ImageKeyView
+            assertEquals("toolbar.virtual_keyboard", keyboard.themedIconSlot)
+            assertEquals("keys.backspace", backspace.themedIconSlot)
             assertTrue(keyboard.img.drawable is BitmapDrawable)
             assertTrue(backspace.img.drawable is BitmapDrawable)
             assertNull("Multicolor icons keep their original colors", keyboard.img.imageTintList)

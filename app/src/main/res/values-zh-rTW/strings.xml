@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="text_editing_layout_override_title">文字編輯版面</string>
+    <string name="text_editing_layout_override_auto">自動（依目前設定檔識別）</string>
+    <string name="text_editing_layout_override_builtin">內建一般版面</string>
+    <string name="text_editing_layout_override_auto_summary">自動：%1$s</string>
+    <string name="text_editing_layout_override_unavailable">%1$s（目前設定檔中無法使用）</string>
     <string name="app_name_release">靓企鹅·中州韵</string>
     <string name="app_name_debug">靓企鹅·中州韵 (Debug)</string>
     <string name="save">儲存</string>
@@ -101,8 +106,8 @@
     <string name="text_editing_cursor_prompt_selecting">觸控板選取中提示</string>
     <string name="text_editing_cursor_prompt_release_selection">觸控板結束選取提示</string>
     <string name="text_editing_prompt_default">留空則使用內建提示文字</string>
-    <string name="text_editing_edit_layout">編輯 Foxy 底部版面</string>
-    <string name="text_editing_edit_layout_summary">在鍵盤自訂中編輯 text_editor 版面</string>
+    <string name="text_editing_edit_layout">編輯文字編輯版面</string>
+    <string name="text_editing_edit_layout_summary">一般風格優先開啟指定或自動配對的版面，無配對時使用通用 text_editor；Foxy 一律固定使用 text_editor 底欄。</string>
     <string name="text_keyboard_layout_copy_source_text_editor">text_editor（文字編輯）</string>
     <string name="text_editing_abc">ABC</string>
     <string name="text_editing_select_all_short">全選</string>

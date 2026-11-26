@@ -66,12 +66,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.Action
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
+import org.fcitx.fcitx5.android.input.editing.TextEditingLayoutResolver
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
@@ -89,6 +93,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutDraftStore
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutEditorResultStore
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorResultHost
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorActivity
+import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.KeyEditorForm
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.LayoutFileProfileInputActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog.LayoutNameInputActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.manager.SubModeManager
@@ -466,6 +471,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val options = Intent().apply {
             putExtra(KeyEditorActivity.EXTRA_LAYOUT_NAME, currentLayout)
             putExtra(KeyEditorActivity.EXTRA_IS_EDITING_SUBMODE_LAYOUT, selectedLayoutKey != currentLayout)
+            putExtra(KeyEditorForm.EXTRA_IS_TEXT_EDITING_LAYOUT, isTextEditingLayoutKey(selectedLayoutKey))
             putExtra(KeyEditorActivity.EXTRA_CURRENT_SUBMODE_LABEL, previewSubModeLabel)
             putExtra(KeyEditorActivity.EXTRA_HAS_MULTI_SUBMODE_SUPPORT,
                 subModeManager.isCurrentLayoutRime(currentLayout.orEmpty()) || subModeSpinnerSelectionMap.size > 2)
@@ -2467,6 +2473,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
 
         val launchIntent = Intent(this, KeyEditorActivity::class.java).apply {
             putExtra(KeyEditorActivity.EXTRA_LAYOUT_NAME, layoutName)
+            putExtra(KeyEditorForm.EXTRA_IS_TEXT_EDITING_LAYOUT, isTextEditingLayoutKey(editingLayoutKey))
             putExtra(KeyEditorActivity.EXTRA_KEY_DATA, KeyEditorActivity.toSerializableMap(keyData.toMutableMap()))
             putExtra(KeyEditorActivity.EXTRA_ROW_INDEX, rowIndex)
             keyIndex?.let { putExtra(KeyEditorActivity.EXTRA_KEY_INDEX, it) }
@@ -3285,6 +3292,44 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             }
         }
         dialog.show()
+    }
+
+    private fun isTextEditingLayoutKey(entryKey: String?): Boolean {
+        if (entryKey == null) return false
+        if (entryKey == TextEditingLayoutResolver.TEXT_EDITOR_LAYOUT) return true
+        val layer = entryKey.substringBefore(":__variant__:").substringAfter(":", entryKey).substringAfterLast(":")
+        if (TextEditingLayoutResolver.isEditorLayerLabel(layer)) return true
+        val preference = AppPrefs.getInstance().textEditing.layoutOverride.getValue()
+        return TextEditingLayoutResolver.resolve(
+            textEditingLayoutJson(), preference, listOf("rime", "default")
+        ) == entryKey
+    }
+
+    private fun textEditingLayoutJson(): JsonObject {
+        val baseRows = linkedMapOf<String, JsonElement>()
+        val subRows = linkedMapOf<String, LinkedHashMap<String, JsonElement>>()
+        entries.forEach { (entryKey, rows) ->
+            val base = LayoutJsonUtils.baseLayoutNameFromEntryKey(entryKey)
+            val jsonRows = JsonArray(rows.map { row ->
+                JsonArray(row.map { key ->
+                    JsonObject(key.entries.associate { (name, value) ->
+                        name to LayoutJsonUtils.convertToJsonProperty(value)
+                    })
+                })
+            })
+            if (entryKey == base) {
+                baseRows[base] = jsonRows
+            } else {
+                subRows.getOrPut(base) { linkedMapOf() }[entryKey.substringAfter(":")] = jsonRows
+            }
+        }
+        val bases = linkedSetOf<String>().apply { addAll(baseRows.keys); addAll(subRows.keys) }
+        return JsonObject(bases.associateWith { base ->
+            val layouts = linkedMapOf<String, JsonElement>()
+            baseRows[base]?.let { layouts["default"] = it }
+            subRows[base]?.let(layouts::putAll)
+            JsonObject(layouts)
+        })
     }
 
     private fun currentEditingLayoutKey(): String? {

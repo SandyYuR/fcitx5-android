@@ -9,64 +9,115 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.config.ConfigProviders
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
 
-/** A parsed key from the user-editable `text_editor` layout. */
+/** A single touch target, including keys spanning several editor rows. */
+data class TextEditingGridCell(val row: Int, val column: Int, val columnSpan: Int, val rowSpan: Int)
+
 data class TextEditingLayoutKey(
     val keyDef: KeyDef,
     val tapAction: KeyAction?,
     val repeatAction: KeyAction?,
-    val longPressAction: KeyAction?
+    val longPressAction: KeyAction?,
+    val row: Int = 0,
+    val index: Int = 0,
+    val gridCell: TextEditingGridCell? = null,
+    val swipeBehavior: KeyDef.Behavior.Swipe? = null
 ) {
-    val appearance: KeyDef.Appearance
-        get() = keyDef.appearance
+    val appearance: KeyDef.Appearance get() = keyDef.appearance
 }
 
 data class TextEditingLayout(val rows: List<List<TextEditingLayoutKey>>) {
     val isEmpty: Boolean get() = rows.all { it.isEmpty() }
+    val columnCount: Int get() = rows.flatten().maxOfOrNull {
+        it.gridCell?.let { cell -> cell.column + cell.columnSpan } ?: 0
+    } ?: 0
 }
 
-/**
- * Reads and parses the same `text_editor` layout used by the keyboard layout editor.
- * [fromRows] is also used by the in-memory preview, so unsaved editor changes are reflected
- * by the Foxy editor with the exact same KeyDef parser as the real keyboard.
- */
+/** Shared parser for the runtime panel and the unsaved layout editor preview. */
 object TextEditingLayoutLoader {
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
+    private val supportedTypes = setOf(
+        "AlphabetKey", "CapsKey", "LayoutSwitchKey", "CommaKey", "LanguageKey", "SpaceKey",
+        "SymbolKey", "ReturnKey", "BackspaceKey", "NumPadKey", "MiniSpaceKey", "MacroKey"
+    )
 
-    fun load(): TextEditingLayout? {
+    fun load(preferredBases: List<String> = listOf("rime", "default")): TextEditingLayout? {
         val root = loadRootJson() ?: return null
-        val rowsElement = layoutRowsElement(root[LAYOUT_NAME]) ?: return null
-        return fromRows(LayoutJsonUtils.parseLayoutRows(rowsElement))
+        return fromJson(root, AppPrefs.getInstance().textEditing.layoutOverride.getValue(), preferredBases)
+    }
+
+    fun fromJson(root: JsonObject, preference: String, preferredBases: List<String>): TextEditingLayout? {
+        if (preference.trim() == TextEditingLayoutResolver.BUILTIN) return null
+        val selected = TextEditingLayoutResolver.resolve(root, preference, preferredBases) {
+            parseEntry(root, it) != null
+        }
+        return parseEntry(root, selected)
+    }
+
+    /** The swipe pad keeps its independent, backwards compatible bottom bar. */
+    fun loadSwipeBar(): TextEditingLayout? = loadRootJson()?.let { parseEntry(it, "text_editor") }
+
+    private fun parseEntry(root: JsonObject, key: String?): TextEditingLayout? {
+        key ?: return null
+        val base = key.substringBefore(':')
+        val sub = key.substringAfter(':', "")
+        val element = if (sub.isEmpty()) root[base] else (root[base] as? JsonObject)?.get(sub)
+        val rows = layoutRowsElement(element) ?: return null
+        return runCatching { fromRows(LayoutJsonUtils.parseLayoutRows(rows)) }.getOrNull()
     }
 
     fun fromRows(rows: List<List<Map<String, Any?>>>): TextEditingLayout? {
-        val parsedRows = rows.map { row ->
-            row.mapNotNull { rawKey ->
-                val keyObject = JsonObject(
-                    rawKey.entries.associate { (key, value) ->
-                        key to LayoutJsonUtils.convertToJsonProperty(value)
+        if (rows.isEmpty() || rows.size > 32 || rows.sumOf { it.size } > 512) return null
+        val grid = rows.flatten().any { "column" in it || "columnSpan" in it || "rowSpan" in it }
+        val occupied = mutableSetOf<Pair<Int, Int>>()
+        val parsedRows = rows.mapIndexed { rowIndex, row ->
+            row.mapIndexedNotNull { keyIndex, rawKey ->
+                val cell = if (grid) {
+                    fun integer(name: String, default: Int? = null): Int? {
+                        val raw = rawKey[name] ?: return default
+                        val number = (raw as? Number)?.toDouble() ?: raw.toString().toDoubleOrNull() ?: return null
+                        return number.takeIf { it.isFinite() && it == it.toInt().toDouble() }?.toInt()
                     }
-                )
+                    val column = integer("column") ?: return null
+                    val columns = integer("columnSpan", 1) ?: return null
+                    val height = integer("rowSpan", 1) ?: return null
+                    if (column !in 0..127 || columns !in 1..128 || column + columns > 128 ||
+                        height !in 1..32 || rowIndex + height > rows.size) return null
+                    for (r in rowIndex until rowIndex + height) {
+                        for (c in column until column + columns) if (!occupied.add(r to c)) return null
+                    }
+                    TextEditingGridCell(rowIndex, column, columns, height)
+                } else null
+                val keyObject = JsonObject(rawKey.mapValues { LayoutJsonUtils.convertToJsonProperty(it.value) })
                 val keyJson = runCatching { LayoutJsonUtils.parseKeyJson(keyObject) }.getOrNull()
-                    ?: return@mapNotNull null
+                if (keyJson == null || keyJson.type !in supportedTypes) {
+                    if (grid) return null else return@mapIndexedNotNull null
+                }
                 val keyDef = runCatching { LayoutJsonUtils.createKeyDef(keyJson) }.getOrNull()
-                    ?: return@mapNotNull null
+                if (keyDef == null) { if (grid) return null else return@mapIndexedNotNull null }
                 val behaviors = keyDef.behaviors
+                val tap = behaviors.filterIsInstance<KeyDef.Behavior.Press>().firstOrNull()?.action ?: keyJson.tap
+                val navigation = (tap as? KeyAction.SymAction)?.sym?.keyCode in setOf(
+                    android.view.KeyEvent.KEYCODE_DPAD_LEFT, android.view.KeyEvent.KEYCODE_DPAD_RIGHT,
+                    android.view.KeyEvent.KEYCODE_DPAD_UP, android.view.KeyEvent.KEYCODE_DPAD_DOWN
+                )
                 TextEditingLayoutKey(
-                    keyDef = keyDef,
-                    tapAction = behaviors.filterIsInstance<KeyDef.Behavior.Press>()
-                        .firstOrNull()?.action ?: keyJson.tap,
-                    repeatAction = behaviors.filterIsInstance<KeyDef.Behavior.Repeat>()
-                        .firstOrNull()?.action,
-                    longPressAction = behaviors.filterIsInstance<KeyDef.Behavior.LongPress>()
-                        .firstOrNull()?.action ?: keyJson.longPress
+                    keyDef,
+                    tap,
+                    behaviors.filterIsInstance<KeyDef.Behavior.Repeat>().firstOrNull()?.action ?: tap.takeIf { navigation },
+                    behaviors.filterIsInstance<KeyDef.Behavior.LongPress>().firstOrNull()?.action ?: keyJson.longPress,
+                    rowIndex,
+                    keyIndex,
+                    cell,
+                    behaviors.filterIsInstance<KeyDef.Behavior.Swipe>().firstOrNull()
                 )
             }
-        }.filter { it.isNotEmpty() }
+        }
         return TextEditingLayout(parsedRows).takeUnless { it.isEmpty }
     }
 
@@ -76,17 +127,13 @@ object TextEditingLayoutLoader {
         val file = provider.textKeyboardLayoutFile() ?: return null
         if (!file.isFile || file.length() == 0L) return null
         return runCatching {
-            val source = LayoutJsonUtils.removeJsonComments(file.readText())
-            json.parseToJsonElement(source).jsonObject
+            json.parseToJsonElement(LayoutJsonUtils.removeJsonComments(file.readText())).jsonObject
         }.getOrNull()
     }
 
     private fun layoutRowsElement(element: JsonElement?): JsonArray? = when (element) {
         is JsonArray -> element
-        is JsonObject -> (element["default"] as? JsonArray)
-            ?: (element[""] as? JsonArray)
+        is JsonObject -> layoutRowsElement(element["default"] ?: element[""])
         else -> null
     }
-
-    private const val LAYOUT_NAME = "text_editor"
 }
