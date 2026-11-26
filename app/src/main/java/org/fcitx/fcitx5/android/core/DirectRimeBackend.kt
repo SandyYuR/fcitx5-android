@@ -104,6 +104,9 @@ class DirectRimeBackend(context: Context) : InputEngine {
             override var started: Boolean
                 get() = this@DirectRimeBackend.started
                 set(value) { this@DirectRimeBackend.started = value }
+            override var configuredEvoFamily: Boolean
+                get() = this@DirectRimeBackend.configuredEvoFamily
+                set(value) { this@DirectRimeBackend.configuredEvoFamily = value }
             override fun clearSnapshot() { snapshot = null }
             override fun clearStartupError() { startupError = "" }
             override fun refreshSchemas() = this@DirectRimeBackend.refreshSchemas()
@@ -111,6 +114,8 @@ class DirectRimeBackend(context: Context) : InputEngine {
         },
     )
     @Volatile private var started = false
+    // Successful configuration of the selected native slot; maintenance stop/start retains that slot.
+    private var configuredEvoFamily = false
     @Volatile private var snapshot: Snapshot? = null
     private var program = ""
     private var activeUid = -1
@@ -258,7 +263,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         finalize = {
             statusHints.clear()
             try { if (started) Native.stop() }
-            finally { started = false; snapshot = null }
+            finally { started = false; configuredEvoFamily = false; snapshot = null }
         },
     )
 
@@ -594,8 +599,13 @@ class DirectRimeBackend(context: Context) : InputEngine {
         }.toTypedArray()
     }
     override suspend fun getCandidateActions(idx: Int): Array<CandidateAction> {
-        val sequence = if (idx < 0) emptyList<CandidateAction>() else DirectRimeCandidateSequence.actions(onOwner { sequenceKeys() })
-        return (listOf(DirectRimeCandidateSequence.forgetAction) + sequence).toTypedArray()
+        val sequence = if (idx < 0) emptyList<CandidateAction>() else onOwner {
+            DirectRimeCandidateSequence.actions(sequenceKeys(), configuredEvoFamily)
+        }
+        // EVO auto_delete already deletes this selected candidate's automatic learning.
+        val forget = if (sequence.any { it.id == DirectRimeCandidateSequence.Operation.AutoDelete.id })
+            emptyList() else listOf(DirectRimeCandidateSequence.forgetAction)
+        return (forget + sequence).toTypedArray()
     }
     override suspend fun triggerCandidateAction(idx: Int, actionIdx: Int) { candidateAction(idx, actionIdx, false, null) }
     override suspend fun triggerGlobalCandidateAction(idx: Int, actionIdx: Int) { candidateAction(idx, actionIdx, true, null) }
@@ -616,16 +626,18 @@ class DirectRimeBackend(context: Context) : InputEngine {
         if (DirectRimeCandidateSequence.operation(actionIdx) == null) return false
         // The schema's key is read on the owner after admission, so a stale target never reaches JNI.
         return performAction(if (global) 15 else 14, idx, expected, value = {
-            DirectRimeCandidateSequence.keyArgument(sequenceKeys(), actionIdx)
+            DirectRimeCandidateSequence.keyArgument(sequenceKeys(), actionIdx, configuredEvoFamily)
         })?.ready == true
     }
 
-    /** Owner thread only. Empty unless the bound Wanxiang schema loads a manual ordering processor. */
+    /** Owner only. Native validates Wanxiang Lua or the configured EVO editor's declared bindings. */
     private fun sequenceKeys(): Array<String> {
         val value = snapshot
         if (!started || maintenance || value?.ready != true || value.generation != inputSession ||
-            !DirectRimeCandidateSequence.isWanxiangSchema(value.schema)) return emptyArray()
-        return try { Native.sequenceKeys() } catch (e: Exception) {
+            (!configuredEvoFamily && !DirectRimeCandidateSequence.isWanxiangSchema(value.schema))) return emptyArray()
+        return try {
+            DirectRimeCandidateSequence.resolveKeys(Native.sequenceKeys(configuredEvoFamily), configuredEvoFamily)
+        } catch (e: Exception) {
             Timber.w(e, "Cannot read manual candidate ordering keys")
             emptyArray()
         }

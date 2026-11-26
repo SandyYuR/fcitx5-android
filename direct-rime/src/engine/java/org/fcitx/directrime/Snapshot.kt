@@ -121,8 +121,14 @@ internal object Native {
     external fun schemaEntries(): Array<String>
     external fun options(): Array<String>
     external fun prewarmAssets(): Array<String>
-    /** Current schema's manual ordering keys (up, down, reset, pin); empty when unsupported. */
-    external fun sequenceKeys(): Array<String>
+    /**
+     * Wanxiang super_sequence returns four slots: up, down, reset, pin. Otherwise [evo],
+     * the configured engine identity, enables raw editor bindings as
+     * `["evo-editor-bindings-v1", rawKey, rawAction, ...]` in config iterator order.
+     * All declarations remain, including noop/unknown actions; unreadable actions are empty.
+     * No bindings returns an empty array. The frontend resolves keys and action collisions.
+     */
+    external fun sequenceKeys(evo: Boolean): Array<String>
     external fun schemaSelection(): String
     /** Schema a new session would activate; empty when no schema is available. */
     external fun currentSchema(): String

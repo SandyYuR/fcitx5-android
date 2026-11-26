@@ -446,7 +446,8 @@ internal class RimeEngineRepository(
                     file.length() in 1..RimeEngineElf.MAX_ENGINE_BYTES &&
                     RimeEngineElf.sha256(file) == it.staticInfo.sha256 } }
                 ?.let { ResolvedRimeEngine.External(current.active, it.displayName, it.profile,
-                    it.staticInfo.entrySymbol, it.staticInfo.sha256, executableFile(it).absolutePath) }
+                    it.staticInfo.entrySymbol, it.staticInfo.sha256, executableFile(it).absolutePath,
+                    evoFamily = it.staticInfo.soname == "librime-evo.so") }
                 ?: ResolvedRimeEngine.Builtin
             RimeEngineKind.PLUGIN -> {
                 val authorization = current.plugins.firstOrNull { it.packageName == current.active.id }
@@ -460,7 +461,12 @@ internal class RimeEngineRepository(
                     val executable = pluginExecutableFile(candidate, authorization)
                     ResolvedRimeEngine.External(current.active, authorization.displayName,
                         authorization.profile, candidate.staticInfo.entrySymbol,
-                        candidate.staticInfo.sha256, executable.absolutePath)
+                        candidate.staticInfo.sha256, executable.absolutePath,
+                        evoFamily = candidate.packageName == "org.rime.plugin.sandyyur.librime_evo" &&
+                            candidate.providerId == "sandyyur-librime-evo" &&
+                            candidate.soname == "librime-evo.so" &&
+                            candidate.staticInfo.soname == "librime-evo.so" &&
+                            authorization.staticInfo.soname == "librime-evo.so")
                 } else ResolvedRimeEngine.Builtin
             }
         }

@@ -75,6 +75,7 @@ class DirectRimeEngineOperationsTest {
     private inner class EngineOwner : DirectRimeEngineOperations.Owner {
         override var started = false
             set(value) { calls += "running:$value"; field = value }
+        override var configuredEvoFamily = false
         var hasSnapshot = true
         var startupError = "previous startup error"
         var onRefresh: () -> Unit = {}
@@ -166,6 +167,12 @@ class DirectRimeEngineOperationsTest {
     private fun watchdog(): Runnable? = ReflectionHelpers.getField(engine, "externalOperationWatchdog")
     private fun pending(): RimeEngineSelection? = ReflectionHelpers.getField(engine, "maintenanceActivationSelection")
     private fun blockStoreWrite() { assertTrue(File(repositoryRoot, "state.json.tmp").mkdir()) }
+    private fun markEvo(selection: RimeEngineSelection = first) {
+        val state = repository.state()
+        File(repositoryRoot, "state.json").writeText(Json.encodeToString(state.copy(imported = state.imported.map {
+            if (it.id == selection.id) it.copy(staticInfo = it.staticInfo.copy(soname = "librime-evo.so")) else it
+        })))
+    }
     private fun activeFirst() {
         repository.select(first, config.current)
         assertTrue(engine.configureSelectedEngine())
@@ -176,10 +183,79 @@ class DirectRimeEngineOperationsTest {
     private fun selectSecond() { activeFirst(); repository.select(second) }
     private fun advance(milliseconds: Long) { shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(milliseconds)) }
 
+    @Test fun evoFamilyIsPublishedOnlyAfterSuccessfulExternalConfiguration() {
+        markEvo()
+        repository.select(first, "rime")
+        owner.configuredEvoFamily = true
+        native.onConfigure = { assertFalse(owner.configuredEvoFamily) }
+        assertTrue(engine.configureSelectedEngine())
+        assertTrue(owner.configuredEvoFamily)
+        assertFalse(owner.started)
+        configuredDescriptors.forEach { assertFalse(it.valid()) }
+        engine.startupSucceeded()
+        engine.resetStartupState()
+        assertFalse(owner.configuredEvoFamily)
+    }
+
+    @Test fun failedExternalConfigurationCannotRetainEvoFamily() {
+        markEvo()
+        repository.select(first, "rime")
+        owner.configuredEvoFamily = true
+        native.onConfigure = { assertFalse(owner.configuredEvoFamily); throw IOException("configure failed") }
+        assertThrows(IOException::class.java) { engine.configureSelectedEngine() }
+        assertFalse(owner.configuredEvoFamily)
+    }
+
+    @Test fun switchingToBuiltinClearsEvoFamilyBeforeStopAndSelection() {
+        markEvo()
+        activeFirst()
+        assertTrue(owner.configuredEvoFamily)
+        repository.select(RimeEngineSelection.Builtin)
+        native.onStop = { assertFalse(owner.configuredEvoFamily) }
+        native.onSelectBuiltin = { assertFalse(owner.configuredEvoFamily) }
+        engine.switchVariantOnOwner()
+        assertTrue(owner.started)
+        assertFalse(owner.configuredEvoFamily)
+    }
+
+    @Test fun maintenanceRestartRetainsTheConfiguredSlotFamilyWithoutReconfiguration() {
+        markEvo()
+        activeFirst()
+        native.onStop = { assertTrue(owner.configuredEvoFamily) }
+        native.onStart = { assertTrue(owner.configuredEvoFamily) }
+        engine.restart()
+        assertTrue(owner.configuredEvoFamily)
+        assertTrue(owner.started)
+        assertFalse(calls.any { it.startsWith("external:") || it == "builtin" })
+        engine.completeMaintenanceActivation()
+    }
+
+    @Test fun maintenanceFailureClearsEvoFamilyEvenIfFallbackPersistenceThrows() {
+        markEvo()
+        activeFirst()
+        native.onStop = { throw IOException("stop failed") }
+        val failure = assertThrows(IOException::class.java) { engine.stopForRestart() }
+        assertTrue(owner.configuredEvoFamily)
+        blockStoreWrite()
+        assertThrows(IllegalArgumentException::class.java) { engine.failMaintenanceActivation(failure) }
+        assertFalse(owner.configuredEvoFamily)
+    }
+
+    @Test fun startupFailureClearsEvoFamilyBeforeFallbackPersistence() {
+        markEvo()
+        activeFirst()
+        assertTrue(owner.configuredEvoFamily)
+        blockStoreWrite()
+        assertThrows(IllegalArgumentException::class.java) { engine.startupFailed(IOException("start failed")) }
+        assertFalse(owner.configuredEvoFamily)
+    }
+
     @Test fun directBootConstructionConfigurationAndRestartNeverReadTheRepository() {
         engine = operations(directBoot = true, provider = { fail("CE repository read"); repository })
         ReflectionHelpers.setField(engine, "newActivation", true)
+        owner.configuredEvoFamily = true
         assertFalse(engine.configureSelectedEngine())
+        assertFalse(owner.configuredEvoFamily)
         assertTrue("Direct Boot configure does not reset this field", engine.newActivation)
         assertEquals(RimeEngineSelection.Builtin, engine.activeSelection)
         assertTrue(calls.isEmpty())
@@ -201,7 +277,8 @@ class DirectRimeEngineOperationsTest {
     @Test fun initialSwitchStopFailureClearsRunningAndSnapshotBeforeStopAndNeverLoadsTheTarget() {
         selectSecond()
         val failure = IOException("current slot stop failed")
-        native.onStop = { throw failure }
+        owner.configuredEvoFamily = true
+        native.onStop = { assertFalse(owner.configuredEvoFamily); throw failure }
         assertSame(failure, assertThrows(IOException::class.java) { engine.switchVariantOnOwner() })
         assertEquals(listOf("running:false", "clear-snapshot", "stop:false:false"), calls)
         assertFalse(owner.started)

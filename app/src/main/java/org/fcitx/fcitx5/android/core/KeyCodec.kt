@@ -34,6 +34,9 @@ internal object KeyCodec {
 
     fun parse(raw: String): Key = synchronized(cache) { cache[raw] ?: decode(raw).also { cache[raw] = it } }
 
+    /** Exact catalogue lookup only: no Unicode, XF86, modifier or serialization normalization. */
+    fun exactKeysym(name: String): Int? = names.byName[name]
+
     private fun decode(raw: String): Key {
         if (raw.isEmpty()) return Key.None
         var states = 0

@@ -1,5 +1,6 @@
 #include "engine.h"
 #include <cstdio>
+#include <cstddef>
 #include <cstring>
 #include <iostream>
 #include <new>
@@ -76,12 +77,13 @@ struct Fake {
     std::vector<std::string> syncMessages = {"start", "success"};
     RimeNotificationHandler callback = nullptr;
     void* context = nullptr;
-    // Manual candidate ordering (super_sequence) fixture.
+    // Schema-driven manual candidate ordering fixture.
     int sym = 0, highlighted = -1;
+    int pageNo = 0, pageSize = 5, numCandidates = 5;
     size_t highlightedGlobal = 999;
-    bool highlightFails = false;
-    std::vector<std::string> processors;
-    std::map<std::string, std::string> schemaValues;
+    bool highlightFails = false, editorBindingsPresent = true;
+    std::vector<std::string> processors, editorBindingOrder;
+    std::map<std::string, std::string> schemaValues, editorBindings;
 } f;
 std::string algebraPath() { return "build/dictionaries/" + f.dictionary + "/algebra"; }
 bool fakeHasMap(const std::string& path) {
@@ -431,8 +433,8 @@ void testFrontendExtensions() {
     CHECK(engine.candidates(1, 0, 10).empty() && f.freedIterator == 1);
     engine.stop();
 }
-void testCandidateSequence() {
-    f = {}; auto a = api();
+RimeApi candidateSequenceApi() {
+    auto a = api();
     a.get_current_schema = [](RimeSessionId, char* id, size_t size) -> Bool {
         std::snprintf(id, size, "%s", f.schema.c_str()); return true;
     };
@@ -446,17 +448,33 @@ void testCandidateSequence() {
             const auto index = std::strtoul(name.c_str() + prefix.size(), nullptr, 10);
             return index < f.processors.size() ? f.processors[index].c_str() : nullptr;
         }
+        const std::string bindings = "editor/bindings/";
+        if (!name.compare(0, bindings.size(), bindings)) {
+            const auto binding = name.substr(bindings.size());
+            // A literal slash can be unreadable through a slash-delimited C API path.
+            if (binding.find('/') != std::string::npos) return nullptr;
+            const auto found = f.editorBindings.find(binding);
+            return found == f.editorBindings.end() ? nullptr : found->second.c_str();
+        }
         const auto found = f.schemaValues.find(name);
         return found == f.schemaValues.end() ? nullptr : found->second.c_str();
     };
+    a.config_begin_map = [](RimeConfigIterator* iterator, RimeConfig*, const char* key) -> Bool {
+        if (std::strcmp(key, "editor/bindings") || !f.editorBindingsPresent) return false;
+        auto* keys = new std::vector<std::string>(f.editorBindingOrder);
+        if (keys->empty()) {
+            for (const auto& binding : f.editorBindings) keys->push_back(binding.first);
+        }
+        iterator->map = keys; iterator->index = 0; iterator->key = nullptr; return true;
+    };
     a.process_key = [](RimeSessionId, int sym, int mask) -> Bool { ++f.keys; f.sym = sym; f.mask = mask; return true; };
-    // Mirrors RimeGetContext: the highlighted slot is page-local (selected % page_size).
+    // Mirrors RimeGetContext: highlighted_candidate_index is local to page_no.
     a.get_context = [](RimeSessionId, RimeContext* c) -> Bool {
         static RimeCandidate candidates[10] = {};
         for (auto& candidate : candidates) candidate.text = const_cast<char*>("candidate");
-        c->menu.candidates = candidates; c->menu.num_candidates = 10;
-        c->menu.page_size = 5; c->menu.highlighted_candidate_index = f.highlighted;
-        return true;
+        c->menu.candidates = candidates; c->menu.num_candidates = f.numCandidates;
+        c->menu.page_no = f.pageNo; c->menu.page_size = f.pageSize;
+        c->menu.highlighted_candidate_index = f.highlighted; return true;
     };
     a.highlight_candidate_on_current_page = [](RimeSessionId, size_t i) -> Bool {
         if (f.highlightFails) return false;
@@ -464,36 +482,175 @@ void testCandidateSequence() {
     };
     a.highlight_candidate = [](RimeSessionId, size_t i) -> Bool {
         if (f.highlightFails) return false;
-        f.highlightedGlobal = i; f.highlighted = static_cast<int>(i % 5); return true;
+        f.highlightedGlobal = i; f.pageNo = static_cast<int>(i / f.pageSize);
+        f.highlighted = static_cast<int>(i % f.pageSize); return true;
     };
+    return a;
+}
+void testCandidateSequenceKeys() {
+    f = {}; auto a = candidateSequenceApi();
+    Engine engine(&a); engine.start("shared", "user"); engine.begin(1, "editor");
+    f.schema = "wanxiang_pro";
+    f.processors = {"ascii_composer", "speller"};
+    CHECK(engine.sequenceKeys(false).empty() && engine.sequenceKeys(true).empty());
+    f.processors = {"super_sequence", "lua_translator@super_sequence"};
+    CHECK(engine.sequenceKeys(false).empty());
+    f.processors = {"ascii_composer", "lua_processor@*wanxiang.super_sequence*P", "speller"};
+    const std::vector<std::string> defaults = {"Control+j", "Control+k", "Control+l", "Control+p"};
+    CHECK(engine.sequenceKeys(false) == defaults && engine.sequenceKeys(true) == defaults);
+    f.schemaValues["super_sequence/pin"] = "Control+bracketleft";
+    const std::vector<std::string> luaCustom = {"Control+j", "Control+k", "Control+l", "Control+bracketleft"};
+    CHECK(engine.sequenceKeys(false) == luaCustom && engine.sequenceKeys(true) == luaCustom);
+    f.schema = "luna_pinyin";
+    CHECK(engine.sequenceKeys(false).empty() && engine.sequenceKeys(true).empty());
+    f.editorBindings = {{"Control+Up", "manual_up"}, {"Control+Down", "manual_down"},
+                        {"Shift+Delete", "manual_delete"}, {"Control+Delete", "auto_delete"},
+                        {"Control+BackSpace", "delete_candidate"}};
+    f.processors = {"ascii_composer", "express_editor"};
+    const std::vector<std::string> declared = {"evo-editor-bindings-v1",
+        "Control+BackSpace", "delete_candidate", "Control+Delete", "auto_delete",
+        "Control+Down", "manual_down", "Control+Up", "manual_up", "Shift+Delete", "manual_delete"};
+    CHECK(engine.sequenceKeys(false).empty());
+    CHECK(engine.sequenceKeys(true) == declared);
+    f.processors = {"fluid_editor"}; CHECK(engine.sequenceKeys(true) == declared);
+    f.processors = {"express_editor@custom"}; CHECK(engine.sequenceKeys(true) == declared);
+    f.processors = {"lua_processor@express_editor", "not_fluid_editor"};
+    CHECK(engine.sequenceKeys(true).empty());
+    f.processors = {"express_editor"};
+    f.editorBindings = {{"Alt+bracketleft", "manual_up"}, {"Alt+bracketright", "manual_down"},
+                        {"Alt+Delete", "auto_delete"}};
+    const std::vector<std::string> custom = {"evo-editor-bindings-v1", "Alt+Delete", "auto_delete",
+        "Alt+bracketleft", "manual_up", "Alt+bracketright", "manual_down"};
+    CHECK(engine.sequenceKeys(true) == custom); // Raw declarations never invent defaults/reset/pin.
+    f.editorBindings = {{"Alt+bracketright", "manual_down"}};
+    CHECK(engine.sequenceKeys(true) == std::vector<std::string>({"evo-editor-bindings-v1", "Alt+bracketright", "manual_down"}));
+    f.editorBindings = {{"Alt+bracketleft", "manual_up"}};
+    CHECK(engine.sequenceKeys(true) == std::vector<std::string>({"evo-editor-bindings-v1", "Alt+bracketleft", "manual_up"}));
+    // Manual reset and automatic deletion remain independent of movement and each other.
+    f.editorBindings = {{"Shift+Delete", "manual_delete"}};
+    CHECK(engine.sequenceKeys(false).empty());
+    CHECK(engine.sequenceKeys(true) == std::vector<std::string>({"evo-editor-bindings-v1", "Shift+Delete", "manual_delete"}));
+    f.editorBindings = {{"Control+Delete", "auto_delete"}};
+    CHECK(engine.sequenceKeys(false).empty());
+    CHECK(engine.sequenceKeys(true) == std::vector<std::string>({"evo-editor-bindings-v1", "Control+Delete", "auto_delete"}));
+    // Unrelated, unknown, noop and empty actions must reach the frontend too.
+    f.editorBindings = {{"Control+BackSpace", "delete_candidate"}, {"F9", "unknown_action"},
+                        {"F10", "manual_pin"}, {"F11", "noop"}, {"F12", ""}};
+    CHECK(engine.sequenceKeys(true) == std::vector<std::string>({"evo-editor-bindings-v1",
+        "Control+BackSpace", "delete_candidate", "F10", "manual_pin", "F11", "noop",
+        "F12", "", "F9", "unknown_action"}));
+    // Preserve spelling, unsupported keys and every colliding declaration in iterator order.
+    f.editorBindings = {{"Control+period", "manual_up"}, {"Ctrl+period", "noop"},
+                        {"Control+.", "manual_down"}, {"Alt+Control+j", "manual_delete"},
+                        {"Control+Alt+j", "unknown_action"}, {"Super+F9", "auto_delete"},
+                        {"0x1008ff12", "manual_up"}, {"Control+KP_Enter", "manual_down"},
+                        {"Control+\\+", "manual_delete"}, {"Shift+Control+j", " manual_up "},
+                        {"", "noop"}};
+    f.editorBindingOrder = {"Super+F9", "Ctrl+period", "Control+period", "Control+.",
+        "Control+Alt+j", "Alt+Control+j", "Control+KP_Enter", "0x1008ff12", "Control+\\+", "Shift+Control+j", ""};
+    CHECK(engine.sequenceKeys(true) == std::vector<std::string>({"evo-editor-bindings-v1",
+        "Super+F9", "auto_delete", "Ctrl+period", "noop", "Control+period", "manual_up",
+        "Control+.", "manual_down", "Control+Alt+j", "unknown_action", "Alt+Control+j", "manual_delete",
+        "Control+KP_Enter", "manual_down", "0x1008ff12", "manual_up", "Control+\\+", "manual_delete",
+        "Shift+Control+j", " manual_up ", "", "noop"}));
+    // Failed string reads retain raw keys, including a slash key and a missing/non-string value.
+    f.editorBindings = {{"Control+slash", "manual_up"}, {"Control+/", "manual_down"},
+                        {"Ctrl+Delete", "auto_delete"}};
+    f.editorBindingOrder = {"Control+/", "Control+Delete", "Ctrl+Delete", "Control+slash"};
+    CHECK(engine.sequenceKeys(true) == std::vector<std::string>({"evo-editor-bindings-v1",
+        "Control+/", "", "Control+Delete", "", "Ctrl+Delete", "auto_delete", "Control+slash", "manual_up"}));
+    f.editorBindingOrder.clear();
+    f.editorBindings.clear(); CHECK(engine.sequenceKeys(true).empty());
+    f.editorBindings = {{"Alt+bracketleft", "manual_up"}, {"Alt+bracketright", "manual_down"},
+                        {"Alt+Delete", "auto_delete"}};
+    f.editorBindingsPresent = false; CHECK(engine.sequenceKeys(true).empty()); f.editorBindingsPresent = true;
+    const auto complete = a;
+    auto unavailable = [&] { CHECK(engine.sequenceKeys(true).empty()); a = complete; };
+    a.get_current_schema = nullptr; unavailable();
+    a.schema_open = nullptr; unavailable();
+    a.config_close = nullptr; unavailable();
+    a.config_list_size = nullptr; unavailable();
+    a.config_get_cstring = nullptr; unavailable();
+    a.config_begin_map = nullptr; unavailable();
+    a.config_next = nullptr; unavailable();
+    a.config_end = nullptr; unavailable();
+    // An older API table can retain non-null fixture pointers beyond data_size.
+    a.data_size = static_cast<int>(offsetof(RimeApi, config_list_size) - sizeof(a.data_size));
+    CHECK(!RIME_API_AVAILABLE(&a, config_list_size)); unavailable();
+    CHECK(engine.sequenceKeys(true) == custom);
+    // Lua capability keeps four slots and takes precedence over editor bindings and optional APIs.
+    f.schema = "wanxiang"; f.schemaValues.clear();
+    f.processors = {"lua_processor@*wanxiang.super_sequence*P", "express_editor"};
+    CHECK(engine.sequenceKeys(false) == defaults && engine.sequenceKeys(true) == defaults);
+    a.config_begin_map = nullptr; CHECK(engine.sequenceKeys(true) == defaults); a = complete;
+    engine.stop(); CHECK(engine.sequenceKeys(true).empty());
+}
+void testCandidateSequence() {
+    f = {}; auto a = candidateSequenceApi();
     Engine engine(&a); engine.start("shared", "user");
     auto value = engine.begin(1, "editor");
-    f.processors = {"ascii_composer", "speller"};
-    CHECK(engine.sequenceKeys().empty());
-    f.processors = {"ascii_composer", "lua_processor@*wanxiang.super_sequence*P", "speller"};
-    f.schemaValues["super_sequence/pin"] = "Control+bracketleft";
-    CHECK(engine.sequenceKeys() == std::vector<std::string>({"Control+j", "Control+k", "Control+l", "Control+bracketleft"}));
-    // Page-local target: highlight first, then the schema key with the frontend mask conversion.
+    // Page-local target: highlight first, then the schema key with frontend mask conversion.
     value = engine.action(1, value.revision, 14, 2, "112 4");
     CHECK(f.highlighted == 2 && f.keys == 1 && f.sym == 112 && f.mask == 4 && value.handled);
     value = engine.action(1, value.revision, 15, 7, "106 68");
-    CHECK(f.highlightedGlobal == 7 && f.keys == 2 && f.sym == 106 && f.mask == (4 | 64 | (1 << 26)));
+    CHECK(f.highlightedGlobal == 7 && f.pageNo == 1 && f.highlighted == 2 && f.keys == 2 &&
+          f.sym == 106 && f.mask == (4 | 64 | (1 << 26)));
+    auto reject = [&](int action, int index, const char* argument) {
+        const int keys = f.keys;
+        value = engine.action(1, value.revision, action, index, argument);
+        CHECK(f.keys == keys);
+    };
     // Stale, malformed or unhighlightable targets never send the key.
     CHECK(engine.action(1, value.revision - 1, 14, 0, "112 4").gate == Stale && f.keys == 2);
-    value = engine.action(1, value.revision, 14, 0, "bogus"); CHECK(f.keys == 2 && f.highlighted == 2);
-    value = engine.action(1, value.revision, 14, -1, "112 4"); CHECK(f.keys == 2);
-    f.highlightFails = true;
-    value = engine.action(1, value.revision, 14, 1, "112 4"); CHECK(f.keys == 2);
-    // librime answers false when the target is already highlighted; the key still applies.
+    reject(14, 0, "bogus"); CHECK(f.highlighted == 2);
+    reject(14, -1, "112 4"); reject(14, 0, "0 4");
+    f.highlightFails = true; reject(14, 1, "112 4");
+    // librime answers false for an already highlighted target; observed landing still permits it.
     f.highlighted = 1;
     value = engine.action(1, value.revision, 14, 1, "112 4"); CHECK(f.keys == 3);
-    f.highlightFails = false;
-    // Without the highlight entry point the selection must already be the target.
-    f.highlighted = 2;
-    a.highlight_candidate = nullptr;
-    value = engine.action(1, value.revision, 15, 1, "112 4"); CHECK(f.keys == 3 && f.highlightedGlobal == 7);
+    value = engine.action(1, value.revision, 15, 6, "112 4"); CHECK(f.keys == 4);
+    // Same slot on an earlier or later page is not the requested global candidate.
+    reject(15, 1, "112 4"); reject(15, 11, "112 4");
+    f.pageNo = -1; reject(14, 1, "112 4"); f.pageNo = 1;
+    f.pageSize = 0; reject(14, 1, "112 4"); f.pageSize = -1; reject(14, 1, "112 4"); f.pageSize = 5;
+    f.numCandidates = 0; reject(14, 1, "112 4");
+    f.numCandidates = 6; reject(14, 1, "112 4"); f.numCandidates = 5;
+    f.highlighted = -1; reject(14, 1, "112 4");
+    f.highlighted = 5; reject(14, 5, "112 4");
+    f.highlighted = 3; f.numCandidates = 3; reject(14, 3, "112 4"); f.numCandidates = 5;
+    // Missing highlight APIs fail closed even if page and slot already match the target.
+    f.highlighted = 2; f.highlightFails = false;
+    const auto complete = a;
+    a.highlight_candidate = nullptr; reject(15, 7, "112 4"); CHECK(f.highlightedGlobal == 7);
+    a = complete; a.highlight_candidate_on_current_page = nullptr; reject(14, 2, "112 4"); a = complete;
+    a.data_size = static_cast<int>(offsetof(RimeApi, highlight_candidate) - sizeof(a.data_size));
+    CHECK(!RIME_API_AVAILABLE(&a, highlight_candidate)); reject(15, 7, "112 4"); a = complete;
     engine.begin(2, "second");
-    CHECK(engine.action(1, value.revision, 14, 0, "112 4").gate == Stale && f.keys == 3);
+    CHECK(engine.action(1, value.revision, 14, 0, "112 4").gate == Stale && f.keys == 4);
+    engine.stop();
+}
+void testCandidateDeleteKeys() {
+    f = {}; auto a = candidateSequenceApi();
+    Engine engine(&a); engine.start("shared", "user");
+    auto value = engine.begin(1, "editor");
+    f.processors = {"express_editor"};
+    f.editorBindings = {{"Shift+Delete", "manual_delete"}, {"Control+Delete", "auto_delete"}};
+    CHECK(engine.sequenceKeys(true) == std::vector<std::string>({"evo-editor-bindings-v1",
+        "Control+Delete", "auto_delete", "Shift+Delete", "manual_delete"}));
+    // Both declared Delete bindings use the same target-protected dispatch path.
+    value = engine.action(1, value.revision, 14, 2, "65535 1");
+    CHECK(f.highlighted == 2 && f.keys == 1 && f.sym == 65535 && f.mask == 1 && value.handled);
+    value = engine.action(1, value.revision, 15, 7, "65535 4");
+    CHECK(f.highlightedGlobal == 7 && f.pageNo == 1 && f.highlighted == 2 && f.keys == 2 &&
+          f.sym == 65535 && f.mask == 4 && value.handled);
+    f.highlightFails = true;
+    value = engine.action(1, value.revision, 15, 2, "65535 4"); CHECK(f.keys == 2);
+    value = engine.action(1, value.revision, 15, 7, "65535 4"); CHECK(f.keys == 3);
+    const auto complete = a;
+    a.highlight_candidate = nullptr;
+    value = engine.action(1, value.revision, 15, 7, "65535 4"); CHECK(f.keys == 3);
+    a = complete; a.highlight_candidate_on_current_page = nullptr;
+    value = engine.action(1, value.revision, 14, 2, "65535 1"); CHECK(f.keys == 3);
     engine.stop();
 }
 void testReadOnlyRefresh() {
@@ -1094,7 +1251,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequence(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); testUsableDeploymentWarning(); testEvoPrismResolution(); testCurrentSchemaPreference(); std::cout << "engine contract: passed\n";
+        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequenceKeys(); testCandidateSequence(); testCandidateDeleteKeys(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); testUsableDeploymentWarning(); testEvoPrismResolution(); testCurrentSchemaPreference(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

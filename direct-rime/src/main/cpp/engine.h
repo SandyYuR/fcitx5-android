@@ -54,9 +54,11 @@ public:
     std::vector<std::string> schemaEntries();
     std::vector<std::string> options();
     std::vector<std::string> prewarmAssets();
-    // Manual candidate ordering keys of the current schema (Wanxiang super_sequence):
-    // up, down, reset, pin. Empty when the schema does not load such a processor.
-    std::vector<std::string> sequenceKeys();
+    // Wanxiang super_sequence returns four slots/defaults: up, down, reset, pin.
+    // EVO returns ["evo-editor-bindings-v1", rawKey, rawAction, ...] in iterator order,
+    // including noop/unknown actions and unreadable actions as empty strings. No bindings
+    // returns empty. The frontend resolves keys/collisions and selects candidate actions.
+    std::vector<std::string> sequenceKeys(bool evo);
     std::string schemaSelection();
     // Schema activated for a new session; falls back to the first enabled schema when no
     // input session exists yet (for example, while the settings page is open).
