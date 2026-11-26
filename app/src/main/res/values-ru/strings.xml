@@ -438,6 +438,8 @@
     <string name="text_keyboard_layout_key_alt_text_color">Цвет вторичного текста</string>
     <string name="text_keyboard_layout_key_background_color">Цвет фона</string>
     <string name="text_keyboard_layout_key_shadow_color">Цвет тени</string>
+    <string name="text_keyboard_layout_key_active_background_color">Фон активного состояния</string>
+    <string name="text_keyboard_layout_key_active_text_color">Текст активного состояния</string>
     <string name="text_keyboard_layout_key_color_mode_theme">Следовать теме</string>
     <string name="text_keyboard_layout_key_color_mode_custom">Пользовательский цвет</string>
     <string name="text_keyboard_layout_key_color_mode_theme_key_pick">Использовать цвет темы</string>

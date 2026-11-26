@@ -67,6 +67,9 @@ class StickyModifierAppearanceTest {
     private fun TextKeyboard.stickyKey(): KeyView = allViews.filterIsInstance<KeyView>()
         .single { it.stickyModifier != null }
 
+    private fun TextKeyboard.stickyKey(modifier: StickyModifier): KeyView =
+        allViews.filterIsInstance<KeyView>().single { it.stickyModifier == modifier }
+
     private fun TextKeyboard.ordinaryKey(): KeyView = allViews.filterIsInstance<KeyView>()
         .single { it.stickyModifier == null }
 
@@ -98,7 +101,7 @@ class StickyModifierAppearanceTest {
             assertFalse(firstOrdinary.isActivated)
 
             val held = service.stickyModifiers.onDown(StickyModifier.Ctrl)!!
-            assertFalse("Held uses pressed state, not the persistent latch highlight", firstKey.isActivated)
+            assertFalse("按下未抬手不点亮", firstKey.isActivated)
             service.stickyModifiers.onUp(
                 StickyModifier.Ctrl, held, clickEligible = true, cancelled = false
             )
@@ -120,6 +123,43 @@ class StickyModifierAppearanceTest {
             assertFalse(secondKey.isActivated)
             assertFalse(firstOrdinary.isActivated)
             service.stickyModifiers.finish(consumption)
+        }
+    }
+
+    @Test
+    fun litStickyKeyUsesActiveTextColorWithThemeFallbackAndPerKeyOverride() {
+        val layout = Json.parseToJsonElement(
+            """
+            {"default":[[
+              {"type":"StickyModifierKey","modifier":"ctrl"},
+              {"type":"StickyModifierKey","modifier":"shift","activeTextColor":-65536}
+            ]]}
+            """.trimIndent()
+        ).jsonObject
+        withKeyboard(layout) { keyboard, service ->
+            val ctrl = keyboard.stickyKey(StickyModifier.Ctrl) as TextKeyView
+            val shift = keyboard.stickyKey(StickyModifier.Shift) as TextKeyView
+            val ctrlNormalColor = ctrl.mainText.currentTextColor
+            assertEquals(ctrlNormalColor, shift.mainText.currentTextColor)
+
+            latch(service, StickyModifier.Ctrl)
+            assertEquals(
+                "未配置激活色时回落到主题的 genericActiveForegroundColor",
+                ThemePreset.PixelLight.genericActiveForegroundColor,
+                ctrl.mainText.currentTextColor
+            )
+            assertEquals(
+                "未点亮的粘滞键不受影响",
+                ctrlNormalColor,
+                shift.mainText.currentTextColor
+            )
+
+            latch(service, StickyModifier.Shift)
+            assertEquals(
+                "按键上配置的激活文字色优先于主题回退",
+                -65536,
+                shift.mainText.currentTextColor
+            )
         }
     }
 

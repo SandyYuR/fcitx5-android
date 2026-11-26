@@ -7,30 +7,34 @@ import org.fcitx.fcitx5.android.core.KeySym
 
 internal data class StickyModifierGesture(val modifier: StickyModifier, val id: Long)
 
-/** Main-thread state for soft Ctrl/Shift/Alt keys waiting for one ordinary key. */
+/**
+ * 粘滞修饰键的状态机。
+ *
+ * [latched] 是唯一的事实来源：其中的修饰键会修饰下一次可消费的按键，被消费后清空。
+ * 物理 Down 只登记 [pending]（用于配对 Up、阻止多指重复按下），**不改变** [latched]：
+ * 手势尚未确定时键盘状态不会被提前改写，修饰键自身的长按/滑动动作也只按「按下前」
+ * 的状态决定是否带修饰。
+ */
 internal class StickyModifierController {
-    private enum class SlotState { Held, Latched }
-
-    private data class Slot(
-        val modifier: StickyModifier,
-        var state: SlotState,
-        var pendingGesture: Long?
-    )
-
     internal class Consumption internal constructor(
         internal val id: Long,
         val modifiers: List<StickyModifier>
     )
 
-    private val slots = LinkedHashMap<StickyModifier, Slot>()
+    /** 已点亮、等待被消费的修饰键，按点亮顺序排列。 */
+    private val latched = LinkedHashMap<StickyModifier, Unit>()
+
+    /** 按下但尚未抬手的修饰键 → 本次手势 id。 */
+    private val pending = HashMap<StickyModifier, Long>()
+
     private val listeners = mutableSetOf<() -> Unit>()
     private var nextGesture = 0L
     private var nextConsumption = 0L
     private var consuming: Consumption? = null
 
-    val hasActiveModifiers: Boolean get() = slots.isNotEmpty()
+    val hasActiveModifiers: Boolean get() = latched.isNotEmpty()
 
-    fun isLatched(modifier: StickyModifier): Boolean = slots[modifier]?.state == SlotState.Latched
+    fun isLatched(modifier: StickyModifier): Boolean = latched.containsKey(modifier)
 
     fun addListener(listener: () -> Unit) {
         listeners += listener
@@ -44,42 +48,36 @@ internal class StickyModifierController {
         listeners.forEach { it() }
     }
 
-    /** Returns this gesture's identity, or null for a duplicate/rejected physical Down. */
+    /** 登记一次物理按下；返回手势 id，重复按下或正在消费时返回 null。 */
     fun onDown(modifier: StickyModifier): Long? {
         if (consuming != null) return null
-        val existing = slots[modifier]
-        if (existing?.pendingGesture != null) return null
+        if (pending.containsKey(modifier)) return null
         val gesture = ++nextGesture
-        if (existing == null) {
-            slots[modifier] = Slot(modifier, SlotState.Held, gesture)
-        } else {
-            // A second tap on an already latched key is armed here; only its eligible Up cancels.
-            existing.pendingGesture = gesture
-        }
-        notifyChanged()
+        pending[modifier] = gesture
         return gesture
     }
 
+    /**
+     * 抬手确认。只有「有效单击」才切换 [latched]；取消或非单击保持原状态。
+     *
+     * 非单击（长按、滑动、滑出键外）时不改动状态，动作执行方查到的就是按下前的值。
+     */
     fun onUp(modifier: StickyModifier, gesture: Long?, clickEligible: Boolean, cancelled: Boolean) {
-        val slot = slots[modifier] ?: return
-        if (gesture == null || slot.pendingGesture != gesture) return
-        slot.pendingGesture = null
-        if (cancelled || !clickEligible) {
-            if (slot.state == SlotState.Held) slots.remove(modifier)
-        } else {
-            when (slot.state) {
-                SlotState.Held -> slot.state = SlotState.Latched
-                SlotState.Latched -> slots.remove(modifier)
-            }
+        val recorded = pending[modifier] ?: return
+        if (gesture == null || recorded != gesture) return
+        pending.remove(modifier)
+        if (cancelled || !clickEligible) return
+        if (latched.remove(modifier) == null) {
+            latched[modifier] = Unit
         }
         notifyChanged()
     }
 
-    /** Atomically takes every Held/Latched slot in activation order. */
+    /** 原子地取走全部已点亮的修饰键（按住中但未抬手的不会被取走）。 */
     fun consume(): Consumption? {
-        if (consuming != null || slots.isEmpty()) return null
-        val consumption = Consumption(++nextConsumption, slots.keys.toList())
-        slots.clear()
+        if (consuming != null || latched.isEmpty()) return null
+        val consumption = Consumption(++nextConsumption, latched.keys.toList())
+        latched.clear()
         consuming = consumption
         notifyChanged()
         return consumption
@@ -90,8 +88,9 @@ internal class StickyModifierController {
     }
 
     fun cancelAll() {
-        if (slots.isEmpty() && consuming == null) return
-        slots.clear()
+        if (latched.isEmpty() && pending.isEmpty() && consuming == null) return
+        latched.clear()
+        pending.clear()
         consuming = null
         notifyChanged()
     }

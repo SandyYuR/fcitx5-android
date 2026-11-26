@@ -735,29 +735,72 @@ class NumPadKey(
 class StickyModifierKey(
     val modifier: StickyModifier,
     val label: String = modifier.defaultLabel,
+    val swipeUpLabel: String? = null,
+    val swipeDownLabel: String? = null,
+    val swipeUp: MacroAction? = null,
+    val swipeDown: MacroAction? = null,
+    val longPress: MacroAction? = null,
     percentWidth: Float = 0.1f,
     variant: Variant = Variant.Alternative,
     textColor: Int? = null,
     textColorMonet: String? = null,
+    altTextColor: Int? = null,
+    altTextColorMonet: String? = null,
     backgroundColor: Int? = null,
     backgroundColorMonet: String? = null,
     shadowColor: Int? = null,
     shadowColorMonet: String? = null
 ) : KeyDef(
-    Appearance.Text(
-        displayText = label,
-        textSize = 16f,
-        textStyle = Typeface.BOLD,
-        percentWidth = percentWidth,
-        variant = variant,
-        textColor = textColor,
-        textColorMonet = textColorMonet,
-        backgroundColor = backgroundColor,
-        backgroundColorMonet = backgroundColorMonet,
-        shadowColor = shadowColor,
-        shadowColorMonet = shadowColorMonet
-    ),
-    setOf(Behavior.Press(StickyModifierAction(modifier)))
+    // 只有配置了方向标签才换成 AltText：没有副文字时保持原来的纯文本键面，
+    // 避免仅因为多了一段可选能力就改变现有粘滞键的外观和布局。
+    if (swipeUpLabel.isNullOrEmpty() && swipeDownLabel.isNullOrEmpty()) {
+        Appearance.Text(
+            displayText = label,
+            textSize = 16f,
+            textStyle = Typeface.BOLD,
+            percentWidth = percentWidth,
+            variant = variant,
+            textColor = textColor,
+            textColorMonet = textColorMonet,
+            altTextColor = altTextColor,
+            altTextColorMonet = altTextColorMonet,
+            backgroundColor = backgroundColor,
+            backgroundColorMonet = backgroundColorMonet,
+            shadowColor = shadowColor,
+            shadowColorMonet = shadowColorMonet
+        )
+    } else {
+        Appearance.AltText(
+            displayText = label,
+            altText = swipeUpLabel.orEmpty(),
+            altText1 = swipeDownLabel,
+            character = label,
+            textSize = 16f,
+            textStyle = Typeface.BOLD,
+            percentWidth = percentWidth,
+            variant = variant,
+            textColor = textColor,
+            textColorMonet = textColorMonet,
+            altTextColor = altTextColor,
+            altTextColorMonet = altTextColorMonet,
+            backgroundColor = backgroundColor,
+            backgroundColorMonet = backgroundColorMonet,
+            shadowColor = shadowColor,
+            shadowColorMonet = shadowColorMonet,
+            keepDisplayTextCase = true
+        ).apply {
+            directionalSwipeLabels = true
+        }
+    },
+    buildSet {
+        // 粘滞动作是唯一的「主行为」，方向滑动与长按是可选附加动作：
+        // 它们不参与粘滞状态切换，按下/抬手仍由粘滞手势独立收尾。
+        add(Behavior.Press(StickyModifierAction(modifier)))
+        if (swipeUp != null || swipeDown != null) {
+            add(Behavior.Swipe(upMacro = swipeUp, downMacro = swipeDown, overrideDefaults = true))
+        }
+        longPress?.let { add(Behavior.LongPress(it)) }
+    }
 )
 
 /**
