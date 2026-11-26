@@ -17,6 +17,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -492,7 +493,9 @@ class IconThemeEditorActivity : SettingsUiActivity() {
             customColumn.addView(customPreviewImage)
         } else {
             val customPreviewText = TextView(this).apply {
-                text = if (currentValue.isNotEmpty()) currentValue.take(16) else getString(R.string.icon_theme_current_default)
+                text = if (currentValue.isNotEmpty()) SlotRowUi.previewSummary(currentValue) else getString(R.string.icon_theme_current_default)
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
                 textSize = 13f
                 setTextColor(if (currentValue.isNotEmpty()) primaryTextColor else secondaryTextColor)
                 gravity = Gravity.CENTER
@@ -518,8 +521,8 @@ class IconThemeEditorActivity : SettingsUiActivity() {
             dialogView.addView(emojiLabel)
 
             val input = TextInputEditText(this).apply {
-                val isXml = SlotRowUi.isSvgContent(currentValue) || SlotRowUi.isDrawableXmlContent(currentValue)
-                setText(if (!isXml) currentValue else "")
+                val isGraphic = SlotRowUi.isGraphicContent(currentValue)
+                setText(if (!isGraphic) currentValue else "")
                 hint = getString(R.string.icon_theme_emoji_hint)
             }
             emojiInput = input
@@ -723,6 +726,9 @@ class SlotRowUi(private val ctx: android.content.Context) {
     private val valueLabel: TextView = TextView(ctx).apply {
         textSize = 13f
         gravity = Gravity.CENTER_VERTICAL or Gravity.END
+        maxLines = 1
+        ellipsize = TextUtils.TruncateAt.END
+        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
     }
 
     init {
@@ -740,31 +746,18 @@ class SlotRowUi(private val ctx: android.content.Context) {
         builtinIcon.setImageResource(if (defaultRes != 0) defaultRes else android.R.drawable.ic_menu_gallery)
         nameLabel.text = SlotRowUi.slotToDisplayName(slot)
         val previewDrawable = SlotRowUi.renderIconPreview(ctx, currentValue, 24)
-        val isText = currentValue != null && previewDrawable == null && currentValue.isNotEmpty()
-        val textColor = ctx.settingsColor(android.R.attr.textColorPrimary)
-        val dimColor = ctx.settingsColor(android.R.attr.textColorTertiary)
-        when {
-            previewDrawable != null -> {
-                customIcon.visibility = View.VISIBLE
-                customIcon.setImageDrawable(previewDrawable)
-                valueLabel.visibility = View.GONE
-            }
-            isText -> {
-                customIcon.visibility = View.GONE
-                valueLabel.visibility = View.VISIBLE
-                valueLabel.text = currentValue
-                valueLabel.setTextColor(textColor)
-            }
-            else -> {
-                customIcon.visibility = View.GONE
-                valueLabel.visibility = View.VISIBLE
-                valueLabel.text = "--"
-                valueLabel.setTextColor(dimColor)
-            }
-        }
+        customIcon.setImageDrawable(previewDrawable)
+        customIcon.visibility = if (previewDrawable != null) View.VISIBLE else View.GONE
+        valueLabel.visibility = if (previewDrawable == null) View.VISIBLE else View.GONE
+        valueLabel.text = if (previewDrawable == null) previewSummary(currentValue) else ""
+        valueLabel.setTextColor(ctx.settingsColor(
+            if (currentValue.isNullOrEmpty()) android.R.attr.textColorTertiary else android.R.attr.textColorPrimary
+        ))
     }
 
     companion object {
+        private val svgStartTag = Regex("<svg\\b", RegexOption.IGNORE_CASE)
+
         private fun normalizeXmlContent(raw: String): String {
             return raw
                 .removePrefix("\uFEFF")
@@ -794,6 +787,23 @@ class SlotRowUi(private val ctx: android.content.Context) {
                 .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
         }
 
+        private fun hasSvgMarkup(value: String): Boolean =
+            value.trimStart().removePrefix("\uFEFF").trimStart().startsWith("svg:", ignoreCase = true) ||
+                svgStartTag.containsMatchIn(value)
+
+        // Classification must not depend on successful parsing: broken graphics are still not text.
+        fun isGraphicContent(value: String?): Boolean = !value.isNullOrEmpty() &&
+            (ButtonIconFile.isFileIcon(value) || hasSvgMarkup(value) || normalizeXmlContent(value).startsWith("<"))
+
+        fun previewSummary(value: String?): String {
+            if (value.isNullOrEmpty()) return "--"
+            if (hasSvgMarkup(value)) return "SVG"
+            if (normalizeXmlContent(value).startsWith("<")) return "XML"
+            val label = if (ButtonIconFile.isFileIcon(value)) value.substringAfterLast('/') else value
+            val singleLine = label.replace(Regex("\\s+"), " ")
+            return if (singleLine.length > 16) singleLine.take(16) + "…" else singleLine
+        }
+
         fun isSvgContent(s: String?): Boolean = s != null && IconThemeManager.isInlineSvg(s)
 
         fun isDrawableXmlContent(s: String?): Boolean {
@@ -807,13 +817,10 @@ class SlotRowUi(private val ctx: android.content.Context) {
 
         fun renderSvgPreview(ctx: android.content.Context, svgContent: String, previewSizeDp: Int = 24): Drawable? {
             return try {
-                var clean = svgContent
-                    .removePrefix("\uFEFF")
-                    .replaceFirst(Regex("^\\s*<\\?xml[^>]*\\?>\\s*"), "")
-                    .replaceFirst(
-                        Regex("^(\\s*<!--.*?-->\\s*)+", setOf(RegexOption.DOT_MATCHES_ALL)),
-                        ""
-                    )
+                // Normalize only a rendering copy; keep the editable/stored value byte-for-byte.
+                val raw = svgContent.trimStart().removePrefix("\uFEFF").trimStart()
+                val xml = normalizeXmlContent(if (raw.startsWith("svg:", ignoreCase = true)) raw.drop(4).trimStart() else raw)
+                var clean = xml.substring(svgStartTag.find(xml)?.range?.first ?: return null)
                 if (clean.contains("xlink:") && !clean.contains("xmlns:xlink")) {
                     clean = clean.replaceFirst(
                         Regex("<svg\\b([^>]*)>", RegexOption.IGNORE_CASE),
@@ -870,7 +877,7 @@ class SlotRowUi(private val ctx: android.content.Context) {
                 }
             }
             return when {
-                isSvgContent(value) -> renderSvgPreview(ctx, value, previewSizeDp)?.mutate()?.apply {
+                hasSvgMarkup(value) -> renderSvgPreview(ctx, value, previewSizeDp)?.mutate()?.apply {
                     if (IconThemeManager.shouldTintInlineSvg(value)) {
                         setTint(ctx.settingsColor(android.R.attr.textColorPrimary))
                     } else {

@@ -138,12 +138,14 @@ class TextEditingButton(
     }
 
     fun setText(text: CharSequence) {
+        themedIconSlot = null
         textView.text = text
         detachContentViews()
         add(textView, lParams(wrapContent, wrapContent, gravityCenter))
     }
 
     fun setIcon(@DrawableRes icon: Int) {
+        themedIconSlot = null
         imageView.imageResource = icon
         imageView.imageTintList = ColorStateList.valueOf(iconTintColor)
         detachContentViews()

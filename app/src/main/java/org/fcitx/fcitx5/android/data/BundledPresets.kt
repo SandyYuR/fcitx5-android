@@ -79,16 +79,17 @@ object BundledPresets {
      * 资源则只在目标文件不存在时才写出。
      */
     private val assetSizes = mapOf(
-        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to 13777,
-        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to 36265,
-        "bundled/icon_themes/谷歌.json" to 68073,
-        // 水彩套装：随 foxy 上游素材更新；登记的是上一版内置内容的字节数。
-        "bundled/icon_themes/水彩.json" to 183743,
-        "bundled/keyboard_layouts/TextKeyboardLayout.水彩.json" to 30782,
-        "bundled/themes/水彩.json" to 838,
-        "bundled/icon_themes/普蓝.json" to 62181,
-        "bundled/keyboard_layouts/TextKeyboardLayout.普蓝.json" to 9436,
-        "bundled/themes/普蓝.json" to 701
+        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to setOf(13777),
+        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to setOf(36265),
+        "bundled/icon_themes/谷歌.json" to setOf(68073),
+        // 成套主题：保留既有登记、HEAD 资源及本轮已安装旧包的字节数。
+        "bundled/icon_themes/水彩.json" to setOf(183743, 188289, 262232, 264678, 269247, 266801),
+        "bundled/keyboard_layouts/TextKeyboardLayout.水彩.json" to setOf(30782, 29432, 34547, 35444),
+        "bundled/themes/水彩.json" to setOf(838),
+        "bundled/icon_themes/普蓝.json" to setOf(62181, 83553, 105328),
+        "bundled/keyboard_layouts/TextKeyboardLayout.普蓝.json" to setOf(9436, 9902, 13424),
+        "bundled/themes/普蓝.json" to setOf(701),
+        "bundled/fonts/字体图标.otf" to setOf(9020)
     )
 
     /**
@@ -216,7 +217,8 @@ object BundledPresets {
     private fun installAsset(assetPath: String, dest: File, assetBytes: ByteArray? = readAsset(assetPath)): Int {
         val bytes = assetBytes ?: return 0
         val tag = "$assetPath#${bytes.size}"
-        val previousSize = assetSizes[assetPath]
+        val previousSizes = assetSizes[assetPath]
+        val previousSize = previousSizes?.firstOrNull { dest.length() == it.toLong() }
         val updateTag = previousSize?.let { "$tag#from=$it" } ?: tag
         // A corrected previous-size registration must retry a previously skipped old file.
         // Existing legacy tags still protect files the user has edited, but a missing file

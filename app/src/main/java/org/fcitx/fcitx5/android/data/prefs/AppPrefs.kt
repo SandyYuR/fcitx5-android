@@ -505,6 +505,12 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             enableUiOn = foxyEnabled
         )
 
+        val layoutOverride = ManagedPreference.PString(
+            sharedPreferences,
+            "text_editing_layout_override",
+            ""
+        ).apply { register() }
+
         val cursorPromptMove = ManagedPreference.PString(
             sharedPreferences,
             "text_editing_cursor_prompt_move",

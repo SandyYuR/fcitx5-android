@@ -31,8 +31,10 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig
 import org.fcitx.fcitx5.android.input.keyboard.LayoutVariant
+import org.fcitx.fcitx5.android.input.editing.ConfiguredTextEditingUi
 import org.fcitx.fcitx5.android.input.editing.FoxyTextEditingUi
 import org.fcitx.fcitx5.android.input.editing.TextEditingLayoutLoader
+import org.fcitx.fcitx5.android.input.editing.TextEditingLayoutResolver
 import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.ui.main.settings.preview.PreviewInputMethodEntry
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.utils.LayoutJsonUtils
@@ -108,6 +110,7 @@ class KeyboardPreviewManager(
         /** 强制预览的排列形态；null 表示按键盘宽度自动判定。 */
         val forcedVariant: String?,
         val composingPreview: Boolean,
+        val configuredTextEditingPreview: Boolean,
         val dimensions: KeyboardPreviewDimensions
     )
     private var lastPreviewSignature: PreviewSignature? = null
@@ -127,7 +130,6 @@ class KeyboardPreviewManager(
         // Try to load submode-specific layout first
         val effectiveSubModeKey = resolveEffectiveSubModeKey(layoutName, previewSubModeLabel)
         val forcedVariant = forcedVariantProvider()
-        val composingPreview = composingPreviewProvider() && layoutName != TEXT_EDITOR_LAYOUT_NAME
         // 正在编辑分体布局时，预览的就是那一份。它挂在**当前子布局**下面
         // （`rime:倉頡五代:__variant__:split`），与方案专用布局是并列的两条分支，必须单独解析。
         val variantEntryKey = splitEntryKey(
@@ -156,6 +158,15 @@ class KeyboardPreviewManager(
             variantEntryKey = variantEntryKey
         )
         val tempJson = JsonObject(mapOf(layoutName to JsonObject(subModeMap)))
+        val configuredTextEditingPreview = layoutName != TEXT_EDITOR_LAYOUT_NAME && (
+            TextEditingLayoutResolver.isEditorLayerLabel(
+                effectiveLayoutKey.substringBefore(":__variant__:").substringAfterLast(":")
+            ) || TextEditingLayoutResolver.resolve(
+                tempJson, AppPrefs.getInstance().textEditing.layoutOverride.getValue(), listOf("rime", "default")
+            ) == effectiveLayoutKey
+        )
+        val composingPreview = composingPreviewProvider() &&
+            layoutName != TEXT_EDITOR_LAYOUT_NAME && !configuredTextEditingPreview
 
         // Nothing that affects the rendering changed, so keep the existing preview. The editor
         // calls this on every drag step, and each call otherwise rebuilt and re-measured a whole
@@ -169,6 +180,7 @@ class KeyboardPreviewManager(
             layoutJson = tempJson.toString(),
             forcedVariant = forcedVariant?.name,
             composingPreview = composingPreview,
+            configuredTextEditingPreview = configuredTextEditingPreview,
             dimensions = dimensions
         )
         if ((previewKeyboard != null || previewTextEditingView != null) && signature == lastPreviewSignature) return
@@ -192,6 +204,8 @@ class KeyboardPreviewManager(
         try {
             if (layoutName == TEXT_EDITOR_LAYOUT_NAME) {
                 createTextEditorPreview(rows, theme, dimensions.keyboardHeightPx)
+            } else if (configuredTextEditingPreview) {
+                createConfiguredTextEditorPreview(rows, theme, dimensions.keyboardHeightPx)
             } else {
                 TextKeyboard.withPreviewLayout(tempJson) {
                     createKeyboardPreview(
@@ -240,6 +254,35 @@ class KeyboardPreviewManager(
                 view.children.mapIndexed { index, key -> BaseKeyboard.EditorKeyView(row, index, key) }.toList()
             }
         } else emptyList()
+        previewContainer.addView(
+            ui.root,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, keyboardHeight)
+        )
+        ui.root.requestLayout()
+        ui.root.invalidate()
+    }
+
+    private fun createConfiguredTextEditorPreview(
+        rows: List<List<Map<String, Any?>>>,
+        theme: org.fcitx.fcitx5.android.data.theme.Theme,
+        keyboardHeight: Int
+    ) {
+        val layout = TextEditingLayoutLoader.fromRows(rows)
+        if (layout == null) {
+            showError("Invalid text editing layout geometry")
+            return
+        }
+        val ui = ConfiguredTextEditingUi(
+            context,
+            theme,
+            ThemeManager.prefs.keyRippleEffect.getValue(),
+            ThemeManager.prefs.keyBorder.getValue(),
+            context.dp(ThemeManager.prefs.textEditingButtonRadius.getValue().toFloat()),
+            layout,
+            null
+        )
+        previewTextEditingView = ui.root
+        textEditorKeys = ui.keyViews.map { BaseKeyboard.EditorKeyView(it.row, it.index, it.view) }
         previewContainer.addView(
             ui.root,
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, keyboardHeight)

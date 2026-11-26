@@ -94,6 +94,11 @@
     <string name="text_editing_style">文本编辑风格</string>
     <string name="text_editing_style_default">默认风格</string>
     <string name="text_editing_style_foxy_swipe">Foxy滑动风格</string>
+    <string name="text_editing_layout_override_title">文本编辑布局</string>
+    <string name="text_editing_layout_override_auto">自动（按当前配置识别）</string>
+    <string name="text_editing_layout_override_builtin">内置常规布局</string>
+    <string name="text_editing_layout_override_auto_summary">自动：%1$s</string>
+    <string name="text_editing_layout_override_unavailable">%1$s（当前配置中不可用）</string>
     <string name="text_editing_cursor_step">Foxy 光标移动步长</string>
     <string name="text_editing_cursor_long_press_delay">Foxy 长按选取延迟</string>
     <string name="text_editing_cursor_prompt_move">触控板移动提示</string>
@@ -101,8 +106,8 @@
     <string name="text_editing_cursor_prompt_selecting">触控板选取中提示</string>
     <string name="text_editing_cursor_prompt_release_selection">触控板结束选取提示</string>
     <string name="text_editing_prompt_default">留空则使用内置提示文字</string>
-    <string name="text_editing_edit_layout">编辑 Foxy 底部布局</string>
-    <string name="text_editing_edit_layout_summary">在键盘自定义中编辑 text_editor 布局</string>
+    <string name="text_editing_edit_layout">编辑文本编辑布局</string>
+    <string name="text_editing_edit_layout_summary">常规风格优先打开指定或自动匹配布局，无匹配时使用通用 text_editor；Foxy 始终固定使用 text_editor 底栏。</string>
     <string name="text_keyboard_layout_copy_source_text_editor">text_editor（文本编辑）</string>
     <string name="text_editing_abc">ABC</string>
     <string name="text_editing_select_all_short">全选</string>

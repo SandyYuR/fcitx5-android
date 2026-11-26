@@ -448,6 +448,47 @@ class KeyEditorFormTest {
         } finally { data.recycle() }
     }
 
+    @Test fun configuredTextEditingContextFiltersStickyKeysAndPropagatesIntoComposeEditor() = page { activity ->
+        var launched: Intent? = null
+        val args = options(mapOf(
+            "type" to "MacroKey", "label" to "Copy",
+            "composeOverride" to mapOf("type" to "StickyModifierKey", "modifier" to "ctrl", "label" to "Ctrl")
+        )).putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "rime")
+            .putExtra(KeyEditorForm.EXTRA_IS_TEXT_EDITING_LAYOUT, true)
+        val form = KeyEditorForm(activity, args, launchCompose = { launched = it })
+        activity.setContentView(form.view)
+        assertFalse(typeOptions(typeSpinner(form.view as ViewGroup)).any { it.type == "StickyModifierKey" })
+        (form.view as ViewGroup).descendants.filterIsInstance<TextView>().single {
+            it.text == activity.getString(R.string.text_keyboard_layout_compose_override_edit_button)
+        }.performClick()
+        assertTrue(launched?.getBooleanExtra(KeyEditorForm.EXTRA_IS_TEXT_EDITING_LAYOUT, false) == true)
+    }
+
+    @Test fun configuredEditorSelectionRetainsGridGeometryAcrossSaveAndReopen() = page { activity ->
+        val args = options(mapOf(
+            "type" to "AlphabetKey", "main" to "a", "alt" to "A",
+            "column" to 1, "columnSpan" to 2, "rowSpan" to 2
+        )).putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "rime")
+            .putExtra(KeyEditorForm.EXTRA_IS_TEXT_EDITING_LAYOUT, true)
+        val form = KeyEditorForm(activity, args)
+        activity.setContentView(form.view)
+        chooseType(typeSpinner(form.view as ViewGroup), "MacroKey")
+        field(form, activity.getString(R.string.text_keyboard_layout_key_label)).setText("Copy")
+        val recreated = KeyEditorForm(activity, args, parcel(Bundle().also(form::saveState)))
+        val saved = recreated.validatedDraft(false)!!
+        assertEquals(1, saved["column"])
+        assertEquals(2, saved["columnSpan"])
+        assertEquals(2, saved["rowSpan"])
+
+        val reopenedArgs = options(saved).putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "rime")
+            .putExtra(KeyEditorForm.EXTRA_IS_TEXT_EDITING_LAYOUT, true)
+        val reopened = KeyEditorForm(activity, reopenedArgs)
+        val reopenedDraft = reopened.validatedDraft(false)!!
+        assertEquals(1, reopenedDraft["column"])
+        assertEquals(2, reopenedDraft["columnSpan"])
+        assertEquals(2, reopenedDraft["rowSpan"])
+    }
+
     @Test fun textEditingLayoutFiltersStickyKeysAndKeepsSelectedConfigValuesAfterRecreation() = page { activity ->
         val args = options(mapOf(
             "type" to "AlphabetKey", "main" to "a", "alt" to "A",
@@ -506,7 +547,8 @@ class KeyEditorFormTest {
         var emitted: Map<String, Any?>? = null
         inspector.onDraft = { emitted = it }
         inspector.bind(EditorKeyPosition(0, 0), mapOf("type" to "AlphabetKey", "main" to "a", "alt" to "A"),
-            Intent().putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "text_editor"))
+            Intent().putExtra(KeyEditorForm.EXTRA_LAYOUT_NAME, "rime")
+                .putExtra(KeyEditorForm.EXTRA_IS_TEXT_EDITING_LAYOUT, true))
         activity.setContentView(inspector)
         assertFalse(typeOptions(typeSpinner(inspector)).any { it.type == "StickyModifierKey" })
         inspector.descendants.filterIsInstance<EditText>().first { it.text.toString() == "a" }.setText("b")

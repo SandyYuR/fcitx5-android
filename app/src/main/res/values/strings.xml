@@ -101,6 +101,11 @@
     <string name="text_editing_style">Text editing style</string>
     <string name="text_editing_style_default">Default style</string>
     <string name="text_editing_style_foxy_swipe">Foxy swipe style</string>
+    <string name="text_editing_layout_override_title">Text editing layout</string>
+    <string name="text_editing_layout_override_auto">Automatic (detect from current profile)</string>
+    <string name="text_editing_layout_override_builtin">Built-in regular layout</string>
+    <string name="text_editing_layout_override_auto_summary">Automatic: %1$s</string>
+    <string name="text_editing_layout_override_unavailable">%1$s (unavailable in current profile)</string>
     <string name="text_editing_cursor_step">Foxy cursor step</string>
     <string name="text_editing_cursor_long_press_delay">Foxy long-press selection delay</string>
     <string name="text_editing_cursor_prompt_move">Cursor pad movement prompt</string>
@@ -108,8 +113,8 @@
     <string name="text_editing_cursor_prompt_selecting">Cursor pad selecting prompt</string>
     <string name="text_editing_cursor_prompt_release_selection">Cursor pad selection release prompt</string>
     <string name="text_editing_prompt_default">Leave empty to use the built-in prompt</string>
-    <string name="text_editing_edit_layout">Edit Foxy bottom layout</string>
-    <string name="text_editing_edit_layout_summary">Edit the text_editor layout in keyboard customization</string>
+    <string name="text_editing_edit_layout">Edit text editing layout</string>
+    <string name="text_editing_edit_layout_summary">Regular style opens the selected or automatically matched layout, or the general text_editor layout when none matches; Foxy always uses its fixed text_editor bar.</string>
     <string name="text_keyboard_layout_copy_source_text_editor">text_editor (Text Editing)</string>
     <string name="text_editing_abc">ABC</string>
     <string name="text_editing_select_all_short">All</string>

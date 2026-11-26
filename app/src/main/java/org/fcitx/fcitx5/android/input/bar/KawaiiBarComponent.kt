@@ -929,17 +929,33 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 idleUi.hideVoiceStatus()
             },
             // Shared callbacks for both kawaii bar button and space long-press.
-            status = { s -> idleUi.showVoiceStatus(s) },
-            ready = { idleUi.showVoiceStatus(service.getString(R.string.voice_status_listening)) },
+            status = { s ->
+                idleUi.showVoiceStatus(s)
+                updateButtonsState()
+            },
+            ready = {
+                idleUi.showVoiceStatus(service.getString(R.string.voice_status_listening))
+                updateButtonsState()
+            },
             level = { rms -> idleUi.updateVoiceLevel(rms) },
-            finished = { idleUi.hideVoiceStatus() },
+            finished = {
+                idleUi.hideVoiceStatus()
+                updateButtonsState()
+            },
             error = { msg ->
                 idleUi.hideVoiceStatus()
                 android.widget.Toast.makeText(service, msg, android.widget.Toast.LENGTH_SHORT).show()
+                updateButtonsState()
             },
             // Keep the keyboard on the layout the user was looking at across a voice session.
-            sessionStarted = { service.inputView?.onVoiceInputStarted() },
-            sessionEnded = { service.inputView?.onVoiceInputFinished() }
+            sessionStarted = {
+                service.inputView?.onVoiceInputStarted()
+                updateButtonsState()
+            },
+            sessionEnded = {
+                service.inputView?.onVoiceInputFinished()
+                updateButtonsState()
+            }
         )
         IconThemeManager.addOnChangedListener(onIconThemeChangeListener)
     }

@@ -64,6 +64,11 @@ data class IconTheme(
             // 作者在编辑器里找不到入口，只能手写 JSON。
             "keys.comma",
             "keys.period",
+            "keys.semicolon",
+            "keys.semicolon_alt",
+            "keys.slash",
+            "keys.left_bracket",
+            "keys.right_bracket",
             "keys.numpad",
             "keys.emoji",
             "keys.symbols",
@@ -79,9 +84,15 @@ data class IconTheme(
             // 文本编辑栏（TextEditingWindow）底行按键：与主键盘一样是带图标的键，
             // 槽位同样只接受内联 SVG。归在按键分组里，避免再新增一整节文案与翻译。
             "text_editor.select_all",
+            "text_editor.select",
+            "text_editor.select_locked",
             "text_editor.cut",
             "text_editor.copy",
             "text_editor.paste",
+            "text_editor.home",
+            "text_editor.end",
+            "text_editor.space",
+            "text_editor.return",
             "text_editor.backspace",
             "text_editor.layout"
         )
@@ -128,10 +139,16 @@ data class IconTheme(
             "toolbar.redo",
             "toolbar.cursor_move",
             "toolbar.floating_toggle",
+            "toolbar.floating_toggle_active",
             "toolbar.split_keyboard",
+            "toolbar.split_keyboard_active",
             "toolbar.clipboard",
             "toolbar.ai_assistant",
             "toolbar.js_tools",
+            "toolbar.js_app.youdao_translate",
+            "toolbar.js_app.bilibili_translate",
+            "toolbar.voice_input",
+            "toolbar.voice_input_active",
             "toolbar.more",
             "toolbar.language_switch",
             // 语言切换按钮在 ASCII mode 下的图标：与上面中文态槽位成对，主题可分别覆盖。
@@ -147,6 +164,7 @@ data class IconTheme(
             "toolbar.reload_config",
             "toolbar.virtual_keyboard",
             "toolbar.one_handed_keyboard",
+            "toolbar.one_handed_keyboard_active",
             "toolbar.browse_user_data",
             "toolbar.settings_global",
             "toolbar.settings_ime",

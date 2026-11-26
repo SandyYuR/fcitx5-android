@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="text_editing_layout_override_title">텍스트 편집 레이아웃</string>
+    <string name="text_editing_layout_override_auto">자동(현재 프로필에서 감지)</string>
+    <string name="text_editing_layout_override_builtin">기본 내장 레이아웃</string>
+    <string name="text_editing_layout_override_auto_summary">자동: %1$s</string>
+    <string name="text_editing_layout_override_unavailable">%1$s(현재 프로필에서 사용할 수 없음)</string>
     <string name="app_name_release">Fcitx5.fx.rime</string>
     <string name="app_name_debug">Fcitx5.fx.rime (디버그)</string>
     <string name="save">저장</string>

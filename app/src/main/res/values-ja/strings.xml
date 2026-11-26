@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="text_editing_layout_override_title">テキスト編集レイアウト</string>
+    <string name="text_editing_layout_override_auto">自動（現在のプロファイルから検出）</string>
+    <string name="text_editing_layout_override_builtin">内蔵の標準レイアウト</string>
+    <string name="text_editing_layout_override_auto_summary">自動：%1$s</string>
+    <string name="text_editing_layout_override_unavailable">%1$s（現在のプロファイルでは利用できません）</string>
     <string name="app_name_release">Fcitx5.fx.rime</string>
     <string name="app_name_debug">Fcitx5.fx.rime (デバッグ)</string>
     <string name="save">保存</string>

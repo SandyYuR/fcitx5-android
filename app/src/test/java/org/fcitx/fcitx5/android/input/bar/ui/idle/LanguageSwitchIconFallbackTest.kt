@@ -7,6 +7,8 @@ import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.data.theme.IconTheme
 import org.fcitx.fcitx5.android.data.theme.IconThemeManager
 import org.fcitx.fcitx5.android.data.theme.ThemePreset
+import org.fcitx.fcitx5.android.input.action.ClipboardAction
+import org.fcitx.fcitx5.android.input.action.VoiceInputAction
 import org.fcitx.fcitx5.android.input.bar.ui.ToolButton
 import org.fcitx.fcitx5.android.input.config.ConfigurableButton
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
@@ -19,7 +21,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 /**
- * 工具栏语言切换按钮的图标槽位回退顺序：ASCII 专用槽位 → 中文态槽位 → 内置图标。
+ * 工具栏语言切换的 ASCII 槽位回退和语音按钮的旧槽位兼容行为。
  *
  * ASCII 专用槽位是按钮定义里的常量，永远非空；只配了中文态槽位的主题切到 ASCII 时必须
  * 沿用那个槽位，而不是掉回内置图标。这里用文字图标断言，因为文字与内置图标在按钮上
@@ -112,6 +114,42 @@ class LanguageSwitchIconFallbackTest {
         assertShowsBuiltInIcon(button)
         ui.setAsciiMode(true)
         assertShowsBuiltInIcon(button)
+    }
+
+    @Test
+    fun activeVoiceTriesActiveBaseThenLegacySlots() {
+        assertEquals(
+            listOf("toolbar.voice_input_active", "toolbar.voice_input", "system.voice_input"),
+            resolveButtonIconSlots(VoiceInputAction, active = true, asciiMode = false)
+        )
+    }
+
+    @Test
+    fun inactiveVoiceTriesBaseThenLegacySlots() {
+        assertEquals(
+            listOf("toolbar.voice_input", "system.voice_input"),
+            resolveButtonIconSlots(VoiceInputAction, active = false, asciiMode = false)
+        )
+    }
+
+    @Test
+    fun otherActionsDoNotUseTheLegacyVoiceSlot() {
+        assertEquals(
+            listOf("toolbar.clipboard"),
+            resolveButtonIconSlots(ClipboardAction, active = true, asciiMode = false)
+        )
+    }
+
+    @Test
+    fun voiceButtonUsesTheLegacySystemThemeSlot() = withIconTheme(
+        mapOf("system.voice_input" to "legacy voice")
+    ) {
+        val ui = ButtonsBarUi(
+            context, ThemePreset.PixelLight, listOf(ConfigurableButton("voice_input"))
+        )
+        val button = ui.root.allViews.filterIsInstance<ToolButton>()
+            .first { it.tag == "voice_input" }
+        assertShowsText(button, "legacy voice")
     }
 
     @Test

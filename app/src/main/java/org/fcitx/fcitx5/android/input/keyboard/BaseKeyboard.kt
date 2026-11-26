@@ -1730,6 +1730,7 @@ abstract class BaseKeyboard(
         forEachKeyViewIncludingCachedRows { keyView ->
             when (keyView) {
                 is AltTextKeyView -> keyView.reapplyIconThemeOverride()
+                is IconTextKeyView -> keyView.reapplyIconThemeOverride()
                 is ImageAltTextKeyView -> keyView.reapplyIconThemeOverride()
                 is ImageTextKeyView -> keyView.reapplyIconThemeOverride()
                 is ImageKeyView -> keyView.reapplyIconThemeOverride()
@@ -1811,7 +1812,9 @@ abstract class BaseKeyboard(
             is KeyDef.Appearance.AltText -> AltTextKeyView(context, theme, activeAppearance, horizontalGapScale, activeDef.effectiveIconSlot)
             is KeyDef.Appearance.ImageAltText -> ImageAltTextKeyView(context, theme, activeAppearance, horizontalGapScale, activeDef.effectiveIconSlot)
             is KeyDef.Appearance.ImageText -> ImageTextKeyView(context, theme, activeAppearance, horizontalGapScale, activeDef.effectiveIconSlot)
-            is KeyDef.Appearance.Text -> TextKeyView(context, theme, activeAppearance, horizontalGapScale)
+            is KeyDef.Appearance.Text -> activeDef.effectiveIconSlot?.let { slot ->
+                IconTextKeyView(context, theme, activeAppearance, horizontalGapScale, slot)
+            } ?: TextKeyView(context, theme, activeAppearance, horizontalGapScale)
             is KeyDef.Appearance.Image -> ImageKeyView(
                 context,
                 theme,
@@ -2631,6 +2634,10 @@ abstract class BaseKeyboard(
             }
             is ToolbarTextKeyView -> if (appearance is KeyDef.Appearance.ToolbarText) {
                 view.label.text = appearance.displayText
+            }
+            is IconTextKeyView -> if (appearance is KeyDef.Appearance.Text) {
+                view.mainText.text = appearance.displayText
+                view.reapplyIconThemeOverride()
             }
             is TextKeyView -> if (appearance is KeyDef.Appearance.Text) {
                 view.mainText.text = appearance.displayText

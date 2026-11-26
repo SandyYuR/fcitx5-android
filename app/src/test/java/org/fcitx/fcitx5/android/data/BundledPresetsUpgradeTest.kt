@@ -29,10 +29,11 @@ class BundledPresetsUpgradeTest {
     private fun previous() = javaClass.classLoader!!.getResourceAsStream(
         "bundled/google-icon-theme-before-20261117.json"
     )!!.use { it.readBytes() }
-    private fun install(file: File) = ReflectionHelpers.callInstanceMethod<Int>(
-        BundledPresets, "installAsset", ClassParameter.from(String::class.java, asset),
-        ClassParameter.from(File::class.java, file), ClassParameter.from(ByteArray::class.java, current)
+    private fun install(assetPath: String, file: File, bytes: ByteArray) = ReflectionHelpers.callInstanceMethod<Int>(
+        BundledPresets, "installAsset", ClassParameter.from(String::class.java, assetPath),
+        ClassParameter.from(File::class.java, file), ClassParameter.from(ByteArray::class.java, bytes)
     )
+    private fun install(file: File) = install(asset, file, current)
 
     @Before fun clearHandledVersions() { handled.clear() }
 
@@ -67,6 +68,37 @@ class BundledPresetsUpgradeTest {
         val destination = File(temp.root, "deleted-theme.json")
         assertEquals(1, install(destination))
         assertArrayEquals(current, destination.readBytes())
+    }
+
+    @Test fun releasedFoxyAssetsMigrateFromEveryKnownPreviousSize() {
+        val released = mapOf(
+            "bundled/icon_themes/水彩.json" to listOf(183743, 188289, 262232, 264678, 269247, 266801),
+            "bundled/icon_themes/普蓝.json" to listOf(62181, 83553, 105328),
+            "bundled/keyboard_layouts/TextKeyboardLayout.水彩.json" to listOf(30782, 29432, 34547, 35444),
+            "bundled/keyboard_layouts/TextKeyboardLayout.普蓝.json" to listOf(9436, 9902, 13424),
+            "bundled/fonts/字体图标.otf" to listOf(9020)
+        )
+        val updated = byteArrayOf(1, 2, 3, 4)
+        for ((path, sizes) in released) {
+            for (size in sizes) {
+                val destination = temp.newFile().apply { writeBytes(ByteArray(size) { 0x5a.toByte() }) }
+                assertEquals(1, install(path, destination, updated))
+                assertArrayEquals(updated, destination.readBytes())
+            }
+        }
+    }
+
+    @Test fun unknownReleasedAssetSizePreservesUserEdits() {
+        for ((path, size) in listOf(
+            "bundled/icon_themes/水彩.json" to 264679,
+            "bundled/icon_themes/水彩.json" to 188389,
+            "bundled/keyboard_layouts/TextKeyboardLayout.水彩.json" to 30784
+        )) {
+            val edited = ByteArray(size) { 0x5a.toByte() }
+            val destination = temp.newFile().apply { writeBytes(edited) }
+            install(path, destination, byteArrayOf(1, 2, 3, 4))
+            assertArrayEquals(edited, destination.readBytes())
+        }
     }
 
     @Test fun explicitDefaultLayoutProfileSurvivesWhenFirstInstallSelectionIsDisabled() {

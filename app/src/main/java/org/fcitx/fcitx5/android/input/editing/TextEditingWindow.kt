@@ -16,15 +16,88 @@ import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.theme
+import org.fcitx.fcitx5.android.input.action.RimeSchemaMenuAction
 import org.fcitx.fcitx5.android.input.action.executeMacroSteps
+import org.fcitx.fcitx5.android.input.action.resolveKeyRefCode
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
+import org.fcitx.fcitx5.android.input.keyboard.KeyRef
 import org.fcitx.fcitx5.android.input.keyboard.MacroAction
+import org.fcitx.fcitx5.android.input.keyboard.MacroStep
+import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.mechdancer.dependency.manager.must
 import splitties.dimensions.dp
+
+internal class TextEditingMacroSelectionLock {
+    private val heldShiftKeys = mutableSetOf<Int>()
+    private val selectionShift = KeyRef.Android(KeyEvent.KEYCODE_SHIFT_LEFT)
+
+    fun transform(step: MacroStep, selectionLocked: Boolean): List<MacroStep> = when (step) {
+        is MacroStep.Down -> {
+            updateShiftKeys(step.keys, pressed = true)
+            listOf(step)
+        }
+        is MacroStep.Up -> {
+            updateShiftKeys(step.keys, pressed = false)
+            listOf(step)
+        }
+        is MacroStep.Tap -> {
+            if (!selectionLocked || heldShiftKeys.isNotEmpty() || step.keys.none(::isNavigationKey)) {
+                listOf(step)
+            } else buildList {
+                step.keys.forEach { key ->
+                    if (isNavigationKey(key)) {
+                        add(MacroStep.Down(listOf(selectionShift)))
+                        add(MacroStep.Tap(listOf(key)))
+                        add(MacroStep.Up(listOf(selectionShift)))
+                    } else {
+                        add(MacroStep.Tap(listOf(key)))
+                    }
+                }
+            }
+        }
+        is MacroStep.Shortcut -> {
+            if (!selectionLocked || heldShiftKeys.isNotEmpty() || !isNavigationKey(step.key) ||
+                step.modifiers.any(::isShiftKey)
+            ) {
+                listOf(step)
+            } else {
+                listOf(step.copy(modifiers = step.modifiers + selectionShift))
+            }
+        }
+        else -> listOf(step)
+    }
+
+    private fun updateShiftKeys(keys: List<KeyRef>, pressed: Boolean) {
+        keys.map(::resolveKeyRefCode).filter(::isShiftCode).forEach { code ->
+            if (pressed) heldShiftKeys.add(code) else heldShiftKeys.remove(code)
+        }
+    }
+
+    private fun isShiftKey(key: KeyRef): Boolean = isShiftCode(resolveKeyRefCode(key))
+
+    private fun isShiftCode(code: Int): Boolean =
+        code == KeyEvent.KEYCODE_SHIFT_LEFT || code == KeyEvent.KEYCODE_SHIFT_RIGHT
+
+    private fun isNavigationKey(key: KeyRef): Boolean = resolveKeyRefCode(key) in NAVIGATION_KEYS
+
+    private companion object {
+        val NAVIGATION_KEYS = setOf(
+            KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT,
+            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN,
+            KeyEvent.KEYCODE_MOVE_HOME, KeyEvent.KEYCODE_MOVE_END,
+            KeyEvent.KEYCODE_PAGE_UP, KeyEvent.KEYCODE_PAGE_DOWN
+        )
+    }
+}
+
+internal fun textEditingButtonActionId(action: KeyAction): String? = when (action) {
+    KeyAction.ShowRimeSchemaMenuAction -> RimeSchemaMenuAction.id
+    else -> null
+}
 
 class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(TextEditingWindow::class),
     InputBroadcastReceiver {
@@ -75,15 +148,7 @@ class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(Tex
             }
         }
 
-        ui.selectButton.setOnClickListener {
-            if (hasSelection) {
-                userSelection = false
-                service.cancelSelection()
-            } else {
-                userSelection = !userSelection
-                ui.updateSelection(false, userSelection)
-            }
-        }
+        ui.selectButton.setOnClickListener { toggleSelection() }
         ui.selectAllButton.setOnClickListener {
             userSelection = true
             service.currentInputConnection?.performContextMenuAction(android.R.id.selectAll)
@@ -133,18 +198,74 @@ class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(Tex
         ui.endButton.setOnClickListener { sendDirectionKey(KeyEvent.KEYCODE_MOVE_END) }
     }
 
+    private fun toggleSelection() {
+        if (hasSelection) {
+            userSelection = false
+            service.cancelSelection()
+        } else {
+            userSelection = !userSelection
+        }
+        ui.updateSelection(hasSelection && userSelection, userSelection)
+    }
+
+    private fun executeEditingMacro(steps: List<MacroStep>) {
+        val pending = mutableListOf<MacroStep>()
+        val selectionLock = TextEditingMacroSelectionLock()
+        fun flush() {
+            if (pending.isNotEmpty()) {
+                executeMacroSteps(pending.toList(), service, context)
+                pending.clear()
+            }
+        }
+        for (step in steps) {
+            if (step is MacroStep.Edit) {
+                flush()
+                when (step.action) {
+                    "toggleSelection", "toggle_selection" -> toggleSelection()
+                    "selectAll", "selectall", "select_all" -> {
+                        userSelection = true
+                        executeMacroSteps(listOf(step), service, context)
+                        ui.updateSelection(hasSelection, userSelection)
+                    }
+                    else -> {
+                        if (step.action in setOf("copy", "cut", "paste")) userSelection = false
+                        executeMacroSteps(listOf(step), service, context)
+                        ui.updateSelection(hasSelection, userSelection)
+                    }
+                }
+            } else pending += selectionLock.transform(step, hasSelection || userSelection)
+        }
+        flush()
+    }
+
     private fun executeTextEditingAction(action: KeyAction) {
         when (action) {
-            is MacroAction -> executeMacroSteps(action.steps, service, context)
-            is KeyAction.CommitAction -> service.commitText(action.text)
+            is MacroAction -> executeEditingMacro(action.steps)
+            is KeyAction.CommitAction -> {
+                userSelection = false
+                service.commitText(action.text)
+            }
+            is KeyAction.FcitxKeyAction -> {
+                if (!action.up) {
+                    userSelection = false
+                    service.commitText(action.act)
+                }
+            }
             is KeyAction.SymAction -> {
                 val keyCode = action.sym.keyCode
                 if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                    val direction = keyCode in setOf(
+                        KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT,
+                        KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN,
+                        KeyEvent.KEYCODE_MOVE_HOME, KeyEvent.KEYCODE_MOVE_END,
+                        KeyEvent.KEYCODE_PAGE_UP, KeyEvent.KEYCODE_PAGE_DOWN
+                    )
+                    if (!direction) userSelection = false
                     service.sendCombinationKeyEvents(
                         keyCode,
                         alt = action.states.alt,
                         ctrl = action.states.ctrl,
-                        shift = action.states.shift
+                        shift = action.states.shift || (direction && (hasSelection || userSelection))
                     )
                 }
             }
@@ -155,6 +276,9 @@ class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(Tex
             is KeyAction.LayoutSwitchAction -> windowManager.attachWindow(KeyboardWindow)
             is KeyAction.LangSwitchAction -> service.sendStandaloneShiftTap()
             is KeyAction.CapsAction -> service.sendDownUpKeyEvents(KeyEvent.KEYCODE_CAPS_LOCK)
+            is KeyAction.ShowRimeSchemaMenuAction -> {
+                textEditingButtonActionId(action)?.let { service.inputView?.executeButtonAction(it) }
+            }
             else -> Unit
         }
     }
@@ -185,14 +309,21 @@ class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(Tex
                 cursorPromptLongPress,
                 cursorPromptSelecting,
                 cursorPromptReleaseSelection,
-                TextEditingLayoutLoader.load(),
+                TextEditingLayoutLoader.loadSwipeBar(),
                 ::executeTextEditingAction
             ).also {
                 bindCommonActions(it)
                 bindFoxyActions(it)
             }
         } else {
-            TextEditingUi(
+            val ime = TextKeyboard.ime
+            val bases = listOfNotNull(ime?.uniqueName, ime?.displayName, ime?.subMode?.name, "rime", "default")
+                .filter { it.isNotBlank() }.distinct()
+            val layout = TextEditingLayoutLoader.load(bases)
+            if (layout != null) ConfiguredTextEditingUi(
+                context, theme, buttonRipple, buttonBorder, context.dp(buttonRadius.toFloat()),
+                layout, ::executeTextEditingAction
+            ).also(::bindCommonActions) else TextEditingUi(
                 context,
                 theme,
                 buttonRipple,

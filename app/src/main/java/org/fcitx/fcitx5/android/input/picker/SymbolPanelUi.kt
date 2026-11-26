@@ -300,7 +300,7 @@ class SymbolPanelUi(
             val active = position == selectedIndex
             label.text = groups[position].name
             label.setTextColor(
-                if (active) theme.genericActiveForegroundColor else theme.keyTextColor.alpha(0.65f)
+                if (active) theme.accentKeyTextColor else theme.keyTextColor.alpha(0.65f)
             )
             label.background = tabFill(active)
             label.setOnClickListener { selectGroup(position) }
@@ -377,7 +377,7 @@ class SymbolPanelUi(
      */
     internal fun tabFill(active: Boolean): Drawable {
         val fill = when {
-            active -> tabKeyBackground(theme.genericActiveBackgroundColor)
+            active -> tabKeyBackground(theme.accentKeyBackgroundColor)
             // 涟漪用同形状的 mask 裁切，否则按下时涟漪会溢出到按键边距以外
             ThemeManager.prefs.keyRippleEffect.getValue() ->
                 rippleDrawable(theme.keyPressHighlightColor, tabHighlightMask(Color.WHITE))
