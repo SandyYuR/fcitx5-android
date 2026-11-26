@@ -1,0 +1,10 @@
+
+Algorithm       Hash                                                                   Path
+---------       ----                                                                   ----
+SHA256          604C99B2AAA2BA0F7C4E95A035BF0E7B1D668B7A09544EA362C62E685F471001       D:\GitHub\fx2-rime\.verify\key-…
+ .../fcitx/fcitx5/android/input/keyboard/KeyView.kt    | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+## fix/key-press-highlight
+ M app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt
+?? app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/KeyPressHighlightGeometryTest.kt
+

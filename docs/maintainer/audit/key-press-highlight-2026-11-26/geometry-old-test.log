@@ -1,0 +1,269 @@
+> Task :build-logic:convention:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:convention:compileKotlin FROM-CACHE
+> Task :build-logic:convention:compileJava NO-SOURCE
+> Task :build-logic:convention:pluginDescriptors
+> Task :build-logic:convention:processResources
+> Task :build-logic:convention:classes
+> Task :build-logic:convention:jar
+> Task :lib:common:preBuild UP-TO-DATE
+> Task :codegen:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib:common:preDebugBuild UP-TO-DATE
+> Task :lib:common:extractDebugSupportedLocales FROM-CACHE
+> Task :lib:common:generateDebugResources FROM-CACHE
+> Task :lib:common:packageDebugResources FROM-CACHE
+> Task :lib:common:processDebugNavigationResources FROM-CACHE
+> Task :app:prepareLibraryDefinitionsFxDebug FROM-CACHE
+> Task :app:generateFxDebugAssets UP-TO-DATE
+> Task :codegen:compileKotlin FROM-CACHE
+> Task :codegen:compileJava NO-SOURCE
+> Task :codegen:processResources
+> Task :codegen:classes
+> Task :codegen:jar
+> Task :lib:common:parseDebugLocalResources FROM-CACHE
+> Task :lib:common:generateDebugRFile FROM-CACHE
+> Task :lib:common:compileDebugAidl FROM-CACHE
+> Task :lib:common:compileDebugKotlin FROM-CACHE
+> Task :lib:common:javaPreCompileDebug FROM-CACHE
+> Task :lib:common:compileDebugJavaWithJavac FROM-CACHE
+> Task :lib:common:extractDeepLinksDebug FROM-CACHE
+> Task :lib:common:writeDebugAarMetadata
+> Task :lib:common:processDebugManifest FROM-CACHE
+> Task :lib:common:mapDebugSourceSetPaths
+> Task :lib:common:compileDebugLibraryResources FROM-CACHE
+> Task :lib:common:generateDebugAssets UP-TO-DATE
+> Task :lib:common:bundleLibCompileToJarDebug
+> Task :lib:common:mergeDebugAssets
+> Task :lib:common:processDebugJavaRes
+> Task :prepareRimeSdk
+> Task :lib:common:bundleLibRuntimeToJarDebug
+> Task :app:preBuild
+> Task :app:preFxDebugBuild
+> Task :app:dataBindingMergeDependencyArtifactsFxDebug
+> Task :app:generateFxDebugResValues FROM-CACHE
+> Task :app:extractFxDebugSupportedLocales FROM-CACHE
+> Task :app:mapFxDebugSourceSetPaths
+> Task :app:generateFxDebugLocaleConfig FROM-CACHE
+> Task :app:generateFxDebugResources FROM-CACHE
+> Task :app:mergeFxDebugResources FROM-CACHE
+> Task :app:packageFxDebugResources FROM-CACHE
+> Task :app:processFxDebugNavigationResources FROM-CACHE
+> Task :app:parseFxDebugLocalResources FROM-CACHE
+> Task :app:dataBindingGenBaseClassesFxDebug FROM-CACHE
+> Task :app:generateFxDebugBuildConfig
+> Task :app:generateFxDebugRFile FROM-CACHE
+> Task :app:javaPreCompileFxDebug FROM-CACHE
+> Task :app:compileFxDebugNavigationResources FROM-CACHE
+> Task :app:createFxDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksFxDebug FROM-CACHE
+> Task :app:checkFxDebugAarMetadata
+> Task :app:processFxDebugMainManifest FROM-CACHE
+> Task :app:processFxDebugManifest FROM-CACHE
+> Task :app:processFxDebugManifestForPackage FROM-CACHE
+> Task :app:processFxDebugResources FROM-CACHE
+> Task :app:preFxDebugUnitTestBuild
+> Task :app:javaPreCompileFxDebugUnitTest FROM-CACHE
+> Task :app:prepareDirectRimeAssets
+> Task :app:generateDataDescriptor
+> Task :app:mergeFxDebugAssets
+> Task :app:packageFxDebugUnitTestForUnitTest
+
+> Task :app:mergeFxDebugUnitTestManifest
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\src\main\AndroidManifest.xml:6:5-8:31 Warning:
+	permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:6 to remove other declarations but no other declaration present
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\src\main\AndroidManifest.xml:10:5-12:31 Warning:
+	uses-permission#org.fcitx.fcitx5.android.fx.rime.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION was tagged at AndroidManifest.xml:10 to remove other declarations but no other declaration present
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\src\main\AndroidManifest.xml:34:5-39 Warning:
+	queries was tagged at AndroidManifest.xml:34 to remove other declarations but no other declaration present
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\src\main\AndroidManifest.xml:379:9-381:35 Warning:
+	activity#com.canhub.cropper.CropImageActivity was tagged at AndroidManifest.xml:379 to remove other declarations but no other declaration present
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\src\main\AndroidManifest.xml:383:9-386:35 Warning:
+	provider#com.canhub.cropper.CropFileProvider was tagged at AndroidManifest.xml:383 to remove other declarations but no other declaration present
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\src\main\AndroidManifest.xml:389:9-391:35 Warning:
+	activity#com.journeyapps.barcodescanner.CaptureActivity was tagged at AndroidManifest.xml:389 to remove other declarations but no other declaration present
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\src\main\AndroidManifest.xml:394:9-396:35 Warning:
+	service#androidx.room.MultiInstanceInvalidationService was tagged at AndroidManifest.xml:394 to remove other declarations but no other declaration present
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\src\main\AndroidManifest.xml:411:13-414:39 Warning:
+	meta-data#androidx.work.WorkManagerInitializer was tagged at AndroidManifest.xml:411 to remove other declarations but no other declaration present
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\src\main\AndroidManifest.xml:415:13-418:39 Warning:
+	meta-data#splitties.views.dsl.appcompat.experimental.AppCompatViewInstantiatorInjecter was tagged at AndroidManifest.xml:415 to remove other declarations but no other declaration present
+D:\GitHub\fx2-rime\.verify\key-press-highlight\app\build\intermediates\tmp\manifest\test\fx\debug\tempFile2ProcessTestManifest12920500743601731814.xml:66:5-421:19 Warning:
+	application@android:supportsRtl was tagged at tempFile2ProcessTestManifest12920500743601731814.xml:66 to replace other declarations but no other declaration present
+
+> Task :app:processFxDebugUnitTestManifest
+> Task :app:generateFxDebugUnitTestConfig
+> Task :app:kspFxDebugKotlin
+> Task :app:compileFxDebugKotlin
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt:413:60 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Snapshot'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimePublicationState.kt:76:59 Unnecessary safe call on a non-null receiver of type 'Snapshot'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/core/engine/RimeEnginePlugins.kt:109:72 'fun get(p0: String!): Any?' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/core/engine/RimeEnginePlugins.kt:118:85 'fun get(p0: String!): Any?' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangAdvancedSession.kt:122:23 No cast needed.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangCommonSettings.kt:85:13 'when' is exhaustive so 'else' is redundant here.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangYaml.kt:232:33 No cast needed.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/input/font/FontProviders.kt:184:46 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt:1014:42 Unnecessary non-null assertion (!!) on a non-null receiver of type 'AutoScaleTextView'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt:1363:43 Unnecessary safe call on a non-null receiver of type 'CharSequence'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt:1216:19 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/common/ExpressivePreferenceListStyle.kt:187:17 Check for instance is always 'true'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/keyboardtest/KeyboardTestDialog.kt:34:65 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/rimeupdate/RimeSchemeUpdateActivity.kt:245:23 Condition is always 'true'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/BackupProtectionDialog.kt:57:60 Unnecessary safe call on a non-null receiver of type 'BackupProtection'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/UserDataRestoreActivity.kt:105:17 'fun startActivityForResult(intent: Intent, requestCode: Int): Unit' is deprecated. This method has been deprecated in favor of using the Activity Result API
+      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+      contracts for common intents available in
+      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+      testing, and allow receiving results in separate, testable classes independent from your
+      activity. Use
+      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+      passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/UserDataRestoreActivity.kt:112:15 'fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Unit' is deprecated. This method has been deprecated in favor of using the Activity Result API
+      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+      contracts for common intents available in
+      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+      testing, and allow receiving results in separate, testable classes independent from your
+      activity. Use
+      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+      with the appropriate {@link ActivityResultContract} and handling the result in the
+      {@link ActivityResultCallback#onActivityResult(Object) callback}.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt:183:31 Unnecessary non-null assertion (!!) on a non-null receiver of type 'File'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDataManager.kt:190:59 Unnecessary non-null assertion (!!) on a non-null receiver of type 'File'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorDialogFragment.kt:737:74 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyboardCanvasOverlay.kt:81:18 'fun setBoundsInParent(p0: Rect!): Unit' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:509:52 Unnecessary safe call on a non-null receiver of type 'String'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1260:47 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1261:46 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1262:44 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1270:47 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1271:46 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt:1272:44 The corresponding parameter in the supertype 'OnSeekBarChangeListener' is named 'seekBar'. This may cause problems when calling this function with named arguments.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeColorEditorActivity.kt:309:44 Unnecessary safe call on a non-null receiver of type 'String'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/voice/JsVoicePluginsFragment.kt:164:104 Unnecessary safe call on a non-null receiver of type 'Pair<JsVoiceProviders.Spec, JsPluginApp>'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:157:76 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:164:56 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:247:60 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:252:60 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:305:76 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:309:56 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt:389:56 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/WordCloudView.kt:169:60 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangUpdateActivity.kt:306:41 Unnecessary safe call on a non-null receiver of type 'Data'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/utils/AlertDialog.kt:16:53 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/main/java/org/fcitx/fcitx5/android/utils/AtomicFileMove.kt:21:102 Expression is unused.
+
+> Task :app:compileFxDebugJavaWithJavac
+> Task :app:processFxDebugJavaRes
+> Task :app:bundleFxDebugClassesToCompileJar
+> Task :app:kspFxDebugUnitTestKotlin SKIPPED
+> Task :app:bundleFxDebugClassesToRuntimeJar
+
+> Task :app:compileFxDebugUnitTestKotlin
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/WebSocketFrameGuardTest.kt:84:44 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'ProtectionDomain?'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/core/DirectRimeStatusHintContractTest.kt:146:71 'val id: Long' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/core/DirectRimeStatusHintContractTest.kt:151:62 'val id: Long' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/core/DirectRimeStatusHintSchedulerTest.kt:237:38 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'HintTestOwner.Task?'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/core/engine/RimeEnginePluginsTest.kt:74:27 'fun addResolveInfoForIntent(p0: Intent!, p1: ResolveInfo!): Unit' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:25:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:25:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:25:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:61:14 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:79:14 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt:92:14 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt:21:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt:21:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt:21:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/UserDataRestoreProcessTest.kt:19:13 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'String?'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt:27:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt:27:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt:27:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt:29:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt:29:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardUrlHistoryTest.kt:29:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/stats/InputStatsTest.kt:232:26 Java type mismatch: inferred type is 'Any?', but 'Any' was expected.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/stats/InputStatsTest.kt:273:26 Java type mismatch: inferred type is 'Any?', but 'Any' was expected.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/data/theme/ThemeAssetTransactionTest.kt:42:42 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/candidates/CandidateRenderingStateTest.kt:72:58 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt:52:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt:52:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardEditorPanelTest.kt:52:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt:61:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt:61:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt:61:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/voice/VoiceFinishIntegrationTest.kt:80:26 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppContractTest.kt:101:46 Unnecessary non-null assertion (!!) on a non-null receiver of type 'JsonObject'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsNetworkCloseRaceTest.kt:110:44 No cast needed.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsWebSocketTransportTest.kt:120:25 Unnecessary non-null assertion (!!) on a non-null receiver of type 'WebSocket'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsWebSocketTransportTest.kt:137:25 Unnecessary non-null assertion (!!) on a non-null receiver of type 'WebSocket'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/testing/FilesystemFixtures.kt:15:17 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'String?'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt:45:2 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt:45:13 'annotation class SQLiteMode : Any, Annotation' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt:45:24 'enum class Mode : Enum<SQLiteMode.Mode!>' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt:119:36 Unnecessary safe call on a non-null receiver of type 'Map<String, Any?>'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/MacroAppActionTest.kt:78:38 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Bundle'.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt:456:81 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt:587:81 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt:590:149 'field scaledDensity: Float' is deprecated. Deprecated in Java.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/DownloadPublisherTest.kt:97:38 Java type mismatch: inferred type is 'File?', but 'File' was expected.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadWorkerTest.kt:43:89 The corresponding parameter in the supertype 'WorkerFactory' is named 'workerParameters'. This may cause problems when calling this function with named arguments.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/HostsDownloadsLifecycleTest.kt:36:89 The corresponding parameter in the supertype 'WorkerFactory' is named 'workerParameters'. This may cause problems when calling this function with named arguments.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangUpdateActivityTest.kt:298:35 Redundant call of conversion method.
+w: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/src/test/java/org/fcitx/fcitx5/android/ui/main/wanxiang/WanxiangUpdateWorkerTest.kt:94:89 The corresponding parameter in the supertype 'WorkerFactory' is named 'workerParameters'. This may cause problems when calling this function with named arguments.
+
+> Task :app:compileFxDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processFxDebugUnitTestJavaRes
+
+> Task :app:testFxDebugUnitTest
+
+KeyPressHighlightGeometryTest > borderlessSpacebarRetainsItsOwnInsetAndRadius[28] FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+KeyPressHighlightGeometryTest > pillKeyRetainsItsContourAfterThemeRefresh[28] FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+KeyPressHighlightGeometryTest > rippleMaskUsesTheSameInsetAsTheKeycap[28] FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+KeyPressHighlightGeometryTest > forcedBorderRetainsRoundedHighlightWithGlobalBordersOff[28] FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+KeyPressHighlightGeometryTest > borderOffUsesRectangularHighlightWithGlobalBordersOn[28] FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+KeyPressHighlightGeometryTest > borderlessSpacebarRetainsItsOwnInsetAndRadius FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+KeyPressHighlightGeometryTest > pillKeyRetainsItsContourAfterThemeRefresh FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+KeyPressHighlightGeometryTest > rippleMaskUsesTheSameInsetAsTheKeycap FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+KeyPressHighlightGeometryTest > forcedBorderRetainsRoundedHighlightWithGlobalBordersOff FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+KeyPressHighlightGeometryTest > borderOffUsesRectangularHighlightWithGlobalBordersOn FAILED
+    java.lang.AssertionError at KeyPressHighlightGeometryTest.kt:125
+
+> Task :app:testFxDebugUnitTest FAILED
+
+[Incubating] Problems report is available at: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+67 actionable tasks: 33 executed, 34 from cache
+[stderr]
+
+12 tests completed, 10 failed
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:testFxDebugUnitTest'.
+> There were failing tests. See the report at: file:///D:/GitHub/fx2-rime/.verify/key-press-highlight/app/build/reports/tests/testFxDebugUnitTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 1m 58s
