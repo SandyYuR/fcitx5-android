@@ -13,7 +13,7 @@
 | 中州韵方案更新 | 在设置首页「中州韵引擎」的「中州韵方案更新」中配置万象更新或自定义更新，按子目录、排除规则单项或批量更新 | [中州韵方案更新](/features/rime-scheme-updates) |
 | 语言、方案与开关 | 语言键短按交给方案切换中英文，长按打开方案菜单；状态区管理分组开关 | [语言键](/features/keys/language-key) |
 | 候选栏与窗口 | 调整字体、注释、序号、间距和圆角；长候选可横向浏览，展开候选与浮动窗口分别配置；浮动窗口可跟随光标，实体键盘另设位置 | [候选指南](/features/candidate-window) |
-| 选词与退格手势 | 按住候选后滑动选字或打开菜单；万象拼音可手动置顶或前后移动候选；合成中长按退格上滑只清编码，正文单独处理 | [Rime 功能](/features/rime-enhancements) · [手动排序](/features/candidate-window#万象拼音手动排序) · [退格键](/features/keys/backspace-key) |
+| 选词与退格手势 | 按住候选后滑动选字或打开菜单；万象拼音可按方案排序；EVO 满足引擎与 editor 条件时，按显式绑定独立提供前移、后移、重置手动排序；存在有效 `auto_delete` 绑定时，以「重置自动调频」替代「忘记此词」并按方案按键处理，缺少有效绑定时保留「忘记此词」；合成中长按退格上滑只清编码，正文单独处理 | [Rime 功能](/features/rime-enhancements) · [万象排序](/features/candidate-window#万象拼音手动排序) · [EVO 排序](/features/candidate-window#evo-手动排序) · [退格键](/features/keys/backspace-key) |
 
 部署、同步或配置重载期间，等待引擎恢复后再输入；这些维护阶段不处理按键。初始化等待与正常输入的事件顺序是另一回事，不能把“部署时继续输入”当作支持的操作。
 

@@ -1,10 +1,10 @@
 {
   "base": "6a42fa288f5bea20564873ea9b1a2fc8c0aa3495",
-  "head": "b73552da24bf06ea204cb18cdd5ddd801d6069be",
+  "head": "2cd8d0f55046479206ec3adddb39426223d3bc0c",
   "source": "fx-rime-only",
   "documentation_baseline": "docs@42af42795d696b9fb92a59aa39e39d3ae6867351",
   "generated": "2026-11-26",
-  "note": "按时间顺序登记 PR #57 压缩合入与水彩／普蓝资源和常规编辑布局两个默认分支提交。原 PR #57 条目保持原样，原始及变基提交映射仍见对应日期记录；该条目的语音、语音测试和 assets 与 base 一致。documentation 相对 docs/；各轮文档基线与验证条件见各自日期页。水彩／普蓝验证包包含另会话按压高亮工作区修改，该修改不在本轮功能提交内。",
+  "note": "按时间顺序登记 PR #57 压缩合入与水彩／普蓝资源和常规编辑布局两个默认分支提交。原 PR #57 条目保持原样，原始及变基提交映射仍见对应日期记录；该条目的语音、语音测试和 assets 与 base 一致。documentation 相对 docs/；各轮文档基线与验证条件见各自日期页。水彩／普蓝验证包包含另会话按压高亮工作区修改，该修改不在本轮功能提交内。 本次追加 EVO 候选排序的本地默认分支提交，尚未推送；原有条目保持不变。",
   "commits": [
     {
       "sha": "c1307b794f6376977e17145c0a24b433f952e0bc",
@@ -130,6 +130,37 @@
         "features/theme/icon-themes.md",
         "features/theme/theme-editor.md",
         "maintainer/implementation/correctness-contracts.md",
+        "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md"
+      ]
+    },
+    {
+      "sha": "2cd8d0f55046479206ec3adddb39426223d3bc0c",
+      "subject": "功能(候选): 支持 EVO 声明式手动排序",
+      "files": [
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/core/engine/RimeEvoOrderingDeviceTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeBackend.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeCandidateSequence.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/DirectRimeEngineOperations.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/KeyCodec.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/engine/RimeEngineModels.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/core/engine/RimeEngineStore.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/DirectRimeCandidateSequenceTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/DirectRimeEngineOperationsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/DirectRimeInteractionContractTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/NativeTestShadow.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/engine/RimeEngineStoreTest.kt",
+        "direct-rime/src/engine/java/org/fcitx/directrime/Snapshot.kt",
+        "direct-rime/src/main/cpp/bridge.cpp",
+        "direct-rime/src/main/cpp/engine.cpp",
+        "direct-rime/src/main/cpp/engine.h",
+        "direct-rime/src/main/cpp/engine_test.cpp"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-26-evo-candidate-ordering.md",
+        "features/candidate-window.md",
+        "features/overview.md",
+        "features/rime-enhancements.md",
+        "maintainer/engine-update.md",
         "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md"
       ]
     }

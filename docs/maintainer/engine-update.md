@@ -130,6 +130,20 @@ adb shell am instrument -w -r \
 
 两次输出须各自为 `OK (1 test)`。导入项检查 isolated UID 与不可写探测快照、受管载荷、损坏执行缓存重发布及真实 bridge 启动；provider 项强制要求 `profilePath`，检查包身份重核、按摘要执行快照、完整部署、候选上屏以及同一 DSO 的 stop/start。当前通用 workflow 不携带这些外部固定夹具，故不会自动执行本项；必须把本机结果与常规 CI 分开记录。
 
+### EVO 候选排序独立回归
+
+涉及 EVO editor 动作时，另以全新 instrumentation 进程单独运行 `RimeEvoOrderingDeviceTest#installedEvoPersistsActualManualOrdering`，不要和已加载其他 DSO 的测试合并调用：
+
+```sh
+adb -s emulator-5574 shell am instrument -w -r \
+  -e class org.fcitx.fcitx5.android.core.engine.RimeEvoOrderingDeviceTest#installedEvoPersistsActualManualOrdering \
+  org.fcitx.fcitx5.android.fx.rime.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+该测试要求已安装通过身份校验的 EVO provider，使用独立临时 profile，不修改用户方案或引擎选择设置。核对实际候选顺序、页内／全局目标与跨页落点、陈旧请求拒绝、空提交、两类重置的 UserDB 字段和引擎 stop/finalize/start 后的持久化；不能只凭 ready 或按键返回 handled 判定排序成功。2026-11-26 在 `rime` 上为 `OK (1 test)`，固定引擎、APK 摘要与覆盖边界见[日期记录](changes/2026-11-26-evo-candidate-ordering)。
+
+菜单按实际加载的 EVO 身份和 `editor/bindings` 中可投递的声明独立提供动作：`manual_delete` 为“重置手动排序”，保留自动学习；`auto_delete` 为“重置自动调频”，保留手动排序。后者有效时替代旧“忘记此词”，未声明时保留旧入口。万象 `super_sequence` 路径保持原行为。
+
 ### 外部引擎的方案部署排查
 
 固定引擎载荷摘要、方案压缩包摘要及实际绑定目录，分别记录 API 探测、方案部署、候选与上屏结果。配置语法、Lua 接口、词典名称和模型格式都须符合该 fork；引擎 ARM64 CI 成功不能替代配套方案在设备上的验证。
