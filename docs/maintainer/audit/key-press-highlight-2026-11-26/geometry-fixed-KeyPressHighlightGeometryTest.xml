@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-26T04:07:15.109Z" hostname="YRZ-NOTEBOOK" time="11.767">
+  <properties/>
+  <testcase name="transparentPlaceholderStillHasNoHighlight[28]" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="3.863"/>
+  <testcase name="borderlessSpacebarRetainsItsOwnInsetAndRadius[28]" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.552"/>
+  <testcase name="pillKeyRetainsItsContourAfterThemeRefresh[28]" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.298"/>
+  <testcase name="rippleContourMatchesOutlinedKeycaps[28]" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.24"/>
+  <testcase name="rippleMaskUsesTheSameInsetAsTheKeycap[28]" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.111"/>
+  <testcase name="forcedBorderRetainsRoundedHighlightWithGlobalBordersOff[28]" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.173"/>
+  <testcase name="borderOffUsesRectangularHighlightWithGlobalBordersOn[28]" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.193"/>
+  <testcase name="transparentPlaceholderStillHasNoHighlight" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="4.369"/>
+  <testcase name="borderlessSpacebarRetainsItsOwnInsetAndRadius" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.329"/>
+  <testcase name="pillKeyRetainsItsContourAfterThemeRefresh" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.17"/>
+  <testcase name="rippleContourMatchesOutlinedKeycaps" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.161"/>
+  <testcase name="rippleMaskUsesTheSameInsetAsTheKeycap" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.12"/>
+  <testcase name="forcedBorderRetainsRoundedHighlightWithGlobalBordersOff" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.159"/>
+  <testcase name="borderOffUsesRectangularHighlightWithGlobalBordersOn" classname="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" time="0.191"/>
+  <system-out><![CDATA[contentPadding=Rect(5, 9 - 5, 9) maskBounds=Rect(0, 0 - 120, 72)
+contentPadding=Rect(5, 9 - 5, 9) maskBounds=Rect(0, 0 - 120, 72)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

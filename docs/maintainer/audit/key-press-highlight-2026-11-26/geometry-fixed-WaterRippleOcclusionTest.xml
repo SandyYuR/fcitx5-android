@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-11-26T04:07:26.880Z" hostname="YRZ-NOTEBOOK" time="4.625">
+  <properties/>
+  <testcase name="keyWithoutBorderFillDoesNotOccludeTheRipple[28]" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="1.201"/>
+  <testcase name="decoratedPlaceholderWithOpaqueFillStillOccludesTheRipple[28]" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.043"/>
+  <testcase name="decoratedPlaceholderWithTransparentFillDoesNotOccludeTheRipple[28]" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.026"/>
+  <testcase name="opaqueKeyBackgroundStillOccludesTheRipple[28]" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.025"/>
+  <testcase name="transparentKeyBackgroundDoesNotOccludeTheRipple[28]" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.023"/>
+  <testcase name="emptyPlaceholderDoesNotOccludeTheRipple[28]" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.022"/>
+  <testcase name="keyWithoutBorderFillDoesNotOccludeTheRipple" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="2.95"/>
+  <testcase name="decoratedPlaceholderWithOpaqueFillStillOccludesTheRipple" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.047"/>
+  <testcase name="decoratedPlaceholderWithTransparentFillDoesNotOccludeTheRipple" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.033"/>
+  <testcase name="opaqueKeyBackgroundStillOccludesTheRipple" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.026"/>
+  <testcase name="transparentKeyBackgroundDoesNotOccludeTheRipple" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.025"/>
+  <testcase name="emptyPlaceholderDoesNotOccludeTheRipple" classname="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" time="0.026"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

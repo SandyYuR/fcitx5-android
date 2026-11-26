@@ -1,0 +1,7 @@
+# Preserve original evidence bytes for published SHA-256 verification.
+*.log -text -whitespace
+*.xml -text
+*.txt -text
+*.patch -text -whitespace
+*.png -text
+checksums.sha256 -text

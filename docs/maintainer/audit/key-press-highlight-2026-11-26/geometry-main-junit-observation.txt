@@ -1,0 +1,10 @@
+Main-workspace JUnit header observation (not a full JUnit report)
+Workspace: D:/GitHub/fx2-rime/fx-rime-only
+Observed after the successful integration test job pwsh-5952f17067a140cb.
+Source reports were read at 2026-11-26 12:39 local time; a later copy failed because the shared report directory had been refreshed. The complete isolated-workspace JUnit XML files are preserved separately.
+
+TEST-org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest.xml:
+<testsuite name="org.fcitx.fcitx5.android.input.keyboard.KeyPressHighlightGeometryTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-26T04:36:49.442Z" hostname="YRZ-NOTEBOOK" time="11.283">
+
+TEST-org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest.xml:
+<testsuite name="org.fcitx.fcitx5.android.input.keyboard.WaterRippleOcclusionTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-11-26T04:37:00.730Z" hostname="YRZ-NOTEBOOK" time="4.229">

@@ -1,0 +1,76 @@
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt
+index fbe5b594e..0fdc6c2a0 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt
+@@ -14,6 +14,7 @@ import android.graphics.Typeface
+ import android.graphics.drawable.ColorDrawable
+ import android.graphics.drawable.Drawable
+ import android.graphics.drawable.InsetDrawable
++import android.graphics.drawable.LayerDrawable
+ import android.graphics.drawable.RippleDrawable
+ import android.graphics.drawable.StateListDrawable
+ import org.fcitx.fcitx5.android.data.theme.IconThemeManager
+@@ -83,6 +84,8 @@ abstract class KeyView(
+     val radius: Float
+     val hMargin: Int
+     val vMargin: Int
++    private val hasKeyBorder: Boolean
++        get() = (bordered && def.border != Border.Off) || def.border == Border.On
+     protected val cornerLabelHorizontalSafeInset: Int
+     protected val cornerLabelTopSafeInset: Int
+ 
+@@ -181,7 +184,7 @@ abstract class KeyView(
+             appearanceView.background = null
+             appearanceView.foreground = null
+             waterRippleFillColor = null
+-        } else if ((bordered && def.border != Border.Off) || def.border == Border.On) {
++        } else if (hasKeyBorder) {
+             applyStandardBackground(theme)
+         } else {
+             waterRippleFillColor = null
+@@ -258,7 +261,7 @@ abstract class KeyView(
+         if (def.transparentBackground) return false
+         val fill = waterRippleFillColor ?: return false
+         if (Color.alpha(fill) == 0) return false
+-        return (bordered && def.border != Border.Off) || def.border == Border.On
++        return hasKeyBorder
+     }
+ 
+     private fun applyStandardBackground(theme: Theme) {
+@@ -314,12 +317,16 @@ abstract class KeyView(
+             appearanceView.foreground = RippleDrawable(
+                 ColorStateList.valueOf(theme.keyPressHighlightColor), activatedBackground,
+                 mask ?: highlightMaskDrawable(Color.WHITE)
+-            )
++            ).apply {
++                // The activated fill and ripple mask share key coordinates. Nested padding
++                // would apply the fill's inset to the mask before its own inset, shrinking it.
++                paddingMode = LayerDrawable.PADDING_MODE_STACK
++            }
+             return
+         }
+ 
+         background = null
+-        appearanceView.foreground = if (bordered && borderStroke && mask == null) {
++        appearanceView.foreground = if (hasKeyBorder && borderStroke && mask == null) {
+             StateListDrawable().apply {
+                 addState(intArrayOf(android.R.attr.state_activated), persistentHighlight)
+                 addState(
+@@ -343,7 +350,7 @@ abstract class KeyView(
+     }
+ 
+     private fun highlightMaskDrawable(@ColorInt color: Int): Drawable {
+-        return if (bordered) insetRadiusDrawable(hMargin, vMargin, radius, color)
++        return if (hasKeyBorder) insetRadiusDrawable(hMargin, vMargin, radius, color)
+         else InsetDrawable(ColorDrawable(color), hMargin, vMargin, hMargin, vMargin)
+     }
+ 
+@@ -475,7 +482,7 @@ abstract class KeyView(
+             appearanceView.background = null
+             appearanceView.foreground = null
+             waterRippleFillColor = null
+-        } else if ((bordered && def.border != Border.Off) || def.border == Border.On) {
++        } else if (hasKeyBorder) {
+             applyStandardBackground(newTheme)
+         } else {
+             appearanceView.background = null
