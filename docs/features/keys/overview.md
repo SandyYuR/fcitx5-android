@@ -46,7 +46,8 @@
 | `swipeUp` / `swipeDown` | object | 上滑 / 下滑分别执行的 MacroAction（方向**只由字段决定**，不受全局划动方向影响） |
 | `swipeUpLabel` / `swipeDownLabel` | string | 上滑 / 下滑标签：上滑画在键上方、下滑画在键下方，**不受主题「标点位置」影响** |
 | `composeOverride` | object | 输入过程中（IME composing 状态）的样式覆盖 |
-| `iconSlot` | string | 图标主题槽位名，如 `keys.letter.q`；只有带副标签的按键视图绘制该槽位图标，见[图标主题](/features/theme/icon-themes#在布局里指定槽位) |
+| `iconSlot` | string | 图标主题槽位名，如 `keys.letter.q`；具体视图的支持范围见[图标主题](/features/theme/icon-themes#在布局里指定槽位) |
+| `column` / `columnSpan` / `rowSpan` | integer | 常规文本编辑网格的起始列、跨列和跨行数；行号取外层数组位置，字段规则见[文本编辑网格](/features/editor/layout-editor#文本编辑网格) |
 
 ## 宽度 weight 规则
 
