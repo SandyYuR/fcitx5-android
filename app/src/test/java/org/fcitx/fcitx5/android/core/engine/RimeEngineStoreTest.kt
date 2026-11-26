@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.core.engine
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -10,6 +12,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -259,6 +262,80 @@ class RimeEngineStoreTest {
         }
         repository.select(selection, "rime")
         assertEquals(selection, repository.state().active)
+    }
+
+    @Test fun importedEvoFamilyRequiresTheExactAdmittedSoname() {
+        assertTrue(resolveImportedFamily("librime-evo.so"))
+        for (soname in listOf(null, "librime.so", "librime-evo-test.so", "LIBRIME-EVO.SO")) {
+            assertFalse("soname=$soname", resolveImportedFamily(soname))
+        }
+    }
+
+    private fun resolveImportedFamily(soname: String?): Boolean {
+        val root = temporary.newFolder()
+        val imported = File(root, "imported").apply { mkdirs() }
+        val payload = File(imported, "admitted").apply { writeText("previously admitted payload") }
+        val digest = RimeEngineElf.sha256(payload)
+        val info = plugin(payload = digest).staticInfo.copy(size = payload.length(), soname = soname,
+            sourceName = "librime-evo.so")
+        assertTrue(payload.renameTo(File(imported, "$digest.so")))
+        val record = ImportedRimeEngine(digest, "EVO engine", "$digest.so", info,
+            RimeEngineRuntimeInfo("evo-1.0", 1024, emptyList()), "profile", 1)
+        val selected = RimeEngineSelection(RimeEngineKind.IMPORTED, digest)
+        File(root, "state.json").writeText(Json.encodeToString(RimeEngineState(active = selected, imported = listOf(record))))
+        return (RimeEngineRepository(root).resolveActive(emptyList()) as ResolvedRimeEngine.External).evoFamily
+    }
+
+    @Test fun pluginEvoFamilyRequiresExactProviderPackageAndAllSonameFacts() {
+        assertTrue((resolvePlugin() as ResolvedRimeEngine.External).evoFamily)
+        val others = listOf(
+            resolvePlugin(packageName = "org.example.librime_evo"),
+            resolvePlugin(providerId = "example-librime-evo"),
+            resolvePlugin(soname = "librime.so"),
+            resolvePlugin(staticSoname = "librime.so"),
+            resolvePlugin(authorizedStaticSoname = "librime.so"),
+        )
+        others.forEach { assertFalse((it as ResolvedRimeEngine.External).evoFamily) }
+    }
+
+    @Test fun evoIdentityNeverBypassesPluginAuthorization() {
+        assertEquals(ResolvedRimeEngine.Builtin, resolvePlugin {
+            it.copy(certificateSha256 = "33".repeat(32))
+        })
+        assertEquals(ResolvedRimeEngine.Builtin, resolvePlugin {
+            it.copy(staticInfo = it.staticInfo.copy(sha256 = "44".repeat(32)))
+        })
+        assertEquals(ResolvedRimeEngine.Builtin, resolvePlugin {
+            it.copy(providerId = "changed-provider")
+        })
+    }
+
+    private fun resolvePlugin(
+        packageName: String = "org.rime.plugin.sandyyur.librime_evo",
+        providerId: String = "sandyyur-librime-evo",
+        soname: String = "librime-evo.so",
+        staticSoname: String? = soname,
+        authorizedStaticSoname: String? = staticSoname,
+        transform: (RimePluginEngineCandidate) -> RimePluginEngineCandidate = { it },
+    ): ResolvedRimeEngine {
+        val root = temporary.newFolder()
+        val execution = temporary.newFolder()
+        val source = temporary.newFile().apply { writeText("previously admitted provider payload") }
+        val digest = RimeEngineElf.sha256(source)
+        // Model an already published immutable payload, without invoking Android Os.chmod on the host.
+        File(execution, "plugin-$digest.so").writeBytes(source.readBytes())
+        val authorization = plugin(packageName, payload = digest).let {
+            it.copy(providerId = providerId, displayName = "EVO", soname = soname,
+                staticInfo = it.staticInfo.copy(size = source.length(), soname = authorizedStaticSoname),
+                runtimeInfo = it.runtimeInfo.copy(librimeVersion = "evo-1.0"))
+        }
+        val repository = RimeEngineRepository(root, execution)
+        repository.authorizePlugin(authorization)
+        repository.select(RimeEngineSelection(RimeEngineKind.PLUGIN, packageName), "rime")
+        val candidate = RimePluginEngineCandidate(packageName, "EVO", providerId, 1, 1, soname,
+            "evo-1.0", null, authorization.certificateSha256, source.absolutePath,
+            authorization.staticInfo.copy(soname = staticSoname))
+        return repository.resolveActive(listOf(transform(candidate)))
     }
 
     private fun plugin(

@@ -59,6 +59,11 @@ class DirectRimeInteractionContractTest {
 
     private inner class InteractionNative : NativeTestDelegate {
         var revision = 0L
+        var schema = "fixture"
+        var gate = 0
+        var sequence = emptyArray<String>()
+        val sequenceReads = mutableListOf<Boolean>()
+        val actionArguments = mutableListOf<String>()
         var tabsRevision = 30L
         var preedit = "ni hao"
         var cursorBytes = 4
@@ -67,16 +72,24 @@ class DirectRimeInteractionContractTest {
         var current: Snapshot? = null
         var rawReads = 0
         var onRaw: () -> Unit = {}
+        var onStop: () -> Unit = {}
         var onCandidates: (Int) -> Unit = {}
         val actions = mutableListOf<Pair<Int, Int>>()
         val candidateReads = mutableListOf<Pair<Int, Int>>()
 
-        fun clearCalls() { actions.clear(); candidateReads.clear(); rawReads = 0 }
+        fun clearCalls() {
+            actions.clear(); candidateReads.clear(); rawReads = 0
+            sequenceReads.clear(); actionArguments.clear()
+        }
         private fun checkOwner() = assertSame(ownerThread, Thread.currentThread())
-        private fun nextSnapshot(handled: Boolean) = Snapshot(generation, ++revision, 0, handled, 0, "", preedit,
-            "fixture", false, 0, true, cursorBytes, arrayOf("你"), emptyArray(), arrayOf("同标签"),
+        private fun nextSnapshot(handled: Boolean) = Snapshot(generation, ++revision, 0, handled, gate, "", preedit,
+            schema, false, 0, true, cursorBytes, arrayOf("你"), emptyArray(), arrayOf("同标签"),
             "Fixture", 0, "你", arrayOf("1"), tabsRevision = tabsRevision).also { current = it }
 
+        override fun sequenceKeys(evo: Boolean): Array<String> {
+            checkOwner(); sequenceReads += evo; return sequence
+        }
+        override fun stop() { checkOwner(); onStop() }
         override fun options(): Array<String> { checkOwner(); return emptyArray() }
         override fun key(value: Long, sym: Int, mask: Int, release: Boolean): Snapshot {
             checkOwner()
@@ -89,6 +102,7 @@ class DirectRimeInteractionContractTest {
             assertEquals(generation, value)
             assertEquals(revision, previous)
             actions += action to index
+            actionArguments += name
             if (action == 9) {
                 rawCaret = index
                 cursorBytes = if (rawText == preedit || index <= 2) index else index + 1
@@ -112,6 +126,198 @@ class DirectRimeInteractionContractTest {
             return Array(count * 2) { index ->
                 if (index % 2 == 0) "word-${offset + index / 2}" else "comment-${offset + index / 2}"
             }
+        }
+    }
+
+    private fun evoBindings(vararg bindings: String) = arrayOf("evo-editor-bindings-v1", *bindings)
+
+    private suspend fun sequenceFixture(
+        evo: Boolean = true,
+        schema: String = "luna_pinyin",
+        keys: Array<String> = evoBindings("Control+Up", "manual_up", "Control+Down", "manual_down",
+            "Shift+Delete", "manual_delete", "Control+Delete", "auto_delete"),
+    ) {
+        withContext(owner) {
+            ReflectionHelpers.setField(backend, "configuredEvoFamily", evo)
+            native.schema = schema
+            native.sequence = keys
+        }
+        backend.sendKey('x', 0u, 0, false, 0)
+        native.clearCalls()
+    }
+
+    @Test fun evoMenuUsesDeclaredKeysAndReplacesTheEquivalentLegacyForgetEntry() = runBlocking {
+        sequenceFixture()
+        val menu = backend.getCandidateActions(0)
+        assertEquals(listOf(2, 3, 4, 5), menu.map { it.id })
+        assertEquals("重置自动调频", menu.last().text)
+        assertEquals(listOf(true), native.sequenceReads)
+        assertTrue(backend.triggerCandidateActionIfCurrent(0, 5, true, backend.candidateActionContext))
+        assertEquals(listOf(15 to 0), native.actions)
+        assertEquals(listOf("65535 4"), native.actionArguments)
+        // Existing callers keep their original forget action even when the visible menu replaces it.
+        assertTrue(backend.triggerCandidateActionIfCurrent(0, 0, true, backend.candidateActionContext))
+        assertEquals(listOf(15 to 0, 12 to 0), native.actions)
+    }
+
+    @Test fun evoManualResetIsIndependentOfMovementAndRetainsForgetWithoutAutoDelete() = runBlocking {
+        sequenceFixture(keys = evoBindings("Shift+Delete", "manual_delete"))
+        assertEquals(listOf(0, 4), backend.getCandidateActions(0).map { it.id })
+        assertTrue(backend.triggerCandidateActionIfCurrent(0, 4, false, backend.candidateActionContext))
+        assertEquals(listOf(14 to 0), native.actions)
+        assertEquals(listOf("65535 1"), native.actionArguments)
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 1, false, backend.candidateActionContext))
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 5, false, backend.candidateActionContext))
+        assertEquals(listOf(14 to 0), native.actions)
+    }
+
+    @Test fun nonEvoSchemaNamesCannotEnableEvoBindingsOrNativeReads() = runBlocking {
+        sequenceFixture(evo = false, schema = "evo_librime-evo")
+        assertEquals(listOf(0), backend.getCandidateActions(0).map { it.id })
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 5, true, backend.candidateActionContext))
+        assertTrue(native.sequenceReads.isEmpty())
+        assertTrue(native.actions.isEmpty())
+    }
+
+    @Test fun wanxiangLuaKeysAndLabelsStayUnchangedForEitherConfiguredFamily() = runBlocking {
+        for (evo in listOf(false, true)) {
+            sequenceFixture(evo = evo, schema = "wanxiang_t9",
+                keys = arrayOf("Control+j", "Control+k", "Control+l", "Control+p"))
+            val menu = backend.getCandidateActions(0)
+            assertEquals(listOf(0, 1, 2, 3, 4), menu.map { it.id })
+            assertEquals(listOf("忘记此词", "置顶", "前移一位", "后移一位", "重置排序"), menu.map { it.text })
+            assertEquals(listOf(evo), native.sequenceReads)
+            assertTrue(backend.triggerCandidateActionIfCurrent(0, 2, false, backend.candidateActionContext))
+            assertEquals(listOf("106 4"), native.actionArguments)
+        }
+    }
+
+    @Test fun evoWithoutAnActiveEditorBindingOnlyKeepsForget() = runBlocking {
+        sequenceFixture(keys = emptyArray())
+        assertEquals(listOf(0), backend.getCandidateActions(0).map { it.id })
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 5, true, backend.candidateActionContext))
+        assertTrue(native.actions.isEmpty())
+    }
+
+    @Test fun candidateActionReReadsTheCurrentSchemaKeyAfterShowingTheMenu() = runBlocking {
+        sequenceFixture()
+        backend.getCandidateActions(0)
+        withContext(owner) {
+            native.sequence = evoBindings("Control+Left", "manual_up", "Control+Down", "manual_down",
+                "Shift+Delete", "manual_delete", "Control+Delete", "auto_delete")
+        }
+        assertTrue(backend.triggerCandidateActionIfCurrent(0, 2, false, backend.candidateActionContext))
+        assertEquals(listOf("65361 4"), native.actionArguments)
+        assertEquals(listOf(true, true), native.sequenceReads)
+    }
+
+    @Test fun evoUndeliverableBindingsNeverReachNativeAction() = runBlocking {
+        for (key in listOf("Control+Mod3+Up", "Control+Super+Up", "Control+Lock+Up", "Ctrl+Up",
+            "prefixControl+Up", " Control+Up", "Control+0xff52", "Control+ENTER")) {
+            sequenceFixture(keys = evoBindings(key, "manual_up"))
+            assertEquals(key, listOf(0), backend.getCandidateActions(0).map { it.id })
+            assertFalse(key, backend.triggerCandidateActionIfCurrent(0, 2, false, backend.candidateActionContext))
+            assertEquals(listOf(true, true), native.sequenceReads)
+            assertTrue(key, native.actions.isEmpty())
+            assertTrue(key, native.actionArguments.isEmpty())
+        }
+    }
+
+    @Test fun evoAliasCollisionsWithAnyActionNeverReachNativeAction() = runBlocking {
+        for (other in listOf("manual_up", "manual_down", "manual_delete", "auto_delete", "noop", "unknown", "")) {
+            sequenceFixture(keys = evoBindings("Control+Shift+Prior", "manual_up", "Shift+Control+Page_Up", other))
+            assertEquals(other, listOf(0), backend.getCandidateActions(0).map { it.id })
+            assertFalse(other, backend.triggerCandidateActionIfCurrent(0, 2, false, backend.candidateActionContext))
+            assertEquals(listOf(true, true), native.sequenceReads)
+            assertTrue(other, native.actions.isEmpty())
+            assertTrue(other, native.actionArguments.isEmpty())
+        }
+    }
+
+    @Test fun candidateActionRejectsUnsupportedModifierIntroducedAfterShowingTheMenu() = runBlocking {
+        sequenceFixture(keys = evoBindings("Control+Up", "manual_up"))
+        assertEquals(listOf(0, 2), backend.getCandidateActions(0).map { it.id })
+        val context = backend.candidateActionContext
+        withContext(owner) { native.sequence = evoBindings("Control+Mod3+Up", "manual_up") }
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 2, false, context))
+        assertEquals(listOf(true, true), native.sequenceReads)
+        assertTrue(native.actions.isEmpty())
+        assertTrue(native.actionArguments.isEmpty())
+    }
+
+    @Test fun candidateActionRejectsAliasCollisionIntroducedAfterShowingTheMenu() = runBlocking {
+        sequenceFixture(keys = evoBindings("Control+Prior", "manual_up"))
+        assertEquals(listOf(0, 2), backend.getCandidateActions(0).map { it.id })
+        val context = backend.candidateActionContext
+        withContext(owner) {
+            native.sequence = evoBindings("Control+Prior", "manual_up", "Control+Page_Up", "noop")
+        }
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 2, false, context))
+        assertEquals(listOf(true, true), native.sequenceReads)
+        assertTrue(native.actions.isEmpty())
+        assertTrue(native.actionArguments.isEmpty())
+    }
+
+    @Test fun evoAutoDeleteRejectsAnInvalidatedMenuContextBeforeReadingKeys() = runBlocking {
+        sequenceFixture()
+        val context = backend.candidateActionContext
+        withContext(owner) { ReflectionHelpers.setField(publication, "candidateVersion", context.version + 1) }
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 5, true, context))
+        assertTrue(native.sequenceReads.isEmpty())
+        assertTrue(native.actions.isEmpty())
+    }
+
+    @Test fun queuedEvoAutoDeleteChecksRevisionBeforeReadingKeys() {
+        runBlocking { sequenceFixture() }
+        val context = backend.candidateActionContext
+        queuedChange(
+            {
+                val replacement = Snapshot.reusePresentation(checkNotNull(native.current), ++native.revision)
+                native.current = replacement
+                ReflectionHelpers.setField(backend, "snapshot", replacement)
+            },
+            { backend.triggerCandidateActionIfCurrent(0, 5, true, context) },
+        )
+        assertTrue(native.sequenceReads.isEmpty())
+    }
+
+    @Test fun stoppedEvoAndStaleInputNeverReadSchemaBindings() = runBlocking {
+        sequenceFixture()
+        ReflectionHelpers.setField(backend, "started", false)
+        assertEquals(listOf(0), backend.getCandidateActions(0).map { it.id })
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 5, true, backend.candidateActionContext))
+        ReflectionHelpers.setField(backend, "started", true)
+        backend.invalidateInputSession()
+        assertEquals(listOf(0), backend.getCandidateActions(0).map { it.id })
+        assertTrue(native.sequenceReads.isEmpty())
+        assertTrue(native.actions.isEmpty())
+    }
+
+    @Test fun maintenanceAndUnreadyEvoNeverReadSchemaBindings() = runBlocking {
+        sequenceFixture()
+        ReflectionHelpers.setField(backend, "maintenance", true)
+        assertEquals(listOf(0), backend.getCandidateActions(0).map { it.id })
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 5, true, backend.candidateActionContext))
+        ReflectionHelpers.setField(backend, "maintenance", false)
+        native.gate = 1
+        backend.sendKey('x', 0u, 0, false, 0)
+        assertEquals(listOf(0), backend.getCandidateActions(0).map { it.id })
+        assertFalse(backend.triggerCandidateActionIfCurrent(0, 5, true, backend.candidateActionContext))
+        assertTrue(native.sequenceReads.isEmpty())
+        assertTrue(native.actions.isEmpty())
+    }
+
+    @Test fun runtimeStopClearsConfiguredFamilyEvenWhenNativeStopThrows() = runBlocking {
+        sequenceFixture()
+        val runtime = ReflectionHelpers.getField<EngineLifecycleController>(backend, "runtime")
+        val finalize = ReflectionHelpers.getField<() -> Unit>(runtime, "finalize")
+        val failure = IllegalStateException("native stop failed")
+        native.onStop = { throw failure }
+        withContext(owner) {
+            assertSame(failure, assertThrows(IllegalStateException::class.java) { finalize() })
+            assertFalse(ReflectionHelpers.getField<Boolean>(backend, "configuredEvoFamily"))
+            assertFalse(ReflectionHelpers.getField<Boolean>(backend, "started"))
+            assertNull(ReflectionHelpers.getField<Snapshot?>(backend, "snapshot"))
         }
     }
 

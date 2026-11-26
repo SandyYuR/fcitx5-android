@@ -128,6 +128,8 @@ sealed interface ResolvedRimeEngine {
         override val profile: String,
         override val entrySymbol: String,
         val payloadSha256: String,
-        val filePath: String
+        val filePath: String,
+        /** Derived from validated payload/provider identity, never display labels or version strings. */
+        val evoFamily: Boolean
     ) : ResolvedRimeEngine
 }

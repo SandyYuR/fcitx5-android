@@ -31,6 +31,7 @@ internal class DirectRimeEngineOperations(
     /** The backend keeps the only running flag, snapshot and presentation state. */
     interface Owner {
         var started: Boolean
+        var configuredEvoFamily: Boolean
         fun clearSnapshot()
         fun clearStartupError()
         fun refreshSchemas()
@@ -50,6 +51,7 @@ internal class DirectRimeEngineOperations(
         IllegalStateException(message, cause)
 
     fun resetStartupState() {
+        owner.configuredEvoFamily = false
         newActivation = false
         activeSelection = RimeEngineSelection.Builtin
     }
@@ -60,6 +62,7 @@ internal class DirectRimeEngineOperations(
     }
 
     fun startupFailed(error: Exception) {
+        owner.configuredEvoFamily = false
         val failedSelection = activeSelection
         cancelExternalOperationWatchdog()
         // A stable builtin failure stays visible. A selected external or explicit transition
@@ -83,6 +86,7 @@ internal class DirectRimeEngineOperations(
     fun failMaintenanceActivation(error: Exception): Boolean {
         val failedExternal = maintenanceActivationSelection
         if (failedExternal != null) {
+            owner.configuredEvoFamily = false
             maintenanceActivationSelection = null
             repository().activationFailed(failedExternal,
                 "外部引擎重新启动失败：${error.message ?: error.javaClass.simpleName}")
@@ -95,6 +99,7 @@ internal class DirectRimeEngineOperations(
     }
 
     fun configureSelectedEngine(): Boolean {
+        owner.configuredEvoFamily = false
         if (directBootMode) {
             activeSelection = RimeEngineSelection.Builtin
             return false
@@ -139,6 +144,7 @@ internal class DirectRimeEngineOperations(
                 ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
                     Native.configureExternal(descriptor.fd, resolved.entrySymbol, resolved.payloadSha256)
                 }
+                owner.configuredEvoFamily = resolved.evoFamily
             }
         }
         return forceFullCheck
@@ -164,6 +170,7 @@ internal class DirectRimeEngineOperations(
             cancelExternalOperationWatchdog()
             owner.clearStartupError()
         } catch (targetError: Exception) {
+            owner.configuredEvoFamily = false
             cancelExternalOperationWatchdog()
             // start() can fail after selecting the target slot. stop() is idempotent and clears
             // any session/notification handler that was installed before the failure surfaced.
@@ -192,6 +199,7 @@ internal class DirectRimeEngineOperations(
                 cancelExternalOperationWatchdog()
                 owner.clearStartupError()
             } catch (recoveryError: Exception) {
+                owner.configuredEvoFamily = false
                 if (recoveryError !== targetError) targetError.addSuppressed(recoveryError)
                 owner.started = false
                 cancelExternalOperationWatchdog()
@@ -208,6 +216,7 @@ internal class DirectRimeEngineOperations(
 
     /** Stop only the current native slot; unlike [stopForRestart], selection may differ. */
     private fun stopNativeForEngineSwitch() {
+        owner.configuredEvoFamily = false
         if (!owner.started) return
         // Even the trusted built-in slot must not leave the visible switch UI waiting forever.
         // The watchdog is a last-resort crash-consistent fallback, never the normal switch path.
