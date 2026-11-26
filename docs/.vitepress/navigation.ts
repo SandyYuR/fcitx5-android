@@ -106,6 +106,7 @@ const maintenance = [
     { text: '对照索引', link: '/maintainer/changes/' },
     { text: '最新：11-16～11-22 提交对照', link: '/maintainer/changes/2026-11-22-code-doc-gap-review' },
     { text: '2026-11', collapsed: true, items: [
+      { text: 'EVO 候选排序与两类重置 · 2026-11-26', link: '/maintainer/changes/2026-11-26-evo-candidate-ordering' },
       { text: '水彩／普蓝与常规编辑布局 · 2026-11-26', link: '/maintainer/changes/2026-11-26-foxy-themes-editor' },
       { text: '粘滞修饰键压缩合入 · 2026-11-26', link: '/maintainer/changes/2026-11-26-sticky-modifier-key' },
       { text: 'EVO 引擎设置与降级部署 · 2026-11-24', link: '/maintainer/changes/2026-11-24-evo-settings-degraded-deploy' },
