@@ -688,6 +688,8 @@ class LayoutJsonUtilsTest {
                   "textColor": "#112233",
                   "backgroundColor": "#445566",
                   "shadowColor": "#778899",
+                  "activeBackgroundColor": "#102030",
+                  "activeTextColor": "#405060",
                   "composeOverride": {
                     "type": "StickyModifierKey",
                     "modifier": "alt",
@@ -710,6 +712,8 @@ class LayoutJsonUtilsTest {
         assertEquals(0xFF112233.toInt(), def.appearance.textColor)
         assertEquals(0xFF445566.toInt(), def.appearance.backgroundColor)
         assertEquals(0xFF778899.toInt(), def.appearance.shadowColor)
+        assertEquals(0xFF102030.toInt(), def.appearance.activeBackgroundColor)
+        assertEquals(0xFF405060.toInt(), def.appearance.activeTextColor)
         val override = def.composeOverride as StickyModifierKey
         assertEquals(StickyModifier.Alt, override.modifier)
         assertTrue(override.independentColor)
@@ -720,6 +724,8 @@ class LayoutJsonUtilsTest {
         assertEquals("Custom Shift", written["label"])
         assertEquals(0.2f, written["weight"])
         assertEquals("keys.modifier.shift", written["iconSlot"])
+        assertEquals(0xFF102030.toInt(), written["activeBackgroundColor"])
+        assertEquals(0xFF405060.toInt(), written["activeTextColor"])
         val writtenOverride = written["composeOverride"] as Map<*, *>
         assertEquals("alt", writtenOverride["modifier"])
         assertEquals("Compose Alt", writtenOverride["label"])
@@ -745,6 +751,61 @@ class LayoutJsonUtilsTest {
             variant = KeyDef.Appearance.Variant.Accent
         )
         assertEquals(KeyDef.Appearance.Variant.Accent, accent.appearance.variant)
+    }
+
+    @Test
+    fun stickyModifierSwipeLabelsActionsAndLongPressSurviveRoundTrip() {
+        val parsed = LayoutJsonUtils.parseKeyJsonArray(
+            row(
+                """
+                [{
+                  "type": "StickyModifierKey",
+                  "modifier": "ctrl",
+                  "label": "Ctrl",
+                  "swipeUpLabel": "Up",
+                  "swipeDownLabel": "Down",
+                  "swipeUp": {"macro": [{"type": "text", "text": "u"}]},
+                  "swipeDown": {"macro": [{"type": "text", "text": "d"}]},
+                  "longPress": {"macro": [{"type": "text", "text": "l"}]},
+                  "altTextColor": "#112233"
+                }]
+                """.trimIndent()
+            )
+        ).single()
+        val def = LayoutJsonUtils.createKeyDef(parsed) as StickyModifierKey
+        // 有方向标签才切成 AltText，副文字颜色才有落点。
+        val appearance = def.appearance as KeyDef.Appearance.AltText
+        assertEquals("Ctrl", appearance.displayText)
+        assertEquals("Up", appearance.altText)
+        assertEquals("Down", appearance.altText1)
+        assertTrue(appearance.directionalSwipeLabels)
+        assertEquals(0xFF112233.toInt(), appearance.altTextColor)
+        val swipe = def.behaviors.filterIsInstance<KeyDef.Behavior.Swipe>().single()
+        assertNotNull(swipe.upMacro)
+        assertNotNull(swipe.downMacro)
+        assertNotNull(
+            def.behaviors.filterIsInstance<KeyDef.Behavior.LongPress>().single().action
+        )
+
+        val written = LayoutJsonUtils.keyDefToJson(def)
+        assertEquals("Up", written["swipeUpLabel"])
+        assertEquals("Down", written["swipeDownLabel"])
+        assertNotNull(written["swipeUp"])
+        assertNotNull(written["swipeDown"])
+        assertNotNull(written["longPress"])
+        assertEquals(0xFF112233.toInt(), written["altTextColor"])
+
+        val jsonObject = JsonObject(
+            written.mapValues { (_, value) -> LayoutJsonUtils.convertToJsonProperty(value) }
+        )
+        val reparsed = LayoutJsonUtils.createKeyDef(
+            LayoutJsonUtils.parseKeyJsonArray(JsonArray(listOf(jsonObject))).single()
+        ) as StickyModifierKey
+        assertEquals("Up", (reparsed.appearance as KeyDef.Appearance.AltText).altText)
+        assertNotNull(reparsed.behaviors.filterIsInstance<KeyDef.Behavior.Swipe>().single().upMacro)
+        assertNotNull(
+            reparsed.behaviors.filterIsInstance<KeyDef.Behavior.LongPress>().single().action
+        )
     }
 
     // ==================== 空白占位键 PlaceholderKey ====================

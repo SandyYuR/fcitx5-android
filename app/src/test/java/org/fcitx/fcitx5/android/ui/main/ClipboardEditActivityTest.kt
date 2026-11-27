@@ -74,7 +74,9 @@ class ClipboardEditActivityTest {
     }
 
     @Before fun setUp() {
-        databaseFile = File(appContext.cacheDir, "clipboard-edit-${UUID.randomUUID()}.db")
+        // 路径要短：Robolectric 临时根目录已包含测试方法名，SQLite 还要创建
+        // -wal / -journal 旁文件，长文件名会撞上 Windows 的 260 字符上限。
+        databaseFile = File(appContext.cacheDir, "cb-${UUID.randomUUID().toString().take(8)}.db")
         val direct = Executor { it.run() }
         database = Room.databaseBuilder(org.fcitx.fcitx5.android.testing.hostDatabaseContext(appContext), ClipboardDatabase::class.java, databaseFile.path)
             .setQueryExecutor(direct).setTransactionExecutor(direct)

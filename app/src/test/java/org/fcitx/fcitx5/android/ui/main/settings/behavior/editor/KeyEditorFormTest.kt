@@ -369,6 +369,59 @@ class KeyEditorFormTest {
         assertEquals("keys.modifier.shift", override["iconSlot"])
     }
 
+    /**
+     * 粘滞键补齐方向滑动与长按后，编辑器要能回填、编辑并保存这些字段；
+     * 同时它与合成态覆盖互斥，不再显示「合成态按键」入口。
+     */
+    @Test fun stickyModifierFormExposesSwipeAndLongPressActionsButNoComposeEntry() = page { activity ->
+        val args = options(mapOf(
+            "type" to "StickyModifierKey", "modifier" to "ctrl", "label" to "Ctrl",
+            "swipeUpLabel" to "Up",
+            "swipeDownLabel" to "Down",
+            "swipeUp" to mapOf("macro" to listOf(mapOf("type" to "text", "text" to "u"))),
+            "swipeDown" to mapOf("macro" to listOf(mapOf("type" to "text", "text" to "d"))),
+            "longPress" to mapOf("macro" to listOf(mapOf("type" to "text", "text" to "l")))
+        ))
+        var launched: Intent? = null
+        val form = KeyEditorForm(activity, args, launchMacro = { launched = it })
+        activity.setContentView(form.view)
+        val views = (form.view as ViewGroup).descendants.toList()
+
+        assertEquals(
+            "Up",
+            field(form, activity.getString(R.string.text_keyboard_layout_swipe_up_label)).text.toString()
+        )
+        assertEquals(
+            "Down",
+            field(form, activity.getString(R.string.text_keyboard_layout_swipe_down_label)).text.toString()
+        )
+        for ((slot, title) in listOf(
+            "swipeUp" to R.string.text_keyboard_layout_macro_swipe_up_event,
+            "swipeDown" to R.string.text_keyboard_layout_macro_swipe_down_event,
+            "longPress" to R.string.text_keyboard_layout_macro_longpress_event
+        )) {
+            val row = views.filterIsInstance<LinearLayout>().single {
+                it.childCount == 3 && (it.getChildAt(0) as? TextView)?.text == activity.getString(title)
+            }
+            row.getChildAt(2).performClick()
+            assertEquals(slot, launched?.getStringExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN))
+        }
+        assertFalse(
+            "粘滞键与合成态覆盖互斥",
+            views.filterIsInstance<TextView>().any {
+                it.text == activity.getString(R.string.text_keyboard_layout_compose_override_edit_button)
+            }
+        )
+
+        field(form, activity.getString(R.string.text_keyboard_layout_swipe_up_label)).setText("Up2")
+        val saved = form.validatedDraft(false)!!
+        assertEquals("StickyModifierKey", saved["type"])
+        assertEquals("Up2", saved["swipeUpLabel"])
+        assertNotNull(saved["swipeUp"])
+        assertNotNull(saved["swipeDown"])
+        assertNotNull(saved["longPress"])
+    }
+
     @Test fun stickyModifierDraftSurvivesTypeSwitchModifierChangesAndRecreation() = page { activity ->
         val args = options(mapOf(
             "type" to "MacroKey",

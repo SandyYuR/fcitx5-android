@@ -73,9 +73,11 @@ class KeyboardWaterRippleView @JvmOverloads constructor(
     private var occluders: List<View> = emptyList()
     private val occluderSnapshots = ArrayList<OccluderSnapshot>(64)
     private var occludersDirty = true
+    private var occluderListenersRegistered = false
     private val occluderLayoutListener = OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-        occludersDirty = true
+        invalidateOccluders()
     }
+    private val occluderStateListener: () -> Unit = { invalidateOccluders() }
 
     init {
         isClickable = false
@@ -128,10 +130,33 @@ class KeyboardWaterRippleView @JvmOverloads constructor(
     }
 
     fun setOccluders(views: List<View>) {
-        occluders.forEach { it.removeOnLayoutChangeListener(occluderLayoutListener) }
-        occluders = views
-        occluders.forEach { it.addOnLayoutChangeListener(occluderLayoutListener) }
+        unregisterOccluderListeners()
+        occluders = views.toList()
+        if (isAttachedToWindow) registerOccluderListeners()
+        invalidateOccluders()
+    }
+
+    private fun invalidateOccluders() {
         occludersDirty = true
+        if (ripples.isNotEmpty()) scheduleFrame()
+    }
+
+    private fun registerOccluderListeners() {
+        if (occluderListenersRegistered) return
+        occluders.forEach { view ->
+            view.addOnLayoutChangeListener(occluderLayoutListener)
+            (view as? KeyView)?.addWaterRippleOcclusionChangedListener(occluderStateListener)
+        }
+        occluderListenersRegistered = true
+    }
+
+    private fun unregisterOccluderListeners() {
+        if (!occluderListenersRegistered) return
+        occluders.forEach { view ->
+            view.removeOnLayoutChangeListener(occluderLayoutListener)
+            (view as? KeyView)?.removeWaterRippleOcclusionChangedListener(occluderStateListener)
+        }
+        occluderListenersRegistered = false
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -139,8 +164,14 @@ class KeyboardWaterRippleView @JvmOverloads constructor(
         occludersDirty = true
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        registerOccluderListeners()
+        invalidateOccluders()
+    }
+
     override fun onDetachedFromWindow() {
-        occluders.forEach { it.removeOnLayoutChangeListener(occluderLayoutListener) }
+        unregisterOccluderListeners()
         frameScheduled = false
         ripples.clear()
         occluderSnapshots.clear()

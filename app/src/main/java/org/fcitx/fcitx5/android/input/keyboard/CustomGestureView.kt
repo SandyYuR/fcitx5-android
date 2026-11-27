@@ -212,6 +212,17 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         cancelPress()
     }
 
+    /**
+     * 离开窗口时触摸已被系统取消：清掉按压态与待定手势。
+     *
+     * 键行会被缓存复用，若带着 `isPressed = true` 被换回来，普通键会保留一块卡住的
+     * 按压高亮；同时也要让粘滞层把「按下未抬手」的手势收尾，避免 pending 状态泄漏。
+     */
+    override fun onDetachedFromWindow() {
+        cancelGestures()
+        super.onDetachedFromWindow()
+    }
+
     private fun cancelPress() {
         isPressed = false
         resetState()

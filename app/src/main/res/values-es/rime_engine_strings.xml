@@ -60,4 +60,9 @@
     <string name="rime_engine_version_value">Versión de librime: %1$s</string>
     <string name="rime_engine_api_size_value">Tamaño de datos de RimeApi: %1$d bytes</string>
     <string name="rime_engine_capabilities_value">Capacidades detectadas: %1$s</string>
+    <string name="rime_engine_packaged_name">Rime integrado</string>
+    <string name="rime_engine_metadata_unknown">Desconocido / no declarado</string>
+    <string name="rime_engine_sdk_commit">Commit del código fuente: %1$s</string>
+    <string name="rime_engine_sdk_base_commit">Commit base: %1$s</string>
+    <string name="rime_engine_sdk_development_tree">Compilación de desarrollo · Árbol de fuentes: %1$s</string>
 </resources>

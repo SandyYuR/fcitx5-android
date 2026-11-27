@@ -214,6 +214,8 @@
     <string name="text_keyboard_layout_key_alt_text_color">Color del texto secundario</string>
     <string name="text_keyboard_layout_key_background_color">Color de fondo</string>
     <string name="text_keyboard_layout_key_shadow_color">Color de sombra</string>
+    <string name="text_keyboard_layout_key_active_background_color">Fondo activo</string>
+    <string name="text_keyboard_layout_key_active_text_color">Texto activo</string>
     <string name="text_keyboard_layout_key_color_mode_theme">Seguir el tema</string>
     <string name="text_keyboard_layout_key_color_mode_custom">Color personalizado</string>
     <string name="text_keyboard_layout_key_color_mode_theme_key_pick">Usar color del tema</string>

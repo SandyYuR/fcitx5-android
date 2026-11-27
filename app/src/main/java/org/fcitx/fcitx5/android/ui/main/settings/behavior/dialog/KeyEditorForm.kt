@@ -171,6 +171,9 @@ class KeyEditorForm(
     private var stickyModifierSpinner: Spinner? = null
     private var stickyModifierLabelEdit: EditText? = null
     private var stickyModifierWeightEdit: EditText? = null
+    private var stickyModifierSwipeUpStepsData: List<Any> = emptyList()
+    private var stickyModifierSwipeDownStepsData: List<Any> = emptyList()
+    private var stickyModifierLongPressStepsData: List<Any> = emptyList()
 
     private var symbolLabelEdit: EditText? = null
     private var symbolWeightEdit: EditText? = null
@@ -238,7 +241,7 @@ class KeyEditorForm(
             monetKey = "altTextColorMonet",
             labelRes = R.string.text_keyboard_layout_key_alt_text_color,
             themeColorGetter = { it.altKeyTextColor },
-            supportedTypes = setOf("AlphabetKey", "MacroKey")
+            supportedTypes = setOf("AlphabetKey", "MacroKey", "StickyModifierKey")
         ),
         EditableColorField(
             customKey = "backgroundColor",
@@ -251,6 +254,22 @@ class KeyEditorForm(
             monetKey = "shadowColorMonet",
             labelRes = R.string.text_keyboard_layout_key_shadow_color,
             themeColorGetter = { it.keyShadowColor }
+        ),
+        // 粘滞修饰键点亮时的键面配色。未设置时回落到主题的“选中项”背景/文字色，
+        // 这样新建的粘滞键即使不配颜色也有一段可读的激活外观。
+        EditableColorField(
+            customKey = "activeBackgroundColor",
+            monetKey = "activeBackgroundColorMonet",
+            labelRes = R.string.text_keyboard_layout_key_active_background_color,
+            themeColorGetter = { it.genericActiveBackgroundColor },
+            supportedTypes = setOf("StickyModifierKey")
+        ),
+        EditableColorField(
+            customKey = "activeTextColor",
+            monetKey = "activeTextColorMonet",
+            labelRes = R.string.text_keyboard_layout_key_active_text_color,
+            themeColorGetter = { it.genericActiveForegroundColor },
+            supportedTypes = setOf("StickyModifierKey")
         )
     )
 
@@ -429,6 +448,9 @@ class KeyEditorForm(
         stickyModifierSpinner = null
         stickyModifierLabelEdit = null
         stickyModifierWeightEdit = null
+        stickyModifierSwipeUpStepsData = emptyList()
+        stickyModifierSwipeDownStepsData = emptyList()
+        stickyModifierLongPressStepsData = emptyList()
         symbolLabelEdit = null
         symbolWeightEdit = null
         macroLabelEdit = null
@@ -952,6 +974,7 @@ class KeyEditorForm(
                 )
                 stickyModifierLabelEdit = labelEdit.second
                 fieldsContainer.addView(labelEdit.first)
+                addDirectionalSwipeLabelEditors(keyData)
                 stickyModifierSpinner?.onItemSelectedListener =
                     object : android.widget.AdapterView.OnItemSelectedListener {
                         private var selectedModifier = currentModifier
@@ -982,6 +1005,58 @@ class KeyEditorForm(
                     stickyModifierWeightEdit = weightEdit.second
                     fieldsContainer.addView(weightEdit.first)
                 }
+
+                val (stickySwipeUpSteps, stickySwipeDownSteps) = directionalSwipeStepsOf(keyData)
+                val stickyLongPressSteps = macroStepsOf(keyData["longPress"])
+                stickyModifierSwipeUpStepsData = stickySwipeUpSteps
+                stickyModifierSwipeDownStepsData = stickySwipeDownSteps
+                stickyModifierLongPressStepsData = stickyLongPressSteps
+
+                createMacroEditorButton(
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_up_event),
+                    previewText = buildMacroPreview(stickySwipeUpSteps),
+                    onClick = {
+                        openMacroEditor(stickyModifierSwipeUpStepsData, getString(R.string.text_keyboard_layout_macro_swipe_up_event), SLOT_SWIPE_UP) { newSteps ->
+                            val draft = buildDraftKeyData()
+                            stickyModifierSwipeUpStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, stickyModifierSwipeUpStepsData, stickyModifierSwipeDownStepsData)
+                            appendDirectionalSwipeLabels(draft)
+                            keyData = draft
+                            rebuildFields()
+                            updateActionButtonState()
+                        }
+                    }
+                ).forEach { fieldsContainer.addView(it) }
+                createMacroEditorButton(
+                    title = getString(R.string.text_keyboard_layout_macro_swipe_down_event),
+                    previewText = buildMacroPreview(stickySwipeDownSteps),
+                    onClick = {
+                        openMacroEditor(stickyModifierSwipeDownStepsData, getString(R.string.text_keyboard_layout_macro_swipe_down_event), SLOT_SWIPE_DOWN) { newSteps ->
+                            val draft = buildDraftKeyData()
+                            stickyModifierSwipeDownStepsData = newSteps
+                            applyDirectionalSwipeDraft(draft, stickyModifierSwipeUpStepsData, stickyModifierSwipeDownStepsData)
+                            appendDirectionalSwipeLabels(draft)
+                            keyData = draft
+                            rebuildFields()
+                            updateActionButtonState()
+                        }
+                    }
+                ).forEach { fieldsContainer.addView(it) }
+                createMacroEditorButton(
+                    title = getString(R.string.text_keyboard_layout_macro_longpress_event),
+                    previewText = buildMacroPreview(stickyLongPressSteps),
+                    onClick = {
+                        openMacroEditor(stickyModifierLongPressStepsData, getString(R.string.text_keyboard_layout_macro_longpress_event), SLOT_LONG_PRESS) { newSteps ->
+                            val draft = buildDraftKeyData()
+                            stickyModifierLongPressStepsData = newSteps
+                            if (newSteps.isEmpty()) draft.remove("longPress")
+                            else draft["longPress"] = mapOf("macro" to newSteps)
+                            keyData = draft
+                            rebuildFields()
+                            updateActionButtonState()
+                        }
+                    }
+                ).forEach { fieldsContainer.addView(it) }
             }
 
             "MiniSpaceKey" -> {
@@ -1043,8 +1118,12 @@ class KeyEditorForm(
             for (i in appearanceStart until fieldsContainer.childCount) fieldsContainer.getChildAt(i).tag = 2
             // 空白占位键不显示「合成态按键」入口：它不可点击，永远进不了合成态，
             // 那个入口只会误导用户去配一个永远不会生效的东西。
+            // 粘滞修饰键同理：合成态会整键换成另一套定义，粘滞状态与它互斥，
+            // 配置出来的覆盖只会在打字中途把修饰键变成别的键。
             val start = fieldsContainer.childCount
-            if (selectedType != "PlaceholderKey") renderComposeOverrideEditorEntry()
+            if (selectedType != "PlaceholderKey" && selectedType != "StickyModifierKey") {
+                renderComposeOverrideEditorEntry()
+            }
             for (i in start until fieldsContainer.childCount) fieldsContainer.getChildAt(i).tag = 1
         } else {
             val start = fieldsContainer.childCount
@@ -1819,8 +1898,15 @@ class KeyEditorForm(
                     ?.ifEmpty { modifier.defaultLabel }
                     .orEmpty()
                 if (label.isNotEmpty()) draft["label"] = label
+                appendDirectionalSwipeLabels(draft)
                 if (!disableWeightEditing) {
                     parseWeight(stickyModifierWeightEdit?.text?.toString())?.let { draft["weight"] = it }
+                }
+                applyDirectionalSwipeDraft(draft, stickyModifierSwipeUpStepsData, stickyModifierSwipeDownStepsData)
+                if (stickyModifierLongPressStepsData.isNotEmpty()) {
+                    draft["longPress"] = mapOf("macro" to stickyModifierLongPressStepsData)
+                } else {
+                    draft.remove("longPress")
                 }
             }
 
@@ -1956,7 +2042,8 @@ class KeyEditorForm(
      */
     private fun applyMacroStepsToSlot(slot: String, steps: List<Any>) {
         val draft = buildDraftKeyData()
-        val isMacroKey = keyData["type"] == "MacroKey"
+        val isMacroKey = selectedType == "MacroKey"
+        val isStickyModifierKey = selectedType == "StickyModifierKey"
         when (slot) {
             SLOT_TAP -> {
                 macroTapStepsData = steps
@@ -1970,6 +2057,14 @@ class KeyEditorForm(
                         macroSwipeUpStepsData,
                         macroSwipeDownStepsData
                     )
+                } else if (isStickyModifierKey) {
+                    stickyModifierSwipeUpStepsData = steps
+                    applyDirectionalSwipeDraft(
+                        draft,
+                        stickyModifierSwipeUpStepsData,
+                        stickyModifierSwipeDownStepsData
+                    )
+                    appendDirectionalSwipeLabels(draft)
                 } else {
                     nonMacroSwipeUpStepsData = steps
                     appendDirectionalSwipeLabels(draft)
@@ -1988,6 +2083,14 @@ class KeyEditorForm(
                         macroSwipeUpStepsData,
                         macroSwipeDownStepsData
                     )
+                } else if (isStickyModifierKey) {
+                    stickyModifierSwipeDownStepsData = steps
+                    applyDirectionalSwipeDraft(
+                        draft,
+                        stickyModifierSwipeUpStepsData,
+                        stickyModifierSwipeDownStepsData
+                    )
+                    appendDirectionalSwipeLabels(draft)
                 } else {
                     nonMacroSwipeDownStepsData = steps
                     appendDirectionalSwipeLabels(draft)
@@ -2003,8 +2106,14 @@ class KeyEditorForm(
                 if (steps.isNotEmpty()) draft["swipe"] = mapOf("macro" to steps) else draft.remove("swipe")
             }
             SLOT_LONG_PRESS -> {
-                macroLongPressStepsData = steps
-                draft["longPress"] = mapOf("macro" to steps)
+                if (isStickyModifierKey) {
+                    stickyModifierLongPressStepsData = steps
+                    if (steps.isEmpty()) draft.remove("longPress")
+                    else draft["longPress"] = mapOf("macro" to steps)
+                } else {
+                    macroLongPressStepsData = steps
+                    draft["longPress"] = mapOf("macro" to steps)
+                }
             }
             else -> return
         }
@@ -2370,8 +2479,13 @@ class KeyEditorForm(
                 newKey["label"] = stickyModifierLabelEdit?.text?.toString()
                     ?.ifEmpty { modifier.defaultLabel }
                     .orEmpty()
+                appendDirectionalSwipeLabels(newKey)
                 if (!disableWeightEditing) {
                     parseWeight(stickyModifierWeightEdit?.text?.toString())?.let { newKey["weight"] = it }
+                }
+                applyDirectionalSwipeDraft(newKey, stickyModifierSwipeUpStepsData, stickyModifierSwipeDownStepsData)
+                if (stickyModifierLongPressStepsData.isNotEmpty()) {
+                    newKey["longPress"] = mapOf("macro" to stickyModifierLongPressStepsData)
                 }
             }
 

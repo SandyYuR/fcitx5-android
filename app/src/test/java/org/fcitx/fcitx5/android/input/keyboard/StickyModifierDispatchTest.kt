@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.input.keyboard
 
+import android.os.Looper
 import android.util.LruCache
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
@@ -26,9 +27,11 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.util.ReflectionHelpers
 import org.robolectric.util.ReflectionHelpers.ClassParameter
+import java.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
@@ -119,6 +122,44 @@ class StickyModifierDispatchTest {
 
     private fun caps(keyboard: TextKeyboard): TextKeyboard.CapsState =
         ReflectionHelpers.getField(keyboard, "capsState")
+
+    @Test
+    fun consumingCtrlWhileItsKeyIsPressedDoesNotModifyTheNextKey() {
+        val ctrl = """{"type":"StickyModifierKey","modifier":"ctrl"}"""
+        withKeyboard(listOf(ctrl, macroKey("A"), macroKey("b")).joinToString(",")) { keyboard, service, recorded ->
+            val (ctrlKey, aKey, bKey) = keyboard.keys()
+            fun gesture(type: CustomGestureView.GestureType, clickEligible: Boolean = false) {
+                ctrlKey.onGestureListener!!.onGesture(ctrlKey, CustomGestureView.Event(
+                    type = type, consumed = false, x = 0f, y = 0f,
+                    countX = 0, countY = 0, totalX = 0, totalY = 0,
+                    cancelled = false, clickEligible = clickEligible
+                ))
+            }
+            gesture(CustomGestureView.GestureType.Down)
+            gesture(CustomGestureView.GestureType.Up, clickEligible = true)
+            assertTrue(ctrlKey.isActivated)
+
+            gesture(CustomGestureView.GestureType.Down)
+            assertTrue(aKey.performClick())
+            val aEvents = events(service)
+            assertEquals(
+                listOf(KeyEvent.KEYCODE_CTRL_LEFT, KeyEvent.KEYCODE_A, KeyEvent.KEYCODE_A, KeyEvent.KEYCODE_CTRL_LEFT),
+                aEvents.map { it.keyCode }
+            )
+            assertTrue(aEvents.single { it.keyCode == KeyEvent.KEYCODE_A && it.action == KeyEvent.ACTION_DOWN }.isCtrlPressed)
+            assertFalse(ctrlKey.isActivated)
+            gesture(CustomGestureView.GestureType.Up, clickEligible = true)
+            assertFalse("the late Up must not restore the consumed latch", ctrlKey.isActivated)
+
+            assertTrue(bKey.performClick())
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(100))
+            val bEvents = events(service).drop(aEvents.size)
+            assertEquals(listOf(KeyEvent.KEYCODE_B, KeyEvent.KEYCODE_B), bEvents.map { it.keyCode })
+            assertEquals(listOf(KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP), bEvents.map { it.action })
+            assertTrue(bEvents.all { !it.isCtrlPressed && !it.isShiftPressed && !it.isAltPressed })
+            assertEquals(listOf(KeyAction.MacroConsumedAction), recorded)
+        }
+    }
 
     @Test
     fun ctrlCommaEmitsAPairedShortcutFromTheBuiltinKey() {

@@ -723,7 +723,7 @@
     <string name="text_keyboard_layout_placeholder_custom_color">Custom colors</string>
     <string name="text_keyboard_layout_key_label_placeholder">·</string>
     <string name="text_keyboard_layout_key_type_macro">macro (custom action)</string>
-    <string name="text_keyboard_layout_key_type_sticky_modifier">sticky modifier (Ctrl/Shift/Alt)</string>
+    <string name="text_keyboard_layout_key_type_sticky_modifier">sticky modifier</string>
     <string name="text_keyboard_layout_sticky_modifier">Modifier</string>
     <string name="text_keyboard_layout_key_type_unavailable">%1$s (unavailable in this layout)</string>
     <string name="text_keyboard_layout_key_type_unavailable_message">This key type is unavailable in this layout. Choose another type.</string>
@@ -752,6 +752,8 @@
     <string name="text_keyboard_layout_key_alt_text_color">Secondary Text Color</string>
     <string name="text_keyboard_layout_key_background_color">Background Color</string>
     <string name="text_keyboard_layout_key_shadow_color">Shadow Color</string>
+    <string name="text_keyboard_layout_key_active_background_color">Active Background</string>
+    <string name="text_keyboard_layout_key_active_text_color">Active Text</string>
     <string name="text_keyboard_layout_key_color_mode_theme">Follow Theme</string>
     <string name="text_keyboard_layout_key_color_mode_custom">Custom Color</string>
     <string name="text_keyboard_layout_key_color_mode_theme_key_pick">Use Theme Color</string>

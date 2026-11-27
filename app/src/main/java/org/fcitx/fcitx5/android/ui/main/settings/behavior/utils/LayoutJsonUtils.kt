@@ -181,7 +181,12 @@ object LayoutJsonUtils {
         "backgroundColor",
         "backgroundColorMonet",
         "shadowColor",
-        "shadowColorMonet"
+        "shadowColorMonet",
+        // 粘滞修饰键点亮态的键面颜色（见 `KeyDef.Appearance.activeBackgroundColor`）。
+        "activeBackgroundColor",
+        "activeBackgroundColorMonet",
+        "activeTextColor",
+        "activeTextColorMonet"
     )
 
     fun toLayerSubModeLabel(childName: String): String = "$LAYER_SUBMODE_PREFIX$childName"
@@ -434,6 +439,10 @@ object LayoutJsonUtils {
             backgroundColorMonet = obj["backgroundColorMonet"]?.jsonPrimitive?.contentOrNull,
             shadowColor = parseOptionalInt(obj["shadowColor"]),
             shadowColorMonet = obj["shadowColorMonet"]?.jsonPrimitive?.contentOrNull,
+            activeBackgroundColor = parseOptionalInt(obj["activeBackgroundColor"]),
+            activeBackgroundColorMonet = obj["activeBackgroundColorMonet"]?.jsonPrimitive?.contentOrNull,
+            activeTextColor = parseOptionalInt(obj["activeTextColor"]),
+            activeTextColorMonet = obj["activeTextColorMonet"]?.jsonPrimitive?.contentOrNull,
             tap = obj["tap"]?.jsonObject?.let { parseMacroAction(it) },
             swipeUp = obj["swipeUp"]?.jsonObject?.let { parseMacroAction(it) },
             swipeDown = obj["swipeDown"]?.jsonObject?.let { parseMacroAction(it) },
@@ -918,6 +927,11 @@ object LayoutJsonUtils {
         val backgroundColorMonet: String? = null,
         val shadowColor: Int? = null,
         val shadowColorMonet: String? = null,
+        /** 粘滞修饰键点亮时的键面颜色；null 表示沿用主题的 genericActive* 配色。 */
+        val activeBackgroundColor: Int? = null,
+        val activeBackgroundColorMonet: String? = null,
+        val activeTextColor: Int? = null,
+        val activeTextColorMonet: String? = null,
         val tap: MacroAction? = null,  // MacroKey 使用
         val swipeUp: MacroAction? = null,
          val swipeDown: MacroAction? = null,
@@ -972,6 +986,10 @@ object LayoutJsonUtils {
             )
             is MacroKey -> putDirectionalSwipeFields(
                 json, null, keyDef.swipeUpLabel, keyDef.swipeDownLabel, keyDef.swipe,
+                keyDef.swipeUp, keyDef.swipeDown
+            )
+            is StickyModifierKey -> putDirectionalSwipeFields(
+                json, null, keyDef.swipeUpLabel, keyDef.swipeDownLabel, null,
                 keyDef.swipeUp, keyDef.swipeDown
             )
             else -> Unit
@@ -1034,6 +1052,10 @@ object LayoutJsonUtils {
         appearance.backgroundColorMonet?.let { json["backgroundColorMonet"] = it }
         appearance.shadowColor?.let { json["shadowColor"] = it }
         appearance.shadowColorMonet?.let { json["shadowColorMonet"] = it }
+        appearance.activeBackgroundColor?.let { json["activeBackgroundColor"] = it }
+        appearance.activeBackgroundColorMonet?.let { json["activeBackgroundColorMonet"] = it }
+        appearance.activeTextColor?.let { json["activeTextColor"] = it }
+        appearance.activeTextColorMonet?.let { json["activeTextColorMonet"] = it }
 
         when (keyDef) {
             is AlphabetKey -> {
@@ -1103,6 +1125,8 @@ object LayoutJsonUtils {
                 keyDef.label.takeIf { it.isNotEmpty() && it != keyDef.modifier.defaultLabel }
                     ?.let { json["label"] = it }
                 json["weight"] = appearance.percentWidth.takeIf { it != 0.1f }
+                putDirectionalSwipeFieldsForKey(json, keyDef)
+                keyDef.longPress?.let { json["longPress"] = macroActionToJson(it) }
             }
             is MacroKey -> {
                 json["label"] = keyDef.label
@@ -1435,10 +1459,17 @@ object LayoutJsonUtils {
                 StickyModifierKey(
                     modifier = modifier,
                     label = key.label?.takeIf { it.isNotEmpty() } ?: modifier.defaultLabel,
+                    swipeUpLabel = directionalUpLabel,
+                    swipeDownLabel = directionalDownLabel,
+                    swipeUp = directionalUpMacro,
+                    swipeDown = directionalDownMacro,
+                    longPress = key.longPress,
                     percentWidth = key.weight ?: 0.1f,
                     variant = KeyDef.Appearance.Variant.Alternative,
                     textColor = key.textColor,
                     textColorMonet = key.textColorMonet,
+                    altTextColor = key.altTextColor,
+                    altTextColorMonet = key.altTextColorMonet,
                     backgroundColor = key.backgroundColor,
                     backgroundColorMonet = key.backgroundColorMonet,
                     shadowColor = key.shadowColor,
@@ -1490,6 +1521,10 @@ object LayoutJsonUtils {
             else -> SpaceKey() // Fallback
         }
         keyDef.rowHeightPercent = key.rowHeightPercent?.takeIf { it in 1f..100f }
+        keyDef.appearance.activeBackgroundColor = key.activeBackgroundColor
+        keyDef.appearance.activeBackgroundColorMonet = key.activeBackgroundColorMonet
+        keyDef.appearance.activeTextColor = key.activeTextColor
+        keyDef.appearance.activeTextColorMonet = key.activeTextColorMonet
         // 分界标记只在显式设置时写入：绝大多数键没有它，把 false 也写出去会让每个
         // 布局文件平白多出一整片 `"splitAfter": false`，QR 分享的载荷也跟着膨胀。
         if (key.splitAfter == true) keyDef.splitAfter = true
