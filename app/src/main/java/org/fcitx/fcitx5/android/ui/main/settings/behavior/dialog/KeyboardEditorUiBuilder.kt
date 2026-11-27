@@ -76,10 +76,10 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
             "ReturnKey",
             "BackspaceKey",
             "NumPadKey",
+            "StickyModifierKey",
             "MiniSpaceKey",
             "PlaceholderKey",
-            "MacroKey",
-            "StickyModifierKey"
+            "MacroKey"
         )
 
         /**
@@ -99,10 +99,10 @@ class KeyboardEditorUiBuilder(private val activity: android.content.Context) {
             R.string.text_keyboard_layout_key_type_return,
             R.string.text_keyboard_layout_key_type_backspace,
             R.string.text_keyboard_layout_key_type_numpad,
+            R.string.text_keyboard_layout_key_type_sticky_modifier,
             R.string.text_keyboard_layout_key_type_mini_space,
             R.string.text_keyboard_layout_key_type_placeholder,
-            R.string.text_keyboard_layout_key_type_macro,
-            R.string.text_keyboard_layout_key_type_sticky_modifier
+            R.string.text_keyboard_layout_key_type_macro
         )
 
         val SWITCH_TARGET_OPTIONS = listOf(

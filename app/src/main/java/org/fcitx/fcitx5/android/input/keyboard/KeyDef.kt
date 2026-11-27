@@ -114,6 +114,17 @@ open class KeyDef(
          */
         var directionalSwipeLabels: Boolean = false
 
+        /**
+         * 粘滞修饰键点亮时的键面颜色（[StickyModifierKey] 专用）。
+         *
+         * 为 null 时回落到主题的 `genericActiveBackgroundColor` / `genericActiveForegroundColor`。
+         * 做成可变字段而不是构造参数，理由同 [transparentBackground]：只有这一种键型需要它。
+         */
+        var activeBackgroundColor: Int? = null
+        var activeBackgroundColorMonet: String? = null
+        var activeTextColor: Int? = null
+        var activeTextColorMonet: String? = null
+
         enum class Variant {
             Normal, AltForeground, Alternative, Accent
         }

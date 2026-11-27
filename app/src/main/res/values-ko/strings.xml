@@ -189,6 +189,8 @@
     <string name="text_keyboard_layout_key_alt_text_color">보조 문자 색상</string>
     <string name="text_keyboard_layout_key_background_color">배경 색상</string>
     <string name="text_keyboard_layout_key_shadow_color">그림자 색상</string>
+    <string name="text_keyboard_layout_key_active_background_color">활성 배경</string>
+    <string name="text_keyboard_layout_key_active_text_color">활성 텍스트</string>
     <string name="text_keyboard_layout_key_color_mode_theme">테마 따르기</string>
     <string name="text_keyboard_layout_key_color_mode_custom">사용자 지정 색상</string>
     <string name="text_keyboard_layout_key_color_mode_theme_key_pick">테마 색상 사용</string>

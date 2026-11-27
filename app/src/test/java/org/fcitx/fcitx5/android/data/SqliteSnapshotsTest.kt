@@ -31,7 +31,9 @@ class SqliteSnapshotsTest {
 
     @Before fun setUp() {
         context = RuntimeEnvironment.getApplication()
-        directory = File(context.cacheDir, UUID.randomUUID().toString()).apply { mkdirs() }
+        // Robolectric 的临时根目录含测试方法名；Windows 260 字符路径上限还要留给
+        // SQLite 的 -wal / -journal 旁文件，所以这里的目录和文件名保持短。
+        directory = File(context.cacheDir, UUID.randomUUID().toString().take(8)).apply { mkdirs() }
         room = Room.databaseBuilder(org.fcitx.fcitx5.android.testing.hostDatabaseContext(context), ClipboardDatabase::class.java, File(directory, "live.db").path)
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
             .allowMainThreadQueries().build()
@@ -57,7 +59,7 @@ class SqliteSnapshotsTest {
 
     @Test fun snapshotIncludesCommittedWalRowsAndOpensAsARealRoomDatabase() {
         pendingWal()
-        val rawCopy = File(directory, "raw-copy.db")
+        val rawCopy = File(directory, "raw.db")
         File(source.path).copyTo(rawCopy)
         assertEquals(1, count(rawCopy)) // Reproduce why copying the main file loses data.
         val snapshot = File(directory, "snapshot.db")
@@ -79,7 +81,7 @@ class SqliteSnapshotsTest {
         File(source.path).copyTo(staged)
         File(source.path + "-wal").copyTo(File(staged.path + "-wal"))
         File(staged.path + "-shm").writeText("unusable locks from another device")
-        val recovered = File(directory, "recovered.db")
+        val recovered = File(directory, "rec.db")
         SqliteSnapshots.recoverStaged(staged, recovered)
         assertEquals(2, count(recovered))
         assertEquals(2, source.query("SELECT count(*) FROM clipboard").use { it.moveToFirst(); it.getInt(0) })
@@ -88,10 +90,10 @@ class SqliteSnapshotsTest {
     @Test fun versionCommittedOnlyToWalIsPreservedForDowngradeRejection() {
         pendingWal()
         source.execSQL("PRAGMA user_version=8")
-        val staged = File(directory, "future.db")
+        val staged = File(directory, "next.db")
         File(source.path).copyTo(staged)
         File(source.path + "-wal").copyTo(File(staged.path + "-wal"))
-        val recovered = File(directory, "future-snapshot.db")
+        val recovered = File(directory, "next-snap.db")
         SqliteSnapshots.recoverStaged(staged, recovered)
         SQLiteDatabase.openDatabase(recovered.path, null, SQLiteDatabase.OPEN_READONLY).use {
             assertEquals(8, it.version)
@@ -121,7 +123,7 @@ class SqliteSnapshotsTest {
 
     @Test fun corruptStagedDatabaseFailsWithoutPublishingASnapshot() {
         val staged = File(directory, "broken.db").apply { writeText("not a SQLite database") }
-        val snapshot = File(directory, "unpublished.db")
+        val snapshot = File(directory, "tmp.db")
         assertTrue(runCatching { SqliteSnapshots.recoverStaged(staged, snapshot) }.isFailure)
         assertFalse(snapshot.exists())
     }

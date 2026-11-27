@@ -41,42 +41,60 @@ class StickyModifierControllerTest {
         assertNull(controller.consume())
     }
 
+    /**
+     * 表 1 核心：Down 只表示「按到了」，不点亮；抬手确认后才切换。
+     */
     @Test
-    fun heldAndLatchedModifiersAreConsumedTogetherOnlyOnce() {
+    fun downAloneDoesNotLatchUntilEligibleUp() {
         val controller = StickyModifierController()
-        val ctrlGesture = controller.onDown(StickyModifier.Ctrl)
-        tap(controller, StickyModifier.Shift)
+        val gesture = controller.onDown(StickyModifier.Alt)
 
-        val consumption = controller.consume()
-        assertEquals(listOf(StickyModifier.Ctrl, StickyModifier.Shift), consumption?.modifiers)
-        controller.onUp(StickyModifier.Ctrl, ctrlGesture, clickEligible = true, cancelled = false)
+        assertNotNull(gesture)
+        assertFalse("按下尚未抬手，不能点亮", controller.isLatched(StickyModifier.Alt))
         assertFalse(controller.hasActiveModifiers)
-        controller.finish(consumption!!)
         assertNull(controller.consume())
+
+        controller.onUp(StickyModifier.Alt, gesture, clickEligible = true, cancelled = false)
+        assertTrue(controller.isLatched(StickyModifier.Alt))
+    }
+
+    /**
+     * 表 1：按下期间不被消费——修饰键自身的长按/滑动动作因此看到的是「按下前」的状态。
+     */
+    @Test
+    fun pressedModifierIsExcludedFromConsumption() {
+        val controller = StickyModifierController()
+        val gesture = controller.onDown(StickyModifier.Alt)
+
+        assertNull(controller.consume())
+
+        controller.onUp(StickyModifier.Alt, gesture, clickEligible = false, cancelled = false)
+        // 非单击也不点亮。
+        assertNull(controller.consume())
+        assertFalse(controller.isLatched(StickyModifier.Alt))
     }
 
     @Test
     fun lateUpCannotFinishAReplacementGesture() {
         val controller = StickyModifierController()
         val oldGesture = controller.onDown(StickyModifier.Ctrl)
-        val consumption = controller.consume()!!
-        controller.finish(consumption)
+        controller.cancelAll()
         val newGesture = controller.onDown(StickyModifier.Ctrl)
 
         controller.onUp(StickyModifier.Ctrl, oldGesture, clickEligible = true, cancelled = false)
-        assertTrue(controller.hasActiveModifiers)
-        assertFalse(controller.isLatched(StickyModifier.Ctrl))
+        assertFalse("迟到的 Up 不应点亮替换后的手势", controller.isLatched(StickyModifier.Ctrl))
         controller.onUp(StickyModifier.Ctrl, newGesture, clickEligible = true, cancelled = false)
         assertTrue(controller.isLatched(StickyModifier.Ctrl))
     }
 
     @Test
-    fun duplicatePhysicalDownDoesNotAddAnotherSlot() {
+    fun duplicatePhysicalDownIsRejectedAndDoesNotLatch() {
         val controller = StickyModifierController()
         val gesture = controller.onDown(StickyModifier.Alt)
         assertNotNull(gesture)
         assertNull(controller.onDown(StickyModifier.Alt))
-        assertEquals(listOf(StickyModifier.Alt), controller.consume()?.modifiers)
+        assertFalse(controller.isLatched(StickyModifier.Alt))
+        assertNull(controller.consume())
     }
 
     @Test
@@ -111,6 +129,79 @@ class StickyModifierControllerTest {
         assertTrue(controller.isLatched(StickyModifier.Ctrl))
 
         tap(controller, StickyModifier.Ctrl, clickEligible = false)
+        assertTrue(controller.isLatched(StickyModifier.Ctrl))
+    }
+
+    /**
+     * 表 1：连击 = 连续两次独立 toggle，表现为灭→亮→灭。
+     */
+    @Test
+    fun consecutiveTapsToggleLikeASingleSwitch() {
+        val controller = StickyModifierController()
+
+        tap(controller, StickyModifier.Shift)
+        assertTrue(controller.isLatched(StickyModifier.Shift))
+        tap(controller, StickyModifier.Shift)
+        assertFalse(controller.isLatched(StickyModifier.Shift))
+        tap(controller, StickyModifier.Shift)
+        assertTrue(controller.isLatched(StickyModifier.Shift))
+    }
+
+    @Test
+    fun consumingAPressedLatchDoesNotRearmOnItsLaterUp() {
+        listOf(StickyModifier.Ctrl, StickyModifier.Shift, StickyModifier.Alt).forEach { modifier ->
+            listOf(false, true).forEach { finishBeforeUp ->
+                val controller = StickyModifierController()
+                tap(controller, modifier)
+                val gesture = controller.onDown(modifier)!!
+                val consumption = controller.consume()!!
+                assertEquals(listOf(modifier), consumption.modifiers)
+                if (finishBeforeUp) controller.finish(consumption)
+
+                assertNull("the first pointer still owns the press", controller.onDown(modifier))
+                controller.onUp(modifier, null, clickEligible = true, cancelled = false)
+                controller.onUp(modifier, gesture + 1, clickEligible = true, cancelled = false)
+                assertNull("an unmatched Up cannot release the press", controller.onDown(modifier))
+                controller.onUp(modifier, gesture, clickEligible = true, cancelled = false)
+                assertFalse("a consumed press cannot re-latch on Up", controller.isLatched(modifier))
+                if (!finishBeforeUp) controller.finish(consumption)
+
+                tap(controller, modifier)
+                assertTrue("a new press after Up can latch again", controller.isLatched(modifier))
+            }
+        }
+    }
+
+    @Test
+    fun consumptionKeepsAnUnlatchedModifiersPendingPress() {
+        val controller = StickyModifierController()
+        tap(controller, StickyModifier.Ctrl)
+        val ctrlGesture = controller.onDown(StickyModifier.Ctrl)!!
+        val altGesture = controller.onDown(StickyModifier.Alt)!!
+        val consumption = controller.consume()!!
+        assertEquals(listOf(StickyModifier.Ctrl), consumption.modifiers)
+        controller.finish(consumption)
+
+        controller.onUp(StickyModifier.Ctrl, ctrlGesture, clickEligible = true, cancelled = false)
+        controller.onUp(StickyModifier.Alt, altGesture, clickEligible = true, cancelled = false)
+        assertFalse(controller.isLatched(StickyModifier.Ctrl))
+        assertTrue("Alt was not consumed and must still confirm on Up", controller.isLatched(StickyModifier.Alt))
+        assertEquals(listOf(StickyModifier.Alt), controller.consume()?.modifiers)
+    }
+
+    @Test
+    fun cancelledConsumptionCannotAffectAReplacementPress() {
+        val controller = StickyModifierController()
+        tap(controller, StickyModifier.Ctrl)
+        val oldGesture = controller.onDown(StickyModifier.Ctrl)!!
+        val consumption = controller.consume()!!
+        controller.cancelAll()
+        val newGesture = controller.onDown(StickyModifier.Ctrl)!!
+
+        controller.finish(consumption)
+        controller.onUp(StickyModifier.Ctrl, oldGesture, clickEligible = true, cancelled = false)
+        assertFalse(controller.isLatched(StickyModifier.Ctrl))
+        controller.onUp(StickyModifier.Ctrl, newGesture, clickEligible = true, cancelled = false)
         assertTrue(controller.isLatched(StickyModifier.Ctrl))
     }
 

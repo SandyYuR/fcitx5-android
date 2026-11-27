@@ -60,4 +60,9 @@
     <string name="rime_engine_version_value">librime バージョン：%1$s</string>
     <string name="rime_engine_api_size_value">RimeApi データサイズ：%1$d バイト</string>
     <string name="rime_engine_capabilities_value">検出された機能：%1$s</string>
+    <string name="rime_engine_packaged_name">内蔵 Rime</string>
+    <string name="rime_engine_metadata_unknown">不明／未宣言</string>
+    <string name="rime_engine_sdk_commit">ソースコミット：%1$s</string>
+    <string name="rime_engine_sdk_base_commit">ベースコミット：%1$s</string>
+    <string name="rime_engine_sdk_development_tree">開発ビルド · ソースツリー：%1$s</string>
 </resources>

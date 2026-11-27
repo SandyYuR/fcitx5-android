@@ -112,6 +112,14 @@ abstract class BaseKeyboard(
     private val previewMacroInput = MacroInputController { Timber.w(it, "Macro key cleanup failed") }
     private var observedStickyModifierController: StickyModifierController? = null
     private val stickyModifierChangeListener: () -> Unit = { refreshStickyModifierAppearance() }
+    /**
+     * 当前绑定为粘滞键的视图。
+     *
+     * 状态变化只更新这几枚键，而不是每次点亮都遍历整块键盘（含行缓存）：
+     * 粘滞键通常只有 1~2 枚，遍历全部行在按键抬手路径上是纯浪费。
+     * 缓存行里的视图也在集合里，切回该层时不需要额外刷新；视图被回收后由弱引用清掉。
+     */
+    private val stickyModifierViews = WeakHashMap<KeyView, Unit>()
     private var dispatchingMacroKeyAction = false
     private val statisticsKeys = WeakHashMap<KeyView, Unit>()
     private var statisticsLayout: org.fcitx.fcitx5.android.data.stats.StatsLayout? = null
@@ -1718,12 +1726,21 @@ abstract class BaseKeyboard(
 
     private fun refreshStickyModifierAppearance(view: KeyView) {
         val modifier = view.stickyModifier
-        view.isActivated = modifier != null &&
-            getService()?.stickyModifiers?.isLatched(modifier) == true
+        if (modifier == null) {
+            view.isActivated = false
+            return
+        }
+        // 键面只按真实状态点亮；按下反馈交给通用按压高亮。
+        val latched = getService()?.stickyModifiers?.isLatched(modifier) == true
+        view.isActivated = latched
     }
 
     private fun refreshStickyModifierAppearance() {
-        forEachKeyViewIncludingCachedRows(::refreshStickyModifierAppearance)
+        val controller = getService()?.stickyModifiers
+        stickyModifierViews.keys.toList().forEach { view ->
+            val modifier = view.stickyModifier ?: return@forEach
+            view.isActivated = controller?.isLatched(modifier) == true
+        }
     }
 
     fun refreshIconTheme() {
@@ -2608,6 +2625,10 @@ abstract class BaseKeyboard(
         }
     }.apply {
         directionalSwipeLabels = source.directionalSwipeLabels
+        activeBackgroundColor = source.activeBackgroundColor
+        activeBackgroundColorMonet = source.activeBackgroundColorMonet
+        activeTextColor = source.activeTextColor
+        activeTextColorMonet = source.activeTextColorMonet
     }
 
     private fun applyAppearance(view: KeyView, appearance: KeyDef.Appearance) {
@@ -2667,6 +2688,7 @@ abstract class BaseKeyboard(
             }
             oldOnGestureListener.onGesture(currentView, event)
         }
+        // 离开窗口/行复用时收尾未抬手的手势，避免 pending 状态跨视图泄漏。
         view.onCancelGesturesListener = { currentView ->
             finishStickyModifierGesture(currentView as KeyView, clickEligible = false, cancelled = true)
         }
@@ -2705,6 +2727,9 @@ abstract class BaseKeyboard(
             .mapNotNull { (it as? KeyDef.Behavior.Press)?.action as? StickyModifierAction }
             .firstOrNull()
         view.stickyModifier = stickyAction?.modifier
+        if (stickyAction != null) stickyModifierViews[view] = Unit else stickyModifierViews.remove(view)
+        // 粘滞键点亮时的键面颜色由专门的激活配色表达；按下时照常走通用按压高亮。
+        view.setStickyActive(stickyAction != null)
         refreshStickyModifierAppearance(view)
 
         val interactive = behaviors.isNotEmpty() || !popup.isNullOrEmpty()
@@ -2758,7 +2783,11 @@ abstract class BaseKeyboard(
                     view.swipeThresholdY = inputSwipeThreshold
                     val oldOnGestureListener = view.onGestureListener ?: OnGestureListener.Empty
                     view.onGestureListener = OnGestureListener { currentView, event ->
-                        when (event.type) {
+                        // 先交给内层监听器：粘滞键在 Up 上收尾 pending 手势，滑动消费
+                        // 不能短路这次投递，否则 stickyModifierGesture 会一直挂起，
+                        // 下一次按下被当成重复手势而忽略。
+                        val innerConsumed = oldOnGestureListener.onGesture(currentView, event)
+                        val swipeConsumed = when (event.type) {
                             GestureType.Up -> {
                                 val action = selectSwipeAction(currentView, event.totalY, it)
                                 if (!event.consumed && action != null) {
@@ -2771,7 +2800,8 @@ abstract class BaseKeyboard(
                                 }
                             }
                             else -> false
-                        } || oldOnGestureListener.onGesture(currentView, event)
+                        }
+                        innerConsumed || swipeConsumed
                     }
                 }
                 is KeyDef.Behavior.DoubleTap -> {

@@ -60,4 +60,9 @@
     <string name="rime_engine_version_value">Версия librime: %1$s</string>
     <string name="rime_engine_api_size_value">Размер данных RimeApi: %1$d байт</string>
     <string name="rime_engine_capabilities_value">Обнаруженные возможности: %1$s</string>
+    <string name="rime_engine_packaged_name">Встроенный Rime</string>
+    <string name="rime_engine_metadata_unknown">Неизвестно / не указано</string>
+    <string name="rime_engine_sdk_commit">Коммит исходного кода: %1$s</string>
+    <string name="rime_engine_sdk_base_commit">Базовый коммит: %1$s</string>
+    <string name="rime_engine_sdk_development_tree">Сборка для разработки · Дерево исходного кода: %1$s</string>
 </resources>

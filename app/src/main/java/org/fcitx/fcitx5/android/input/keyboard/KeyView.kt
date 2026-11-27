@@ -145,10 +145,15 @@ abstract class KeyView(
     var layoutMarginRight = 0f
 
     var onWaterRippleRequest: ((keyView: KeyView, localX: Float, localY: Float) -> Unit)? = null
+    private val waterRippleOcclusionChangedListeners = LinkedHashSet<() -> Unit>()
     internal var statisticsKeyLabel: String? = null
     internal var onStatisticsPress: ((KeyView) -> Unit)? = null
     internal var stickyModifier: StickyModifier? = null
     internal var stickyModifierGesture: StickyModifierGesture? = null
+
+    /** 是否由粘滞键的激活配色接管键面（仅 StickyModifierKey 为 true）。 */
+    internal var isStickyActiveAppearance = false
+        private set
     private var statisticsTouchActive = false
 
     /**
@@ -264,17 +269,24 @@ abstract class KeyView(
         return hasKeyBorder
     }
 
+    internal fun addWaterRippleOcclusionChangedListener(listener: () -> Unit) {
+        waterRippleOcclusionChangedListeners.add(listener)
+    }
+
+    internal fun removeWaterRippleOcclusionChangedListener(listener: () -> Unit) {
+        waterRippleOcclusionChangedListeners.remove(listener)
+    }
+
+    private fun notifyWaterRippleOcclusionChanged(previouslyOccluded: Boolean) {
+        if (previouslyOccluded != shouldOccludeWaterRipple()) {
+            waterRippleOcclusionChangedListeners.toList().forEach { it() }
+        }
+    }
+
     private fun applyStandardBackground(theme: Theme) {
         val bkgColor = resolveBackgroundColor(theme, defaultBackgroundColor(theme))
         waterRippleFillColor = bkgColor
-        val borderOrShadowWidth = dp(1)
-        appearanceView.background = if (borderStroke) borderedKeyBackgroundDrawable(
-            bkgColor, resolveShadowColor(theme),
-            radius, borderOrShadowWidth, hMargin, vMargin
-        ) else shadowedKeyBackgroundDrawable(
-            bkgColor, resolveShadowColor(theme),
-            radius, borderOrShadowWidth, hMargin, vMargin
-        )
+        appearanceView.background = standardBackgroundDrawable(bkgColor, theme)
         setupPressHighlight()
     }
 
@@ -307,15 +319,26 @@ abstract class KeyView(
         )
     }
 
+    private var pressHighlightMask: Drawable? = null
+    private var stickySuppressesActivatedHighlight = false
+
     private fun setupPressHighlight(mask: Drawable? = null, activatedHighlight: Drawable? = null) {
-        val persistentHighlight = activatedHighlight ?: highlightMaskDrawable(theme.keyPressHighlightColor)
+        pressHighlightMask = mask
+        // 粘滞键的激活色画在键底，前景再叠一层激活填充会把底色盖住，
+        // 因此只对这一种键把常亮填充换成透明；普通键保持后者的轮廓与高亮。
+        val persistentHighlight = when {
+            stickySuppressesActivatedHighlight -> ColorDrawable(Color.TRANSPARENT)
+            activatedHighlight != null -> activatedHighlight
+            else -> highlightMaskDrawable(theme.keyPressHighlightColor)
+        }
         if (rippled) {
             background = null
             val activatedBackground = StateListDrawable().apply {
                 addState(intArrayOf(android.R.attr.state_activated), persistentHighlight)
             }
             appearanceView.foreground = RippleDrawable(
-                ColorStateList.valueOf(theme.keyPressHighlightColor), activatedBackground,
+                ColorStateList.valueOf(theme.keyPressHighlightColor),
+                activatedBackground,
                 mask ?: highlightMaskDrawable(Color.WHITE)
             ).apply {
                 // The activated fill and ripple mask share key coordinates. Nested padding
@@ -344,6 +367,89 @@ abstract class KeyView(
                     intArrayOf(android.R.attr.state_pressed),
                     // use mask drawable as highlight directly
                     mask ?: highlightMaskDrawable(theme.keyPressHighlightColor)
+                )
+            }
+        }
+    }
+
+    /**
+     * 切换粘滞修饰键的激活配色（仅 [StickyModifierKey] 使用）。
+     *
+     * 激活色画在**背景**层并由 activated 状态驱动，文字颜色由 [TextKeyView] 同步切换，
+     * 因此点亮态不会再像前景高亮那样盖住文字；按下时仍走通用按压高亮。
+     * 颜色未配置时回落到主题的 `genericActiveBackgroundColor` / `genericActiveForegroundColor`。
+     */
+    internal fun setStickyActive(enabled: Boolean) {
+        if (isStickyActiveAppearance == enabled) return
+        val previouslyOccluded = shouldOccludeWaterRipple()
+        isStickyActiveAppearance = enabled
+        stickySuppressesActivatedHighlight = enabled
+        applyStickyAwareBackground()
+        setupPressHighlight(pressHighlightMask)
+        onStickyActiveAppearanceChanged(enabled)
+        notifyWaterRippleOcclusionChanged(previouslyOccluded)
+    }
+
+    override fun setActivated(activated: Boolean) {
+        val changed = isActivated != activated
+        val previouslyOccluded = isStickyActiveAppearance && shouldOccludeWaterRipple()
+        super.setActivated(activated)
+        if (changed && isStickyActiveAppearance) {
+            updateStickyWaterRippleFillColor()
+            notifyWaterRippleOcclusionChanged(previouslyOccluded)
+        }
+    }
+
+    private fun updateStickyWaterRippleFillColor() {
+        if (def.transparentBackground || usesSpecialBackground()) return
+        // Match the state drawable: enabling sticky appearance does not activate the key.
+        waterRippleFillColor = when {
+            isStickyActiveAppearance && isActivated -> stickyActiveBackgroundColor()
+            hasKeyBorder -> resolveBackgroundColor(theme, defaultBackgroundColor(theme))
+            else -> null
+        }
+    }
+
+    protected open fun onStickyActiveAppearanceChanged(enabled: Boolean) {}
+
+    private fun stickyActiveBackgroundColor(): Int =
+        resolveColorOverride(def.activeBackgroundColor, def.activeBackgroundColorMonet)
+            ?: theme.genericActiveBackgroundColor
+
+    protected fun stickyActiveTextColor(): Int =
+        resolveColorOverride(def.activeTextColor, def.activeTextColorMonet)
+            ?: theme.genericActiveForegroundColor
+
+    private fun standardBackgroundDrawable(color: Int, theme: Theme): Drawable =
+        if (borderStroke) borderedKeyBackgroundDrawable(
+            color, resolveShadowColor(theme), radius, dp(1), hMargin, vMargin
+        ) else shadowedKeyBackgroundDrawable(
+            color, resolveShadowColor(theme), radius, dp(1), hMargin, vMargin
+        )
+
+    /** 按当前激活状态重建键底；未启用激活配色时与 [applyStandardBackground] 等价。 */
+    private fun applyStickyAwareBackground() {
+        // 占位键与空格/回车/布局切换键有各自的特形背景，粘滞键不会命中，保持原样。
+        if (def.transparentBackground || usesSpecialBackground()) return
+        updateStickyWaterRippleFillColor()
+        if (hasKeyBorder) {
+            val normalColor = resolveBackgroundColor(theme, defaultBackgroundColor(theme))
+            val normal = standardBackgroundDrawable(normalColor, theme)
+            appearanceView.background = if (!isStickyActiveAppearance) normal
+            else StateListDrawable().apply {
+                addState(
+                    intArrayOf(android.R.attr.state_activated),
+                    standardBackgroundDrawable(stickyActiveBackgroundColor(), theme)
+                )
+                addState(IntArray(0), normal)
+            }
+        } else {
+            // 无边框主题的键底本来就是空的：只在点亮时补一层激活色，仍然垫在文字下面。
+            appearanceView.background = if (!isStickyActiveAppearance) null
+            else StateListDrawable().apply {
+                addState(
+                    intArrayOf(android.R.attr.state_activated),
+                    highlightMaskDrawable(stickyActiveBackgroundColor())
                 )
             }
         }
@@ -471,6 +577,7 @@ abstract class KeyView(
      * Update theme without rebuilding view
      */
     open fun updateTheme(newTheme: Theme) {
+        val previouslyOccluded = shouldOccludeWaterRipple()
         theme = newTheme
 
         if (def.transparentBackground) {
@@ -489,12 +596,14 @@ abstract class KeyView(
             waterRippleFillColor = null
             setupPressHighlight()
         }
+        if (isStickyActiveAppearance) applyStickyAwareBackground()
 
         val w = appearanceView.width
         val h = appearanceView.height
         if (w > 0 && h > 0) {
             onSizeChanged(w, h, w, h)
         }
+        notifyWaterRippleOcclusionChanged(previouslyOccluded)
     }
 }
 
@@ -678,17 +787,42 @@ open class TextKeyView(
         mainText.requestLayout()
     }
 
+    private fun variantDefaultTextColor(theme: Theme): Int = resolveTextColor(
+        when (def.variant) {
+            Variant.Normal -> theme.keyTextColor
+            Variant.AltForeground, Variant.Alternative -> theme.altKeyTextColor
+            Variant.Accent -> theme.accentKeyTextColor
+        }
+    )
+
+    /**
+     * 同步主标签颜色。
+     *
+     * 粘滞键点亮时改用激活文字色；其余情况保持主题（或按键自定义）的文字色。
+     * 这里按需重设而不是用 `ColorStateList`，因为 TextView 不会继承父级的 activated 状态。
+     */
+    private fun applyMainTextColor() {
+        mainText.setTextColor(
+            if (isStickyActiveAppearance && isActivated) stickyActiveTextColor()
+            else variantDefaultTextColor(theme)
+        )
+    }
+
+    override fun setActivated(activated: Boolean) {
+        val changed = isActivated != activated
+        super.setActivated(activated)
+        // 状态没变时不重设文字色：状态刷新会遍历粘滞键，每次都 setTextColor
+        // 会多一次 invalidate，按在抬手路径上纯属浪费。
+        if (changed && isStickyActiveAppearance) applyMainTextColor()
+    }
+
+    override fun onStickyActiveAppearanceChanged(enabled: Boolean) {
+        applyMainTextColor()
+    }
+
     override fun updateTheme(newTheme: Theme) {
         super.updateTheme(newTheme)
-        mainText.setTextColor(
-            resolveTextColor(
-                when (def.variant) {
-                    Variant.Normal -> newTheme.keyTextColor
-                    Variant.AltForeground, Variant.Alternative -> newTheme.altKeyTextColor
-                    Variant.Accent -> newTheme.accentKeyTextColor
-                }
-            )
-        )
+        applyMainTextColor()
     }
 }
 
