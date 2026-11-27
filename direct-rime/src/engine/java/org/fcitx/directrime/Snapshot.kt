@@ -132,6 +132,9 @@ internal object Native {
     external fun schemaSelection(): String
     /** Schema a new session would activate; empty when no schema is available. */
     external fun currentSchema(): String
+    /** Selected option followed by deployed enabled options; empty for unsupported engine/schema. */
+    external fun inputTypeState(schema: String, evo: Boolean): Array<String>
+    external fun selectInputType(schema: String, option: String, evo: Boolean, generation: Long = -1): Boolean
     external fun selectSchemas(ids: Array<String>): Boolean
     external fun sync(): Boolean
     external fun candidates(generation: Long, offset: Int, limit: Int): Array<String>

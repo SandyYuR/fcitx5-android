@@ -9,6 +9,8 @@ import org.yaml.snakeyaml.nodes.Node
 import org.yaml.snakeyaml.nodes.ScalarNode
 import org.yaml.snakeyaml.nodes.SequenceNode
 import java.io.File
+import java.nio.ByteBuffer
+import java.nio.charset.CodingErrorAction
 
 /** One selectable input type declared by the schema's `input_types/options`. */
 internal data class RimeInputType(val option: String, val label: String)
@@ -24,18 +26,24 @@ internal data class RimeInputTypes(
     val enabled: List<String>,
     val reset: String?,
     val schemaId: String,
-    val customFile: File
+    val customFile: File,
+    val deployed: List<String> = emptyList(),
+    val selected: String? = null,
 ) {
+    val selectableTypes: List<RimeInputType>
+        get() = types.filter { it.option in enabled && it.option in deployed }
+
     val current: RimeInputType?
-        get() = types.firstOrNull { it.option == reset }
+        get() = types.firstOrNull { it.option == selected && it.option in enabled && it.option in deployed }
+            ?: types.firstOrNull { it.option == reset }
             ?: enabled.firstNotNullOfOrNull { option -> types.firstOrNull { it.option == option } }
 
     fun summary(): String = current?.label ?: enabled.joinToString("、")
 }
 
 /**
- * Reads the evo-only `input_types` block and edits only `input_types/enabled` and
- * `input_types/reset` inside the active scheme's custom patch.
+ * Reads the evo-only `input_types` block and edits only `input_types/reset`
+ * inside the active scheme's custom patch.
  *
  * [activeSchema] is the schema id the engine would activate (the settings page reads it from the
  * running engine). Binding to it prevents a scheme that happens to sit in the same directory from
@@ -72,18 +80,50 @@ internal object RimeInputTypesRepository {
         return RimeInputTypes(types, enabled, reset, schema.id, schema.customFile)
     }
 
-    /** Rewrites both keys so that exactly one type is built and active. */
-    fun select(user: File, option: String, activeSchema: String? = null): RimeInputTypes {
+    /** Persist only reset; a rejected runtime change restores the exact original bytes. */
+    fun select(
+        user: File,
+        option: String,
+        activeSchema: String? = null,
+        apply: () -> Boolean = { true },
+    ): RimeInputTypes {
         val state = read(user, activeSchema) ?: error("当前方案未声明输入类型")
-        require(state.types.any { it.option == option }) { "当前方案不支持该输入类型：$option" }
+        require(option in state.enabled && state.types.any { it.option == option }) {
+            "当前方案未启用该输入类型：$option"
+        }
+        require(SAFE_SCHEMA_ID.matches(option) && option != "." && option != "..") { "输入类型名称不受支持" }
         val file = state.customFile
-        val original = if (file.isFile) WanxiangAdvancedFiles.read(file) else ""
+        val existed = file.exists()
+        require(!existed || file.isFile) { "输入类型补丁不是文件" }
+        require(!existed || file.length() <= WanxiangYaml.MAX_TEXT) { "输入类型补丁过大" }
+        val originalBytes = if (existed) file.readBytes() else null
+        require(originalBytes == null || originalBytes.size <= WanxiangYaml.MAX_TEXT) { "输入类型补丁过大" }
+        val original = originalBytes?.let { bytes ->
+            Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes)).toString()
+        }.orEmpty()
         val newline = if (original.contains("\r\n")) "\r\n" else "\n"
+        require(newline != "\r\n" || !original.replace("\r\n", "").contains('\n')) {
+            "输入类型补丁混用了换行格式，请先统一文件换行"
+        }
         val updated = rewrite(original.replace("\r\n", "\n"), option)
-        validate(updated, option)
+        validate(user, state.schemaId, original, updated, option)
         val output = if (newline == "\r\n") updated.replace("\n", "\r\n") else updated
-        FileUtil.writeAtomically(file, output)
-        return read(user, activeSchema) ?: error("写入后无法读取输入类型")
+        val changed = original != output || !existed
+        if (changed) FileUtil.writeAtomically(file, output)
+        try {
+            val result = read(user, state.schemaId) ?: error("写入后无法读取输入类型")
+            check(apply()) { "引擎拒绝切换输入类型" }
+            return result
+        } catch (failure: Throwable) {
+            if (changed) try {
+                if (originalBytes != null) FileUtil.writeAtomically(file) { it.write(originalBytes) }
+                else check(!file.exists() || file.delete()) { "无法回滚新建的输入类型补丁" }
+            } catch (rollback: Throwable) {
+                failure.addSuppressed(rollback)
+            }
+            throw failure
+        }
     }
 
     private data class SchemaTypes(
@@ -149,10 +189,6 @@ internal object RimeInputTypesRepository {
         return yaml.member(root, "patch") as? MappingNode ?: error("补丁文件缺少 patch 节点")
     }
 
-    /** Accepts both `input_types/enabled` and the nested `input_types: { enabled: ... }` form. */
-    private fun scoped(yaml: WanxiangYaml, patch: MappingNode, path: String): Node? =
-        yaml.member(patch, path) ?: yaml.get(patch, path)
-
     private fun stringList(node: Node?): List<String>? = when (node) {
         null -> null
         is ScalarNode -> node.value.trim().takeIf { it.isNotEmpty() }?.let(::listOf)
@@ -168,12 +204,7 @@ internal object RimeInputTypesRepository {
         val insert = mutableMapOf<Int, MutableList<String>>()
     }
 
-    /**
-     * Rewrites only the two keys while preserving comments, key order, indentation and line
-     * endings. Both the dotted (`input_types/enabled`) and the nested form are supported,
-     * including block sequences; anything the editor cannot rewrite safely is rejected before
-     * the file is touched.
-     */
+    /** Edit reset in place; leave enabled, options and unrelated patches byte-for-byte intact. */
     private fun rewrite(text: String, option: String): String {
         val lines = text.split("\n").toMutableList()
         val patchIndex = lines.indexOfFirst(::isPatchHeader)
@@ -181,49 +212,39 @@ internal object RimeInputTypesRepository {
             require(lines.none { it.trimStart().startsWith("patch:") }) {
                 "补丁文件的 patch 节点形式不受支持"
             }
-            while (lines.isNotEmpty() && lines.last().isBlank()) lines.removeAt(lines.lastIndex)
-            val output = mutableListOf<String>()
-            output.addAll(lines)
-            if (output.isNotEmpty()) output.add("")
-            output.add("patch:")
-            output.add("  input_types/enabled: [$option]")
-            output.add("  input_types/reset: $option")
-            return output.joinToString("\n") + "\n"
+            val separator = if (text.isEmpty() || text.endsWith("\n")) "" else "\n"
+            return text + separator + "patch:\n  input_types/reset: $option\n"
         }
         val patchIndent = indentOf(lines[patchIndex])
         val patchEnd = blockEnd(lines, patchIndex, patchIndent, lines.size)
         val childIndent = firstChildIndent(lines, patchIndex + 1, patchEnd, patchIndent)
-        val nested = (patchIndex + 1 until patchEnd).filter { i ->
-            indentOf(lines[i]) == childIndent.length && isKeyLine(lines[i], "input_types")
-        }
-        val dotted = (patchIndex + 1 until patchEnd).filter { i ->
-            isKeyLine(lines[i], "input_types/enabled") || isKeyLine(lines[i], "input_types/reset")
-        }
+        val range = patchIndex + 1 until patchEnd
+        val nested = range.filter { indentOf(lines[it]) == childIndent.length && isKeyLine(lines[it], "input_types") }
         require(nested.size <= 1) { "补丁包含重复的 input_types 节点" }
-        require(dotted.isEmpty() || nested.isEmpty()) {
-            "补丁同时使用了 input_types 与 input_types/enabled 两种写法"
-        }
         val edit = PlannedEdit()
-        if (nested.isNotEmpty()) {
-            val header = nested.single()
-            val nestedIndent = indentOf(lines[header])
-            val nestedEnd = blockEnd(lines, header, nestedIndent, patchEnd)
-            val targetIndent = firstChildIndent(lines, header + 1, nestedEnd, nestedIndent)
-            val enabled = uniqueKey(lines, header + 1 until nestedEnd, "enabled")
-            val reset = uniqueKey(lines, header + 1 until nestedEnd, "reset")
-            plan(edit, lines, enabled, "enabled", "[$option]", targetIndent, header + 1, nestedEnd)
-            plan(edit, lines, reset, "reset", option, targetIndent, header + 1, nestedEnd)
-        } else {
-            val enabled = uniqueKey(lines, patchIndex + 1 until patchEnd, "input_types/enabled")
-            val reset = uniqueKey(lines, patchIndex + 1 until patchEnd, "input_types/reset")
-            plan(edit, lines, enabled, "input_types/enabled", "[$option]", childIndent, patchIndex + 1, patchEnd)
-            plan(edit, lines, reset, "input_types/reset", option, childIndent, patchIndex + 1, patchEnd)
+        // A force-replacement path sorts after reset in Rime's patch compiler.
+        val forced = uniqueKey(lines, range, "input_types/reset/=", childIndent.length)
+        val dotted = uniqueKey(lines, range, "input_types/reset", childIndent.length)
+        when {
+            forced >= 0 -> plan(edit, lines, forced, "input_types/reset/=", option, childIndent, patchIndex + 1, patchEnd)
+            dotted >= 0 -> plan(edit, lines, dotted, "input_types/reset", option, childIndent, patchIndex + 1, patchEnd)
+            nested.isNotEmpty() -> {
+                val header = nested.single()
+                require(lines[header].substringAfter(':').substringBefore('#').isBlank()) {
+                    "输入类型节点形式不受支持"
+                }
+                val nestedIndent = indentOf(lines[header])
+                val nestedEnd = blockEnd(lines, header, nestedIndent, patchEnd)
+                val targetIndent = firstChildIndent(lines, header + 1, nestedEnd, nestedIndent)
+                val reset = uniqueKey(lines, header + 1 until nestedEnd, "reset", targetIndent.length)
+                plan(edit, lines, reset, "reset", option, targetIndent, header + 1, nestedEnd)
+            }
+            else -> plan(edit, lines, -1, "input_types/reset", option, childIndent, patchIndex + 1, patchEnd)
         }
         val output = mutableListOf<String>()
         for (i in lines.indices) {
             edit.insert[i]?.let(output::addAll)
-            if (i in edit.remove) continue
-            output.add(edit.replace[i] ?: lines[i])
+            if (i !in edit.remove) output.add(edit.replace[i] ?: lines[i])
         }
         edit.insert[lines.size]?.let(output::addAll)
         return output.joinToString("\n")
@@ -260,8 +281,8 @@ internal object RimeInputTypesRepository {
         }
     }
 
-    private fun uniqueKey(lines: List<String>, range: IntRange, key: String): Int {
-        val matches = range.filter { isKeyLine(lines[it], key) }
+    private fun uniqueKey(lines: List<String>, range: IntRange, key: String, indent: Int): Int {
+        val matches = range.filter { indentOf(lines[it]) == indent && isKeyLine(lines[it], key) }
         require(matches.size <= 1) { "补丁包含重复的输入类型配置：$key" }
         return matches.firstOrNull() ?: -1
     }
@@ -313,19 +334,30 @@ internal object RimeInputTypesRepository {
     /** Keeps the trailing comment (and its spacing) of an edited line. */
     private fun commentOf(value: String): String {
         val trimmed = value.trimStart()
-        if (trimmed.startsWith("#")) return " $trimmed"
-        val marker = Regex("\\s#").find(value) ?: return ""
+        if (trimmed.startsWith("#")) return value
+        val marker = Regex("\\s+#").find(value) ?: return ""
         return value.substring(marker.range.first)
     }
 
-    private fun validate(text: String, option: String) {
+    private fun validate(user: File, schemaId: String, before: String, after: String, option: String) {
         val yaml = WanxiangYaml()
-        val patch = patch(yaml, text)
-        require(stringList(scoped(yaml, patch, "input_types/enabled")) == listOf(option)) {
-            "补丁未写入所选输入类型"
+        val source = findSchema(user, schemaId, yaml) ?: error("当前输入方案已改变")
+        fun group(text: String): MappingNode {
+            val base = yaml.mapping().also { yaml.put(it, "input_types", yaml.clone(source.group)) }
+            val custom = yaml.mapping().also {
+                if (text.isNotBlank()) yaml.put(it, "patch", patch(yaml, text))
+            }
+            return yaml.member(yaml.literalView(base, custom), "input_types") as? MappingNode
+                ?: error("输入类型补丁无效")
         }
-        val reset = (scoped(yaml, patch, "input_types/reset") as? ScalarNode)?.value?.trim()
-        require(reset == option) { "补丁未写入默认输入类型" }
+        val oldGroup = group(before)
+        val newGroup = group(after)
+        require((yaml.member(newGroup, "reset") as? ScalarNode)?.value == option) { "补丁未写入默认输入类型" }
+        fun withoutReset(group: MappingNode): String {
+            group.value.removeAll { (it.keyNode as? ScalarNode)?.value == "reset" }
+            return yaml.dump(group)
+        }
+        require(withoutReset(oldGroup) == withoutReset(newGroup)) { "输入类型切换不能修改启用清单或其他配置" }
     }
 }
 

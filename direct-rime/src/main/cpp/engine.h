@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <map>
 #include <set>
 #include <string>
 #include <thread>
@@ -63,6 +64,11 @@ public:
     // Schema activated for a new session; falls back to the first enabled schema when no
     // input session exists yet (for example, while the settings page is open).
     std::string currentSchema();
+    // Selected option followed by enabled options in the deployed schema. Identity is supplied
+    // by the authorized engine slot; arbitrary option round-trips are not capability detection.
+    std::vector<std::string> inputTypeState(const std::string& schema, bool evo);
+    bool selectInputType(const std::string& schema, const std::string& option, bool evo,
+                         int64_t expectedGeneration = -1);
     bool selectSchemas(const std::vector<std::string>& ids);
     bool sync();
     std::vector<std::string> candidates(int64_t generation, int offset, int limit);
@@ -95,6 +101,7 @@ private:
     // an option listed in switcher/save_options. This frontend sets options
     // directly, so mirror that rule; otherwise every new native session (another
     // app's editor) reverts the user's switch to the schema default.
+    void applyInputTypePreference();
     void setOption(const std::string& option, bool value);
     bool saveableOption(const std::string& option);
     void rememberOption(const std::string& option, bool value);
@@ -120,6 +127,8 @@ private:
     std::optional<StatusCache> statusCache_;
     bool saveOptionsLoaded_ = false;
     std::set<std::string> saveOptions_;
+    // Preferences only: never retain composition, commits or a prior editor snapshot.
+    std::map<std::string, std::string> inputTypePreferences_;
     std::array<int64_t, 16> timing_{};
 };
 
