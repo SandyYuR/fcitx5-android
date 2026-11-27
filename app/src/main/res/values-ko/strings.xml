@@ -497,6 +497,7 @@
     <string name="clipboard_edit_text_hint">클립보드 내용</string>
     <string name="clipboard_entry_radius">클립보드 항목 모서리 반경</string>
     <string name="clipboard_mask_sensitive">민감한 데이터(예: 비밀번호) 숨기기</string>
+    <string name="clipboard_hide_favorites_in_all">‘전체’ 탭에서 즐겨찾기 항목 숨기기</string>
     <string name="clipboard_return_after_paste">붙여넣기 후 돌아가기</string>
     <string name="clipboard_suggestion">클립보드 제안 표시</string>
     <string name="clipboard_suggestion_timeout">클립보드 제안 시간 제한</string>
@@ -670,6 +671,7 @@
     <string name="space_behavior_enumerate">활성화된 Rime 스키마 순환</string>
     <string name="space_behavior_none">없음</string>
     <string name="space_behavior_picker">Rime 스키마 메뉴 표시</string>
+    <string name="space_behavior_input_method_picker">입력기 선택 대화상자 표시</string>
     <string name="space_behavior_voice_input">음성 입력으로 전환</string>
     <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="space_long_press_behavior">스페이스 키 길게 누르기 동작</string>

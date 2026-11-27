@@ -236,6 +236,7 @@
     <string name="space_behavior_enumerate">有効な Rime スキーマを順に切り替える</string>
     <string name="space_behavior_activate">現在の Rime スキーマと最初のスキーマを切り替える</string>
     <string name="space_behavior_picker">Rime スキーマメニューを表示</string>
+    <string name="space_behavior_input_method_picker">入力方法の選択ダイアログを表示</string>
     <string name="space_behavior_voice_input">音声入力に切り替える</string>
     <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="show_lang_switch_key">言語切り替えキーを表示する</string>
@@ -647,6 +648,7 @@
     <string name="clear_clp_db_confirm">クリップボードデータベースがピン留めされた項目を含めて完全に消去されます。続行しますか？</string>
     <string name="clipboard_entry_radius">クリップボード項目の角丸半径</string>
     <string name="clipboard_mask_sensitive">機密情報（パスワードなど）を非表示</string>
+    <string name="clipboard_hide_favorites_in_all">「すべて」タブにお気に入りを表示しない</string>
     <string name="clipboard_return_after_paste">貼り付け後にキーボードに戻る</string>
     <string name="clipboard_suggestion">クリップボードヒントを表示</string>
     <string name="confirm_import_user_data">ユーザーデータをインポートすると、ローカルの設定と入力履歴が上書きされ、アプリの再起動後に有効になります。続行しますか？</string>

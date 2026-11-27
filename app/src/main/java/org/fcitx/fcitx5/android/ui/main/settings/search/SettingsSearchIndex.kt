@@ -227,6 +227,7 @@ object SettingsSearchIndex {
         R.string.clipboard_suggestion to "clipboard_suggestion",
         R.string.clipboard_mask_sensitive to "clipboard_mask_sensitive",
         R.string.clipboard_return_after_paste to "clipboard_return_after_paste",
+        R.string.clipboard_hide_favorites_in_all to "clipboard_hide_favorites_in_all",
         R.string.clipboard_limit_remote to "clipboard_limit_remote",
         R.string.clipboard_limit_media to "clipboard_limit_media",
         R.string.clipboard_suggestion_timeout to "clipboard_item_timeout",
@@ -680,7 +681,7 @@ object SettingsSearchIndex {
         ),
         SettingsSearchEntry(
             R.string.space_long_press_behavior, P_KEYBOARD,
-            listOf("space", "空格", "kongge", "长按"),
+            listOf("space", "空格", "kongge", "长按", context.getString(R.string.space_behavior_input_method_picker)),
             route = keyboard(BEHAVIOR)
         ),
         SettingsSearchEntry(
@@ -980,6 +981,11 @@ object SettingsSearchIndex {
         SettingsSearchEntry(
             R.string.clipboard_return_after_paste, P_ANDROID,
             listOf("return", "粘贴后返回", "返回"),
+            route = SettingsRoute.Clipboard
+        ),
+        SettingsSearchEntry(
+            R.string.clipboard_hide_favorites_in_all, P_ANDROID,
+            listOf("clipboard favorites", "pinned", "剪贴板收藏", "隐藏收藏", "置顶"),
             route = SettingsRoute.Clipboard
         ),
         SettingsSearchEntry(

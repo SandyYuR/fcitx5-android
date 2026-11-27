@@ -379,24 +379,22 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
 
     suspend fun get(id: Int) = clbDao.get(id)
 
-    suspend fun haveUnpinned(category: ClipboardCategory) = when (category) {
-        ClipboardCategory.All -> clbDao.findUnpinnedIds().isNotEmpty()
+    suspend fun shouldSkipPinnedOnDelete(category: ClipboardCategory, hideFavoritesInAll: Boolean) = when (category) {
+        ClipboardCategory.All -> hideFavoritesInAll || clbDao.findUnpinnedIds().isNotEmpty()
         ClipboardCategory.Favorites -> false
         ClipboardCategory.Local -> clbDao.haveUnpinnedTextEntriesBySource(ClipboardEntry.SOURCE_LOCAL)
         ClipboardCategory.Remote -> clbDao.haveUnpinnedEntriesBySource(ClipboardEntry.SOURCE_REMOTE)
         ClipboardCategory.Media -> clbDao.haveUnpinnedMediaEntries()
     }
 
-    fun allEntries() = clbDao.allEntries()
-
     /**
      * Empty queries browse the whole selected group; nonempty queries page every match.
      * SQLite LIKE folds ASCII case and matches both current and original text.
      */
-    fun entries(category: ClipboardCategory, query: String = "") = if (query.isNotEmpty()) {
-        clbDao.searchEntriesPaged(escapeLikePattern(query), category.name)
+    fun entries(category: ClipboardCategory, query: String = "", hideFavoritesInAll: Boolean = false) = if (query.isNotEmpty()) {
+        clbDao.searchEntriesPaged(escapeLikePattern(query), category.name, hideFavoritesInAll)
     } else when (category) {
-        ClipboardCategory.All -> allEntries()
+        ClipboardCategory.All -> clbDao.allEntries(hideFavoritesInAll)
         ClipboardCategory.Favorites -> favoriteEntries()
         ClipboardCategory.Local -> localTextEntries()
         ClipboardCategory.Media -> mediaEntries()

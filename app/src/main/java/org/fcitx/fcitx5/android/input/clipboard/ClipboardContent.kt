@@ -113,9 +113,13 @@ internal class ClipboardContent(
 
     private val clipboardEntryRadius by ThemeManager.prefs.clipboardEntryRadius
 
-    private var currentCategory = resolveInitialCategory(initialCategory)
-    private data class Filter(val category: ClipboardCategory, val query: String)
-    private val filter = MutableStateFlow(Filter(currentCategory, ""))
+    private data class Filter(val category: ClipboardCategory, val query: String, val hideFavoritesInAll: Boolean = false)
+    private val filter = MutableStateFlow(Filter(resolveInitialCategory(initialCategory), ""))
+    private val currentCategory get() = filter.value.category
+    @Keep
+    private val hideFavoritesListener = ManagedPreference.OnChangeListener<Boolean> { _, enabled ->
+        if (currentCategory == ClipboardCategory.All) filter.value = filter.value.copy(hideFavoritesInAll = enabled)
+    }
     private val scope = CoroutineScope(service.lifecycleScope.coroutineContext +
         SupervisorJob(service.lifecycleScope.coroutineContext[Job]))
     private var adapterSubmitJob: Job? = null
@@ -279,14 +283,14 @@ internal class ClipboardContent(
             enablePlaceholders = false
         )
     ) {
-        ClipboardManager.entries(filter.category, filter.query)
+        ClipboardManager.entries(filter.category, filter.query, filter.hideFavoritesInAll)
     }
 
     private fun submitCategory(category: ClipboardCategory) {
-        currentCategory = category
         sharedPreferences.edit { putString(LAST_OPENED_CATEGORY_KEY, category.name) }
         ui.setSelectedCategory(category)
-        filter.value = filter.value.copy(category = category)
+        filter.value = filter.value.copy(category = category,
+            hideFavoritesInAll = category == ClipboardCategory.All && prefs.clipboardHideFavoritesInAll.getValue())
     }
 
     fun setQuery(query: String) {
@@ -332,8 +336,10 @@ internal class ClipboardContent(
                 clipboardEnabledPref.setValue(true)
             }
             deleteAllButton.setOnClickListener {
-                service.lifecycleScope.launch {
-                    promptDeleteAll(ClipboardManager.haveUnpinned(currentCategory))
+                val selection = filter.value
+                scope.launch {
+                    val skipPinned = ClipboardManager.shouldSkipPinnedOnDelete(selection.category, selection.hideFavoritesInAll)
+                    if (selection == filter.value) promptDeleteAll(selection, skipPinned)
                 }
             }
             searchButton.setOnClickListener {
@@ -344,7 +350,7 @@ internal class ClipboardContent(
 
     private var promptMenu: PopupMenu? = null
 
-    private fun promptDeleteAll(skipPinned: Boolean) {
+    private fun promptDeleteAll(selection: Filter, skipPinned: Boolean) {
         promptMenu?.dismiss()
         promptMenu = PopupMenu(context, ui.deleteAllButton).apply {
             menu.add(buildSpannedString {
@@ -356,8 +362,8 @@ internal class ClipboardContent(
             }).isEnabled = false
             menu.add(android.R.string.cancel)
             menu.item(android.R.string.ok) {
-                service.lifecycleScope.launch {
-                    deleteEntries(skipPinned, deleteFiles = false)
+                if (selection == filter.value) service.lifecycleScope.launch {
+                    deleteEntries(selection.category, skipPinned)
                 }
             }
             setOnDismissListener {
@@ -371,11 +377,11 @@ internal class ClipboardContent(
     private val pendingSuppressedRemoteContents = linkedSetOf<String>()
     private val pendingDeleteSourceTargets = linkedMapOf<Int, ClipboardSourceDeletionTarget>()
 
-    private suspend fun deleteEntries(skipPinned: Boolean, deleteFiles: Boolean) {
-        pendingSuppressedRemoteContents += ClipboardManager.remoteSuppressionContents(currentCategory, skipPinned)
-        if (currentCategory == ClipboardCategory.Media) {
+    private suspend fun deleteEntries(category: ClipboardCategory, skipPinned: Boolean) {
+        pendingSuppressedRemoteContents += ClipboardManager.remoteSuppressionContents(category, skipPinned)
+        if (category == ClipboardCategory.Media) {
             pendingDeleteSourceTargets.putAll(ClipboardManager.mediaDeletionTargets(skipPinned))
-        } else if (currentCategory == ClipboardCategory.Remote) {
+        } else if (category == ClipboardCategory.Remote) {
             pendingDeleteSourceTargets.putAll(
                 ClipboardManager.mediaDeletionTargetsBySource(
                     source = ClipboardEntry.SOURCE_REMOTE,
@@ -383,7 +389,7 @@ internal class ClipboardContent(
                 )
             )
         }
-        val ids = ClipboardManager.deleteAll(currentCategory, skipPinned)
+        val ids = ClipboardManager.deleteAll(category, skipPinned)
         showUndoSnackbar(*ids)
     }
 
@@ -487,9 +493,11 @@ internal class ClipboardContent(
             }
         }
         if (!searchMode) clipboardEnabledPref.registerOnChangeListener(clipboardEnabledListener)
+        prefs.clipboardHideFavoritesInAll.registerOnChangeListener(hideFavoritesListener)
     }
 
     fun onDetached() {
+        prefs.clipboardHideFavoritesInAll.unregisterOnChangeListener(hideFavoritesListener)
         if (!searchMode) clipboardEnabledPref.unregisterOnChangeListener(clipboardEnabledListener)
         adapter.onDetached()
         adapterSubmitJob?.cancel()

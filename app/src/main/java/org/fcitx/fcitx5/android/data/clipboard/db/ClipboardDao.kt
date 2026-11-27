@@ -35,13 +35,13 @@ interface ClipboardDao {
     @Query("SELECT * FROM ${ClipboardEntry.TABLE_NAME} WHERE rowId=:rowId AND deleted=0 LIMIT 1")
     suspend fun get(rowId: Long): ClipboardEntry?
 
-    @Query("SELECT * FROM ${ClipboardEntry.TABLE_NAME} WHERE deleted=0 ORDER BY pinned DESC, timestamp DESC")
-    fun allEntries(): PagingSource<Int, ClipboardEntry>
+    @Query("SELECT * FROM ${ClipboardEntry.TABLE_NAME} WHERE deleted=0 AND (:hideFavorites=0 OR pinned=0) ORDER BY pinned DESC, timestamp DESC")
+    fun allEntries(hideFavorites: Boolean): PagingSource<Int, ClipboardEntry>
 
     /** Same category boundaries as the keyboard page, with literal substring filtering. */
     @Query(
         "SELECT * FROM ${ClipboardEntry.TABLE_NAME} WHERE deleted=0 " +
-            "AND (:category='All' OR (:category='Favorites' AND pinned=1) " +
+            "AND ((:category='All' AND (:hideFavoritesInAll=0 OR pinned=0)) OR (:category='Favorites' AND pinned=1) " +
             "OR (:category='Local' AND source='${ClipboardEntry.SOURCE_LOCAL}' AND pinned=0 " +
             "AND text NOT LIKE 'content://%' AND text NOT LIKE 'file://%') " +
             "OR (:category='Media' AND (text LIKE 'content://%' OR text LIKE 'file://%')) " +
@@ -50,7 +50,7 @@ interface ClipboardDao {
             "OR originalText LIKE '%' || :query || '%' ESCAPE '\\') " +
             "ORDER BY pinned DESC, timestamp DESC"
     )
-    fun searchEntriesPaged(query: String, category: String): PagingSource<Int, ClipboardEntry>
+    fun searchEntriesPaged(query: String, category: String, hideFavoritesInAll: Boolean): PagingSource<Int, ClipboardEntry>
 
     @Query("SELECT * FROM ${ClipboardEntry.TABLE_NAME} WHERE pinned=1 AND deleted=0 ORDER BY timestamp DESC")
     fun favoriteEntries(): PagingSource<Int, ClipboardEntry>

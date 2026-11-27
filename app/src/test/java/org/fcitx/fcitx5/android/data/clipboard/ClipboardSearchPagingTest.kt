@@ -38,8 +38,8 @@ class ClipboardSearchPagingTest {
     }
     @After fun close() { database.close() }
 
-    private suspend fun page(category: ClipboardCategory, query: String = ""): List<ClipboardEntry> {
-        val result = ClipboardManager.entries(category, query).load(PagingSource.LoadParams.Refresh(null, 48, false))
+    private suspend fun page(category: ClipboardCategory, query: String = "", hideFavoritesInAll: Boolean = false): List<ClipboardEntry> {
+        val result = ClipboardManager.entries(category, query, hideFavoritesInAll).load(PagingSource.LoadParams.Refresh(null, 48, false))
         return (result as PagingSource.LoadResult.Page<Int, ClipboardEntry>).data
     }
 
@@ -48,7 +48,7 @@ class ClipboardSearchPagingTest {
             ClipboardEntry(id = 1, text = "needle local", timestamp = 1),
             ClipboardEntry(id = 2, text = "needle pinned", pinned = true, timestamp = 2),
             ClipboardEntry(id = 3, text = "needle remote", source = ClipboardEntry.SOURCE_REMOTE, timestamp = 3),
-            ClipboardEntry(id = 4, text = "needle remote pinned", source = ClipboardEntry.SOURCE_REMOTE, pinned = true, timestamp = 4),
+            ClipboardEntry(id = 4, text = "file:///needle-pinned.pdf", source = ClipboardEntry.SOURCE_REMOTE, pinned = true, timestamp = 4),
             ClipboardEntry(id = 5, text = "content://media/needle.png", type = "image/png", timestamp = 5),
             ClipboardEntry(id = 6, text = "file:///needle.pdf", source = ClipboardEntry.SOURCE_REMOTE, timestamp = 6),
             ClipboardEntry(id = 7, text = "needle deleted", deleted = true, timestamp = 7),
@@ -59,13 +59,32 @@ class ClipboardSearchPagingTest {
             ClipboardCategory.All to listOf(4, 2, 8, 6, 5, 3, 1),
             ClipboardCategory.Favorites to listOf(4, 2),
             ClipboardCategory.Local to listOf(8, 1),
-            ClipboardCategory.Media to listOf(6, 5),
+            ClipboardCategory.Media to listOf(4, 6, 5),
             ClipboardCategory.Remote to listOf(4, 6, 3),
         )
         for ((category, ids) in expected) {
             assertEquals(category.name, ids, page(category).map { it.id })
             assertEquals(category.name, ids.filter { it != 8 }, page(category, "NEEDLE").map { it.id })
+            val filtered = if (category == ClipboardCategory.All) listOf(8, 6, 5, 3, 1) else ids
+            assertEquals(category.name, filtered, page(category, hideFavoritesInAll = true).map { it.id })
+            assertEquals(category.name, filtered.filter { it != 8 }, page(category, "NEEDLE", true).map { it.id })
         }
+    }
+
+    @Test fun clearingAllNeverDeletesOrSuppressesHiddenFavoritesEvenWhenNothingElseRemains() = runBlocking {
+        val category = ClipboardCategory.All
+        dao.insert(ClipboardEntry(id = 1, text = "local favorite", pinned = true))
+        dao.insert(ClipboardEntry(id = 2, text = "remote favorite", source = ClipboardEntry.SOURCE_REMOTE, pinned = true))
+        dao.insert(ClipboardEntry(id = 3, text = "visible", source = ClipboardEntry.SOURCE_REMOTE))
+        val skipPinned = ClipboardManager.shouldSkipPinnedOnDelete(category, hideFavoritesInAll = true)
+        assertEquals(listOf("visible"), ClipboardManager.remoteSuppressionContents(category, skipPinned))
+        assertArrayEquals(intArrayOf(3), ClipboardManager.deleteAll(category, skipPinned))
+        assertTrue(page(category, hideFavoritesInAll = true).isEmpty())
+        assertFalse(ClipboardManager.shouldSkipPinnedOnDelete(category, hideFavoritesInAll = false))
+        val skipRemaining = ClipboardManager.shouldSkipPinnedOnDelete(category, hideFavoritesInAll = true)
+        assertTrue(ClipboardManager.remoteSuppressionContents(category, skipRemaining).isEmpty())
+        assertTrue(ClipboardManager.deleteAll(category, skipRemaining).isEmpty())
+        assertEquals(setOf(1, 2), page(ClipboardCategory.Favorites).map { it.id }.toSet())
     }
 
     @Test fun literalWildcardsBackslashesAndOriginalTextRemainSearchable() = runBlocking {
