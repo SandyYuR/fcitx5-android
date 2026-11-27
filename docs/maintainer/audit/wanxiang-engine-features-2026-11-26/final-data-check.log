@@ -1,0 +1,3 @@
+PASS preferences: before=85 after=85; changed keys=pid
+PASS engine authorization/profile state unchanged during resource restoration
+PASS current full-pinyin custom bytes unchanged; SHA256=e83d76f7010f1240dc7ee9380e2bf637af16b8e588efa483d03798628dc1f2ec

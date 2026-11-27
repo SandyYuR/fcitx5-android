@@ -1,0 +1,10 @@
+11-26 16:40:39.606  5229  5620 I rime.direct-android: running deployment tasks:
+11-26 16:40:40.220  5229  5633 I rime.direct-android: unit 'dictionary:wanxiang_abbrev' is ready.
+11-26 16:40:42.426  5229  5632 I rime.direct-android: unit 'dictionary:wanxiang_english' is ready.
+11-26 16:40:54.286  5229  5633 I rime.direct-android: unit 'dictionary:wanxiang_mixedcode' is ready.
+11-26 16:40:54.342  5229  5633 I rime.direct-android: compiling unit 'rewrite:charset'.
+11-26 16:40:54.443  5229  5633 I rime.direct-android: unit 'rewrite:charset' is ready.
+11-26 16:42:53.927  5229  5632 I rime.direct-android: unit 'dictionary:wanxiang_reverse' is ready.
+11-26 16:42:55.043  5229  5620 I rime.direct-android: unit 'dictionary:wanxiang' is ready.
+11-26 16:42:55.044  5229  5620 I rime.direct-android: finished updating schemas: 1 success, 0 failure.
+11-26 16:42:55.047  5229  5620 I rime.direct-android: 2 tasks ran: 2 success, 0 failure.

@@ -1,0 +1,15 @@
+实际设置页复测，2026-11-27 00:16–00:21 +08:00
+Device: rime / emulator-5574 / AOSP API35 x86_64
+App APK SHA256: 6c8cf5a25cb318d213857c4359ae7d075c6d42d10898d0e2329394128a818e26
+Plugin: org.rime.plugin.sandyyur.librime_evo / 1.17.0-evo-76ed0c01
+Profile: rime-wanxiang-evo; schema: wanxiang
+Settings path: 首页 → 中州韵引擎设置 → 启用的输入方案 → 万象拼音输入类型
+Before: chip 自然码; dialog 自然码 checked; reset zrm.
+Select 小鹤双拼: dialog dismissed, chip 小鹤双拼; reopened dialog 小鹤双拼 checked; reset flypy.
+Select 自然码: dialog dismissed, chip 自然码; reset zrm restored.
+Original and restored custom YAML SHA256 both: 1c0177da82f904011654974fbc8dc0b158a0f50a7f7cbe4f74377270bd1101fb
+Only reset changed during selection; after round trip full original bytes restored.
+Log since 11-27 00:16:00 contains no Failed to switch input type / 输入会话已改变 / DirectRimeInputTypeOperations exception / FATAL EXCEPTION.
+Latest JVM: owner11 + repository25 tests, failures0 errors0 skipped0; remaining related40 previously passed.
+Default IME remains Fcitx. No schema replacement, app clear, AVD reset, SMS send or clipboard modification.
+Separate existing deployment issue: profile references complete data/charset.txt, but that file is absent. Type switching above uses deployed prisms and does not trigger deployment.

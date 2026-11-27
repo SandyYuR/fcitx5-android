@@ -59,6 +59,10 @@ Android 构建的依赖版本以 `sources.lock.json` 为准，不能只改 libri
 
 本地可走[纯 Windows 源码开发链路](local-engine-development.md)：用临时索引快照构建当前修改，生成带来源和摘要的开发 SDK，再显式接入 Debug。该入口不修改正式版本锁，也不能用于 Release；工具统一从 D 盘读取。
 
+输入法将本次实际参与链接的 `sdk-manifest.json` 原样打入 APK，内置引擎来源页分别显示 `engine_family`、`librime_commit` 及开发 SDK 的 `source_tree`。开发产物的 commit 只是基线，不能代替工作树摘要；旧清单没有引擎族时明确显示未知，不根据当前运行的外部引擎猜测。正式和开发 SDK 的打包器均写入 `engine_family: librime`，字段扩展需保留旧 SDK 的读取兼容性。
+
+系统单汉字字符集准入属于新版外置 EVO 引擎的能力，使用 EVO 自己的 rewrite 资源编译接口。内置 SDK 和其他非 EVO / 不支持该接口的引擎不实现此功能；应用不提供替代过滤。适配与配置范围见[EVO 字符集准入](../features/rime-enhancements.md#evo-字符集准入)。
+
 ## 哪些更新互相独立
 
 | 要更新的内容 | 需要操作 |

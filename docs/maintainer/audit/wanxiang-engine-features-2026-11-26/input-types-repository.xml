@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" tests="25" skipped="0" failures="0" errors="0" timestamp="2026-11-26T16:10:41.598Z" hostname="YRZ-NOTEBOOK" time="0.547">
+  <properties/>
+  <testcase name="resetPreservesCrLfCommentsOrderAndMissingFinalNewline" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.039"/>
+  <testcase name="invalidOrDuplicatePatchFormsFailWithoutTouchingTheFile" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.01"/>
+  <testcase name="readBindsToTheActiveSchemaInsteadOfTheFirstFile" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.013"/>
+  <testcase name="selectWritesTheCustomFileOfTheActiveSchemaOnly" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.036"/>
+  <testcase name="disabledChoicesAreRejectedBeforeApplyingOrWriting" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.01"/>
+  <testcase name="selectAcceptsTheNestedForm" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.035"/>
+  <testcase name="rejectionAndCancellationRestoreExactBytesAndRemoveNewFiles" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.112"/>
+  <testcase name="patchHeaderWithATrailingCommentAndBlockEnabledListIsPreserved" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.028"/>
+  <testcase name="readsDeclaredTypesAndAppliesThePatch" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.006"/>
+  <testcase name="arrayPathPatchChangesTheEffectiveCatalog" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.018"/>
+  <testcase name="fallsBackToSchemaWhenThePatchIsMissing" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.004"/>
+  <testcase name="mixedLineEndingsAreRejectedWithoutReformattingTheFile" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.009"/>
+  <testcase name="selectRewritesOnlyResetAndKeepsEverythingElse" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.03"/>
+  <testcase name="unknownTypesAreDroppedFromTheEffectiveSelection" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.006"/>
+  <testcase name="customOptionsOverrideTheSchemaCatalog" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.009"/>
+  <testcase name="nestedBlockEnabledListIsPreservedInPlace" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.031"/>
+  <testcase name="selectCreatesThePatchWhenTheFileIsAbsent" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.027"/>
+  <testcase name="resetIgnoresTheSameKeyInsideUnrelatedNestedPatches" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.028"/>
+  <testcase name="choicesAreTheEnabledAndCompiledIntersection" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.006"/>
+  <testcase name="sameIndentBlockEnabledListIsPreserved" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.029"/>
+  <testcase name="wholeGroupPatchWithoutResetFallsBackToTheFirstEnabledType" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.005"/>
+  <testcase name="wholeGroupPatchIsAppliedBeforeChildPaths" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.006"/>
+  <testcase name="missingEnabledListMeansEveryDeclaredTypeIsUsable" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.007"/>
+  <testcase name="selectIsIdempotentAndRejectsUnknownOptionsWithoutTouchingTheFile" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.022"/>
+  <testcase name="forcedResetPathIsEditedWithoutChangingOtherKeys" classname="org.fcitx.fcitx5.android.core.engine.RimeInputTypesRepositoryTest" time="0.018"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -191,9 +191,9 @@ rename／delete 先检查 profile 未被引用。活动 profile 的 rename 首�
 
 ### EVO 输入类型
 
-输入类型只从当前方案 `input_types/options` 读取，不另存本地状态；`*.custom.yaml` 的 patch 按 Rime 的键排序与整组替换语义应用：平铺 `input_types/enabled` 只改该子键，整组 `input_types` 会替换整个组，因此需重述 `options`。合并后过滤未知项；`enabled` 缺失视为全部声明选项，`reset` 必须属于 `enabled`。按钮只在方案声明 `input_types` 时出现，只有 `RimeEvoEngines.isEvo(state)` 为真时可编辑，非 EVO 仅展示并置灰说明。当前类型优先取 `reset`，否则取 `enabled` 首项；选项按 `label` 显示。
+输入类型从当前方案 `input_types/options` 读取；`*.custom.yaml` 的 patch 按 Rime 的键排序与整组替换语义应用：平铺 `input_types/enabled` 只改该子键，整组 `input_types` 会替换整个组，因此需重述 `options`。`enabled` 缺失视为全部声明选项；可选菜单取有效声明、合并后的 `enabled` 与 native 已部署且棱镜文件可用的选项交集。当前类型优先取这个交集中的运行时选项，其次为有效 `reset`，最后为首个可用项；选项按 `label` 显示。只有 EVO 引擎且已部署配置确实由 `translator/prisms: input_types` 消费这些选项时可编辑，非 EVO 保持能力说明。普通 `set_option`／`get_option` 的布尔值不构成编码已切换的证明。
 
-写入前重新核对当前引擎仍是 EVO，且当前工作目录与活动引擎绑定目录 canonical 相等。只改当前方案 `*.custom.yaml` 的 `input_types/enabled` 与 `input_types/reset`，保留注释、键序、换行和其他键；使用原子写并做结构化校验。仅当前运行该 schema 时调用 `set_option(option, true)`，其他方案在下一次激活时由 `reset` 生效，随后重新部署。保存成功但部署失败不回滚已落盘的类型；写入失败不得改文件。回归 `RimeInputTypesRepositoryTest`、`PluginSettingsUiTest`、`SettingsEntryNavigationTest`、`SettingsSearchIndexCoverageTest` 与设备方案行实际切换。
+读取与写入均通过唯一 owner 的 `DirectRimeInputTypeOperations` 和 native API，UI 不自行读写配置或保存第二份运行态。写入命令携带读取时的 profile、canonical 目录与引擎身份，设置偏好不绑定编辑器 generation；正常弹窗焦点或输入框变化不应使同一配置管理操作失效。维护、取消或这些配置目标变化仍拒绝旧命令。管理用 native 选择传入无编辑器限制的代次，局部捕获输入 generation 只决定是否刷新当前输入展示，不作为保存成功的条件。只改对应方案 `*.custom.yaml` 的 `input_types/reset`，保留 `enabled`、`options`、注释、键序、换行和其他键；使用原子写并做结构化校验。当前 schema 即时切换运行选项并检查互斥结果，非活动 schema 在下次激活时应用；不为设置创建虚假的编辑器会话，也不因切换触发部署。运行态拒绝、异常、取消或目标失效时恢复原文件完整字节；本次新建的文件撤回，不遗留半次选择。停止、重启及部署清除 native 暂存选择，再从当前有效 `reset` 恢复；部署后不沿用旧棱镜列表。回归 `RimeInputTypesRepositoryTest`、`DirectRimeInputTypeOperationsTest`、native 输入类型契约、`PluginSettingsUiTest`、`SettingsEntryNavigationTest`、`SettingsSearchIndexCoverageTest` 与设备方案行实际切换。
 
 导入暂存只属于当前 Activity 和当前两次确认流程，不跨配置重建恢复。每个 Activity 使用独立 token 子目录；创建时只回收当前进程没有登记为活动的旧 token，销毁时无条件删除自己的暂存。主题、语言、旋转或系统配置导致重建时，旧确认流程取消，用户必须重新选择文件。不能让一个页面实例删除另一个仍在确认的文件，也不能为恢复对话框而让尚未完成第二次授权的代码文件跨 Activity 生命周期存活。
 

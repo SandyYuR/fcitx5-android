@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-26T16:10:41.026Z" hostname="YRZ-NOTEBOOK" time="0.564">
+  <properties/>
+  <testcase name="editorChangeDuringNativeKeepsPreferenceWithoutPublishingOldEditor" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.214"/>
+  <testcase name="maintenanceRequestedDuringNativeRestoresSameBindingBeforeQueuedWork" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.055"/>
+  <testcase name="enabledCompiledIntersectionAndRuntimeSelectionUseTheSameOwner" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.042"/>
+  <testcase name="runtimeRejectionRollsBackAndStartupRestoresOnlyPreference" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.051"/>
+  <testcase name="cancellationDuringPersistenceRollsBackBeforeNative" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.047"/>
+  <testcase name="staleProfileEngineAndMaintenanceRejectWithoutWriting" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.006"/>
+  <testcase name="publicationFailureRestoresRuntimeAndExactFile" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.049"/>
+  <testcase name="editorChangesAfterMenuReadAndDuringPersistenceKeepTheSettingsTarget" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.027"/>
+  <testcase name="cancellationInsideNativeRestoresRuntimeAndRemovesNewCustom" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.027"/>
+  <testcase name="runtimeRollbackRejectionIsReportedAndFileStillRestored" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.031"/>
+  <testcase name="unsupportedEngineAndUndeployedChoiceNeverReachNativeSelection" classname="org.fcitx.fcitx5.android.core.DirectRimeInputTypeOperationsTest" time="0.009"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

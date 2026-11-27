@@ -1202,6 +1202,7 @@
 | `maintainer/audit/2026-11-26-pr57-sticky-modifier/` | [粘滞修饰键压缩合入](/maintainer/changes/2026-11-26-sticky-modifier-key) |
 | `maintainer/audit/key-press-highlight-2026-11-26/` | [2026-11-26 按键按压高亮轮廓验证](/maintainer/audit/key-press-highlight-2026-11-26/) |
 | `maintainer/audit/foxy-themes-editor-2026-11-26/` | [水彩／普蓝资源与常规编辑布局 · 2026-11-26](/maintainer/changes/2026-11-26-foxy-themes-editor) |
+| `maintainer/audit/wanxiang-engine-features-2026-11-26/` | [引擎入口、输入类型与字符集准入移植（2026-11-26）](/maintainer/audit/wanxiang-engine-features-2026-11-26/) |
 
 <!-- evidence-roots:end -->
 

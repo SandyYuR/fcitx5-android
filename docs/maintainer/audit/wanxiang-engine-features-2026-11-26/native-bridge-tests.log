@@ -1,0 +1,16 @@
+Internal ctest changing into directory: D:/GitHub/fx2-rime/.build/wanxiang-port-native
+Test project D:/GitHub/fx2-rime/.build/wanxiang-port-native
+    Start 1: engine-contract
+1/2 Test #1: engine-contract ..................***Failed    0.30 sec
+temp_directory_path: not a directory: "D:\GitHub\tools\tmp\"
+
+    Start 2: input-statistics-contract
+2/2 Test #2: input-statistics-contract ........   Passed    0.01 sec
+
+50% tests passed, 1 tests failed out of 2
+
+Total Test time (real) =   0.33 sec
+
+The following tests FAILED:
+	  1 - engine-contract (Failed)
+Errors while running CTest
