@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rime_engine_packaged_name">内置 Rime</string>
+    <string name="rime_engine_packaged_evo_name">内置 librime-evo</string>
+    <string name="rime_engine_metadata_unknown">未知／未声明</string>
+    <string name="rime_engine_sdk_family">SDK 系列：%1$s</string>
+    <string name="rime_engine_sdk_commit">源码提交：%1$s</string>
+    <string name="rime_engine_sdk_base_commit">基线提交：%1$s</string>
+    <string name="rime_engine_sdk_development_tree">开发构建 · 源码树：%1$s</string>
+</resources>

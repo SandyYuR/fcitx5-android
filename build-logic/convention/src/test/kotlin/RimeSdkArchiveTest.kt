@@ -169,6 +169,21 @@ class RimeSdkArchiveTest {
         }
     }
 
+    @Test fun developmentSdkRetainsOptionalFamilyAndSourceTreeForApkMetadata() {
+        val source = developmentFixture()
+        val file = File(source, "sdk-manifest.json")
+        val manifest = Json.decodeFromString<RimeSdkManifest>(file.readText()).copy(engine_family = "evo")
+        file.writeText(Json.encodeToString(manifest))
+        val output = temporary.newFolder()
+        RimeSdkArchive.copyDevelopment(source, output, listOf("arm64-v8a"))
+        val copied = Json.decodeFromString<RimeSdkManifest>(File(output, "sdk-manifest.json").readText())
+        assertEquals("evo", copied.engine_family)
+        assertEquals("4".repeat(40), copied.source_tree)
+        assertEquals(commit, copied.librime_commit)
+        assertTrue(copied.development)
+        assertEquals(manifest.files, copied.files)
+    }
+
     @Test fun aSingleAbiDevelopmentSdkDoesNotPretendToContainOtherAbis() {
         val source = developmentFixture()
         val file = File(source, "sdk-manifest.json")

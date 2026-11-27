@@ -2,6 +2,7 @@
 package org.fcitx.fcitx5.android.ui.main
 
 import android.content.Intent
+import android.os.Looper
 import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
@@ -15,12 +16,15 @@ import kotlinx.coroutines.awaitCancellation
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxAPI
+import org.fcitx.fcitx5.android.core.RawConfig
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.testing.FcitxDaemonTestDelegate
 import org.fcitx.fcitx5.android.testing.FcitxDaemonTestShadow
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.AdvancedSettingsFragment
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.RimeSchemeUpdatesFragment
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupFragment
+import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
+import org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.voice.JsVoicePluginsActivity
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.editor.EditorApplicationShadow
 import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchIndex
@@ -35,6 +39,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import java.lang.reflect.Proxy
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [23, 35], application = FcitxApplication::class,
@@ -122,7 +127,6 @@ class SettingsEntryNavigationTest {
         assertEquals(
             listOf(
                 activity.getString(R.string.rime_settings),
-                activity.getString(R.string.rime_engine_variants_title),
                 activity.getString(R.string.wanxiang_group)
             ),
             rimeEngine.entries().map { it.title }
@@ -135,6 +139,76 @@ class SettingsEntryNavigationTest {
             shadowOf(activity).nextStartedActivity.component?.className)
         val indexed = SettingsSearchIndex.entries(activity).single { it.titleRes == R.string.scheme_update_title }
         assertEquals(org.fcitx.fcitx5.android.ui.main.rimeupdate.RimeSchemeUpdateActivity::class.java, indexed.activityClass)
+    }
+
+    @Test fun engineSettingsGroupPrecedesDailyAdjustments() = page { activity, current ->
+        val categories = current().preferenceScreen.entries().filterIsInstance<PreferenceGroup>()
+        assertEquals(activity.getString(R.string.settings_home_category_rime_engine), categories.first().title)
+        assertEquals(activity.getString(R.string.settings_home_category_daily), categories[1].title)
+    }
+
+    private fun rimePage(raw: RawConfig, block: (MainActivity, InputMethodConfigFragment) -> Unit) {
+        val api = Proxy.newProxyInstance(FcitxAPI::class.java.classLoader, arrayOf(FcitxAPI::class.java)) { _, method, args ->
+            when (method.name) {
+                "getImConfig" -> {
+                    assertEquals("rime", args!![0])
+                    raw
+                }
+                else -> error("Unexpected engine read: ${method.name}")
+            }
+        } as FcitxAPI
+        FcitxDaemonTestShadow.install(SettingsNavigationDaemonDelegate(api))
+        page { activity, current ->
+            current().preferenceScreen.find(activity.getString(R.string.rime_settings)).performClick()
+            val rime = current() as InputMethodConfigFragment
+            shadowOf(Looper.getMainLooper()).idle()
+            block(activity, rime)
+        }
+    }
+
+    @Test fun engineVariantsOpensFromRimeSettingsWhenConfigurationIsUnavailable() = rimePage(RawConfig()) { activity, rime ->
+        val variants = rime.preferenceScreen.findPreference<Preference>("rime_engine_variants")!!
+        assertSame(variants, rime.preferenceScreen.entries().first())
+        rime.preferenceScreen.find(activity.getString(R.string.direct_rime_config_unavailable))
+        variants.performClick()
+        assertEquals(RimeEngineManagerActivity::class.java.name, shadowOf(activity).nextStartedActivity.component?.className)
+    }
+
+    @Test fun engineVariantsRemainsReachableWhenConfigurationProtocolIsNewer() {
+        val raw = RawConfig(arrayOf(
+            RawConfig("cfg", emptyArray()),
+            RawConfig("desc", arrayOf(RawConfig("External", "fcitx://test?app_proto=999")))
+        ))
+        rimePage(raw) { activity, rime ->
+            assertEquals(activity.getString(R.string.rime_engine_variants_title), rime.preferenceScreen.entries().first().title)
+            rime.preferenceScreen.find(activity.getString(R.string.config_protocol_not_supported_title))
+            rime.preferenceScreen.findPreference<Preference>("rime_engine_variants")!!.performClick()
+            assertEquals(RimeEngineManagerActivity::class.java.name, shadowOf(activity).nextStartedActivity.component?.className)
+        }
+    }
+
+    @Test fun engineVariantsPrecedesNativeSettingsAndPasswordSwitch() {
+        val raw = RawConfig(arrayOf(
+            RawConfig("cfg", arrayOf(RawConfig("NativeOption", false))),
+            RawConfig("desc", arrayOf(RawConfig("Rime", arrayOf(RawConfig("NativeOption", arrayOf(
+                RawConfig("Type", "Boolean"), RawConfig("Description", "Engine option")
+            ))))))
+        ))
+        rimePage(raw) { activity, rime ->
+            assertEquals(listOf(activity.getString(R.string.rime_engine_variants_title), "Engine option",
+                activity.getString(R.string.allow_ime_in_password_fields)), rime.preferenceScreen.entries().map { it.title })
+        }
+    }
+
+    @Test fun engineSearchKeepsDirectActivityAndUsesRimeSettingsBreadcrumb() = page { activity, _ ->
+        val entries = SettingsSearchIndex.entries(activity)
+        val variants = entries.single { it.titleRes == R.string.rime_engine_variants_title }
+        val breadcrumb = listOf(R.string.settings_search_group_android,
+            R.string.settings_home_category_rime_engine, R.string.rime_settings)
+        assertEquals(breadcrumb, variants.pathRes)
+        assertEquals(RimeEngineManagerActivity::class.java, variants.activityClass)
+        assertNull(variants.route)
+        assertEquals(breadcrumb, entries.single { it.titleRes == R.string.allow_ime_in_password_fields }.pathRes)
     }
 
     @Test fun inputStatisticsIsLastInConvenienceAndSearchUsesThatBreadcrumb() = page { activity, current ->
@@ -154,10 +228,10 @@ class SettingsEntryNavigationTest {
 }
 
 /** Navigation and entry placement do not require starting a native input engine. */
-private class SettingsNavigationDaemonDelegate : FcitxDaemonTestDelegate {
+private class SettingsNavigationDaemonDelegate(private val api: FcitxAPI? = null) : FcitxDaemonTestDelegate {
     override fun connect(name: String): FcitxConnection = object : FcitxConnection {
         override fun <T> runImmediately(block: suspend FcitxAPI.() -> T): T = error("Unexpected engine read")
-        override suspend fun <T> runOnReady(block: suspend FcitxAPI.() -> T): T = awaitCancellation()
+        override suspend fun <T> runOnReady(block: suspend FcitxAPI.() -> T): T = api?.let { block(it) } ?: awaitCancellation()
         override fun runIfReady(block: suspend FcitxAPI.() -> Unit) {}
         override val lifecycleScope = CoroutineScope(Dispatchers.Unconfined)
     }

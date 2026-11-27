@@ -504,8 +504,10 @@ class MaterialSettingsPagesTest {
     }
 
     @Test fun rimeEngineEntrySummaryStaysOnOneLine() {
-        // The entry now lives on the settings home page instead of the «输入与候选» group.
-        page(MainActivity::class.java, ready = { activity ->
+        page(MainActivity::class.java, extras = {
+            action = Intent.ACTION_RUN
+            putExtra(MainActivity.EXTRA_SETTINGS_ROUTE, SettingsRoute.InputMethodConfig(context.getString(R.string.rime_settings), "rime"))
+        }, ready = { activity ->
             descendants(activity.window.decorView).filterIsInstance<TextView>().any {
                 it.isShown && it.height > 0 &&
                     it.text == activity.getString(R.string.rime_engine_variants_summary)
