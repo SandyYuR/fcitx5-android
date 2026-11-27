@@ -13,7 +13,7 @@
 | `AlphabetKey` | 字母 / 字符键，支持 swipe 替代字符 | `main`, `alt` | [详情](/features/keys/alphabet-key) |
 | `MacroKey` | **宏键** —— 单键执行多步动作 | `label`, `tap.macro` | [详情](/features/keys/macro-key) |
 | `LayoutSwitchKey` | 切换到指定文本布局 | `label` | [详情](/features/keys/layout-switch-key) |
-| `SymbolKey` | 标点键（默认发 `.`，由方案处理） | `label` | [详情](/features/keys/symbol-key) |
+| `SymbolKey` | 句号键（默认发 `.`，由方案处理） | `label` | [详情](/features/keys/symbol-key) |
 | `CapsKey` | 大小写切换键 | — | [详情](/features/keys/caps-key) |
 | `StickyModifierKey` | 抬手点亮 Ctrl / Shift / Alt，与下一次单键组合；可附加方向 / 长按动作与点亮配色 | `modifier` | [详情](/features/keys/sticky-modifier-key) |
 | `BackspaceKey` | 退格键，支持左右滑动选择删除范围 | — | [详情](/features/keys/backspace-key) |

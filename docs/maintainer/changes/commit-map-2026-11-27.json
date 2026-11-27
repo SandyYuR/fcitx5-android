@@ -1,10 +1,10 @@
 {
   "base": "1f9a239d33f26ddfe8a80126fa7451da78f7c111",
-  "head": "590e0bbc0ddcc629342f968e258fa142527d3bd1",
+  "head": "393f5b593db682091a52101df46dd68b096b0afc",
   "source": "fx-rime-only",
   "documentation_baseline": "docs@88766b124686d46c29e89d939d3872937883a19a",
   "generated": "2026-11-27",
-  "note": "登记 PR #59 压缩为默认分支单提交的映射。base 为该功能的合入前默认分支；中间三次默认分支提交由其他会话维护，不属本轮。GitHub squash 的双父提交 96c251657 未采用，最终以同源码树重建的单父提交 590e0bbc0 为准。",
+  "note": "首条登记 PR #59 压缩为默认分支单提交的映射。base 为该功能的合入前默认分支；中间三次默认分支提交由其他会话维护，不属本轮。GitHub squash 的双父提交 96c251657 未采用，最终以同源码树重建的单父提交 590e0bbc0 为准。第二条登记空格长按、剪贴板收藏与句号键，文档基线为 docs@b2a8ca77830d173dddda80454ce87e53f71ccd72；两轮验证条件分别见各自日期页。",
   "commits": [
     {
       "sha": "590e0bbc0ddcc629342f968e258fa142527d3bd1",
@@ -51,6 +51,41 @@
         "features/keys/sticky-modifier-key.md",
         "features/editor/layout-editor.md",
         "features/keys/overview.md",
+        "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "393f5b593db682091a52101df46dd68b096b0afc",
+      "subject": "功能(键盘): 支持长按空格选择输入法和剪贴板隐藏收藏",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/db/ClipboardDao.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardContent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CommonKeyActionListener.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/SpaceLongPressBehavior.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/search/SettingsSearchIndex.kt",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardSearchPagingTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/clipboard/ClipboardSearchPanelTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/SpaceLongPressBehaviorTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-27-keyboard-clipboard.md",
+        "features/keys/space-key.md",
+        "features/keys/language-key.md",
+        "features/clipboard-sync.md",
+        "features/editor/layout-editor.md",
+        "features/keys/overview.md",
+        "features/keys/symbol-key.md",
         "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
         "maintainer/implementation/correctness-contracts.md"
       ]

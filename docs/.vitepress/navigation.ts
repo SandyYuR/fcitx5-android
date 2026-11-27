@@ -82,7 +82,7 @@ const features = [
     { text: '空格键', link: '/features/keys/space-key' },
     { text: '退格键', link: '/features/keys/backspace-key' },
     { text: '语言键', link: '/features/keys/language-key' },
-    { text: '符号键', link: '/features/keys/symbol-key' },
+    { text: '句号键', link: '/features/keys/symbol-key' },
     { text: '大小写键', link: '/features/keys/caps-key' },
     { text: '粘滞修饰键', link: '/features/keys/sticky-modifier-key' },
     { text: '回车键', link: '/features/keys/return-key' },
@@ -106,6 +106,7 @@ const maintenance = [
     { text: '对照索引', link: '/maintainer/changes/' },
     { text: '最新：11-16～11-22 提交对照', link: '/maintainer/changes/2026-11-22-code-doc-gap-review' },
     { text: '2026-11', collapsed: true, items: [
+      { text: '空格长按、剪贴板收藏与句号键 · 2026-11-27', link: '/maintainer/changes/2026-11-27-keyboard-clipboard' },
       { text: '粘滞修饰键编辑与点亮 · 2026-11-27', link: '/maintainer/changes/2026-11-27-sticky-modifier-polish' },
       { text: 'EVO 候选排序与两类重置 · 2026-11-26', link: '/maintainer/changes/2026-11-26-evo-candidate-ordering' },
       { text: '水彩／普蓝与常规编辑布局 · 2026-11-26', link: '/maintainer/changes/2026-11-26-foxy-themes-editor' },
