@@ -326,6 +326,14 @@ extern "C" JNIEXPORT jstring JNICALL JNI_METHOD(schemaSelection)(JNIEnv* env, jo
 extern "C" JNIEXPORT jstring JNICALL JNI_METHOD(currentSchema)(JNIEnv* env, jobject) {
     try { return string(env, instance().currentSchema()); } catch (const std::exception& e) { error(env, e); return nullptr; }
 }
+extern "C" JNIEXPORT jobjectArray JNICALL JNI_METHOD(inputTypeState)(JNIEnv* env, jobject, jstring schema, jboolean evo) {
+    try { return strings(env, instance().inputTypeState(string(env, schema), evo == JNI_TRUE)); }
+    catch (const std::exception& e) { error(env, e); return nullptr; }
+}
+extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(selectInputType)(JNIEnv* env, jobject, jstring schema, jstring option, jboolean evo, jlong generation) {
+    try { return instance().selectInputType(string(env, schema), string(env, option), evo == JNI_TRUE, generation); }
+    catch (const std::exception& e) { error(env, e); return false; }
+}
 extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(selectSchemas)(JNIEnv* env, jobject, jobjectArray ids) {
     try {
         std::vector<std::string> values;

@@ -60,12 +60,14 @@ struct Fake {
     std::string schema = "test", schemaName = "Test";
     // Ordered regardless of schema_list order: user.yaml restores the previously selected one.
     std::vector<std::pair<std::string, std::string>> schemas{{"test", "Test"}};
-    std::string dictionary = "test";
+    std::string dictionary = "test", stagingDirectory, prebuiltDirectory;
     // EVO prism fixture: input_types group, translator prism/prisms and the algebra map.
     bool inputTypesPresent = false, enabledPresent = false, resetPresent = false;
     std::vector<std::pair<std::string, std::string>> inputOptions;
     std::vector<std::string> enabledTypes;
     std::string resetType;
+    std::map<std::string, bool> inputTypeValues;
+    bool genericInputOptions = false, throwInputSelection = false;
     bool prismSet = false, prismsRefSet = false, prismsListSet = false;
     std::string prismName, prismsRef;
     std::vector<std::pair<std::string, std::string>> prismsList;
@@ -157,18 +159,33 @@ RimeApi api() {
     };
     a.is_maintenance_mode = []() -> Bool { return f.maintenance; };
     a.join_maintenance_thread = [] {};
-    a.create_session = []() -> RimeSessionId { ++f.created; f.preedit.clear(); return 7; };
+    a.create_session = []() -> RimeSessionId {
+        ++f.created; f.preedit.clear(); f.inputTypeValues.clear();
+        if (f.inputTypesPresent && !f.inputOptions.empty()) {
+            const auto initial = f.resetPresent ? f.resetType :
+                (f.enabledPresent && !f.enabledTypes.empty() ? f.enabledTypes.front() : f.inputOptions.front().first);
+            f.inputTypeValues[initial] = true;
+        }
+        return 7;
+    };
     a.find_session = [](RimeSessionId) -> Bool { return f.exists; };
     a.destroy_session = [](RimeSessionId) -> Bool { ++f.destroyed; return true; };
     a.set_option = [](RimeSessionId, const char* key, Bool value) {
         if (!std::strcmp(key, "_no_learning")) f.noLearning = value;
         else {
             if (!std::strcmp(key, "ascii_mode")) f.ascii = value;
+            if (std::any_of(f.inputOptions.begin(), f.inputOptions.end(), [&](const auto& item) { return item.first == key; })) {
+                if (value && !f.genericInputOptions) for (auto& item : f.inputTypeValues) item.second = false;
+                f.inputTypeValues[key] = value;
+                if (f.throwInputSelection) { f.throwInputSelection = false; throw std::runtime_error("input selection failed"); }
+            }
             if (f.callback) f.callback(f.context, 7, "option", key);
         }
     };
     a.get_option = [](RimeSessionId, const char* key) -> Bool {
         if (!std::strcmp(key, "_no_learning")) return f.noLearning;
+        const auto found = f.inputTypeValues.find(key);
+        if (found != f.inputTypeValues.end()) return found->second;
         return !std::strcmp(key, "ascii_mode") && f.ascii;
     };
     a.set_property = [](RimeSessionId, const char* key, const char* value) { if (!std::strcmp(key, "client_app")) f.clientApp = value; };
@@ -1222,6 +1239,119 @@ void testEvoPrismResolution() {
     f.enabledPresent = true; f.enabledTypes = {"zrm"}; f.resetPresent = true; f.resetType = "flypy";
     CHECK(rejected(workspace("bad-reset", {"zrm.prism.bin", "flypy.prism.bin"})));
 }
+void testInputTypeSelection() {
+    namespace fs = std::filesystem;
+    const TemporaryDirectory temporary;
+    const auto root = temporary.path(), shared = root / "shared", user = root / "user";
+    const auto build = user / "build", sharedBuild = shared / "build";
+    fs::create_directories(build); fs::create_directories(sharedBuild);
+    std::ofstream(build / "default.yaml") << "deployed";
+    std::ofstream(build / "test.schema.yaml") << "deployed";
+    std::ofstream(build / "other.schema.yaml") << "deployed";
+    std::ofstream(build / "test.a.prism.bin") << "deployed";
+    f = {}; auto a = api();
+    a.get_staging_dir_s = [](char* value, size_t size) {
+        std::snprintf(value, size, "%s", f.stagingDirectory.c_str());
+    };
+    a.get_prebuilt_data_dir_s = [](char* value, size_t size) {
+        std::snprintf(value, size, "%s", f.prebuiltDirectory.c_str());
+    };
+    a.get_current_schema = [](RimeSessionId, char* id, size_t size) -> Bool {
+        std::snprintf(id, size, "%s", f.schema.c_str()); return true;
+    };
+    a.select_schema = [](RimeSessionId, const char* schema) -> Bool {
+        f.schema = schema; f.inputTypeValues.clear(); f.inputTypeValues[f.resetType] = true;
+        return true;
+    };
+    f.inputTypesPresent = true; f.inputOptions = {{"a", "a"}, {"b", "b"}, {"c", "c"}};
+    f.enabledPresent = true; f.enabledTypes = {"a", "b"}; f.resetPresent = true; f.resetType = "a";
+    f.prismsRefSet = true; f.prismsRef = "input_types";
+    f.schemas = {{"test", "Test"}, {"other", "Other"}};
+    f.algebraKeys = {"a", "b"};
+    Engine engine(&a); engine.start(shared.string(), user.string());
+    CHECK(engine.inputTypeState("test", true).empty()); // No deployed main dictionary table.
+    std::ofstream(build / "test.table.bin");
+    CHECK(engine.inputTypeState("test", true).empty()); // Empty table is not deployed.
+    std::ofstream(build / "test.table.bin") << "deployed";
+    CHECK(engine.inputTypeState("test", true) == std::vector<std::string>({"a", "a"}));
+    CHECK(!engine.selectInputType("test", "b", true) && f.created == 0); // Missing prism, no editor synthesized.
+    std::ofstream(build / "test.b.prism.bin");
+    CHECK(engine.inputTypeState("test", true) == std::vector<std::string>({"a", "a"}));
+    CHECK(!engine.selectInputType("test", "b", true)); // Empty prism also cannot be selected.
+    fs::remove(build / "test.b.prism.bin"); fs::create_directory(build / "test.b.prism.bin");
+    CHECK(!engine.selectInputType("test", "b", true)); // A directory is not a compiled prism.
+    fs::remove(build / "test.b.prism.bin");
+    std::ofstream(sharedBuild / "test.b.prism.bin") << "deployed";
+    CHECK(engine.inputTypeState("test", true) == std::vector<std::string>({"a", "a", "b"}));
+    std::ofstream(build / "test.b.prism.bin");
+    CHECK(!engine.selectInputType("test", "b", true)); // Unusable staging copy shadows prebuilt.
+    fs::remove(build / "test.b.prism.bin");
+    CHECK(engine.inputTypeState("../test", true).empty());
+    f.dictionary = "../test";
+    CHECK(engine.inputTypeState("test", true).empty());
+    f.dictionary = "test"; f.inputOptions[1].second = "../b";
+    CHECK(!engine.selectInputType("test", "b", true)); // Unsafe prism aliases never reach the filesystem.
+    f.inputOptions[1].second = "b"; f.inputOptions.push_back({"../bad", "b"});
+    f.enabledTypes.push_back("../bad");
+    CHECK(!engine.selectInputType("test", "../bad", true));
+    f.enabledTypes.pop_back(); f.inputOptions.pop_back();
+    f.stagingDirectory = (root / "actual-staging").string();
+    f.prebuiltDirectory = (root / "actual-prebuilt").string();
+    fs::create_directory(f.stagingDirectory); fs::create_directory(f.prebuiltDirectory);
+    std::ofstream(fs::path(f.stagingDirectory) / "test.a.prism.bin") << "deployed";
+    std::ofstream(fs::path(f.prebuiltDirectory) / "test.table.bin") << "deployed";
+    CHECK(!engine.selectInputType("test", "b", true)); // API directories override default user/shared paths.
+    std::ofstream(fs::path(f.prebuiltDirectory) / "test.b.prism.bin") << "deployed";
+    CHECK(engine.inputTypeState("test", true) == std::vector<std::string>({"a", "a", "b"}));
+    f.stagingDirectory.clear(); f.prebuiltDirectory.clear();
+    CHECK(engine.inputTypeState("test", false).empty()); // Generic flags cannot grant EVO capability.
+    f.prismsRef = "other";
+    CHECK(engine.inputTypeState("test", true).empty()); // A declaration without the prism consumer is inert.
+    f.prismsRef = "input_types";
+    CHECK(engine.inputTypeState("test", true) == std::vector<std::string>({"a", "a", "b"}));
+    CHECK(!engine.selectInputType("missing", "b", true));
+    CHECK(!engine.selectInputType("test", "c", true)); // Catalogued but not compiled/enabled.
+    CHECK(!engine.selectInputType("test", "b", false));
+    CHECK(engine.selectInputType("test", "b", true) && f.created == 0); // No synthetic editor session.
+    auto current = engine.begin(1, "editor.one");
+    CHECK(current.gate == Ready && f.inputTypeValues["b"] && !f.inputTypeValues["a"]);
+    f.preedit = "unfinished"; f.commit = "must not cross editors";
+    CHECK(engine.selectInputType("test", "a", true, 1));
+    CHECK(f.preedit == "unfinished" && f.commit == "must not cross editors"); // No refresh/commit replay.
+    current = engine.begin(2, "editor.two");
+    CHECK(current.preedit.empty() && current.commit.empty() && current.candidates.empty() && f.freedCommit == 1);
+    CHECK(f.inputTypeValues["a"] && !f.inputTypeValues["b"]);
+    CHECK(!engine.selectInputType("test", "b", true, 1)); // Old editor ticket.
+    f.genericInputOptions = true;
+    CHECK(!engine.selectInputType("test", "b", true, 2)); // true/true is not an actual exclusive switch.
+    CHECK(f.inputTypeValues["a"] && !f.inputTypeValues["b"]);
+    fs::remove(build / "test.a.prism.bin");
+    CHECK(!engine.selectInputType("test", "b", true, 2)); // Still verify the old option hidden by a missing prism.
+    CHECK(f.inputTypeValues["a"] && !f.inputTypeValues["b"]);
+    std::ofstream(build / "test.a.prism.bin") << "deployed";
+    f.genericInputOptions = false; f.throwInputSelection = true;
+    bool threw = false;
+    try { engine.selectInputType("test", "b", true, 2); } catch (const std::runtime_error&) { threw = true; }
+    CHECK(threw && f.inputTypeValues["a"] && !f.inputTypeValues["b"]);
+    CHECK(engine.selectInputType("other", "b", true, 2) && f.inputTypeValues["a"]);
+    current = engine.action(2, current.revision, 3, 0, "other");
+    CHECK(f.schema == "other" && f.inputTypeValues["b"] && !f.inputTypeValues["a"]);
+    f.enabledTypes = {"a"};
+    current = engine.begin(3, "editor.three");
+    CHECK(f.inputTypeValues["a"] && !f.inputTypeValues["b"]); // Updated compiled choices evict preference.
+    f.enabledTypes = {"a", "b"}; engine.begin(4, "editor.four");
+    CHECK(f.inputTypeValues["a"] && !f.inputTypeValues["b"]);
+    CHECK(engine.selectInputType("other", "b", true, 4));
+    CHECK(engine.deploy());
+    engine.begin(5, "editor.five");
+    CHECK(f.inputTypeValues["a"] && !f.inputTypeValues["b"]); // Redeploy never carries stale live choices.
+    f.maintenance = true;
+    CHECK(engine.inputTypeState("other", true).empty() && !engine.selectInputType("other", "b", true));
+    f.maintenance = false;
+    engine.stop(); engine.start(shared.string(), user.string()); engine.begin(6, "editor.six");
+    CHECK(f.inputTypeValues["a"] && !f.inputTypeValues["b"]); // Kotlin restores reset after startup.
+    engine.stop();
+}
 void testCurrentSchemaPreference() {
     namespace fs = std::filesystem;
     const TemporaryDirectory temporary;
@@ -1251,7 +1381,7 @@ int main(int argc, char** argv) {
             return 0;
         }
         if (argc != 1) { std::cerr << "usage: engine-test [--statistics]\n"; return 2; }
-        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequenceKeys(); testCandidateSequence(); testCandidateDeleteKeys(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); testUsableDeploymentWarning(); testEvoPrismResolution(); testCurrentSchemaPreference(); std::cout << "engine contract: passed\n";
+        testInputContract(); testEngineLogLevel(); testMaintenanceAndAbi(); testFrontendExtensions(); testCandidateSequenceKeys(); testCandidateSequence(); testCandidateDeleteKeys(); testReadOnlyRefresh(); testOptionalInputStatistics(); testInputStatisticsUnicodeAndPresentationReuse(); testSyncCompletion(); testPresentationReuse(); testUnicode(); testOptionInvalidation(); testStatusCache(); testCandidateIteratorFailureDoesNotReclosePartialApiState(); testFrontendWritesOnlySaveableOptions(); testAsciiToggleSharesSavedOptionRule(); testSessionReuseAndEditorIsolation(); testGeneratedConfigInvalidation(); testUsableDeploymentWarning(); testEvoPrismResolution(); testInputTypeSelection(); testCurrentSchemaPreference(); std::cout << "engine contract: passed\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

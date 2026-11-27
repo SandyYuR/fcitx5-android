@@ -2,6 +2,7 @@
 package org.fcitx.fcitx5.android.core.engine
 
 import org.fcitx.fcitx5.android.data.WanxiangYaml
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -92,23 +93,25 @@ class RimeInputTypesRepositoryTest {
         assertNull(types.current)
     }
 
-    @Test fun selectRewritesOnlyEnabledAndResetAndKeepsEverythingElse() {
-        val dir = user()
+    @Test fun selectRewritesOnlyResetAndKeepsEverythingElse() {
+        val original = custom.replace("[zrm]", "[zrm, flypy]")
+        val dir = user(customText = original)
         val state = RimeInputTypesRepository.select(dir, "flypy")
         val file = File(dir, "wanxiang.custom.yaml")
         val text = file.readText()
 
-        assertEquals(listOf("flypy"), state.enabled)
+        assertEquals(listOf("zrm", "flypy"), state.enabled)
         assertEquals("flypy", state.reset)
         assertEquals("小鹤双拼", state.summary())
-        assertEquals(listOf("flypy") to "flypy", patchInputTypes(file))
+        assertEquals(listOf("zrm", "flypy") to "flypy", patchInputTypes(file))
+        assertEquals(original.replace("input_types/reset: zrm", "input_types/reset: flypy"), text)
         assertTrue(text.contains("# 本文件的工作目录是在用户根目录"))
         assertTrue(text.contains("# 启用清单决定可部署、可切换的输入类型"))
         assertTrue(text.contains("menu/page_size: 6"))
     }
 
     @Test fun selectIsIdempotentAndRejectsUnknownOptionsWithoutTouchingTheFile() {
-        val dir = user()
+        val dir = user(customText = custom.replace("[zrm]", "[zrm, pinyin]"))
         val file = File(dir, "wanxiang.custom.yaml")
         val before = file.readText()
 
@@ -116,7 +119,7 @@ class RimeInputTypesRepositoryTest {
         val once = file.readText()
         RimeInputTypesRepository.select(dir, "pinyin")
         assertEquals(once, file.readText())
-        assertTrue(once.contains("input_types/enabled: [pinyin]"))
+        assertTrue(once.contains("input_types/enabled: [zrm, pinyin]"))
 
         val rejected = runCatching { RimeInputTypesRepository.select(dir, "unknown") }
         assertTrue(rejected.isFailure)
@@ -132,7 +135,7 @@ class RimeInputTypesRepositoryTest {
                 "      - {option: pinyin, label: 全拼}\n" +
                 "      - {option: zrm, label: 自然码}\n" +
                 "      - {option: flypy, label: 小鹤双拼}\n" +
-                "    enabled: [zrm]\n" +
+                "    enabled: [zrm, pinyin]\n" +
                 "    reset: zrm\n" +
                 "  menu/page_size: 6\n"
         )
@@ -146,7 +149,7 @@ class RimeInputTypesRepositoryTest {
         val patch = yaml.member(yaml.document(text), "patch") as MappingNode
         val group = yaml.member(patch, "input_types") as MappingNode
         assertEquals("pinyin", scalar(yaml.member(group, "reset")))
-        assertEquals(listOf("pinyin"), (yaml.member(group, "enabled") as SequenceNode).value.map { (it as ScalarNode).value })
+        assertEquals(listOf("zrm", "pinyin"), (yaml.member(group, "enabled") as SequenceNode).value.map { (it as ScalarNode).value })
     }
 
     @Test fun selectCreatesThePatchWhenTheFileIsAbsent() {
@@ -155,7 +158,7 @@ class RimeInputTypesRepositoryTest {
 
         val file = File(dir, "wanxiang.custom.yaml")
         assertTrue(file.isFile)
-        assertEquals(listOf("zrm") to "zrm", patchInputTypes(file))
+        assertEquals("patch:\n  input_types/reset: zrm\n", file.readText())
     }
 
     @Test fun readBindsToTheActiveSchemaInsteadOfTheFirstFile() {
@@ -179,29 +182,30 @@ class RimeInputTypesRepositoryTest {
         val dir = user()
         File(dir, "english.schema.yaml").writeText(
             schema.replace("wanxiang", "english").replace("自然码", "英文自然码")
+                .replace("enabled: [zrm]", "enabled: [zrm, pinyin]")
         )
         val wanxiangCustom = File(dir, "wanxiang.custom.yaml")
         val before = wanxiangCustom.readText()
 
         val state = RimeInputTypesRepository.select(dir, "pinyin", "english")
         assertEquals("english", state.schemaId)
-        assertEquals(listOf("pinyin"), state.enabled)
+        assertEquals(listOf("zrm", "pinyin"), state.enabled)
         assertTrue(before == wanxiangCustom.readText())
-        assertEquals(listOf("pinyin") to "pinyin", patchInputTypes(File(dir, "english.custom.yaml")))
+        assertEquals("patch:\n  input_types/reset: pinyin\n", File(dir, "english.custom.yaml").readText())
     }
 
-    @Test fun patchHeaderWithATrailingCommentAndBlockEnabledListIsRewritten() {
-        val dir = user(customText = "patch: # user patches\n  input_types/enabled:\n    - zrm\n  input_types/reset: zrm\n")
+    @Test fun patchHeaderWithATrailingCommentAndBlockEnabledListIsPreserved() {
+        val dir = user(customText = "patch: # user patches\n  input_types/enabled:\n    - zrm\n    - flypy\n  input_types/reset: zrm\n")
         RimeInputTypesRepository.select(dir, "flypy")
 
         val file = File(dir, "wanxiang.custom.yaml")
         val text = file.readText()
         assertTrue(text.contains("patch: # user patches"))
-        assertTrue(!text.contains("- zrm"))
-        assertEquals(listOf("flypy") to "flypy", patchInputTypes(file))
+        assertTrue(text.contains("- zrm"))
+        assertEquals(listOf("zrm", "flypy") to "flypy", patchInputTypes(file))
     }
 
-    @Test fun nestedBlockEnabledListIsRewrittenInPlace() {
+    @Test fun nestedBlockEnabledListIsPreservedInPlace() {
         val dir = user(
             customText = "patch:\n" +
                 "  input_types:\n" +
@@ -211,17 +215,18 @@ class RimeInputTypesRepositoryTest {
                 "      - {option: flypy, label: 小鹤双拼}\n" +
                 "    enabled:\n" +
                 "      - zrm\n" +
+                "      - pinyin\n" +
                 "    reset: zrm\n" +
                 "  menu/page_size: 6\n"
         )
         RimeInputTypesRepository.select(dir, "pinyin")
 
         val text = File(dir, "wanxiang.custom.yaml").readText()
-        assertTrue(!text.contains("- zrm"))
+        assertTrue(text.contains("- zrm"))
         val yaml = WanxiangYaml()
         val patch = yaml.member(yaml.document(text), "patch") as MappingNode
         val group = yaml.member(patch, "input_types") as MappingNode
-        assertEquals(listOf("pinyin"), (yaml.member(group, "enabled") as SequenceNode).value.map { (it as ScalarNode).value })
+        assertEquals(listOf("zrm", "pinyin"), (yaml.member(group, "enabled") as SequenceNode).value.map { (it as ScalarNode).value })
         assertEquals("pinyin", scalar(yaml.member(group, "reset")))
     }
 
@@ -314,18 +319,89 @@ class RimeInputTypesRepositoryTest {
         assertEquals("全拼", types.current?.label)
     }
 
-    @Test fun sameIndentBlockEnabledListIsRewritten() {
-        val dir = user(customText = "patch:\n  input_types/enabled:\n  - zrm\n  input_types/reset: zrm\n")
+    @Test fun sameIndentBlockEnabledListIsPreserved() {
+        val dir = user(customText = "patch:\n  input_types/enabled:\n  - zrm\n  - flypy\n  input_types/reset: zrm\n")
         RimeInputTypesRepository.select(dir, "flypy")
 
         val file = File(dir, "wanxiang.custom.yaml")
         val text = file.readText()
-        assertTrue(!text.contains("- zrm"))
+        assertTrue(text.contains("- zrm"))
         assertTrue(text.contains("input_types/reset: flypy"))
-        assertEquals(listOf("flypy") to "flypy", patchInputTypes(file))
+        assertEquals(listOf("zrm", "flypy") to "flypy", patchInputTypes(file))
     }
 
-    @Test fun ambiguousOrDuplicatePatchFormsFailWithoutTouchingTheFile() {
+    @Test fun choicesAreTheEnabledAndCompiledIntersection() {
+        val types = requireNotNull(RimeInputTypesRepository.read(user(customText =
+            custom.replace("[zrm]", "[zrm, pinyin]")))).copy(deployed = listOf("pinyin", "flypy"), selected = "pinyin")
+        assertEquals(listOf("pinyin"), types.selectableTypes.map { it.option })
+        assertEquals("全拼", types.current?.label)
+    }
+
+    @Test fun disabledChoicesAreRejectedBeforeApplyingOrWriting() {
+        val dir = user()
+        val file = File(dir, "wanxiang.custom.yaml")
+        val original = file.readText()
+        var called = false
+        assertTrue(runCatching { RimeInputTypesRepository.select(dir, "pinyin") { called = true; true } }.isFailure)
+        assertTrue(!called)
+        assertEquals(original, file.readText())
+    }
+
+    @Test fun rejectionAndCancellationRestoreExactBytesAndRemoveNewFiles() {
+        val original = custom.replace("[zrm]", "[zrm, pinyin]").replace("\n", "\r\n").trimEnd('\r', '\n')
+        val dir = user(customText = original)
+        val file = File(dir, "wanxiang.custom.yaml")
+        assertTrue(runCatching { RimeInputTypesRepository.select(dir, "pinyin") { false } }.isFailure)
+        assertEquals(original, file.readText())
+        assertTrue(runCatching { RimeInputTypesRepository.select(dir, "pinyin") {
+            throw java.util.concurrent.CancellationException("cancelled")
+        } }.isFailure)
+        assertEquals(original, file.readText())
+        val fresh = user(customText = null)
+        assertTrue(runCatching { RimeInputTypesRepository.select(fresh, "zrm") { false } }.isFailure)
+        assertTrue(!File(fresh, "wanxiang.custom.yaml").exists())
+    }
+
+    @Test fun resetPreservesCrLfCommentsOrderAndMissingFinalNewline() {
+        val original = "# header\r\npatch:\r\n  menu/page_size: 7\r\n" +
+            "  input_types/enabled: [zrm, pinyin] # leave alone\r\n" +
+            "  input_types/reset: zrm  # preference\r\n  translator/enable_sentence: false"
+        val dir = user(customText = original)
+        RimeInputTypesRepository.select(dir, "pinyin")
+        assertEquals(original.replace("reset: zrm", "reset: pinyin"), File(dir, "wanxiang.custom.yaml").readText())
+    }
+
+    @Test fun mixedLineEndingsAreRejectedWithoutReformattingTheFile() {
+        val original = "patch:\r\n  input_types/enabled: [zrm, pinyin]\n  input_types/reset: zrm\r\n"
+        val dir = user(customText = original)
+        val file = File(dir, "wanxiang.custom.yaml")
+        assertArrayEquals(original.toByteArray(Charsets.UTF_8), file.readBytes())
+        var applied = false
+        val failure = runCatching { RimeInputTypesRepository.select(dir, "pinyin") { applied = true; true } }.exceptionOrNull()
+        assertTrue(failure is IllegalArgumentException)
+        assertTrue(failure?.message.orEmpty().contains("换行"))
+        assertTrue(!applied)
+        assertArrayEquals(original.toByteArray(Charsets.UTF_8), file.readBytes())
+    }
+
+    @Test fun forcedResetPathIsEditedWithoutChangingOtherKeys() {
+        val original = "patch:\n  input_types/enabled: [zrm, pinyin]\n" +
+            "  input_types/reset: zrm\n  input_types/reset/=: zrm # forced\n  menu/page_size: 7\n"
+        val dir = user(customText = original)
+        RimeInputTypesRepository.select(dir, "pinyin")
+        assertEquals(original.replace("reset/=: zrm", "reset/=: pinyin"), File(dir, "wanxiang.custom.yaml").readText())
+    }
+
+    @Test fun resetIgnoresTheSameKeyInsideUnrelatedNestedPatches() {
+        val original = "patch:\n  input_types/enabled: [zrm, pinyin]\n" +
+            "  other_settings:\n    input_types/reset: keep\n    reset: untouched\n" +
+            "  input_types/reset: zrm # active preference\n"
+        val dir = user(customText = original)
+        RimeInputTypesRepository.select(dir, "pinyin")
+        assertEquals(original.replace("reset: zrm", "reset: pinyin"), File(dir, "wanxiang.custom.yaml").readText())
+    }
+
+    @Test fun invalidOrDuplicatePatchFormsFailWithoutTouchingTheFile() {
         val ambiguous = user(
             customText = "patch:\n  input_types:\n    enabled: [zrm]\n    reset: zrm\n  input_types/enabled: [zrm]\n"
         )

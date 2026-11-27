@@ -239,20 +239,38 @@ struct PrismConfig {
         return true;
     }
 };
+// A deployed resource in staging shadows the prebuilt copy even when it is unusable.
+std::filesystem::path deployedResourcePath(const std::vector<std::filesystem::path>& roots,
+                                          const std::string& resource) {
+    for (const auto& root : roots) {
+        const auto path = root / resource;
+        std::error_code error;
+        if (std::filesystem::exists(path, error) || error) return path;
+    }
+    return roots.front() / resource;
+}
+bool nonEmptyResource(const std::filesystem::path& path) {
+    std::error_code error;
+    if (!std::filesystem::is_regular_file(path, error) || error) return false;
+    const auto size = std::filesystem::file_size(path, error);
+    return !error && size > 0;
+}
 // DictionaryComponent::ResolvePrismName: a qualified <dict>.<prism> resource wins when the
 // algebra map names the prism or the qualified file exists; otherwise the bare name is used.
-std::string resolvePrismName(RimeApi* api, RimeConfig* config, const std::filesystem::path& build,
+std::string resolvePrismName(RimeApi* api, RimeConfig* config,
+                             const std::vector<std::filesystem::path>& roots,
                              const std::string& dictionary, const std::string& prism) {
     std::vector<std::string> algebra;
     readConfigMapKeys(api, config, "build/dictionaries/" + dictionary + "/algebra", algebra);
     const std::string qualified = dictionary + "." + prism;
     if (containsKey(algebra, prism)) return qualified;
-    std::error_code error;
-    const auto path = build / (qualified + ".prism.bin");
-    if (safeComponent(qualified) && std::filesystem::is_regular_file(path, error) &&
-        std::filesystem::file_size(path, error) > 0)
+    if (safeComponent(qualified) && nonEmptyResource(deployedResourcePath(roots, qualified + ".prism.bin")))
         return qualified;
     return prism;
+}
+std::string resolvePrismName(RimeApi* api, RimeConfig* config, const std::filesystem::path& build,
+                             const std::string& dictionary, const std::string& prism) {
+    return resolvePrismName(api, config, std::vector<std::filesystem::path>{build}, dictionary, prism);
 }
 // Exactly the mask used by fcitx5-rime, including IBus's virtual Super and release.
 int rimeMask(int mask, bool release) {
@@ -361,6 +379,7 @@ void Engine::start(const std::string& shared, const std::string& user,
     }
 }
 void Engine::initialize(bool fullCheck) {
+    inputTypePreferences_.clear(); // Deployment/profile changes invalidate compiled selections.
     invalidateStatusCache();
     deployFailed_.store(false);
     deployDegraded_.store(false);
@@ -399,6 +418,7 @@ void Engine::initialize(bool fullCheck) {
 }
 void Engine::stop() {
     owner();
+    inputTypePreferences_.clear();
     invalidateStatusCache();
     if (!started_) return;
     api_->join_maintenance_thread();
@@ -459,6 +479,7 @@ Snapshot Engine::begin(int64_t generation, const std::string& program, bool noLe
             sessionNoLearning_ = noLearning;
             api_->set_option(session_, "_no_learning", noLearning);
             api_->set_property(session_, "client_app", program.c_str());
+            applyInputTypePreference();
             active_ = true;
         }
       } }
@@ -515,7 +536,10 @@ Snapshot Engine::action(int64_t generation, int64_t revision, int action, int in
     case 0: api_->clear_composition(session_); break;
     case 1: if (index >= 0) api_->select_candidate_on_current_page(session_, index); break;
     case 2: if (RIME_API_AVAILABLE(api_, change_page)) api_->change_page(session_, index < 0); break;
-    case 3: api_->set_option(session_, "ascii_mode", false); api_->select_schema(session_, value.c_str()); break;
+    case 3:
+        api_->set_option(session_, "ascii_mode", false);
+        if (api_->select_schema(session_, value.c_str())) applyInputTypePreference();
+        break;
     case 4:
         if (index >= 0 && static_cast<size_t>(index) < tabs_.size() && RIME_API_AVAILABLE(api_, select_tab))
             api_->select_tab(session_, 0, tabs_[index].label.c_str(), tabs_[index].span);
@@ -1092,6 +1116,135 @@ std::string Engine::currentSchema() {
     }
     return safe(list.list[0].schema_id);
 }
+std::vector<std::string> Engine::inputTypeState(const std::string& schema, bool evo) {
+    owner();
+    if (!evo || !started_ || api_->is_maintenance_mode() || deployFailed_.load() ||
+        !safeComponent(schema) || !RIME_API_AVAILABLE(api_, schema_open) ||
+        !RIME_API_AVAILABLE(api_, config_close) || !RIME_API_AVAILABLE(api_, config_get_string) ||
+        !RIME_API_AVAILABLE(api_, config_begin_map) || !RIME_API_AVAILABLE(api_, config_begin_list) ||
+        !RIME_API_AVAILABLE(api_, config_next) || !RIME_API_AVAILABLE(api_, config_end) ||
+        !RIME_API_AVAILABLE(api_, config_list_size) || !RIME_API_AVAILABLE(api_, get_current_schema) ||
+        !RIME_API_AVAILABLE(api_, set_option) || !RIME_API_AVAILABLE(api_, get_option)) return {};
+    const auto deployed = schemas();
+    if (!containsKey(deployed, schema)) return {};
+    RimeConfig config{};
+    if (!api_->schema_open(schema.c_str(), &config)) return {};
+    ScopeExit cleanup([&] { api_->config_close(&config); });
+    InputTypesConfig types;
+    PrismConfig prism;
+    // A declared block alone does not establish runtime support. The compiled translator
+    // must actually use the EVO input-types prism selector in this authorized engine slot.
+    if (!types.load(api_, &config) || types.enabled.empty() ||
+        !prism.load(api_, &config, "translator") || !prism.followsInputTypes) return {};
+    std::string dictionary;
+    if (!readConfigString(api_, &config, "translator/dictionary", dictionary) ||
+        !safeComponent(dictionary)) return {};
+    auto directory = [](void (*modern)(char*, size_t), const char* (*legacy)(),
+                        const std::filesystem::path& fallback) {
+        char value[4096]{};
+        if (modern) { modern(value, sizeof(value)); value[sizeof(value) - 1] = 0; }
+        else if (legacy) {
+            const auto path = std::filesystem::path(safe(legacy()));
+            return path.empty() ? fallback : path;
+        }
+        return value[0] ? std::filesystem::path(value) : fallback;
+    };
+    const std::vector<std::filesystem::path> roots{
+        directory(RIME_API_AVAILABLE(api_, get_staging_dir_s) ? api_->get_staging_dir_s : nullptr,
+                  RIME_API_AVAILABLE(api_, get_staging_dir) ? api_->get_staging_dir : nullptr,
+                  std::filesystem::path(user_) / "build"),
+        directory(RIME_API_AVAILABLE(api_, get_prebuilt_data_dir_s) ? api_->get_prebuilt_data_dir_s : nullptr,
+                  RIME_API_AVAILABLE(api_, get_prebuilt_data_dir) ? api_->get_prebuilt_data_dir : nullptr,
+                  std::filesystem::path(shared_) / "build")
+    };
+    if (!nonEmptyResource(deployedResourcePath(roots, dictionary + ".table.bin"))) return {};
+    std::vector<InputTypesConfig::Selection> available;
+    for (const auto& item : types.enabled) {
+        if (!safeComponent(item.option) || !safeComponent(item.name)) continue;
+        const auto name = resolvePrismName(api_, &config, roots, dictionary, item.name);
+        if (safeComponent(name) && nonEmptyResource(deployedResourcePath(roots, name + ".prism.bin")))
+            available.push_back(item);
+    }
+    if (available.empty()) return {};
+    std::string selected;
+    if (session_ && api_->find_session(session_)) {
+        char running[1024]{};
+        if (api_->get_current_schema(session_, running, sizeof(running)) && schema == running)
+            for (const auto& item : available)
+                if (api_->get_option(session_, item.option.c_str())) { selected = item.option; break; }
+    }
+    auto availableOption = [&](const std::string& option) {
+        return std::any_of(available.begin(), available.end(), [&](const auto& item) { return item.option == option; });
+    };
+    const auto preference = inputTypePreferences_.find(schema);
+    if (selected.empty() && preference != inputTypePreferences_.end() &&
+        availableOption(preference->second)) selected = preference->second;
+    if (selected.empty()) selected = availableOption(types.initialOption())
+        ? types.initialOption() : available.front().option;
+    std::vector<std::string> result{selected};
+    for (const auto& item : available) result.push_back(item.option);
+    return result;
+}
+bool Engine::selectInputType(const std::string& schema, const std::string& option, bool evo,
+                             int64_t expectedGeneration) {
+    owner();
+    if (active_ && expectedGeneration >= 0 && expectedGeneration != generation_) return false;
+    const auto state = inputTypeState(schema, evo);
+    if (state.size() < 2 || std::find(state.begin() + 1, state.end(), option) == state.end()) return false;
+    bool live = false;
+    if (session_ && api_->find_session(session_)) {
+        char running[1024]{};
+        live = api_->get_current_schema(session_, running, sizeof(running)) && schema == running;
+    }
+    if (live) {
+        // Even an unavailable prism option must turn off; filtering the menu must not make
+        // a generic set_option(true)/get_option(true) pair look like an exclusive switch.
+        RimeConfig config{};
+        if (!api_->schema_open(schema.c_str(), &config)) return false;
+        ScopeExit cleanup([&] { api_->config_close(&config); });
+        InputTypesConfig types;
+        if (!types.load(api_, &config)) return false;
+        std::vector<std::string> liveOptions;
+        for (const auto& item : types.enabled)
+            if (safeComponent(item.option)) liveOptions.push_back(item.option);
+        std::vector<bool> previous;
+        for (const auto& item : liveOptions) previous.push_back(api_->get_option(session_, item.c_str()));
+        auto restore = [&] {
+            // Preserve the old live choice as well as the custom file on rejection.
+            for (size_t i = 0; i < liveOptions.size(); ++i)
+                if (!previous[i]) api_->set_option(session_, liveOptions[i].c_str(), false);
+            for (size_t i = 0; i < liveOptions.size(); ++i)
+                if (previous[i]) api_->set_option(session_, liveOptions[i].c_str(), true);
+        };
+        bool accepted = true;
+        try {
+            api_->set_option(session_, option.c_str(), true);
+            for (const auto& item : liveOptions)
+                accepted &= static_cast<bool>(api_->get_option(session_, item.c_str())) == (item == option);
+        } catch (...) {
+            try { restore(); } catch (...) { }
+            throw;
+        }
+        if (!accepted) { restore(); return false; }
+        invalidateStatusCache();
+        ++optionsRevision_;
+    }
+    inputTypePreferences_[schema] = option;
+    return true;
+}
+void Engine::applyInputTypePreference() {
+    if (!session_ || !api_->find_session(session_)) return;
+    char schema[1024]{};
+    if (!RIME_API_AVAILABLE(api_, get_current_schema) ||
+        !api_->get_current_schema(session_, schema, sizeof(schema))) return;
+    const auto preference = inputTypePreferences_.find(schema);
+    if (preference == inputTypePreferences_.end()) return;
+    const auto option = preference->second;
+    // Revalidate against the currently compiled schema. Only this preference is restored;
+    // clearSession has already discarded the prior editor's composition and pending commit.
+    if (!selectInputType(schema, option, true)) inputTypePreferences_.erase(schema);
+}
+
 bool Engine::selectSchemas(const std::vector<std::string>& ids) {
     owner();
     auto* api = started_ ? levers(api_) : nullptr;

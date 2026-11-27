@@ -98,6 +98,24 @@ class DirectRimeBackend(context: Context) : InputEngine {
     private val profileOperations by lazy {
         DirectRimeProfileOperations(config, { engineRepository }, ::stopNativeForRestart, ::restartNative)
     }
+    private val inputTypeOperations by lazy {
+        DirectRimeInputTypeOperations(object : DirectRimeInputTypeOperations.Owner {
+            override val started get() = this@DirectRimeBackend.started
+            override val maintenance get() = this@DirectRimeBackend.maintenance
+            override val evo get() = configuredEvoFamily
+            override val generation get() = inputSession
+            override val profile get() = config.current
+            override val user get() = config.user
+            override val engineIdentity get() = engineOperations.activeSelection.toString()
+            override fun requireAvailable() {
+                org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
+                require(!directBootMode && started && !maintenance) { "引擎正在维护或不可用" }
+                require(engineRepository.state().active == engineOperations.activeSelection) { "输入引擎选择已改变" }
+            }
+            override fun requireProfile(profile: String, path: String) = config.requireUpdateTarget(profile, path)
+            override fun refresh() = refreshPresentation(forceCandidates = true)
+        })
+    }
     private val engineOperations = DirectRimeEngineOperations(
         this.context, directBootMode, config, { engineRepository }, { shared }, BuildConfig.VERSION_NAME,
         object : DirectRimeEngineOperations.Owner {
@@ -290,6 +308,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
         "core_us=${values[0] / 1000} read_commit_us=${values[1] / 1000} read_context_us=${values[2] / 1000} read_status_us=${values[3] / 1000} input_tabs_us=${values[4] / 1000} core_cpu_us=${if (values[5] < 0) -1 else values[5] / 1000} core_minflt=${values[6]} core_majflt=${values[7]} core_nvcsw=${values[8]} core_nivcsw=${values[9]} io_open_us=${values[10] / 1000} io_read_us=${values[11] / 1000} io_write_us=${values[12] / 1000} io_sync_us=${values[13] / 1000} io_stat_us=${values[14] / 1000} io_calls=${values[15]} input_priority=${interactivePriority.lastPriority}"
     private fun refreshSchemas() {
         schemas = Native.schemaEntries().toList().chunked(2).map { it[0] to it[1] }
+        inputTypeOperations.restorePreferences(schemas.map { it.first })
     }
     /**
      * Password fields are a direct-input editor unless the user explicitly allows the input
@@ -791,6 +810,7 @@ class DirectRimeBackend(context: Context) : InputEngine {
     override suspend fun addons() = arrayOf(AddonInfo("rime", "Rime", "librime 直连引擎", AddonCategory.InputMethod, true, true, true, false))
     override suspend fun setAddonState(name: Array<String>, state: BooleanArray) { require(state.all { it }) { "Rime 引擎不可关闭" } }
     override suspend fun getAddonSubConfig(addon: String, path: String): RawConfig {
+        if (path.startsWith("input-types/")) return onOwner { inputTypeOperations.read(path.removePrefix("input-types/")) }
         if (path.startsWith("wanxiang-settings/")) {
             val file = path.removePrefix("wanxiang-settings/")
             return onOwner {
@@ -812,6 +832,10 @@ class DirectRimeBackend(context: Context) : InputEngine {
     }
     override suspend fun setAddonSubConfig(addon: String, path: String, config: RawConfig) {
         when(path) {
+            "input-type" -> {
+                val request = currentCoroutineContext()
+                onOwner { inputTypeOperations.select(config) { request.ensureActive() } }
+            }
             "engine-variant-switch" -> switchEngineVariant()
             "wanxiang-settings-repair" -> withContext(NonCancellable) { maintain {
                 org.fcitx.fcitx5.android.daemon.FcitxDaemon.requireUserDataAvailable()
