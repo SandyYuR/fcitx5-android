@@ -1,0 +1,59 @@
+{
+  "base": "1f9a239d33f26ddfe8a80126fa7451da78f7c111",
+  "head": "590e0bbc0ddcc629342f968e258fa142527d3bd1",
+  "source": "fx-rime-only",
+  "documentation_baseline": "docs@88766b124686d46c29e89d939d3872937883a19a",
+  "generated": "2026-11-27",
+  "note": "登记 PR #59 压缩为默认分支单提交的映射。base 为该功能的合入前默认分支；中间三次默认分支提交由其他会话维护，不属本轮。GitHub squash 的双父提交 96c251657 未采用，最终以同源码树重建的单父提交 590e0bbc0 为准。",
+  "commits": [
+    {
+      "sha": "590e0bbc0ddcc629342f968e258fa142527d3bd1",
+      "subject": "功能(键盘): 完善粘滞修饰键的编辑与点亮交互",
+      "files": [
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/MaterialSettingsPagesTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/CustomGestureView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDef.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyboardWaterRippleView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/StickyModifierController.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorForm.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyboardEditorUiBuilder.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtils.kt",
+        "app/src/main/res/values-de/rime_engine_strings.xml",
+        "app/src/main/res/values-de/strings.xml",
+        "app/src/main/res/values-es/rime_engine_strings.xml",
+        "app/src/main/res/values-es/strings.xml",
+        "app/src/main/res/values-ja/rime_engine_strings.xml",
+        "app/src/main/res/values-ja/strings.xml",
+        "app/src/main/res/values-ko/rime_engine_strings.xml",
+        "app/src/main/res/values-ko/strings.xml",
+        "app/src/main/res/values-ru/rime_engine_strings.xml",
+        "app/src/main/res/values-ru/strings.xml",
+        "app/src/main/res/values-zh-rCN/strings.xml",
+        "app/src/main/res/values-zh-rTW/strings.xml",
+        "app/src/main/res/values/strings.xml",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/SqliteSnapshotsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/StickyModifierAppearanceTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/StickyModifierControllerTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/StickyModifierDispatchTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/StickyModifierPressLifecycleTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/WaterRippleOcclusionTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/ClipboardEditActivityTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorPendingResultsTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/utils/LayoutJsonUtilsTest.kt",
+        "direct-rime/src/main/cpp/engine_test.cpp"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-27-sticky-modifier-polish.md",
+        "features/keys/sticky-modifier-key.md",
+        "features/editor/layout-editor.md",
+        "features/keys/overview.md",
+        "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    }
+  ]
+}

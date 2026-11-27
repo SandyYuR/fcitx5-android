@@ -499,14 +499,15 @@
 
 ### changes
 
-说明：[direct-rime](/maintainer/changes/direct-rime) · [feature-coverage](/maintainer/changes/feature-coverage) · [index](/maintainer/changes/) · [2026-10-30](/maintainer/changes/2026-10-30) · [inherited](/maintainer/changes/inherited) · [2026-11-05](/maintainer/changes/2026-11-05) · [2026-11-22](/maintainer/changes/2026-11-22-code-doc-gap-review) · [2026-11-26](/maintainer/changes/2026-11-26-sticky-modifier-key)
+说明：[direct-rime](/maintainer/changes/direct-rime) · [feature-coverage](/maintainer/changes/feature-coverage) · [index](/maintainer/changes/) · [2026-10-30](/maintainer/changes/2026-10-30) · [inherited](/maintainer/changes/inherited) · [2026-11-05](/maintainer/changes/2026-11-05) · [2026-11-22](/maintainer/changes/2026-11-22-code-doc-gap-review) · [2026-11-26](/maintainer/changes/2026-11-26-sticky-modifier-key) · [2026-11-27](/maintainer/changes/2026-11-27-sticky-modifier-polish)
 
-::: details 原始文件（4 个）
+::: details 原始文件（5 个）
 
 - <a href="/fcitx5-android/maintainer/changes/commit-map-2026-10-30.json" download>commit-map-2026-10-30.json</a>
 - <a href="/fcitx5-android/maintainer/changes/commit-map-2026-11-05.json" download>commit-map-2026-11-05.json</a>
 - <a href="/fcitx5-android/maintainer/changes/commit-map-2026-11-22.json" download>commit-map-2026-11-22.json</a>
 - <a href="/fcitx5-android/maintainer/changes/commit-map-2026-11-26.json" download>commit-map-2026-11-26.json</a>
+- <a href="/fcitx5-android/maintainer/changes/commit-map-2026-11-27.json" download>commit-map-2026-11-27.json</a>
 
 :::
 

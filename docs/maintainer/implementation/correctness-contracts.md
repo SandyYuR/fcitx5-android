@@ -277,15 +277,17 @@ startup 每轮在原 try 外先重置 selection／newActivation，再进入 asse
 
 ### 粘滞修饰键
 
-`StickyModifierController` 是 Ctrl、Shift、Alt 的 Held / Latched 与消费状态的单一来源。有效抬手才锁存或取消；一次消费原子取走所有参与修饰键，消费期间拒绝新 Down，结束、隐藏输入视图、解绑和销毁时清除状态。重复取消与过期手势不得恢复旧组合。
+`StickyModifierController` 是 Ctrl、Shift、Alt 的点亮（`latched`）与物理按压占位（`pending`）的唯一来源。物理 Down 只登记待确认手势，不改变点亮状态；只有手势 id 匹配、未被系统取消且可点击的有效抬手才切换点亮。`consume()` 原子取走当时全部已点亮修饰键、清空点亮态，并把参与消费的 `pending` 标记为已消费，其后的抬手只释放占位、不得重新点亮；被消费的按压未松开前，同一修饰键的再次 Down 按重复按压拒绝。结束输入、隐藏输入视图、解绑和销毁时 `cancelAll` 清空三者。重复取消、过期手势与消费后的迟到 Up 都不得恢复旧组合。
 
-`BaseKeyboard.onStickyConsumableAction` 只接单击、直接派发单键的长按及上下滑单键动作。宏只有一个 `tap` step 且仅含一个 Fcitx 键引用时才视为单键；Repeat、双击、左右滑、弹窗选择、多步宏、文本提交和显式按住/释放宏保持原动作语义，不消费组合。MacroKey 长按弹窗与直接单键长按须分别验证。
+`BaseKeyboard.onStickyConsumableAction` 只接单击、直接派发单键的长按及上下滑单键动作。宏只有一个 `tap` step 且仅含一个 Fcitx 键引用时才视为单键；Repeat、双击、左右滑、弹窗选择、多步宏、文本提交和显式按住/释放宏保持原动作语义，不消费组合。MacroKey 长按弹窗与直接单键长按须分别验证。粘滞键自身的上滑 / 下滑 / 长按是可选附加动作，按按下前状态执行，不切换也不消费粘滞状态。
 
 快捷键沿 `sendSimulatedKeyEvent` 派发修饰键 Down、目标键 Down/Up，再在 `finally` 中逆序释放修饰键；`releaseMacroKey` 在编辑器失效时只平衡内部计数，不向旧编辑器补发 Up。字面逗号/句号与命名键均使用统一物理键映射，符号必需的 Shift 必须保留并去重；布局把字母写成大写名称不能自动增加快捷键 Shift。仅粘滞 Shift 加字母走虚拟大写字母通道，`TextKeyboard.onStickyShiftLetter` 只消费 `CapsState.Once`，保留 Lock，并只在当前编辑器内配对投递。
 
+点亮外观由 `KeyView` 按当前激活状态选择键底与文字色：配置了 `activeBackgroundColor` / `activeTextColor` 时优先使用，否则回落主题的选中项背景与文字色。有边框主题用 `StateListDrawable` 切换激活底色，无边框主题只在点亮时补激活底色；常亮前景填充在点亮状态下必须让位，避免盖住键底激活色。水波纹遮挡判定必须与当前实际底色（普通态或点亮态）一致，并在主题切换、键底重新绑定与视图重新挂载后刷新。
+
 `StickyModifierKey.modifier` 仅接受小写 `ctrl` / `shift` / `alt`，缺失或无效值跳过该键。布局编辑器的类型项绑定配置值，不依赖过滤后的下标或本地化标签。`text_editor` 的两个编辑入口和嵌套编辑继承布局上下文，禁止新选或最终保存不支持的粘滞键；旧配置与草稿保留原值、置灰显示，草稿恢复不自动改写类型。
 
-目标回归为 `StickyModifierControllerTest`、`StickyModifierCompositionTest`、`StickyModifierAppearanceTest`、`StickyModifierDispatchTest`、`CustomGestureView*Test`、`MacroKeyReleaseTest`、`KeyEditorFormTest`、`KeyEditorPendingResultsTest`、`LayoutJsonUtilsTest`、`LayoutKeyUiTest`。设备检查另核锁存/取消、多修饰组合、单键长按与弹窗、隐藏后清除及真实目标应用收到的快捷键；JVM 事件队列结果不能代替真实 InputConnection 验证。用户配置见[粘滞修饰键](/features/keys/sticky-modifier-key)。
+目标回归为 `StickyModifierControllerTest`、`StickyModifierPressLifecycleTest`、`StickyModifierCompositionTest`、`StickyModifierAppearanceTest`、`StickyModifierDispatchTest`、`CustomGestureView*Test`、`MacroKeyReleaseTest`、`KeyEditorFormTest`、`KeyEditorPendingResultsTest`、`LayoutJsonUtilsTest`、`LayoutKeyUiTest`、`WaterRippleOcclusionTest`。设备检查另核按下只回显与抬手点亮、取消与多修饰组合、单键长按与弹窗、方向 / 长按附加动作、隐藏后清除、点亮配色与真实目标应用收到的快捷键；JVM 事件队列与原生绘制结果不能代替真实 InputConnection 与真机外观验证。用户配置见[粘滞修饰键](/features/keys/sticky-modifier-key)。
 
 ## 设置与主题
 

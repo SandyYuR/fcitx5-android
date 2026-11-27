@@ -219,7 +219,7 @@ APK 已精确排除 Commons Codec 的 `org/apache/commons/codec/language/bm/**` 
 | 文档和站点 | 人工核对、`git diff --check`、站点构建、链接与历史完整性检查；布局调整检查桌面及窄屏 |
 | 纯 Kotlin | 相关 JVM 测试，必要时 Debug 出包 |
 | UI、IME、协程和输入链路 | 目标测试 + Debug；行为改动补设备回归 |
-| 粘滞修饰键与布局键型 | `StickyModifier*`、`CustomGestureView*`、`MacroKeyReleaseTest` 与布局编辑器相关 JVM + Debug/lint；按[消费和释放约束](implementation/correctness-contracts.md#粘滞修饰键)分别补单键长按、弹窗和目标应用快捷键设备验证 |
+| 粘滞修饰键与布局键型 | `StickyModifier*`（含 `StickyModifierPressLifecycleTest`）、`CustomGestureView*`、`MacroKeyReleaseTest`、`WaterRippleOcclusionTest` 与布局编辑器相关 JVM + Debug/lint；按[消费和释放约束](implementation/correctness-contracts.md#粘滞修饰键)分别补抬手点亮、取消、单键长按、方向动作、弹窗、点亮配色和目标应用快捷键设备验证 |
 | JS 语音 | `--tests 'org.fcitx.fcitx5.android.input.voice.*'` + Debug；API 改动补真实脚本契约测试 |
 | JNI、native 或 librime | native 出包 + APK 白名单和链接审计 |
 | 键盘形态、主题、工具栏尺寸 | 真机或模拟器截图与实际输入，不能仅凭 JVM 单测 |
