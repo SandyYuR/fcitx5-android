@@ -148,6 +148,64 @@ class StickyModifierControllerTest {
     }
 
     @Test
+    fun consumingAPressedLatchDoesNotRearmOnItsLaterUp() {
+        listOf(StickyModifier.Ctrl, StickyModifier.Shift, StickyModifier.Alt).forEach { modifier ->
+            listOf(false, true).forEach { finishBeforeUp ->
+                val controller = StickyModifierController()
+                tap(controller, modifier)
+                val gesture = controller.onDown(modifier)!!
+                val consumption = controller.consume()!!
+                assertEquals(listOf(modifier), consumption.modifiers)
+                if (finishBeforeUp) controller.finish(consumption)
+
+                assertNull("the first pointer still owns the press", controller.onDown(modifier))
+                controller.onUp(modifier, null, clickEligible = true, cancelled = false)
+                controller.onUp(modifier, gesture + 1, clickEligible = true, cancelled = false)
+                assertNull("an unmatched Up cannot release the press", controller.onDown(modifier))
+                controller.onUp(modifier, gesture, clickEligible = true, cancelled = false)
+                assertFalse("a consumed press cannot re-latch on Up", controller.isLatched(modifier))
+                if (!finishBeforeUp) controller.finish(consumption)
+
+                tap(controller, modifier)
+                assertTrue("a new press after Up can latch again", controller.isLatched(modifier))
+            }
+        }
+    }
+
+    @Test
+    fun consumptionKeepsAnUnlatchedModifiersPendingPress() {
+        val controller = StickyModifierController()
+        tap(controller, StickyModifier.Ctrl)
+        val ctrlGesture = controller.onDown(StickyModifier.Ctrl)!!
+        val altGesture = controller.onDown(StickyModifier.Alt)!!
+        val consumption = controller.consume()!!
+        assertEquals(listOf(StickyModifier.Ctrl), consumption.modifiers)
+        controller.finish(consumption)
+
+        controller.onUp(StickyModifier.Ctrl, ctrlGesture, clickEligible = true, cancelled = false)
+        controller.onUp(StickyModifier.Alt, altGesture, clickEligible = true, cancelled = false)
+        assertFalse(controller.isLatched(StickyModifier.Ctrl))
+        assertTrue("Alt was not consumed and must still confirm on Up", controller.isLatched(StickyModifier.Alt))
+        assertEquals(listOf(StickyModifier.Alt), controller.consume()?.modifiers)
+    }
+
+    @Test
+    fun cancelledConsumptionCannotAffectAReplacementPress() {
+        val controller = StickyModifierController()
+        tap(controller, StickyModifier.Ctrl)
+        val oldGesture = controller.onDown(StickyModifier.Ctrl)!!
+        val consumption = controller.consume()!!
+        controller.cancelAll()
+        val newGesture = controller.onDown(StickyModifier.Ctrl)!!
+
+        controller.finish(consumption)
+        controller.onUp(StickyModifier.Ctrl, oldGesture, clickEligible = true, cancelled = false)
+        assertFalse(controller.isLatched(StickyModifier.Ctrl))
+        controller.onUp(StickyModifier.Ctrl, newGesture, clickEligible = true, cancelled = false)
+        assertTrue(controller.isLatched(StickyModifier.Ctrl))
+    }
+
+    @Test
     fun cancelAllIsIdempotentAndClearsEveryState() {
         val controller = StickyModifierController()
         var notifications = 0

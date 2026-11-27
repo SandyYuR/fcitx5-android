@@ -5,7 +5,9 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
+import android.view.ViewGroup
 import androidx.activity.result.ActivityResult
+import androidx.core.view.descendants
 import org.fcitx.fcitx5.android.FcitxApplication
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.data.LayoutEditorResultStore
@@ -107,6 +109,75 @@ class KeyEditorPendingResultsTest {
             assertEquals("Compose Alt", override["label"])
             assertEquals("keys.modifier.alt", override["iconSlot"])
             assertFalse(override.containsKey("weight"))
+        } finally { controller.pause().stop().destroy() }
+    }
+
+    @Test fun stickyModifierMacroCallbacksPreserveTheOtherSlotsAndCommonFields() {
+        for (slot in listOf("swipeUp", "swipeDown", "longPress")) {
+            assertStickyMacroResult(slot, recreate = false)
+        }
+    }
+
+    @Test fun stickyModifierMacroResultsAfterParcelingPreserveTheOtherSlotsAndCommonFields() {
+        for (slot in listOf("swipeUp", "swipeDown", "longPress")) {
+            assertStickyMacroResult(slot, recreate = true)
+        }
+    }
+
+    @Test fun clearingStickyModifierLongPressAfterParcelingPreservesBothSwipeMacros() {
+        assertStickyMacroResult("longPress", recreate = true, clear = true)
+    }
+
+    private fun assertStickyMacroResult(slot: String, recreate: Boolean, clear: Boolean = false) {
+        fun steps(text: String) = arrayListOf<Map<*, *>>(
+            hashMapOf("type" to "text", "text" to text),
+            hashMapOf("type" to "futureAction", "payload" to text)
+        )
+        val key = mapOf(
+            "type" to "StickyModifierKey", "modifier" to "ctrl", "label" to "Draft Ctrl",
+            "swipeUp" to mapOf("macro" to steps("old-up")),
+            "swipeDown" to mapOf("macro" to steps("old-down")),
+            "longPress" to mapOf("macro" to steps("old-long")),
+            "swipeUpLabel" to "Up", "swipeDownLabel" to "Down",
+            "weight" to 0.35f, "rowHeightPercent" to 22f, "splitAfter" to true,
+            "textColor" to 0xFF112233.toInt(), "iconSlot" to "keys.modifier.ctrl",
+            "composeOverride" to mapOf("type" to "StickyModifierKey", "modifier" to "shift", "label" to "Compose Shift")
+        )
+        val controller = Robolectric.buildActivity(Activity::class.java)
+        controller.get().setTheme(R.style.Theme_FcitxSettings_Base_Light)
+        controller.setup()
+        try {
+            val activity = controller.get()
+            val args = Intent().putExtra(KeyEditorForm.EXTRA_KEY_DATA, KeyEditorForm.toSerializableMap(key))
+            var launched: Intent? = null
+            val original = KeyEditorForm(activity, args, launchMacro = { launched = it })
+            activity.setContentView(original.view)
+            assertEquals(key, original.validatedDraft(false))
+            val title = activity.getString(when (slot) {
+                "swipeUp" -> R.string.text_keyboard_layout_macro_swipe_up_event
+                "swipeDown" -> R.string.text_keyboard_layout_macro_swipe_down_event
+                else -> R.string.text_keyboard_layout_macro_longpress_event
+            })
+            val description = "$title · ${activity.getString(R.string.edit)}"
+            val button = (original.view as ViewGroup).descendants.single {
+                it.contentDescription?.toString() == description
+            }
+            assertTrue(button.performClick())
+            assertNotNull(launched)
+            assertEquals(slot, launched!!.getStringExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN))
+            val form = if (recreate) {
+                KeyEditorForm(activity, args, parcel(Bundle().also(original::saveState)))
+                    .also { activity.setContentView(it.view) }
+            } else original
+            val resultSteps = if (clear) arrayListOf<Map<*, *>>() else steps("new-$slot")
+            form.acceptMacroResult(ActivityResult(Activity.RESULT_OK, Intent()
+                .putExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN,
+                    launched.getStringExtra(MacroEditorDialogFragment.EXTRA_TARGET_TOKEN))
+                .putExtra(MacroEditorDialogFragment.EXTRA_MACRO_RESULT, resultSteps)))
+            val expected = key.toMutableMap().apply {
+                if (clear) remove(slot) else put(slot, mapOf("macro" to resultSteps))
+            }
+            assertEquals("slot=$slot recreated=$recreate clear=$clear", expected, form.validatedDraft(false))
         } finally { controller.pause().stop().destroy() }
     }
 

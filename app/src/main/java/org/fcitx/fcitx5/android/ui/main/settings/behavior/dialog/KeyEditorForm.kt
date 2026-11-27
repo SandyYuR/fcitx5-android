@@ -2042,7 +2042,8 @@ class KeyEditorForm(
      */
     private fun applyMacroStepsToSlot(slot: String, steps: List<Any>) {
         val draft = buildDraftKeyData()
-        val isMacroKey = keyData["type"] == "MacroKey"
+        val isMacroKey = selectedType == "MacroKey"
+        val isStickyModifierKey = selectedType == "StickyModifierKey"
         when (slot) {
             SLOT_TAP -> {
                 macroTapStepsData = steps
@@ -2056,6 +2057,14 @@ class KeyEditorForm(
                         macroSwipeUpStepsData,
                         macroSwipeDownStepsData
                     )
+                } else if (isStickyModifierKey) {
+                    stickyModifierSwipeUpStepsData = steps
+                    applyDirectionalSwipeDraft(
+                        draft,
+                        stickyModifierSwipeUpStepsData,
+                        stickyModifierSwipeDownStepsData
+                    )
+                    appendDirectionalSwipeLabels(draft)
                 } else {
                     nonMacroSwipeUpStepsData = steps
                     appendDirectionalSwipeLabels(draft)
@@ -2074,6 +2083,14 @@ class KeyEditorForm(
                         macroSwipeUpStepsData,
                         macroSwipeDownStepsData
                     )
+                } else if (isStickyModifierKey) {
+                    stickyModifierSwipeDownStepsData = steps
+                    applyDirectionalSwipeDraft(
+                        draft,
+                        stickyModifierSwipeUpStepsData,
+                        stickyModifierSwipeDownStepsData
+                    )
+                    appendDirectionalSwipeLabels(draft)
                 } else {
                     nonMacroSwipeDownStepsData = steps
                     appendDirectionalSwipeLabels(draft)
@@ -2089,8 +2106,14 @@ class KeyEditorForm(
                 if (steps.isNotEmpty()) draft["swipe"] = mapOf("macro" to steps) else draft.remove("swipe")
             }
             SLOT_LONG_PRESS -> {
-                macroLongPressStepsData = steps
-                draft["longPress"] = mapOf("macro" to steps)
+                if (isStickyModifierKey) {
+                    stickyModifierLongPressStepsData = steps
+                    if (steps.isEmpty()) draft.remove("longPress")
+                    else draft["longPress"] = mapOf("macro" to steps)
+                } else {
+                    macroLongPressStepsData = steps
+                    draft["longPress"] = mapOf("macro" to steps)
+                }
             }
             else -> return
         }

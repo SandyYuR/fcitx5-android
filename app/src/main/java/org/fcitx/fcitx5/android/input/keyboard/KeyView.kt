@@ -145,6 +145,7 @@ abstract class KeyView(
     var layoutMarginRight = 0f
 
     var onWaterRippleRequest: ((keyView: KeyView, localX: Float, localY: Float) -> Unit)? = null
+    private val waterRippleOcclusionChangedListeners = LinkedHashSet<() -> Unit>()
     internal var statisticsKeyLabel: String? = null
     internal var onStatisticsPress: ((KeyView) -> Unit)? = null
     internal var stickyModifier: StickyModifier? = null
@@ -268,6 +269,20 @@ abstract class KeyView(
         return hasKeyBorder
     }
 
+    internal fun addWaterRippleOcclusionChangedListener(listener: () -> Unit) {
+        waterRippleOcclusionChangedListeners.add(listener)
+    }
+
+    internal fun removeWaterRippleOcclusionChangedListener(listener: () -> Unit) {
+        waterRippleOcclusionChangedListeners.remove(listener)
+    }
+
+    private fun notifyWaterRippleOcclusionChanged(previouslyOccluded: Boolean) {
+        if (previouslyOccluded != shouldOccludeWaterRipple()) {
+            waterRippleOcclusionChangedListeners.toList().forEach { it() }
+        }
+    }
+
     private fun applyStandardBackground(theme: Theme) {
         val bkgColor = resolveBackgroundColor(theme, defaultBackgroundColor(theme))
         waterRippleFillColor = bkgColor
@@ -366,11 +381,33 @@ abstract class KeyView(
      */
     internal fun setStickyActive(enabled: Boolean) {
         if (isStickyActiveAppearance == enabled) return
+        val previouslyOccluded = shouldOccludeWaterRipple()
         isStickyActiveAppearance = enabled
         stickySuppressesActivatedHighlight = enabled
         applyStickyAwareBackground()
         setupPressHighlight(pressHighlightMask)
         onStickyActiveAppearanceChanged(enabled)
+        notifyWaterRippleOcclusionChanged(previouslyOccluded)
+    }
+
+    override fun setActivated(activated: Boolean) {
+        val changed = isActivated != activated
+        val previouslyOccluded = isStickyActiveAppearance && shouldOccludeWaterRipple()
+        super.setActivated(activated)
+        if (changed && isStickyActiveAppearance) {
+            updateStickyWaterRippleFillColor()
+            notifyWaterRippleOcclusionChanged(previouslyOccluded)
+        }
+    }
+
+    private fun updateStickyWaterRippleFillColor() {
+        if (def.transparentBackground || usesSpecialBackground()) return
+        // Match the state drawable: enabling sticky appearance does not activate the key.
+        waterRippleFillColor = when {
+            isStickyActiveAppearance && isActivated -> stickyActiveBackgroundColor()
+            hasKeyBorder -> resolveBackgroundColor(theme, defaultBackgroundColor(theme))
+            else -> null
+        }
     }
 
     protected open fun onStickyActiveAppearanceChanged(enabled: Boolean) {}
@@ -394,11 +431,10 @@ abstract class KeyView(
     private fun applyStickyAwareBackground() {
         // 占位键与空格/回车/布局切换键有各自的特形背景，粘滞键不会命中，保持原样。
         if (def.transparentBackground || usesSpecialBackground()) return
+        updateStickyWaterRippleFillColor()
         if (hasKeyBorder) {
             val normalColor = resolveBackgroundColor(theme, defaultBackgroundColor(theme))
             val normal = standardBackgroundDrawable(normalColor, theme)
-            waterRippleFillColor =
-                if (isStickyActiveAppearance) stickyActiveBackgroundColor() else normalColor
             appearanceView.background = if (!isStickyActiveAppearance) normal
             else StateListDrawable().apply {
                 addState(
@@ -541,6 +577,7 @@ abstract class KeyView(
      * Update theme without rebuilding view
      */
     open fun updateTheme(newTheme: Theme) {
+        val previouslyOccluded = shouldOccludeWaterRipple()
         theme = newTheme
 
         if (def.transparentBackground) {
@@ -566,6 +603,7 @@ abstract class KeyView(
         if (w > 0 && h > 0) {
             onSizeChanged(w, h, w, h)
         }
+        notifyWaterRippleOcclusionChanged(previouslyOccluded)
     }
 }
 

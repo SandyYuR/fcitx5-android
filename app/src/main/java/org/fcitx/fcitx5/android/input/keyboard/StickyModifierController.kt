@@ -24,8 +24,10 @@ internal class StickyModifierController {
     /** 已点亮、等待被消费的修饰键，按点亮顺序排列。 */
     private val latched = LinkedHashMap<StickyModifier, Unit>()
 
-    /** 按下但尚未抬手的修饰键 → 本次手势 id。 */
-    private val pending = HashMap<StickyModifier, Long>()
+    private data class PendingGesture(val id: Long, var consumed: Boolean = false)
+
+    /** 保留物理按压的占位；被消费的手势抬手时只清理，不再切换点亮。 */
+    private val pending = HashMap<StickyModifier, PendingGesture>()
 
     private val listeners = mutableSetOf<() -> Unit>()
     private var nextGesture = 0L
@@ -53,7 +55,7 @@ internal class StickyModifierController {
         if (consuming != null) return null
         if (pending.containsKey(modifier)) return null
         val gesture = ++nextGesture
-        pending[modifier] = gesture
+        pending[modifier] = PendingGesture(gesture)
         return gesture
     }
 
@@ -64,19 +66,21 @@ internal class StickyModifierController {
      */
     fun onUp(modifier: StickyModifier, gesture: Long?, clickEligible: Boolean, cancelled: Boolean) {
         val recorded = pending[modifier] ?: return
-        if (gesture == null || recorded != gesture) return
+        if (gesture == null || recorded.id != gesture) return
         pending.remove(modifier)
-        if (cancelled || !clickEligible) return
+        if (recorded.consumed || cancelled || !clickEligible) return
         if (latched.remove(modifier) == null) {
             latched[modifier] = Unit
         }
         notifyChanged()
     }
 
-    /** 原子地取走全部已点亮的修饰键（按住中但未抬手的不会被取走）。 */
+    /** 原子地取走全部已点亮的修饰键；尚未锁存的按压不参与消费。 */
     fun consume(): Consumption? {
         if (consuming != null || latched.isEmpty()) return null
         val consumption = Consumption(++nextConsumption, latched.keys.toList())
+        // 只失效本次参与消费的手势，保留占位直到匹配的 Up，避免旧指未抬时同键重入。
+        consumption.modifiers.forEach { pending[it]?.consumed = true }
         latched.clear()
         consuming = consumption
         notifyChanged()
