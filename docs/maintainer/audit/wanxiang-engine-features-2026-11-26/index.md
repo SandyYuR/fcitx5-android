@@ -32,7 +32,7 @@
 | 应用基线 | `2cd8d0f55046479206ec3adddb39426223d3bc0c` 加本轮工作树改动 |
 | 内置引擎基线 | `83fbd0810e8c24db87f3b9dc9acce193401c7c4f`（撤回字符集实施后重建，`librime.a` 无 `charset` 符号） |
 | 实际开发 SDK 源码树 | `b48eb4b8baf16a1bc7b70ca1299bcd0ceffbabc1`（撤回字符集实施后重建） |
-| SDK engine_family / ABI | `librime` / `x86_64`，`development=true` |
+| SDK ABI | `x86_64`，`development=true` |
 | Debug APK SHA-256 | `a43f87f4a587fb73927837bc13f710476a1798c175b802443972dd258f37645c` |
 | APK 内 direct-rime ELF build ID | `4a0608a424418c668890918cf30493eaed42829e` |
 | 共享预设子模块 | `082425ea0684bca36474415d4a0e8db9b016487e` |
