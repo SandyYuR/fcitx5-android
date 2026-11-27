@@ -111,9 +111,10 @@ object SettingsSearchIndex {
     /** 「输入与候选」：只剩候选栏、候选窗口与语音输入（中州韵设置已移到首页「中州韵引擎」分栏）。 */
     private val P_INPUT =
         listOf(R.string.settings_search_group_android, R.string.settings_group_input)
-    /** 「中州韵引擎」：首页新分栏里的三个入口。 */
+    /** 「中州韵引擎」：首页的引擎设置与方案更新入口。 */
     private val P_RIME =
         listOf(R.string.settings_search_group_android, R.string.settings_home_category_rime_engine)
+    private val P_ENGINE = P_RIME + R.string.rime_settings
     private val P_SCHEME = P_RIME + R.string.wanxiang_group
     private val P_CANDIDATES =
         listOf(R.string.settings_search_group_android, R.string.candidates_window)
@@ -306,7 +307,7 @@ object SettingsSearchIndex {
         // 2026-11-23 从「键盘 · 按键行为」移入「中州韵」页：该开关决定密码框是否交给
         // Rime，只对 Rime 生效。关键词保留改版前用户会搜的说法。
         SettingsSearchEntry(
-            R.string.allow_ime_in_password_fields, P_RIME,
+            R.string.allow_ime_in_password_fields, P_ENGINE,
             listOf(
                 "password", "密码", "mima", "输入法", "中文",
                 "方案", "schema", "rime", "中州韵"
@@ -314,8 +315,8 @@ object SettingsSearchIndex {
             route = rimeRoute(context)
         ),
         SettingsSearchEntry(
-            R.string.rime_engine_variants_title, P_RIME,
-            listOf("rime engine", "引擎变体", "引擎切换", "librime", "so", "插件引擎"),
+            R.string.rime_engine_variants_title, P_ENGINE,
+            listOf("rime engine", "引擎变体", "引擎切换", "librime", "evo", "so", "插件引擎"),
             activityClass = org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity::class.java
         ),
         SettingsSearchEntry(

@@ -4,7 +4,6 @@
  */
 package org.fcitx.fcitx5.android.ui.main
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -23,7 +22,6 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.ui.common.PaddingPreferenceFragment
 import org.fcitx.fcitx5.android.ui.main.settings.SettingsRoute
 import org.fcitx.fcitx5.android.ui.main.settings.group.SettingsGroupSpecs
-import org.fcitx.fcitx5.android.ui.main.settings.im.RimeEngineManagerActivity
 import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchEntry
 import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchIndex
 import org.fcitx.fcitx5.android.ui.main.settings.search.SettingsSearchPreference
@@ -140,29 +138,6 @@ class MainFragment : PaddingPreferenceFragment() {
         })
     }
 
-    /** 同 [addDestinationPreference]，目标是一个 Activity 而不是导航路由。 */
-    private fun PreferenceCategory.addActivityDestinationPreference(
-        @StringRes title: Int,
-        @DrawableRes icon: Int,
-        target: Class<out Activity>,
-        @StringRes summary: Int? = null
-    ) {
-        addPreference(object : Preference(requireContext()) {
-            override fun onBindViewHolder(holder: PreferenceViewHolder) {
-                super.onBindViewHolder(holder)
-                (holder.findViewById(android.R.id.summary) as? TextView)?.apply {
-                    maxLines = 1
-                    ellipsize = TextUtils.TruncateAt.END
-                }
-            }
-        }.apply {
-            setup(getString(title), summary?.let { getString(it) }, icon) {
-                startActivity(Intent(requireContext(), target))
-            }
-            widgetLayoutResource = R.layout.preference_settings_navigation
-        })
-    }
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val rimeSettingsTitle = getString(R.string.rime_settings)
         searchEntries = SettingsSearchIndex.entries(requireContext())
@@ -182,12 +157,6 @@ class MainFragment : PaddingPreferenceFragment() {
                     R.drawable.ic_status_rime,
                     SettingsRoute.InputMethodConfig(rimeSettingsTitle, "rime"),
                     R.string.settings_home_rime_engine_summary
-                )
-                addActivityDestinationPreference(
-                    R.string.rime_engine_variants_title,
-                    R.drawable.ic_baseline_extension_24,
-                    RimeEngineManagerActivity::class.java,
-                    R.string.rime_engine_variants_summary
                 )
                 addDestinationPreference(
                     R.string.wanxiang_group,

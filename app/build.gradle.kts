@@ -102,6 +102,10 @@ run {
             from(rootProject.file("native/rime-prelude")) { include("key_bindings.yaml", "punctuation.yaml", "symbols.yaml") }
         }
         into("usr/share/opencc") { from(rootProject.file("native/rime-sdk/opencc/data")) }
+        from(rootProject.file("native/rime-sdk/sdk-manifest.json")) {
+            into("bundled")
+            rename { "rime-sdk-manifest.json" }
+        }
     }
     android.sourceSets.getByName("main").assets.setSrcDirs(listOf(directAssets))
     tasks.named<DataDescriptorPlugin.DataDescriptorTask>("generateDataDescriptor") {

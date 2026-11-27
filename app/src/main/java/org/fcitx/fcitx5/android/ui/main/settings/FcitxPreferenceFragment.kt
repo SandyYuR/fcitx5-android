@@ -136,6 +136,7 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
                 }
             } else if (hasCfgDesc && !protocolCompatible) {
                 preferenceManager.createPreferenceScreen(context).apply {
+                    decoratePreferenceScreen(this)
                     addPreference(
                         R.string.config_protocol_not_supported_title,
                         context.getString(
@@ -147,6 +148,7 @@ abstract class FcitxPreferenceFragment : PaddingPreferenceFragment() {
                 }
             } else {
                 preferenceManager.createPreferenceScreen(context).apply {
+                    decoratePreferenceScreen(this)
                     addPreference(R.string.direct_rime_config_unavailable)
                 }
             }

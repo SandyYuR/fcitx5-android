@@ -4,7 +4,12 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.im
 
+import android.content.Intent
+import android.text.TextUtils
+import android.widget.TextView
+import androidx.preference.Preference
 import androidx.preference.PreferenceScreen
+import androidx.preference.PreferenceViewHolder
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.RawConfig
@@ -26,8 +31,29 @@ class InputMethodConfigFragment : FcitxPreferenceFragment() {
         fcitx.setImConfig(args.uniqueName, newConfig)
     }
 
+    override fun decoratePreferenceScreen(screen: PreferenceScreen) {
+        if (args.uniqueName != RIME_UNIQUE_NAME) return
+        screen.addPreference(object : Preference(screen.context) {
+            override fun onBindViewHolder(holder: PreferenceViewHolder) {
+                super.onBindViewHolder(holder)
+                (holder.findViewById(android.R.id.summary) as? TextView)?.apply {
+                    maxLines = 1
+                    ellipsize = TextUtils.TruncateAt.END
+                }
+            }
+        }.apply {
+            key = "rime_engine_variants"
+            setTitle(R.string.rime_engine_variants_title)
+            setSummary(R.string.rime_engine_variants_summary)
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+            widgetLayoutResource = R.layout.preference_settings_navigation
+            intent = Intent(context, RimeEngineManagerActivity::class.java)
+        })
+    }
+
     /**
-     * 「中州韵」页由引擎的 `desc` 树生成，本应用自己的条目在引擎配置项之后追加。
+     * 「中州韵」页由引擎的 `desc` 树生成，密码框开关在引擎配置项之后追加。
      * 「输入类型」已迁到「启用的输入方案」页，按方案逐个调整；这里只保留仅对 Rime 生效的
      * 「密码框是否交给 Rime」开关。
      */

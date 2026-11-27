@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.ui.main.settings.im
 
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
@@ -23,6 +24,11 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.intOrNull
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.engine.*
 import org.fcitx.fcitx5.android.daemon.FcitxDaemon
@@ -62,7 +68,8 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
     private data class Screen(
         val state: RimeEngineState,
         val directories: RimeDataDirectoryState,
-        val plugins: List<RimePluginEngineCandidate>
+        val plugins: List<RimePluginEngineCandidate>,
+        val bundledMetadata: BundledRimeSdkMetadata
     )
 
     private val enginePicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -133,7 +140,13 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
                     )
                 }
                 val loaded = withContext(Dispatchers.IO) {
-                    Screen(repository.state(), directories, RimeEnginePlugins.discover(this@RimeEngineManagerActivity))
+                    val metadata = runCatching {
+                        assets.open("bundled/rime-sdk-manifest.json").bufferedReader().use {
+                            BundledRimeSdkMetadata.parse(it.readText())
+                        }
+                    }.getOrDefault(BundledRimeSdkMetadata())
+                    Screen(repository.state(), directories,
+                        RimeEnginePlugins.discover(this@RimeEngineManagerActivity), metadata)
                 }
                 screen = loaded
                 render(loaded)
@@ -163,14 +176,16 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
         val builtinProfile = if (value.state.active == RimeEngineSelection.Builtin) {
             value.directories.current
         } else value.state.builtinProfile ?: value.directories.current
+        val builtinName = value.bundledMetadata.displayName(this)
         body.addView(engineCard(
-            title = getString(R.string.rime_engine_builtin_name),
-            details = getString(R.string.rime_engine_builtin_details, builtinProfile),
+            title = builtinName,
+            details = value.bundledMetadata.description(this) + "\n" +
+                getString(R.string.rime_engine_builtin_details, builtinProfile),
             active = value.state.active == RimeEngineSelection.Builtin,
             actions = buildList {
                 if (value.state.active != RimeEngineSelection.Builtin) add(
                     action(R.string.rime_engine_switch) {
-                        confirmSwitch(RimeEngineSelection.Builtin, getString(R.string.rime_engine_builtin_name))
+                        confirmSwitch(RimeEngineSelection.Builtin, builtinName)
                     }
                 )
             }
@@ -742,5 +757,51 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
 
     private companion object {
         val activeStagingTokens: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    }
+}
+
+/** Provenance of the SDK packaged in this APK, independent of the selected runtime engine. */
+internal data class BundledRimeSdkMetadata(
+    val family: String? = null,
+    val commit: String? = null,
+    val development: Boolean = false,
+    val sourceTree: String? = null
+) {
+    fun displayName(context: Context): String = context.getString(
+        if (family?.lowercase(Locale.ROOT) in setOf("evo", "librime-evo")) {
+            R.string.rime_engine_packaged_evo_name
+        } else R.string.rime_engine_packaged_name
+    )
+
+    fun description(context: Context): String = buildString {
+        val unknown = context.getString(R.string.rime_engine_metadata_unknown)
+        append(context.getString(R.string.rime_engine_sdk_family, family ?: unknown))
+        append("\n").append(context.getString(
+            if (development) R.string.rime_engine_sdk_base_commit else R.string.rime_engine_sdk_commit,
+            commit?.take(12) ?: unknown
+        ))
+        if (development) {
+            append("\n").append(context.getString(
+                R.string.rime_engine_sdk_development_tree, sourceTree?.take(12) ?: unknown
+            ))
+        }
+    }
+
+    companion object {
+        fun parse(text: String): BundledRimeSdkMetadata = runCatching {
+            val json = Json.parseToJsonElement(text) as? JsonObject ?: return@runCatching BundledRimeSdkMetadata()
+            val version = json["schema_version"] as? JsonPrimitive
+            if (version == null || version.isString || version.intOrNull != 1) return@runCatching BundledRimeSdkMetadata()
+            fun string(key: String) = (json[key] as? JsonPrimitive)?.takeIf { it.isString }
+                ?.content?.trim()?.takeIf { it.isNotEmpty() }
+            fun revision(key: String) = string(key)?.takeIf { it.matches(Regex("[0-9a-fA-F]{40}")) }
+                ?.lowercase(Locale.ROOT)
+            BundledRimeSdkMetadata(
+                family = string("engine_family"),
+                commit = revision("librime_commit"),
+                development = (json["development"] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull == true,
+                sourceTree = revision("source_tree")
+            )
+        }.getOrDefault(BundledRimeSdkMetadata())
     }
 }

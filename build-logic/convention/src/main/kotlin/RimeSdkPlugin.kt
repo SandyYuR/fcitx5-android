@@ -60,7 +60,8 @@ internal data class RimeSdkManifest(
     val sources_lock_sha256: String,
     val files: Map<String, String>,
     val development: Boolean = false,
-    val source_tree: String? = null
+    val source_tree: String? = null,
+    val engine_family: String? = null
 )
 
 internal object RimeSdkArchive {
