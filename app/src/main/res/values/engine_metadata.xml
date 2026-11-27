@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="rime_engine_packaged_name">Built-in Rime</string>
-    <string name="rime_engine_packaged_evo_name">Built-in librime-evo</string>
     <string name="rime_engine_metadata_unknown">Unknown / not declared</string>
-    <string name="rime_engine_sdk_family">SDK family: %1$s</string>
     <string name="rime_engine_sdk_commit">Source commit: %1$s</string>
     <string name="rime_engine_sdk_base_commit">Base commit: %1$s</string>
     <string name="rime_engine_sdk_development_tree">Development build · Source tree: %1$s</string>
