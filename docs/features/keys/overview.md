@@ -15,7 +15,7 @@
 | `LayoutSwitchKey` | 切换到指定文本布局 | `label` | [详情](/features/keys/layout-switch-key) |
 | `SymbolKey` | 标点键（默认发 `.`，由方案处理） | `label` | [详情](/features/keys/symbol-key) |
 | `CapsKey` | 大小写切换键 | — | [详情](/features/keys/caps-key) |
-| `StickyModifierKey` | 点亮 Ctrl / Shift / Alt，与下一次单键组合 | `modifier` | [详情](/features/keys/sticky-modifier-key) |
+| `StickyModifierKey` | 抬手点亮 Ctrl / Shift / Alt，与下一次单键组合；可附加方向 / 长按动作与点亮配色 | `modifier` | [详情](/features/keys/sticky-modifier-key) |
 | `BackspaceKey` | 退格键，支持左右滑动选择删除范围 | — | [详情](/features/keys/backspace-key) |
 | `ReturnKey` | 回车键 | — | [详情](/features/keys/return-key) |
 | `SpaceKey` | 空格键，含切换/光标移动等隐含行为 | — | [详情](/features/keys/space-key) |
@@ -41,6 +41,8 @@
 | `backgroundColorMonet` | string | 同上的 Monet 版 |
 | `shadowColor` | int / hex | 阴影颜色（按键浮雕） |
 | `shadowColorMonet` | string | 同上的 Monet 版 |
+| `activeBackgroundColor` / `activeBackgroundColorMonet` | int / hex 或 string | 点亮或激活时的键面底色（目前仅 `StickyModifierKey`；未设置时沿用主题选中项背景色） |
+| `activeTextColor` / `activeTextColorMonet` | int / hex 或 string | 点亮或激活时的文字颜色（同上；未设置时沿用主题选中项文字色） |
 | `swipe` | object | 一个 [MacroAction](/features/keys/macro-key#step-类型清单) 对象（部分按键支持）。**无方向**，方向由「符号划动方向（符号隐藏时）」决定；填了 `swipeLabel` 时按方向解析一次（见[滑动操作](/features/keyboard/swipe-actions#单个划动槽位-swipe-swipelabel)） |
 | `swipeLabel` | string | 在键面上显示的滑动提示文字 |
 | `swipeUp` / `swipeDown` | object | 上滑 / 下滑分别执行的 MacroAction（方向**只由字段决定**，不受全局划动方向影响） |
