@@ -131,7 +131,8 @@ Profile 切换的是整份布局文件；它不同于布局 JSON 内部的 `laye
 
 - 每个按键类型都带**本地化中文说明**（本版新增），选型时直接看到用途；
 - 本版新增 **空白占位键** 类型：只占位、完全不接收触摸（不震动、无高亮、不吃滚动），键列表中显示为 `·` 记号；
-- [StickyModifierKey 粘滞修饰键](/features/keys/sticky-modifier-key) 可选择 Ctrl / Shift / Alt；切换时同步空标签或默认标签，保留自定义标签。它排在字母、符号与数字键盘之后、空白占位键与宏键之前。`text_editor` 不提供此类型；旧布局或恢复草稿中的已有值保留为禁用选项，保存该按键前必须明确改为受支持的类型；
+- [句号键](/features/keys/symbol-key) 对应布局文件中的 `SymbolKey`，点击发送 `.`，不是打开符号面板的按键；
+- [StickyModifierKey 粘滞修饰键](/features/keys/sticky-modifier-key) 可选择 Ctrl / Shift / Alt；切换时同步空标签或默认标签，保留自定义标签。它排在字母、句号与数字键盘之后、空白占位键与宏键之前。`text_editor` 不提供此类型；旧布局或恢复草稿中的已有值保留为禁用选项，保存该按键前必须明确改为受支持的类型；
 - 选中粘滞修饰键时另外提供：上滑 / 下滑动作与标签、长按动作、「副文字颜色」，以及「激活背景色」「激活文字色」两项——它们只在点亮时生效，未设置时沿用主题的选中项配色。粘滞键不显示「合成态按键」入口；
 - AlphabetKey / MacroKey 的**显示文本优先**规则在编辑器预览与保存中一致生效（见 [AlphabetKey](/features/keys/alphabet-key) / [MacroKey](/features/keys/macro-key)）。
 

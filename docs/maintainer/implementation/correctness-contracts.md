@@ -400,7 +400,7 @@ AIDL 与 JS 复用会话和录音链路，密钥、主机授权、回调预算�
 | 布局选择器(profile)行为 | `TextKeyboardLayoutProfileManagerActivity`/`TextKeyboardLayoutEditorActivity`;`KeyboardLayoutAdapterViewTest`(androidTest) |
 | 符号/表情/颜文字面板组名或导入异常 | `input/picker/SymbolCatalog.kt`、`SymbolPanelUi.kt`、`PickerWindow.kt`、`PickerWindowPreset.kt`;`SymbolCatalogParseTest` |
 | 空格划动 / 划动移光标开关不生效 | `input/keyboard/SpaceSwipeMode.kt`、`BaseKeyboard.kt`、`AppPrefs.spaceSwipeMoveCursor` |
-| 空格长按(切方案/选单/语音) | `input/keyboard/CommonKeyActionListener.kt` 的 `SpaceLongPressAction` 分支;`SpaceKeyDefTest` |
+| 空格长按（Rime 方案选单／Android 输入法选择器／语音） | `input/keyboard/CommonKeyActionListener.kt` 的 `SpaceLongPressAction` 分支；`SpaceKeyDefTest`、`SpaceLongPressBehaviorTest`。已保存的 `ShowPicker` 仍打开 Rime 方案选单。 |
 | 退格在编码区/正文之间跳 | `input/BackspaceBoundaryGuard.kt`;`BackspaceBoundaryGuardTest` |
 | 设置页入口消失、搜索搜不到、跳转错页 | `ui/main/settings/group/SettingsGroupSpecs.kt`、`ui/main/settings/search/SettingsSearchIndex.kt`、`SettingsSearchQuery.kt`;`SettingsSearchIndexCoverageTest`。✗ 只改偏好与承载页、漏登记索引 |
 | 方案菜单/子模式下拉越界 | `ui/main/settings/behavior/manager/SubModeManager.kt`;`SubModeSpinnerSelectionTest` |
