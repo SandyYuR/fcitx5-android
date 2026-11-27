@@ -762,21 +762,15 @@ class RimeEngineManagerActivity : SettingsUiActivity() {
 
 /** Provenance of the SDK packaged in this APK, independent of the selected runtime engine. */
 internal data class BundledRimeSdkMetadata(
-    val family: String? = null,
     val commit: String? = null,
     val development: Boolean = false,
     val sourceTree: String? = null
 ) {
-    fun displayName(context: Context): String = context.getString(
-        if (family?.lowercase(Locale.ROOT) in setOf("evo", "librime-evo")) {
-            R.string.rime_engine_packaged_evo_name
-        } else R.string.rime_engine_packaged_name
-    )
+    fun displayName(context: Context): String = context.getString(R.string.rime_engine_packaged_name)
 
     fun description(context: Context): String = buildString {
         val unknown = context.getString(R.string.rime_engine_metadata_unknown)
-        append(context.getString(R.string.rime_engine_sdk_family, family ?: unknown))
-        append("\n").append(context.getString(
+        append(context.getString(
             if (development) R.string.rime_engine_sdk_base_commit else R.string.rime_engine_sdk_commit,
             commit?.take(12) ?: unknown
         ))
@@ -797,7 +791,6 @@ internal data class BundledRimeSdkMetadata(
             fun revision(key: String) = string(key)?.takeIf { it.matches(Regex("[0-9a-fA-F]{40}")) }
                 ?.lowercase(Locale.ROOT)
             BundledRimeSdkMetadata(
-                family = string("engine_family"),
                 commit = revision("librime_commit"),
                 development = (json["development"] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull == true,
                 sourceTree = revision("source_tree")
