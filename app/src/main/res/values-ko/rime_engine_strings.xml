@@ -60,4 +60,9 @@
     <string name="rime_engine_version_value">librime 버전: %1$s</string>
     <string name="rime_engine_api_size_value">RimeApi 데이터 크기: %1$d바이트</string>
     <string name="rime_engine_capabilities_value">감지된 기능: %1$s</string>
+    <string name="rime_engine_packaged_name">내장 Rime</string>
+    <string name="rime_engine_metadata_unknown">알 수 없음 / 선언되지 않음</string>
+    <string name="rime_engine_sdk_commit">소스 커밋: %1$s</string>
+    <string name="rime_engine_sdk_base_commit">기준 커밋: %1$s</string>
+    <string name="rime_engine_sdk_development_tree">개발 빌드 · 소스 트리: %1$s</string>
 </resources>

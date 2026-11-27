@@ -38,12 +38,11 @@ import kotlinx.coroutines.runBlocking
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.engine.PluginRimeEngineAuthorization
 import org.fcitx.fcitx5.android.core.engine.RimeEngineRuntimeInfo
-import org.fcitx.fcitx5.android.core.engine.RimeEngineState
+import org.fcitx.fcitx5.android.core.engine.RimeEngineStore
 import org.fcitx.fcitx5.android.core.engine.RimeEngineStaticInfo
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
-import org.fcitx.fcitx5.android.data.RimeDataDirectoryState
 import org.fcitx.fcitx5.android.ui.common.ProgressBarDialogIndeterminate
 import org.fcitx.fcitx5.android.ui.common.OperationStatusView
 import org.fcitx.fcitx5.android.ui.common.SettingsUiActivity
@@ -65,6 +64,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import java.io.File
+import java.util.UUID
 
 /** Actually launch the pages: an XML Toolbar/MaterialToolbar mismatch compiles successfully. */
 @SdkSuppress(minSdkVersion = 29)
@@ -449,57 +449,53 @@ class MaterialSettingsPagesTest {
     }
 
     @Test fun engineProviderApksAreListedBeforeImportedSharedLibraries() {
-        page(RimeEngineManagerActivity::class.java, ready = { activity ->
-            descendants(activity.window.decorView).filterIsInstance<TextView>().any {
-                it.text == activity.getString(R.string.rime_engine_imported_section)
+        val repository = RimeEngineStore.repository(context)
+        val token = UUID.randomUUID().toString().replace("-", "")
+        val digest = token + token
+        val missingName = "Missing provider fixture"
+        val authorization = PluginRimeEngineAuthorization(
+            packageName = "${context.packageName}.missingprovider.fixture$token",
+            displayName = missingName,
+            providerId = "missing-fixture",
+            certificateSha256 = "22".repeat(32),
+            payloadSha256 = digest,
+            soname = "librime-missing.so",
+            staticInfo = RimeEngineStaticInfo(
+                sha256 = digest, size = 1, abi = "x86_64", bits = 64,
+                soname = "librime-missing.so", entrySymbol = "rime_get_api",
+                neededLibraries = listOf("libc.so"), loadAlignment = 16384,
+                sourceName = "librime-missing.so"
+            ),
+            runtimeInfo = RimeEngineRuntimeInfo("1.0", 1, emptyList()),
+            profile = "rime",
+            authorizedAt = 1
+        )
+        assertTrue("Fixture must not replace an existing authorization",
+            repository.state().plugins.none {
+                it.packageName == authorization.packageName || it.payloadSha256 == digest
+            })
+        repository.authorizePlugin(authorization)
+        try {
+            // Exercise the normal loading path without depending on Screen's private constructor.
+            page(RimeEngineManagerActivity::class.java, ready = { activity ->
+                val labels = descendants(activity.window.decorView)
+                    .filterIsInstance<TextView>().map { it.text.toString() }.toList()
+                missingName in labels && activity.getString(R.string.rime_engine_imported_section) in labels
+            }) { activity ->
+                val labels = descendants(activity.window.decorView)
+                    .filterIsInstance<TextView>().map { it.text.toString() }.toList()
+                val providers = labels.indexOf(activity.getString(R.string.rime_engine_plugin_section))
+                val imported = labels.indexOf(activity.getString(R.string.rime_engine_imported_section))
+                val missingProvider = labels.indexOf(missingName)
+                assertTrue("Provider APK section is missing", providers >= 0)
+                assertTrue("Imported .so section is missing", imported >= 0)
+                assertTrue("Provider APKs must be listed above imported .so engines", providers < imported)
+                assertTrue("Saved but unavailable provider must stay inside the APK section: " +
+                    "providerSection=$providers, missing=$missingProvider, imported=$imported, labels=$labels",
+                    missingProvider > providers && missingProvider < imported)
             }
-        }) { activity ->
-            val body = RimeEngineManagerActivity::class.java.getDeclaredField("body").apply {
-                isAccessible = true
-            }.get(activity) as View
-            val labels = descendants(body).filterIsInstance<TextView>().map { it.text.toString() }.toList()
-            val providers = labels.indexOf(activity.getString(R.string.rime_engine_plugin_section))
-            val imported = labels.indexOf(activity.getString(R.string.rime_engine_imported_section))
-            assertTrue("Provider APK section is missing", providers >= 0)
-            assertTrue("Imported .so section is missing", imported >= 0)
-            assertTrue("Provider APKs must be listed above imported .so engines", providers < imported)
-
-            val digest = "11".repeat(32)
-            val missingName = "Missing provider fixture"
-            val authorization = PluginRimeEngineAuthorization(
-                packageName = "org.example.missing.engine",
-                displayName = missingName,
-                providerId = "missing-fixture",
-                certificateSha256 = "22".repeat(32),
-                payloadSha256 = digest,
-                soname = "librime-missing.so",
-                staticInfo = RimeEngineStaticInfo(
-                    sha256 = digest, size = 1, abi = "x86_64", bits = 64,
-                    soname = "librime-missing.so", entrySymbol = "rime_get_api",
-                    neededLibraries = listOf("libc.so"), loadAlignment = 16384,
-                    sourceName = "librime-missing.so"
-                ),
-                runtimeInfo = RimeEngineRuntimeInfo("1.0", 1, emptyList()),
-                profile = "rime",
-                authorizedAt = 1
-            )
-            val screenClass = Class.forName("${RimeEngineManagerActivity::class.java.name}\$Screen")
-            val screen = screenClass.declaredConstructors.single().apply { isAccessible = true }.newInstance(
-                RimeEngineState(plugins = listOf(authorization)),
-                RimeDataDirectoryState("rime", listOf("rime"), mapOf("rime" to activity.filesDir.path)),
-                emptyList<Any>()
-            )
-            RimeEngineManagerActivity::class.java.getDeclaredMethod("render", screenClass).apply {
-                isAccessible = true
-            }.invoke(activity, screen)
-            val missingLabels = descendants(body).filterIsInstance<TextView>().map { it.text.toString() }.toList()
-            val missingProvider = missingLabels.indexOf(missingName)
-            val missingImported = missingLabels.indexOf(activity.getString(R.string.rime_engine_imported_section))
-            assertTrue("Saved but unavailable provider must stay inside the APK section: " +
-                "providerSection=${missingLabels.indexOf(activity.getString(R.string.rime_engine_plugin_section))}, " +
-                "missing=$missingProvider, imported=$missingImported, labels=$missingLabels",
-                missingProvider > missingLabels.indexOf(activity.getString(R.string.rime_engine_plugin_section)) &&
-                    missingProvider < missingImported)
+        } finally {
+            repository.revokePlugin(authorization.packageName)
         }
     }
 

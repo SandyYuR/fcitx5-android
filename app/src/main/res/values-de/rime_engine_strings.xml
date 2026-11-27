@@ -60,4 +60,9 @@
     <string name="rime_engine_version_value">librime-Version: %1$s</string>
     <string name="rime_engine_api_size_value">RimeApi-Datengröße: %1$d Byte</string>
     <string name="rime_engine_capabilities_value">Erkannte Fähigkeiten: %1$s</string>
+    <string name="rime_engine_packaged_name">Integriertes Rime</string>
+    <string name="rime_engine_metadata_unknown">Unbekannt / nicht deklariert</string>
+    <string name="rime_engine_sdk_commit">Quellcode-Commit: %1$s</string>
+    <string name="rime_engine_sdk_base_commit">Basis-Commit: %1$s</string>
+    <string name="rime_engine_sdk_development_tree">Entwicklungsbuild · Quellbaum: %1$s</string>
 </resources>
