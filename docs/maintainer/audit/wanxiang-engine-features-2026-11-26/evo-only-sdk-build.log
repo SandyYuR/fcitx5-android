@@ -1,0 +1,796 @@
+-- Build spdlog: 1.17.0
+-- Build type: Release
+-- Generating install
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: D:/GitHub/fx2-rime/.build/rime/windows/cmake/x86_64/spdlog
+ninja: no work to do.
+-- Install configuration: "Release"
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/async.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/async_logger-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/async_logger.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/cfg
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/cfg/argv.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/cfg/env.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/cfg/helpers-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/cfg/helpers.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/common-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/common.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/backtracer-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/backtracer.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/circular_q.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/console_globals.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/file_helper-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/file_helper.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/fmt_helper.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/log_msg-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/log_msg.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/log_msg_buffer-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/log_msg_buffer.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/mpmc_blocking_q.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/null_mutex.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/os-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/os.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/periodic_worker-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/periodic_worker.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/registry-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/registry.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/synchronous_factory.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/tcp_client-windows.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/tcp_client.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/thread_pool-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/thread_pool.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/udp_client-windows.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/udp_client.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/details/windows_include.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bin_to_hex.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/chrono.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/compile.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/fmt.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/ostr.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/ranges.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/std.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/xchar.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/formatter.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fwd.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/logger-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/logger.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/mdc.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/pattern_formatter-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/pattern_formatter.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/android_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/ansicolor_sink-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/ansicolor_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/base_sink-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/base_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/basic_file_sink-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/basic_file_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/callback_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/daily_file_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/dist_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/dup_filter_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/hourly_file_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/kafka_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/mongo_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/msvc_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/null_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/ostream_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/qt_sinks.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/ringbuffer_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/rotating_file_sink-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/rotating_file_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/sink-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/stdout_color_sinks-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/stdout_color_sinks.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/stdout_sinks-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/stdout_sinks.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/syslog_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/systemd_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/tcp_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/udp_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/wincolor_sink-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/wincolor_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/sinks/win_eventlog_sink.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/spdlog-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/spdlog.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/stopwatch.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/tweakme.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/version.h
+-- Installing: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/lib/libspdlog.a
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled/
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//args.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//base.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//chrono.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//color.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//compile.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//core.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//fmt.license.rst
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//format-inl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//format.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//os.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//ostream.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//printf.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//ranges.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//std.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/include/spdlog/fmt/bundled//xchar.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/lib/pkgconfig/spdlog.pc
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/lib/cmake/spdlog/spdlogConfigTargets.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/lib/cmake/spdlog/spdlogConfigTargets-release.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/lib/cmake/spdlog/spdlogConfig.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/spdlog/x86_64/lib/cmake/spdlog/spdlogConfigVersion.cmake
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: D:/GitHub/fx2-rime/.build/rime/windows/cmake/x86_64/yaml-cpp
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+-- Install configuration: "Release"
+-- Installing: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/lib/libyaml-cpp.a
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/anchor.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/binary.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/contrib
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/contrib/anchordict.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/contrib/graphbuilder.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/depthguard.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/dll.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/emitfromevents.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/emitter.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/emitterdef.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/emittermanip.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/emitterstyle.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/eventhandler.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/exceptions.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/fptostring.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/mark.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/convert.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/detail
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/detail/impl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/detail/iterator.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/detail/iterator_fwd.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/detail/memory.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/detail/node.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/detail/node_data.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/detail/node_iterator.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/detail/node_ref.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/emit.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/impl.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/iterator.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/node.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/parse.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/ptr.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/node/type.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/noexcept.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/null.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/ostream_wrapper.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/parser.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/stlemitter.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/traits.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/include/yaml-cpp/yaml.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/lib/cmake/yaml-cpp/yaml-cpp-targets.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/lib/cmake/yaml-cpp/yaml-cpp-targets-release.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/lib/cmake/yaml-cpp/yaml-cpp-config.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/lib/cmake/yaml-cpp/yaml-cpp-config-version.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/lib/pkgconfig/yaml-cpp.pc
+-- Configuring done (0.2s)
+-- Generating done (0.1s)
+-- Build files have been written to: D:/GitHub/fx2-rime/.build/rime/windows/cmake/x86_64/leveldb
+ninja: no work to do.
+-- Install configuration: "Release"
+-- Installing: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/lib/libleveldb.a
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/c.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/cache.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/comparator.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/db.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/dumpfile.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/env.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/export.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/filter_policy.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/iterator.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/options.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/slice.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/status.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/table_builder.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/table.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/include/leveldb/write_batch.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/lib/cmake/leveldb/leveldbTargets.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/lib/cmake/leveldb/leveldbTargets-release.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/lib/cmake/leveldb/leveldbConfig.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/lib/cmake/leveldb/leveldbConfigVersion.cmake
+-- Configuring done (0.4s)
+-- Generating done (0.1s)
+-- Build files have been written to: D:/GitHub/fx2-rime/.build/rime/windows/cmake/x86_64/marisa
+ninja: no work to do.
+-- Install configuration: "Release"
+-- Installing: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/lib/libmarisa.a
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa/agent.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa/base.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa/iostream.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa/key.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa/keyset.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa/query.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa/stdio.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa/trie.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/include/marisa.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/bin/marisa-build
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/bin/marisa-lookup
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/bin/marisa-reverse-lookup
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/bin/marisa-common-prefix-search
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/bin/marisa-predictive-search
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/bin/marisa-dump
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/bin/marisa-benchmark
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/lib/cmake/Marisa/MarisaTargets.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/lib/cmake/Marisa/MarisaTargets-release.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/lib/cmake/Marisa/MarisaConfig.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/lib/cmake/Marisa/MarisaConfigVersion.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/lib/pkgconfig/marisa.pc
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: D:/GitHub/fx2-rime/.build/rime/windows/cmake/x86_64/lua
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+-- Install configuration: "Release"
+-- Installing: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/lib/liblua_static.a
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/include/lua.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/include/luaconf.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/include/lualib.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/include/lauxlib.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/include/lua.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/lib/cmake/Lua/LuaTargets.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/lib/cmake/Lua/LuaTargets-release.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/lib/cmake/Lua/LuaConfig.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/lua/x86_64/lib/cmake/Lua/LuaConfigVersion.cmake
+-- Git not available — using fallback version 1.4.2
+-- OpenCC version: 1.4.2
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: D:/GitHub/fx2-rime/.build/rime/windows/cmake/x86_64/opencc
+ninja: no work to do.
+-- Install configuration: "Release"
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/lib/pkgconfig/opencc.pc
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/lib/cmake/opencc/OpenCCConfig.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/lib/cmake/opencc/OpenCCConfigVersion.cmake
+-- Installing: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/lib/libopencc.a
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/lib/cmake/opencc/OpenCCTargets.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/lib/cmake/opencc/OpenCCTargets-release.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Common.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Config.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Conversion.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/ConversionChain.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/ConversionInspection.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Converter.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Dict.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/DictEntry.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/DictGroup.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Exception.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Export.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Lexicon.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/MarisaDict.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/MaxMatchSegmentation.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Optional.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/ResourceProvider.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Segmentation.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/Segments.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/SerializableDict.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/SimpleConverter.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/TextDict.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/UTF8Util.hpp
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/opencc.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/include/opencc/plugin/OpenCCPlugin.h
+-- Configuring done (0.2s)
+-- Generating done (0.1s)
+-- Build files have been written to: D:/GitHub/fx2-rime/.build/rime/windows/cmake/host/marisa
+ninja: no work to do.
+-- Install configuration: "Release"
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/lib/marisa.lib
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa/agent.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa/base.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa/iostream.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa/key.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa/keyset.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa/query.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa/stdio.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa/trie.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/include/marisa.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/bin/marisa-build.exe
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/bin/marisa-lookup.exe
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/bin/marisa-reverse-lookup.exe
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/bin/marisa-common-prefix-search.exe
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/bin/marisa-predictive-search.exe
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/bin/marisa-dump.exe
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/bin/marisa-benchmark.exe
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/lib/cmake/Marisa/MarisaTargets.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/lib/cmake/Marisa/MarisaTargets-release.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/lib/cmake/Marisa/MarisaConfig.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/lib/cmake/Marisa/MarisaConfigVersion.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/host/lib/pkgconfig/marisa.pc
+-- Git not available — using fallback version 1.4.2
+-- OpenCC version: 1.4.2
+-- Use bundled marisa library.
+-- Configuring done (0.8s)
+-- Generating done (0.1s)
+-- Build files have been written to: D:/GitHub/fx2-rime/.build/rime/windows/cmake/host/opencc
+[1/1] Copying libopencc to directory of opencc_dict
+-- Install configuration: "Release"
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/CJK_Compatibility_Ideographs.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/STCharacters.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/STPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/TSCharacters.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/TSPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/TWPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/TWPhrasesRev.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/TWVariantsPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/TWVariants.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/TWVariantsRevPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/HKVariantsPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/HKVariants.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/HKVariantsRevPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/HKPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/HKPhrasesRev.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/JPShinjitaiCharacters.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/JPShinjitaiPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/TSCharactersExt.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/STPhrases_GeneratedFromRegionalPhrases.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/TWVariantsRev.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/HKVariantsRev.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/JPShinjitaiCharactersRev.ocd2
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/hk2s.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/hk2sp.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/hk2t.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/jp2t.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/s2hk.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/s2hkp.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/s2t.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/s2tw.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/s2twp.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/t2hk.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/t2jp.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/t2s.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/t2tw.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/tw2s.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/tw2sp.json
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/data/tw2t.json
+CMake Warning (dev) at CMakeLists.txt:67 (find_package):
+  Policy CMP0167 is not set: The FindBoost module is removed.  Run "cmake
+  --help-policy CMP0167" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Build spdlog: 1.17.0
+-- Build type: Release
+-- Found yaml-cpp: D:/GitHub/fx2-rime/.build/rime/windows/product/yaml-cpp/x86_64/lib/libyaml-cpp.a
+-- Found leveldb: D:/GitHub/fx2-rime/.build/rime/windows/product/leveldb/x86_64/lib/libleveldb.a
+-- Found marisa: D:/GitHub/fx2-rime/.build/rime/windows/product/marisa/x86_64/lib/libmarisa.a
+-- Found opencc: D:/GitHub/fx2-rime/.build/rime/windows/product/opencc/x86_64/lib/libopencc.a
+CMake Warning at CMakeLists.txt:171 (message):
+  X11/keysym.h not found.
+
+
+-- Found plugin: D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/plugins/lua
+-- Found plugin: D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/plugins/octagram
+-- Found plugin: D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/plugins/predict
+-- rime_plugins_libs: Lua::lua_static
+-- rime_plugins_modules: lua;octagram;predict
+-- Configuring done (0.3s)
+-- Generating done (0.1s)
+-- Build files have been written to: D:/GitHub/fx2-rime/.build/rime/windows/cmake/x86_64/librime
+[1/40] Building CXX object plugins/lua/CMakeFiles/rime-lua-objs.dir/src/types_ext.cc.o
+[2/40] Building CXX object plugins/lua/CMakeFiles/rime-lua-objs.dir/src/script_translator.cc.o
+[3/40] Building CXX object plugins/lua/CMakeFiles/rime-lua-objs.dir/src/table_translator.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/plugins/lua/src/table_translator.cc:8:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.h:31:27: warning: 'Query' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   31 |   virtual an<Translation> Query(const string& input, const Segment& segment);
+      |                           ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:37:27: note: overridden virtual function is here
+   37 |   virtual an<Translation> Query(const string& input,
+      |                           ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/plugins/lua/src/table_translator.cc:8:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.h:32:16: warning: 'Memorize' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   32 |   virtual bool Memorize(const CommitEntry& commit_entry);
+
+      |                ^
+
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/memory.h:41:16: note: overridden virtual function is here
+
+   41 |   virtual bool Memorize(const CommitEntry& commit_entry) = 0;
+
+      |                ^
+
+2 warnings generated.
+
+[4/40] Building CXX object plugins/predict/CMakeFiles/rime-predict-objs.dir/src/legacy_predict_db.cc.o
+[5/40] Building CXX object plugins/predict/CMakeFiles/rime-predict-objs.dir/src/predict_module.cc.o
+[6/40] Building CXX object plugins/predict/CMakeFiles/rime-predict-objs.dir/src/predict_engine.cc.o
+[7/40] Building CXX object plugins/predict/CMakeFiles/rime-predict-objs.dir/src/predict_translator.cc.o
+[8/40] Building CXX object plugins/predict/CMakeFiles/rime-predict-objs.dir/src/predictor.cc.o
+[9/40] Building CXX object src/CMakeFiles/rime-static.dir/rime_api.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime_api.cc:8:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime_api_impl.cc:20:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime_api.cc:8:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime_api_impl.cc:20:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+
+4 warnings generated.
+
+[10/40] Building CXX object src/CMakeFiles/rime-static.dir/rime_api_stdbool.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime_api_stdbool.cc:3:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime_api_impl.cc:20:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime_api_stdbool.cc:3:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime_api_impl.cc:20:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+
+4 warnings generated.
+
+[11/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/algo/syllabifier.cc.o
+[12/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/corrector.cc.o
+[13/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/engine.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.cc:14:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.cc:14:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.cc:95:16: warning: 'ProcessKey' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   95 |   virtual bool ProcessKey(const KeyEvent& key_event) {
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:27:16: note: overridden virtual function is here
+   27 |   virtual bool ProcessKey(const KeyEvent&) { return false; }
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.cc:98:16: warning: 'ProcessSyntheticKey' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   98 |   virtual bool ProcessSyntheticKey(const KeyEvent& key_event) {
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:28:16: note: overridden virtual function is here
+   28 |   virtual bool ProcessSyntheticKey(const KeyEvent&) { return false; }
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.cc:101:16: warning: 'ApplySchema' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  101 |   virtual void ApplySchema(Schema* schema);
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:29:16: note: overridden virtual function is here
+   29 |   virtual void ApplySchema(Schema*) {}
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.cc:102:16: warning: 'CommitText' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  102 |   virtual void CommitText(string text);
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:30:16: note: overridden virtual function is here
+   30 |   virtual void CommitText(string text) { sink_(text); }
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.cc:103:16: warning: 'Compose' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+  103 |   virtual void Compose(Context* ctx);
+
+      |                ^
+
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:31:16: note: overridden virtual function is here
+
+   31 |   virtual void Compose(Context*) {}
+
+      |                ^
+
+9 warnings generated.
+
+[14/40] Building CXX object plugins/lua/CMakeFiles/rime-lua-objs.dir/src/types.cc.o
+[15/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/dict_module.cc.o
+[16/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/dict_compiler.cc.o
+[17/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/dictionary.cc.o
+[18/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/prism.cc.o
+[19/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/entry_collector.cc.o
+[20/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/reverse_lookup_dictionary.cc.o
+[21/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/table.cc.o
+[22/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/vocabulary.cc.o
+[23/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/charset_filter.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/charset_filter.cc:12:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/charset_filter.cc:12:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+
+      |                                        ^
+
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+
+      |                                                        ^
+
+4 warnings generated.
+
+[24/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/contextual_translation.cc.o
+[25/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/dict/user_dictionary.cc.o
+[26/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/gears_module.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/gears_module.cc:15:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/echo_translator.h:10:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/gears_module.cc:25:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/reverse_lookup_translator.h:25:27: warning: 'Query' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   25 |   virtual an<Translation> Query(const string& input, const Segment& segment);
+      |                           ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:37:27: note: overridden virtual function is here
+   37 |   virtual an<Translation> Query(const string& input,
+      |                           ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/gears_module.cc:35:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.h:31:27: warning: 'Query' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   31 |   virtual an<Translation> Query(const string& input, const Segment& segment);
+      |                           ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:37:27: note: overridden virtual function is here
+   37 |   virtual an<Translation> Query(const string& input,
+      |                           ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/gears_module.cc:35:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.h:32:16: warning: 'Memorize' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   32 |   virtual bool Memorize(const CommitEntry& commit_entry);
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/memory.h:41:16: note: overridden virtual function is here
+
+   41 |   virtual bool Memorize(const CommitEntry& commit_entry) = 0;
+
+      |                ^
+
+5 warnings generated.
+
+[27/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/editor.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/editor.cc:10:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/editor.cc:10:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+
+      |                                        ^
+
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+
+      |                                                        ^
+
+4 warnings generated.
+
+[28/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/memory.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/memory.cc:10:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/memory.cc:10:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+
+      |                                        ^
+
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+
+      |                                                        ^
+
+4 warnings generated.
+
+[29/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/navigator.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/navigator.cc:12:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/navigator.cc:12:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+
+      |                                        ^
+
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+
+      |                                                        ^
+
+4 warnings generated.
+
+[30/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/reverse_lookup_filter.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/reverse_lookup_filter.cc:8:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/reverse_lookup_filter.cc:8:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+
+      |                                        ^
+
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+
+      |                                                        ^
+
+4 warnings generated.
+
+[31/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/poet.cc.o
+[32/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/single_char_filter.cc.o
+[33/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/reverse_lookup_translator.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/reverse_lookup_translator.cc:10:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/reverse_lookup_translator.cc:10:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/reverse_lookup_translator.cc:18:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/reverse_lookup_translator.h:25:27: warning: 'Query' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   25 |   virtual an<Translation> Query(const string& input, const Segment& segment);
+      |                           ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:37:27: note: overridden virtual function is here
+   37 |   virtual an<Translation> Query(const string& input,
+      |                           ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/reverse_lookup_translator.cc:20:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.h:31:27: warning: 'Query' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   31 |   virtual an<Translation> Query(const string& input, const Segment& segment);
+      |                           ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:37:27: note: overridden virtual function is here
+   37 |   virtual an<Translation> Query(const string& input,
+      |                           ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/reverse_lookup_translator.cc:20:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.h:32:16: warning: 'Memorize' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+
+   32 |   virtual bool Memorize(const CommitEntry& commit_entry);
+
+      |                ^
+
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/memory.h:41:16: note: overridden virtual function is here
+
+   41 |   virtual bool Memorize(const CommitEntry& commit_entry) = 0;
+
+      |                ^
+
+7 warnings generated.
+
+[34/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/table_translator.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.cc:16:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.cc:16:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.cc:25:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.h:31:27: warning: 'Query' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   31 |   virtual an<Translation> Query(const string& input, const Segment& segment);
+      |                           ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:37:27: note: overridden virtual function is here
+   37 |   virtual an<Translation> Query(const string& input,
+      |                           ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.cc:25:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/table_translator.h:32:16: warning: 'Memorize' overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
+   32 |   virtual bool Memorize(const CommitEntry& commit_entry);
+      |                ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/memory.h:41:16: note: overridden virtual function is here
+
+   41 |   virtual bool Memorize(const CommitEntry& commit_entry) = 0;
+
+      |                ^
+
+6 warnings generated.
+
+[35/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/unity_table_encoder.cc.o
+[36/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/script_translator.cc.o
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/script_translator.cc:19:
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:13:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:41:40: warning: unused parameter 'position' [-Wunused-parameter]
+   41 |   virtual void CollectInputTabs(size_t position,
+      |                                        ^
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/translator.h:42:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+   42 |                                 vector<InputTabEntry>* tabs) const {}
+      |                                                        ^
+In file included from D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/gear/script_translator.cc:19:
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:34:40: warning: unused parameter 'position' [-Wunused-parameter]
+   34 |   virtual void CollectInputTabs(size_t position,
+
+      |                                        ^
+
+D:/GitHub/fx2-rime/.build/rime/windows/sources/librime/src/rime/engine.h:35:56: warning: unused parameter 'tabs' [-Wunused-parameter]
+
+   35 |                                 vector<InputTabEntry>* tabs) const {}
+
+      |                                                        ^
+
+4 warnings generated.
+
+[37/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/gear/translator_commons.cc.o
+[38/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/lever/compile_unit.cc.o
+[39/40] Building CXX object src/CMakeFiles/rime-static.dir/rime/lever/deployment_tasks.cc.o
+[40/40] Linking CXX static library lib\librime.a
+-- Install configuration: "Release"
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/librime/x86_64/share/cmake/rime/RimeConfig.cmake
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/librime/x86_64/include/rime_api.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/librime/x86_64/include/rime_api_deprecated.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/librime/x86_64/include/rime_api_stdbool.h
+-- Up-to-date: D:/GitHub/fx2-rime/.build/rime/windows/product/librime/x86_64/include/rime_levers_api.h
+-- Installing: D:/GitHub/fx2-rime/.build/rime/windows/product/librime/x86_64/lib/librime.a
+Built x86_64 from 83fbd0810e8c24db87f3b9dc9acce193401c7c4f, tree b48eb4b8baf16a1bc7b70ca1299bcd0ceffbabc1: D:\GitHub\fx2-rime\.build\rime\windows\product
+{"development_sdk": "D:\\GitHub\\fx2-rime\\.build\\rime\\sdk", "source_tree": "b48eb4b8baf16a1bc7b70ca1299bcd0ceffbabc1", "abis": ["x86_64"], "files": 258}
+本地开发 SDK：D:\GitHub\fx2-rime\.build\rime\sdk
+源码快照：b48eb4b8baf16a1bc7b70ca1299bcd0ceffbabc1

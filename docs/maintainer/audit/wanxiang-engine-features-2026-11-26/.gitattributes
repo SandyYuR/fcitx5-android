@@ -1,0 +1,5 @@
+*.log -text -whitespace
+*.xml -text
+*.txt -text
+*.png -text
+*.sha256 -text

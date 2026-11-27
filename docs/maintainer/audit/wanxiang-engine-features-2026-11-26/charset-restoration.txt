@@ -1,0 +1,13 @@
+Complete charset mapping restoration, 2026-11-27 (+08:00).
+Original resource: existing profile lua/data/charset.reverse.bin; SHA256 dbf8049c1f2f616a0a2ebd7b439cc94ea188805fd2c4b8dba2c4cabdf55de9e8.
+Export: 98768 unique keys; 82 original ASCII attribute strings; 796741 UTF-8 TSV bytes; SHA256 97cbd22dce0675b08aac7aa4f477edf33ca52d3fdc059329bb64252082e5774f.
+Enumeration covers every terminal ID and independent root-to-leaf DFS without Unicode-range filtering.
+Python index round trip reused original MARISA tries and metadata; reconstructed all 98768 indices and matched original binary byte for byte.
+Independent production librime ReverseDb::Lookup matched all 98768 TSV key/value pairs and covered every metadata index entry.
+Only absent data/charset.txt was created in the existing real profile; no schema was replaced.
+Real settings deployment: device UTC 2026-11-26 16:40:39 to 16:42:55, rewrite:charset ready; schemas 1 success/0 failure; tasks 2 success/0 failure.
+Actual full-pinyin nihao produced candidate 你好 in the built-in keyboard test field; text was cleared afterward.
+Current custom reset=pinyin was preserved. Full custom bytes before and after SHA256 e83d76f7010f1240dc7ee9380e2bf637af16b8e588efa483d03798628dc1f2ec.
+Preferences 85 before/85 after, only process pid changed; engine authorization/profile state unchanged during restoration; default IME Fcitx.
+This restores the complete key-to-attribute mapping, not original source comments, order, duplicate rows or weights.
+The restored source is local profile data, not a bundled resource or official SDK release.

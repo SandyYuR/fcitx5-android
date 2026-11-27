@@ -1,0 +1,2 @@
+I sources/librime/src/rime/dict/reverse_lookup_dictionary.cc:37] loading reversedb: /data/local/tmp/dsh-charset-restore-check-20261127/charset.reverse.bin
+PASS native ReverseDb lookup: 98768 unique keys, 82 original attribute strings; all metadata index entries covered

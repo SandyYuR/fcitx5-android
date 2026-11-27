@@ -158,6 +158,7 @@ const maintenance = [
   { text: '中州鹅 · 历史与证据', collapsed: true, items: [
     { text: '直连版历史阅读路线', link: '/maintainer/history/' },
     { text: '全部验证与性能记录', link: '/maintainer/evidence' },
+    { text: '2026-11-26 引擎功能移植', link: '/maintainer/audit/wanxiang-engine-features-2026-11-26/' },
     { text: '2026-11-26 按压高亮轮廓', link: '/maintainer/audit/key-press-highlight-2026-11-26/' },
     { text: '2026-11-22 气泡、输入调度与长句 CPU', link: '/maintainer/perf/input-fluency-2026-11-22/' },
     { text: '2026-11-21 CyIME 同方案与冷缓存', link: '/maintainer/perf/cyime-wanxiang-2026-11-21/' },

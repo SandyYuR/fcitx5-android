@@ -40,7 +40,7 @@
 | JS 插件与 AI 助手的合入版本 | [JS 插件](/features/voice-input-js) | AI 助手页、两份参考页、宿主协议链接 |
 | AI 助手操作流程 | [AI 文本助手](/features/ai-assistant) | JS 插件页只保留入口 |
 | 分体、浮动与单手键盘的开关、默认值与互斥关系 | [分体、浮动与单手键盘](/features/keyboard/keyboard-modes) | 三个形态页只写各自操作 |
-| 引擎变体、万象与自定义方案更新的细节 | [中州韵引擎变体](/features/rime-engine-variants) · [中州韵方案更新](/features/rime-scheme-updates) | 设置首页的「中州韵引擎」分栏只保留三个入口，不重复细节 |
+| 引擎变体、万象与自定义方案更新的细节 | [中州韵引擎变体](/features/rime-engine-variants) · [中州韵方案更新](/features/rime-scheme-updates) | 设置首页的「中州韵引擎」分栏保留设置和方案更新两个入口，引擎变体放在引擎设置页内，不重复细节 |
 | 宏编辑器键名与 X11 键名的区别 | [Fcitx 键名速查](/features/keys/fcitx-keys#编辑器键名与手写键名) | MacroKey 页链接 |
 | 现行功能页与源码入口 | [覆盖表](/maintainer/changes/feature-coverage) | 对照页、索引只链接 |
 

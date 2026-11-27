@@ -1,0 +1,46 @@
+test_source_upgrade_replaces_cached_headers_and_removes_obsolete_files (test_build.BoostHeadersTest.test_source_upgrade_replaces_cached_headers_and_removes_obsolete_files) ... ok
+test_retry_replaces_an_incomplete_source_tree_without_nesting_the_archive (test_build.PreparedSourceRecoveryTest.test_retry_replaces_an_incomplete_source_tree_without_nesting_the_archive) ... ok
+test_unsafe_version_is_rejected (test_build.RimeVersionTest.test_unsafe_version_is_rejected) ... ok
+test_version_is_read_from_the_project_file (test_build.RimeVersionTest.test_version_is_read_from_the_project_file) ... ok
+-- Found Git: D:/GitHub/tools/git-2.55.0.windows.1/cmd/git.exe (found version "2.55.0.windows.1")
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+test_dependency_cannot_read_enclosing_repository_version (test_build.SourceBuildIsolationTest.test_dependency_cannot_read_enclosing_repository_version) ... CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_INSTALL_LIBDIR
+    CMAKE_POSITION_INDEPENDENT_CODE
+
+
+-- Build files have been written to: D:/GitHub/tools/tmp/tmppkapphxq/output
+ninja: no work to do.
+ok
+test_patch_changes_extracted_source_inside_another_git_repository (test_build.SourcePatchTest.test_patch_changes_extracted_source_inside_another_git_repository) ... ok
+test_windows_line_endings_use_the_locked_git_bytes_and_other_changes_are_rejected (test_local.CanonicalPatchTest.test_windows_line_endings_use_the_locked_git_bytes_and_other_changes_are_rejected) ... ok
+test_snapshot_includes_local_edits_without_staging_or_committing_them (test_local.DevelopmentSnapshotTest.test_snapshot_includes_local_edits_without_staging_or_committing_them) ... warning: in the working copy of 'src/main.cc', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/removed.cc', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main.cc', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main.cc', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main.cc', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/new.cc', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main.cc', LF will be replaced by CRLF the next time Git touches it
+ok
+test_file_directory_type_changes_are_handled (test_local.IncrementalSourceTest.test_file_directory_type_changes_are_handled) ... ok
+test_unchanged_cpp_keeps_its_timestamp_while_edits_and_deletions_sync (test_local.IncrementalSourceTest.test_unchanged_cpp_keeps_its_timestamp_while_edits_and_deletions_sync) ... ok
+test_internal_links_materialize_without_os_symlink_privileges (test_local.PortableExtractionTest.test_internal_links_materialize_without_os_symlink_privileges) ... ok
+test_links_cannot_escape_or_point_to_themselves (test_local.PortableExtractionTest.test_links_cannot_escape_or_point_to_themselves) ... ok
+test_checksum_manifest_is_relative_and_self_contained (test_package.ArtifactChecksumsTest.test_checksum_manifest_is_relative_and_self_contained) ... ok
+test_replace_tree_rejects_overlap_without_removing_either_tree (test_package.ArtifactChecksumsTest.test_replace_tree_rejects_overlap_without_removing_either_tree) ... ok
+test_dynamic_contract_pins_system_dependencies_and_soname (test_package.EngineElfContractTest.test_dynamic_contract_pins_system_dependencies_and_soname) ... ok
+test_executable_or_unsafe_images_are_rejected (test_package.EngineElfContractTest.test_executable_or_unsafe_images_are_rejected) ... ok
+test_safe_shared_object_is_accepted (test_package.EngineElfContractTest.test_safe_shared_object_is_accepted) ... ok
+test_provider_is_discoverable_without_shipping_executable_dex (test_package.PluginManifestTest.test_provider_is_discoverable_without_shipping_executable_dex) ... ok
+test_untrusted_xml_fields_are_rejected (test_package.PluginManifestTest.test_untrusted_xml_fields_are_rejected) ... ok
+test_engine_in_output_is_rejected_before_packaging (test_package.PluginPackagingInputsTest.test_engine_in_output_is_rejected_before_packaging) ... ok
+test_overlapping_output_is_rejected_before_any_input_or_tool_access (test_package.PluginPackagingInputsTest.test_overlapping_output_is_rejected_before_any_input_or_tool_access) ... ok
+test_resources_are_utf8_even_with_a_legacy_default_encoding (test_package.PluginPackagingInputsTest.test_resources_are_utf8_even_with_a_legacy_default_encoding) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 2.667s
+
+OK
