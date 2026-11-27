@@ -34,6 +34,7 @@ import org.fcitx.fcitx5.android.data.clipboard.ClipboardCategory
 import org.fcitx.fcitx5.android.data.clipboard.ClipboardManager
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardDatabase
 import org.fcitx.fcitx5.android.data.clipboard.db.ClipboardEntry
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.SettingsUiPreferences
 import org.fcitx.fcitx5.android.input.EditorSessionTracker
 import org.fcitx.fcitx5.android.input.FcitxInputMethodService
@@ -166,6 +167,34 @@ class ClipboardSearchPanelTest {
         assertNull(service.jsAppInputConnection)
         assertEquals(ClipboardCategory.Local.name, PreferenceManager.getDefaultSharedPreferences(appContext)
             .getString("clipboard_last_opened_category", null))
+    }
+
+    @Test fun hidingFavoritesRefreshesAllAndKeepsMatchesInFavorites() {
+        val preference = AppPrefs.getInstance().clipboard.clipboardHideFavoritesInAll
+        val previous = preference.getValue()
+        try {
+            assertFalse(preference.defaultValue)
+            preference.setValue(true)
+            val session = open()
+            await { ids(session) == setOf(1, 2, 4) }
+            session.query.setText("置顶")
+            await { ids(session).isEmpty() && session.content.ui.viewAnimator.displayedChild == 1 }
+            category(session, ClipboardCategory.Favorites).performClick()
+            await { ids(session) == setOf(3) }
+            category(session, ClipboardCategory.All).performClick()
+            await { ids(session).isEmpty() }
+            preference.setValue(false)
+            await { ids(session) == setOf(3) }
+            preference.setValue(true)
+            await { ids(session).isEmpty() }
+            runBlocking { ClipboardManager.unpin(3) }
+            await { ids(session) == setOf(3) }
+            runBlocking { ClipboardManager.pin(3) }
+            await { ids(session).isEmpty() }
+            assertEquals("置顶", session.query.text.toString())
+        } finally {
+            preference.setValue(previous)
+        }
     }
 
     @Test fun selectingAResultClosesThePanelAndPastesOnlyTheSelectedEntry() {

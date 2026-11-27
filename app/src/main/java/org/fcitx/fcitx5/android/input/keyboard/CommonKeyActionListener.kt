@@ -307,6 +307,7 @@ class CommonKeyActionListener :
                             toggleRimeSchema()
                         }
                         SpaceLongPressBehavior.ShowPicker -> showRimeSchemaMenu()
+                        SpaceLongPressBehavior.ShowInputMethodPicker -> InputMethodUtil.showPicker()
                         SpaceLongPressBehavior.VoiceInput -> { switchToVoiceInput() }
                         SpaceLongPressBehavior.VoiceInputHold -> {
                             val started = switchToVoiceInput()

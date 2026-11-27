@@ -558,6 +558,7 @@
     <string name="clear_clp_db_confirm">Die Zwischenablage-Datenbank wird vollständig geleert, einschließlich angehefteter Einträge. Fortfahren?</string>
     <string name="clipboard_entry_radius">Eckradius von Zwischenablage-Einträgen</string>
     <string name="clipboard_mask_sensitive">Sensible Inhalte ausblenden (z. B. Passwörter)</string>
+    <string name="clipboard_hide_favorites_in_all">Favoriten im Tab „Alle“ ausblenden</string>
     <string name="clipboard_return_after_paste">Nach dem Einfügen zurückkehren</string>
     <string name="clipboard_suggestion">Zwischenablage-Hinweis anzeigen</string>
     <string name="clipboard_suggestion_timeout">Timeout für Zwischenablage-Hinweis</string>
@@ -679,6 +680,7 @@
     <string name="show_candidates_window">Kandidatenfenster anzeigen</string>
     <string name="space_behavior_enumerate">Aktivierte Rime-Schemata durchlaufen</string>
     <string name="space_behavior_picker">Rime-Schemenmenü anzeigen</string>
+    <string name="space_behavior_input_method_picker">Dialog zur Eingabemethodenauswahl anzeigen</string>
     <string name="space_behavior_voice_input">Zur Spracheingabe wechseln</string>
     <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="space_swipe_move_cursor">Über die Leertaste wischen, um den Cursor zu bewegen</string>

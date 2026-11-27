@@ -242,6 +242,7 @@
     <string name="space_behavior_enumerate">Переключаться между включёнными схемами Rime</string>
     <string name="space_behavior_activate">Переключаться между текущей и первой схемой Rime</string>
     <string name="space_behavior_picker">Показать меню схем Rime</string>
+    <string name="space_behavior_input_method_picker">Показать диалоговое окно выбора метода ввода</string>
     <string name="space_behavior_voice_input">Переключиться на голосовой ввод</string>
     <string name="space_behavior_voice_input_hold">Voice input (hold to talk)</string>
     <string name="show_lang_switch_key">Показываать клавишу переключения языка</string>
@@ -300,6 +301,7 @@
     <string name="table_dict_replace_message">Словарь кодовой таблицы \"%1$s\" существует. Вы можете импортировать новый словарь и заменить его.</string>
     <string name="_cannot_be_empty">%1$s не может быть пустым</string>
     <string name="clipboard_mask_sensitive">Маскировать конфиденциальные данные (например, пароли).</string>
+    <string name="clipboard_hide_favorites_in_all">Скрывать избранное на вкладке «Все»</string>
     <string name="open_rime_user_data_dir">Будет открыт каталог данных приложения. Каталог пользовательских данных RIME находится в "data" и зависит от текущего выбранного каталога.</string>
     <string name="generic_multiselect_min">Необходимо выбрать как минимум %1$d элемент(а).</string>
     <string name="space_swipe_move_cursor">Провести по клавише пробела, чтобы переместить курсор</string>

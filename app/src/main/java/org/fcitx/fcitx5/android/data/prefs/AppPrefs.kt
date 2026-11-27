@@ -699,6 +699,9 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val clipboardReturnAfterPaste = switch(
             R.string.clipboard_return_after_paste, "clipboard_return_after_paste", false
         ) { clipboardListening.getValue() }
+        val clipboardHideFavoritesInAll = switch(
+            R.string.clipboard_hide_favorites_in_all, "clipboard_hide_favorites_in_all", false
+        )
         val clipboardMaskSensitive = switch(
             R.string.clipboard_mask_sensitive, "clipboard_mask_sensitive", true
         ) { clipboardListening.getValue() }

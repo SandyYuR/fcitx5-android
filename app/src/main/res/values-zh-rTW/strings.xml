@@ -327,6 +327,7 @@
     <string name="space_behavior_enumerate">輪換目前啟用的 Rime 方案</string>
     <string name="space_behavior_activate">在目前啟用的 Rime 方案與第一個方案間切換</string>
     <string name="space_behavior_picker">顯示 Rime 方案選單</string>
+    <string name="space_behavior_input_method_picker">顯示選擇輸入法對話框</string>
     <string name="space_behavior_voice_input">切換到語音輸入</string>
     <string name="space_behavior_voice_input_hold">按住說話</string>
     <string name="space_key_label_mode">空格鍵標籤樣式</string>
@@ -445,6 +446,7 @@
     <string name="table_dict_replace_message">碼表字典 \"%1$s\" 已存在。您可以匯入新字典並覆蓋原字典。</string>
     <string name="_cannot_be_empty">%1$s不能為空</string>
     <string name="clipboard_mask_sensitive">隱藏敏感訊息（如密碼）</string>
+    <string name="clipboard_hide_favorites_in_all">在「全部」分頁中隱藏收藏項目</string>
     <string name="open_rime_user_data_dir">即將開啟應用資料目錄。RIME 使用者資料目錄位於「data」下，並取決於目前目錄設定。</string>
     <string name="generic_multiselect_min">至少需要選擇 %1$d 項。</string>
     <string name="space_swipe_move_cursor">划動空格以移動游標</string>
@@ -565,7 +567,7 @@
     <string name="text_keyboard_layout_key_type_comma">逗號鍵</string>
     <string name="text_keyboard_layout_key_type_language">中英文鍵</string>
     <string name="text_keyboard_layout_key_type_space">空格鍵</string>
-    <string name="text_keyboard_layout_key_type_symbol">符號鍵</string>
+    <string name="text_keyboard_layout_key_type_symbol">句號鍵</string>
     <string name="text_keyboard_layout_key_type_return">換行鍵</string>
     <string name="text_keyboard_layout_key_type_backspace">退格鍵</string>
     <string name="text_keyboard_layout_key_type_numpad">小鍵盤數字鍵</string>
