@@ -500,6 +500,31 @@ data class MonetThemeMapping(
                         genericActiveForegroundColor = SystemColorResourceId.SYSTEM_ON_PRIMARY_LIGHT
                     )
                 }
+            } else if (isDark) {
+                // API 31–33 tonal roles mirror ThemeMonet.getDark().
+                MonetThemeMapping(
+                    backgroundColor = SystemColorResourceId.SYSTEM_NEUTRAL1_900,
+                    barColor = SystemColorResourceId.SYSTEM_NEUTRAL2_1000,
+                    keyboardColor = SystemColorResourceId.SYSTEM_NEUTRAL1_900,
+                    keyBackgroundColor = SystemColorResourceId.SYSTEM_NEUTRAL1_800,
+                    keyTextColor = SystemColorResourceId.SYSTEM_NEUTRAL1_100,
+                    candidateTextColor = SystemColorResourceId.SYSTEM_NEUTRAL1_100,
+                    candidateLabelColor = SystemColorResourceId.SYSTEM_NEUTRAL1_100,
+                    candidateCommentColor = SystemColorResourceId.SYSTEM_ACCENT2_200,
+                    altKeyBackgroundColor = SystemColorResourceId.SYSTEM_ACCENT2_700,
+                    altKeyTextColor = SystemColorResourceId.SYSTEM_ACCENT2_200,
+                    accentKeyBackgroundColor = SystemColorResourceId.SYSTEM_ACCENT1_200,
+                    accentKeyTextColor = SystemColorResourceId.SYSTEM_ACCENT1_800,
+                    keyPressHighlightColor = SystemColorResourceId.SYSTEM_NEUTRAL1_100,
+                    keyShadowColor = SystemColorResourceId.SYSTEM_NEUTRAL1_0,
+                    popupBackgroundColor = SystemColorResourceId.SYSTEM_NEUTRAL1_900,
+                    popupTextColor = SystemColorResourceId.SYSTEM_NEUTRAL1_100,
+                    spaceBarColor = SystemColorResourceId.SYSTEM_NEUTRAL1_800,
+                    dividerColor = SystemColorResourceId.SYSTEM_NEUTRAL1_800,
+                    clipboardEntryColor = SystemColorResourceId.SYSTEM_NEUTRAL1_800,
+                    genericActiveBackgroundColor = SystemColorResourceId.SYSTEM_ACCENT1_200,
+                    genericActiveForegroundColor = SystemColorResourceId.SYSTEM_ACCENT1_800
+                )
             } else {
                 // SDK 31-33 使用近似颜色
                 MonetThemeMapping(

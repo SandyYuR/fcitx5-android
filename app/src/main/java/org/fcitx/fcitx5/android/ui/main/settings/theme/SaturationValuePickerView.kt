@@ -117,8 +117,12 @@ class SaturationValuePickerView(context: Context) : View(context) {
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        when (event.action) {
+        if (width <= 0 || height <= 0) return false
+        when (event.actionMasked) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                    parent?.requestDisallowInterceptTouchEvent(true)
+                }
                 val x = event.x.coerceIn(0f, width.toFloat())
                 val y = event.y.coerceIn(0f, height.toFloat())
 
@@ -130,6 +134,10 @@ class SaturationValuePickerView(context: Context) : View(context) {
 
                 invalidate()
                 onColorChanged?.invoke(saturation, value)
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                parent?.requestDisallowInterceptTouchEvent(false)
+                if (event.actionMasked == MotionEvent.ACTION_UP) performClick()
             }
         }
         return true

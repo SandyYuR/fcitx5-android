@@ -88,8 +88,15 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
             finish()
             return
         }
-        currentColor = currentInput.initialColor
+        currentColor = savedInstanceState?.getInt(STATE_COLOR, currentInput.initialColor) ?: currentInput.initialColor
+        if (savedInstanceState?.getBoolean(STATE_ALPHA_EDITED) == true) alphaState.recordAlphaEdit()
         initUi()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(STATE_COLOR, currentColor)
+        outState.putBoolean(STATE_ALPHA_EDITED, alphaState.explicitlyEdited)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -379,6 +386,8 @@ class ThemeColorEditorActivity : SettingsUiActivity() {
     companion object {
         const val EXTRA_INPUT = "theme_color_editor_input"
         const val EXTRA_RESULT = "theme_color_editor_result"
+        private const val STATE_COLOR = "current_color"
+        private const val STATE_ALPHA_EDITED = "alpha_edited"
         private const val MENU_CLEAR = 1
         private const val MENU_DONE = 2
     }

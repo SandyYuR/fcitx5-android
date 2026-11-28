@@ -15,7 +15,8 @@ package org.fcitx.fcitx5.android.ui.main.settings.theme
  * deliberately transparent one.
  */
 internal class ThemeColorEditorAlphaState {
-    private var explicitlyEdited = false
+    var explicitlyEdited = false
+        private set
 
     /** Records an alpha value picked with the alpha slider. */
     fun recordAlphaEdit() {

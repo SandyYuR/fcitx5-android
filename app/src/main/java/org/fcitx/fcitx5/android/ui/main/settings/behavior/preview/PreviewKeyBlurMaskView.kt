@@ -49,6 +49,8 @@ class PreviewKeyBlurMaskView(context: Context) : View(context) {
     private var blurNode: RenderNode? = null
     private var blurNodeDirty = true
     private var hasRenderEffect = false
+    private var softwareBlurBitmap: Bitmap? = null
+    private var softwareBlurRadius = 0f
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun obtainBlurNode(): RenderNode {
@@ -105,6 +107,8 @@ class PreviewKeyBlurMaskView(context: Context) : View(context) {
         useRenderEffect: Boolean = false
     ) {
         blurBitmap = bitmap
+        softwareBlurBitmap = null
+        softwareBlurRadius = if (useRenderEffect) blurRadius else 0f
         paint.colorFilter = bitmap?.let { DarkenColorFilter(100 - brightness) }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // The view itself never carries a RenderEffect; the blur lives on the offscreen node
@@ -134,7 +138,7 @@ class PreviewKeyBlurMaskView(context: Context) : View(context) {
         dstRect.set(0, 0, width, height)
 
         if (!keyBorder) {
-            canvas.drawBitmap(bitmap, srcRect, dstRect, paint)
+            drawFullScreenBlur(canvas, bitmap)
             redrawRetryCount = 0
             return
         }
@@ -190,7 +194,11 @@ class PreviewKeyBlurMaskView(context: Context) : View(context) {
             }
             canvas.drawRenderNode(node)
         } else {
-            canvas.drawBitmap(bitmap, srcRect, dstRect, paint)
+            val rendered = if (softwareBlurRadius > 0f) {
+                softwareBlurBitmap ?: org.fcitx.fcitx5.android.utils.BitmapBlurUtil
+                    .blur(bitmap, softwareBlurRadius).also { softwareBlurBitmap = it }
+            } else bitmap
+            canvas.drawBitmap(rendered, srcRect, dstRect, paint)
         }
     }
 

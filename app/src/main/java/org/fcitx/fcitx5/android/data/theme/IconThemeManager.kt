@@ -1080,6 +1080,17 @@ object IconThemeManager {
         return written
     }
 
+    private fun java.io.InputStream.discardImportEntry(limit: Long): Long {
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        var total = 0L
+        while (true) {
+            val count = read(buffer)
+            if (count < 0) return total
+            total += count
+            require(total <= limit) { "Icon theme ZIP entry exceeds decompression limit" }
+        }
+    }
+
     private fun importThemeFromZipWithEncoding(
         src: java.io.InputStream,
         encoding: String,
@@ -1105,10 +1116,12 @@ object IconThemeManager {
             compatibleZipInputStream(src, charset).use { zipStream ->
                 var entry = zipStream.nextEntry
                 while (entry != null) {
-                    if (!entry.isDirectory) {
-                        if (++entryCount > MAX_IMPORT_ENTRIES) {
-                            throw IllegalArgumentException("Icon theme ZIP has more than $MAX_IMPORT_ENTRIES entries")
-                        }
+                    if (++entryCount > MAX_IMPORT_ENTRIES) {
+                        throw IllegalArgumentException("Icon theme ZIP has more than $MAX_IMPORT_ENTRIES entries")
+                    }
+                    if (entry.isDirectory) {
+                        totalBytes += zipStream.discardImportEntry(minOf(MAX_IMPORT_ENTRY_BYTES, MAX_IMPORT_TOTAL_BYTES - totalBytes))
+                    } else {
                         if (entry.name.endsWith(".json")) {
                             val bytes = zipStream.readAtMost(MAX_IMPORT_JSON_BYTES) {
                                 "Icon theme JSON entry exceeds ${MAX_IMPORT_JSON_BYTES / 1024}KB"
@@ -1128,9 +1141,12 @@ object IconThemeManager {
                                 )
                                 totalBytes += written
                                 stagedIcons.add(staged)
+                            } else {
+                                totalBytes += zipStream.discardImportEntry(minOf(MAX_IMPORT_ENTRY_BYTES, MAX_IMPORT_TOTAL_BYTES - totalBytes))
                             }
                         }
                     }
+                    if (totalBytes > MAX_IMPORT_TOTAL_BYTES) throw IllegalArgumentException("Icon theme ZIP exceeds total limit")
                     entry = zipStream.nextEntry
                 }
             }

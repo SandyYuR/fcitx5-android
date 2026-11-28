@@ -210,6 +210,8 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
         private var blurNode: RenderNode? = null
         private var blurNodeDirty = true
         private var hasRenderEffect = false
+        private var softwareBlurBitmap: Bitmap? = null
+        private var softwareBlurRadius = 0f
 
         @RequiresApi(Build.VERSION_CODES.S)
         private fun obtainBlurNode(): RenderNode {
@@ -231,6 +233,8 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             useRenderEffect: Boolean = false
         ) {
             blurBitmap = bitmap
+            softwareBlurBitmap = null
+            softwareBlurRadius = if (useRenderEffect) blurRadius else 0f
             paint.colorFilter = bitmap?.let { DarkenColorFilter(100 - brightness) }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 // View itself never carries the RenderEffect — blur lives on the offscreen node,
@@ -267,7 +271,7 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
             dstRect.set(0, 0, width, height)
 
             if (!keyBorder) {
-                canvas.drawBitmap(bitmap, srcRect, dstRect, paint)
+                drawFullScreenBlur(canvas, bitmap)
                 redrawRetryCount = 0
                 return
             }
@@ -348,7 +352,11 @@ class KeyboardPreviewUi(override val ctx: Context, val theme: Theme) : Ui {
                 }
                 canvas.drawRenderNode(node)
             } else {
-                canvas.drawBitmap(bitmap, srcRect, dstRect, paint)
+                val rendered = if (softwareBlurRadius > 0f) {
+                    softwareBlurBitmap ?: org.fcitx.fcitx5.android.utils.BitmapBlurUtil
+                        .blur(bitmap, softwareBlurRadius).also { softwareBlurBitmap = it }
+                } else bitmap
+                canvas.drawBitmap(rendered, srcRect, dstRect, paint)
             }
         }
 

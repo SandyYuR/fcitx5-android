@@ -889,7 +889,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                             val changed = c != originalColor
                             if (changed) {
                                 inlinePreviewDirty = true
-                                val tmpTheme = item.setter(originalTheme, c)
+                                val tmpTheme = item.setter(theme, c)
                                 applyThemePreview(
                                     tmpTheme,
                                     currentBackgroundDrawable(originalTheme),
@@ -902,7 +902,7 @@ class CustomThemeActivity : SettingsUiActivity() {
                         },
                         onConfirm = { c ->
                             if (c != originalColor) {
-                                theme = item.setter(originalTheme, c)
+                                theme = item.setter(theme, c)
                                 preview.setColor(c)
                                 applyThemePreview(theme)
                                 refreshSaveButtonState()

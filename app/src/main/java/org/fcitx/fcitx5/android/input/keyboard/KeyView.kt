@@ -1609,6 +1609,7 @@ class ImageAltTextKeyView(
     horizontalGapScale: Float = 1f,
     private val iconSlot: String? = null
 ) : KeyView(ctx, theme, def, horizontalGapScale), SwipeHintAwareKeyView {
+    private val defaultSrc = def.src
     override val themedIconSlot: String? get() = iconSlot
     private enum class AltTextLayoutMode {
         TopRight,
@@ -1760,6 +1761,7 @@ class ImageAltTextKeyView(
         if (iconSlot == null) return
         val iconInfo = IconThemeManager.resolveIconDrawableInfo(iconSlot)
         if (iconInfo == null) {
+            img.setImageResource(defaultSrc)
             iconThemeTintWithTheme = null
             applyIconTint(theme)
             return
@@ -2421,6 +2423,7 @@ class ImageTextKeyView(
     private val iconSlot: String? = null
 ) :
     TextKeyView(ctx, theme, def, horizontalGapScale) {
+    private val defaultSrc = def.src
     private var iconThemeTintWithTheme: Boolean? = null
     override val themedIconSlot: String? get() = iconSlot
     val img = imageView {
@@ -2458,6 +2461,7 @@ class ImageTextKeyView(
         if (iconSlot == null) return
         val iconInfo = IconThemeManager.resolveIconDrawableInfo(iconSlot)
         if (iconInfo == null) {
+            img.setImageResource(defaultSrc)
             iconThemeTintWithTheme = null
             applyIconTint(theme)
             return

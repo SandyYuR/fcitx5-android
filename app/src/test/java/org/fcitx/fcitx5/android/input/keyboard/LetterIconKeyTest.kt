@@ -200,6 +200,37 @@ class LetterIconKeyTest {
         assertNull(plain.themedIconSlot)
     }
 
+    @Test fun imageKeysRestoreTheirBuiltInResourceWhenTheNewThemeLacksTheirSlot() = withIconTheme(
+        mapOf("keys.backspace" to multicolorSvg)
+    ) {
+        val src = org.fcitx.fcitx5.android.R.drawable.ic_baseline_backspace_24
+        val alt = ImageAltTextKeyView(context, ThemePreset.PixelLight,
+            KeyDef.Appearance.ImageAltText(src, "删除"), iconSlot = "keys.backspace")
+        val text = ImageTextKeyView(context, ThemePreset.PixelLight,
+            KeyDef.Appearance.ImageText("删除", 16f, src = src), iconSlot = "keys.backspace")
+        assertTrue(alt.img.drawable is BitmapDrawable)
+        assertTrue(text.img.drawable is BitmapDrawable)
+        IconThemeManager.activeTheme = IconTheme("theme without these slots")
+        alt.reapplyIconThemeOverride()
+        text.reapplyIconThemeOverride()
+        fun pixels(drawable: android.graphics.drawable.Drawable): IntArray {
+            val bitmap = android.graphics.Bitmap.createBitmap(48, 48, android.graphics.Bitmap.Config.ARGB_8888)
+            return try {
+                drawable.setBounds(0, 0, 48, 48)
+                drawable.draw(android.graphics.Canvas(bitmap))
+                IntArray(48 * 48).also { bitmap.getPixels(it, 0, 48, 0, 0, 48, 48) }
+            } finally { bitmap.recycle() }
+        }
+        val expected = androidx.appcompat.content.res.AppCompatResources.getDrawable(context, src)!!.mutate()
+        expected.setTint(ThemePreset.PixelLight.keyTextColor)
+        val expectedPixels = pixels(expected)
+        for (image in listOf(alt.img, text.img)) {
+            assertFalse("old themed bitmap must be gone", image.drawable is BitmapDrawable)
+            assertEquals(ThemePreset.PixelLight.keyTextColor, image.imageTintList!!.defaultColor)
+            assertArrayEquals(expectedPixels, pixels(image.drawable))
+        }
+    }
+
     @Test fun missingIconKeepsTheLetterLabel() = withIconTheme(emptyMap()) {
         val key = letterKey("A")
         layout(key)
