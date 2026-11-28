@@ -104,8 +104,9 @@ const maintenance = [
   { text: '代码与文档对照', collapsed: false, items: [
     { text: '现行功能与源码入口', link: '/maintainer/changes/feature-coverage' },
     { text: '对照索引', link: '/maintainer/changes/' },
-    { text: '最新：11-16～11-22 提交对照', link: '/maintainer/changes/2026-11-22-code-doc-gap-review' },
+    { text: '最新：11-28 修复分支文档覆盖', link: '/maintainer/changes/2026-11-28-review-hardening' },
     { text: '2026-11', collapsed: true, items: [
+      { text: '审阅修复分支与文档覆盖 · 2026-11-28', link: '/maintainer/changes/2026-11-28-review-hardening' },
       { text: '空格长按、剪贴板收藏与句号键 · 2026-11-27', link: '/maintainer/changes/2026-11-27-keyboard-clipboard' },
       { text: '粘滞修饰键编辑与点亮 · 2026-11-27', link: '/maintainer/changes/2026-11-27-sticky-modifier-polish' },
       { text: 'EVO 候选排序与两类重置 · 2026-11-26', link: '/maintainer/changes/2026-11-26-evo-candidate-ordering' },

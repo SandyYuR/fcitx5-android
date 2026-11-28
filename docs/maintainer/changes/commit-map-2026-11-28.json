@@ -1,0 +1,392 @@
+{
+  "base": "393f5b593db682091a52101df46dd68b096b0afc",
+  "head": "959bd10072b07b81565959a7a21431ac24eb6470",
+  "source": "fix/review-hardening-20261128",
+  "documentation_baseline": "docs-review-hardening-20261128@392e9b25bb5a942530d965f16385a7e72686d4fc",
+  "generated": "2026-11-28",
+  "note": "登记本地修复分支的21笔分类提交，尚未合入默认分支、推送或发布。覆盖复核区分补写、更正、可选精化和既有契约足够；前轮产品验证不当成本轮文档检查。",
+  "commits": [
+    {
+      "sha": "6a7f24ab19f325c23f0268c8c446bcec64bc03d1",
+      "subject": "修复(文件访问): 兼容可信应用目录别名并拒绝链接逃逸",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/FilePathGuard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/FileUtil.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/UserDataRestoreJournal.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/UserDataRestoreRuntime.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangPayload.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/provider/DocumentPathGuard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/data/LayoutDraftStore.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/webeditor/BridgeSessionAccess.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/utils/FilePathGuardTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/utils/FileUtilAppDirectoryDeviceTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "580537ec6dbb5d627cf60450875918fd6359e9f7",
+      "subject": "修复(备份恢复): 统一偏好备份名称并校验启动字段类型",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/UserDataManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/SharedPreferencesRestore.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/SharedPreferencesRestoreTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/UserDataClipboardImportTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/implementation/user-data-restore.md"
+      ]
+    },
+    {
+      "sha": "d2151fc154722b98b883e41a6bf8a13e12e4b6d5",
+      "subject": "修复(剪贴板): 校验媒体内容身份并约束同步接收",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/ClipboardUriStore.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/clipboard/ClipboardMediaIdentityTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/MainService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ReceiveFilterCache.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/OneClipEventClient.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/network/OneClipSseBudget.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ui/SettingsActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/clipboardsync/ui/StoragePathUtils.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/ReceiveFilterCacheTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/network/OneClipSseBudgetTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/ui/StoragePathUriTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/clipboardsync/ui/StoragePathUtilsTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/clipboard-sync.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "8515709d0c2ec137ddbcddba63522ac132dd1eb8",
+      "subject": "修复(方案解析): 限制共享节点展开与序列化预算",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/WanxiangYaml.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/WanxiangYamlBudgetTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "6a29d9ce57723fd40effb17b89ebfa271550f154",
+      "subject": "修复(更新事务): 防止旧映射请求回写并安全重启下载",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateModels.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdatePrefs.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/UpdateRepository.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/HostsMappingTransactionTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/DownloadFiles.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/update/ResumableAssetDownload.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/update/ResumableAssetDownloadTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/update-checker.md",
+        "maintainer/implementation/hosts-downloads.md"
+      ]
+    },
+    {
+      "sha": "d89470b3c55848c6c0449810ef23ac42ee897a02",
+      "subject": "修复(内置资源): 按原版摘要升级并纠正朝花动作目标",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/BundledPresets.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/data/AssetMigrationTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/BundledPresetsUpgradeTest.kt",
+        "app/src/main/assets/bundled/keyboard_layouts/TextKeyboardLayout.QM-朝花.json",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/BundledThemeLayoutTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/theme/icon-themes.md",
+        "features/theme/theme-editor.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "c727f17440905a0d8ec9040aab990c19af334dc2",
+      "subject": "修复(主题导入): 暂存新资源并限制压缩包目录负载",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/ThemeFilesManager.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/ThemeImportSafetyTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/theme/theme-editor.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "8f9612c257c3dcfefa4a26d2f5b45d073c399bf6",
+      "subject": "修复(主题界面): 保留颜色草稿并刷新图标与模糊状态",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/IconThemeManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/data/theme/MonetThemeMapping.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/data/theme/MonetDefaultMappingTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyView.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/LetterIconKeyTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/CustomThemeActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/KeyboardPreviewUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/SaturationValuePickerView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeColorEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeColorEditorAlphaState.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/theme/ThemeEditorStateTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/theme/SaturationValuePickerTouchTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/preview/PreviewKeyBlurMaskView.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/theme/theme-editor.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "55d8c00d65f91827bb77e5480f60ec6f2a51c2b6",
+      "subject": "修复(输入会话): 校验字符提交归属并按完整字符移动光标",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/BaseInputView.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/FcitxInputMethodService.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/cursor/HorizontalCursorMover.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/CandidateCharacterCommitTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/cursor/HorizontalCursorMoverTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/keyboard/swipe-actions.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "1d236708520c93576d999fe82b0e865543b3f103",
+      "subject": "修复(候选显示): 分离字体失效代次并避免稳定标识冲突",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/expanded/ExpandedCandidateRefresh.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/expanded/PagingCandidateViewAdapter.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/expanded/window/BaseExpandedCandidateWindow.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/floating/PagedCandidatesUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/candidates/horizontal/HorizontalCandidateViewAdapter.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/CandidateAdapterIdentityTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/expanded/ExpandedCandidateRefreshTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/expanded/PagingCandidateViewAdapterTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/candidates/horizontal/MovingCandidateBadgeTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/input/candidates/CandidateOverflowTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "af703b0d6dd7779d5d29a8bac841abae5807ff59",
+      "subject": "修复(输入面板): 保留辅助键比例并正确处理弹出取消",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/BaseKeyboard.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/editing/FoxyTextEditingUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/picker/SymbolPanelUi.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupKeyboardUi.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/keyboard/HorizontalAuxBarFallbackTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/editing/FoxyTextEditingRuntimeTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/picker/SymbolPanelCancelTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/popup/PopupKeyboardCapacityTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/symbol-panel.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "704185e1dfa5f16357d81bdbdcc893111a9c2fd3",
+      "subject": "修复(输入状态): 丢弃过期预览并替换旧内联建议",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarComponent.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/bar/ui/idle/InlineSuggestionsUi.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/bar/KawaiiBarAsyncInvalidationTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/bar/ui/idle/InlineSuggestionsReplacementTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/StatusIconMapping.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/StatusIconMappingTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/broadcast/ReturnKeyDrawableComponent.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/broadcast/ReturnKeyDrawableComponentTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "dfcca5e41783d511ff8e3906a8f6b81c9e4e2020",
+      "subject": "修复(语音采集): 保序交接预滚音频并隔离代次统计",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoiceInputProviderManager.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/VoicePcmQueueBudget.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/VoicePcmHandoverIntegrationTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/VoicePcmQueueBudgetTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/implementation/correctness-contracts.md",
+        "features/voice-input.md"
+      ]
+    },
+    {
+      "sha": "2879399f9a51f413c0035bdd84236d202a2f8560",
+      "subject": "修复(脚本宿主): 绑定服务版本授权并统一生成重试预算",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceHostPermissions.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoicePrelude.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceServices.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/voice/JsVoiceHostPermissionDialog.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/voice/JsVoicePluginSettingsFragment.kt",
+        "app/src/main/assets/bundled/js-apps/llm-assistant.js",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsAppRetryBudgetTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceCapabilitiesTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/input/voice/js/JsVoiceServicesTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/JsServiceHostPermissionUiTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/implementation/js-voice-plugins.md",
+        "features/voice-input-js.md",
+        "features/voice-input-js-en.md",
+        "features/voice-input-js-reference-zh-CN.md",
+        "features/ai-assistant.md"
+      ]
+    },
+    {
+      "sha": "1887c1b18c20a6f649cc74ae7f0106179b8eaa7f",
+      "subject": "修复(布局编辑): 保全保存失败和重建草稿状态",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/ButtonsCustomizerActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/KeyboardModesFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/PopupEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/SplitKeyboardCalibrationActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/SymbolSettingsFragment.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/TextKeyboardLayoutEditorActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapter.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/KeyEditorForm.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/dialog/MacroEditorDialogFragment.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/ButtonsCustomizerAiButtonTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/ButtonsCustomizerPersistenceTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/KeyEditorFormTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/editor/MacroKeyDialogTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/ui/main/settings/behavior/adapter/KeyboardLayoutAdapterViewTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/qr-share-import.md",
+        "features/editor/macrokey-editor.md",
+        "features/keys/macro-key.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "885e02438abc946c1c6d06666f6f1942108634fb",
+      "subject": "修复(设置界面): 恢复导出状态并展示完整统计布局",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/DeveloperFragment.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/DeveloperHeapDumpStateTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/ShareReceiveDirectoryPicker.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/ShareReceiveDirectoryMemoryTest.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/stats/StatsChartView.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/stats/StatsVisualsTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/input-statistics.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "df1b959acff09f7896171185733bca3a2ce121a6",
+      "subject": "修复(日志): 有界合并写入并保留同毫秒记录",
+      "files": [
+        "app/src/main/java/org/fcitx/fcitx5/android/utils/LogSink.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/LogActivity.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/log/LogMerge.kt",
+        "app/src/main/java/org/fcitx/fcitx5/android/ui/main/log/LogView.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/utils/LogSinkQueueTest.kt",
+        "app/src/test/java/org/fcitx/fcitx5/android/ui/main/log/LogMergeTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md"
+      ]
+    },
+    {
+      "sha": "a90bf307a6037f26b1de1c69d908242ec1b056ce",
+      "subject": "修复(引擎兼容): 正确读取无会话方案并补齐图形键符",
+      "files": [
+        "direct-rime/src/main/cpp/engine.cpp",
+        "direct-rime/src/main/cpp/engine_test.cpp",
+        "app/src/main/resources/keysym-compat.tsv",
+        "app/src/test/java/org/fcitx/fcitx5/android/core/KeyCodecTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/core/engine/ReviewNativeConfigDeviceTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "features/rime-enhancements.md",
+        "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+        "maintainer/engine-update.md",
+        "maintainer/implementation/correctness-contracts.md"
+      ]
+    },
+    {
+      "sha": "58715b739ab6513585ef2487991e69ceba291c24",
+      "subject": "修复(性能工具): 固定包身份和源码输入并保护设备数据",
+      "files": [
+        ".github/workflows/direct-rime-cold-probe.yml",
+        ".github/workflows/rime-candidate-perf.yml",
+        ".github/workflows/rime-rebind-perf.yml",
+        ".github/workflows/wanxiang-perf.yml",
+        "tools/candidate-perf/build-products.sh",
+        "tools/candidate-perf/run.py",
+        "tools/input-perf/compare-apks.py",
+        "tools/input-perf/compare-rebind.py",
+        "tools/input-perf/frozen_fixture_source.py",
+        "tools/input-perf/legacy_perf.py",
+        "tools/input-perf/probe-cold-io.sh",
+        "tools/input-perf/test_legacy_perf.py"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md"
+      ]
+    },
+    {
+      "sha": "a99fe863d746640564a16b10ab32b5af06d4e4e6",
+      "subject": "测试(设备): 覆盖双引擎真实输入和网络授权闭环",
+      "files": [
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/core/DirectRimeFrontendTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/input/ReviewSessionFixesDeviceTest.kt",
+        "app/src/androidTest/java/org/fcitx/fcitx5/android/input/voice/js/ReviewNetworkDeviceTest.kt"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "maintainer/DIRECT_RIME_MAINTAINER_GUIDE_zh-CN.md",
+        "maintainer/LOCAL_BUILD_ENVIRONMENT_zh-CN.md",
+        "maintainer/documentation.md"
+      ]
+    },
+    {
+      "sha": "959bd10072b07b81565959a7a21431ac24eb6470",
+      "subject": "文档(入口): 更新引擎设置与方案更新导航",
+      "files": [
+        "README.md"
+      ],
+      "documentation": [
+        "maintainer/changes/2026-11-28-review-hardening.md",
+        "manual/DIRECT_RIME_USER_GUIDE_zh-CN.md",
+        "features/rime-enhancements.md"
+      ]
+    }
+  ]
+}
