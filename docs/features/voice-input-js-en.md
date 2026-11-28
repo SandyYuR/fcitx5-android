@@ -244,7 +244,7 @@ In a running session, an entry that reads `false` means that session does not im
 | Running App | Editor/dialog APIs, `http.request`, SSE stream APIs, App WebSocket and callbacks, and `settings.set`; no voice events, legacy `http.post`, or HMAC signing |
 | Running voice provider | Voice events, legacy `http.post`, HMAC signing, audio/binary helpers, and voice WebSocket; no App request/stream, editor, or settings-write APIs |
 
-`foxy.service.register` is available in settings declaration, App, and voice sessions; `foxy.services.list/call` are available in App and voice sessions, while a service provider's own runtime session does not report `call`.
+`foxy.service.register` is available in settings declaration, App, and voice sessions. `foxy.services.list/call` are available to voice callers; App sessions report both capabilities as `false`, while a service provider's own runtime session does not report `call`.
 
 `foxy.settings.set(key, value)` writes a value back into the plugin's own ordinary settings. Only non-secret fields declared in `configure()` are accepted; secret fields and undeclared keys throw. Values are stored as strings, limited to 64 KiB of UTF-8 per value and 256 KiB for all ordinary settings in one App session. The object is absent in settings/import description and voice sessions.
 
@@ -335,10 +335,10 @@ foxy.service.register({
 ```
 
 - Declarations only register metadata; the settings page collects candidates from installed plugins, skipping broken scripts.
-- Callers declare `ui.serviceSelect(key, label, serviceId, version)` in `configure()`, then read candidates with `await foxy.services.list(serviceId)` (`{pluginId, pluginLabel, serviceId, version, label, description}`, excluding the caller).
+- Voice callers declare `ui.serviceSelect(key, label, serviceId, version)` in `configure()`, then read candidates with `await foxy.services.list(serviceId)` (`{pluginId, pluginLabel, serviceId, version, label, description}`, excluding the caller).
 - `await foxy.services.call(pluginId, serviceId, version, input)` runs in the provider's own runtime; the provider reads its own settings and secrets. Input is serialized as JSON, capped at 256 KiB, with a 20-second budget per call.
 - Only one level is allowed: calling `foxy.services.call` from inside a service handler throws `Nested service calls are not supported`.
-- A plugin cannot call itself or a provider the user did not select in `serviceSelect`. The bundled Bilibili translate plugin provides `text.translate` v1.
+- A plugin cannot call itself or a provider and version the user did not select in `serviceSelect`; selecting v1 does not authorize v2. Replacing source, restoring the bundled source, or removing a plugin invalidates old service sessions and cancels in-flight calls. The bundled Bilibili translate plugin provides `text.translate` v1. Before its first service call, explicitly approve its declared hosts through Network access in that plugin's settings.
 
 ## Editor APIs
 

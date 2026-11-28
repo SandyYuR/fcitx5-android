@@ -248,7 +248,7 @@ if (foxy.capabilities.http.stream) {
 | 运行中的 App | 编辑器／对话框、`http.request`、SSE、App WebSocket 及回调、`settings.set`；没有语音事件、旧式 `http.post` 或 HMAC |
 | 运行中的语音提供方 | 语音事件、旧式 `http.post`、HMAC、音频／二进制工具和语音 WebSocket；没有 App request/stream、编辑器或设置写入 |
 
-`foxy.service.register` 在设置声明、App 与语音会话都可用；`foxy.services.list/call` 在 App 与语音会话可用，服务提供方自己的运行会话不报告 `call`。
+`foxy.service.register` 在设置声明、App 与语音会话都可用；`foxy.services.list/call` 在语音调用会话可用，App 会话两项均报告 `false`，服务提供方自己的运行会话不报告 `call`。
 
 `foxy.settings.set(key, value)` 把值写回插件自己的普通设置项。只接受 `configure()` 中声明过的非密钥字段；密钥字段和未声明的键都会抛错。值按字符串保存，单值 UTF-8 内容最多 64 KiB，同一 App 会话全部普通设置合计最多 256 KiB；设置声明／导入求值和语音会话中没有该对象。
 
@@ -338,10 +338,10 @@ foxy.service.register({
 ```
 
 - 声明只登记定义，不启动运行时；设置页的候选由已安装插件的声明汇总，坏脚本跳过。
-- 调用方在 `configure()` 中用 `ui.serviceSelect(key, label, serviceId, version)` 让用户选择提供方，再用 `await foxy.services.list(serviceId)` 读取候选（`{pluginId, pluginLabel, serviceId, version, label, description}`，已剔除自己）。
+- 语音调用方在 `configure()` 中用 `ui.serviceSelect(key, label, serviceId, version)` 让用户选择提供方，再用 `await foxy.services.list(serviceId)` 读取候选（`{pluginId, pluginLabel, serviceId, version, label, description}`，已剔除自己）。
 - `await foxy.services.call(pluginId, serviceId, version, input)` 在提供方自己的运行时中执行，提供方读自己的设置与密钥；输入序列化为 JSON，上限 256 KiB，单次调用 20 秒。
 - 只允许单层调用：服务实现内部再调用 `foxy.services.call` 会抛 `Nested service calls are not supported`。
-- 调用方不能调用自己，也不能调用用户未在 `serviceSelect` 中选中的提供方。内置哔哩哔哩翻译插件提供 `text.translate` v1。
+- 调用方不能调用自己，也不能调用用户未在 `serviceSelect` 中选中的提供方及版本；v1 的选择不授权 v2。源码替换、恢复内置或移除会使旧服务会话失效并取消进行中的调用。内置哔哩哔哩翻译插件提供 `text.translate` v1，首次使用前可在该插件设置的“网络访问授权”中明确批准其静态主机。
 
 ## 编辑器 API
 

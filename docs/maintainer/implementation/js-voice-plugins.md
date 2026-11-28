@@ -22,7 +22,7 @@ Foxy API 对齐的修正、固定源码与验证范围见[2026-11-15 配套 PR �
 - 同一输入法服务中的 AI 动作再次点击会关闭当前 App 面板，取消未完成请求并恢复临时预览；重新点击才创建新会话。键盘内剪贴板等页面切换保留现有面板和本地输入，不改变原应用连接。
 - 同一动态 App 动作再次点击会关闭当前面板；点击另一动态 App 动作会先取消旧会话、恢复临时预览，再打开精确目标。切换入口不改变原应用编辑器的归属，过期输入会话不能因按钮解析而复活。旧的通用 `js_tools` 占位只引导用户回“编辑按钮”重新绑定，不再提供运行时选择器。
 - `foxy.editor.getSelection/getText/setComposition/clearComposition/commit` 分别核对相应能力。预览取消时恢复原选中文本；只有 `commit` 正式上屏。`credentials.list` 和 `context.configuredSecrets` 仅提供已配置的字段 ID，不提供密钥。
-- `foxy.capabilities` 是按 Foxy 形状组织的白名单，不是原生桥对象的转储。设置声明／导入求值（describe）报告 App 与 voice 运行时能力的**发现并集**，使插件顶层按能力条件注册时不会漏掉 App 或语音入口；该临时环境仍不能实际调用网络或编辑器，也没有 `settings.set`。进入运行态后表才表示可调用性：App 会话报告编辑器、对话框、`http.request/stream`、WebSocket 及其回调和 `settings.set`，不报告语音事件、`http.post` 或 HMAC；语音会话报告语音事件、`http.post`、HMAC、音频与 WebSocket，不报告 App 的 request/stream、编辑器或设置写入。`__n_*`、`wsConnect`、`__native` 等内部入口永不进入公开表；插件应在运行会话按表降级，不依赖 `try/catch` 猜测能力。`foxy.service.register` 在 App、语音与设置声明环境都可用；`foxy.services.list/call` 只在 App 与语音会话可用，服务提供方自己的运行会话不报告 `call`——服务调用只允许一层，否则「谁在等谁」无法收敛。
+- `foxy.capabilities` 是按 Foxy 形状组织的白名单，不是原生桥对象的转储。设置声明／导入求值（describe）报告 App 与 voice 运行时能力的**发现并集**，使插件顶层按能力条件注册时不会漏掉 App 或语音入口；该临时环境仍不能实际调用网络或编辑器，也没有 `settings.set`。进入运行态后表才表示可调用性：App 会话报告编辑器、对话框、`http.request/stream`、WebSocket 及其回调和 `settings.set`，不报告语音事件、`http.post` 或 HMAC；语音会话报告语音事件、`http.post`、HMAC、音频与 WebSocket，不报告 App 的 request/stream、编辑器或设置写入。`__n_*`、`wsConnect`、`__native` 等内部入口永不进入公开表；插件应在运行会话按表降级，不依赖 `try/catch` 猜测能力。`foxy.service.register` 在 App、语音与设置声明环境都可用；`foxy.services.list/call` 在语音调用会话可用；App 会话两项均报告 `false`，服务提供方自己的运行会话不报告 `call`——服务调用只允许一层，否则「谁在等谁」无法收敛。
 - App 会话与语音会话共用同一份 `JsWebSocketTransport`（`JsWebSocketTransport.kt`）：App HTTP 只接受 `https://`，WebSocket 的实际连接只接受 `wss://`。HTTP 主机可来自静态 `hosts` 或普通设置中格式安全的 HTTPS 端点；App WebSocket 主机可来自静态 `hosts`，也可由普通设置中格式安全的 HTTPS 或 WSS 端点贡献。两者都只取精确主机，仍须按插件和主机单独批准。App 的 `connect` 是同步调用，必须先 `await foxy.websocket.authorize(...)`；未授权主机在连接时直接抛错。`onMessage/onBinary/onError/onClose` 按种类各存一个处理函数（与 Foxy 一致，不按 socket 区分），`onClose` 按关闭码是否为 1000 给出布尔值。App 入站队列最多缓存 8 个事件，满时关闭对应连接而不继续占用 IME 内存；单个回调抛错不掐断其他连接的后续帧，App 关闭时 `closeAll()` 并结束投递。
 - App 的 SSE 由 `JsAppStreams`（`JsAppStreams.kt`）实现：`stream()` 校验 HTTPS、方法与 1 MiB 请求体上限后立刻返回流 ID，实际请求在 IO 协程里先过 `network.request` 权限与主机批准，被拒绝时以 `onError` 回调 `Network permission denied`。SSE 接受 LF、CRLF 和单独 CR 换行，忽略流首的一个 UTF-8 BOM，保留其他位置的 BOM。单行及单个事件分别以 2 MiB 为上限；事件预算包含 `event` 名称、每条 `data` 内容及多行连接时插入的换行，不只计算最终数据文本。空行处派发含 `data` 字段的事件，空的 `data:` 值也会交付；EOF 处仍会交付含 `data` 字段的尾事件。非 SSE 响应逐行投递，使用相同单行上限，没有末尾换行的合法尾行仍会交付。同一会话最多 4 条流。请求不设整体或读取超时；取消、关闭或授权撤销后不再投递已缓冲事件。
 - 同一 QuickJS 会话一次只执行一个 JavaScript 求值。App 等待由 WebSocket／SSE 回调解决的纯 JavaScript Promise 时，`__run`／`__pump` 两次求值之间会释放会话锁，允许网络回调交错运行并解决原 Promise；单条流及单个连接的事件顺序仍保持。`QuickJs.evaluate` 会等待本次触发的宿主 `asyncFunction` 工作完成，例如 editor／UI、`http.request`、主机批准或 `waitOpen`；这些工作通过主线程或传输独立完成，当前求值返回前仍持有锁，不能据此认为等待任何宿主 API 都允许其他脚本回调进入。
@@ -32,7 +32,7 @@ Foxy API 对齐的修正、固定源码与验证范围见[2026-11-15 配套 PR �
 - App HTTP 的主机须为静态声明项或当前普通设置中有效 HTTPS 地址的精确主机；App WebSocket 可使用静态声明项，或普通设置中有效 HTTPS／WSS 地址的精确主机，但实际连接仍必须是 WSS。读取密钥与发送前还需该插件对目标主机的用户批准；旧批准不能让已从配置删除的非声明主机继续可访问。内置助手使用空 `hosts` 与空默认地址。
 - 授权按插件及主机名记录；首次请求新主机再询问。URL 路径、端口、模型变化不另作域名授权，Host 和 HTTP/2 `:authority` 由 OkHttp 生成。撤销当前 App 能力或插件主机授权会关闭该插件的活动 App 会话。App 回调等待上限 180 秒；单个 WebSocket／SSE 回调超时视为本次调用失败并回收等待槽，会话与连接或流仍有效时继续处理后续事件。取消流、关闭会话和撤销授权仍会停止相应投递。
 - 中州鹅扩展 `await foxy.app.sleep(milliseconds)`：仅 App 运行上下文可调用，接受 0–10000 的整数毫秒，通过可取消协程等待，等待前后检查输入会话。QuickJS 不提供浏览器 `setTimeout`，不能用立即返回的替代函数假装完成退避。
-- App HTTP 可传 `timeoutMs`（1–60000 的整数，默认 60000），宿主限制整次网络调用；读取密钥后、真正发送前再次核对域名与授权。内置助手每组生成请求共享 60 秒预算，最多三次尝试，退避为 900/1800 ms；超过 20 秒的失败不自动重试。
+- App HTTP 可传 `timeoutMs`（1–60000 的整数，默认 60000），宿主限制整次网络调用；读取密钥后、真正发送前再次核对域名与授权。内置助手每次发送的生成、模型发现和模型纠正请求共享 60 秒预算及最多三次 HTTP 请求，不能在纠正模型后重新计时或重置次数。重试退避为 900/1800 ms；超过 20 秒的失败不自动重试。
 - APK 内置 `llm-assistant`、`youdao-free-translate` 与 `bilibili-translate`。两个翻译 App 都从用户提供的元书脚本适配，只在点击翻译后向各自静态声明的域名（`aidemo.youdao.com`、`index-translate.bilibili.com`）发送文本。哔哩哔哩翻译 1.5 起改用 `foxy.http.request`：宿主返回 `{status, ok, headers, body}` 信封，状态码与正文由脚本解释；译文只出现在面板标题，确认后才 commit，清空或关闭则不落字。哔哩哔哩翻译沿用上游的 OpenAI 兼容请求体，接口地址与模型是该插件的普通设置，改到其他主机后仍按前述端点与授权规则单独批准。公开服务的限流、语言范围与可用性不是宿主保证。三者都作为 App 而不是语音提供方加载。
 - 普通新增导入保留内置 ID；插件设置的定向“导入替换”只放行选定的 ID。内置替换还核对其原有 App／语音入口，由用户确认启用自定义来源；普通导入插件升级可调整 App 列表，但已有语音能力不得移除。内置覆盖标记随导入记录原子提交，旧记录默认不带标记，历史同 ID 文件不会自动抢占内置。明确启用的自定义版本持续优先，不比较版本号，APK 升级不自动切回内置。
 - “恢复内置”取消自定义覆盖标记，保留设置、密钥和已导入脚本；后者不再参与实际运行，重新启用须再次明确导入替换。同 ID 源码更新保留设置和密钥，源码替换、恢复内置或移除会使同 ID 的活动 App 与语音 provider 失效，并撤销旧 App 与网络授权。导入脚本的静态主机经本次导入确认批准；APK 初次附带、尚未经过导入确认的静态主机（如内置翻译）在首次实际请求时询问。动态主机也在实际请求时单独询问。
@@ -105,7 +105,7 @@ configure(ui) {
 
 `settings.description` 追加说明文字。`settings.visibleWhen: {key, value}` 在另一个设置项取指定值时显示；`settings.visibleWhen: {all: [{key, value}, ...]}` 要求全部满足。`settings.defaultWhen: {key, values: {匹配值: 默认值}}` 可随另一字段变化选择联动默认值。`settings.allowCustom: true` 允许用户在下拉框里自填值。select 的选项可以是字符串或 `{label, value}` 对象。
 
-`serviceSelect` 的下拉候选来自已安装插件声明的服务：宿主按 `(serviceId, version)` 遍历插件目录，排除调用方自己，值存被选提供方的插件 ID。用户留空时，候选恰好一个就自动选中；多于一个必须显式选择，避免多提供方环境静默选错。服务提供方被卸载或不再声明该服务后，原选择不再授予任何调用权。
+`serviceSelect` 的下拉候选来自已安装插件声明的服务：宿主按 `(serviceId, version)` 遍历插件目录，排除调用方自己，值存被选提供方的插件 ID。用户留空时，候选恰好一个就自动选中；多于一个必须显式选择，避免多提供方环境静默选错。调用授权精确绑定提供方、服务 ID 和版本，选中 v1 不授予 v2 调用权。服务提供方被卸载或不再声明该服务后，原选择不再授予任何调用权。源码替换、恢复内置或移除使旧服务会话失效，并取消进行中的调用；旧会话不能借目录刷新继续调用。
 
 设置键是存取用的稳定 ID，不是显示文本。回调里拿到的普通值都是字符串，开关是 `"true"`/`"false"`。密钥字段由宿主编排成密码输入框，**密钥值不会出现在任何回调的 context 里**，插件只能通过字段名引用它。
 
@@ -178,11 +178,11 @@ foxy.service.register({
 ```
 
 - 声明只登记定义，不启动运行时；服务目录由宿主在打开插件设置页时遍历已安装插件得到，坏脚本跳过而不拖垮整张目录。
-- 调用方在 `configure()` 里声明 `ui.serviceSelect("translationProvider", "翻译服务", "text.translate", 1)`，由用户选择提供方；脚本用 `foxy.services.list("text.translate")` 读候选（`{pluginId, pluginLabel, serviceId, version, label, description}`，已剔除自己），再用 `await foxy.services.call(pluginId, "text.translate", 1, {text, targetLanguage})` 调用。
+- 语音调用方在 `configure()` 里声明 `ui.serviceSelect("translationProvider", "翻译服务", "text.translate", 1)`，由用户选择提供方；脚本用 `foxy.services.list("text.translate")` 读候选（`{pluginId, pluginLabel, serviceId, version, label, description}`，已剔除自己），再用 `await foxy.services.call(pluginId, "text.translate", 1, {text, targetLanguage})` 调用。
 - `call()` 在提供方自己的 QuickJS 会话里执行：提供方读自己的设置、用自己的密钥解析器发请求，拿不到调用方的任何状态；一次调用 20 秒预算，输入 JSON 上限 256 KiB，返回值序列化成对象交回调用方。
 - 只允许一层嵌套：服务提供方内部再调 `foxy.services.call` 会直接报 `Nested service calls are not supported`。
 - 调用方不能调用自己，也不能调用用户没在 `serviceSelect` 里选中的提供方——脚本把 ID 写死也没用，授权集合由「目录候选 ∩ 用户选择」决定。
-- 内置哔哩哔哩翻译插件提供 `text.translate` v1；qwen-asr 与 doubao-asr 的 `translationEnabled` 就是通过这个接口把最终句翻成 `translationTarget`。
+- 内置哔哩哔哩翻译插件提供 `text.translate` v1；qwen-asr 与 doubao-asr 的 `translationEnabled` 就是通过这个接口把最终句翻成 `translationTarget`。这类同时声明 App 的服务提供方也在插件设置中提供“网络访问授权”入口；首次服务调用前须明确批准其静态主机，授权独立于调用方的 App 能力。
 
 > 哔哩哔哩翻译 1.5 在服务定义里多了 `inputModes`，那是 Foxy 工具栏「文本处理」入口的声明字段。本宿主没有该工具栏，字段会被忽略且不影响服务发现；等价能力是内置的哔哩哔哩翻译 App（选区翻译），或语音插件的 `translationEnabled`。
 
