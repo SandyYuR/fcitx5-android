@@ -21,6 +21,7 @@ data class HostsConfig(
     @SerialName("enabled") val enabled: Boolean = false,
     @SerialName("mapping") val mapping: Map<String, List<String>> = emptyMap(),
     @SerialName("updated_at") val updatedAt: Long = 0L,
+    @SerialName("mapping_request_id") val mappingRequestId: String = "",
 )
 
 @Serializable

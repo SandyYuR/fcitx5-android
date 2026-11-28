@@ -118,7 +118,7 @@ object UpdateRepository {
     }
 
     suspend fun updateHostsMapping(context: Context): Int = withContext(Dispatchers.IO) {
-        val config = UpdatePrefs.loadHostsConfig(context)
+        val config = UpdatePrefs.beginHostsMappingUpdate(context)
         // Require https and a well-formed URL: OkHttp's url() throws IllegalArgumentException
         // on a scheme-less string, and this response rewrites DNS for update downloads, so it
         // must not travel in the clear.
@@ -136,31 +136,33 @@ object UpdateRepository {
             val body = response.body?.string()
                 ?: throw IOException("Hosts source response body is empty")
             val mapping = parseHostsMapping(body)
-            UpdatePrefs.saveHostsConfig(
-                context,
-                config.copy(
-                    mapping = mapping,
-                    updatedAt = System.currentTimeMillis()
-                )
-            )
+            if (!UpdatePrefs.completeHostsMappingUpdate(context, config, mapping, System.currentTimeMillis())) {
+                throw IOException("Hosts source or refresh request changed while downloading")
+            }
             invalidateReleaseCache()
             return@withContext mapping.size
         }
     }
 
     fun saveHostsSource(context: Context, sourceUrl: String) {
-        val config = UpdatePrefs.loadHostsConfig(context)
         val trimmed = sourceUrl.trim()
-        if (trimmed == config.sourceUrl) return
-        UpdatePrefs.saveHostsConfig(context, config.copy(sourceUrl = trimmed))
-        invalidateReleaseCache()
+        var changed = false
+        UpdatePrefs.updateHostsConfig(context) { config ->
+            if (trimmed == config.sourceUrl) config else {
+                changed = true
+                config.copy(sourceUrl = trimmed, mapping = emptyMap(), updatedAt = 0L,
+                    mappingRequestId = java.util.UUID.randomUUID().toString())
+            }
+        }
+        if (changed) invalidateReleaseCache()
     }
 
     fun saveHostsEnabled(context: Context, enabled: Boolean) {
-        val config = UpdatePrefs.loadHostsConfig(context)
-        if (enabled == config.enabled) return
-        UpdatePrefs.saveHostsConfig(context, config.copy(enabled = enabled))
-        invalidateReleaseCache()
+        var changed = false
+        UpdatePrefs.updateHostsConfig(context) { config ->
+            if (enabled == config.enabled) config else config.copy(enabled = enabled).also { changed = true }
+        }
+        if (changed) invalidateReleaseCache()
     }
 
     /**
@@ -169,15 +171,18 @@ object UpdateRepository {
      * update check to re-hit the GitHub API (anonymous rate limit is 60 requests/hour).
      */
     fun saveHostsSettings(context: Context, enabled: Boolean, sourceUrl: String) {
-        val config = UpdatePrefs.loadHostsConfig(context)
         val trimmed = sourceUrl.trim()
-        val newSource = if (trimmed.isEmpty()) config.sourceUrl else trimmed
-        if (enabled == config.enabled && newSource == config.sourceUrl) return
-        UpdatePrefs.saveHostsConfig(
-            context,
-            config.copy(enabled = enabled, sourceUrl = newSource)
-        )
-        invalidateReleaseCache()
+        var changed = false
+        UpdatePrefs.updateHostsConfig(context) { config ->
+            val newSource = if (trimmed.isEmpty()) config.sourceUrl else trimmed
+            if (enabled == config.enabled && newSource == config.sourceUrl) config else {
+                changed = true
+                if (newSource == config.sourceUrl) config.copy(enabled = enabled)
+                else config.copy(enabled = enabled, sourceUrl = newSource, mapping = emptyMap(), updatedAt = 0L,
+                    mappingRequestId = java.util.UUID.randomUUID().toString())
+            }
+        }
+        if (changed) invalidateReleaseCache()
     }
 
     /** True when [url] is a syntactically valid absolute http(s) URL. */

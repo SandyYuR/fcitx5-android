@@ -24,7 +24,7 @@ internal data class DownloadCheckpoint(
 /** A work UUID owns a private directory. It never uses an asset name as a filesystem path. */
 internal class DownloadFiles(root: File, id: UUID) {
     private val safeRoot = File(root.parentFile!!.canonicalFile, root.name).also {
-        if (it.canonicalFile != it.absoluteFile) throw IOException("Download staging root was redirected")
+        if (isRedirected(it)) throw IOException("Download staging root was redirected")
     }
     val directory = File(safeRoot, id.toString())
     val part get() = child("content.part")
@@ -33,9 +33,9 @@ internal class DownloadFiles(root: File, id: UUID) {
     val cancelled get() = child("cancelled").isFile
 
     private fun child(name: String): File {
-        if (directory.canonicalFile != directory.absoluteFile) throw IOException("Download staging was redirected")
+        if (isRedirected(directory)) throw IOException("Download staging was redirected")
         val file = File(directory, name)
-        if (file.canonicalFile != file.absoluteFile) throw IOException("Download staging file was redirected")
+        if (isRedirected(file)) throw IOException("Download staging file was redirected")
         return file
     }
     fun prepare() {
@@ -85,6 +85,18 @@ internal class DownloadFiles(root: File, id: UUID) {
         }
     }
     companion object {
+        // canonicalFile resolves Android/Linux links, but Windows Java may leave them lexical.
+        // Reflective NIO keeps API 23 support without linking unavailable API 26 classes.
+        private val linkProbe: ((File) -> Boolean)? = runCatching {
+            val path = Class.forName("java.nio.file.Path")
+            val toPath = File::class.java.getMethod("toPath")
+            val isLink = Class.forName("java.nio.file.Files").getMethod("isSymbolicLink", path)
+            val probe: (File) -> Boolean = { isLink.invoke(null, toPath.invoke(it)) as Boolean }
+            probe
+        }.getOrNull()
+        private fun isRedirected(file: File): Boolean =
+            file.canonicalFile != file.absoluteFile || linkProbe?.invoke(file) == true
+
         const val MAX_BYTES = 512L * 1024 * 1024
         fun digest(file: File): String = file.inputStream().use { digest(it, MAX_BYTES) }
         fun digest(input: java.io.InputStream, max: Long): String {

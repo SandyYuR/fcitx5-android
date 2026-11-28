@@ -63,13 +63,13 @@ object UpdatePrefs {
         }
     }
 
-    fun loadHostsConfig(context: Context): HostsConfig {
+    private val hostsLock = Any()
+
+    fun loadHostsConfig(context: Context): HostsConfig = synchronized(hostsLock) {
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
         val raw = sp.getString(KEY_HOSTS_CONFIG, null).orEmpty()
-        if (raw.isBlank()) {
-            return HostsConfig()
-        }
-        return try {
+        if (raw.isBlank()) return@synchronized HostsConfig()
+        try {
             json.decodeFromString<HostsConfig>(raw)
         } catch (t: Throwable) {
             Timber.w(t, "Failed to parse hosts config preference")
@@ -77,11 +77,34 @@ object UpdatePrefs {
         }
     }
 
-    fun saveHostsConfig(context: Context, config: HostsConfig) {
+    fun saveHostsConfig(context: Context, config: HostsConfig) = synchronized(hostsLock) {
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
         sp.edit {
             putString(KEY_HOSTS_CONFIG, json.encodeToString(config))
         }
+    }
+
+    /** All hosts read/modify/write operations share one lock, including network completion. */
+    fun updateHostsConfig(context: Context, transform: (HostsConfig) -> HostsConfig): HostsConfig =
+        synchronized(hostsLock) {
+            val current = loadHostsConfig(context)
+            val next = transform(current)
+            if (next != current) saveHostsConfig(context, next)
+            next
+        }
+
+    internal fun beginHostsMappingUpdate(context: Context): HostsConfig =
+        updateHostsConfig(context) { it.copy(mappingRequestId = UUID.randomUUID().toString()) }
+
+    internal fun completeHostsMappingUpdate(
+        context: Context, request: HostsConfig, mapping: Map<String, List<String>>, updatedAt: Long
+    ): Boolean {
+        var accepted = false
+        updateHostsConfig(context) { current ->
+            if (current.sourceUrl != request.sourceUrl || current.mappingRequestId != request.mappingRequestId) current
+            else current.copy(mapping = mapping, updatedAt = updatedAt).also { accepted = true }
+        }
+        return accepted
     }
 
     fun loadReleaseCache(context: Context): ReleaseInfo? {

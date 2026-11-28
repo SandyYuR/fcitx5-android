@@ -127,16 +127,26 @@ internal object ResumableAssetDownload {
                                     (asset.sizeBytes > 0 && total > 0 && total != asset.sizeBytes))
                                     throw InvalidAssetDownload("Download size differs from release metadata")
                                 files.requireSpace((total - start).coerceAtLeast(0) + total)
-                                state = state.copy(etag = etag ?: if (start > 0) validator else null,
+                                if (start == 0L) {
+                                    // Invalidate the old prefix before the first destructive write.
+                                    // A crash must never bind old bytes to the new response's ETag.
+                                    state = state.copy(etag = null, total = null, verified = false, actualSha256 = null)
+                                    files.write(state)
+                                }
+                                val responseState = state.copy(etag = etag ?: if (start > 0) validator else null,
                                     total = total.takeIf { it > 0 }, verified = false, actualSha256 = null)
-                                files.write(state)
                                 var downloaded = start
                                 var sampledBytes = start
                                 var sampledAt = System.nanoTime()
                                 var spaceCheckedAt = start
                                 progress(AssetDownloadProgress(start, total, 0))
                                 RandomAccessFile(files.part, "rw").use { destination ->
-                                    if (start == 0L) destination.setLength(0)
+                                    if (start == 0L) {
+                                        destination.setLength(0)
+                                        destination.fd.sync()
+                                    }
+                                    state = responseState
+                                    files.write(state)
                                     destination.seek(start)
                                     body.byteStream().use { input ->
                                         val buffer = ByteArray(32 * 1024)

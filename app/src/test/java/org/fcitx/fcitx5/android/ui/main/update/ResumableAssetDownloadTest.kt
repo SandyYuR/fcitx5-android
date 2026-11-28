@@ -97,6 +97,30 @@ class ResumableAssetDownloadTest {
         }
     }
 
+    @Test fun interruptionBeforeTruncationCannotPairOldBytesWithANewValidator() = runBlocking {
+        MockWebServer().use { server ->
+            val files = files()
+            files.part.writeText("old-prefix")
+            files.write(DownloadCheckpoint(etag = "\"old\"", pendingUri = "content://pending", publishedUri = "content://published"))
+            server.enqueue(MockResponse().setHeader("ETag", "\"new\"").setBody("new-content"))
+            try {
+                ResumableAssetDownload.run(OkHttpClient(), server.url("/f").toString(),
+                    ReleaseAsset("f.bin", "", 11, null), files) { throw IOException("simulated interruption") }
+                fail("Must interrupt before truncation")
+            } catch (_: IOException) { }
+            assertEquals("old-prefix", files.part.readText())
+            assertNull(files.read().etag)
+            assertEquals("content://pending", files.read().pendingUri)
+            assertEquals("content://published", files.read().publishedUri)
+            server.takeRequest()
+            server.enqueue(MockResponse().setHeader("ETag", "\"new\"").setBody("new-content"))
+            ResumableAssetDownload.run(OkHttpClient(), server.url("/f").toString(),
+                ReleaseAsset("f.bin", "", 11, null), files) { }
+            assertNull(server.takeRequest().getHeader("Range"))
+            assertEquals("new-content", files.part.readText())
+        }
+    }
+
     @Test fun aChecksumMismatchNeverMarksTheFileReadyForPublication() = runBlocking {
         MockWebServer().use { server ->
             val files = files(); server.enqueue(MockResponse().setBody("content"))
