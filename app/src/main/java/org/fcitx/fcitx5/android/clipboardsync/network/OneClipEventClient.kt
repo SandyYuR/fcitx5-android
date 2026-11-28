@@ -122,14 +122,18 @@ class OneClipEventClient internal constructor(serverUrl: String,
                     val source = response.body?.source()
                         ?: throw IOException("OneClip SSE body is empty")
                     val dataLines = mutableListOf<String>()
+                    var eventBytes = 0L
 
                     while (!closeRequested.get()) {
-                        val line = source.readUtf8Line() ?: break
+                        val line = OneClipSseBudget.readLine(source) ?: break
                         if (line.isBlank()) {
                             dispatchEvent(dataLines, onEvent)
                             dataLines.clear()
+                            eventBytes = 0L
                             continue
                         }
+                        eventBytes += line.toByteArray(Charsets.UTF_8).size + 1L
+                        OneClipSseBudget.checkEvent(eventBytes)
                         if (line.startsWith("data:")) {
                             dataLines += line.removePrefix("data:").trimStart()
                         }

@@ -24,7 +24,7 @@ object StoragePathUtils {
      *   decode as well and keep the original text, which still reflects what the user typed.
      */
     private fun decodeOrRaw(value: String): String {
-        val decoded = runCatching { URLDecoder.decode(value, UTF_8_NAME) }.getOrNull()
+        val decoded = runCatching { URLDecoder.decode(value.replace("+", "%2B"), UTF_8_NAME) }.getOrNull()
             ?: return value
         val lossy = decoded.contains(REPLACEMENT_CHAR) && !value.contains(REPLACEMENT_CHAR)
         return if (lossy) value else decoded
@@ -87,11 +87,18 @@ object StoragePathUtils {
         return buildTreeUriFromVisiblePath(raw)
     }
 
-    fun derivePersistableUri(displayPath: String): String? {
+    fun derivePersistableUri(
+        displayPath: String,
+        previousDisplayPath: String? = null,
+        previousUri: String? = null
+    ): String? {
         val trimmed = displayPath.trim()
+        // The displayed path cannot reconstruct another provider's document identity,
+        // nor distinguish a literal percent escape already decoded for display.
+        if (trimmed == previousDisplayPath?.trim() && !previousUri.isNullOrBlank()) return previousUri
         if (trimmed.isEmpty()) return null
         if (trimmed.startsWith("content://") || trimmed.startsWith("file://")) return trimmed
-        return buildTreeUriFromVisiblePath(trimmed)?.toString()
+        return formatStoragePath(trimmed)?.let(::buildTreeUriFromVisiblePath)?.toString()
     }
 
     fun visiblePathFromUriString(uriString: String?): String? {

@@ -35,6 +35,15 @@ class StoragePathUtilsTest {
     }
 
     @Test
+    fun plusIsNotAFormEncodedSpaceAndRepeatedDisplayIsStable() {
+        for (raw in listOf("/A+B", "/A%2BB")) {
+            val display = StoragePathUtils.formatStoragePath(raw)
+            assertEquals("/A+B", display)
+            assertEquals(display, StoragePathUtils.formatStoragePath(display))
+        }
+    }
+
+    @Test
     fun blankInputYieldsNull() {
         assertNull(StoragePathUtils.formatStoragePath(null))
         assertNull(StoragePathUtils.formatStoragePath(""))

@@ -131,11 +131,11 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
                     val filePath = extractFilePathFromTreeUri(treeUri)
                     if (filePath != null) {
                         val stagedFromPath = withContext(Dispatchers.IO) {
-                            normalizeClipboardText(appContext, "file://$filePath")
+                            ClipboardUriStore.stageForCommit(appContext, Uri.fromFile(java.io.File(filePath)))
                         }
-                        if (stagedFromPath != entry.text && !stagedFromPath.startsWith("content://com.android.externalstorage")) {
+                        if (stagedFromPath != null) {
                             return entry.copy(
-                                text = stagedFromPath,
+                                text = stagedFromPath.uri.toString(),
                                 originalText = entry.originalText.ifEmpty { entry.text }
                             )
                         }
@@ -166,11 +166,12 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
                 uri.path?.startsWith("/tree/") == true
     }
 
-    private fun extractFilePathFromTreeUri(treeUri: Uri): String? {
+    internal fun extractFilePathFromTreeUri(treeUri: Uri): String? {
         // Tree URI format: content://com.android.externalstorage.documents/tree/primary%3ADownload%2FFcitx5-clipboard/document/primary%3ADownload%2FFcitx5-clipboard%2FImage.png
         // Document ID format: primary:Download/Fcitx5-clipboard/Image.png
         val documentId = try {
-            DocumentsContract.getTreeDocumentId(treeUri)
+            runCatching { DocumentsContract.getDocumentId(treeUri) }
+                .getOrElse { DocumentsContract.getTreeDocumentId(treeUri) }
         } catch (e: Exception) {
             Timber.w("Failed to get document ID from tree URI: $treeUri")
             return null
@@ -277,50 +278,29 @@ object ClipboardManager : ClipboardManager.OnPrimaryClipChangedListener,
         if (recentEntries.isEmpty()) return null
 
         return withContext(Dispatchers.IO) {
-            for (existing in recentEntries) {
-                val existingIdentityUri = existing.originalText.toClipboardUriOrNull()
-                    ?: existing.text.toClipboardUriOrNull()
-                    ?: continue
-                if (incomingIdentityUri.normalizeScheme() == existingIdentityUri.normalizeScheme()) {
-                    return@withContext existing
-                }
-            }
-
-            // Provider canonicalization and path resolution can query the content provider.
-            // Check only the most recent rows directly; older staged copies are covered by the
-            // cheap metadata plus fingerprint fallback below.
-            for (existing in recentEntries.take(URI_ALIAS_CANDIDATE_LIMIT)) {
-                val existingIdentityUri = existing.originalText.toClipboardUriOrNull()
-                    ?: existing.text.toClipboardUriOrNull()
-                    ?: continue
-                val existingContentUri = existing.text.toClipboardUriOrNull() ?: existingIdentityUri
-                if (
-                    ClipboardUriStore.refersToSameFile(appContext, incomingIdentityUri, existingIdentityUri) ||
-                    ClipboardUriStore.refersToSameFile(appContext, incomingIdentityUri, existingContentUri)
-                ) {
-                    return@withContext existing
-                }
-            }
-
             val incomingMetadata = ClipboardUriStore.queryMetadata(appContext, incomingIdentityUri)
-                ?: return@withContext null
             var incomingFingerprint: ClipboardUriFingerprint? = null
             var incomingFingerprintChecked = false
-            for (existing in recentEntries) {
+            for ((index, existing) in recentEntries.withIndex()) {
                 val existingIdentityUri = existing.originalText.toClipboardUriOrNull()
-                    ?: existing.text.toClipboardUriOrNull()
-                    ?: continue
+                    ?: existing.text.toClipboardUriOrNull() ?: continue
                 val existingContentUri = existing.text.toClipboardUriOrNull() ?: existingIdentityUri
-                val existingMetadata = ClipboardUriStore.queryMetadata(appContext, existingContentUri) ?: continue
-                if (
-                    ClipboardUriStore.normalizedDisplayName(incomingMetadata.displayName) !=
-                    ClipboardUriStore.normalizedDisplayName(existingMetadata.displayName)
-                ) continue
-                if (
-                    incomingMetadata.sizeBytes != null && existingMetadata.sizeBytes != null &&
-                    incomingMetadata.sizeBytes != existingMetadata.sizeBytes
-                ) continue
+                if (incomingIdentityUri.normalizeScheme() == existingContentUri.normalizeScheme() &&
+                    ClipboardUriStore.isImmutableStagedUri(appContext, incomingIdentityUri)) return@withContext existing
 
+                // URI equality and aliases select candidates, never prove mutable source bytes.
+                val sameAddress = incomingIdentityUri.normalizeScheme() == existingIdentityUri.normalizeScheme() ||
+                    (index < URI_ALIAS_CANDIDATE_LIMIT &&
+                        (ClipboardUriStore.refersToSameFile(appContext, incomingIdentityUri, existingIdentityUri) ||
+                            ClipboardUriStore.refersToSameFile(appContext, incomingIdentityUri, existingContentUri)))
+                if (!sameAddress) {
+                    val existingMetadata = ClipboardUriStore.queryMetadata(appContext, existingContentUri) ?: continue
+                    if (incomingMetadata == null ||
+                        ClipboardUriStore.normalizedDisplayName(incomingMetadata.displayName) !=
+                        ClipboardUriStore.normalizedDisplayName(existingMetadata.displayName)) continue
+                    if (incomingMetadata.sizeBytes != null && existingMetadata.sizeBytes != null &&
+                        incomingMetadata.sizeBytes != existingMetadata.sizeBytes) continue
+                }
                 if (!incomingFingerprintChecked) {
                     incomingFingerprint = ClipboardUriStore.fingerprint(appContext, incomingIdentityUri)
                     incomingFingerprintChecked = true

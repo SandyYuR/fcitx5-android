@@ -549,7 +549,9 @@ object SettingsActivity {
             val view = LayoutInflater.from(context).inflate(R.layout.dialog_storage_location, null)
             val storagePathEdit = view.findViewById<EditText>(R.id.storage_path_edit)
 
-            storagePathEdit.setText(prefs.getString(DOWNLOAD_PATH_KEY, ""))
+            val previousDisplay = prefs.getString(DOWNLOAD_PATH_KEY, "").orEmpty()
+            val previousUri = prefs.getString(DOWNLOAD_PATH_URI_KEY, null)
+            storagePathEdit.setText(previousDisplay)
 
             val dialog = MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.storage_location_title)
@@ -557,7 +559,7 @@ object SettingsActivity {
                 .setPositiveButton(android.R.string.ok) { _, _ ->
                     val input = storagePathEdit.text?.toString()?.trim().orEmpty()
                     val normalizedDisplay = StoragePathUtils.formatStoragePath(input).orEmpty()
-                    val derivedUri = StoragePathUtils.derivePersistableUri(input)
+                    val derivedUri = StoragePathUtils.derivePersistableUri(input, previousDisplay, previousUri)
                     prefs.edit()
                         .putString(DOWNLOAD_PATH_KEY, normalizedDisplay.ifBlank { input })
                         .putString(DOWNLOAD_PATH_URI_KEY, derivedUri)

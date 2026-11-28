@@ -1955,14 +1955,8 @@ class MainService : Service() {
         }
     }
 
-    /**
-     * Cached receive filter; cleared by [invalidateReceiveFilterCache].
-     *
-     * Volatile because the pull loop and the ClipCascade message handler read it from different
-     * coroutines while the preference listener clears it on the main thread.
-     */
-    @Volatile
-    private var cachedReceiveFilter: ReceiveFilter? = null
+    /** Construction/publication and invalidation share one monitor. */
+    private val receiveFilterCache = ReceiveFilterCache<ReceiveFilter>()
 
     /**
      * The active receive filter.
@@ -1971,8 +1965,7 @@ class MainService : Service() {
      * preferences and splits a string with a regex — 50 history entries meant 50 rebuilds
      * (see G3).
      */
-    private fun currentReceiveFilter(): ReceiveFilter {
-        cachedReceiveFilter?.let { return it }
+    private fun currentReceiveFilter(): ReceiveFilter = receiveFilterCache.getOrLoad {
         val state = SyncFilterPrefs.loadState(prefs)
         val filter = if (!state.hasActiveRule) {
             ReceiveFilter(
@@ -1991,12 +1984,11 @@ class MainService : Service() {
                 maxTextChars = state.maxTextChars
             ).normalized()
         }
-        cachedReceiveFilter = filter
-        return filter
+        filter
     }
 
     private fun invalidateReceiveFilterCache() {
-        cachedReceiveFilter = null
+        receiveFilterCache.invalidate()
     }
 
     private fun shouldAcceptIncomingMetadata(data: ClipboardData): Boolean {

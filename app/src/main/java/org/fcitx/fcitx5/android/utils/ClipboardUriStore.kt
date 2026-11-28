@@ -98,6 +98,18 @@ object ClipboardUriStore {
         return stageForCommit(context, raw)?.uri?.toString() ?: raw
     }
 
+    /** Only our uniquely named, read-only shared snapshots have immutable URI identities. */
+    internal fun isImmutableStagedUri(context: Context, uri: Uri): Boolean {
+        if (uri.scheme != ContentResolver.SCHEME_CONTENT ||
+            uri.authority != context.packageName + FILE_PROVIDER_SUFFIX ||
+            uri.pathSegments.size != 2 || uri.pathSegments.first() != CACHE_DIR) return false
+        return runCatching {
+            val root = File(context.cacheDir, CACHE_DIR).canonicalFile
+            val file = File(root, uri.pathSegments.last())
+            file.isFile && file.canonicalFile.parentFile == root
+        }.getOrDefault(false)
+    }
+
     /** Compare URI aliases that resolve to one canonical provider URI, document ID, or file path. */
     fun refersToSameFile(context: Context, first: Uri, second: Uri): Boolean {
         if (first.normalizeScheme() == second.normalizeScheme()) return true
