@@ -467,10 +467,8 @@ object ThemeFilesManager {
             var entryCount = 0
             var totalBytes = 0L
             while (entry != null) {
-                if (!entry.isDirectory) {
-                    entryCount++
-                    if (entryCount > MAX_IMPORT_ENTRIES) rejectTooManyEntries()
-                }
+                entryCount++
+                if (entryCount > MAX_IMPORT_ENTRIES) rejectTooManyEntries()
                 if (!entry.isDirectory && entry.name.endsWith(".json")) {
                     // 取成 val 再进 lambda：entry 是可变的局部变量（循环末尾会重新赋值），
                     // 直接把 entry 捕获进闭包会丢掉非空智能转换。
@@ -493,10 +491,9 @@ object ThemeFilesManager {
                 }
                 // 这条路径不需要图片内容，但必须把条目读完 nextEntry 才会推进；用固定缓冲区
                 // 丢弃并计总量，解压炸弹就不会靠 CPU/磁盘把这台设备拖垮（与解压路径同一套限额）。
-                if (!entry.isDirectory) {
-                    totalBytes += zipStream.discardAtMost(MAX_IMPORT_ENTRY_BYTES, entry.name)
-                    if (totalBytes > MAX_IMPORT_TOTAL_BYTES) rejectArchiveTooLarge(MAX_IMPORT_TOTAL_BYTES)
-                }
+                totalBytes += zipStream.discardAtMost(
+                    minOf(MAX_IMPORT_ENTRY_BYTES, MAX_IMPORT_TOTAL_BYTES - totalBytes), entry.name)
+                if (totalBytes > MAX_IMPORT_TOTAL_BYTES) rejectArchiveTooLarge(MAX_IMPORT_TOTAL_BYTES)
                 entry = zipStream.nextEntry
             }
             errorRuntime(R.string.exception_theme_json)
@@ -646,11 +643,12 @@ object ThemeFilesManager {
                 var entryCount = 0
                 var totalBytes = 0L
                 while (entry != null) {
-                    if (!entry.isDirectory) {
-                        // 条目数/解压总量与单条目上限：原来 copyTo 是无界的，一个 zip 炸弹
-                        // 可以把 cache 目录写满（见任务 C）。
-                        entryCount++
-                        if (entryCount > MAX_IMPORT_ENTRIES) rejectTooManyEntries()
+                    if (++entryCount > MAX_IMPORT_ENTRIES) rejectTooManyEntries()
+                    if (entry.isDirectory) {
+                        // ZIP directory entries can carry data too; nextEntry must not drain it unbounded.
+                        totalBytes += zipStream.discardAtMost(
+                            minOf(MAX_IMPORT_ENTRY_BYTES, MAX_IMPORT_TOTAL_BYTES - totalBytes), entry.name)
+                    } else {
                         val file = resolveEntryTarget(tempDir, entry.name)
                         file.parentFile?.mkdirs()
                         val written = zipStream.copyAtMostTo(
@@ -689,65 +687,24 @@ object ThemeFilesManager {
                     val appFilesDir = appContext.getExternalFilesDir(null) ?: appContext.filesDir
                     val baseDir = themeDir()
 
-                    // Resolve target paths: handle both absolute and relative paths
-                    val (croppedTarget, srcTarget) = if (importedName == null) {
-                        resolveImagePath(
-                            decoded.backgroundImage.croppedFilePath,
-                            appFilesDir,
-                            baseDir
-                        ) to resolveImagePath(
-                            decoded.backgroundImage.srcFilePath,
-                            appFilesDir,
-                            baseDir
-                        )
-                    } else {
-                        newBackgroundImagesForTheme(importedThemeName)
-                    }
-
-                    srcTarget.parentFile?.mkdirs()
-                    croppedTarget.parentFile?.mkdirs()
-
-                    val oldSrcFile = oldTheme?.backgroundImage?.srcFilePath?.let { File(it) }
-                    val srcFileNameMatches = oldSrcFile?.name == srcTarget.name
+                    // Validate legacy paths even though imported images receive fresh identities.
+                    resolveImagePath(decoded.backgroundImage.croppedFilePath, appFilesDir, baseDir)
+                    resolveImagePath(decoded.backgroundImage.srcFilePath, appFilesDir, baseDir)
                     val srcFileNameInZip = File(decoded.backgroundImage.srcFilePath).name
-
-                    // Find source file by filename (handles ZIP encoding differences)
-                    val srcFileInZip = extractedPaths.values.find { it.name == srcFileNameInZip }
-
-                    srcFileInZip?.let {
-                        it.copyTo(srcTarget, overwrite = srcFileNameMatches)
-                    } ?: errorRuntime(R.string.exception_theme_src_image)
-
-                    val oldCroppedFile = oldTheme?.backgroundImage?.croppedFilePath?.let { File(it) }
-                    val croppedFileNameMatches = oldCroppedFile?.name == croppedTarget.name
                     val croppedFileNameInZip = File(decoded.backgroundImage.croppedFilePath).name
-
-                    // Find cropped file by filename
-                    val croppedFileInZip = extractedPaths.values.find { it.name == croppedFileNameInZip }
-
-                    croppedFileInZip?.let {
-                        it.copyTo(croppedTarget, overwrite = croppedFileNameMatches)
-                    } ?: errorRuntime(R.string.exception_theme_cropped_image)
-
-                    if (!srcFileNameMatches) {
-                        oldSrcFile?.delete()
-                    }
-                    if (!croppedFileNameMatches) {
-                        oldCroppedFile?.delete()
-                    }
-
-                    // Save theme with absolute paths; saveThemeFiles normalizes to
-                    // portable relative form so the JSON survives cross-variant import.
-                    theme.copy(
-                        backgroundImage = decoded.backgroundImage.copy(
-                            croppedFilePath = croppedTarget.path,
-                            srcFilePath = srcTarget.path
-                        )
-                    )
+                    // Resolve both files before publishing either one. Existing definitions and
+                    // images remain intact if extraction, validation or JSON publication fails.
+                    val source = extractedPaths.values.find { it.name == srcFileNameInZip }
+                        ?: errorRuntime(R.string.exception_theme_src_image)
+                    val cropped = extractedPaths.values.find { it.name == croppedFileNameInZip }
+                        ?: errorRuntime(R.string.exception_theme_cropped_image)
+                    saveEditedTheme(theme, cropped, source)
                 } else {
+                    saveThemeFiles(theme)
                     theme
                 }
-                saveThemeFiles(newTheme)
+                // Old images may be shared by other definitions; never delete them before
+                // the replacement definition is durable.
                 Triple(newCreated, newTheme, migrated)
             }
         }
