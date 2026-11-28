@@ -577,7 +577,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     fun postFcitxJob(block: suspend FcitxAPI.() -> Unit): Job = postFcitxJob("operation", block = block)
 
     /** Capture at the time of the key, before either the service or native owner queues it. */
-    private fun postFcitxKeyJob(category: String, block: suspend FcitxAPI.() -> Unit): Job {
+    private fun postFcitxKeyJob(category: String, block: suspend FcitxAPI.() -> Unit): Job =
+        postFcitxKeyJobWithTicket(category) { block() }
+
+    private fun postFcitxKeyJobWithTicket(
+        category: String,
+        block: suspend FcitxAPI.(org.fcitx.fcitx5.android.core.InputKeyGate.Ticket) -> Unit
+    ): Job {
         // Showing an inherited keyboard window on a TYPE_NULL/non-editor focus
         // is not typing demand. Promote only a real key, before its ticket is
         // captured, and bind ahead of it in this same ordered service queue.
@@ -588,10 +594,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val statisticsSource = captureStatisticsSource(ticket.generation)
         return postFcitxJob(category, fcitx.interactiveDispatcher) {
             if (FcitxDaemon.canDeliverInputKey(ticket)) {
-                if (statisticsSource == null) block()
+                if (statisticsSource == null) block(ticket)
                 else {
                     val api = this
-                    withContext(statisticsSource) { block(api) }
+                    withContext(statisticsSource) { block(api, ticket) }
                 }
             }
         }.also { job -> job.invokeOnCompletion { FcitxDaemon.releaseInputKey(ticket) } }
@@ -715,6 +721,26 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     fun postCandidateSelection(target: org.fcitx.fcitx5.android.core.CandidateSelectionTarget): Job =
         postCandidateSelection { selectCandidateIfCurrent(target.index, target.global, target.context) }
+
+    /** A character pick belongs to the editor and key ticket captured before queueing it. */
+    fun commitCandidateCharacter(character: String): Job {
+        val token = editorSession.capture() ?: return Job().apply { complete() }
+        val connection = currentInputConnection ?: return Job().apply { complete() }
+        return postFcitxKeyJobWithTicket("candidate-character") { ticket ->
+            val current = withContext(Dispatchers.Main.immediate) {
+                token.isCurrent() && currentInputConnection === connection &&
+                    FcitxDaemon.canDeliverInputKey(ticket)
+            }
+            if (!current || !FcitxDaemon.canDeliverInputKey(ticket)) return@postFcitxKeyJobWithTicket
+            reset()
+            withContext(Dispatchers.Main.immediate) {
+                if (token.isCurrent() && currentInputConnection === connection &&
+                    FcitxDaemon.canDeliverInputKey(ticket)) {
+                    commitText(character)
+                }
+            }
+        }
+    }
 
     /** Same editor-gated service queue as keys and candidates, retaining the displayed tab target. */
     fun postCandidateTabAction(target: org.fcitx.fcitx5.android.core.CandidateTabActionTarget): Job =
@@ -1126,27 +1152,11 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                // 水平移动光标不走 DPAD 键事件：文本边界处的 DPAD_LEFT/RIGHT 会被部分编辑框
-                // （微信/QQ 聊天输入框等）交给焦点导航，把焦点移出输入框（表现为光标跑到
-                // app 内其他控件上）。改用 setSelection：它不会触发焦点导航，越界目标也会被
-                // BaseInputConnection 安全忽略（光标停在边界不动）。
-                val (start, end) = selection.latest
-                if (start < 0 || end < 0) {
-                    // 编辑器尚未上报光标位置，无法计算目标，退回键事件
-                    sendDownUpKeyEvents(keyCode)
-                    return
-                }
-                // 有选区时折叠到选区边界，无选区时移动一格
-                val offset = if (start == end) 1 else 0
-                val target =
-                    if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) start - offset else end + offset
-                if (target >= 0) {
-                    // predict 让同一次手势内的连续按键立即读到最新预测位置，
-                    // 否则 onUpdateSelection 回报前会重复计算同一目标导致丢步
-                    selection.predict(target)
-                    ic.setSelection(target, target)
-                }
-                // target < 0：光标已在文本最前端，保持不动
+                // Bounded editor text determines Unicode width and document boundaries.
+                // Never fall back to DPAD here: it can move focus out of the editor.
+                org.fcitx.fcitx5.android.input.cursor.HorizontalCursorMover.move(
+                    ic, selection, keyCode == KeyEvent.KEYCODE_DPAD_LEFT
+                )
             }
             KeyEvent.KEYCODE_DPAD_UP -> {
                 // 偏移 0 一定在第一行：此时 DPAD_UP 会被编辑框交给焦点导航导致失焦，直接跳过。

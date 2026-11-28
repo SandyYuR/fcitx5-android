@@ -112,15 +112,10 @@ abstract class BaseInputView(
      *
      * 必须先 reset（清空预编辑/高亮）再 `commitText`，顺序不能反：直接上屏而不 reset
      * 的话，Rime 会话里残留的预编辑会在下一次按键时被再次提交，出现重复上屏。
-     * 用 `postFcitxJob` 而不是 `launchOnReady`，保证与其它输入操作串行、不乱序。
+     * 由 service 在同一按键队列中捕获 ticket 和编辑器，交付前再次复核归属。
      */
     private fun commitCandidateCharacter(character: String) {
-        service.postFcitxJob {
-            reset()
-            withContext(Dispatchers.Main.immediate) {
-                service.commitText(character)
-            }
-        }
+        service.commitCandidateCharacter(character)
     }
 
     private var candidateCharacterPopup: CandidateCharacterPopup? = null
