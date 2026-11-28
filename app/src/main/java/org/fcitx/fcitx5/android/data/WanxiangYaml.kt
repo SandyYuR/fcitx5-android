@@ -11,6 +11,7 @@ import org.yaml.snakeyaml.nodes.*
 import org.yaml.snakeyaml.representer.Representer
 import java.io.StringReader
 import java.io.StringWriter
+import java.io.Writer
 import java.util.IdentityHashMap
 
 /** Comment-preserving YAML syntax editing. Rime itself compiles includes and patches. */
@@ -32,31 +33,96 @@ internal class WanxiangYaml {
     }
     private val yaml = Yaml(SafeConstructor(loader), Representer(dumper), dumper, loader)
 
+    /** Reject each overflowing chunk before StringWriter allocates or retains it. */
+    internal class BoundedWriter(private val limit: Int = MAX_TEXT) : Writer() {
+        private val output = StringWriter()
+        private var written = 0
+
+        init { require(limit >= 0) }
+
+        private inline fun appendChecked(length: Int, append: () -> Unit) {
+            require(length >= 0 && length <= limit - written) { "Serialized YAML exceeds the editing limit" }
+            append()
+            written += length
+        }
+
+        private fun checkRange(size: Int, offset: Int, length: Int) {
+            if (offset < 0 || length < 0 || offset > size - length) throw IndexOutOfBoundsException()
+        }
+
+        override fun write(value: Int) = appendChecked(1) { output.write(value) }
+        override fun write(value: String) = write(value, 0, value.length)
+        override fun write(value: String, offset: Int, length: Int) {
+            checkRange(value.length, offset, length)
+            appendChecked(length) { output.write(value, offset, length) }
+        }
+        override fun write(value: CharArray, offset: Int, length: Int) {
+            checkRange(value.size, offset, length)
+            appendChecked(length) { output.write(value, offset, length) }
+        }
+        override fun flush() = Unit
+        override fun close() = Unit
+        override fun toString(): String = output.toString()
+    }
+
+    private data class GraphCost(val height: Int, val nodes: Long, val characters: Long)
+
+    /** Bound both traversal and later value equality/emission, including repeated aliases. */
+    private fun validateGraph(root: Node) {
+        val gray = IdentityHashMap<Node, Boolean>()
+        val black = IdentityHashMap<Node, GraphCost>()
+        var uniqueNodes = 0
+        var edges = 0
+        fun check(at: Node, depth: Int): GraphCost {
+            require(depth <= 40) { "YAML nesting exceeds the editing limit" }
+            black[at]?.let {
+                require(depth + it.height <= 40) { "YAML nesting exceeds the editing limit" }
+                return it
+            }
+            require(gray.put(at, true) == null) { "Recursive YAML aliases cannot be edited" }
+            require(++uniqueNodes <= 100_000) { "YAML graph exceeds the editing limit" }
+            var height = 0
+            var nodes = 1L
+            var characters = if (at is ScalarNode) at.value.length.toLong() else 0L
+            fun child(node: Node) {
+                require(++edges <= 200_000) { "YAML graph exceeds the editing limit" }
+                val cost = check(node, depth + 1)
+                height = maxOf(height, cost.height + 1)
+                // Saturation avoids overflow on a compact exponentially expanding DAG.
+                nodes = minOf(100_001L, nodes + cost.nodes)
+                characters = minOf(MAX_TEXT.toLong() + 1, characters + cost.characters)
+            }
+            when (at) {
+                is MappingNode -> at.value.forEach {
+                    require(it.keyNode is ScalarNode) { "Configuration keys must be scalars" }
+                    child(it.keyNode)
+                    child(it.valueNode)
+                }
+                is SequenceNode -> at.value.forEach(::child)
+            }
+            require(nodes <= 100_000 && characters <= MAX_TEXT) { "Expanded YAML exceeds the editing limit" }
+            gray.remove(at)
+            return GraphCost(height, nodes, characters).also { black[at] = it }
+        }
+        check(root, 0)
+    }
+
     fun parse(text: String): Node {
         require(text.length <= MAX_TEXT) { "YAML exceeds the editing limit" }
-        yaml.load<Any?>(text) // SafeConstructor checks duplicate keys and rejects object tags.
         val node = yaml.compose(StringReader(text)) ?: mapping()
-        val ancestors = IdentityHashMap<Node, Boolean>()
-        fun check(node: Node, depth: Int) {
-            require(depth <= 40 && ancestors.put(node, true) == null) { "Recursive YAML aliases cannot be edited" }
-            when (node) {
-                is MappingNode -> node.value.forEach { entry ->
-                    require(entry.keyNode is ScalarNode) { "Configuration keys must be scalars" }
-                    check(entry.valueNode, depth + 1)
-                }
-                is SequenceNode -> node.value.forEach { check(it, depth + 1) }
-            }
-            ancestors.remove(node)
-        }
-        check(node, 0)
+        validateGraph(node)
+        yaml.load<Any?>(text) // Only after admission: keep duplicate-key/tag/value checks.
         return node
     }
 
     fun document(text: String) = parse(text).also { require(it is MappingNode) { "Configuration root must be a mapping" } } as MappingNode
     private fun wrapped(node: Node): String {
+        validateGraph(node) // Editor-created nodes must obey the same limits as parsed input.
         val wrapper = mapping()
         val detached = clone(node)
+        val normalized = IdentityHashMap<Node, Boolean>()
         fun normalize(at: Node) {
+            if (normalized.put(at, true) != null) return
             if (at is CollectionNode<*>) {
                 // The emitter loses indentation on commented flow collections used as list items.
                 if (!at.blockComments.isNullOrEmpty()) at.flowStyle = DumperOptions.FlowStyle.BLOCK
@@ -75,7 +141,7 @@ internal class WanxiangYaml {
         }
         normalize(detached)
         wrapper.value.add(NodeTuple(ScalarNode(Tag.STR, WRAPPER, null, null, DumperOptions.ScalarStyle.PLAIN), detached))
-        return StringWriter().also { yaml.serialize(wrapper, it) }.toString()
+        return BoundedWriter().also { yaml.serialize(wrapper, it) }.toString()
     }
     /** SnakeYAML cannot emit a root scalar's inline comment. Emit it as a mapping value first. */
     fun dump(node: Node): String {
@@ -85,11 +151,14 @@ internal class WanxiangYaml {
         val prefix = lines.take(index)
         val first = lines[index].removePrefix("$WRAPPER:").trimStart()
         val remaining = lines.drop(index + 1)
-        if (first.isNotEmpty()) return (prefix + first + remaining).joinToString("\n")
-        // Mapping values may contain indentless lists. Dedent only by the actual root indent.
-        val indent = remaining.firstOrNull { it.isNotBlank() && !it.trimStart().startsWith('#') }
-            ?.takeWhile { it == ' ' }?.length ?: 0
-        return (prefix + remaining.map { if (it.startsWith(" ".repeat(indent))) it.drop(indent) else it }).joinToString("\n")
+        val result = if (first.isNotEmpty()) (prefix + first + remaining).joinToString("\n") else {
+            // Mapping values may contain indentless lists. Dedent only by the actual root indent.
+            val indent = remaining.firstOrNull { it.isNotBlank() && !it.trimStart().startsWith('#') }
+                ?.takeWhile { it == ' ' }?.length ?: 0
+            (prefix + remaining.map { if (it.startsWith(" ".repeat(indent))) it.drop(indent) else it }).joinToString("\n")
+        }
+        require(result.length <= MAX_TEXT) { "Serialized YAML exceeds the editing limit" }
+        return result
     }
     fun clone(node: Node): Node {
         val copies = IdentityHashMap<Node, Node>()
