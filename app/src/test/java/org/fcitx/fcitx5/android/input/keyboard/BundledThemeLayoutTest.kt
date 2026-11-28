@@ -78,6 +78,40 @@ class BundledThemeLayoutTest {
         }
     }
 
+
+    @Test fun chaohuaEnglishComparisonsCommitTheirDisplayedSymbol() {
+        val rows = layout("QM-朝花")["[公共] 英符键盘"]!!.jsonArray
+        val keys = rows.flatMap { it.jsonArray }.map { it.jsonObject }
+        for (symbol in listOf("<", ">")) {
+            val key = keys.single { it.text("label") == symbol }
+            val macro = key["tap"]!!.jsonObject["macro"]!!.jsonArray
+            assertEquals(1, macro.size)
+            assertEquals("text", macro.single().jsonObject.text("type"))
+            assertEquals(symbol, macro.single().jsonObject.text("text"))
+        }
+    }
+
+    @Test fun chaohuaLayerTargetsReferToExistingSharedEntries() {
+        val root = layout("QM-朝花")
+        var checked = 0
+        fun visit(element: kotlinx.serialization.json.JsonElement) {
+            when (element) {
+                is JsonObject -> {
+                    if (element.text("type") == "layer" && element.text("mode") != "back") {
+                        val target = element.text("target")
+                        assertTrue("Missing layer target: $target", target != null && root.containsKey(target))
+                        checked++
+                    }
+                    element.values.forEach(::visit)
+                }
+                is JsonArray -> element.forEach(::visit)
+                else -> Unit
+            }
+        }
+        visit(root)
+        assertTrue("The fixture must include layer navigation", checked > 0)
+    }
+
     @Test fun fullEditingPanelsUseTheDedicatedReturnSlot() {
         for (name in listOf("水彩", "普蓝")) {
             val editor = layout(name)["editor"]!!.jsonArray

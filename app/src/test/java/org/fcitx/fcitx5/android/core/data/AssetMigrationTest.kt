@@ -156,7 +156,7 @@ class AssetMigrationTest {
         }
         descriptor.symlinks.forEach { (path, source) ->
             assertTrue(Files.isSymbolicLink(File(root, path).toPath()))
-            assertEquals(File(root, source).canonicalFile, File(root, path).canonicalFile)
+            assertEquals(File(root, source).toPath().toRealPath(), File(root, path).toPath().toRealPath())
         }
         assertTrue(DataHierarchy.diff(hierarchy.downToDataDescriptor(), hierarchy).isEmpty())
     }

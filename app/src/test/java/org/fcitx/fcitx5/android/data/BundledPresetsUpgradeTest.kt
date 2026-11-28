@@ -63,6 +63,17 @@ class BundledPresetsUpgradeTest {
         assertArrayEquals(edited, destination.readBytes())
     }
 
+    @Test fun aSameLengthValidJsonEditOfTheActualPreviousThemeIsPreserved() {
+        val original = previous()
+        val edited = original.decodeToString().replaceFirst("\"version\": 193", "\"version\": 194").encodeToByteArray()
+        assertEquals(original.size, edited.size)
+        assertFalse(original.contentEquals(edited))
+        val destination = temp.newFile().apply { writeBytes(edited) }
+        handled.add("$asset#${current.size}")
+        assertEquals(0, install(destination))
+        assertArrayEquals(edited, destination.readBytes())
+    }
+
     @Test fun aDeletedHandledThemeIsRecreated() {
         handled.add("$asset#${current.size}")
         val destination = File(temp.root, "deleted-theme.json")
@@ -70,7 +81,7 @@ class BundledPresetsUpgradeTest {
         assertArrayEquals(current, destination.readBytes())
     }
 
-    @Test fun releasedFoxyAssetsMigrateFromEveryKnownPreviousSize() {
+    @Test fun lengthAloneNeverAuthorizesReplacingReleasedAssets() {
         val released = mapOf(
             "bundled/icon_themes/水彩.json" to listOf(183743, 188289, 262232, 264678, 269247, 266801),
             "bundled/icon_themes/普蓝.json" to listOf(62181, 83553, 105328),
@@ -82,8 +93,8 @@ class BundledPresetsUpgradeTest {
         for ((path, sizes) in released) {
             for (size in sizes) {
                 val destination = temp.newFile().apply { writeBytes(ByteArray(size) { 0x5a.toByte() }) }
-                assertEquals(1, install(path, destination, updated))
-                assertArrayEquals(updated, destination.readBytes())
+                assertEquals(0, install(path, destination, updated))
+                assertArrayEquals(ByteArray(size) { 0x5a.toByte() }, destination.readBytes())
             }
         }
     }
@@ -136,14 +147,8 @@ class BundledPresetsUpgradeTest {
         assertEquals("蓝狐狸", profile.getValue())
     }
 
-    /**
-     * 完整安装路径：先退役原版旧文件，再迁移布局选择。
-     *
-     * 顺序反了就会把用户改过的旧布局删掉；或者旧文件还在就迁移，用户自定义布局被
-     * 悄悄换成普蓝。这里用真实的 install() 跑一遍，并用与上一版登记值相同的字节数
-     * 构造「未改过的原版文件」。
-     */
-    @Test fun fullInstallRetiresLegacyKitFilesBeforeMigratingTheProfile() {
+    /** 同长度占位内容不是已证原版，完整安装也必须保留文件及当前选择。 */
+    @Test fun fullInstallPreservesUnprovenSameLengthLegacyFilesAndProfile() {
         val ext = requireNotNull(appContext.getExternalFilesDir(null))
         fun seed(relative: String, size: Int): File =
             File(ext, relative).apply {
@@ -162,11 +167,11 @@ class BundledPresetsUpgradeTest {
         try {
             ReflectionHelpers.callInstanceMethod<Unit>(BundledPresets, "install")
 
-            assertFalse("原版旧布局应在迁移前退役", legacyLayout.exists())
-            assertFalse("原版旧图标主题应退役", legacyIcons.exists())
-            assertFalse("原版旧配色主题应退役", legacyTheme.exists())
+            assertArrayEquals(ByteArray(19729) { 'x'.code.toByte() }, legacyLayout.readBytes())
+            assertArrayEquals(ByteArray(56240) { 'x'.code.toByte() }, legacyIcons.readBytes())
+            assertArrayEquals(ByteArray(709) { 'x'.code.toByte() }, legacyTheme.readBytes())
             assertTrue(renamedLayout.exists())
-            assertEquals("普蓝", profile.getValue())
+            assertEquals("蓝狐狸", profile.getValue())
         } finally {
             profile.setValue(previousProfile)
             listOf(legacyLayout, legacyIcons, legacyTheme, renamedLayout).forEach { it.delete() }

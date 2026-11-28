@@ -143,7 +143,7 @@
     [
       {"type":"MacroKey","displayText":"⇦","label":"返回","weight":0.17,"tap":{"macro":[{"type":"layer","mode":"back","target":""}]},"backgroundColor":-5456972},
       {"type":"MacroKey","label":"占位符","weight":0.0,"tap":{"macro":[{"type":"text","text":""}]},"textColor":789516,"altTextColor":0,"backgroundColor":16777215,"shadowColor":0},
-      {"type":"MacroKey","label":"，","weight":0.13,"tap":{"macro":[{"type":"text","text":"，"}]},"swipe":{"macro":[{"type":"layer","mode":"to","target":"rime:英符键盘"}]}},
+      {"type":"MacroKey","label":"，","weight":0.13,"tap":{"macro":[{"type":"text","text":"，"}]},"swipe":{"macro":[{"type":"layer","mode":"to","target":"[公共] 英符键盘"}]}},
       {"type":"MacroKey","label":"。","weight":0.13,"tap":{"macro":[{"type":"text","text":"。"}]}},
       {"type":"MacroKey","label":"？","weight":0.13,"tap":{"macro":[{"type":"text","text":"？"}]}},
       {"type":"MacroKey","label":"！","weight":0.13,"tap":{"macro":[{"type":"text","text":"！"}]}},
@@ -217,7 +217,7 @@
       {"type":"MacroKey","label":"/","weight":0.0,"tap":{"macro":[{"type":"text","text":"/"}]}},
       {"type":"MacroKey","label":"_","weight":0.0,"tap":{"macro":[{"type":"text","text":"_"}]}},
       {"type":"MacroKey","label":">","weight":0.0,"tap":{"macro":[{"type":"text","text":">"}]}},
-      {"type":"MacroKey","label":"<","weight":0.0,"tap":{"macro":[{"type":"text","text":">"}]}},
+      {"type":"MacroKey","label":"<","weight":0.0,"tap":{"macro":[{"type":"text","text":"<"}]}},
       {"type":"MacroKey","label":"$","weight":0.0,"tap":{"macro":[{"type":"text","text":"$"}]}},
       {"type":"MacroKey","label":"=","weight":0.0,"tap":{"macro":[{"type":"text","text":"="}]}}
     ],
@@ -285,7 +285,7 @@
       {"type":"MacroKey","displayText":"，","label":",","altLabel":"♱","weight":0.16,"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"comma"}]}]},"swipe":{"macro":[{"type":"layer","mode":"to","target":"[公共] 英符键盘"}]},"longPress":{"macro":[{"type":"app","id":"text_keyboard_layout_file_select"}]},"backgroundColor":-4208431,"longPressLabel":"切换布局"},
       {"type":"SpaceKey","weight":0.0},
       {"type":"MacroKey","label":"。","altLabel":"Cn","weight":0.16,"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"period"}]}]},"swipe":{"macro":[{"type":"app","id":"language_switch"}]},"backgroundColor":-4208431},
-      {"type":"ReturnKey","swipeLabel":"⚙","weight":0.18,"swipe":{"macro":[{"type":"layer","mode":"to","target":"[万象拼音] symbol 键盘"}]},"backgroundColor":-3489358}
+      {"type":"ReturnKey","swipeLabel":"⚙","weight":0.18,"swipe":{"macro":[{"type":"layer","mode":"to","target":"[公共] symbol 键盘"}]},"backgroundColor":-3489358}
     ]
   ],
   "rime": {
@@ -331,7 +331,7 @@
         {"type":"MacroKey","displayText":"，","label":",","altLabel":"♱","weight":0.16,"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"comma"}]}]},"swipe":{"macro":[{"type":"layer","mode":"to","target":"[公共] 英符键盘"}]},"longPress":{"macro":[{"type":"app","id":"text_keyboard_layout_file_select"}]},"backgroundColor":-4208431,"longPressLabel":"切换布局"},
         {"type":"SpaceKey","weight":0.0},
         {"type":"MacroKey","label":"。","altLabel":"Cn","weight":0.16,"tap":{"macro":[{"type":"tap","keys":[{"fcitx":"period"}]}]},"swipe":{"macro":[{"type":"app","id":"language_switch"}]},"backgroundColor":-4208431},
-        {"type":"ReturnKey","swipeLabel":"⚙","weight":0.18,"swipe":{"macro":[{"type":"layer","mode":"to","target":"[万象拼音] symbol 键盘"}]},"backgroundColor":-3489358}
+        {"type":"ReturnKey","swipeLabel":"⚙","weight":0.18,"swipe":{"macro":[{"type":"layer","mode":"to","target":"[公共] symbol 键盘"}]},"backgroundColor":-3489358}
       ]
     ],
     "wanxiang_english": [

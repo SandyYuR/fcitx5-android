@@ -31,7 +31,7 @@ import java.io.File
  *
  * 安装幂等且不覆盖用户修改：每个资源以"asset 路径 + 字节数"为版本标记记录在
  * SharedPreferences 中；默认不覆盖已存在的文件，显式登记更新的资源只在
- * 文件大小仍等于上一版内置内容时替换，保留用户自行修改的版本。
+ * 文件大小和已证上一版 SHA-256 均匹配时替换，保留用户自行修改的版本。
  * 登记更新还记录旧字节数，允许修正旧登记后重试仍存在的原版文件；更新资源须同步登记旧字节数。
  * 目标文件不存在时总是按原名重新写出：用户删除的内置资源会在下次安装时补回，
  * 版本标记只用于判断已存在的文件是否需要更新（见 [installAsset]）。
@@ -71,7 +71,7 @@ object BundledPresets {
 
     /**
      * 「上一版内置内容」的字节大小，用于区分用户是否改过本地文件：
-     * [installAsset] 只在 `dest.length()` 等于这里的登记值时才原位替换，
+     * [installAsset] 以这里的登记值筛选，再核对已证原版 SHA-256 才原位替换，
      * 长度不同即视为用户自己编辑过、保留用户版本。
      *
      * 因此每次更新某个资源后，要把这里的值改成**更新前那一版的字节数**
@@ -79,6 +79,7 @@ object BundledPresets {
      * 资源则只在目标文件不存在时才写出。
      */
     private val assetSizes = mapOf(
+        "bundled/keyboard_layouts/TextKeyboardLayout.QM-朝花.json" to setOf(75300),
         "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to setOf(13777),
         "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to setOf(36265),
         "bundled/icon_themes/谷歌.json" to setOf(68073),
@@ -93,11 +94,26 @@ object BundledPresets {
     )
 
     /**
-     * 已退役的内置资源：升级后删掉设备上仍是原版内容（字节数等于这里登记值）的旧文件。
+     * 已退役的内置资源：只有字节数和已证原版 SHA-256 均匹配才删除。
      *
      * 主题改名会留下旧文件名的那一份，它与新文件同名不同名地并存，主题列表里就会出现
-     * 两张几乎一样的卡片。用户改过的文件（长度不同）保留，与 [installAsset] 的判定一致。
+     * 两张几乎一样的卡片。内容摘要未知或用户改过的文件保留，与 [installAsset] 的判定一致。
      */
+    // Exact raw Git blob bytes from ancestors of 393f5b593db682091a52101df46dd68b096b0afc.
+    // Unproven historical sizes or APK line-ending variants are deliberately preserved.
+    private val originalAssetDigests = mapOf(
+        "bundled/keyboard_layouts/TextKeyboardLayout.QM-朝花.json" to setOf("8f2cad4cd902de675a70f972481d7b612cb7bdeeadfc1e1180132ad29ca1f2c8"),
+        "bundled/themes/普蓝.json" to setOf("cf9d28619794404226afa5e8439cca27b34c7040a62533eb00ab6762bc9a13db"),
+        "bundled/fonts/字体图标.otf" to setOf("613c6c34aeb93b6d2ab2ff9f35fec27a6a94d8cca05908de9b253c6eeb99776b"),
+        "bundled/icon_themes/普蓝.json" to setOf("b60f8c2d757abc4c46acff75b69cc35dc962c7d04d6b2556250ed1588e66af8b"),
+        "bundled/icon_themes/水彩.json" to setOf("deb78e0e0df46e6198352d0fa3fbf316e37dbda7d7423d56191d64ab2f121733"),
+        "bundled/keyboard_layouts/TextKeyboardLayout.普蓝.json" to setOf("d0ca164a1f9e797026b0fb11b7bc90c2189be50ccde05d8853373778c6f69a48"),
+        "bundled/keyboard_layouts/TextKeyboardLayout.水彩.json" to setOf("f3133c7393aee97e4febdfee6bb9f9d86734c74b4708e17e320c26f619fdcd97"),
+        "bundled/icon_themes/谷歌.json" to setOf("1428a57ea4d63793f0331ead33ca36a48346333321e1a4dc07616b838e671cb6"),
+        "bundled/keyboard_layouts/TextKeyboardLayout.大同-9+18+26keys.json" to setOf("af642b985a0acbe54de58af7c5a280c5572a5faaf31422af4bb5e139e54b8c39"),
+        "bundled/keyboard_layouts/TextKeyboardLayout.Sandy-数字行26+万象九键.json" to setOf("5dec5c1571763dacf49bb0b5096cde4550ec1efe1c898e2c284da9377f38290b")
+    )
+
     private val retiredAssets = mapOf(
         "theme/水彩（浅色）.json" to 850L,
         "icon_themes/蓝狐狸.json" to 56240L,
@@ -177,7 +193,12 @@ object BundledPresets {
         // 原版旧文件删掉才迁移选择，用户改过而留下的旧文件则保留其选择。
         retiredAssets.forEach { (path, size) ->
             val file = File(extDir, path)
-            if (file.isFile && file.length() == size) {
+            val assetPath = when {
+                path.startsWith("theme/") -> "bundled/themes/" + path.removePrefix("theme/")
+                path.startsWith("config/") -> "bundled/keyboard_layouts/" + path.removePrefix("config/")
+                else -> "bundled/$path"
+            }
+            if (knownOriginalDigest(assetPath, file, setOf(size.toInt())) != null) {
                 if (file.delete()) {
                     Timber.i("Retired bundled asset %s", path)
                     installedCount += 1
@@ -217,38 +238,47 @@ object BundledPresets {
     private fun installAsset(assetPath: String, dest: File, assetBytes: ByteArray? = readAsset(assetPath)): Int {
         val bytes = assetBytes ?: return 0
         val tag = "$assetPath#${bytes.size}"
-        val previousSizes = assetSizes[assetPath]
-        val previousSize = previousSizes?.firstOrNull { dest.length() == it.toLong() }
-        val updateTag = previousSize?.let { "$tag#from=$it" } ?: tag
-        // A corrected previous-size registration must retry a previously skipped old file.
-        // Existing legacy tags still protect files the user has edited, but a missing file
-        // is always recreated: bundled presets should not depend on the user never deleting one.
         val missing = !dest.isFile
-        if (!missing && tag in handled && (updateTag in handled || previousSize == null ||
-                    dest.length() != previousSize.toLong())) return 0
-        // 内容有更新的内置资源（assetSizes 中登记了上一版字节数）：只有用户从未改过
-        // 本地文件（大小仍等于上一版内置内容）时才原位替换；否则保留用户版本。
-        if (previousSize != null && dest.exists() && dest.length() != previousSize.toLong()) {
-            mark(tag, updateTag)
-            return 1
+        val previousDigest = knownOriginalDigest(assetPath, dest, assetSizes[assetPath])
+        val updateTag = previousDigest?.let { "$tag#from-sha256=$it" } ?: tag
+        // Length is only a cheap filter. Unknown content, including same-length edits,
+        // must survive even when a legacy skip marker or old registration exists.
+        if (!missing && (previousDigest == null || updateTag in handled)) {
+            mark(tag)
+            return 0
         }
-        if (missing || !dest.exists() || previousSize != null) {
-            runCatching {
-                dest.parentFile?.mkdirs()
-                val tmp = File(dest.absolutePath + ".tmp")
-                tmp.writeBytes(bytes)
-                if (!tmp.renameTo(dest)) {
-                    dest.writeBytes(bytes)
-                    tmp.delete()
-                }
-            }.onFailure {
-                Timber.w(it, "Failed to install bundled asset %s", assetPath)
-                return 0
-            }
-            Timber.d("Installed bundled asset %s", assetPath)
+        runCatching {
+            dest.parentFile?.mkdirs()
+            org.fcitx.fcitx5.android.utils.FileUtil.writeAtomically(dest) { it.write(bytes) }
+        }.onFailure {
+            Timber.w(it, "Failed to install bundled asset %s", assetPath)
+            return 0
         }
         mark(tag, updateTag)
+        Timber.d("Installed bundled asset %s", assetPath)
         return 1
+    }
+
+    private fun knownOriginalDigest(assetPath: String, file: File, sizes: Set<Int>?): String? {
+        val allowed = originalAssetDigests[assetPath] ?: return null
+        val registeredSizes = sizes ?: return null
+        if (!file.isFile || registeredSizes.none { file.length() == it.toLong() }) return null
+        return runCatching {
+            val digest = java.security.MessageDigest.getInstance("SHA-256")
+            file.inputStream().use { input ->
+                val buffer = ByteArray(8192)
+                var total = 0L
+                val limit = registeredSizes.maxOrNull()!!.toLong()
+                while (true) {
+                    val count = input.read(buffer)
+                    if (count < 0) break
+                    total += count
+                    require(total <= limit) { "Bundled asset changed while fingerprinting" }
+                    digest.update(buffer, 0, count)
+                }
+            }
+            digest.digest().joinToString("") { "%02x".format(it) }.takeIf { it in allowed }
+        }.getOrNull()
     }
 
     private fun readAsset(assetPath: String): ByteArray? {
