@@ -4,6 +4,7 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.data
 
+import org.fcitx.fcitx5.android.utils.FilePathGuard
 import java.io.File
 import java.util.UUID
 
@@ -127,7 +128,7 @@ class LayoutDraftStore(
             val file = File(base, name)
             // A snapshot must be a direct child, including when a link points to a
             // different snapshot in the same directory. Never read/delete that target.
-            if (file.canonicalFile == file.absoluteFile && file.parentFile == base) file else null
+            if (!FilePathGuard.isRedirected(file) && file.parentFile == base) file else null
         }.getOrNull()
     }
 

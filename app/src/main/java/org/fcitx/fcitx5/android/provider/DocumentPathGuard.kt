@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.provider
 
+import org.fcitx.fcitx5.android.utils.FilePathGuard
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -17,7 +18,7 @@ internal class DocumentPathGuard(root: File) {
     fun check(file: File): File {
         val absolute = file.absoluteFile
         // Reject symlink aliases as well as traversal, including links within the root.
-        if (!contains(root, absolute) || absolute.canonicalFile != absolute) invalid()
+        if (!contains(root, absolute) || FilePathGuard.isRedirected(absolute)) invalid()
         return absolute
     }
 

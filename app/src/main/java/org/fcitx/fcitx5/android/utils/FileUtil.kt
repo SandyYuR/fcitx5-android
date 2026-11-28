@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.utils
 
 import android.system.Os
 import android.system.OsConstants
+import org.fcitx.fcitx5.android.FcitxApplication
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
@@ -65,13 +66,27 @@ object FileUtil {
 
     /** Serialize writers to the same path; a failed replacement must preserve the old file. */
     fun writeAtomically(file: File, write: (OutputStream) -> Unit) =
+        writeAtomically(file, applicationDataRoot(), write)
+
+    private fun applicationDataRoot(): File? = try {
+        FcitxApplication.getInstance().applicationInfo?.dataDir?.takeIf { it.isNotBlank() }?.let(::File)
+    } catch (_: IllegalStateException) {
+        // Pure JVM callers and early startup have no trusted Context: retain strict validation.
+        null
+    }
+
+    /** The optional root is supplied by Context in production; explicit roots are for filesystem tests. */
+    internal fun writeAtomically(file: File, trustedRoot: File?, write: (OutputStream) -> Unit) =
         synchronized(writeLocks[(file.canonicalPath.hashCode() and Int.MAX_VALUE) % writeLocks.size]) {
-        val parent = file.parentFile
+        val target = FilePathGuard.resolveWritePath(file, trustedRoot)
+        val canonicalRoot = trustedRoot?.canonicalFile
+        val parent = target.parentFile
+        if (parent != null) FilePathGuard.resolveWritePath(parent, canonicalRoot)
         parent?.mkdirs()
-        val tmp = File(parent, "${file.name}.tmp")
+        val tmp = File(parent, "${target.name}.tmp")
         require(tmp.exists() || tmp.absoluteFile.parentFile?.list()?.contains(tmp.name) != true) { "Temporary path is a dangling symbolic link" }
         require(!tmp.exists() || tmp.isFile) { "Temporary path is not a regular file" }
-        require(tmp.canonicalFile == File(parent?.canonicalFile, tmp.name).absoluteFile) { "Temporary path is a symbolic link" }
+        FilePathGuard.resolveWritePath(tmp, canonicalRoot)
         try {
             java.io.FileOutputStream(tmp).use { out ->
                 write(out)
@@ -79,7 +94,7 @@ object FileUtil {
                 // 元数据 rename 是原子的，但内容必须先落盘，否则崩溃后可能 rename 出空文件。
                 out.fd.sync()
             }
-            replaceAtomically(tmp, file)
+            replaceAtomically(tmp, target)
         } catch (e: Throwable) {
             tmp.delete()
             throw e

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.webeditor
 
+import org.fcitx.fcitx5.android.utils.FilePathGuard
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.MessageDigest
@@ -53,6 +54,7 @@ internal class BridgeSessionAccess(host: String, port: Int, private val clock: (
         private const val MAX_PREVIEW_BYTES = 4 * 1024 * 1024
 
         fun readPreview(file: File, allowedRoots: List<File>): ByteArray {
+            require(!FilePathGuard.isRedirected(file)) { "Icon preview path was redirected" }
             val target = file.canonicalFile
             require(allowedRoots.any { target.path.startsWith(it.canonicalPath + File.separator) } && target.isFile) {
                 "Icon preview must be inside an icon directory"

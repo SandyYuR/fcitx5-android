@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 package org.fcitx.fcitx5.android.data
 
+import org.fcitx.fcitx5.android.utils.FilePathGuard
 import java.io.File
 import java.io.IOException
 import java.util.Locale
@@ -45,7 +46,7 @@ internal object WanxiangPayload {
     fun child(root: File, path: String): File {
         relative(path)
         val file = File(root, path)
-        require(file.canonicalFile == file.absoluteFile) { "Update path is redirected: $path" }
+        require(!FilePathGuard.isRedirected(file)) { "Update path is redirected: $path" }
         require(file.exists() || file.parentFile?.list()?.contains(file.name) != true) { "Update path is a dangling symbolic link: $path" }
         return file
     }

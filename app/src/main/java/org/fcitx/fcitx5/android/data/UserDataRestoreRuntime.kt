@@ -16,6 +16,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.fcitx.fcitx5.android.ui.main.settings.behavior.UserDataRestoreActivity
 import org.fcitx.fcitx5.android.utils.ExternalRimeStorage
+import org.fcitx.fcitx5.android.utils.FilePathGuard
 import org.fcitx.fcitx5.android.utils.FileUtil
 import java.io.File
 import java.io.IOException
@@ -87,7 +88,8 @@ internal object UserDataRestoreRuntime {
         val resolved = file.canonicalFile
         // Context paths can contain stable platform aliases. Normalize that trusted
         // parent, while rejecting a leaf redirected to another quarantine or outside it.
-        require(resolved.parentFile == context.cacheDir.canonicalFile && resolved.name == file.name &&
+        require(!FilePathGuard.isLeafRedirected(file) &&
+            resolved.parentFile == context.cacheDir.canonicalFile && resolved.name == file.name &&
             file.name.matches(Regex("user-data-import-[0-9a-f-]{36}"))) { "Invalid prepared restore directory" }
         return resolved
     }

@@ -3,6 +3,7 @@ package org.fcitx.fcitx5.android.data
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.fcitx.fcitx5.android.utils.FilePathGuard
 import org.fcitx.fcitx5.android.utils.FileUtil
 import java.io.File
 import java.io.IOException
@@ -173,11 +174,11 @@ internal class UserDataRestoreJournal(
     }
     private fun removeTree(file: File) {
         // Unlink a child symlink itself; never recurse into its destination.
-        if (file.canonicalFile == file.absoluteFile && file.isDirectory)
+        if (!FilePathGuard.isRedirected(file) && file.isDirectory)
             (file.listFiles() ?: throw IOException("Cannot inspect restore cleanup directory")).forEach(::removeTree)
         if (!file.delete()) throw IOException("Cannot clean restore staging file")
     }
     private fun checkPath(file: File) {
-        if (file.canonicalFile != file.absoluteFile) throw IOException("Restore path was redirected: ${file.path}")
+        if (FilePathGuard.isRedirected(file)) throw IOException("Restore path was redirected: ${file.path}")
     }
 }
