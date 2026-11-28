@@ -227,6 +227,48 @@ class KeyEditorFormTest {
         assertEquals(0.2f, saved["weight"])
     }
 
+    @Test fun placeholderColorToggleSurvivesRecreationInBothDirections() = page { activity ->
+        for (initial in listOf(false, true)) {
+            val args = options(buildMap<String, Any?> {
+                put("type", "PlaceholderKey")
+                put("main", "Gap")
+                if (initial) { put("transparent", false); put("backgroundColor", -65536) }
+            })
+            val form = KeyEditorForm(activity, args)
+            val toggle = (form.view as ViewGroup).descendants.filterIsInstance<TextView>()
+                .first { it.text == activity.getString(R.string.text_keyboard_layout_placeholder_custom_color) }
+                .parent as ViewGroup
+            toggle.descendants.filterIsInstance<com.google.android.material.materialswitch.MaterialSwitch>().single().isChecked = !initial
+            if (!initial) form.acceptColorResult(ThemeColorEditorActivity.EditorResult("backgroundColor", -16711936))
+            val recreated = KeyEditorForm(activity, args, Bundle().also(form::saveState))
+            val saved = recreated.validatedDraft(false)!!
+            assertEquals(!initial, saved["transparent"] == false)
+            if (!initial) assertEquals(-16711936, saved["backgroundColor"])
+            else assertFalse(saved.containsKey("backgroundColor"))
+            assertTrue(recreated.hasChanges())
+        }
+    }
+
+    @Test fun composeIndependentColorToggleSurvivesRecreationInBothDirections() = page { activity ->
+        for (initial in listOf(false, true)) {
+            val args = options(mapOf("type" to "AlphabetKey", "main" to "a", "alt" to "A",
+                "independentColor" to initial, "backgroundColor" to -65536))
+                .putExtra(KeyEditorForm.EXTRA_COMPOSE_OVERRIDE_EDITOR_MODE, true)
+            val form = KeyEditorForm(activity, args)
+            val row = (form.view as ViewGroup).descendants.filterIsInstance<TextView>()
+                .first { it.text == activity.getString(R.string.text_keyboard_layout_compose_override_follow_base_key_colors) }
+                .parent as ViewGroup
+            row.descendants.filterIsInstance<com.google.android.material.materialswitch.MaterialSwitch>().single().isChecked = !initial
+            if (!initial) form.acceptColorResult(ThemeColorEditorActivity.EditorResult("backgroundColor", -16711936))
+            val recreated = KeyEditorForm(activity, args, Bundle().also(form::saveState))
+            val saved = recreated.validatedDraft(false)!!
+            assertEquals(!initial, saved["independentColor"])
+            if (!initial) assertEquals(-16711936, saved["backgroundColor"])
+            else assertFalse(saved.containsKey("backgroundColor"))
+            assertTrue(recreated.hasChanges())
+        }
+    }
+
     private fun splitCheckbox(root: ViewGroup): CheckBox = root.descendants.filterIsInstance<CheckBox>().single {
         it.text == root.context.getString(R.string.text_keyboard_layout_key_split_after)
     }

@@ -58,6 +58,18 @@ class SymbolSettingsFragment : ManagedPreferenceFragment(AppPrefs.getInstance().
         importCatalog(type, uri)
     }
 
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        super.onCreate(savedInstanceState)
+        pendingImportType = savedInstanceState?.getString("pending_symbol_catalog_type")?.let { name ->
+            SymbolCatalogType.entries.firstOrNull { it.name == name }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: android.os.Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("pending_symbol_catalog_type", pendingImportType?.name)
+    }
+
     override fun onPreferenceUiCreated(screen: PreferenceScreen) {
         val ctx = requireContext()
         SymbolCatalogType.entries.forEach { type ->

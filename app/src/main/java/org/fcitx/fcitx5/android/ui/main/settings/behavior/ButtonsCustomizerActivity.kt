@@ -706,18 +706,20 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
                 val extDir = getExternalFilesDir(null) ?: filesDir
                 val iconDir = File(extDir, ButtonIconFile.DIR)
                 iconDir.mkdirs()
-                // Avoid overwriting existing files with same name
-                var destFile = File(iconDir, fileName)
-                var counter = 1
-                while (destFile.exists()) {
-                    val dotIdx = fileName.lastIndexOf('.')
-                    val baseName = if (dotIdx >= 0) fileName.substring(0, dotIdx) else fileName
-                    val ext = if (dotIdx >= 0) fileName.substring(dotIdx) else ""
-                    destFile = File(iconDir, "${baseName}_$counter$ext")
-                    counter++
-                }
-                contentResolver.openInputStream(uri)?.use { input ->
-                    destFile.outputStream().use { output -> input.copyTo(output) }
+                // A document provider controls DISPLAY_NAME; it is never a path component.
+                val extension = fileName.substringAfterLast('.', "").takeIf {
+                    it.matches(Regex("[A-Za-z0-9]{1,10}"))
+                }?.let { ".$it" } ?: ""
+                require(iconDir.canonicalFile.parentFile == extDir.canonicalFile)
+                val destFile = File.createTempFile("icon_", extension, iconDir)
+                try {
+                    require(destFile.canonicalFile.parentFile == iconDir.canonicalFile)
+                    requireNotNull(contentResolver.openInputStream(uri)).use { input ->
+                        destFile.outputStream().use { output -> input.copyTo(output) }
+                    }
+                } catch (e: Exception) {
+                    destFile.delete()
+                    throw e
                 }
                 // Store a portable relative path so the config survives export/import
                 // across build variants with different applicationIds.
@@ -1177,17 +1179,17 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
 
         // Save unified config
         val buttonsLayoutFile = provider.buttonsLayoutConfigFile()
-        if (buttonsLayoutFile != null) {
-            saveUnifiedConfigToFile(buttonsLayoutFile, kawaiiBarButtons, statusAreaButtons, toolbarToggleConfig, hideKeyboardConfig)
-            cleanupOrphanedIconFiles(kawaiiBarButtons, statusAreaButtons, toolbarToggleConfig, hideKeyboardConfig)
-        }
+        if (buttonsLayoutFile == null || !saveUnifiedConfigToFile(
+                buttonsLayoutFile, kawaiiBarButtons, statusAreaButtons, toolbarToggleConfig, hideKeyboardConfig
+            )) return
+        cleanupOrphanedIconFiles(kawaiiBarButtons, statusAreaButtons, toolbarToggleConfig, hideKeyboardConfig)
 
         originalItems = items.toList()
         updateSaveButtonState()
     }
 
-    private fun saveUnifiedConfigToFile(file: File, kawaiiBarButtons: List<ConfigurableButton>, statusAreaButtons: List<ConfigurableButton>, toolbarToggleButton: ConfigurableButton, hideKeyboardButton: ConfigurableButton) {
-        try {
+    private fun saveUnifiedConfigToFile(file: File, kawaiiBarButtons: List<ConfigurableButton>, statusAreaButtons: List<ConfigurableButton>, toolbarToggleButton: ConfigurableButton, hideKeyboardButton: ConfigurableButton): Boolean {
+        return try {
             // Ensure config directory exists
             file.parentFile?.mkdirs()
 
@@ -1203,9 +1205,14 @@ class ButtonsCustomizerActivity : SettingsUiActivity() {
             )
 
             val jsonContent = prettyJson.encodeToString(config) + "\n"
-            file.writeText(jsonContent)
+            // AtomicFile.finishWrite() can log a failed rename and return normally.
+            // This writer reports replacement failures, so only a published config
+            // may advance the draft baseline and collect old icon files.
+            org.fcitx.fcitx5.android.utils.FileUtil.writeAtomically(file, jsonContent)
+            true
         } catch (e: Exception) {
             Toast.makeText(this, "${getString(R.string.save_failed)}: ${e.message}", Toast.LENGTH_LONG).show()
+            false
         }
     }
 

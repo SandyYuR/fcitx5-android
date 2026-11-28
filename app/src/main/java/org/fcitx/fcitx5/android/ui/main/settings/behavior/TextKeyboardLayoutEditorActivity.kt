@@ -605,7 +605,8 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val layout = currentLayout?.takeIf { it.isNotBlank() } ?: return null
         return listOf(
             displayProfile(currentLayoutProfile), layout,
-            previewSubModeLabel ?: getString(R.string.default_),
+            currentEditingLayoutKey()?.let { LayoutJsonUtils.subLayoutLabelFromEntryKey(it, layout) }
+                ?: getString(R.string.default_),
             getString(if (editingSplit) R.string.layout_editor_split else R.string.layout_editor_normal)
         ).joinToString(" › ")
     }
@@ -3468,10 +3469,10 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         switchToLayoutProfile(profile, showSwitchToast = true)
     }
 
-    private fun switchToLayoutProfile(profile: String, showSwitchToast: Boolean, activate: Boolean = true) {
-        if (!finishInlineEdit()) return
+    private fun switchToLayoutProfile(profile: String, showSwitchToast: Boolean, activate: Boolean = true): kotlinx.coroutines.Job? {
+        if (!stateLoaded || !finishInlineEdit()) return null
         clearKeySelection()
-        val normalized = UserConfigFiles.normalizeTextKeyboardLayoutProfile(profile) ?: return
+        val normalized = UserConfigFiles.normalizeTextKeyboardLayoutProfile(profile) ?: return null
         if (activate) {
             AppPrefs.getInstance().keyboard.textKeyboardLayoutProfile.setValue(normalized)
             ConfigProviders.provider = ConfigProviders.provider
@@ -3483,7 +3484,7 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         // The reload replaces every entry from IO; until it finishes the in-memory layout is not
         // anyone's data, so a stop in that window must not snapshot it (see onSaveInstanceState).
         stateLoaded = false
-        lifecycleScope.launch {
+        return lifecycleScope.launch {
             loadState()
             stateLoaded = true
             initializeHistory()
@@ -4286,9 +4287,17 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             if (parsed.isEmpty()) {
                 throw IllegalArgumentException("No valid layout in QR payload")
             }
-            ParsedImportResult(parsed, importedProfile, dataManager.latestParsedLayoutHeightPercentOverrides(), dataManager.latestParsedLayoutHeightPercentOverridesLandscape())
+            ParsedImportResult(
+                parsed, importedProfile,
+                dataManager.latestParsedLayoutHeightPercentOverrides().toMap(),
+                dataManager.latestParsedLayoutHeightPercentOverridesLandscape().toMap(),
+                dataManager.latestParsedLayoutAuxBarConfigs().toMap(),
+                dataManager.latestParsedLayoutAuxBarKeys().mapValues { (_, keys) ->
+                    keys.map { KeyEditorForm.toSerializableMap(it) }
+                }
+            )
         }.onSuccess { parsed ->
-            applyImportedLayouts(parsed.parsedLayouts, parsed.profile, parsed.layoutHeightOverrides, parsed.layoutHeightOverridesLandscape)
+            applyImportedLayouts(parsed)
         }.onFailure {
             val message = it.message.orEmpty()
             if (message.startsWith("type_mismatch:")) {
@@ -4317,24 +4326,28 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
             if (parsed.isEmpty()) {
                 throw IllegalArgumentException("No valid layout in QR payload")
             }
-            ParsedImportResult(parsed, importedProfile, dataManager.latestParsedLayoutHeightPercentOverrides(), dataManager.latestParsedLayoutHeightPercentOverridesLandscape())
+            ParsedImportResult(
+                parsed, importedProfile,
+                dataManager.latestParsedLayoutHeightPercentOverrides().toMap(),
+                dataManager.latestParsedLayoutHeightPercentOverridesLandscape().toMap(),
+                dataManager.latestParsedLayoutAuxBarConfigs().toMap(),
+                dataManager.latestParsedLayoutAuxBarKeys().mapValues { (_, keys) ->
+                    keys.map { KeyEditorForm.toSerializableMap(it) }
+                }
+            )
         }.onSuccess { parsed ->
-            applyImportedLayouts(parsed.parsedLayouts, parsed.profile, parsed.layoutHeightOverrides, parsed.layoutHeightOverridesLandscape)
+            applyImportedLayouts(parsed)
         }.onFailure {
             showToast(getString(R.string.text_keyboard_layout_qr_import_failed, it.localizedMessage ?: ""))
         }
     }
 
-    private fun applyImportedLayouts(
-        parsed: Map<String, List<List<Map<String, Any?>>>>,
-        importedProfile: String?,
-        layoutHeightOverrides: Map<String, Int>,
-        layoutHeightOverridesLandscape: Map<String, Int>
-    ) {
+    private fun applyImportedLayouts(imported: ParsedImportResult) {
+        val parsed = imported.parsedLayouts
         withImportPreparation {
-            val targetProfile = importedProfile ?: currentLayoutProfile
+            val targetProfile = imported.profile ?: currentLayoutProfile
             val existingProfiles = UserConfigFiles.listTextKeyboardLayoutProfiles().toSet()
-            val willCreateProfile = importedProfile != null && importedProfile !in existingProfiles
+            val willCreateProfile = imported.profile != null && imported.profile !in existingProfiles
 
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.text_keyboard_layout_qr_import_confirm_title)
@@ -4346,34 +4359,45 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
                     )
                 )
                 .setPositiveButton(android.R.string.ok) { _, _ ->
-                    if (targetProfile != currentLayoutProfile) {
-                        switchToLayoutProfile(targetProfile, showSwitchToast = false)
-                    }
-                    entries.clear()
-                    parsed.toSortedMap().forEach { (k, v) ->
-                        entries[k] = v.map { row -> row.map { key -> key.toMutableMap() }.toMutableList() }.toMutableList()
-                    }
-                    dataManager.layoutHeightPercentOverrides.clear()
-                    dataManager.layoutHeightPercentOverrides.putAll(layoutHeightOverrides)
-                    dataManager.layoutHeightPercentOverridesLandscape.clear()
-                    dataManager.layoutHeightPercentOverridesLandscape.putAll(layoutHeightOverridesLandscape)
-                    currentLayout = entries.keys.firstOrNull { !it.contains(':') } ?: entries.keys.firstOrNull()
-                    previewSubModeLabel = null
-                    buildSpinner()
-                    buildSubModeSpinner(forceResetSelection = true)
-                    buildRows()
-                    currentLayout?.let { layoutName ->
-                        previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection)
-                    }
-                    updateSaveButtonState()
-                    val profileLabel = displayProfile(targetProfile)
-                    showToast(
-                        if (willCreateProfile) {
-                            getString(R.string.text_keyboard_layout_qr_import_success_new_profile, profileLabel)
-                        } else {
-                            getString(R.string.text_keyboard_layout_qr_import_success_profile, profileLabel)
+                    lifecycleScope.launch {
+                        if (targetProfile != currentLayoutProfile) {
+                            val loading = switchToLayoutProfile(targetProfile, showSwitchToast = false)
+                                ?: return@launch
+                            loading.join()
                         }
-                    )
+                        if (!stateLoaded || currentLayoutProfile != targetProfile) return@launch
+                        entries.clear()
+                        parsed.toSortedMap().forEach { (k, v) ->
+                            entries[k] = v.map { row -> row.map { key -> KeyEditorForm.toSerializableMap(key).toMutableMap() }.toMutableList() }.toMutableList()
+                        }
+                        dataManager.layoutHeightPercentOverrides.clear()
+                        dataManager.layoutHeightPercentOverrides.putAll(imported.layoutHeightOverrides)
+                        dataManager.layoutHeightPercentOverridesLandscape.clear()
+                        dataManager.layoutHeightPercentOverridesLandscape.putAll(imported.layoutHeightOverridesLandscape)
+                        dataManager.layoutAuxBarConfigs.clear()
+                        dataManager.layoutAuxBarConfigs.putAll(imported.auxBarConfigs)
+                        dataManager.layoutAuxBarKeys.clear()
+                        imported.auxBarKeys.forEach { (key, keys) ->
+                            dataManager.layoutAuxBarKeys[key] = keys.map { KeyEditorForm.toSerializableMap(it).toMutableMap() }.toMutableList()
+                        }
+                        currentLayout = entries.keys.firstOrNull { !it.contains(':') } ?: entries.keys.firstOrNull()
+                        previewSubModeLabel = null
+                        buildSpinner()
+                        buildSubModeSpinner(forceResetSelection = true)
+                        buildRows()
+                        currentLayout?.let { layoutName ->
+                            previewManager.updatePreview(layoutName, resolvePreviewLabel(), fcitxConnection)
+                        }
+                        updateSaveButtonState()
+                        val profileLabel = displayProfile(targetProfile)
+                        showToast(
+                            if (willCreateProfile) {
+                                getString(R.string.text_keyboard_layout_qr_import_success_new_profile, profileLabel)
+                            } else {
+                                getString(R.string.text_keyboard_layout_qr_import_success_profile, profileLabel)
+                            }
+                        )
+                    }
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
@@ -4425,7 +4449,9 @@ class TextKeyboardLayoutEditorActivity : SettingsUiActivity() {
         val parsedLayouts: Map<String, List<List<Map<String, Any?>>>>,
         val profile: String?,
         val layoutHeightOverrides: Map<String, Int>,
-        val layoutHeightOverridesLandscape: Map<String, Int>
+        val layoutHeightOverridesLandscape: Map<String, Int>,
+        val auxBarConfigs: Map<String, org.fcitx.fcitx5.android.input.keyboard.AuxBarConfig?>,
+        val auxBarKeys: Map<String, List<Map<String, Any?>>>
     )
 
     /**

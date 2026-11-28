@@ -4,12 +4,15 @@
  */
 package org.fcitx.fcitx5.android.ui.main.settings.behavior.adapter
 
+import android.content.Intent
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.test.platform.app.InstrumentationRegistry
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.ui.main.update.UpdateMirrorListActivity
+import splitties.dimensions.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -79,6 +82,99 @@ class KeyboardLayoutAdapterViewTest {
             rows.add(mutableListOf(mutableMapOf("type" to "AlphabetKey", "main" to "b")))
             check(0, false, true)
         }
+    }
+
+    @Test fun attachedCrossRowDropCanReachTheLastKeyAndWrappedRowEnd() = withWindow { host ->
+        val context = ContextThemeWrapper(host.context, R.style.Theme_FcitxSettings_System_Light)
+        val method = KeyboardLayoutAdapter::class.java.getDeclaredMethod("computeInsertIndexForRow",
+            Int::class.javaPrimitiveType, Float::class.javaPrimitiveType, Float::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType).apply { isAccessible = true }
+        for ((count, widthDp) in listOf(3 to 1000, 8 to 360)) {
+            val width = context.dp(widthDp)
+            val height = context.dp(2000)
+            val rows = listOf(mutableListOf(mutableMapOf<String, Any?>("type" to "AlphabetKey", "main" to "source")),
+                MutableList(count) { mutableMapOf<String, Any?>("type" to "AlphabetKey", "main" to "k$it") })
+            val originalRows = rows.map { row -> row.map { it.toMap() } }
+            val adapter = KeyboardLayoutAdapter(context, rows, NoOpListener)
+            val recycler = androidx.recyclerview.widget.RecyclerView(context).apply {
+                layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+                itemAnimator = null
+                this.adapter = adapter
+            }
+            adapter.setupRowDragTrigger(recycler, null)
+            host.addView(recycler, FrameLayout.LayoutParams(width, height))
+            try {
+                assertTrue(recycler.isAttachedToWindow)
+                recycler.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+                recycler.layout(0, 0, width, height)
+                val holder = recycler.findViewHolderForAdapterPosition(1) as KeyboardLayoutAdapter.RowViewHolder
+                val flow = holder.keysFlow
+                assertTrue(flow.isAttachedToWindow)
+                assertEquals(count, flow.childCount)
+                val first = flow.getChildAt(0)
+                val last = flow.getChildAt(count - 1)
+                assertTrue(last.isAttachedToWindow)
+                assertTrue(last.width > 0 && last.height > 0)
+                if (count == 3) assertEquals("The wide fixture must stay on one visual line", first.top, last.top)
+                else assertTrue("The narrow fixture must wrap", last.top > first.top)
+
+                val flowLocation = IntArray(2).also(flow::getLocationOnScreen)
+                val lastLocation = IntArray(2).also(last::getLocationOnScreen)
+                assertEquals(flowLocation[0] + last.x, lastLocation[0].toFloat(), 1f)
+                assertEquals(flowLocation[1] + last.y, lastLocation[1].toFloat(), 1f)
+                fun indexAt(localX: Float, localY: Float): Int = method.invoke(adapter, 1,
+                    flowLocation[0] + localX, flowLocation[1] + localY, flow.width) as Int
+
+                assertEquals(count - 1, indexAt(last.x + last.width / 2f - 1f, last.y + last.height / 2f))
+                assertEquals(count, indexAt(last.x + last.width + 1f, last.y + last.height / 2f))
+                if (count == 8) {
+                    val firstLineEndIndex = (0 until count).last { flow.getChildAt(it).top == first.top }
+                    assertTrue(firstLineEndIndex < count - 1)
+                    val firstLineEnd = flow.getChildAt(firstLineEndIndex)
+                    assertEquals(firstLineEndIndex + 1, indexAt(firstLineEnd.x + firstLineEnd.width + 1f,
+                        firstLineEnd.y + firstLineEnd.height / 2f))
+                }
+                assertEquals("Drop targeting must not mutate the in-memory layout", originalRows, rows)
+            } finally {
+                host.removeView(recycler)
+                recycler.adapter = null
+                assertFalse(recycler.isAttachedToWindow)
+            }
+        }
+    }
+
+    private fun withWindow(block: (FrameLayout) -> Unit) {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        // Reuse the read-only window host used by CandidateRenderingTest; no editor or save action runs.
+        val activity = instrumentation.startActivitySync(
+            Intent(instrumentation.targetContext, UpdateMirrorListActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK),
+        )
+        try {
+            instrumentation.waitForIdleSync()
+            onMain {
+                val host = FrameLayout(activity)
+                activity.setContentView(host)
+                try {
+                    assertTrue(host.isAttachedToWindow)
+                    block(host)
+                } finally {
+                    host.removeAllViews()
+                }
+            }
+        } finally {
+            onMain { activity.finish() }
+            instrumentation.waitForIdleSync()
+        }
+    }
+
+    private fun onMain(block: () -> Unit) {
+        var failure: Throwable? = null
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            try { block() } catch (error: Throwable) { failure = error }
+        }
+        failure?.let { throw it }
     }
 
     private object NoOpListener : KeyboardLayoutAdapter.Listener {

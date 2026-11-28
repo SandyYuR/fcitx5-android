@@ -459,6 +459,9 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
                 layoutParams.setMargins(sidePaddingPx, 0, sidePaddingPx, 0)
 
                 previewKeyboardContainer.addView(this, layoutParams)
+                addOnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->
+                    if (right - left != oldRight - oldLeft) updateDeviceInfo()
+                }
                 onAttach()
                 setTextScale(1.0f)
                 setHorizontalGapScale(currentGap / 100f)
@@ -484,24 +487,9 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
     }
 
     private fun updateSplitState() {
-        previewKeyboard?.let { keyboard ->
-            val displayMetrics = resources.displayMetrics
-            val screenWidthPx = displayMetrics.widthPixels
-            val shouldSplitByCalibration = currentKeyboardWidth >= currentThreshold
-            val targetWidthDp = if (shouldSplitByCalibration) {
-                maxOf(currentKeyboardWidth, currentThreshold + 10)
-            } else {
-                minOf(currentKeyboardWidth, currentThreshold - 10)
-            }.coerceAtLeast(1)
-
-            val simulatedKeyboardWidthPx = (targetWidthDp * displayMetrics.density).toInt()
-            val simulatedSidePaddingPx = (screenWidthPx - simulatedKeyboardWidthPx) / 2
-
-            // Update container padding instead of keyboard margins to avoid triggering onSizeChanged
-            // This simulates split effect without affecting keyboard's internal state
-            previewKeyboardContainer.setPadding(simulatedSidePaddingPx, 0, simulatedSidePaddingPx, 0)
-            previewBlurMask.refreshMask()
-        }
+        // Use the same measured width as the real preview keyboard, without simulated padding.
+        previewKeyboardContainer.setPadding(0, 0, 0, 0)
+        previewBlurMask.refreshMask()
     }
 
     private fun enforcePreviewLowercase() {
@@ -517,11 +505,16 @@ class SplitKeyboardCalibrationActivity : SettingsUiActivity() {
 
     private fun refreshCurrentKeyboardWidth() {
         val keyboardPrefs = prefs.keyboard
-        currentKeyboardWidth = DeviceInfoCollector.calculateKeyboardWidthDp(
-            this,
-            keyboardPrefs.keyboardSidePadding.getValue(),
+        val density = resources.displayMetrics.density
+        val sidePadding = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             keyboardPrefs.keyboardSidePaddingLandscape.getValue()
-        )
+        } else keyboardPrefs.keyboardSidePadding.getValue()
+        val margins = previewKeyboardContainer.layoutParams as? ViewGroup.MarginLayoutParams
+        val containerWidth = previewKeyboardContainer.width.takeIf { it > 0 }
+            ?: (resources.displayMetrics.widthPixels - (margins?.leftMargin ?: 0) - (margins?.rightMargin ?: 0))
+        val previewWidth = previewKeyboard?.width?.takeIf { it > 0 }
+            ?: (containerWidth - (2 * sidePadding * density).toInt())
+        currentKeyboardWidth = (previewWidth.coerceAtLeast(0) / density).toInt()
     }
 
     private fun updateDeviceInfo() {

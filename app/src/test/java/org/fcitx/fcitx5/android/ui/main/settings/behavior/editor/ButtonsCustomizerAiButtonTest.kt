@@ -134,9 +134,13 @@ class ButtonsCustomizerAiButtonTest {
         if (expectedLabel == null) assertEquals(ConfigurableButton(actionId), button)
         else assertEquals(expectedLabel, button.label)
         assertFalse(items(activity).filterIsInstance<ListItem.AddButtonItem>().any { it.buttonDef.id == actionId })
+        val beforeSave = file.readText()
         val menu = MenuBuilder(activity)
         activity.onCreateOptionsMenu(menu)
+        assertTrue(menu.getItem(0).isEnabled)
         assertTrue(activity.onOptionsItemSelected(menu.getItem(0)))
+        assertNotEquals("Saving must replace the existing configuration", beforeSave, file.readText())
+        assertFalse(menu.getItem(0).isEnabled)
         val saved = Json.decodeFromString<ButtonsLayoutConfig>(file.readText())
         val target = if (section == Section.KawaiiBar) saved.kawaiiBarButtons else saved.statusAreaButtons
         assertEquals(1, target.count { it.id == actionId })

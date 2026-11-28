@@ -1295,6 +1295,8 @@ class KeyEditorForm(
             .onSuccess { outState.putSerializable(STATE_DRAFT_KEY_DATA, it) }
             .onFailure { android.util.Log.w(TAG, "Failed to save draft key data", it) }
         outState.putString(STATE_PENDING_MACRO_EVENT, pendingMacroEventType)
+        outState.putBoolean(STATE_PLACEHOLDER_CUSTOM_COLOR, placeholderCustomColor)
+        outState.putBoolean(STATE_INDEPENDENT_COLOR, independentColor)
         outState.putString(STATE_BASELINE, baselineKeySnapshot)
     }
 
@@ -1304,6 +1306,16 @@ class KeyEditorForm(
             ?: return
         keyData = draft.toMutableMap()
         keyColorOverrides = extractColorOverrides(keyData)
+        placeholderCustomColor = if (state.containsKey(STATE_PLACEHOLDER_CUSTOM_COLOR)) {
+            state.getBoolean(STATE_PLACEHOLDER_CUSTOM_COLOR)
+        } else {
+            keyData["transparent"] == false || keyColorOverrides.isNotEmpty()
+        }
+        independentColor = if (state.containsKey(STATE_INDEPENDENT_COLOR)) {
+            state.getBoolean(STATE_INDEPENDENT_COLOR)
+        } else {
+            keyData["independentColor"] as? Boolean ?: false
+        }
         selectedType = keyData["type"] as? String ?: selectedType
         composeOverrideData = (keyData["composeOverride"] as? Map<*, *>)?.let { map ->
             map.entries.associate { (k, v) -> k.toString() to v }.toMutableMap()
@@ -2601,6 +2613,8 @@ class KeyEditorForm(
 
         /** Bundle keys for the unsaved draft (see onSaveInstanceState). */
         private const val STATE_DRAFT_KEY_DATA = "draft_key_data"
+        private const val STATE_PLACEHOLDER_CUSTOM_COLOR = "placeholder_custom_color"
+        private const val STATE_INDEPENDENT_COLOR = "independent_color"
         private const val STATE_PENDING_MACRO_EVENT = "pending_macro_event"
 
         /** Macro slots, used as the target token passed to (and echoed by) MacroEditorDialogFragment. */

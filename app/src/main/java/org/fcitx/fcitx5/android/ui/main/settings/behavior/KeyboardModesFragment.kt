@@ -169,7 +169,7 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
             isSingleLineTitle = false
             setOnPreferenceChangeListener { _, newValue ->
                 if (newValue == true) floatingSwitch?.let { (it as MySwitchPreference).isChecked = false }
-                syncOneHandOptions()
+                syncOneHandOptions(newValue == true)
                 true
             }
         }
@@ -226,8 +226,7 @@ class KeyboardModesFragment : PaddingPreferenceFragment() {
     }
 
     /** 「靠右显示」只在单手键盘开启时才有意义。 */
-    private fun syncOneHandOptions() {
-        val oneHandEnabled = AppPrefs.getInstance().internal.oneHandModeEnabled.getValue()
-        oneHandRightSwitch?.isEnabled = oneHandEnabled
+    private fun syncOneHandOptions(enabled: Boolean = AppPrefs.getInstance().internal.oneHandModeEnabled.getValue()) {
+        oneHandRightSwitch?.isEnabled = enabled
     }
 }

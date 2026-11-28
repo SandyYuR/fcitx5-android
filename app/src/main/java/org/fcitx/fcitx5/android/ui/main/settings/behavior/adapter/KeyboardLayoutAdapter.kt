@@ -642,7 +642,8 @@ class KeyboardLayoutAdapter(
             targetFlow.getLocationOnScreen(flowLoc)
             val localX = rawX - flowLoc[0]
             val localY = rawY - flowLoc[1]
-            val keyChildCount = (targetFlow.childCount - 2).coerceAtLeast(0) // exclude "+" and move-up
+            // Row actions live in the header; this flow contains only keys and the optional preview.
+            val keyChildCount = targetFlow.childCount
             if (keyChildCount > 0) {
                 val hasPreviewPlaceholder =
                     previewState.targetRow == targetRowIndex &&

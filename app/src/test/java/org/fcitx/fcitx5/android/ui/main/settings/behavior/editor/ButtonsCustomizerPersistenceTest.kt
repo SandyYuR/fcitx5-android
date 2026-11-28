@@ -23,6 +23,49 @@ import java.io.File
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [23, 35], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
 class ButtonsCustomizerPersistenceTest {
+    @Test fun failedSaveKeepsDirtyBaselineAndDoesNotCollectExistingIcons() {
+        val context = RuntimeEnvironment.getApplication()
+        val directory = File(context.filesDir, "toolbar-failed-save/config.json").apply {
+            check(isDirectory || mkdirs())
+        }
+        // An empty directory can be deleted by AtomicFile before its rename. A nonempty
+        // destination reliably rejects replacement without a fake throwing writer.
+        val sentinel = File(directory, "keep.txt").apply { writeText("existing-directory-content") }
+        val icon = File(context.getExternalFilesDir(null), "button_icons/keep-after-failed-save.svg").apply {
+            parentFile!!.mkdirs(); writeText("existing-icon")
+        }
+        val original = ConfigProviders.provider
+        ConfigProviders.provider = object : ConfigProvider {
+            override fun textKeyboardLayoutFile(): File? = null
+            override fun textKeyboardLayoutJson() = JsonObject(emptyMap())
+            override fun popupPresetFile(): File? = null
+            override fun fontsetFile(): File? = null
+            override fun buttonsLayoutConfigFile() = directory
+            override fun writeFontsetPathMap(pathMap: Map<String, List<String>>): Result<File> =
+                Result.failure(UnsupportedOperationException())
+        }
+        try {
+            val controller = Robolectric.buildActivity(ButtonsCustomizerActivity::class.java).setup()
+            try {
+                val activity = controller.get()
+                val before = ReflectionHelpers.getField<List<ButtonsCustomizerActivity.ListItem>>(activity, "originalItems").toList()
+                val items = ReflectionHelpers.getField<MutableList<ButtonsCustomizerActivity.ListItem>>(activity, "items")
+                val index = items.indexOfFirst { it is ButtonsCustomizerActivity.ListItem.ButtonItem }
+                val button = items[index] as ButtonsCustomizerActivity.ListItem.ButtonItem
+                items[index] = button.copy(section = ButtonsCustomizerActivity.Section.AddButtons)
+                val menu = MenuBuilder(activity)
+                activity.onCreateOptionsMenu(menu)
+                ReflectionHelpers.callInstanceMethod<Void>(activity, "saveConfig")
+                assertEquals(before, ReflectionHelpers.getField<List<ButtonsCustomizerActivity.ListItem>>(activity, "originalItems"))
+                assertNotEquals(before, items)
+                assertTrue(menu.getItem(0).isEnabled)
+                assertTrue("failed persistence must not garbage collect the old configuration's icon", icon.isFile)
+                assertTrue(directory.isDirectory)
+                assertEquals("existing-directory-content", sentinel.readText())
+            } finally { controller.pause().stop().destroy() }
+        } finally { ConfigProviders.provider = original; icon.delete(); sentinel.delete(); directory.delete() }
+    }
+
     @Test fun savingThenReopeningDoesNotRestoreTheRemovedDayNightControl() {
         val context = RuntimeEnvironment.getApplication()
         val file = File(context.filesDir, "toolbar-test/config/ButtonsLayout.json")

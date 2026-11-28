@@ -588,12 +588,13 @@ class PopupEditorActivity : SettingsUiActivity() {
 
     private fun importFromQrLongImage(uri: Uri) {
         lifecycleScope.launch {
-            runCatching {
-                withContext(Dispatchers.Default) { JsonFileQrShareManager.decodeQrChunksFromImage(this@PopupEditorActivity, uri) }
-            }.onSuccess { chunks ->
+            try {
+                val chunks = withContext(Dispatchers.Default) {
+                    JsonFileQrShareManager.decodeQrChunksFromImage(this@PopupEditorActivity, uri)
+                }
                 if (chunks.isEmpty()) {
                     showToast(getString(R.string.text_keyboard_layout_qr_import_no_chunk))
-                    return@onSuccess
+                    return@launch
                 }
                 val firstChunk = runCatching { LayoutQrTransferCodec.parseChunk(chunks.first()) }.getOrNull()
                 val detectedType = firstChunk?.let { LayoutQrTransferCodec.detectTransferType(it.transferId) }
@@ -610,12 +611,14 @@ class PopupEditorActivity : SettingsUiActivity() {
                             }
                         )
                     )
-                    return@onSuccess
+                    return@launch
                 }
                 val json = JsonFileQrShareManager.decodeChunksToJson(chunks)
                 applyImportedPopupJson(json)
-            }.onFailure {
-                showToast(getString(R.string.text_keyboard_layout_qr_import_failed, it.localizedMessage ?: ""))
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                showToast(getString(R.string.text_keyboard_layout_qr_import_failed, error.localizedMessage ?: ""))
             }
         }
     }

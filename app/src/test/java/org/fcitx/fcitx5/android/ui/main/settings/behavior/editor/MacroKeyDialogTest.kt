@@ -3,6 +3,7 @@ package org.fcitx.fcitx5.android.ui.main.settings.behavior.editor
 
 import android.content.Intent
 import android.os.Looper
+import android.view.KeyEvent
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -19,11 +20,18 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.Implementation
+import org.robolectric.annotation.Implements
+import org.robolectric.shadows.ShadowKeyEvent
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23, 28], application = FcitxApplication::class, shadows = [EditorApplicationShadow::class])
+// Give the eager Android key-name map a separate sandbox from suites that initialize
+// the macro editor without the native key-name shadow.
+@Config(sdk = [23, 28], application = FcitxApplication::class,
+    instrumentedPackages = ["org.fcitx.fcitx5.android.ui.main.settings.behavior.dialog"],
+    shadows = [EditorApplicationShadow::class, AndroidKeyNamePlatformShadow::class])
 class MacroKeyDialogTest {
     private class Page(val activity: MacroEditorTestActivity, val editor: MacroEditorDialogFragment) {
         val step: MacroEditorDialogFragment.MacroStepData =
@@ -95,6 +103,17 @@ class MacroKeyDialogTest {
         assertTrue(ReflectionHelpers.getField<Boolean>(page.editor, "hasChanges"))
     }
 
+    @Test fun androidPeriodIsNamedAndConfirmedAsTheAndroidPeriodKey() = page(listOf(KeyRef.Android(66))) { page ->
+        assertEquals("KEYCODE_PERIOD", KeyEvent.keyCodeToString(KeyEvent.KEYCODE_PERIOD))
+        assertEquals("PERIOD", MacroEditorDialogFragment.ANDROID_KEY_NAMES.getValue("56"))
+        assertEquals("ALT RIGHT", MacroEditorDialogFragment.ANDROID_KEY_NAMES.getValue("58"))
+        val dialog = page.open(0)
+        page.select(dialog, "56", asAndroid = true)
+        page.click(dialog, AlertDialog.BUTTON_POSITIVE)
+        assertEquals("56", page.step.keys.single().code)
+        assertEquals("android", page.step.keys.single().keyType)
+    }
+
     @Test fun legacyAndroidKeysKeepTheirTypeWhenConfirmed() = page(listOf(KeyRef.Android(66))) { page ->
         val dialog = page.open(0)
         page.select(dialog, "67", asAndroid = true)
@@ -136,5 +155,24 @@ class MacroKeyDialogTest {
         assertEquals(1, page.step.keys.size)
         page.click(dialog, AlertDialog.BUTTON_POSITIVE)
         assertEquals(listOf("A", "B"), page.step.keys.map { it.code })
+    }
+}
+
+/**
+ * Robolectric 4.17 supplies nativeKeyCodeFromString but leaves nativeKeyCodeToString
+ * at its instrumented null stub. Supply only that missing platform label lookup
+ * from this SDK's public constants; retain the real keyCodeToString formatting,
+ * production name mapping, dialog selection and serialized Android key code.
+ */
+@Implements(KeyEvent::class)
+class AndroidKeyNamePlatformShadow : ShadowKeyEvent() {
+    companion object {
+        @JvmStatic
+        @Implementation
+        fun nativeKeyCodeToString(keyCode: Int): String? = KeyEvent::class.java.fields
+            .firstOrNull { field ->
+                field.name.startsWith("KEYCODE_") && field.type == Int::class.javaPrimitiveType &&
+                    java.lang.reflect.Modifier.isStatic(field.modifiers) && field.getInt(null) == keyCode
+            }?.name?.removePrefix("KEYCODE_")
     }
 }
