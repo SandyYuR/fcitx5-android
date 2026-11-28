@@ -12,8 +12,8 @@ import org.junit.Test
 /**
  * 语音 PCM 队列的容量推导与运行时统计（纯函数，无 Android 依赖）。
  *
- * 这些断言固定了两件事：容量按"音频时长"推导（而不是包数），以及过载判定依赖的深度/
- * 最旧包年龄统计在真实包节奏下是对的。
+ * 固定容量按音频时长推导，以及仅用于诊断的深度/队首音频跨度随真实包生命周期推进。
+ * 过载仍只由 Channel.trySend 失败判定，不读取诊断值。
  */
 class VoicePcmQueueBudgetTest {
 
@@ -76,8 +76,11 @@ class VoicePcmQueueBudgetTest {
         assertEquals(2, metrics.maxDepth)
         assertEquals(100L, metrics.maxHeadAgeMs)
 
+        metrics.onDequeued()
         metrics.onFed(5L)
+        metrics.onDequeued()
         metrics.onFed(5L)
+        assertEquals(0, metrics.currentDepth)
         assertEquals(2, metrics.calls)
         assertEquals(5L, metrics.maxFeedMs)
 
@@ -98,16 +101,55 @@ class VoicePcmQueueBudgetTest {
     }
 
     @Test
-    fun skippedPacketsDoNotCountAsFeedCallsButReleaseDepth() {
+    fun dequeuedPacketsReleaseDepthBeforeAnyFeedCall() {
         val metrics = VoicePcmQueueMetrics()
         metrics.onEnqueued(0L)
-        metrics.onFedSkipped()
+        metrics.onDequeued()
         assertEquals(0, metrics.calls)
         assertEquals(0L, metrics.maxFeedMs)
-        // 深度已归零，再多的 skip 也不会把它压成负数。
-        metrics.onFedSkipped()
+        assertEquals(0, metrics.currentDepth)
+        // 深度已归零，再多的出队通知也不会把它压成负数。
+        metrics.onDequeued()
         metrics.onEnqueued(100L)
         assertEquals(1, metrics.maxDepth)
+    }
+
+    @Test
+    fun continuouslyNonEmptyQueueAdvancesItsHead() {
+        val metrics = VoicePcmQueueMetrics()
+        metrics.onEnqueued(0L)
+        metrics.onEnqueued(100L)
+        for (i in 2..100) {
+            metrics.onDequeued()
+            metrics.onEnqueued(i * 100L)
+        }
+        assertEquals(2, metrics.currentDepth)
+        assertEquals(2, metrics.maxDepth)
+        assertEquals(100L, metrics.maxHeadAgeMs)
+    }
+
+    @Test
+    fun failedAndClosedSendsNeverCreateDiagnosticPackets() {
+        val metrics = VoicePcmQueueMetrics()
+        assertFalse(metrics.tryEnqueue(0L) { false })
+        assertEquals(0, metrics.currentDepth)
+        assertEquals(0, metrics.maxDepth)
+        assertTrue(metrics.tryEnqueue(100L) { true })
+        metrics.onDequeued()
+        metrics.onFed(2L)
+        assertEquals(0, metrics.currentDepth)
+        assertEquals(1, metrics.calls)
+    }
+
+    @Test
+    fun cancellationClearsPendingPacketsWithoutErasingHighWaterMarks() {
+        val metrics = VoicePcmQueueMetrics()
+        metrics.onEnqueued(0L)
+        metrics.onEnqueued(100L)
+        metrics.clearQueued()
+        assertEquals(0, metrics.currentDepth)
+        assertEquals(2, metrics.maxDepth)
+        assertEquals(100L, metrics.maxHeadAgeMs)
     }
 
     @Test
@@ -131,6 +173,7 @@ class VoicePcmQueueBudgetTest {
         val metrics = VoicePcmQueueMetrics()
         metrics.onEnqueued(0L)
         metrics.onEnqueued(100L)
+        metrics.onDequeued()
         metrics.onFed(10L)
         metrics.onSlowFeed()
         metrics.onOverflow()
@@ -138,6 +181,7 @@ class VoicePcmQueueBudgetTest {
         metrics.reset()
 
         assertEquals(0, metrics.maxDepth)
+        assertEquals(0, metrics.currentDepth)
         assertEquals(0L, metrics.maxHeadAgeMs)
         assertEquals(0, metrics.calls)
         assertEquals(0L, metrics.maxFeedMs)

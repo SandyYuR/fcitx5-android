@@ -133,7 +133,7 @@ object VoiceInputProviderManager {
     private const val PROVIDER_TOO_SLOW_MESSAGE = "Provider too slow: voice PCM queue full"
 
     /** 本次会话的 PCM 队列统计：深度高水位、最旧包年龄、feedAudio 耗时、过载次数。 */
-    private val pcmQueueMetrics = VoicePcmQueueMetrics()
+    @Volatile private var pcmQueueMetrics = VoicePcmQueueMetrics()
 
     /**
      * 已经因过载中止过的 [sessionGeneration]，保证同一会话只中止一次
@@ -599,7 +599,7 @@ object VoiceInputProviderManager {
         }
 
         // Callback state is owned on Main, including the final partial on user finish.
-        val generation = ++sessionGeneration
+        val generation = beginAudioSession()
         var pendingPartialResult: String? = null
         lateinit var callback: SessionBoundVoiceCallback
         callback = SessionBoundVoiceCallback(
@@ -690,12 +690,9 @@ object VoiceInputProviderManager {
         activeCallback = callback
         activeEditorSession = editor
         finishing = false
-        voiceSessionTerminalized = false
         sessionReady = false
         sessionActive = true
         readyHandledGeneration = -1
-        // 新会话：清空上一个会话的队列统计与过载中止标记。
-        pcmQueueMetrics.reset()
         lastSlowFeedWarnElapsed = 0L
         // A new session supersedes any pending finish watchdog from the previous one.
         finishWatchdogJob?.cancel()
@@ -1101,14 +1098,16 @@ object VoiceInputProviderManager {
         val duplicateReady = readyHandledGeneration == sessionGeneration
         readyHandledGeneration = sessionGeneration
         val preRollCapture = activeCapture
+        if (duplicateReady && preRollCapture != null) {
+            if (activeAudioFeedJob?.isActive == true && activeAudioFeedQueue?.isClosedForSend == false) {
+                logW("duplicate onReady: keeping the running audio feed")
+            } else {
+                onError("Provider disconnected")
+            }
+            return
+        }
         val configMatches = activeSessionConfig.audio == VoiceInputAudioCapture.Config()
         if (preRollCapture == null || !configMatches) {
-            if (duplicateReady && preRollCapture != null) {
-                // Already capturing for this session: a repeated onReady must not tear the
-                // microphone down and start it again (see C4).
-                logW("duplicate onReady: keeping the running capture")
-                return
-            }
             if (preRollCapture != null) {
                 logI("discarding pre-roll: config mismatch desired=${activeSessionConfig.audio}")
                 resetPreRoll()
@@ -1123,27 +1122,61 @@ object VoiceInputProviderManager {
         // ready timeout does exactly that). Overwriting the fields without closing the
         // previous ones left an orphaned channel and a feed coroutine reading from it for the
         // rest of the process, one pair per duplicate callback.
+        val generation = sessionGeneration
         val previousQueue = activeAudioFeedQueue
         val previousJob = activeAudioFeedJob
         // 有界队列：容量按 MAX_BUFFERED_AUDIO_MS 的时长预算推导（见该常量）。
         val queue = Channel<QueuedAudio>(capacity = MAX_BUFFERED_AUDIO_PACKETS)
-        val drained: List<QueuedAudio>
-        synchronized(preRollLock) {
-            activeAudioFeedQueue = queue
-            drained = preRollBuffer.toList()
-            preRollBuffer.clear()
-            preRollActive = false
-        }
         if (previousQueue != null || previousJob != null) {
-            logW("duplicate onReady: closing the previous audio feed")
+            logW("closing the previous audio feed")
             previousQueue?.close()
             previousJob?.cancel()
         }
-        logI("pre-roll flush: packets=${drained.size}")
-        // 容量 ≥ PRE_ROLL_MAX_PACKETS 且此刻 feed 协程尚未启动（无人消费），回灌必然全部成功，
-        // 不会因为容量不足在这里丢包。
-        drained.forEach { queue.trySend(it) }
-        activeAudioFeedJob = launchAudioFeedJob(service, queue)
+        if (handOverPreRoll(service, queue, generation)) {
+            activeAudioFeedJob = launchAudioFeedJob(service, queue)
+        }
+    }
+
+    /** 单一交接边界：先入队全部预滚，后发布实时队列；锁内不调用 provider。 */
+    private fun handOverPreRoll(
+        service: FcitxInputMethodService,
+        queue: Channel<QueuedAudio>,
+        generation: Int,
+    ): Boolean {
+        val metrics = VoicePcmQueueMetrics()
+        var failedPacket: QueuedAudio? = null
+        val replayed = synchronized(preRollLock) {
+            if (generation != sessionGeneration || voiceSessionTerminalized ||
+                overflowAbortGeneration.get() == generation
+            ) {
+                queue.cancel()
+                return false
+            }
+            pcmQueueMetrics = metrics
+            // 在开放实时入口前回灌；采集线程使用同一把锁，不能越过任何一个旧包。
+            var count = 0
+            for (packet in preRollBuffer) {
+                if (!metrics.tryEnqueue(packet.ptsMs) { queue.trySend(packet).isSuccess }) {
+                    failedPacket = packet
+                    break
+                }
+                count++
+            }
+            preRollBuffer.clear()
+            if (failedPacket == null) {
+                activeAudioFeedQueue = queue
+                preRollActive = false
+            }
+            count
+        }
+        failedPacket?.let {
+            queue.cancel()
+            metrics.clearQueued()
+            onAudioQueueOverflow(service, it.ptsMs, generation, metrics)
+            return false
+        }
+        logI("pre-roll flush: packets=$replayed")
+        return true
     }
 
     private fun launchAudioFeedJob(
@@ -1153,45 +1186,51 @@ object VoiceInputProviderManager {
         val provider = activeProvider
         val generation = sessionGeneration
         val callback = activeCallback
+        val metrics = pcmQueueMetrics
         return service.lifecycleScope.launch(Dispatchers.IO) {
-            for (packet in queue) {
-                if (generation != sessionGeneration || voiceSessionTerminalized) break
-                if (provider == null) {
-                    pcmQueueMetrics.onFedSkipped()
-                    continue
-                }
-                // 单次 Binder 调用耗时（观测用）：只做一次 nanoTime 差值，不改变提交顺序与参数。
-                val startedNanos = System.nanoTime()
-                try {
-                    provider.feedAudio(
-                        packet.pcm, 0, packet.pcm.size, packet.ptsMs,
-                    )
-                } catch (e: RemoteException) {
-                    // Binder is dead — provider crashed or was killed. Don't keep
-                    // looping silently; surface via the callback so the UI clears
-                    // its "listening" state and stopSession unwinds.
-                    Timber.w(e, "feedAudio failed — provider gone, aborting session")
-                    withContext(Dispatchers.Main) {
-                        if (isCurrentVoiceSession(generation, callback)) {
-                            runCatching {
-                                callback?.onError(
-                                    VoiceInputIpc.ErrorCodes.UNKNOWN,
-                                    "Provider disconnected",
-                                )
+            try {
+                for (packet in queue) {
+                    metrics.onDequeued()
+                    if (generation != sessionGeneration || voiceSessionTerminalized) break
+                    if (provider == null) {
+                        continue
+                    }
+                    // 单次 Binder 调用耗时（观测用）：只做一次 nanoTime 差值，不改变提交顺序与参数。
+                    val startedNanos = System.nanoTime()
+                    try {
+                        provider.feedAudio(
+                            packet.pcm, 0, packet.pcm.size, packet.ptsMs,
+                        )
+                    } catch (e: RemoteException) {
+                        // Binder is dead — provider crashed or was killed. Don't keep
+                        // looping silently; surface via the callback so the UI clears
+                        // its "listening" state and stopSession unwinds.
+                        Timber.w(e, "feedAudio failed — provider gone, aborting session")
+                        withContext(Dispatchers.Main) {
+                            if (isCurrentVoiceSession(generation, callback)) {
+                                runCatching {
+                                    callback?.onError(
+                                        VoiceInputIpc.ErrorCodes.UNKNOWN,
+                                        "Provider disconnected",
+                                    )
+                                }
                             }
                         }
+                        return@launch
                     }
-                    return@launch
+                    if (generation != sessionGeneration || voiceSessionTerminalized) break
+                    val elapsedMs = (System.nanoTime() - startedNanos) / 1_000_000L
+                    metrics.onFed(elapsedMs)
+                    if (elapsedMs >= FEED_SLOW_WARN_MS) {
+                        metrics.onSlowFeed()
+                        // logW 与慢调用告警一致：只记日志、不抛异常，provider 变慢时 feedAudio 仍然正常返回。
+                        logW("feedAudio slow: ${elapsedMs}ms (threshold ${FEED_SLOW_WARN_MS}ms)")
+                        warnSlowFeed(elapsedMs, metrics)
+                    }
                 }
-                if (generation != sessionGeneration || voiceSessionTerminalized) break
-                val elapsedMs = (System.nanoTime() - startedNanos) / 1_000_000L
-                pcmQueueMetrics.onFed(elapsedMs)
-                if (elapsedMs >= FEED_SLOW_WARN_MS) {
-                    pcmQueueMetrics.onSlowFeed()
-                    // logW 与慢调用告警一致：只记日志、不抛异常，provider 变慢时 feedAudio 仍然正常返回。
-                    logW("feedAudio slow: ${elapsedMs}ms (threshold ${FEED_SLOW_WARN_MS}ms)")
-                    warnSlowFeed(elapsedMs)
-                }
+            } finally {
+                queue.cancel()
+                metrics.clearQueued()
             }
         }
     }
@@ -1206,16 +1245,18 @@ object VoiceInputProviderManager {
      * （见 [startCapture] 里对读取字段而非捕获 channel 的说明），保持原行为。
      */
     private fun offerAudioPacket(service: FcitxInputMethodService, packet: QueuedAudio, generation: Int) {
-        val queue = activeAudioFeedQueue ?: return
-        if (generation != sessionGeneration || voiceSessionTerminalized) return
-        val result = queue.trySend(packet)
-        if (result.isSuccess) {
-            pcmQueueMetrics.onEnqueued(packet.ptsMs)
-            return
+        val metrics = synchronized(preRollLock) {
+            if (generation != sessionGeneration || voiceSessionTerminalized ||
+                overflowAbortGeneration.get() == generation
+            ) return
+            val queue = activeAudioFeedQueue ?: return
+            val currentMetrics = pcmQueueMetrics
+            if (currentMetrics.tryEnqueue(packet.ptsMs) { queue.trySend(packet).isSuccess }) return
+            if (queue.isClosedForSend) return
+            currentMetrics
         }
-        if (queue.isClosedForSend) return
-        // 队列满：provider 处理不过来。
-        onAudioQueueOverflow(service, packet.ptsMs, generation)
+        // 队列满：保留发生失败的队列所属统计，不能改写随后发布的新队列。
+        onAudioQueueOverflow(service, packet.ptsMs, generation, metrics)
     }
 
     /**
@@ -1228,16 +1269,25 @@ object VoiceInputProviderManager {
      *
      * 调用点在采集线程上，所以真正的清理放到主线程协程里做：这里只记一次统计和日志。
      */
-    private fun onAudioQueueOverflow(service: FcitxInputMethodService, ptsMs: Long, generation: Int) {
-        if (generation != sessionGeneration || voiceSessionTerminalized) return
-        // 同一会话只中止一次：队列满之后采集线程可能还投递一两个包。
-        if (overflowAbortGeneration.getAndSet(generation) == generation) return
-        val overloads = pcmQueueMetrics.onOverflow()
+    private fun onAudioQueueOverflow(
+        service: FcitxInputMethodService,
+        ptsMs: Long,
+        generation: Int,
+        expectedMetrics: VoicePcmQueueMetrics,
+    ) {
+        val (overloads, summary) = synchronized(preRollLock) {
+            if (generation != sessionGeneration || voiceSessionTerminalized ||
+                expectedMetrics !== pcmQueueMetrics
+            ) return
+            // 判代、一次性标记和统计共用身份切换的锁，旧回调不能跨代写入。
+            if (overflowAbortGeneration.getAndSet(generation) == generation) return
+            expectedMetrics.onOverflow() to expectedMetrics.summary()
+        }
         Timber.w(
             "Voice PCM queue full (provider too slow): generation=$generation " +
                 "capacity=$MAX_BUFFERED_AUDIO_PACKETS packets " +
                 "budgetMs=$MAX_BUFFERED_AUDIO_MS ptsMs=$ptsMs overloads=$overloads " +
-                pcmQueueMetrics.summary()
+                summary
         )
         service.lifecycleScope.launch { abortForOverload(service, generation) }
     }
@@ -1270,13 +1320,13 @@ object VoiceInputProviderManager {
     }
 
     /** 慢调用告警（限频）：provider 慢是过载的前兆，重新走一遍基线时靠它定位。 */
-    private fun warnSlowFeed(elapsedMs: Long) {
+    private fun warnSlowFeed(elapsedMs: Long, metrics: VoicePcmQueueMetrics) {
         val now = SystemClock.elapsedRealtime()
         if (now - lastSlowFeedWarnElapsed < SLOW_FEED_WARN_INTERVAL_MS) return
         lastSlowFeedWarnElapsed = now
         Timber.w(
             "feedAudio slow: ${elapsedMs}ms (threshold ${FEED_SLOW_WARN_MS}ms) " +
-                pcmQueueMetrics.summary()
+                metrics.summary()
         )
     }
 
@@ -1286,6 +1336,20 @@ object VoiceInputProviderManager {
         if (pcmQueueMetrics.overloads > 0) {
             Timber.w("Voice PCM queue overloaded ($reason): ${pcmQueueMetrics.summary()}")
         }
+    }
+
+    /** 仅发布会话身份；采集、provider 与回调始终留在锁外。 */
+    private fun beginAudioSession(): Int = synchronized(preRollLock) {
+        val generation = ++sessionGeneration
+        voiceSessionTerminalized = false
+        pcmQueueMetrics = VoicePcmQueueMetrics()
+        overflowAbortGeneration.set(-1)
+        generation
+    }
+
+    private fun terminalizeAudioSession(): Int = synchronized(preRollLock) {
+        voiceSessionTerminalized = true
+        sessionGeneration
     }
 
     private fun resetPreRoll() {
@@ -1308,7 +1372,16 @@ object VoiceInputProviderManager {
         activeAudioFeedJob?.cancel()
         // 有界队列：容量按 MAX_BUFFERED_AUDIO_MS 的时长预算推导（见该常量）。
         val audioQueue = Channel<QueuedAudio>(capacity = MAX_BUFFERED_AUDIO_PACKETS)
-        activeAudioFeedQueue = audioQueue
+        synchronized(preRollLock) {
+            if (generation != sessionGeneration || voiceSessionTerminalized ||
+                overflowAbortGeneration.get() == generation
+            ) {
+                audioQueue.cancel()
+                return
+            }
+            pcmQueueMetrics = VoicePcmQueueMetrics()
+            activeAudioFeedQueue = audioQueue
+        }
         activeAudioFeedJob = launchAudioFeedJob(service, audioQueue)
         val capture = VoiceInputAudioCapture(
             context = service,
@@ -1451,8 +1524,7 @@ object VoiceInputProviderManager {
     }
 
     private fun stopSession(context: Context = appContext, keepConnectionWarm: Boolean) {
-        val generation = sessionGeneration
-        voiceSessionTerminalized = true
+        val generation = terminalizeAudioSession()
         // 会话收尾：把本会话的队列高水位/最旧包年龄/feedAudio 耗时/过载次数落到日志。
         logPcmQueueSummary("stopSession")
         // The handshake completed (or is being forced): the watchdog has nothing left to do.
@@ -1522,7 +1594,7 @@ object VoiceInputProviderManager {
     }
 
     private fun releaseProviderConnection(context: Context, callStopSession: Boolean) {
-        voiceSessionTerminalized = true
+        terminalizeAudioSession()
         cancelWarmConnectionRelease()
         activeAudioFeedQueue?.close()
         activeAudioFeedQueue = null
@@ -1546,8 +1618,7 @@ object VoiceInputProviderManager {
     }
 
     private fun stopFloatingFallback(context: Context, token: String? = floatingResultGate.currentToken) {
-        val generation = sessionGeneration
-        voiceSessionTerminalized = true
+        val generation = terminalizeAudioSession()
         activeEditorSession = null
         val component = floatingFallbackComponent
         floatingFallbackActive = false

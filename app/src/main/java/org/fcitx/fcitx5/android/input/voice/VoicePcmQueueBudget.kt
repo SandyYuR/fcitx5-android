@@ -56,20 +56,18 @@ internal object VoicePcmQueueBudget {
 /**
  * 语音 PCM 队列的运行时统计。
  *
- * 生产者是 AudioRecord 采集线程，消费者是 feed 协程，两侧并发读写，所以计数器全部无锁
- * （原子类型），生产端只做几次原子加法，绝不阻塞采集线程。
+ * 生产者通过 [tryEnqueue] 将 Channel.trySend 与入队记账串行化，消费者在 feedAudio 前
+ * 调用 [onDequeued]。锁内不等待队列或调用 provider，避免消费者早于入队记账而留下虚假深度。
  *
- * 队列深度不读 Channel 内部状态（Channel 不对外暴露 size）：这里把"已入队但 feedAudio
- * 尚未返回的包数"当作深度——生产者入队 +1，消费者 feed 完成后 -1，因此高水位就是真实
- * 积压包数。
+ * 待消费 PTS 与实际入队包一一对应；出队即推进队首，不把正在 feedAudio 的包算作排队。
  *
  * "最旧包年龄"的语义：队首包从入队起等待了多久。只在入队采样点测算（队列延迟监控的
  * 常规做法）：pts 与采集起点同一时间轴，新包入队时 `pts - 队首包 pts` 就是队首包已经
- * 等待的时间，误差不超过一个包；深度归零后重新锚定队首。
+ * 等待的音频跨度；持续非空时同样随真实出队推进队首。
  */
 internal class VoicePcmQueueMetrics {
 
-    private val depth = AtomicInteger(0)
+    private val queuedPts = ArrayDeque<Long>()
     private val feedCalls = AtomicInteger(0)
     private val slowFeedCalls = AtomicInteger(0)
     private val overloadCount = AtomicInteger(0)
@@ -77,7 +75,8 @@ internal class VoicePcmQueueMetrics {
     private val maxFeedDurationMs = AtomicLong(0L)
     private val maxHeadAge = AtomicLong(0L)
 
-    @Volatile private var headPtsMs = 0L
+    /** 当前仍待消费的包数，不包含正在 feedAudio 的包。 */
+    val currentDepth: Int get() = synchronized(this) { queuedPts.size }
 
     /** 队列深度高水位（包数）。 */
     val maxDepth: Int get() = maxDepthCount.get()
@@ -98,36 +97,48 @@ internal class VoicePcmQueueMetrics {
     val overloads: Int get() = overloadCount.get()
 
     /** 新会话开始时清零，避免上一个会话的高水位混进本次统计。 */
+    @Synchronized
     fun reset() {
-        depth.set(0)
+        queuedPts.clear()
         feedCalls.set(0)
         slowFeedCalls.set(0)
         overloadCount.set(0)
         maxDepthCount.set(0)
         maxFeedDurationMs.set(0L)
         maxHeadAge.set(0L)
-        headPtsMs = 0L
     }
 
-    /** 生产者在 [kotlinx.coroutines.channels.Channel.trySend] 成功后调用。 */
+    /** send 必须是非挂起 trySend；失败不记账，消费者在同一 monitor 上等待记账完成。 */
+    @Synchronized
+    fun tryEnqueue(ptsMs: Long, send: () -> Boolean): Boolean {
+        if (!send()) return false
+        onEnqueued(ptsMs)
+        return true
+    }
+
+    @Synchronized
     fun onEnqueued(ptsMs: Long) {
-        val current = depth.incrementAndGet()
-        if (current == 1) headPtsMs = ptsMs
-        val age = (ptsMs - headPtsMs).coerceAtLeast(0L)
-        raiseMax(maxDepthCount, current)
-        raiseMax(maxHeadAge, age)
+        queuedPts.addLast(ptsMs)
+        raiseMax(maxDepthCount, queuedPts.size)
+        raiseMax(maxHeadAge, (ptsMs - queuedPts.first()).coerceAtLeast(0L))
+    }
+
+    /** Channel 收到包后、任何 provider 调用之前推进真实待消费队首。 */
+    @Synchronized
+    fun onDequeued() {
+        if (queuedPts.isNotEmpty()) queuedPts.removeFirst()
+    }
+
+    /** 取消/关闭 feed 时丢弃的待消费包不再计入深度，历史高水位保留。 */
+    @Synchronized
+    fun clearQueued() {
+        queuedPts.clear()
     }
 
     /** 消费者完成一次 feedAudio 后调用。 */
     fun onFed(durationMs: Long) {
-        releaseDepth()
         feedCalls.incrementAndGet()
         raiseMax(maxFeedDurationMs, durationMs)
-    }
-
-    /** 消费者因为 provider 已消失而跳过一个包（未调用 feedAudio）时调用。 */
-    fun onFedSkipped() {
-        releaseDepth()
     }
 
     /** 队列满（provider 处理不过来）时调用，返回累计过载中止次数。 */
@@ -143,16 +154,12 @@ internal class VoicePcmQueueMetrics {
         "queueMaxDepth=$maxDepth oldestQueuedMaxAgeMs=$maxHeadAgeMs " +
             "feedCalls=$calls feedMaxMs=$maxFeedMs slowFeedCalls=$slowFeedCalls overloads=$overloads"
 
-    private fun releaseDepth() {
-        depth.updateAndGet { d -> if (d > 0) d - 1 else 0 }
-    }
-
-    /** 无锁抬高高水位：无 CAS 循环，避免在同一时间轴上多线程竞争。 */
+    /** 原子抬高高水位，慢 feed 与生产线程同时记账也不会覆盖更大值。 */
     private fun raiseMax(target: AtomicInteger, candidate: Int) {
-        if (candidate > target.get()) target.set(candidate)
+        target.updateAndGet { current -> maxOf(current, candidate) }
     }
 
     private fun raiseMax(target: AtomicLong, candidate: Long) {
-        if (candidate > target.get()) target.set(candidate)
+        target.updateAndGet { current -> maxOf(current, candidate) }
     }
 }
