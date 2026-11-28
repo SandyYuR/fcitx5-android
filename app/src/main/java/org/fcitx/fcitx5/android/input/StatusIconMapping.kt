@@ -14,6 +14,8 @@ object StatusIconMapping {
     fun fromEntry(entry: InputMethodEntry): Int {
         if (entry.subMode.icon.isNotEmpty()) {
             when (entry.subMode.icon) {
+                "fcitx_rime_latin" -> return R.drawable.ic_status_latin_direct
+                "fcitx_rime_disable" -> return R.drawable.ic_status_disabled
                 "fcitx_mozc_direct" -> return R.drawable.ic_status_latin_direct
                 "fcitx_mozc_hiragana" -> return R.drawable.ic_status_hiragana
                 "fcitx_mozc_katakana_full" -> return R.drawable.ic_status_katakana
@@ -42,8 +44,8 @@ object StatusIconMapping {
             "fcitx-jyutping", "fcitx_jyutping_table" -> return R.drawable.ic_status_jyutping
             "fcitx-chewing" -> return R.drawable.ic_status_chewing
             "fcitx-rime" -> return R.drawable.ic_status_rime
-            "fcitx_rime_latin" -> R.drawable.ic_status_latin_direct
-            "fcitx_rime_disable" -> R.drawable.ic_status_disabled
+            "fcitx_rime_latin" -> return R.drawable.ic_status_latin_direct
+            "fcitx_rime_disable" -> return R.drawable.ic_status_disabled
         }
         when (entry.languageCode) {
             "en", "en_US" -> return R.drawable.ic_status_en

@@ -8,6 +8,7 @@ import android.content.Context
 import android.os.Build
 import android.view.SurfaceControl
 import android.view.SurfaceView
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.inline.InlineContentView
@@ -71,8 +72,10 @@ class InlineSuggestionsUi(override val ctx: Context) : Ui {
         scrollView.scrollTo(0, 0)
         scrollView.removeAllViews()
         scrollableContentViews.forEach { v ->
+            v.setSurfaceControlCallback(null)
+            (v.parent as? ViewGroup)?.removeView(v)
             v.surfaceControl?.let { sc ->
-                SurfaceControl.Transaction().reparent(sc, null).apply()
+                SurfaceControl.Transaction().use { it.reparent(sc, null).apply() }
             }
         }
         scrollableContentViews.clear()
@@ -92,7 +95,7 @@ class InlineSuggestionsUi(override val ctx: Context) : Ui {
 
     @RequiresApi(Build.VERSION_CODES.R)
     fun setPinnedView(view: InlineContentView?) {
-        pinnedView.removeAllViews()
+        clearPinnedView()
         pinnedContentView = view?.also {
             pinnedView.addView(it)
             it.updateLayoutParams<FrameLayout.LayoutParams> {
@@ -103,6 +106,7 @@ class InlineSuggestionsUi(override val ctx: Context) : Ui {
 
     @RequiresApi(Build.VERSION_CODES.R)
     fun setScrollableViews(views: List<InlineContentView?>) {
+        clearScrollView()
         val flexbox = view(::FlexboxLayout) {
             flexWrap = FlexWrap.NOWRAP
             justifyContent = JustifyContent.CENTER
@@ -113,9 +117,10 @@ class InlineSuggestionsUi(override val ctx: Context) : Ui {
             scrollableContentViews.add(it)
             it.setSurfaceControlCallback(object : InlineContentView.SurfaceControlCallback {
                 override fun onCreated(surfaceControl: SurfaceControl) {
-                    SurfaceControl.Transaction()
-                        .reparent(surfaceControl, parentSurfaceControl)
-                        .apply()
+                    val active = scrollableContentViews.any { view -> view === it }
+                    SurfaceControl.Transaction().use { transaction ->
+                        transaction.reparent(surfaceControl, if (active) parentSurfaceControl else null).apply()
+                    }
                 }
 
                 override fun onDestroyed(surfaceControl: SurfaceControl) {}

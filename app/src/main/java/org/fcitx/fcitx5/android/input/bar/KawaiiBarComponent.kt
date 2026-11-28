@@ -29,6 +29,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlag
@@ -167,6 +168,27 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private val preferredVoiceInput by prefs.keyboard.preferredVoiceInput
 
     private var clipboardTimeoutJob: Job? = null
+    private var clipboardPreviewJob: Job? = null
+    private var clipboardPreviewGeneration = 0L
+    private var inlineSuggestionJob: Job? = null
+    private var inlineSuggestionGeneration = 0L
+    private var scopeTornDown = false
+
+    private fun invalidateClipboardPreview(): Long {
+        clipboardPreviewGeneration++
+        clipboardPreviewJob?.cancel()
+        clipboardPreviewJob = null
+        clipboardTimeoutJob?.cancel()
+        clipboardTimeoutJob = null
+        return clipboardPreviewGeneration
+    }
+
+    private fun invalidateInlineSuggestions(): Long {
+        inlineSuggestionGeneration++
+        inlineSuggestionJob?.cancel()
+        inlineSuggestionJob = null
+        return inlineSuggestionGeneration
+    }
 
     private var isClipboardFresh: Boolean = false
     private var isInlineSuggestionPresent: Boolean = false
@@ -187,38 +209,38 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     @Keep
     private val onClipboardUpdateListener =
-        ClipboardManager.OnClipboardUpdateListener {
-            if (!clipboardSuggestion.getValue()) return@OnClipboardUpdateListener
-            service.lifecycleScope.launch {
-                if (it.text.isEmpty()) {
-                    isClipboardFresh = false
-                } else {
-                    val isImage = it.type.startsWith("image/")
-                    if (isImage) {
-                        idleUi.clipboardUi.text.visibility = View.GONE
-                        idleUi.clipboardUi.preview.visibility = View.VISIBLE
-                        val bitmap = it.loadThumbnailBitmap(context)
-                        if (bitmap != null) {
-                            idleUi.clipboardUi.preview.setImageBitmap(bitmap)
-                        } else {
-                            context.drawable(R.drawable.ic_baseline_image_24)?.apply {
-                                setTint(theme.altKeyTextColor)
-                            }?.let {
-                                idleUi.clipboardUi.preview.setImageDrawable(it)
-                            }
-                        }
+        ClipboardManager.OnClipboardUpdateListener { entry ->
+            val generation = invalidateClipboardPreview()
+            isClipboardFresh = false
+            if (scopeTornDown || !clipboardSuggestion.getValue()) return@OnClipboardUpdateListener
+            evalIdleUiState()
+            if (entry.text.isEmpty()) return@OnClipboardUpdateListener
+            clipboardPreviewJob = service.lifecycleScope.launch {
+                val isImage = entry.type.startsWith("image/")
+                val bitmap = if (isImage) entry.loadThumbnailBitmap(context) else null
+                if (!isActive || generation != clipboardPreviewGeneration || scopeTornDown ||
+                    !clipboardSuggestion.getValue()) return@launch
+                if (isImage) {
+                    idleUi.clipboardUi.text.visibility = View.GONE
+                    idleUi.clipboardUi.preview.visibility = View.VISIBLE
+                    if (bitmap != null) {
+                        idleUi.clipboardUi.preview.setImageBitmap(bitmap)
                     } else {
-                        idleUi.clipboardUi.preview.visibility = View.GONE
-                        idleUi.clipboardUi.text.visibility = View.VISIBLE
-                        idleUi.clipboardUi.text.text = if (it.sensitive && clipboardMaskSensitive) {
-                            ClipboardEntry.BULLET.repeat(min(42, it.text.length))
-                        } else {
-                            it.text.take(42)
-                        }
+                        context.drawable(R.drawable.ic_baseline_image_24)?.apply {
+                            setTint(theme.altKeyTextColor)
+                        }?.let { idleUi.clipboardUi.preview.setImageDrawable(it) }
                     }
-                    isClipboardFresh = true
-                    launchClipboardTimeoutJob()
+                } else {
+                    idleUi.clipboardUi.preview.visibility = View.GONE
+                    idleUi.clipboardUi.text.visibility = View.VISIBLE
+                    idleUi.clipboardUi.text.text = if (entry.sensitive && clipboardMaskSensitive) {
+                        ClipboardEntry.BULLET.repeat(min(42, entry.text.length))
+                    } else {
+                        entry.text.take(42)
+                    }
                 }
+                isClipboardFresh = true
+                launchClipboardTimeoutJob()
                 evalIdleUiState()
             }
         }
@@ -227,10 +249,9 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private val onClipboardSuggestionUpdateListener =
         ManagedPreference.OnChangeListener<Boolean> { _, it ->
             if (!it) {
+                invalidateClipboardPreview()
                 isClipboardFresh = false
                 evalIdleUiState()
-                clipboardTimeoutJob?.cancel()
-                clipboardTimeoutJob = null
             }
         }
 
@@ -294,6 +315,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
      * 后续建议一律忽略（见 [handleInlineSuggestions]），工具栏恢复原来的内容。
      */
     private fun dismissInlineSuggestions() {
+        invalidateInlineSuggestions()
         isInlineSuggestionDismissed = true
         isInlineSuggestionPresent = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -907,6 +929,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     override fun onScopeSetupFinished(scope: DynamicScope) {
+        scopeTornDown = false
         ClipboardManager.lastEntry?.let {
             val now = System.currentTimeMillis()
             val clipboardTimeout = clipboardItemTimeout.getValue() * 1000L
@@ -969,6 +992,12 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
      * recreation.
      */
     fun onScopeTeardown() {
+        scopeTornDown = true
+        invalidateClipboardPreview()
+        invalidateInlineSuggestions()
+        isClipboardFresh = false
+        isInlineSuggestionPresent = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) _idleUi?.inlineSuggestionsBar?.clear()
         VoiceInputProviderManager.releaseUiCallbacks(this)
         ClipboardManager.removeOnUpdateListener(onClipboardUpdateListener)
         clipboardSuggestion.unregisterOnChangeListener(onClipboardSuggestionUpdateListener)
@@ -977,6 +1006,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     }
 
     override fun onStartInput(info: EditorInfo, capFlags: CapabilityFlags, restarting: Boolean) {
+        invalidateInlineSuggestions()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             idleUi.privateMode(info.imeOptions.hasFlag(EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING))
         }
@@ -1057,6 +1087,9 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
 
     @RequiresApi(Build.VERSION_CODES.R)
     fun handleInlineSuggestions(response: InlineSuggestionsResponse): Boolean {
+        val generation = invalidateInlineSuggestions()
+        if (scopeTornDown) return true
+        val editor = service.editorSession.capture() ?: return true
         if (isInlineSuggestionDismissed) {
             // 用户已经退出建议：继续保持工具栏，不再用新建议占回中间区域。
             isInlineSuggestionPresent = false
@@ -1084,21 +1117,22 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
                 scrollable.add(it)
             }
         }
-        service.lifecycleScope.launch {
-            idleUi.inlineSuggestionsBar.setPinnedView(
-                pinned?.let { inflateInlineContentView(it) }
-            )
-        }
-        service.lifecycleScope.launch {
-            val views = scrollable.map { s ->
-                service.lifecycleScope.async {
-                    inflateInlineContentView(s)
-                }
-            }.awaitAll()
-            idleUi.inlineSuggestionsBar.setScrollableViews(views)
-        }
-        isInlineSuggestionPresent = true
+        isInlineSuggestionPresent = false
+        idleUi.inlineSuggestionsBar.clear()
         evalIdleUiState()
+        inlineSuggestionJob = service.lifecycleScope.launch {
+            val pinnedView = async { pinned?.let { inflateInlineContentView(it) } }
+            val views = scrollable.map { suggestion ->
+                async { inflateInlineContentView(suggestion) }
+            }.awaitAll()
+            val inflatedPinned = pinnedView.await()
+            if (!isActive || generation != inlineSuggestionGeneration || scopeTornDown ||
+                isInlineSuggestionDismissed || !editor.isCurrent()) return@launch
+            idleUi.inlineSuggestionsBar.setPinnedView(inflatedPinned)
+            idleUi.inlineSuggestionsBar.setScrollableViews(views)
+            isInlineSuggestionPresent = inflatedPinned != null || views.any { it != null }
+            evalIdleUiState()
+        }
         return true
     }
 
@@ -1107,7 +1141,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         return suspendCancellableCoroutine { c ->
             // callback view might be null
             suggestion.inflate(context, suggestionSize, directExecutor) { v ->
-                c.resume(v)
+                if (c.isActive) c.resume(v)
             }
         }
     }

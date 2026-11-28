@@ -48,6 +48,8 @@ class ReturnKeyDrawableComponent :
     @DrawableRes
     private var actionDrawable: Int = DEFAULT_DRAWABLE
 
+    private var actionSlot: String? = null
+
     private fun slotForEditorInfo(info: EditorInfo): String? {
         if (info.imeOptions.hasFlag(EditorInfo.IME_FLAG_NO_ENTER_ACTION)) return "keys.return.default"
         return when (info.imeOptions and EditorInfo.IME_MASK_ACTION) {
@@ -84,16 +86,15 @@ class ReturnKeyDrawableComponent :
 
     fun updateDrawableOnEditorInfo(info: EditorInfo) {
         actionDrawable = drawableFromEditorInfo(info)
-        currentSlot = slotForEditorInfo(info)
+        actionSlot = slotForEditorInfo(info)
+        currentSlot = actionSlot
         resourceId = actionDrawable
         broadcaster.onReturnKeyDrawableUpdate(resourceId)
     }
 
     fun updateDrawableOnPreedit(preeditEmpty: Boolean) {
         val newResId = if (preeditEmpty) actionDrawable else DEFAULT_DRAWABLE
-        if (!preeditEmpty) {
-            currentSlot = "keys.return.default"
-        }
+        currentSlot = if (preeditEmpty) actionSlot else "keys.return.default"
         resourceId = newResId
         broadcaster.onReturnKeyDrawableUpdate(resourceId)
     }
