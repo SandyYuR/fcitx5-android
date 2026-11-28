@@ -9,8 +9,10 @@ import kotlinx.coroutines.CompletableDeferred
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
+import java.util.ArrayDeque
 import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 
@@ -21,8 +23,8 @@ import java.util.concurrent.RejectedExecutionException
  * MM-DD HH:mm:ss.SSS  PID  TID LEVEL TAG: message
  *
  * 特点：
- * - 异步写入，不阻塞调用线程
- * - 线程安全（使用单线程 Executor）
+ * - 普通日志异步写入；错误日志在队列满时背压，避免静默丢失
+ * - 有界队列与单个排空任务保持写入顺序
  * - 自动切换文件（当日期变化或文件超过大小限制）
  * - 批量写入，性能优化
  *
@@ -32,6 +34,7 @@ import java.util.concurrent.RejectedExecutionException
  * 3. 应用关闭时调用 close()（可选）
  */
 object LogSink {
+    @Volatile
     private var initialized = false
     private lateinit var context: Context
 
@@ -42,6 +45,15 @@ object LogSink {
             priority = Thread.MIN_PRIORITY
         }
     }
+
+    private val pending = LogSinkWriteQueue(
+        executor = executor,
+        flush = { writer?.flush() },
+        reportDropped = { count ->
+            writeEvent('W', "LogSink", "Dropped $count noncritical log events because the writer queue was full",
+                null, System.currentTimeMillis(), android.os.Process.myTid())
+        }
+    )
 
     private var writer: BufferedWriter? = null
     private var currentFile: File? = null
@@ -60,14 +72,11 @@ object LogSink {
         // 这里不强制换成 applicationContext：调用方可能传的是 device-protected context，
         // 而日志目录的存储位置由 LogFileManager 统一决定（Direct Boot 前也可写）。
         this.context = context
-        initialized = true
-        lastCleanupAt = 0L
-
-        // 启动时清理旧日志（此时还没有打开任何文件，无需保护）
-        executor.execute {
+        // 先排入清理，再发布初始化状态；保护重复初始化时仍打开的日志文件。
+        initialized = pending.control {
             try {
                 lastCleanupAt = System.currentTimeMillis()
-                LogFileManager.cleanupOldLogs(context)
+                LogFileManager.cleanupOldLogs(context, currentFile)
             } catch (e: Exception) {
                 // 忽略清理错误
             }
@@ -89,22 +98,19 @@ object LogSink {
         val timestamp = System.currentTimeMillis()
         val tid = android.os.Process.myTid()
 
-        executor.execute {
-            try {
-                ensureWriter()
-
-                for (line in formatLogLines(level, tag, message, throwable, timestamp, tid)) {
-                    writer?.write(line)
-                    writer?.newLine()
-                }
-
-                // 定期 flush（每次写入后）
-                writer?.flush()
-            } catch (e: Exception) {
-                // 忽略写入错误，避免日志写入失败导致应用崩溃
-            }
+        pending.log(
+            critical = level == 'E' || level == 'F' || throwable != null,
+            characters = tag.length.toLong() + message.length
+        ) { writeEvent(level, tag, message, throwable, timestamp, tid) }
+    }
+    private fun writeEvent(level: Char, tag: String, message: String, throwable: Throwable?, timestamp: Long, tid: Int) {
+        ensureWriter()
+        for (line in formatLogLines(level, tag, message, throwable, timestamp, tid)) {
+            writer?.write(line)
+            writer?.newLine()
         }
     }
+
 
     /**
      * 确保 writer 可用，如果需要则切换到新文件。
@@ -217,7 +223,7 @@ object LogSink {
         if (!initialized) return
         val completed = CompletableDeferred<Unit>()
         try {
-            executor.execute {
+            val accepted = pending.control {
                 try {
                     try {
                         writer?.close()
@@ -238,6 +244,7 @@ object LogSink {
                     completed.complete(Unit)
                 }
             }
+            if (!accepted) return
         } catch (e: RejectedExecutionException) {
             // writer 已 shutdown，队列里不会再有真实工作，等下去没有意义
             return
@@ -247,10 +254,10 @@ object LogSink {
 
     /**
      * 强制刷新缓冲区
-     * 一般不需要手动调用，每次写入后会自动 flush
+     * 每批写入后自动 flush；显式调用在此前已接收的事件之后执行
      */
     fun flush() {
-        executor.execute {
+        pending.control {
             try {
                 writer?.flush()
             } catch (e: Exception) {
@@ -264,7 +271,8 @@ object LogSink {
      * 一般不需要手动调用，系统会在进程结束时自动清理
      */
     fun close() {
-        executor.execute {
+        initialized = false
+        pending.close {
             try {
                 writer?.close()
                 writer = null
@@ -274,5 +282,114 @@ object LogSink {
             }
         }
         executor.shutdown()
+    }
+}
+
+/**
+ * One executor task drains ordered batches. At most [capacity] entries wait behind the active batch;
+ * noncritical payloads additionally share a character budget. Errors and control barriers wait for
+ * room instead of being dropped, so the input hot path stays nonblocking for ordinary diagnostics.
+ * The callbacks run only on the writer and must not recursively enqueue work.
+ */
+internal class LogSinkWriteQueue(
+    private val executor: Executor,
+    private val capacity: Int = 256,
+    private val maxCharacters: Long = 256 * 1024L,
+    private val batchSize: Int = 64,
+    private val flush: () -> Unit,
+    private val reportDropped: (Long) -> Unit
+) {
+    private data class Work(val characters: Long, val action: () -> Unit)
+    private val lock = java.lang.Object()
+    private val queue = ArrayDeque<Work>()
+    private var queuedCharacters = 0L
+    private var dropped = 0L
+    private var scheduled = false
+    private var accepting = true
+
+    init {
+        require(capacity > 0 && maxCharacters > 0 && batchSize > 0)
+    }
+
+    fun log(critical: Boolean, characters: Long, action: () -> Unit): Boolean =
+        enqueue(critical, characters, closing = false, action)
+
+    fun control(action: () -> Unit): Boolean = enqueue(true, 0, closing = false, action)
+
+    fun close(action: () -> Unit): Boolean = enqueue(true, 0, closing = true, action)
+
+    private fun enqueue(critical: Boolean, characters: Long, closing: Boolean, action: () -> Unit): Boolean {
+        require(characters >= 0)
+        var interrupted = false
+        try {
+            return synchronized(lock) {
+                if (!accepting) return@synchronized false
+                if (!critical && (queue.size >= capacity || characters > maxCharacters - queuedCharacters)) {
+                    if (dropped < Long.MAX_VALUE) dropped++
+                    return@synchronized false
+                }
+                while (queue.size >= capacity && accepting) {
+                    try {
+                        lock.wait()
+                    } catch (_: InterruptedException) {
+                        // An error or export/clear boundary must not disappear on cancellation.
+                        interrupted = true
+                    }
+                }
+                if (!accepting) return@synchronized false
+                queue.addLast(Work(characters, action))
+                queuedCharacters += characters
+                if (closing) accepting = false
+                if (!scheduled) {
+                    scheduled = true
+                    try {
+                        executor.execute { drain() }
+                    } catch (_: RejectedExecutionException) {
+                        accepting = false
+                        scheduled = false
+                        queue.clear()
+                        queuedCharacters = 0
+                        lock.notifyAll()
+                        return@synchronized false
+                    }
+                }
+                true
+            }
+        } finally {
+            if (interrupted) Thread.currentThread().interrupt()
+        }
+    }
+
+    private fun drain() {
+        while (true) {
+            val batch = ArrayList<Work>(batchSize)
+            val lost: Long
+            synchronized(lock) {
+                if (queue.isEmpty() && dropped == 0L) {
+                    scheduled = false
+                    return
+                }
+                repeat(minOf(batchSize, queue.size)) {
+                    val item = queue.removeFirst()
+                    queuedCharacters -= item.characters
+                    batch.add(item)
+                }
+                lost = dropped
+                dropped = 0
+                lock.notifyAll()
+            }
+            // Report before barriers: a final close must never be followed by a reopened writer.
+            if (lost != 0L) safely { reportDropped(lost) }
+            batch.forEach { safely(it.action) }
+            safely(flush)
+        }
+    }
+
+    private fun safely(action: () -> Unit) {
+        try {
+            action()
+        } catch (_: Exception) {
+            // Logging failures must not kill the drain task or strand control completions.
+        }
     }
 }

@@ -214,12 +214,13 @@ class LogMergeTest {
     }
 
     @Test
-    fun resumeFromIsOneMillisAfterTheNewestLineInEitherSource() {
+    fun resumeFromIncludesTheNewestMillisecondForSafeHandoff() {
         val later = logcat(-2_000, tag = "nativeloader", message = "later")
         val merged = merge(persistedLines = listOf(persisted(-5_000)), snapshotLines = listOf(later))
         val newest = parseLogLine(later, now)
         assertNotNull(newest)
-        assertEquals(newest!!.epochMillis + 1, merged.resumeFrom)
+        assertEquals(newest!!.epochMillis, merged.resumeFrom)
+        assertEquals(listOf(later), merged.replayLines)
     }
 
     /**
@@ -232,7 +233,17 @@ class LogMergeTest {
     fun theResumeBoundaryIsNeverInTheFuture() {
         val ahead = persisted(3 * 60 * 60 * 1000, message = "misread by a timezone change")
         val merged = merge(persistedLines = listOf(ahead), snapshotLines = emptyList())
-        assertEquals(now + 1, merged.resumeFrom)
+        assertEquals(now, merged.resumeFrom)
+    }
+
+    @Test
+    fun handoffKeepsNewEventsInTheSnapshotMillisecondIncludingRepeatedMessages() {
+        val old = logcat(-2_000, message = "same")
+        val new = logcat(-2_000, message = "new")
+        val merged = merge(persistedLines = emptyList(), snapshotLines = listOf(old, old))
+        val replay = LogcatReplayFilter(merged.replayLines)
+        val emitted = listOf(old, old, new, old).filterNot(replay::shouldSkip)
+        assertEquals(listOf(new, old), emitted)
     }
 
     @Test

@@ -179,12 +179,25 @@ internal fun parseLogLine(line: String, nowMillis: Long): ParsedLogLine? =
     parseLogLine(line, ThreadtimeClock(nowMillis))
 
 /**
- * 合并结果。[resumeFrom] 是快照覆盖到的最后一刻之后一毫秒。
- *
- * 实时 reader 从这里开始：既不会重放整个 logd 积压（那正是重复与时间线倒置的来源），
- * 也不会漏掉快照读完之后才写下的日志。
+ * 合并结果。[resumeFrom] 包含快照的边界毫秒；[replayLines] 记录该边界已发布的快照行。
+ * 实时 reader 重叠读取这一毫秒，按出现次数消掉快照重放，保留同毫秒的新事件。
  */
-internal data class MergedLogs(val lines: List<String>, val resumeFrom: Long?)
+internal data class MergedLogs(
+    val lines: List<String>,
+    val resumeFrom: Long?,
+    val replayLines: List<String> = emptyList()
+)
+
+/** Only consume copies actually present in the overlapping logcat snapshot. */
+internal class LogcatReplayFilter(lines: List<String>) {
+    private val remaining = lines.groupingBy { it }.eachCount().toMutableMap()
+
+    fun shouldSkip(line: String): Boolean {
+        val count = remaining[line] ?: return false
+        if (count == 1) remaining.remove(line) else remaining[line] = count - 1
+        return true
+    }
+}
 
 /**
  * 把持久化历史与 logcat 快照合成一条时间线。
@@ -258,7 +271,11 @@ internal fun mergePersistedAndLogcat(
     // 的起点会让页面一直空到时钟追上。历史行只有当地墙上时间，改过时区或时钟之后最新的
     // 那行可能被解释成未来时刻，这里一律压回 now。
     val anchor = minOf(maxOf(persistedMax, snapshotMax), nowMillis)
-    return MergedLogs(merged, if (anchor == Long.MIN_VALUE) null else anchor + 1)
+    val resumeFrom = anchor.takeUnless { it == Long.MIN_VALUE }
+    val replayLines = if (resumeFrom == null) emptyList() else logcatSnapshot.filter {
+        parseLogLine(it, clock)?.epochMillis?.let { timestamp -> timestamp >= resumeFrom } == true
+    }
+    return MergedLogs(merged, resumeFrom, replayLines)
 }
 
 /**

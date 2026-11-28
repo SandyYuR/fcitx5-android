@@ -76,17 +76,18 @@ class LogView @JvmOverloads constructor(context: Context, attributeSet: Attribut
     /**
      * 接上实时 logcat，并从这个 reader 续上订阅。
      *
-     * [since] 是 epoch 毫秒起点：列表里已有到那一刻为止的行，reader 从它之后开始，
-     * 既不重放 logd 积压（同一事件会第二次出现，且旧行被排到新行之后），
-     * 也不漏掉列表载入之后才写下的日志。
+     * [since] 是包含在内的 epoch 毫秒起点；[replayLines] 按出现次数消掉快照重放，
+     * 同一毫秒内快照截止之后的新行仍会保留。
      */
-    fun setLogcat(logcat: Logcat, since: Long? = null) {
+    fun setLogcat(logcat: Logcat, since: Long? = null, replayLines: List<String> = emptyList()) {
         // 取消之前的收集
         logcatCollectionJob?.cancel()
 
         this.logcat = logcat
+        val replay = LogcatReplayFilter(replayLines)
         logcat.initLogFlow(since)
         logcatCollectionJob = logcat.logFlow.onEach { line ->
+            if (replay.shouldSkip(line)) return@onEach
             val level = logLevelOf(line)
             val textColor = if (level == null) {
                 context.logDefaultTextColor()

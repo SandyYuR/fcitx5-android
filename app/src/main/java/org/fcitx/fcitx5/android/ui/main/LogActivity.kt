@@ -270,7 +270,7 @@ class LogActivity : SettingsUiActivity() {
                     logView.append(it)
                 }
                 ensureActive()
-                logView.setLogcat(logcat, merged.resumeFrom)
+                logView.setLogcat(logcat, merged.resumeFrom, merged.replayLines)
                 updateStatus()
                 if (announce) toast(R.string.refresh)
             } finally {
