@@ -51,6 +51,9 @@ class DirectRimeFrontendTest {
     private var daemonConnected = false
     private var profileCreated = false
     private var profileSelected = false
+    private var originalShowImeWithHardKeyboard: String? = null
+    private var originalScreenOffTimeout: String? = null
+    private var systemSettingsCaptured = false
     private val fixtureArchive = InstrumentationRegistry.getArguments().getString("fixtureArchive")
     private val longStringFixture = InstrumentationRegistry.getArguments().getString("longStringFixture") == "true"
     private val heavyAlgebraFixture = InstrumentationRegistry.getArguments().getString("heavyAlgebraFixture") == "true"
@@ -65,6 +68,12 @@ class DirectRimeFrontendTest {
         assertTrue(message, condition())
     }
     @Before fun prepare(): Unit = runBlocking {
+        originalShowImeWithHardKeyboard = shell("settings get secure show_ime_with_hard_keyboard")
+        originalScreenOffTimeout = shell("settings get system screen_off_timeout")
+        for (value in listOf(originalShowImeWithHardKeyboard, originalScreenOffTimeout)) {
+            require(value == "null" || value?.toLongOrNull() != null) { "Unexpected numeric system setting: $value" }
+        }
+        systemSettingsCaptured = true
         assertEquals(BuildConfig.APPLICATION_ID, context.packageName)
         // This suite installs and switches disposable profiles through the legacy global
         // profile manager. External engines have per-engine bindings and are covered by
@@ -168,6 +177,32 @@ class DirectRimeFrontendTest {
             daemonConnected = false
         }
     }
+    // JUnit runs every @After even when another teardown or @Before fails.
+    // Keep restoration independent of daemon/profile cleanup and its early return.
+    @After fun restoreSystemSettings() {
+        if (!systemSettingsCaptured) return
+        var failure: Throwable? = null
+        fun restore(namespace: String, key: String, value: String?) {
+            runCatching {
+                val original = checkNotNull(value)
+                if (shell("settings get $namespace $key") == original) return@runCatching
+                if (original == "null") shell("settings delete $namespace $key")
+                else {
+                    check(original.toLongOrNull() != null) { "Unexpected saved value for $key: $original" }
+                    shell("settings put $namespace $key $original")
+                }
+                check(shell("settings get $namespace $key") == original) { "Failed to restore $key" }
+            }.onFailure { error ->
+                val previous = failure
+                if (previous == null) failure = error else previous.addSuppressed(error)
+            }
+        }
+        restore("secure", "show_ime_with_hard_keyboard", originalShowImeWithHardKeyboard)
+        restore("system", "screen_off_timeout", originalScreenOffTimeout)
+        systemSettingsCaptured = false
+        failure?.let { throw it }
+    }
+
     private fun writeCursorFixture(directory: File) {
         val schema = File(directory, "direct_smoke.schema.yaml")
         val text = schema.readText().replace("\r\n", "\n")
