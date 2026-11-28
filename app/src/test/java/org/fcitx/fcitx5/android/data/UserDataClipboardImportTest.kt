@@ -95,6 +95,36 @@ class UserDataClipboardImportTest {
         assertEquals("incoming", replaced.readText()); assertFalse(replacedWal.exists())
     }
 
+    @Test fun variantPreferenceBackupsRoundTripWithTheirCanonicalIdentity() {
+        val saved = """<map><string name="v">authoritative backup</string></map>"""
+        val installed = File(appContext.applicationInfo.dataDir, "shared_prefs/${appContext.packageName}_preferences.xml")
+            .apply { parentFile!!.mkdirs() }
+        for (packageName in listOf("org.fcitx.fcitx5.android", "org.fcitx.fcitx5.android.fx", "org.fcitx.fcitx5.android.fx.debug")) {
+            for (main in listOf(null, "<map>partial", """<map><string name="v">older main</string></map>""")) {
+                val source = File(appContext.cacheDir, "export-prefs-${UUID.randomUUID()}").apply { mkdirs() }
+                try {
+                    val sourceMain = File(source, "${packageName}_preferences.xml")
+                    main?.let { sourceMain.writeText(it) }
+                    File(source, sourceMain.name + ".bak").writeText(saved)
+                    File(source, "org.fcitx.fcitx5.android.other_preferences.xml.bak").writeText("invalid other variant")
+                    val output = ByteArrayOutputStream()
+                    ZipOutputStream(output).use { zip ->
+                        UserDataManager.writeSharedPrefsTree(source, zip, packageName)
+                        zip.putNextEntry(ZipEntry("metadata.json"))
+                        zip.write("""{"packageName":"org.fcitx.fcitx5.android","versionCode":1,"versionName":"fixture","exportTime":0}""".toByteArray())
+                    }
+                    UserDataManager.prepareImport(output.toByteArray().inputStream()).use { prepared ->
+                        assertEquals(saved, File(prepared.directory, "shared_prefs/org.fcitx.fcitx5.android_preferences.xml").readText())
+                        UserDataManager.restore(prepared, RimeProfileRestorePlan(emptyMap()), closeClipboard = false).getOrThrow()
+                    }
+                    assertEquals(saved, installed.readText())
+                    assertEquals(main, sourceMain.takeIf { it.exists() }?.readText())
+                    assertEquals(saved, File(source, sourceMain.name + ".bak").readText())
+                } finally { source.deleteRecursively() }
+            }
+        }
+    }
+
     @Test fun importedPreferencesReplaceTheOldAtomicBackupToo() {
         val directory = File(appContext.applicationInfo.dataDir, "shared_prefs").apply { mkdirs() }
         val name = "${appContext.packageName}_preferences.xml"

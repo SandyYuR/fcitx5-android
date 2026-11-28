@@ -82,9 +82,13 @@ object UserDataManager {
      * across upstream and fx builds. Other variants' preferences XML files
      * are skipped (mirrors the importer's behavior).
      */
-    private fun writeSharedPrefsTree(srcDir: File, dest: ZipOutputStream) {
+    internal fun writeSharedPrefsTree(
+        srcDir: File,
+        dest: ZipOutputStream,
+        currentPackageName: String = appContext.packageName
+    ) {
         val destPrefix = "shared_prefs"
-        val currentPrefsFileName = "${appContext.packageName}_preferences.xml"
+        val currentPrefsFileName = "${currentPackageName}_preferences.xml"
         val canonicalPrefsFileName = "${canonicalExportPackageName}_preferences.xml"
         dest.putNextEntry(ZipEntry("$destPrefix/"))
         srcDir.walkTopDown().forEach { f ->
@@ -96,10 +100,12 @@ object UserDataManager {
             }
             if (!f.isFile) return@forEach
             val mappedRelated = when {
-                f.name == currentPrefsFileName ->
-                    related.substring(0, related.length - f.name.length) + canonicalPrefsFileName
-                // Skip other variants' preferences files to avoid confusion on import.
-                f.name.endsWith("_preferences.xml") -> return@forEach
+                f.name == currentPrefsFileName || f.name == "$currentPrefsFileName.bak" ->
+                    related.substring(0, related.length - f.name.length) + canonicalPrefsFileName +
+                        if (f.name.endsWith(".bak")) ".bak" else ""
+                // Keep AtomicFile backups under the same portable identity as the main XML.
+                // Other variants must not contribute a competing authoritative backup.
+                f.name.removeSuffix(".bak").endsWith("_preferences.xml") -> return@forEach
                 else -> related
             }
             dest.putNextEntry(ZipEntry("$destPrefix/$mappedRelated"))

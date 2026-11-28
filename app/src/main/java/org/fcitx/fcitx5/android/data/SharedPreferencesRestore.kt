@@ -10,6 +10,13 @@ import java.io.IOException
 internal object SharedPreferencesRestore {
     internal fun fileLimit(heapBytes: Long) = minOf(16L * 1024 * 1024, (heapBytes / 16).coerceAtLeast(1024 * 1024L))
     private val valueTags = setOf("string", "set", "int", "long", "float", "boolean", "null")
+    // These values are read before ManagedPreference can supply a typed fallback.
+    private val startupValueTags = mapOf(
+        "verbose_log" to "boolean",
+        "app_prefs_migration_version" to "int",
+        "clipboard_limit" to "int",
+        "clipboard_item_timeout" to "int"
+    )
     fun normalize(directory: File) {
         if (!directory.exists()) return
         if (!directory.isDirectory) throw IOException("Invalid preferences directory")
@@ -50,6 +57,12 @@ internal object SharedPreferencesRestore {
                             2 -> {
                                 if (stack.lastOrNull() != "map" || name !in valueTags)
                                     throw IOException("Unsupported preference value type")
+                                val key = parser.getAttributeValue(null, "name")
+                                if (file.name.removeSuffix(".bak").endsWith("_preferences.xml")) {
+                                    val expectedTag = startupValueTags[key]
+                                    if (expectedTag != null && name != expectedTag)
+                                        throw IOException("Invalid preference type for $key: expected $expectedTag")
+                                }
                                 val value = parser.getAttributeValue(null, "value")
                                 val valid = when (name) {
                                     "int" -> value?.toIntOrNull() != null

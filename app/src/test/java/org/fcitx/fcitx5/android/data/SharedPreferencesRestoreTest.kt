@@ -81,6 +81,28 @@ class SharedPreferencesRestoreTest {
         assertEquals(setOf("a", null), preferences.getStringSet("set", null))
     }
 
+    @Test fun startupPreferenceTypesAreCheckedBeforeRestore() {
+        val target = File(temp.root, "org.fcitx.fcitx5.android_preferences.xml")
+        for (key in listOf("verbose_log", "app_prefs_migration_version", "clipboard_limit", "clipboard_item_timeout")) {
+            val wrong = """<map><string name="$key">true</string></map>"""
+            target.writeText(wrong)
+            assertTrue(key, runCatching { SharedPreferencesRestore.normalize(temp.root) }.isFailure)
+            assertEquals(wrong, target.readText())
+        }
+        target.writeText("""<map><boolean name="verbose_log" value="true"/>
+            <int name="app_prefs_migration_version" value="2"/>
+            <int name="clipboard_limit" value="100"/>
+            <int name="clipboard_item_timeout" value="30"/></map>""")
+        SharedPreferencesRestore.normalize(temp.root)
+    }
+
+    @Test fun startupPreferenceTypesAreCheckedInTheAuthoritativeBackup() {
+        val target = File(temp.root, "org.fcitx.fcitx5.android_preferences.xml").apply { writeText(good) }
+        File(temp.root, target.name + ".bak").writeText("""<map><int name="verbose_log" value="1"/></map>""")
+        assertTrue(runCatching { SharedPreferencesRestore.normalize(temp.root) }.isFailure)
+        assertEquals(good, target.readText())
+    }
+
     @Test fun preferenceSizeBudgetTracksSmallHeapsAndRemainsCapped() {
         assertEquals(4L * 1024 * 1024, SharedPreferencesRestore.fileLimit(64L * 1024 * 1024))
         assertEquals(16L * 1024 * 1024, SharedPreferencesRestore.fileLimit(512L * 1024 * 1024))
