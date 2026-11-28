@@ -57,6 +57,60 @@ class KeyCodecTest {
         }
     }
 
+    @Test fun independentlyKnownLegacyGraphicsHaveUnicodeMappings() {
+        // libxkbcommon src/keysym-utf.c graphical mappings, independent of the TSV column.
+        val expected = listOf(
+            "Arabic_hamzaonalef" to (0x5c3 to 0x623),
+            "Arabic_hamzaonwaw" to (0x5c4 to 0x624),
+            "Arabic_hamzaonyeh" to (0x5c6 to 0x626),
+            "Arabic_hamzaunderalef" to (0x5c5 to 0x625),
+            "Arabic_maddaonalef" to (0x5c2 to 0x622),
+            "Byelorussian_SHORTU" to (0x6be to 0x40e),
+            "Cyrillic_HARDSIGN" to (0x6ff to 0x42a),
+            "Cyrillic_SOFTSIGN" to (0x6f8 to 0x42c),
+            "Greek_ALPHAaccent" to (0x7a1 to 0x386),
+            "Greek_ETAaccent" to (0x7a3 to 0x389),
+            "Greek_IOTAaccent" to (0x7a4 to 0x38a),
+            "Greek_OMEGAaccent" to (0x7ab to 0x38f),
+            "Greek_alphaaccent" to (0x7b1 to 0x3ac),
+            "Greek_epsilonaccent" to (0x7b2 to 0x3ad),
+            "Greek_finalsmallsigma" to (0x7f3 to 0x3c2),
+            "Greek_iotaaccent" to (0x7b4 to 0x3af),
+            "Greek_iotadieresis" to (0x7b5 to 0x3ca),
+            "Greek_omegaaccent" to (0x7bb to 0x3ce),
+            "Greek_omicronaccent" to (0x7b7 to 0x3cc),
+            "Greek_upsilonaccent" to (0x7b8 to 0x3cd),
+            "Hangul_J_KkogjiDalrinIeung" to (0xef9 to 0x11f0),
+            "Hangul_J_RieulPhieuf" to (0xee1 to 0x11b5),
+            "Hangul_RieulYeorinHieuh" to (0xeef to 0x316d),
+            "Hangul_SunkyeongeumMieum" to (0xef0 to 0x3171),
+            "Hangul_SunkyeongeumPhieuf" to (0xef4 to 0x3184),
+            "Hangul_SunkyeongeumPieub" to (0xef1 to 0x3178),
+            "Odoubleacute" to (0x1d5 to 0x150),
+            "Thai_saraaimaimalai" to (0xde4 to 0xe44),
+            "Udoubleacute" to (0x1db to 0x170),
+            "Ukrainian_i" to (0x6a6 to 0x456),
+            "crossinglines" to (0x9ee to 0x253c),
+            "horizlinescan1" to (0x9ef to 0x23ba),
+            "horizlinescan3" to (0x9f0 to 0x23bb),
+            "horizlinescan7" to (0x9f2 to 0x23bc),
+            "horizlinescan9" to (0x9f3 to 0x23bd),
+            "odoubleacute" to (0x1f5 to 0x151),
+            "prolongedsound" to (0x4b0 to 0x30fc),
+            "semivoicedsound" to (0x4df to 0x309c),
+            "udoubleacute" to (0x1fb to 0x171)
+        )
+        for ((name, pair) in expected) {
+            val (sym, codePoint) = pair
+            assertEquals(name, sym, KeyCodec.parse(name).sym)
+            assertEquals(name, codePoint, KeyCodec.toUnicode(sym))
+            assertEquals(name, codePoint, KeyCodec.toUnicode(KeyCodec.fromUnicode(codePoint)))
+        }
+        for (sym in listOf(0xff51, 0xff0d, 0xffe3, 0xffb1)) {
+            assertEquals("Control and keypad keysyms stay non-text", 0, KeyCodec.toUnicode(sym))
+        }
+    }
+
     @Test fun unicodeEncodingAvoidsLegacyKeysymNumberCollisions() {
         // A raw Unicode U+03C0 is π, while X11 keysym 0x03C0 represents Ā.
         assertEquals(0x07f0, KeyCodec.fromUnicode(0x03c0))

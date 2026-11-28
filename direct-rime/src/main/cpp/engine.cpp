@@ -1094,20 +1094,14 @@ std::string Engine::currentSchema() {
     // first entry, so reporting the stored preference would disagree with the next session.
     if (fixSchemaListOrder()) return safe(list.list[0].schema_id);
     std::string preferred;
-    if (std::ifstream input{std::filesystem::path(user_) / "user.yaml"}) {
-        std::string line;
-        const std::string key = "previously_selected_schema:";
-        while (std::getline(input, line)) {
-            const auto first = line.find_first_not_of(" \t");
-            if (first == std::string::npos) continue;
-            const std::string trimmed = line.substr(first);
-            if (trimmed.compare(0, key.size(), key)) continue;
-            std::string value = trimmed.substr(key.size());
-            const auto begin = value.find_first_not_of(" \t\"");
-            const auto end = value.find_last_not_of(" \t\"");
-            if (begin != std::string::npos && end != std::string::npos)
-                preferred = value.substr(begin, end - begin + 1);
-            break;
+    // Delegate YAML syntax and the var/ path to the same config API used by librime.
+    // A compatible engine without this optional API safely falls back to schema_list.
+    if (RIME_API_AVAILABLE(api_, user_config_open) && RIME_API_AVAILABLE(api_, config_get_string) &&
+        RIME_API_AVAILABLE(api_, config_close)) {
+        RimeConfig config{};
+        if (api_->user_config_open("user", &config)) {
+            ScopeExit configCleanup([&] { api_->config_close(&config); });
+            readConfigString(api_, &config, "var/previously_selected_schema", preferred);
         }
     }
     for (size_t i = 0; i < list.size; ++i) {

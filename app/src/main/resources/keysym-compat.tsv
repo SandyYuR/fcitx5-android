@@ -110,10 +110,10 @@ Arabic_hah	5cd	1	62d
 Arabic_hamza	5c1	1	621
 Arabic_hamza_above	1000654	1
 Arabic_hamza_below	1000655	1
-Arabic_hamzaonalef	5c3	1
-Arabic_hamzaonwaw	5c4	1
-Arabic_hamzaonyeh	5c6	1
-Arabic_hamzaunderalef	5c5	1
+Arabic_hamzaonalef	5c3	1	623
+Arabic_hamzaonwaw	5c4	1	624
+Arabic_hamzaonyeh	5c6	1	626
+Arabic_hamzaunderalef	5c5	1	625
 Arabic_heh	5e7	0	647
 Arabic_heh_doachashmee	10006be	1
 Arabic_heh_goal	10006c1	1
@@ -126,7 +126,7 @@ Arabic_keheh	10006a9	1
 Arabic_khah	5ce	1	62e
 Arabic_lam	5e4	1	644
 Arabic_madda_above	1000653	1
-Arabic_maddaonalef	5c2	1
+Arabic_maddaonalef	5c2	1	622
 Arabic_meem	5e5	1	645
 Arabic_noon	5e6	1	646
 Arabic_noon_ghunna	10006ba	1
@@ -297,7 +297,7 @@ BrightnessAuto	100810f4	1
 BrightnessMax	10081251	1
 BrightnessMin	10081250	1
 Buttonconfig	10081240	1
-Byelorussian_SHORTU	6be	1
+Byelorussian_SHORTU	6be	1	40e
 Byelorussian_shortu	6ae	1	45e
 C	43	1
 CD	1008ff53	1		CD
@@ -363,7 +363,7 @@ Cyrillic_ES	6f3	1	421
 Cyrillic_GHE	6e7	1	413
 Cyrillic_GHE_bar	1000492	1
 Cyrillic_HA	6e8	1	425
-Cyrillic_HARDSIGN	6ff	1
+Cyrillic_HARDSIGN	6ff	1	42a
 Cyrillic_HA_descender	10004b2	1
 Cyrillic_I	6e9	1	418
 Cyrillic_IE	6e5	1	415
@@ -383,7 +383,7 @@ Cyrillic_SHA	6fb	1	428
 Cyrillic_SHCHA	6fd	1	429
 Cyrillic_SHHA	10004ba	1
 Cyrillic_SHORTI	6ea	1	419
-Cyrillic_SOFTSIGN	6f8	1
+Cyrillic_SOFTSIGN	6f8	1	42c
 Cyrillic_TE	6f4	1	422
 Cyrillic_TSE	6e3	1	426
 Cyrillic_U	6f5	1	423
@@ -644,17 +644,17 @@ Go	1008ff5f	1		Go
 GoTo	10081162	1
 GraphicsEditor	100811a8	1
 Greek_ALPHA	7c1	1	391
-Greek_ALPHAaccent	7a1	1
+Greek_ALPHAaccent	7a1	1	386
 Greek_BETA	7c2	1	392
 Greek_CHI	7d7	1	3a7
 Greek_DELTA	7c4	1	394
 Greek_EPSILON	7c5	1	395
 Greek_EPSILONaccent	7a2	1	388
 Greek_ETA	7c7	1	397
-Greek_ETAaccent	7a3	1
+Greek_ETAaccent	7a3	1	389
 Greek_GAMMA	7c3	1	393
 Greek_IOTA	7c9	1	399
-Greek_IOTAaccent	7a4	1
+Greek_IOTAaccent	7a4	1	38a
 Greek_IOTAdiaeresis	7a5	1	3aa
 Greek_IOTAdieresis	7a5	0	3aa
 Greek_KAPPA	7ca	1	39a
@@ -663,7 +663,7 @@ Greek_LAMDA	7cb	0	39b
 Greek_MU	7cc	1	39c
 Greek_NU	7cd	1	39d
 Greek_OMEGA	7d9	1	3a9
-Greek_OMEGAaccent	7ab	1
+Greek_OMEGAaccent	7ab	1	38f
 Greek_OMICRON	7cf	1	39f
 Greek_OMICRONaccent	7a7	1	38c
 Greek_PHI	7d6	1	3a6
@@ -680,30 +680,30 @@ Greek_XI	7ce	1	39e
 Greek_ZETA	7c6	1	396
 Greek_accentdieresis	7ae	1	385
 Greek_alpha	7e1	1	3b1
-Greek_alphaaccent	7b1	1
+Greek_alphaaccent	7b1	1	3ac
 Greek_beta	7e2	1	3b2
 Greek_chi	7f7	1	3c7
 Greek_delta	7e4	1	3b4
 Greek_epsilon	7e5	1	3b5
-Greek_epsilonaccent	7b2	1
+Greek_epsilonaccent	7b2	1	3ad
 Greek_eta	7e7	1	3b7
 Greek_etaaccent	7b3	1	3ae
-Greek_finalsmallsigma	7f3	1
+Greek_finalsmallsigma	7f3	1	3c2
 Greek_gamma	7e3	1	3b3
 Greek_horizbar	7af	1	2015
 Greek_iota	7e9	1	3b9
-Greek_iotaaccent	7b4	1
+Greek_iotaaccent	7b4	1	3af
 Greek_iotaaccentdieresis	7b6	1	390
-Greek_iotadieresis	7b5	1
+Greek_iotadieresis	7b5	1	3ca
 Greek_kappa	7ea	1	3ba
 Greek_lambda	7eb	1	3bb
 Greek_lamda	7eb	0	3bb
 Greek_mu	7ec	1	3bc
 Greek_nu	7ed	1	3bd
 Greek_omega	7f9	1	3c9
-Greek_omegaaccent	7bb	1
+Greek_omegaaccent	7bb	1	3ce
 Greek_omicron	7ef	1	3bf
-Greek_omicronaccent	7b7	1
+Greek_omicronaccent	7b7	1	3cc
 Greek_phi	7f6	1	3c6
 Greek_pi	7f0	1	3c0
 Greek_psi	7f8	1	3c8
@@ -713,7 +713,7 @@ Greek_switch	ff7e	0
 Greek_tau	7f4	1	3c4
 Greek_theta	7e8	1	3b8
 Greek_upsilon	7f5	1	3c5
-Greek_upsilonaccent	7b8	1
+Greek_upsilonaccent	7b8	1	3cd
 Greek_upsilonaccentdieresis	7ba	1	3b0
 Greek_upsilondieresis	7b9	1	3cb
 Greek_xi	7ee	1	3be
@@ -745,7 +745,7 @@ Hangul_J_Jieuj	ee9	1	11bd
 Hangul_J_Khieuq	eeb	1	11bf
 Hangul_J_Kiyeog	ed4	1	11a8
 Hangul_J_KiyeogSios	ed6	1	11aa
-Hangul_J_KkogjiDalrinIeung	ef9	1
+Hangul_J_KkogjiDalrinIeung	ef9	1	11f0
 Hangul_J_Mieum	ee3	1	11b7
 Hangul_J_Nieun	ed7	1	11ab
 Hangul_J_NieunHieuh	ed9	1	11ad
@@ -758,7 +758,7 @@ Hangul_J_Rieul	edb	1	11af
 Hangul_J_RieulHieuh	ee2	1	11b6
 Hangul_J_RieulKiyeog	edc	1	11b0
 Hangul_J_RieulMieum	edd	1	11b1
-Hangul_J_RieulPhieuf	ee1	1
+Hangul_J_RieulPhieuf	ee1	1	11b5
 Hangul_J_RieulPieub	ede	1	11b2
 Hangul_J_RieulSios	edf	1	11b3
 Hangul_J_RieulTieut	ee0	1	11b4
@@ -796,7 +796,7 @@ Hangul_RieulPhieuf	eaf	1	313f
 Hangul_RieulPieub	eac	1	313c
 Hangul_RieulSios	ead	1	313d
 Hangul_RieulTieut	eae	1	313e
-Hangul_RieulYeorinHieuh	eef	1
+Hangul_RieulYeorinHieuh	eef	1	316d
 Hangul_Romaja	ff36	1		Hangul Romaja
 Hangul_SingleCandidate	ff3c	1
 Hangul_Sios	eb5	1	3145
@@ -807,9 +807,9 @@ Hangul_SsangKiyeog	ea2	1	3132
 Hangul_SsangPieub	eb3	1	3143
 Hangul_SsangSios	eb6	1	3146
 Hangul_Start	ff32	1		Hangul Start
-Hangul_SunkyeongeumMieum	ef0	1
-Hangul_SunkyeongeumPhieuf	ef4	1
-Hangul_SunkyeongeumPieub	ef1	1
+Hangul_SunkyeongeumMieum	ef0	1	3171
+Hangul_SunkyeongeumPhieuf	ef4	1	3184
+Hangul_SunkyeongeumPieub	ef1	1	3178
 Hangul_Tieut	ebc	1	314c
 Hangul_U	ecc	1	315c
 Hangul_WA	ec8	1	3158
@@ -1157,7 +1157,7 @@ Ocircumflexgrave	1001ed2	1
 Ocircumflexhook	1001ed4	1
 Ocircumflextilde	1001ed6	1
 Odiaeresis	d6	1
-Odoubleacute	1d5	1
+Odoubleacute	1d5	1	150
 OfficeHome	1008ff6a	1		Home Office
 Ograve	d2	1
 Ohook	1001ece	1
@@ -1522,7 +1522,7 @@ Thai_ru	dc4	1	e24
 Thai_saraa	dd0	1	e30
 Thai_saraaa	dd2	1	e32
 Thai_saraae	de1	1	e41
-Thai_saraaimaimalai	de4	1
+Thai_saraaimaimalai	de4	1	e44
 Thai_saraaimaimuan	de3	1	e43
 Thai_saraam	dd3	1	e33
 Thai_sarae	de0	1	e40
@@ -1567,7 +1567,7 @@ Ubelowdot	1001ee4	1
 Ubreve	2dd	1	16c
 Ucircumflex	db	1
 Udiaeresis	dc	1
-Udoubleacute	1db	1
+Udoubleacute	1db	1	170
 Ugrave	d9	1
 Uhook	1001ee6	1
 Uhorn	10001af	1
@@ -1581,7 +1581,7 @@ Ukrainian_I	6b6	1	406
 Ukrainian_IE	6b4	1	404
 Ukrainian_YI	6b7	1	407
 Ukrainian_ghe_with_upturn	6ad	1	491
-Ukrainian_i	6a6	1
+Ukrainian_i	6a6	1	456
 Ukrainian_ie	6a4	1	454
 Ukrainian_yi	6a7	1	457
 Ukranian_I	6b6	0	406
@@ -1999,7 +1999,7 @@ comma	2c	1
 containsas	100220b	1
 copyright	a9	1
 cr	9e4	1	240d
-crossinglines	9ee	1
+crossinglines	9ee	1	253c
 cuberoot	100221b	1
 currency	a4	1
 cursor	aff	1
@@ -2200,11 +2200,11 @@ hebrew_zain	ce6	1	5d6
 hebrew_zayin	ce6	0	5d6
 hexagram	ada	1
 horizconnector	8a3	1	2500
-horizlinescan1	9ef	1
-horizlinescan3	9f0	1
+horizlinescan1	9ef	1	23ba
+horizlinescan3	9f0	1	23bb
 horizlinescan5	9f1	1	2500
-horizlinescan7	9f2	1
-horizlinescan9	9f3	1
+horizlinescan7	9f2	1	23bc
+horizlinescan9	9f3	1	23bd
 hpBackTab	1000ff74	0
 hpClearLine	1000ff6f	0
 hpDeleteChar	1000ff73	0
@@ -2400,7 +2400,7 @@ ocircumflexgrave	1001ed3	1
 ocircumflexhook	1001ed5	1
 ocircumflextilde	1001ed7	1
 odiaeresis	f6	1
-odoubleacute	1f5	1
+odoubleacute	1f5	1	151
 oe	13bd	1	153
 ogonek	1b2	1	2db
 ograve	f2	1
@@ -2486,7 +2486,7 @@ phonographcopyright	afb	1	2117
 plus	2b	1
 plusminus	b1	1
 prescription	ad4	1	211e
-prolongedsound	4b0	1
+prolongedsound	4b0	1	30fc
 punctspace	aa6	1	2008
 q	71	1
 quad	bcc	1	2395
@@ -2524,7 +2524,7 @@ script_switch	ff7e	0
 seconds	ad7	1	2033
 section	a7	1
 semicolon	3b	1
-semivoicedsound	4df	1
+semivoicedsound	4df	1	309c
 seveneighths	ac6	1	215e
 sevensubscript	1002087	1
 sevensuperior	1002077	1
@@ -2579,7 +2579,7 @@ ubelowdot	1001ee5	1
 ubreve	2fd	1	16d
 ucircumflex	fb	1
 udiaeresis	fc	1
-udoubleacute	1fb	1
+udoubleacute	1fb	1	171
 ugrave	f9	1
 uhook	1001ee7	1
 uhorn	10001b0	1

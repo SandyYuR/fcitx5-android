@@ -49,7 +49,8 @@ struct Fake {
     // Mirrors default.yaml's switcher/save_options and the user config it writes.
     std::vector<std::string> saveOptions{"ascii_punct", "s2t"};
     std::map<std::string, bool> savedOptions;
-    int userConfigOpens = 0;
+    int userConfigOpens = 0, schemaPreferenceReads = 0;
+    std::string preferredSchema;
     int keys = 0, mask = 0, created = 0, destroyed = 0, freedCommit = 0;
     int setups = 0, initialized = 0, finalized = 0, selected = -1, freedTabs = 0, freedCodes = 0;
     int logLevel = -1;
@@ -243,6 +244,11 @@ RimeApi api() {
     a.schema_open = [](const char*, RimeConfig* config) -> Bool { config->ptr = &f; return true; };
     a.config_get_string = [](RimeConfig*, const char* key, char* value, size_t size) -> Bool {
         const std::string name(key);
+        if (name == "var/previously_selected_schema") {
+            ++f.schemaPreferenceReads;
+            if (f.preferredSchema.empty()) return false;
+            std::snprintf(value, size, "%s", f.preferredSchema.c_str()); return true;
+        }
         if (name == "translator/dictionary") {
             std::snprintf(value, size, "%s", f.dictionary.c_str()); return true;
         }
@@ -1178,7 +1184,8 @@ void testUsableDeploymentWarning() {
     std::ofstream(selectedBuild / "second.schema.yaml") << "keep data";
     std::ofstream(selectedBuild / "test.table.bin") << "keep data";
     std::ofstream(selectedBuild / "test.prism.bin") << "keep data";
-    std::ofstream(selectedUser / "user.yaml") << "var:\n  previously_selected_schema: second\n";
+    std::ofstream(selectedUser / "user.yaml") << "var:\n  previously_selected_schema: 'second' # restored schema\n";
+    f.preferredSchema = "second"; // Decoded by librime, not by the frontend.
     selected.start(shared.string(), selectedUser.string(), "development", true);
     CHECK(selected.deploymentDegraded() && selected.begin(1, "editor").gate == Ready);
     selected.stop();
@@ -1362,14 +1369,34 @@ void testCurrentSchemaPreference() {
     f = {}; f.schemas = {{"first", "First"}, {"second", "Second"}};
     auto a = api(); Engine engine(&a); engine.start("shared", user.string());
     CHECK(engine.currentSchema() == "first");
-    std::ofstream(user / "user.yaml") << "var:\n  previously_selected_schema: second\n";
-    CHECK(engine.currentSchema() == "second");
+    // The fake exposes librime's decoded scalar. The file deliberately includes syntax
+    // and a wrong-scope decoy that the old frontend line parser interpreted differently.
+    for (const auto* yaml : {"var:\n  previously_selected_schema: second\n",
+                             "var:\n  previously_selected_schema: 'second'\n",
+                             "var:\n  previously_selected_schema: second # comment\n",
+                             "other:\n  previously_selected_schema: first\nvar:\n  previously_selected_schema: \"second\"\n"}) {
+        std::ofstream(user / "user.yaml") << yaml;
+        f.preferredSchema = "second";
+        const auto reads = f.schemaPreferenceReads;
+        CHECK(engine.currentSchema() == "second" && f.schemaPreferenceReads == reads + 1);
+    }
+    // A non-var key must not be read as the preference.
+    std::ofstream(user / "user.yaml") << "other:\n  previously_selected_schema: second\n";
+    f.preferredSchema.clear(); CHECK(engine.currentSchema() == "first");
     // Fixed ordering makes librime ignore the stored preference for a new session.
-    f.fixSchemaListOrder = true;
-    CHECK(engine.currentSchema() == "first");
+    f.preferredSchema = "second"; f.fixSchemaListOrder = true;
+    const auto reads = f.schemaPreferenceReads;
+    CHECK(engine.currentSchema() == "first" && f.schemaPreferenceReads == reads);
     f.fixSchemaListOrder = false;
-    std::ofstream(user / "user.yaml") << "var:\n  previously_selected_schema: \"third\"\n";
+    f.preferredSchema = "third"; CHECK(engine.currentSchema() == "first");
+    const auto complete = a;
+    a.user_config_open = nullptr; CHECK(engine.currentSchema() == "first");
+    a = complete; a.config_get_string = nullptr; CHECK(engine.currentSchema() == "first");
+    a = complete; a.config_close = nullptr; CHECK(engine.currentSchema() == "first");
+    a = complete;
+    a.user_config_open = [](const char*, RimeConfig*) -> Bool { return false; };
     CHECK(engine.currentSchema() == "first");
+    a = complete;
     engine.stop();
 }
 }
