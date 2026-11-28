@@ -168,6 +168,25 @@ class StatsVisualsTest {
         assertEquals(listOf("space", "a"), chart.barLayoutSnapshot().map { it.label })
     }
 
+    @Test fun capturedHeatmapDoesNotTruncateManyRowsOrWideRows() = host { activity, context ->
+        val chart = StatsChartView(context)
+        val manyRows = (0 until 17).map { i -> listOf(StatsChartView.HeatKey("key$i", "K$i", 0f, 1f)) }
+        chart.setKeyboardHeatmap(mapOf("key16" to 7L), manyRows)
+        attach(activity, chart, height = 2000)
+        assertEquals(17, chart.heatLayoutSnapshot().size)
+        assertTrue(chart.contentDescription.toString().contains("K16: 7"))
+        val wideRow = (0 until 49).map { i -> StatsChartView.HeatKey("key$i", "K$i", i.toFloat(), 1f) }
+        chart.setKeyboardHeatmap(mapOf("key48" to 9L), listOf(wideRow))
+        attach(activity, chart, width = 2000)
+        assertEquals(49, chart.heatLayoutSnapshot().size)
+        assertTrue(chart.contentDescription.toString().contains("K48: 9"))
+        val oversized = (0 until 129).map { i -> StatsChartView.HeatKey("key$i", "K$i", i.toFloat(), 1f) }
+        chart.setKeyboardHeatmap(mapOf("key128" to 11L), listOf(oversized))
+        attach(activity, chart)
+        assertTrue(chart.heatLayoutSnapshot().isEmpty())
+        assertEquals(listOf("key128"), chart.barLayoutSnapshot().map { it.label })
+    }
+
     private fun qwertyRows(split: Boolean = false): List<List<StatsChartView.HeatKey>> {
         fun key(id: String, label: String, x: Float, width: Float) =
             StatsChartView.HeatKey(id, label, x + if (split && x >= 5f) 1.25f else 0f, width)

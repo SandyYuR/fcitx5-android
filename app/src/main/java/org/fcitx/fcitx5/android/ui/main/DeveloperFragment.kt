@@ -37,14 +37,18 @@ class DeveloperFragment : PaddingPreferenceFragment() {
 
     private val viewModel: MainViewModel by activityViewModels()
 
-    private lateinit var hprofFile: File
+    private var hprofFile: File? = null
     private lateinit var launcher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hprofFile = pendingHeapDump(requireContext().cacheDir, savedInstanceState?.getString(STATE_HEAP_DUMP))
         launcher = registerForActivityResult(CreateDocument("application/octet-stream")) { uri ->
+            val dumpFile = hprofFile
+            hprofFile = null
+            if (dumpFile == null) return@registerForActivityResult
             if (uri == null) {
-                hprofFile.delete()
+                dumpFile.delete()
                 return@registerForActivityResult
             }
             val ctx = requireContext()
@@ -52,7 +56,7 @@ class DeveloperFragment : PaddingPreferenceFragment() {
                 try {
                     withContext(Dispatchers.IO) {
                         ctx.contentResolver.openOutputStream(uri)!!.use { o ->
-                            hprofFile.inputStream().use { i -> i.copyTo(o) }
+                            dumpFile.inputStream().use { i -> i.copyTo(o) }
                         }
                     }
                 } catch (e: Exception) {
@@ -60,7 +64,7 @@ class DeveloperFragment : PaddingPreferenceFragment() {
                 } finally {
                     withContext(NonCancellable) {
                         withContext(Dispatchers.IO) {
-                            hprofFile.delete()
+                            dumpFile.delete()
                         }
                     }
                 }
@@ -148,11 +152,30 @@ class DeveloperFragment : PaddingPreferenceFragment() {
             }
             addPreference(R.string.capture_heap_dump) {
                 val fileName = "${context.packageName}_${iso8601UTCDateTime()}.hprof"
-                hprofFile = context.cacheDir.resolve(fileName)
+                val dumpFile = context.cacheDir.resolve(fileName)
                 System.gc()
-                Debug.dumpHprofData(hprofFile.absolutePath)
+                Debug.dumpHprofData(dumpFile.absolutePath)
+                hprofFile = dumpFile
                 launcher.launch(fileName)
             }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(STATE_HEAP_DUMP, hprofFile?.name)
+    }
+
+    internal companion object {
+        private const val STATE_HEAP_DUMP = "pending_heap_dump"
+
+        internal fun pendingHeapDump(cacheDir: File, name: String?): File? {
+            if (name.isNullOrBlank() || File(name).name != name || !name.endsWith(".hprof")) return null
+            return runCatching {
+                File(cacheDir, name).takeIf {
+                    it.isFile && it.canonicalFile.parentFile == cacheDir.canonicalFile
+                }
+            }.getOrNull()
         }
     }
 

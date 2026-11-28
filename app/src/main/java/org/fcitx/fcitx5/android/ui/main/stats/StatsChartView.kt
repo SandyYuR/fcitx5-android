@@ -116,8 +116,10 @@ class StatsChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         counts = validCounts(values)
         entries = counts.entries.sortedWith(compareByDescending<Map.Entry<String, Long>> { it.value }.thenBy { it.key })
             .map { Entry(it.key, it.value) }
-        heatRows = rows.take(16).map { row ->
-            row.take(48).filter { it.keyId.isNotBlank() && it.label.length <= 128 &&
+        // Captured layouts support 32 rows / 128 keys in total, with no per-row limit.
+        // Oversized geometry falls back to the complete frequency list instead of truncating it.
+        heatRows = if (rows.size > 32 || rows.sumOf { it.size } > 128) emptyList() else rows.map { row ->
+            row.filter { it.keyId.isNotBlank() && it.label.length <= 128 &&
                 it.x.isFinite() && it.x >= 0 && it.width.isFinite() && it.width > 0 &&
                 (it.x + it.width).isFinite() && it.height.isFinite() && it.height > 0 }
                 .sortedBy { it.x }

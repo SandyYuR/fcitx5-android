@@ -25,7 +25,7 @@ internal class ShareReceiveDirectoryPicker(private val activity: Activity) {
 
     fun lastDirectoryOr(defaultValue: String): String =
         if (prefs.internal.lastShareReceiveDirectoryRemembered.getValue()) {
-            normalizeRelativePath(prefs.internal.lastShareReceiveDirectory.getValue()).ifBlank { defaultValue }
+            normalizeRelativePath(prefs.internal.lastShareReceiveDirectory.getValue())
         } else {
             defaultValue
         }
