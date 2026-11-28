@@ -185,9 +185,9 @@ rename／delete 先检查 profile 未被引用。活动 profile 的 rename 首�
 
 ### EVO 部署降级
 
-`Engine::deploy()`／`start()` 收到 `deploy/failure` 不得改写成成功，也不得忽略失败通知。应用侧把“部署任务失败”和“当前工作区可用”分开判定：只有 `<user>/build/default.yaml` 是普通文件、`get_schema_list` 非空、当前方案的 `build/<schema>.schema.yaml` 非空，且当前方案 `translator/dictionary` 对应 `build/<dict>.table.bin` 与 `build/<prism>.prism.bin` 都存在且非空，才可清除 `deployFailed_` 并置 `deployDegraded_`；任一条件不满足继续失败关闭。主 prism 按方案解析：优先 `translator/prism`；`translator/prisms` 引用 `input_types` 时按当前输入类型取对应 `name`，列表形式取首项；两者都未声明时使用 `build/dictionaries/<dict>/algebra` 的首个分组。显式名称优先限定为 `<dict>.<prism>`。没有活动会话时，按 `switcher/fix_schema_list_order` 和 `user.yaml` 的 `previously_selected_schema` 选择当前方案；命中的方案必须在 `get_schema_list` 中。引擎 API 不完整时退回 YAML 与文件检查。
+`Engine::deploy()`／`start()` 收到 `deploy/failure` 不得改写成成功，也不得忽略失败通知。应用侧把“部署任务失败”和“当前工作区可用”分开判定：只有 `<user>/build/default.yaml` 是普通文件、`get_schema_list` 非空、当前方案的 `build/<schema>.schema.yaml` 非空，且当前方案 `translator/dictionary` 对应 `build/<dict>.table.bin` 与 `build/<prism>.prism.bin` 都存在且非空，才可清除 `deployFailed_` 并置 `deployDegraded_`；任一条件不满足继续失败关闭。主 prism 按方案解析：优先 `translator/prism`；`translator/prisms` 引用 `input_types` 时按当前输入类型取对应 `name`，列表形式取首项；两者都未声明时使用 `build/dictionaries/<dict>/algebra` 的首个分组。显式名称优先限定为 `<dict>.<prism>`。没有活动会话时，`switcher/fix_schema_list_order` 为真则使用 `get_schema_list` 首项；否则仅通过 `user_config_open("user")`、`config_get_string("var/previously_selected_schema")` 和 `config_close` 读取偏好，命中的方案必须在该列表中。配置读取失败或缺少这些可选接口时使用列表首项，不手写 YAML 行解析器，也不为查询建立输入会话。词典与 prism 的查询接口不完整时，相关可用性检查仍可退回 YAML 与文件检查。
 
-`gate()` 仍以 `deployFailed_` 为准；降级只解除输入门禁，不等于部署成功、方案完整、词典全部编译或模型能力可用。日志、缺失文件和失败通知保持原样，不自动补文件。回归 `engine_test.cc` 的可用性用例（主词典、主 prism 解析、`input_types/reset`、`enabled/@0`、`fix_schema_list_order` 与缺文件拒绝）和 `RimeEngineVariantDeviceTest` 的原样方案部署。
+`gate()` 仍以 `deployFailed_` 为准；降级只解除输入门禁，不等于部署成功、方案完整、词典全部编译或模型能力可用。日志、缺失文件和失败通知保持原样，不自动补文件。回归 `engine_test.cpp` 的可用性用例（主词典、主 prism 解析、`input_types/reset`、`enabled/@0`、`fix_schema_list_order` 与缺文件拒绝）和 `RimeEngineVariantDeviceTest` 的原样方案部署；`ReviewNativeConfigDeviceTest` 在真实 librime 上另核对无会话选择的引号、注释、错误键路径及列表回退，主机 fake API 测试不代替真实 YAML 解析。
 
 ### EVO 输入类型
 
@@ -226,7 +226,7 @@ startup 每轮在原 try 外先重置 selection／newActivation，再进入 asse
 - 完整备份先通过 `FcitxDaemon.beginUserDataBackup` 暂停原生写入，再生成缓存归档；`save()` 不能证明 Rime/LevelDB 已停止写入。恢复同样使用已有停机与事务入口。
 - 共享目录在归档期间被其他写入者修改时须报错。多个输入法各用独立工作库，不删数据库或 `LOCK` 绕过占用。
 - 更新 `app/src/main/assets/bundled/` 内布局或主题时，在 `data/BundledPresets.kt` 的 `assetSizes` 登记上一版字节数，并在 `originalAssetDigests` 登记已核实旧版内容的 SHA-256；只有长度和摘要同时匹配才能替换。退役资源也必须双重匹配才删除，同长用户改写和摘要未知的旧文件均保留。
-- 用实际旧 Git 对象或发布资产核对尺寸及摘要，不推测历史 APK 的换行字节。纠正登记时，安装器还记录本次更新所匹配的旧尺寸，已有文件只更新可确认的未改原版，保留用户修改。目标文件缺失时不受旧处理记录阻止，按原名补装；删除内置主题不能作为长期禁用补装的标记。`BundledPresetsUpgradeTest` 使用真实旧谷歌图标 JSON 检查升级、同长修改保留、错误旧标记和缺失补装。
+- 用实际旧 Git 对象或发布资产核对尺寸及摘要，不推测历史 APK 的换行字节。纠正登记时，安装器还记录本次更新所匹配的旧版 SHA-256，已有文件只更新可确认的未改原版，保留用户修改。目标文件缺失时不受旧处理记录阻止，按原名补装；删除内置主题不能作为长期禁用补装的标记。`BundledPresetsUpgradeTest` 使用真实旧谷歌图标 JSON 检查升级、同长修改保留、错误旧标记和缺失补装。
 - Debug 与 Release 的包名隔离属于迁移约定。文件图标的真实位置是 `input/config/ButtonIconFile.kt`，主题文件管理在 `data/theme/ThemeFilesManager.kt`。
 
 应用私有文件的原子写入通过 `FileUtil.writeAtomically` 完成。`FilePathGuard.resolveWritePath` 仅将系统 `Context.applicationInfo.dataDir` 作为可信根，允许该根本身的系统路径别名；根内目标、父目录和临时文件仍须逐级拒绝符号链接或规范路径越界。目标不在可信根内，或无法取得应用 Context 时，继续使用完整祖先检查。写入和同步临时文件后，只有原子替换成功才能报告完成，失败保留原件。`FilePathGuardTest` 覆盖宿主文件系统分支，`FileUtilAppDirectoryDeviceTest` 覆盖真实 Android 私有目录写入、失败保留及根内链接拒绝。
@@ -260,10 +260,12 @@ startup 每轮在原 try 外先重置 selection／newActivation，再进入 asse
 | 分体行标记只位于行首，首键隐藏或被移动/删除/替换时仍保留；复制单键不复制整行设置 | `SplitRowLayoutPolicy`、`LayoutKeyOperations`、`LayoutJsonUtils.parseKeyJsonArray` |
 | “合成中”只作用于普通键盘布局预览，不修改保存内容或实际输入状态；常规文本编辑布局与 Foxy `text_editor` 的专用面板预览都不叠加合成态 | `KeyboardPreviewManager`、`TextKeyboardLayoutEditorActivity` |
 | 候选预设是写值动作，不切换模式，数值保持偏好允许范围 | `AppPrefs.Candidates`、`CandidatesPresetsTest` |
-| 符号、表情、颜文字使用 catalog 与 locale 回退，面板独占键盘区 | 不改 `recentKey` / `Emoticon`；中文术语用“自定义/自訂” |
+| 符号、表情、颜文字使用 catalog 与 locale 回退，面板独占键盘区；长按浮层仅在有效抬手时提交，取消触摸只关闭浮层 | 不改 `recentKey` / `Emoticon`；中文术语用“自定义/自訂”；`SymbolPanelUi` 的取消分支派发 `DismissAction`，不触发选中项 |
 | 常规文本编辑按偏好解析当前 profile，Foxy 底栏固定读取 `text_editor`，两条读取路径独立 | `TextEditingLayoutResolver`、`TextEditingLayoutLoader.load` / `loadSwipeBar`；新动作仍须进入 `TextEditingWindow.executeTextEditingAction` |
 
 字段的用户说明见[按键参考](/features/keys/overview)和[布局编辑器](/features/editor/layout-editor)。特别注意：当前 SymbolKey 默认发送标准句号供方案处理，键面标签不等于上屏字符。
+
+应用正文的左右光标移动由 `HorizontalCursorMover` 读取实际 `InputConnection` 位置与最多两个相邻 UTF-16 码元后调用 `setSelection`，不得落到代理对中间。没有绝对快照且预测位置尚未确认时不继续预测；位置或邻文无效、文本边界、不完整代理对均停止，`setSelection` 拒绝时撤销预测，不退回 DPAD 焦点导航。该规则只保证代理对边界，不是组合音标或 ZWJ 字形簇分段；与 Rime 编码区 UTF-8 光标映射分开维护。
 
 标点键面与弹出项按布局和预设原文展示，`TextKeyboard.refreshSymbolKeyLabels` 保留样式刷新、辅助标签、字母大小写和显式显示文本的边界，`PopupComponent` 不再通过 Fcitx 标点映射替换标签。旧 `transformPunctuation` 字段继续兼容读取，但不能重接 `PunctuationComponent`、`PunctuationManager`、`chttrans` 页面或旧回调。Rime 的 `punctuator`、通用 YAML 预设和 OpenCC 数据继续保留；`TextKeyboardLabelsTest` 与真实 `DirectRimeFrontendTest.symbolKeysAndPopupsUseRimePunctuation` 分别验证键面和引擎上屏。
 
@@ -301,7 +303,7 @@ AI、剪贴板搜索和剪贴板编辑共用的 `JsAppDialog` 位于父 IME 窗�
 
 恢复进程的 UI 只读取主题资源，不可为统一外观引入偏好读取、主题管理器初始化或原生引擎。`restoreUiContext` 与主进程的 `SettingsUiPreferences.themedContext` 用途不同。
 
-图片主题保存先写独立资源，最后原子发布主题定义；发布前的失败不得修改原主题图片。编辑器在持久化完成后才返回结果，未保存状态只携带轻量主题信息与私有缓存文件引用，不将大 Bitmap 放入 Bundle。
+图片主题保存或同名 ZIP 导入替换，均先写具有独立新身份的原图与裁剪图，提取并校验完成后才原子发布主题定义；提取或发布失败保留原定义及原图。定义持久化后才回收不再引用的资源，不能提前删除仍被其它主题共享的旧图。ZIP 目录项也计入条目总数，其携带的数据与普通文件一样受解压预算限制。编辑器在持久化完成后才返回结果，未保存状态只携带轻量主题信息与私有缓存文件引用，不将大 Bitmap 放入 Bundle。
 
 主题库按名称身份保留当前/日间/夜间选择，列表增删、移动或重命名不能依赖旧索引做位移推算；预览子视图须按卡片裁剪。普通表单与 AI 共用 `WrappingActionRow`，控件换行不改变事件 ID、编辑内容或保存时序。插件分组仍使用原始字段声明及 `visibleWhen`，密钥概况只复用 IO 中取得的状态。
 
@@ -326,7 +328,7 @@ AI、剪贴板搜索和剪贴板编辑共用的 `JsAppDialog` 位于父 IME 窗�
 - `InputStatisticsSource` 只随原有真实按键 ticket 进入串行任务，保留编辑器代次和统计 epoch。`DirectRimeBackend` 将是否统计的布尔值随同一次 key/action JNI 调用传入；原生端仅返回打包为 `Long` 的操作前 UTF-16 码元长度与命令标记，不另调用 `Native.rawInput`，也不为统计生成 Java 原始编码字符串。用于速度分段的 `composing` 取操作后已有 Snapshot 的 preedit 状态，经按键与提交事件传到 actor；首键开始组合、退格清空、顶功自动上屏后仍留新组合都必须保留正确后态。关闭统计不增加这次 `get_input` 观察；开启时仍需读取并扫描原生编码，不能宣称零开销。汉字提交在 Service 确认原应用接受后记录，不能把状态刷新、重复快照或本地编辑连接当作上屏成功。
 - `InputEventQueue` 在纯展示合并批次中按原顺序归集统计附属记录，生成最多 1024 条 entries 的 `StatisticsKeysEvent`，不再让每个统计键成为展示合并边界。真实 commit、forward、delete 和生命周期事件仍完整保序，不因统计而丢弃或合并。统计来源代次或 epoch 更换时移除旧附属记录；容量溢出只减少可选统计，经 `recordDropped` 反馈到 `rejectedEvents`，不能阻断真实输入或把少统计描述成丢键。
 - Service 和 `InputStats` 双重检查敏感条件及启用状态。密码、可见／网页密码、PIN、禁止个性化学习、`TYPE_NULL`、首次解锁前与内部编辑不记录。关闭／重新开启、清除或导入会推进 epoch，拒绝旧源票据；actor 在有序操作边界复核，清除前已接收的事件不能在清除之后复活。
-- 按键计数与热图分别来自准许的 Rime DOWN 和真实软键按压。热图方案来自引擎实际选中项，不使用统计页筛选；布局只在变化时生成快照，宏按键只取键面名称。`KeyboardStatisticsLayout` 限制行数与键数，拒绝占位键和不可交互键。
+- 按键计数与热图分别来自准许的 Rime DOWN 和真实软键按压。热图方案来自引擎实际选中项，不使用统计页筛选；布局只在变化时生成快照，宏按键只取键面名称。`KeyboardStatisticsLayout` 拒绝占位键和不可交互键，捕获最多 32 行、总计 128 键。`StatsChartView` 接受同一几何预算，不再另按 16 行或每行 48 键截去尾部；收到超预算几何时整体回退为完整按键频次图，不绘制部分键盘。这里是几何预算，不扩大每日期／方案的热力标签数量。
 - `InputStats` 在单个 IO actor 中使用 SQLite 批量持久化，输入路径仅排队有界值。数据库位于 `noBackupFilesDir/input-stats`，防止普通整包备份未经一致性快照直接复制活跃数据库；专用 JSON 导入先校验、保留本机备份，再通过事务替换，不改变记录开关。
 - `EndSession` 与已经接收的按键、提交命令按 FIFO 顺序处理。重复结束只能在没有新输入隔开的相邻边界间合并，不能因前一个结束命令尚未消费而吞掉后一个编辑器的边界。`onFinishInputView` 也结束速度段，防止隐藏键盘并清空原生组合后仍将后台停顿算入旧段。
 - 统计关闭或没有待保存数据、待结束输入段时，actor 阻塞等待命令，不做每秒轮询。待保存数据以首次变更后一秒为固定期限，连续输入不推迟期限，达到 64 个样本可提前写入；未完成合成且数据已保存时也不设置定时唤醒。非合成段只保留一次五秒以上的结束期限，已排队输入先处理，不能被空闲结束操作越过。`StatsActorScheduleTest` 通过纯调度策略检查这些边界，不用机器耗时阈值代替正确性断言。
@@ -356,6 +358,7 @@ AI、剪贴板搜索和剪贴板编辑共用的 `JsAppDialog` 位于父 IME 窗�
 - `WanxiangAdvancedFiles.snapshot` 只读源配置、补丁与现有编译配置，不删除 `build/` 或隐式重建。共享默认配置可以读取；修复部署是单独的显式操作。草稿经指纹和目标核验后才进入保存事务，失败保留草稿并恢复被替换文件。
 - 取消短语／简码关联须写入空 `dictionary` 引用。只调用 `reset` 删除补丁会重新露出源文件默认关联，导致取消勾选无效；这一点不能照搬上游相同的删除补丁逻辑。`WanxiangCommonSettingsTest` 覆盖补丁和直写模式下取消、重载及重新关联。
 - `WanxiangYaml.fields` 除源文件字段外还枚举本地补丁新增路径，保持原有指令和注释处理。否则“添加配置项”保存后会从列表消失；`WanxiangAdvancedSettingsTest` 覆盖保存、重新打开和再次编辑。
+- `WanxiangYaml` 在构造值之前先校验节点图，拒绝循环引用；最大路径深度为 40，唯一节点和按别名重复计算的展开节点各不超过 100000，图边不超过 200000。输入文本、重复引用展开后的标量字符总量，以及包含注释和格式的序列化输出，分别限制为 2097152 个 UTF-16 代码单元（Kotlin `String.length`）；序列化在追加超限片段之前拒绝。编辑后生成的节点和等价比较遵守同样的图与文本预算，`WanxiangYamlBudgetTest` 覆盖共享别名、深链、循环和输出限额。这些限制适用于万象配置编辑路径，不代表 librime 通用 YAML 加载器采用相同预算。
 - 恢复高级设置草稿时先校验已有指纹，再补载在保存实例状态时尚未完成的文件选择；已有编辑不能被重载覆盖。移除 `/=`、嵌套替换或映射合并覆盖须保留相邻字段的含义，复杂祖先补丁无法安全拆分时明确拒绝并保留整份草稿；后来的父字段编辑应移除已有子路径覆盖，不能依赖 YAML 插入顺序绕过 Rime 自身的路径排序。
 
 页面继续使用 `SettingsUiActivity`、`EditorUi`、`MaterialSpinner` 与 `WrappingActionRow`，按范围隐藏不生效的选项，并将更新／保存状态与当前操作放在容易触及的位置。短窗口应能滚动到全部操作；用户步骤见[万象更新与高级设置](/manual/DIRECT_RIME_USER_GUIDE_zh-CN#万象更新与高级设置)。

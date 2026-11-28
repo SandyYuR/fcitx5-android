@@ -49,7 +49,7 @@ APK 内置固定版本的 librime、Lua 运行时和引擎插件；重新启动�
 
 使用 librime-evo 引擎和部分方案时，部署日志可能仍显示 failure，例如方案缺少只被间接引用的包装词典。只要当前工作目录已生成 `build/default.yaml`、引擎能列出方案、当前方案编译出的 `build/<schema>.schema.yaml` 非空，并且当前方案主词典的 `build/<dict>.table.bin` 与主 prism 的 `build/<prism>.prism.bin` 都存在且非空，中州鹅会保留失败记录但允许继续输入；任一条件不满足时仍会失败关闭。
 
-降级不表示方案完整、所有词典已编译或语言模型已验证。日志、失败通知和缺失文件保持原样，应用不会自动补文件；主词典、Lua 或模型缺失时仍可能没有候选，必须实际输入并上屏确认。当前方案优先取活动会话，没有会话时按 `switcher/fix_schema_list_order` 和 `user.yaml` 的 `previously_selected_schema` 选择。
+降级不表示方案完整、所有词典已编译或语言模型已验证。日志、失败通知和缺失文件保持原样，应用不会自动补文件；主词典、Lua 或模型缺失时仍可能没有候选，必须实际输入并上屏确认。当前方案优先取活动会话；没有会话时，固定列表顺序则使用首项，否则读取 `user.yaml` 的 `var/previously_selected_schema`，该值仍在可用方案列表中才采用。读取失败或缺少配置接口时使用列表首项，详见[当前方案与降级规则](/features/rime-enhancements#部分部署失败时的降级)。
 
 ### 输入类型（EVO 方案）
 

@@ -17,7 +17,7 @@ APK 不预装中文方案、完整词典或万象模型，见[快速上手](/gui
 
 使用 librime-evo 引擎和部分方案时，部署日志可能仍显示 failure，例如缺少只被间接引用的包装词典；只要 `<user>/build/default.yaml` 是普通文件、引擎能列出方案、当前方案的 `build/<schema>.schema.yaml` 非空，且当前方案主词典的 `build/<dict>.table.bin` 与主 prism 的 `build/<prism>.prism.bin` 都存在且非空，应用会保留失败记录但允许继续输入。任一条件不满足时仍失败关闭。
 
-当前方案优先取活动会话；没有会话时，`switcher/fix_schema_list_order: true` 使用方案列表首项，否则读取 `<user>/user.yaml` 的 `previously_selected_schema`，仅当它仍在方案列表中才使用。词典名来自当前方案的 `translator/dictionary`；主 prism 优先取 `translator/prism`，或从 `translator/prisms` 的 `input_types` 引用／列表中按当前输入类型取 `name`；未声明时使用 `build/dictionaries/<dict>/algebra` 的首个分组。显式名称优先限定为 `<dict>.<prism>`。旧引擎缺少相应查询 API 时退回 YAML 与文件检查。
+当前方案优先取活动会话；没有会话时，`switcher/fix_schema_list_order: true` 使用方案列表首项，否则通过引擎配置接口读取 `<user>/user.yaml` 的 `var/previously_selected_schema`，仅当它仍在方案列表中才使用。该键缺失、读取失败或引擎缺少所需配置接口时使用列表首项；应用不手工拆解 YAML，因此合法的单引号、双引号和行内注释由引擎解析。词典名来自当前方案的 `translator/dictionary`；主 prism 优先取 `translator/prism`，或从 `translator/prisms` 的 `input_types` 引用／列表中按当前输入类型取 `name`；未声明时使用 `build/dictionaries/<dict>/algebra` 的首个分组。显式名称优先限定为 `<dict>.<prism>`。词典与 prism 的查询 API 不完整时，相关可用性检查退回 YAML 与文件检查。
 
 降级不表示方案完整、所有词典已编译或模型能力已验证；日志、失败通知和缺失文件保持原样，应用不会自动补文件。主词典或棱镜缺失、Lua 或模型不兼容仍可能导致没有候选，必须实际输入验证。
 

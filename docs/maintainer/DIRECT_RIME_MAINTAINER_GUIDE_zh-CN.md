@@ -231,6 +231,10 @@ tools/test-direct-rime-frontend.sh
 tools/test-material-settings.sh
 ```
 
+上面的 `connected*AndroidTest` 入口面向可重置的隔离测试设备；Gradle 管理测试包与被测包的安装、卸载生命周期，不能在长期保留数据的手机或本机 `rime` 上直接运行，并假定测试结束后应用数据和系统授权仍在。本机验证先核对当前包名、签名、引擎与绑定目录，保存本轮会改变的设置；获准后使用同签名 `adb install -r` 更新产品与测试 APK，再通过指定设备的 `am instrument -w -r` 运行明确的测试类。文件备份不包含 Android 系统授权或 Keystore，内容摘要相同也不证明应用仍能访问文件；恢复外部目录须核对应用 UID 的实际读写和属主，不能用 shell 解包后的字节一致代替。
+
+`DirectRimeFrontendTest` 要求稳定内置引擎，不能把外置引擎上的前置拒绝记成产品功能失败。`ReviewNativeConfigDeviceTest` 在无 daemon 的独立进程中使用自己的 smoke 目录；`ReviewSessionFixesDeviceTest` 必须显式传 `-e expectedEngineKind BUILTIN` 或 `PLUGIN`，并先确认当前已授权引擎与参数一致。会话夹具临时注册独立方案，保持唯一 owner；结束时先等待 native 停止，再逐字归还当次捕获的目录及引擎记录、核对原方案文件并删除自有目录。保留用户随后部署或修改的新数据，不以更早快照覆盖。每组核对实际逐例结果、零失败／错误／跳过，以及设置和记录归还；失败前置、连接中断、重复运行和恢复夹具分别记录，不累计为功能通过。具体覆盖与限制见[2026-11-28 对照记录](changes/2026-11-28-review-hardening)。
+
 默认分支当前的 PR CI 运行 ARM64 Debug、全量 JVM、`lintFxDebug`、AndroidTest 节拍探针编译、`tools/input-perf` 工具单测及 APK/链接门禁（推送 `fix/**` 分支也会触发）；Commit CI 同时构建签名 `arm64-v8a`、`armeabi-v7a`、`x86`、`x86_64` Release（`fail-fast`，四路与 JVM 全部成功才发布 Nightly；产物名为 `direct-rime-frontend-<abi>-release`，Release 资产经 `tools/foxy-perf/prepare-release-assets.py` 校验后统一命名为 `zhongzhoue-<versionName>-<abi>.apk`），运行 ART profile 审计与 JVM；Codespaces CI 在容器改动时以普通开发用户执行初始化、ARM64 APK 与审计、JVM 及严格 JUnit 校验；Direct Rime CI 在 PR 上覆盖原生诊断、引擎设备冒烟与核心前端设备回归，完整前端构建、全量 JVM 与 APK/链接审计由 PR CI 负责，需要时手动选择 `all` 运行完整诊断。Material settings UI 覆盖 MD3 页面。
 实际执行项以 workflow 内容为准；`lintFxDebug` 通过不等于所有构建变体的 lint 均已执行。测试类“仍在仓库里”不等于仍被 CI 执行。
 
@@ -238,7 +242,7 @@ Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/a
 
 全量 Robolectric 测试使用单个并行 worker 和 1536 MiB 堆，为各 Android SDK 沙箱资源表预留空间。该配置不减少测试；SDK 下载器的 Gradle 测试单独执行并在完成后结束外层构建进程。
 
-本机已知 Windows 失败涉及文件覆盖式 `renameTo` 与符号链接权限；只有再次核对原因一致，才能标成已有环境失败。
+Windows 文件回归同样须实际覆盖旧文件并核对失败时原件保留，不能以平台或测试类名豁免。符号链接用例须先实际创建链接；只有创建步骤明确报权限不足时，才可记录宿主环境未覆盖，不能计作功能通过。原生主机可执行文件的位置约束见[本机构建环境](LOCAL_BUILD_ENVIRONMENT_zh-CN.md#原生主机测试的可执行文件位置)。
 没有跑的检查明确写“未运行”。Gradle 构建成功只证明能出包，不证明功能已经验收。
 
 ## 资产、数据与配置维护

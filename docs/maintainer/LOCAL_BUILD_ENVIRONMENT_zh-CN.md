@@ -61,6 +61,14 @@ cmd.exe /c "gradlew.bat -Pkotlin.compiler.execution.strategy=in-process -PbuildA
 
 测试 JVM 若无法在用户主目录创建 `.robolectric-download-lock`，不能当作业务用例失败或通过。工作区的 `local-tests.init.gradle.kts` 仅为测试进程指定 `D:\GitHub\tools\robolectric-home` 和可写临时目录，并使用 Maven Central 官方的 `repo.maven.apache.org` 端点；Debug 脚本自动载入该文件。已下载的测试框架缓存也在 D 盘，不改生产代码或测试断言。
 
+### 原生主机测试的可执行文件位置
+
+本机工具及生成的可执行文件统一放在 `D:/GitHub/tools`；原生主机 CMake 构建目录使用其 `tmp` 下的独立任务目录，源码仍从原仓库读取。先加载 `tools-env.ps1`，使用同一固定 SDK 头文件和 MSVC/CMake 工具链配置、编译，再运行两个 CTest 目标；不要把工作区中的 `.exe` 当作合规工具副本长期使用。
+
+2026-11-28 的同字节、同工作目录、同 `TMP/TEMP` 对照中，工作区映像对 `D:/GitHub/tools/tmp` 的 `GetFileAttributesW` 返回 `ERROR_ACCESS_DENIED (5)`，工具目录中的相同映像可正常读取。MSVC 文件系统实现把前者再映射成 `temp_directory_path: not a directory`，不表示目录真的变成了文件。精确拦截组件尚未取证；遵守可执行文件位置约束后，两个主机契约目标实际通过，未修改 ACL、所有者或系统保护。
+
+主机 `engine-contract` 使用 fake Rime API，`input-statistics-contract` 检查统计协议；二者不代替 Android 上真实 librime 的 YAML 解析、方案部署与上屏。遇到访问错误应保留原失败和当前调用上下文，不靠删除锁、放宽目录权限或跳过用例计作通过。来源与验证条件见[本轮修复对照](changes/2026-11-28-review-hardening)。
+
 ## 引擎 SDK 与共享预设
 
 当前只有 `native/rime-prelude` 一个数据子模块；`native/prebuilt` 已移除。引擎由 `native/rime-sdk.lock.json` 固定，Gradle 的 `prepareRimeSdk` 自动下载、校验并提取到 `native/rime-sdk/`，无需为引擎处理浅克隆或稀疏检出。

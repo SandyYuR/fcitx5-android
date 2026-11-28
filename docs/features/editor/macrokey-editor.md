@@ -21,7 +21,7 @@
 - step 类型可在下拉中选择（按键 / 文本 / 编辑命令 / 快捷键 / app action / layer 等）
 - **app action** 列表包含本版新增的「切换系统输入法」与「弹出 Rime 方案选单」
 - 每个 step 类型显示对应的字段输入（如 KeyRef 选择器、文本框）
-- KeyRef 选择器仅暴露 **Fcitx 键名** 列表（如 `Return` / `Shift_L` / 字母数字等）
+- 新增 KeyRef 时使用 **Fcitx 键名**列表（如 `Return` / `Shift_L` / 字母数字等）；编辑已有 Android 键引用时保留 Android 类型，并按平台键码名称显示对应列表
 - 划动标签可在键面上预览
 
 ## 应用动作快捷入口
@@ -42,7 +42,7 @@
 | 数据与备份 | `settings_data_backup` | 打开数据管理页，不自动备份或恢复 |
 
 ::: warning 应用内编辑器的 Android 键码限制
-应用内宏表单没有 Android 键码输入项；已有 `{"android": <code>}` 引用时，二次保存可能丢失它。2026-11-21 的网页编辑器修订已提供 Fcitx／Android 键类型输入并保留原始引用，发布状态与使用说明见[在线编辑器](/features/online-editor)。数据结构见 [MacroKey 细化 → KeyRef](/features/keys/macro-key#keyref-引用按键的两种方式)。
+应用内宏表单不公开新增 Android 键类型或直接输入整数键码的控件。导入的有效 `{"android": <code>}` 引用会保留原类型；编辑已有引用时可在对应的 Android 键列表中改值，名称取自系统 `KeyEvent`，确认后才应用。需要直接填写整数键码时，可手写 JSON 或使用[在线编辑器](/features/online-editor)。数据结构见 [MacroKey 细化 → KeyRef](/features/keys/macro-key#keyref-引用按键的两种方式)。
 :::
 
 ## 相关页面

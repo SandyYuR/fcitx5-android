@@ -92,7 +92,7 @@ git diff --check
 ## Windows 预览
 
 使用可用的 `python`，不要调用 WindowsApps 的 `python3` 占位程序。文档构建不需要 Android 工具链。
-若 esbuild 报用户临时目录权限错误，可在**当前 PowerShell 进程**将 `TMP`/`TEMP` 指向工作区中的临时目录，再构建；不要为此修改系统级环境或安全设置。
+若 esbuild 或其它工具报临时目录访问错误，先加载本机 `tools-env.ps1`，核对当前进程的 `TMP`/`TEMP` 和可执行文件位置。本机工具与生成的可执行文件使用 `D:/GitHub/tools`，共享临时目录为 `D:/GitHub/tools/tmp`；源码仍在工作区。不要仅凭 “not a directory” 改目录类型，也不要修改系统级环境或安全设置，详见[本机构建环境](LOCAL_BUILD_ENVIRONMENT_zh-CN.md#原生主机测试的可执行文件位置)。
 历史文本在 Windows checkout 可能被 Git 转为 CRLF；完整性检查只允许文本换行归一化，原始 ZIP 和二进制附件仍严格逐字节校验。
 
 ## 品牌图标来源与同步

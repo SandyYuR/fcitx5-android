@@ -47,6 +47,8 @@
 
 Android 的 `.xml.bak` 优先于对应 XML。导入先规范化并校验该快照；替换主偏好时，移除旧安装数据对应的 `.bak`，避免下次启动用旧值覆盖已导入的新值。
 
+导出将本构建的 `<applicationId>_preferences.xml` 及其 `.bak` 一并映射为固定可移植名称 `org.fcitx.fcitx5.android_preferences.xml` 及对应 `.bak`，排除其它构建变体的同类偏好文件。应用导入快照前，还会检查其中已有的启动字段类型：`verbose_log` 必须为 `boolean`，`app_prefs_migration_version`、`clipboard_limit`、`clipboard_item_timeout` 必须为 `int`；类型错误则拒绝恢复，不把字符串等其它类型当作有效设置。这不改变加密备份头或备份版本。
+
 复制数据库前旧进程已经退出。导入的剪贴板数据库先用其自身 WAL 恢复。
 只为本次替换的数据库删除旧安装的侧文件；备份未包含的数据库，其原文件和 WAL 一并保留。
 
