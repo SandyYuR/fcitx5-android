@@ -4,7 +4,11 @@ package org.fcitx.fcitx5.android.input.candidates.horizontal
 import android.app.Activity
 import android.graphics.Typeface
 import android.os.Looper
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.style.CharacterStyle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +17,7 @@ import org.fcitx.fcitx5.android.core.CandidateWord
 import org.fcitx.fcitx5.android.core.CandidateActionContext
 import org.fcitx.fcitx5.android.core.CandidateSelectionTarget
 import org.fcitx.fcitx5.android.data.theme.ThemePreset
+import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.candidates.CandidateIndexBadgeContent
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
 import org.fcitx.fcitx5.android.input.font.FontProviders
@@ -231,4 +236,91 @@ class MovingCandidateBadgeTest {
             }
         } finally { FontProviders.provider = original }
     }
+
+    @Test fun bindingOneRowBeforeIdenticalCandidateUpdateStillRefreshesAllFonts() =
+        assertFontRefreshAfterOneRowBinds(insertAtHead = false)
+
+    @Test fun bindingOneRowBeforeStructuralUpdateStillRefreshesRetainedFonts() =
+        assertFontRefreshAfterOneRowBinds(insertAtHead = true)
+
+    private fun assertFontRefreshAfterOneRowBinds(insertAtHead: Boolean) {
+        val original = FontProviders.provider
+        val fonts = object : FontProviderApi {
+            override fun clearCache() {}
+            override val fontTypefaceMap = mutableMapOf<String, Typeface?>(
+                "cand_font" to Typeface.MONOSPACE, "comment_font" to Typeface.SERIF,
+            )
+            override val fontSizeMap = mutableMapOf("cand_font" to 20f, "comment_font" to 12f)
+            override var fontDataVersion = 1L
+        }
+        try {
+            FontProviders.provider = fonts
+            fixture { view, adapter ->
+                val initial = arrayOf(commentedCandidate("a", 1, 5), commentedCandidate("b", 1, 6))
+                adapter.updateCandidates(initial, 10, indexOffset = 5)
+                layout(view)
+                val first = view.findViewHolderForAdapterPosition(0) as CandidateViewHolder
+                val second = view.findViewHolderForAdapterPosition(1) as CandidateViewHolder
+                assertEquals(Typeface.MONOSPACE, candidateText(second).typeface)
+
+                fonts.fontTypefaceMap["cand_font"] = Typeface.SERIF
+                fonts.fontTypefaceMap["comment_font"] = Typeface.MONOSPACE
+                fonts.fontSizeMap["cand_font"] = 28f
+                fonts.fontSizeMap["comment_font"] = 18f
+                fonts.fontDataVersion++
+                FontProviders.provider = fonts
+                // Rebinding one existing holder must not consume the whole row's invalidation.
+                adapter.onBindViewHolder(first, 0)
+                assertEquals(Typeface.SERIF, candidateText(first).typeface)
+                assertEquals(Typeface.MONOSPACE, candidateText(second).typeface)
+                adapter.fullBinds = 0
+                var fullChanges = 0
+                adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+                    override fun onChanged() { fullChanges++ }
+                })
+
+                val texts = if (insertAtHead) listOf("x", "a", "b") else listOf("a", "b")
+                val next = texts.mapIndexed { position, text ->
+                    commentedCandidate(text, 2, position + 5)
+                }.toTypedArray()
+                adapter.updateCandidates(next, 10, indexOffset = 5)
+                layout(view)
+
+                assertEquals(1, fullChanges)
+                assertEquals(next.size, adapter.fullBinds)
+                assertEquals(5, adapter.indexOffset)
+                next.forEachIndexed { position, candidate ->
+                    val holder = view.findViewHolderForAdapterPosition(position) as CandidateViewHolder
+                    val text = candidateText(holder)
+                    assertEquals(candidate.text + " comment", text.text.toString())
+                    assertEquals(Typeface.SERIF, text.typeface)
+                    assertEquals(28f * text.resources.displayMetrics.scaledDensity, text.textSize, 0.01f)
+                    val commentStart = candidate.text.length + 1
+                    val commentPaint = TextPaint(text.paint).apply {
+                        (text.text as Spanned).getSpans(commentStart, commentStart + 1,
+                            CharacterStyle::class.java).forEach { it.updateDrawState(this) }
+                    }
+                    assertEquals(Typeface.MONOSPACE, commentPaint.typeface)
+                    assertEquals(FontProviders.commentFontSizePx(text.context).toFloat(), commentPaint.textSize, 0.01f)
+                    assertEquals(candidate.selectionTarget, holder.selectionFor(adapter.candidates[position]))
+                    assertEquals(position + 5, holder.idx)
+                    assertNull(holder.selectionFor(null))
+                    assertNull(holder.selectionFor(commentedCandidate("not-yet-displayed", 2, position + 5)))
+                }
+                adapter.fullBinds = 0
+                adapter.updateCandidates(next, 10, indexOffset = 5)
+                layout(view)
+                assertEquals(1, fullChanges)
+                assertEquals(0, adapter.fullBinds)
+            }
+        } finally { FontProviders.provider = original }
+    }
+
+    private fun commentedCandidate(text: String, version: Long, index: Int) =
+        CandidateWord("", text, "comment", true).apply {
+            selectionTarget = CandidateSelectionTarget(CandidateActionContext(9, version), index, false)
+        }
+
+    private fun candidateText(holder: CandidateViewHolder) =
+        (holder.ui.root.getChildAt(0) as ViewGroup).getChildAt(0) as AutoScaleTextView
 }

@@ -245,9 +245,11 @@ class HorizontalCandidateComponent :
 
     private fun refreshExpanded(childCount: Int) {
         val expandedOffset = (adapter.indexOffset + childCount).coerceAtLeast(0)
-        val request = ExpandedCandidateRefreshRequest(expandedOffset, candidateGeneration.value)
+        val request = ExpandedCandidateRefreshRequest(
+            expandedOffset, candidateGeneration.value, FontProviders.fontGeneration,
+        )
         // 一次按键可以触发多个布局 pass（双斜杠期间每个 pass 都会走到这里），
-        // 只有 (offset, generation) 真的变了才下发。
+        // 取数起点、候选版本或字体版本变化时才下发。
         // 另外注意：下发失败时不能记账，否则一次真正需要的刷新会被吞掉。
         if (
             ExpandedCandidateRefreshRequest.shouldEmit(lastExpandedRefreshRequest, request) &&

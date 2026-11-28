@@ -19,7 +19,7 @@ import org.junit.Test
  * 2026-09 的放大链复现：候选栏每完成一次布局都会下发一次展开面板取数请求，
  * 一次按键（双斜杠期间尤其明显）会有多个布局 pass → 相同 offset 反复下发 →
  * 展开面板反复 `resetPosition()` + 重新分页，所有可见项 rebind + 重新布局。
- * 修复后：(offset, generation) 不变就完全不刷新；offset 不变但候选内容变了仍要刷新。
+ * 修复后：相同取数请求不重新分页；字体代次变化仍重绑，候选内容变化仍重新取数。
  */
 class ExpandedCandidateRefreshTest {
 
@@ -86,6 +86,16 @@ class ExpandedCandidateRefreshTest {
             }
         }
         assertEquals(1, emitted)
+    }
+
+    @Test
+    fun fontOnlyChangeReachesTheWindowWithoutAdvancingCandidateGeneration() {
+        val previous = ExpandedCandidateRefreshRequest(48, 5, 7)
+        val fontChanged = previous.copy(fontGeneration = 8)
+        assertTrue(ExpandedCandidateRefreshRequest.shouldEmit(previous, fontChanged))
+        assertEquals(previous.offset, fontChanged.offset)
+        assertEquals(previous.generation, fontChanged.generation)
+        assertFalse(ExpandedCandidateRefreshRequest.shouldEmit(fontChanged, fontChanged.copy()))
     }
 
     // ---- generation 计算 ----

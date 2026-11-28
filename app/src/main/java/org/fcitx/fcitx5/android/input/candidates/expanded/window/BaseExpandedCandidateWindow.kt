@@ -179,8 +179,8 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>>(t
         updateTabs(fcitx.runImmediately { inputPanelCached.tabs })
         offsetJob = service.lifecycleScope.launch {
             // replay 会补发最近一次请求，所以面板构造时就能拿到当前窗口；
-            // 后续每次请求都是“候选生成变了”或“候选栏窗口起点推进了”，
-            // 相同的 (offset, generation) 不会重复到达（见 refreshExpanded 的去重）。
+            // 后续请求由候选版本、取数起点或字体代次变化触发；
+            // 完全相同的请求不会重复到达（见 refreshExpanded 的去重）。
             horizontalCandidate.expandedCandidateRefresh.collect { request ->
                 if (request.offset <= 0) {
                     windowManager.attachWindow(KeyboardWindow)
@@ -217,19 +217,16 @@ abstract class BaseExpandedCandidateWindow<T : BaseExpandedCandidateWindow<T>>(t
      * 点击、长按菜单和高亮都依赖这个值。
      *
      * 只有两种情况需要重新取数：起点变了，或候选内容 generation 变了。
-     * 两者都没变时什么都不做——这正是“同一 offset 被重复下发”的情形
-     * （一次按键的多个布局 pass），旧实现会在这里无条件
+     * 只有字体代次变化时重新绑定可见项，保留取数和滚动位置。
+     * 所有版本都没变时跳过，避免一次按键的多个布局 pass 反复
      * `resetPosition()` + `refresh()`，让所有可见项反复 rebind。
      */
     private fun runOffsetRefresh(request: ExpandedCandidateRefreshRequest) {
         val offsetChanged = request.offset != adapter.offset
-        if (!offsetChanged && request.generation == adapter.generation) {
-            return
-        }
+        // The adapter also checks font invalidation when the paging pair is unchanged.
         adapter.refreshWithOffset(request.offset, request.generation)
         if (!offsetChanged) {
-            // 起点没变、只是候选内容换了（同一个 composing 会话内继续输入）：
-            // 重新取这一页并保留当前滚动位置，绑定项会因内容变化自然拿到新候选。
+            // 起点没变时保留滚动位置；内容版本变化会重新取数，字体变化只重绑。
             return
         }
         // 取数起点变了：列表回到窗口开头（position 0 就是这批数据的第一个候选），

@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.input.candidates
 import android.graphics.Typeface
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.test.platform.app.InstrumentationRegistry
@@ -45,7 +46,7 @@ class CandidateOverflowTest {
         val (viewport, text) = views(ui)
         val tailOffset = text.translationX
 
-        dragRight(ui.root, 24f)
+        dragRight(ui.root)
         val manualOffset = text.translationX
         assertTrue("dragging right should reveal the leading text", manualOffset > tailOffset)
         layout(ui)
@@ -55,10 +56,23 @@ class CandidateOverflowTest {
         layout(ui)
         assertEquals(-(text.width - viewport.width).toFloat(), text.translationX, 0.5f)
 
-        dragRight(ui.root, 20f)
+        dragRight(ui.root)
         assertNotEquals(text.translationX, -(text.width - viewport.width).toFloat())
         layout(ui, width = 260)
         assertEquals(-(text.width - viewport.width).toFloat(), text.translationX, 0.5f)
+    }
+
+    @Test
+    fun horizontalMovementWithinTouchSlopDoesNotScrollText() = onMain {
+        val ui = candidateUi()
+        layout(ui)
+        val text = views(ui).second
+        val tailOffset = text.translationX
+        val touchSlop = ViewConfiguration.get(ui.root.context).scaledTouchSlop
+
+        dragRight(ui.root, touchSlop / 2f)
+
+        assertEquals("movement within touch slop should not scroll", tailOffset, text.translationX, 0.5f)
     }
 
     @Test
@@ -70,9 +84,7 @@ class CandidateOverflowTest {
         var clicks = 0
         ui.root.setOnClickListener { clicks++ }
 
-        dispatch(ui.root, MotionEvent.ACTION_DOWN, 40f, 40f, 0)
-        dispatch(ui.root, MotionEvent.ACTION_MOVE, 100f, 40f, 16)
-        dispatch(ui.root, MotionEvent.ACTION_UP, 100f, 40f, 32)
+        dragRight(ui.root)
 
         assertEquals(0, clicks)
         assertTrue("drag should move the text away from the tail", text.translationX > tailOffset)
@@ -136,7 +148,12 @@ class CandidateOverflowTest {
         return viewport to (viewport.getChildAt(0) as AutoScaleTextView)
     }
 
-    private fun dragRight(root: android.view.View, distance: Float) {
+    private fun dragRight(
+        root: View,
+        distance: Float = ViewConfiguration.get(root.context).scaledTouchSlop + 24f,
+    ) {
+        // MotionEvent coordinates and scaledTouchSlop are both in physical pixels.
+        // Cross the configured threshold before asserting a horizontal scroll.
         dispatch(root, MotionEvent.ACTION_DOWN, 40f, 40f, 0)
         dispatch(root, MotionEvent.ACTION_MOVE, 40f + distance, 40f, 16)
         dispatch(root, MotionEvent.ACTION_UP, 40f + distance, 40f, 32)

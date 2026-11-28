@@ -56,13 +56,6 @@ class PagedCandidatesUi(
     }
 
     private val candidatesAdapter = object : RecyclerView.Adapter<UiHolder>() {
-        init {
-            setHasStableIds(true)
-        }
-
-        override fun getItemId(position: Int): Long =
-            data.candidates.getOrNull(position).hashCode().toLong()
-
         override fun getItemCount() =
             data.candidates.size + (if (data.hasPrev || data.hasNext) 1 else 0)
 

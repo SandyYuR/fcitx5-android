@@ -52,10 +52,13 @@ open class HorizontalCandidateViewAdapter(
      */
     private var appliedFontGeneration = FontProviders.fontGeneration
 
+    // A local bind may resolve fonts before the next update invalidates every row.
+    private var invalidatedFontGeneration = appliedFontGeneration
+
     private fun resolveCommentFont(): Typeface? = FontProviders.resolveCommentTypeface(null)
 
     /**
-     * 字体数据版本号前进时刷新缓存的字体并返回 true（调用方需要整表重绑）。
+     * 字体数据版本号前进时刷新缓存的字体；整表通知由独立的失效代次决定。
      */
     private fun refreshCandidateFontIfNeeded(): Boolean {
         val generation = FontProviders.fontGeneration
@@ -64,10 +67,6 @@ open class HorizontalCandidateViewAdapter(
         candFont = FontProviders.resolveTypeface("cand_font", null)
         commentFont = resolveCommentFont()
         return true
-    }
-
-    init {
-        setHasStableIds(true)
     }
 
     fun setHorizontalOverflowEnabled(enabled: Boolean) {
@@ -113,7 +112,9 @@ open class HorizontalCandidateViewAdapter(
         activeIndex: Int = this.activeIndex,
         indexOffset: Int = this.indexOffset,
     ) {
-        val fontChanged = refreshCandidateFontIfNeeded()
+        refreshCandidateFontIfNeeded()
+        val fontGeneration = FontProviders.fontGeneration
+        val fontChanged = fontGeneration != invalidatedFontGeneration
         val old = candidates
         // Keep fresh selection metadata even when all visible text is unchanged.
         this.candidates = data
@@ -136,6 +137,7 @@ open class HorizontalCandidateViewAdapter(
         // keeps its notifyDataSetChanged: a structural plan would emit no ops at
         // all, and RecyclerView would keep stale ViewHolder styling.
         if (fontChanged || old.contentEquals(data)) {
+            invalidatedFontGeneration = fontGeneration
             trace("notifyDataSetChanged") { notifyDataSetChanged() }
             return
         }
@@ -185,8 +187,6 @@ open class HorizontalCandidateViewAdapter(
     }
 
     override fun getItemCount() = candidates.size
-
-    override fun getItemId(position: Int) = candidates.getOrNull(position).hashCode().toLong()
 
     /** Refresh the existing window's targets without notifying or re-laying out its text. */
     internal fun updateSelectionTargets(fullCandidates: Array<CandidateWord>): Boolean {

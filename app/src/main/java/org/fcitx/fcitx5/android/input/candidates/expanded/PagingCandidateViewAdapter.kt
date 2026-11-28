@@ -29,6 +29,9 @@ open class PagingCandidateViewAdapter(val theme: Theme) :
      */
     private var appliedFontGeneration = FontProviders.fontGeneration
 
+    // A bind can resolve the new fonts for one holder before the page refresh arrives.
+    private var invalidatedFontGeneration = appliedFontGeneration
+
     private fun resolveCommentFont(): Typeface? = FontProviders.resolveCommentTypeface(null)
 
     /** 字体数据版本号前进时刷新缓存的字体并返回 true（调用方需要重新绑定）。 */
@@ -75,15 +78,20 @@ open class PagingCandidateViewAdapter(val theme: Theme) :
      * @param generation 候选内容版本；offset 一样时也用它判断“这只是重复请求”。
      */
     fun refreshWithOffset(offset: Int, generation: Long) {
-        // 字体/字号变化时即使 (offset, generation) 没变也必须重绑：下面那句早退会让整个
-        // 展开面板停在旧字号上（`PagingDataAdapter.refresh()` 是 final 的，没法拦截 notify）。
-        val fontChanged = refreshCandidateFontIfNeeded()
-        if (!fontChanged && offset == this.offset && generation == this.generation) return
-        if (!fontChanged) {
-            this.offset = offset
-            this.generation = generation
+        refreshCandidateFontIfNeeded()
+        val fontGeneration = FontProviders.fontGeneration
+        val fontChanged = fontGeneration != invalidatedFontGeneration
+        val dataChanged = offset != this.offset || generation != this.generation
+        if (!fontChanged && !dataChanged) return
+        // Font refresh must not discard a newer paging window or candidate generation.
+        this.offset = offset
+        this.generation = generation
+        if (dataChanged) refresh()
+        // Binding one holder must not consume the invalidation of every other row.
+        if (fontChanged) {
+            invalidatedFontGeneration = fontGeneration
+            notifyItemRangeChanged(0, itemCount)
         }
-        refresh()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidateViewHolder {

@@ -17,17 +17,19 @@ import org.fcitx.fcitx5.android.core.sameSelectionTargets
  *
  * [generation] 见 [CandidateGenerationTracker]：offset 相同但候选内容变了时也必须重新取数，
  * 否则展开面板会一直显示上一次分页到的那一段候选。
+ * [fontGeneration] 单独参与下发去重：字体变化需要重新绑定，但不改变候选版本或取数起点。
  */
 data class ExpandedCandidateRefreshRequest(
     val offset: Int,
     val generation: Long,
+    val fontGeneration: Long = 0L,
 ) {
     companion object {
         /**
          * 是否需要把 [current] 下发给展开面板。
          *
-         * 同一个 (offset, generation) 重复下发毫无意义：消费侧会立刻
-         * `resetPosition()` + 重新分页，让所有可见项 rebind + 重新布局。
+         * 只有 offset、候选 generation 或字体 generation 变化才下发。
+         * 重复布局 pass 不应重新分页；只变字体时仍需通知所有已显示项重新绑定。
          * 候选栏每完成一次布局都会走到下发点（一次按键可能有多个布局 pass，
          * 双斜杠期间尤其明显），所以这里的去重直接决定展开面板是否会反复刷新。
          *
@@ -44,7 +46,7 @@ data class ExpandedCandidateRefreshRequest(
  * 候选数据的 generation（版本号）。
  *
  * 候选内容、引擎候选版本或输入会话变化时前进，供 [ExpandedCandidateRefreshRequest] 使用：
- * 相同 offset 且 generation 相同 → 完全跳过；generation 变了 → 即使 offset 不变也要刷新。
+ * 相同 offset 且 generation 相同 → 不重新取数；generation 变了 → 即使 offset 不变也要刷新。
  *
  * 比较基线是**完整候选列表 + total**。跟随窗口滑动的 `ensureActiveCandidateVisible`
  * 只调用 adapter 的 `updateCandidates`，不经过这里，所以滑窗不会改变 generation。
