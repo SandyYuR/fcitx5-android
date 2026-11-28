@@ -544,25 +544,33 @@ function isRetryable(status, text) {
   return RETRYABLE_PATTERN.test(source);
 }
 
-async function postWithRetry(options, t, protocol) {
-  const startedAt = Date.now();
-  let attempts = 0;
+function requestBudget() {
+  return {startedAt: Date.now(), attempts: 0, stopped: false};
+}
+
+async function postWithRetry(options, t, protocol, budget = requestBudget()) {
+  const startedAt = budget.startedAt;
+  let attempts = budget.attempts;
   let lastError = null;
-  while (attempts < RETRY_ATTEMPTS) {
-    attempts += 1;
+  while (budget.attempts < RETRY_ATTEMPTS && !budget.stopped) {
+    attempts = ++budget.attempts;
     const attemptStartedAt = Date.now();
     const remaining = RETRY_TOTAL_BUDGET_MS - (attemptStartedAt - startedAt);
     if (remaining <= 0) throw lastError || new Error(t.incompleteResult);
     const retryDelay = RETRY_STEP_MS * attempts;
-    const exhausted = () => attempts >= RETRY_ATTEMPTS || Date.now() - attemptStartedAt > 20000 ||
-      Date.now() - startedAt + retryDelay >= RETRY_TOTAL_BUDGET_MS;
+    const exhausted = () => {
+      if (Date.now() - attemptStartedAt > 20000) budget.stopped = true;
+      return attempts >= RETRY_ATTEMPTS || budget.stopped ||
+        Date.now() - startedAt + retryDelay >= RETRY_TOTAL_BUDGET_MS;
+    };
     let response = null;
     try {
       response = JSON.parse(await foxy.http.request({...options, timeoutMs: remaining}));
     } catch (transportError) {
       lastError = transportError instanceof Error ? transportError : new Error(String(transportError));
       lastError.attempts = attempts;
-      if (FATAL_PATTERN.test(lastError.message) || exhausted()) throw lastError;
+      const done = exhausted();
+      if (FATAL_PATTERN.test(lastError.message) || done) throw lastError;
       await sleep(retryDelay);
       continue;
     }
@@ -597,7 +605,7 @@ function modelsUrl(url) {
     (parts.length > 1 ? "?" + parts.slice(1).join("?") : "");
 }
 
-async function listModels(url, provider, settings, protocol) {
+async function listModels(url, provider, settings, protocol, budget, t) {
   const base = modelsUrl(url);
   const candidates = [base];
   const alt = base.replace(/\/models(?=\?|$)/, "/v1/models");
@@ -605,21 +613,30 @@ async function listModels(url, provider, settings, protocol) {
   for (const target of candidates) {
     const host = hostOf(target);
     if (!host) continue;
+    const remaining = RETRY_TOTAL_BUDGET_MS - (Date.now() - budget.startedAt);
+    if (budget.stopped || budget.attempts >= RETRY_ATTEMPTS || remaining <= 0) break;
+    budget.attempts += 1;
+    const attemptStartedAt = Date.now();
     try {
       const raw = await foxy.http.request({
         url: target,
         method: "GET",
+        timeoutMs: remaining,
         ...protocolTransport(protocol, provider, settings)
       });
       const response = JSON.parse(raw);
-      if (!response.ok) continue;
+      if (!response.ok) {
+        if (Date.now() - attemptStartedAt > 20000) budget.stopped = true;
+        continue;
+      }
       const data = safeParse(String(response.body || ""));
       const list = data && Array.isArray(data.data) ? data.data : null;
       if (!list) continue;
       const names = list.map(item => cleanModelName(item && (item.id || item.name))).filter(Boolean);
       if (names.length) return names;
     } catch (error) {
-      // 探测失败就算了，不影响主流程。
+      // Discovery shares the generation budget; a slow failure must not restart it.
+      if (Date.now() - attemptStartedAt > 20000) budget.stopped = true;
     }
   }
   return [];
@@ -939,21 +956,22 @@ async function handleOpen(context) {
 
     let usedModel = model;
     let fixedNote = "";
+    const budget = requestBudget();
     try {
       let outcome;
       try {
-        outcome = await postWithRetry(requestOptions(usedModel), t, protocol);
+        outcome = await postWithRetry(requestOptions(usedModel), t, protocol, budget);
       } catch (error) {
         // 模型名不被接受时，去问一下这个地址到底有哪些模型；
         // 如果只是大小写不同，就直接用正确写法重发一次，用户无感。
         const message = String(error && error.message ? error.message : error);
         if (!MODEL_ERROR_PATTERN.test(message)) throw error;
-        const list = await listModels(url, provider, settings, protocol);
+        const list = await listModels(url, provider, settings, protocol, budget, t);
         const corrected = matchModelCase(list, usedModel);
         if (corrected && corrected !== usedModel) {
           usedModel = corrected;
           fixedNote = format(t.modelFixed, corrected);
-          outcome = await postWithRetry(requestOptions(usedModel), t, protocol);
+          outcome = await postWithRetry(requestOptions(usedModel), t, protocol, budget);
         } else if (list.length) {
           error.message = message + " · " + format(t.availableModels, list.slice(0, 8).join(", "));
           throw error;

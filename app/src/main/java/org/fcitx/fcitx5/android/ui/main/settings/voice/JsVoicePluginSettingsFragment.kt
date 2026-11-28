@@ -297,10 +297,11 @@ class JsVoicePluginSettingsFragment : PaddingPreferenceFragment() {
                     true
                 }
             })
-            // Apps authorize each actual endpoint when it is first used.
-            if (!appSpec.hasVoice) return
+            // App requests approve actual endpoints on demand. A plugin may also provide
+            // text services, whose isolated runtime needs its own explicit static-host consent.
         }
         val spec = JsVoiceProviders.specOf(pluginId) ?: return
+        if (spec.hosts.isEmpty()) return
         val preference = Preference(requireContext()).apply {
             key = "js_voice_network_permission"
             isPersistent = false

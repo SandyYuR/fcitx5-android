@@ -27,6 +27,11 @@ internal object JsVoiceHostPermissionDialog {
             }
         } else {
             builder.setPositiveButton(R.string.js_voice_network_approve) { _, _ ->
+                // A dialog for a replaced source cannot grant the new source its old hosts.
+                if (JsVoiceProviders.specOf(spec.id) != spec) {
+                    onChanged()
+                    return@setPositiveButton
+                }
                 JsVoiceHostPermissions.approve(spec.id, spec.hosts)
                 onChanged()
             }

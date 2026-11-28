@@ -27,7 +27,7 @@ internal object JsVoicePrelude {
 var __events = [];
 var __fields = [];
 var __plugin = null;
-var __apps = {};
+var __apps = Object.create(null);
 // foxy.service 注册的服务定义；一个插件可以同时提供 App、语音与文字服务。
 var __services = [];
 var __pending = {};
@@ -57,7 +57,7 @@ var __hasAppApi = __isAppSession || __hostSession === "describe";
 var __hasVoiceApi = __isVoiceSession || __hostSession === "describe";
 // 服务目录每个会话都能读（设置页要用它渲染下拉框），但服务会话自身不能再发起服务调用：
 // 宿主只在一次调用里跑一层，嵌套调用没有预算也没有死锁保护。
-var __hasServiceCall = !__isServiceSession;
+var __hasServiceCall = __isVoiceSession || __hostSession === "describe";
 // 服务提供方要发 HTTPS，所以 http.request 的可用范围比 App 宽。
 var __hasHttp = __hasAppApi || __isServiceSession;
 // 只有宿主真的能落盘时才挂 foxy.settings：设置页用的占位宿主没有 __n_appSettings，
@@ -231,7 +231,7 @@ var foxy = {
     plugin: { register: true },
     app: { register: true, sleep: __hasAppApi },
     service: { register: true },
-    services: { list: true, call: __hasServiceCall },
+    services: { list: !__isAppSession, call: __hasServiceCall },
     ui: {
       text: true, secret: true, select: true, switch: true, number: true, serviceSelect: true,
       dialog: {

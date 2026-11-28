@@ -25,6 +25,7 @@ internal object JsVoiceHostPermissions {
 
     fun revoke(pluginId: String) {
         check(prefs().edit().remove(pluginId).commit())
+        JsVoiceServices.invalidate() // Revoke running service leases as well as future sends.
     }
 }
 

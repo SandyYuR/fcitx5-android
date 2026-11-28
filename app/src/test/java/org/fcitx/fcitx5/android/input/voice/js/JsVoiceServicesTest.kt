@@ -2,6 +2,9 @@
 package org.fcitx.fcitx5.android.input.voice.js
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
@@ -146,6 +149,36 @@ class JsVoiceServicesTest {
         binding.update(listOf(providerField()), emptyMap(), listOf(own))
         // 自调用在查目录之前就拒绝：调用方的脚本已经占到唯一的运行时，再进来必然死锁。
         assertTrue(callMessage(binding, "caller").contains("own service"))
+    }
+
+    @Test fun choosingVersionOneDoesNotAuthorizeVersionTwoFromTheSameProvider() = runBlocking {
+        val v1 = JsServiceDescriptor("plugin-a", "A", "text.translate", 1, "A", "")
+        val v2 = v1.copy(version = 2)
+        val binding = JsVoiceServiceBinding("caller", "en", OkHttpClient()) { _, _ -> null }
+        binding.update(listOf(providerField()), mapOf("translationProvider" to "plugin-a"), listOf(v1, v2))
+        assertTrue(callMessage(binding, "plugin-a").contains("not installed"))
+        val failure = runCatching { binding.call("plugin-a", "text.translate", "2", "{}") }.exceptionOrNull()
+        assertTrue(failure!!.message.orEmpty().contains("not selected"))
+    }
+
+    @Test fun aSourceRevisionRejectsOldBindingsAndCancelsActiveLeases() = runBlocking {
+        val descriptor = JsServiceDescriptor("plugin-a", "A", "text.translate", 1, "A", "")
+        val binding = JsVoiceServiceBinding("caller", "en", OkHttpClient()) { _, _ -> null }
+        binding.update(listOf(providerField()), emptyMap(), listOf(descriptor))
+        val entered = CompletableDeferred<Unit>()
+        val revision = JsVoiceServices.sourceRevision
+        val active = async {
+            JsVoiceServices.withCurrentSource(revision) {
+                entered.complete(Unit)
+                awaitCancellation()
+            }
+        }
+        entered.await()
+        JsVoiceServices.invalidate()
+        active.join()
+        assertTrue(active.isCancelled)
+        assertTrue(callMessage(binding, "plugin-a").contains("source changed"))
+        assertEquals("fresh", JsVoiceServices.withCurrentSource(JsVoiceServices.sourceRevision) { "fresh" })
     }
 
     private suspend fun callMessage(binding: JsVoiceServiceBinding, provider: String): String {

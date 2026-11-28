@@ -67,6 +67,10 @@ class JsVoiceCapabilitiesTest {
             assertTrue(app["websocket"]!!.jsonObject["onMessage"]!!.jsonPrimitive.boolean)
             assertFalse(app["voice"]!!.jsonObject["final"]!!.jsonPrimitive.boolean)
             assertFalse(app["crypto"]!!.jsonObject["hmacSha1Base64"]!!.jsonPrimitive.boolean)
+            assertFalse(app["services"]!!.jsonObject["list"]!!.jsonPrimitive.boolean)
+            assertFalse(app["services"]!!.jsonObject["call"]!!.jsonPrimitive.boolean)
+            assertEquals("fallback", appJs.evaluate<String>(
+                "foxy.capabilities.services.call ? foxy.services.call('x','text.translate',1,{}) : 'fallback'"))
             assertEquals(
                 "fallback",
                 appJs.evaluate<String>(
@@ -96,6 +100,25 @@ class JsVoiceCapabilitiesTest {
             appJs.close()
             voiceJs.close()
         }
+    }
+
+    @Test fun validAppIdsDoNotCollideWithObjectPrototypeNames() = runBlocking {
+        val js = JsVoiceRuntime.create()
+        try {
+            JsVoiceStubNatives.install(js, "en", JsHostSession.APP)
+            JsVoiceRuntime.initialize(js, JsVoicePrelude.SOURCE + "\n" + """
+                foxy.plugin.register({id:'ids',version:'1',hosts:[],features:[]});
+                foxy.app.register({id:'constructor',onOpen:function(){return {value:'constructor'};}});
+                foxy.app.register({id:'tostring',onOpen:function(){return {value:'tostring'};}});
+            """.trimIndent())
+            val meta = Json.parseToJsonElement(js.evaluate<String>("__meta()")).jsonObject
+            assertEquals(setOf("constructor", "tostring"), meta["apps"]!!.jsonArray.map {
+                it.jsonObject["id"]!!.jsonPrimitive.content
+            }.toSet())
+            assertTrue(runCatching { js.evaluate<String>(
+                "foxy.app.register({id:'constructor',onOpen:function(){return {};}}); 'duplicate accepted'"
+            ) }.isFailure)
+        } finally { js.close() }
     }
 
     @Test fun capabilityTableNeverExposesHostInternals() = runBlocking {

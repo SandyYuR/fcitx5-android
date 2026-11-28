@@ -4,6 +4,11 @@ package org.fcitx.fcitx5.android.input.voice.js
 import com.dokar.quickjs.QuickJs
 import com.dokar.quickjs.binding.asyncFunction
 import com.dokar.quickjs.binding.function
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.job
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
@@ -66,12 +71,36 @@ internal object JsVoiceServices {
 
     private val lock = Mutex()
 
+    private data class Catalog(val revision: Long, val descriptors: List<JsServiceDescriptor>)
     @Volatile
-    private var cached: List<JsServiceDescriptor>? = null
+    private var cached: Catalog? = null
 
-    /** 插件安装/删除/重载后必须调用，否则目录会一直指向已经读不到的脚本。 */
+    private val sourceLock = Any()
+    @Volatile internal var sourceRevision = 0L
+        private set
+    private val activeCalls = mutableSetOf<Job>()
+
+    /** Source replacement also cancels leases owned by previously configured bindings. */
     fun invalidate() {
-        cached = null
+        val stale = synchronized(sourceLock) {
+            sourceRevision += 1
+            cached = null
+            activeCalls.toList()
+        }
+        stale.forEach { it.cancel(CancellationException("Service source changed")) }
+    }
+
+    internal suspend fun <T> withCurrentSource(revision: Long, operation: suspend () -> T): T = coroutineScope {
+        val job = currentCoroutineContext().job
+        synchronized(sourceLock) {
+            check(sourceRevision == revision) { "Service source changed; start a new session" }
+            activeCalls += job
+        }
+        try {
+            operation().also {
+                check(sourceRevision == revision) { "Service source changed; start a new session" }
+            }
+        } finally { synchronized(sourceLock) { activeCalls -= job } }
     }
 
     /** 读单个脚本声明的服务。脚本坏掉时返回空表，由调用方决定是「没有服务」还是报错。 */
@@ -103,9 +132,10 @@ internal object JsVoiceServices {
     }
 
     private suspend fun load(locale: String): List<JsServiceDescriptor> {
-        cached?.let { return it }
+        cached?.takeIf { it.revision == sourceRevision }?.let { return it.descriptors }
         return lock.withLock {
-            cached?.let { return@withLock it }
+            cached?.takeIf { it.revision == sourceRevision }?.let { return@withLock it.descriptors }
+            val revision = sourceRevision
             val out = mutableListOf<JsServiceDescriptor>()
             JsVoiceProviders.all().forEach { spec ->
                 // 一个脚本的服务声明坏了不该拖垮整张目录：跳过它，别的插件照常可选。
@@ -114,7 +144,7 @@ internal object JsVoiceServices {
                 }.getOrNull().orEmpty()
                 out += found
             }
-            out.also { cached = it }
+            out.also { if (revision == sourceRevision) cached = Catalog(revision, it) }
         }
     }
 
@@ -211,8 +241,9 @@ internal class JsVoiceServiceBinding(
     @Volatile
     private var descriptors: List<JsServiceDescriptor> = emptyList()
 
-    @Volatile
-    private var grants: Map<String, Set<String>> = emptyMap()
+    private data class ServiceKey(val id: String, val version: Int)
+    private val sourceRevision = JsVoiceServices.sourceRevision
+    @Volatile private var grants: Map<ServiceKey, Set<String>> = emptyMap()
 
     /** 传给 `foxy.services.list()` 的目录，不含调用方自己。 */
     fun catalogJson(): String = JsonArray(descriptors.map { it.toJson() }).toString()
@@ -225,7 +256,7 @@ internal class JsVoiceServiceBinding(
      */
     fun update(fields: List<JsVoiceField>, values: Map<String, String>, catalog: List<JsServiceDescriptor>) {
         descriptors = catalog.filterNot { it.pluginId == callerId }
-        val next = mutableMapOf<String, Set<String>>()
+        val next = mutableMapOf<ServiceKey, Set<String>>()
         fields.filter { it.kind == JsVoiceField.KIND_SERVICE_SELECT }.forEach { field ->
             val candidates = descriptors.filter {
                 it.serviceId == field.serviceId && it.version.toString() == field.serviceVersion
@@ -236,7 +267,8 @@ internal class JsVoiceServiceBinding(
                 candidates.size == 1 -> candidates.first()
                 else -> null
             } ?: return@forEach
-            next[field.serviceId] = next[field.serviceId].orEmpty() + selected.pluginId
+            val key = ServiceKey(field.serviceId, selected.version)
+            next[key] = next[key].orEmpty() + selected.pluginId
         }
         grants = next
     }
@@ -251,7 +283,8 @@ internal class JsVoiceServiceBinding(
         if (descriptors.none { it.pluginId == providerId && it.serviceId == serviceId && it.version == version }) {
             throw IllegalStateException("Service is not available: " + serviceId + " v" + version)
         }
-        if (grants[serviceId]?.contains(providerId) != true) {
+        check(sourceRevision == JsVoiceServices.sourceRevision) { "Service source changed; start a new session" }
+        if (grants[ServiceKey(serviceId, version)]?.contains(providerId) != true) {
             throw IllegalStateException("Service provider is not selected in this plugin's settings")
         }
         val spec = JsVoiceProviders.specOf(providerId)
@@ -261,8 +294,8 @@ internal class JsVoiceServiceBinding(
         val providerCatalog = JsonArray(
             descriptors.filterNot { it.pluginId == providerId }.map { it.toJson() }
         ).toString()
-        val check: (String) -> HttpUrl = { policy.checkUrl(it) }
-        return JsVoiceServices.invoke(
+        val validateUrl: (String) -> HttpUrl = { policy.checkUrl(it) }
+        return JsVoiceServices.withCurrentSource(sourceRevision) { JsVoiceServices.invoke(
             script = JsVoiceProviders.readScript(spec),
             locale = locale,
             serviceId = serviceId,
@@ -271,8 +304,11 @@ internal class JsVoiceServiceBinding(
             settings = JsVoiceSettingsStore.values(providerId),
             catalogJson = providerCatalog,
             http = { options ->
-                JsAppHttp(check, { field -> secretOf(providerId, field) }, http).request(options)
+                JsAppHttp({ url ->
+                    check(sourceRevision == JsVoiceServices.sourceRevision) { "Service source changed" }
+                    validateUrl(url)
+                }, { field -> secretOf(providerId, field) }, http).request(options)
             },
-        )
+        ) }
     }
 }
