@@ -99,7 +99,7 @@ expiry 先核提示 ID，匹配时先清 Job、文本与 lifetime，再检查引
 
 `android-sdk-20261116-1`（librime `8bbdf773…`）只有有序候选筛选，不含上述字面展示与兼容修订；`android-sdk-20261116-2`（`9a317501…`）起包含；`android-sdk-20261120-1`（`7c61add0…`）只增加上文的数字输入音节栏限制。`android-sdk-20261125-3`（`8c92891f…`）增加音节栏排序与模糊派生音节保留。各版本的固定源码、四 ABI SDK 核验、默认分支消费与设备回归见[双模糊与字面标签最终修复](../changes/2026-11-16-syllable-fuzzy-filter-fix.md#双模糊与字面标签最终修复)与[新版 SDK 消费与默认分支重写](../changes/2026-11-16-syllable-fuzzy-filter-fix.md#新版-sdk-消费与默认分支重写)，现行版本锁见[引擎、插件与依赖更新](/maintainer/engine-update#两条链路)。
 
-横向候选高亮变化只通过专用 RecyclerView payload 调用 `setActive`；结构变化后的高亮位置必须采用 `CandidateUpdatePlan` 已换算的新坐标。高亮与角标位移 payload 可以合并处理，角标仍同时更新全局下标；候选内容、主题、字体或字号变化继续完整绑定。局部 payload 不取消 `setActive` 内对正文／注释前景色和高亮背景的更新，也不改变 holder 的候选目标。
+横向候选高亮变化只通过专用 RecyclerView payload 调用 `setActive`；结构变化后的高亮位置必须采用 `CandidateUpdatePlan` 已换算的新坐标。高亮与角标位移 payload 可以合并处理，角标仍同时更新全局下标；候选内容、主题、字体或字号变化继续完整绑定。`fontGeneration` 独立穿过展开请求去重，字体变化必须使整页重新绑定，即使已有一行先完成字体绑定、offset 与候选 generation 均未改变；刷新仍先接收新的 offset／generation，不重置取数和滚动。字体刷新不能推进候选 generation 或重新标记 `selectionTarget`，横排与浮动列表也不能把可碰撞的文字 hash 当稳定 ID。局部 payload 不取消 `setActive` 内对正文／注释前景色和高亮背景的更新，也不改变 holder 的候选目标。
 
 `InputView` 将分页快照直接交给 `InputBroadcaster`，不先合成列表事件。广播器向每个 `PagedCandidateReceiver` 交付完整页，其他接收方共享一份列表兼容表示；每个接收方只收到一种表示。真实列表事件仍正常广播，分页与列表切换立即生效，不使用 500ms 超时猜测模式。空页须清空两种接收方，相同显示文字的新快照仍须交付其真实选择版本。入口测试为 `CandidateBroadcastTest`。
 
@@ -225,9 +225,11 @@ startup 每轮在原 try 外先重置 selection／newActivation，再进入 asse
 
 - 完整备份先通过 `FcitxDaemon.beginUserDataBackup` 暂停原生写入，再生成缓存归档；`save()` 不能证明 Rime/LevelDB 已停止写入。恢复同样使用已有停机与事务入口。
 - 共享目录在归档期间被其他写入者修改时须报错。多个输入法各用独立工作库，不删数据库或 `LOCK` 绕过占用。
-- 更新 `app/src/main/assets/bundled/` 内布局或主题时，在 `data/BundledPresets.kt` 的 `assetSizes` 登记上一版字节数；登记新字节数会破坏用户改动保护。
-- 用实际旧 Git 对象或发布资产核对尺寸。纠正登记时，安装器还记录本次更新所匹配的旧尺寸，只重试仍存在的未改原版；旧处理记录不能导致用户删除的主题重新出现。`BundledPresetsUpgradeTest` 使用真实旧谷歌图标 JSON 检查升级、错误旧标记、用户修改和删除。
+- 更新 `app/src/main/assets/bundled/` 内布局或主题时，在 `data/BundledPresets.kt` 的 `assetSizes` 登记上一版字节数，并在 `originalAssetDigests` 登记已核实旧版内容的 SHA-256；只有长度和摘要同时匹配才能替换。退役资源也必须双重匹配才删除，同长用户改写和摘要未知的旧文件均保留。
+- 用实际旧 Git 对象或发布资产核对尺寸及摘要，不推测历史 APK 的换行字节。纠正登记时，安装器还记录本次更新所匹配的旧尺寸，已有文件只更新可确认的未改原版，保留用户修改。目标文件缺失时不受旧处理记录阻止，按原名补装；删除内置主题不能作为长期禁用补装的标记。`BundledPresetsUpgradeTest` 使用真实旧谷歌图标 JSON 检查升级、同长修改保留、错误旧标记和缺失补装。
 - Debug 与 Release 的包名隔离属于迁移约定。文件图标的真实位置是 `input/config/ButtonIconFile.kt`，主题文件管理在 `data/theme/ThemeFilesManager.kt`。
+
+应用私有文件的原子写入通过 `FileUtil.writeAtomically` 完成。`FilePathGuard.resolveWritePath` 仅将系统 `Context.applicationInfo.dataDir` 作为可信根，允许该根本身的系统路径别名；根内目标、父目录和临时文件仍须逐级拒绝符号链接或规范路径越界。目标不在可信根内，或无法取得应用 Context 时，继续使用完整祖先检查。写入和同步临时文件后，只有原子替换成功才能报告完成，失败保留原件。`FilePathGuardTest` 覆盖宿主文件系统分支，`FileUtilAppDirectoryDeviceTest` 覆盖真实 Android 私有目录写入、失败保留及根内链接拒绝。
 
 完整事务见[整包恢复](./user-data-restore)与[加密备份](./protected-backup-format)。
 
@@ -380,7 +382,7 @@ JVM与组件渲染不能代替设备上的文件提供方、真实网络续传�
 更新器下载前通过 `UpdateDownloadStore` 核对明确的下载 ID／URI；只有文件内容与当前已安装 base APK 的 SHA-256 相同才可清理对应自有下载。安装回调不是成功依据，未知归属、内容变化、未安装或无摘要且发行身份不符的包不能删除或误复用。核对和摘要计算在 IO 线程，不能进入输入热路径。
 
 AIDL 与 JS 复用会话和录音链路，密钥、主机授权、回调预算、stub/prelude 一致性都保持[JS 宿主协议](./js-voice-plugins)的约束。
-远端剪贴板和语音缓冲可以有独立资源预算，但不能把它们的过载策略照搬到按键/提交事件上。
+远端剪贴板和语音缓冲可以有独立资源预算，但不能把它们的过载策略照搬到按键/提交事件上。语音预滚与实时流在同一边界交接：全部预滚包成功进入有界队列后才发布实时入口，失败须显式过载中止，不能静默丢包或使实时包超前；3000 ms 预滚窗口与 31 包预算保持不变。`queueMaxDepth` 只计算仍在队列中等待的包，不含正在调用 provider 的包；`oldestQueuedMaxAgeMs` 按真实待消费 PTS 队首推进。每个 feed 捕获本代独立统计，旧代收尾不能清空新代。回归入口为 `VoicePcmQueueBudgetTest`、`VoicePcmHandoverIntegrationTest` 与 `VoiceFinishIntegrationTest`；JVM 队列回归不替代真实麦克风、远端 Binder 和设备验收。
 
 ## 按症状定位
 
@@ -406,7 +408,7 @@ AIDL 与 JS 复用会话和录音链路，密钥、主机授权、回调预算�
 | 方案菜单/子模式下拉越界 | `ui/main/settings/behavior/manager/SubModeManager.kt`;`SubModeSpinnerSelectionTest` |
 | 主题切换被打断、日/夜跟随异常 | `data/theme/ThemePrefs.kt`(`dayNightModePrefNames`)、`ThemeManager.kt`;`ThemeSerializationTest` |
 | MD3 设置页布局/配色回归 | `tools/test-material-settings.sh`(诊断图落 `app/build/reports/androidTests/material-settings-diagnostics/`) |
-| 内置布局/主题没更新、或覆盖了用户改动 | `data/BundledPresets.kt` 的 `assetSizes`(登记的是**上一版**字节数)、`app/src/main/assets/bundled/`。✗ 登记成本次的新字节数——判据立刻失效 |
+| 内置布局/主题没更新、或覆盖了用户改动 | `data/BundledPresets.kt` 的 `assetSizes`（**上一版**字节数）与 `originalAssetDigests`（已核实旧版 SHA-256）、`app/src/main/assets/bundled/`。长度和摘要必须同时匹配，未知旧版及同长用户修改均保留 |
 | 日志导出截断、子进程泄漏 | `ui/main/log/LogExportStore.kt`/`LogExportViewModel.kt`、`utils/Logcat.kt`;`LogExportStoreTest`/`LogcatLifecycleTest` |
 | 语音结束时文本消失 | `input/voice/VoiceInputProviderManager.kt`(partial 提交);`VoicePcmQueueBudgetTest` |
 | 语音插件设置页打不开、报 `ReferenceError: __n_xxx is not defined` | `input/voice/js/JsVoiceInputProvider.kt` 里的 `object JsVoiceStubNatives`(无网络求值用的原生桩)与 `JsVoicePrelude.kt` 的 `__native` 是否同时声明了该 API;`JsVoiceProviders.describe` |

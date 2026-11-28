@@ -243,7 +243,7 @@ Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/a
 
 ## 资产、数据与配置维护
 
-- 修改内置布局、主题时，在 `BundledPresets.assetSizes` 登记**上一版**字节数，保护用户已修改文件。
+- 修改内置布局、主题时，在 `BundledPresets.assetSizes` 登记**上一版**字节数，并在 `originalAssetDigests` 登记由实际旧 Git 对象或发布资产核实的 SHA-256。长度和摘要必须同时匹配才更新；没有可核实摘要的旧版保留，不用推测的换行形式补造摘要。退役资源删除也遵守相同保护。
 - 资产描述采用相对路径、POSIX 分隔符与流式摘要；新增、移动或同名文件必须触发正确增量更新。
 - 完整备份先停止原生写入，再归档缓存；保存词典不等于停止引擎。外部目录并发修改须检测并报错。
 - 密钥在备份中保持密文，Android Keystore 密钥不导出；跨设备后需重填语音密钥。
@@ -256,6 +256,8 @@ Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/a
 性能工具分别位于 `tools/input-perf/`、`tools/candidate-perf/` 和 `tools/screen-perf/`。复现前核对比较版本、方案、模型、ABI、构建类型、设备、输入速度和计时区间。
 相同文件名的远端模型也可能换过内容，应按原报告哈希找匹配夹具，不能跳过检查。
 
+旧 candidate、rebind、replay 与 cold-probe 性能入口也必须显式传入 `--serial`、`--expected-avd-name` 与 `--allow-destructive-reset`，依次核对序列号、在线状态和 AVD 名称后才允许安装、清理测试应用数据或修改设备设置。参数只是工具确认，不替代本机数据保护及安装授权；不得在长期使用的本机 AVD 上直接执行破坏性研究。比较器从实际 APK 的 Manifest 读取包名、测试 runner 和目标包；万象跨包名比较须传入匹配 after 产品的 `--after-tests`。候选研究的产品构建不再复用旧 Gradle 构建缓存；pilot／formal 须显式提供 `fixture_run` 与 `fixture_artifact_id`，先通过 GitHub API 核对 artifact 归属与未过期，再校验原夹具摘要，并随结果保留来源 JSON。
+
 `tools/input-perf/build-study-products.sh` 的旧研究保持原冻结 SDK 锁摘要，不随应用 SDK 升级而更新。新研究须将源码引用、SDK 身份和产物元数据整体版本化；通过 `products_run` 复用产物或 `--recover` 恢复元数据时，继续按原研究身份核对，不能用当前应用锁替代历史锁。审阅更正的来源与验证见[2026-11-15 SDK 换版记录](changes/2026-11-15-engine-sdk-spdlog.md)。
 
 手动触发性能 workflow、上传日志或设备数据前取得明确授权。
@@ -265,6 +267,8 @@ Commit CI 与 PR CI 在调用 `prepare_personal_build.sh` 前先执行 `gradle/a
 日常构建的 `RimeLifecycle bind` 记录每次绑定的总耗时，以及 `native_begin_us`、`publish_us` 和会话 `created`/`reused` 计数。前者包含 native 创建或复用会话、由 Rime 恢复方案/开关和读取初始快照，后者记录前端发布与绑定门控处理；前端快照回放已移除，不再输出单独的 `restore_us`。单位为微秒，总计 `duration_ms` 为毫秒，不包括进入 owner 前的排队。`ready` 表示 native 方案可用，`usable` 表示此编辑器可以收键，`direct` 标识直接输入。`binding_key wait_ms` 是按键在绑定期间的等待时间，`delivered=true` 表示延后交付，不能据此归为丢键。
 
 绑定及首次快照发布的同步工作均在 `InteractiveThreadPriority` 作用域内，退出或异常时恢复原优先级。日常日志只增加每次绑定的少量计时与计数；逐键 CPU、缺页和文件 I/O 统计仍须 `-PinputDiagnostics=true`。没有分段记录的旧日志只能定位到整次绑定，不能直接断言耗时来自词库重开、Lua 或界面绘制；优化后的真机延迟须在相同方案和设备上复测。
+
+文件日志由 `LogSink` 的单一排空任务批写：普通记录队列最多 256 项及 256 Ki 字符，每批最多 64 项后 flush。普通记录过载时汇总丢弃数量；ERROR、ASSERT、带异常记录及 clear／flush／close 屏障使用背压保序，不按普通记录丢弃，关闭后不再重新打开。这个预算限制日志内存和 I/O，不作为按键、提交或统计事件的丢弃策略。
 
 所有原始报告及 ZIP/JSON/截图见[验证证据目录](evidence.md)。历史 Actions artifact 有保留期限，不能当成永久下载或当前版本证明。
 完整 XKB Compose、按应用行为等价和广泛真机回归仍有边界，不因旧后端被移除而自动视为完成。
