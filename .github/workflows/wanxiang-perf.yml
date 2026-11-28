@@ -43,8 +43,9 @@ jobs:
           cp app/build/outputs/apk/androidTest/fx/debug/*.apk "$RUNNER_TEMP/direct-replay-tests.apk"
       - name: Build the independent frontend and stage the official scheme
         run: |
-          ./gradlew -PdirectRimeFrontend=true -PbuildABI=x86_64 --max-workers=2 :app:assembleFxDebug
+          ./gradlew -PdirectRimeFrontend=true -PbuildABI=x86_64 --max-workers=2 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
           cp app/build/outputs/apk/fx/debug/*.apk "$RUNNER_TEMP/direct-after.apk"
+          cp app/build/outputs/apk/androidTest/fx/debug/*.apk "$RUNNER_TEMP/direct-after-tests.apk"
           python3 tools/verify-direct-rime-apk.py "$RUNNER_TEMP/direct-after.apk"
           python3 tools/input-perf/prepare-wanxiang.py "$RUNNER_TEMP/wanxiang-perf.zip"
           ./gradlew --stop
@@ -60,8 +61,10 @@ jobs:
           api-level: 35
           target: aosp_atd
           arch: x86_64
+          avd-name: test
+          emulator-port: 5554
           disable-animations: true
-          script: python3 tools/input-perf/compare-apks.py "$RUNNER_TEMP/direct-before.apk" "$RUNNER_TEMP/direct-after.apk" "$RUNNER_TEMP/direct-replay-tests.apk" --wanxiang "$RUNNER_TEMP/wanxiang-perf.zip" --output build/wanxiang-comparison
+          script: python3 tools/input-perf/compare-apks.py "$RUNNER_TEMP/direct-before.apk" "$RUNNER_TEMP/direct-after.apk" "$RUNNER_TEMP/direct-replay-tests.apk" --wanxiang "$RUNNER_TEMP/wanxiang-perf.zip" --output build/wanxiang-comparison --after-tests "$RUNNER_TEMP/direct-after-tests.apk" --serial emulator-5554 --expected-avd-name test --allow-destructive-reset
       - uses: actions/upload-artifact@v7
         if: always()
         with:

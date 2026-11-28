@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
+serial=$(python3 tools/input-perf/legacy_perf.py verify-device "$@")
+export ANDROID_SERIAL="$serial"
+adb=(adb -s "$serial")
 output=app/build/reports/androidTests/cold-probe
 mkdir -p "$output"
 ./gradlew -PbuildABI=x86_64 :app:assembleFxDebug :app:assembleFxDebugAndroidTest
-adb install -r app/build/outputs/apk/fx/debug/*.apk
-adb push "$RUNNER_TEMP/cold-fixture.zip" /data/local/tmp/direct-cold-fixture.zip
-adb shell run-as org.fcitx.fcitx5.android.fx.rime mkdir -p files
-adb shell run-as org.fcitx.fcitx5.android.fx.rime cp /data/local/tmp/direct-cold-fixture.zip files/cold-fixture.zip
-adb logcat -c
+app_apks=(app/build/outputs/apk/fx/debug/*.apk)
+test_apks=(app/build/outputs/apk/androidTest/fx/debug/*.apk)
+[[ ${#app_apks[@]} == 1 && ${#test_apks[@]} == 1 ]]
+package=$(python3 tools/input-perf/legacy_perf.py apk-pair "${app_apks[0]}" "${test_apks[0]}" --output "$output/apk-identity.json")
+"${adb[@]}" install -r "${app_apks[0]}"
+"${adb[@]}" push "$RUNNER_TEMP/cold-fixture.zip" /data/local/tmp/direct-cold-fixture.zip
+"${adb[@]}" shell run-as "$package" mkdir -p files
+"${adb[@]}" shell run-as "$package" cp /data/local/tmp/direct-cold-fixture.zip files/cold-fixture.zip
+"${adb[@]}" logcat -c
 set +e
 ./gradlew -PbuildABI=x86_64 \
   -Pandroid.testInstrumentationRunnerArguments.class=org.fcitx.fcitx5.android.core.DirectRimeFrontendTest\#diagnoseColdCandidateCore \
@@ -17,8 +24,8 @@ set +e
   :app:connectedFxDebugAndroidTest
 result=$?
 set -e
-adb logcat -d -v threadtime > "$output/logcat.txt"
-adb shell run-as org.fcitx.fcitx5.android.fx.rime cat files/direct-rime-cold-probe.json > "$output/result.json" || true
+"${adb[@]}" logcat -d -v threadtime > "$output/logcat.txt"
+"${adb[@]}" shell run-as "$package" cat files/direct-rime-cold-probe.json > "$output/result.json" || true
 cp "$RUNNER_TEMP/cold-fixture.manifest.json" "$output/fixture.manifest.json"
 python3 - "$output" <<'PY'
 import json, re, sys

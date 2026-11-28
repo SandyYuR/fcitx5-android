@@ -15,6 +15,14 @@ on:
         description: Optional existing study product run; source, probe, host and APK hashes must match
         type: string
         default: ''
+      fixture_run:
+        description: Existing run containing a live copy of the frozen fixture; required for pilot/formal
+        type: string
+        default: ''
+      fixture_artifact_id:
+        description: Artifact ID from fixture_run; the frozen fixture checksums must still match
+        type: string
+        default: ''
       recover_driver:
         description: Original 40-character driver SHA, only to finish metadata from a failed products_run
         type: string
@@ -142,11 +150,17 @@ jobs:
           run-id: ${{ inputs.products_run != '' && inputs.recover_driver == '' && inputs.products_run || github.run_id }}
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/study-products
+      - name: Validate and record the frozen fixture source
+        env:
+          FIXTURE_RUN: ${{ inputs.fixture_run }}
+          FIXTURE_ARTIFACT_ID: ${{ inputs.fixture_artifact_id }}
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/input-perf/frozen_fixture_source.py --output build/latency-study/fixture-source.json
       - name: Download the existing frozen fixture
         uses: actions/download-artifact@v6
         with:
-          artifact-ids: '13853652309'
-          run-id: 43018095886
+          artifact-ids: ${{ inputs.fixture_artifact_id }}
+          run-id: ${{ inputs.fixture_run }}
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/study-inputs
           merge-multiple: true
@@ -224,10 +238,16 @@ jobs:
           run-id: ${{ inputs.products_run != '' && inputs.recover_driver == '' && inputs.products_run || github.run_id }}
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/study-products
+      - name: Validate and record the frozen fixture source
+        env:
+          FIXTURE_RUN: ${{ inputs.fixture_run }}
+          FIXTURE_ARTIFACT_ID: ${{ inputs.fixture_artifact_id }}
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/input-perf/frozen_fixture_source.py --output build/latency-study-profile/fixture-source.json
       - uses: actions/download-artifact@v6
         with:
-          artifact-ids: '13853652309'
-          run-id: 43018095886
+          artifact-ids: ${{ inputs.fixture_artifact_id }}
+          run-id: ${{ inputs.fixture_run }}
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/study-inputs
           merge-multiple: true

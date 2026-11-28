@@ -4,25 +4,25 @@ import argparse
 import json
 import subprocess
 from pathlib import Path
+from legacy_perf import Device, apk_pair, device_arguments, find_aapt
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--apks', type=Path, required=True)
 parser.add_argument('--fixture', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
-parser.add_argument("--package", choices=["org.fcitx.fcitx5.android.fx.rime", "io.github.sandyyur.rime.direct"], default="org.fcitx.fcitx5.android.fx.rime", help="Use the historical application ID to replay older APKs")
+device_arguments(parser)
 args = parser.parse_args()
+adb = Device(args)
+aapt = find_aapt()
+identities = {label: apk_pair(args.apks / (label + ".apk"), args.apks / (label + "-tests.apk"), aapt)
+              for label in ("before", "after")}
 args.output.mkdir(parents=True, exist_ok=True)
-package = args.package
-
-def adb(*parts, check=True, timeout=900):
-    return subprocess.run(['adb', *map(str, parts)], text=True, capture_output=True, check=check, timeout=timeout)
-
-assert adb('get-serialno').stdout.strip().startswith('emulator-'), 'Use a disposable emulator'
 adb('shell', 'setprop', 'debug.hwui.drawing_enabled', 'true')
 adb('push', args.fixture, '/data/local/tmp/rebind-fixture.zip')
 results = {}
 for label in ('before', 'after'):
     print('Testing ' + label, flush=True)
+    package = identities[label]['package']
     adb('install', '-r', args.apks / (label + '.apk'))
     adb('install', '-r', args.apks / (label + '-tests.apk'))
     adb('shell', 'am', 'force-stop', package)
@@ -33,11 +33,11 @@ for label in ('before', 'after'):
     run = adb('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
               'org.fcitx.fcitx5.android.core.DirectRimeFrontendTest#immediateTypingAndCandidateTapAfterRebind',
               '-e', 'fixtureArchive', 'rebind-fixture.zip', '-e', 'waitMs', '60000',
-              package + '.test/androidx.test.runner.AndroidJUnitRunner', check=False)
+              identities[label]['instrumentation'], check=False)
     (args.output / (label + '-instrumentation.txt')).write_text(run.stdout + run.stderr)
     (args.output / (label + '-logcat.txt')).write_text(adb('logcat', '-d', '-v', 'threadtime').stdout)
     passed = run.returncode == 0 and 'OK (1 test)' in run.stdout
-    result = {'passed': passed, 'commit': (args.apks / (label + '-commit.txt')).read_text().strip()}
+    result = {'apk_identity': identities[label], 'passed': passed, 'commit': (args.apks / (label + '-commit.txt')).read_text().strip()}
     data = adb('shell', 'run-as', package, 'cat', 'files/direct-rime-rebind.json', check=False)
     if data.returncode == 0:
         result.update(json.loads(data.stdout))

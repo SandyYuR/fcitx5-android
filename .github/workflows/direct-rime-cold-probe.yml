@@ -88,8 +88,10 @@ jobs:
           api-level: 35
           target: aosp_atd
           arch: x86_64
+          avd-name: test
+          emulator-port: 5554
           disable-animations: true
-          script: bash tools/input-perf/probe-cold-io.sh
+          script: bash tools/input-perf/probe-cold-io.sh --serial emulator-5554 --expected-avd-name test --allow-destructive-reset
       - uses: actions/upload-artifact@v7
         if: always()
         with:

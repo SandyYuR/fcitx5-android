@@ -2,11 +2,13 @@
 """First candidate tap after fresh process, then five taps in the same editor."""
 import argparse
 import json
-import os
-import re
 import subprocess
 import time
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "input-perf"))
+from legacy_perf import Device, apk_pair, device_arguments, find_aapt
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--apks', type=Path, required=True)
@@ -15,18 +17,22 @@ parser.add_argument('--host', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--trials', type=int, default=3)
 parser.add_argument('--profile', action='store_true', help='Separate diagnostic run; do not compare its timings with untraced runs')
+device_arguments(parser)
 args = parser.parse_args()
+adb = Device(args)
+aapt = find_aapt()
+identities = {label: apk_pair(args.apks / (label + '.apk'), args.apks / (label + '-tests.apk'), aapt)
+              for label in ('fcitx', 'before', 'after') if (args.apks / (label + '.apk')).is_file()}
+if not identities:
+    parser.error('No comparison products found')
 args.output.mkdir(parents=True, exist_ok=True)
 host = 'io.github.sandyyur.inputbench'
 
-def adb(*parts, check=True, timeout=900, input=None):
-    return subprocess.run(['adb', *map(str, parts)], input=input, text=True, capture_output=True, check=check, timeout=timeout)
-
 def instrument(package, method, revision):
-    command = ['adb', 'shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
+    command = adb.command('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
               'org.fcitx.fcitx5.android.core.CandidateTapTest#' + method,
               '-e', 'expectedCommit', revision,
-              package + '.test/androidx.test.runner.AndroidJUnitRunner']
+              identities[label]['instrumentation'])
     process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if method == 'replay':
         # force-stop (including am instrument's own restart) makes Android select
@@ -48,24 +54,20 @@ def instrument(package, method, revision):
     run = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
     return run, run.returncode == 0 and 'OK (1 test)' in run.stdout
 
-assert adb('get-serialno').stdout.strip().startswith('emulator-'), 'Disposable emulator required'
 adb('shell', 'setprop', 'debug.hwui.drawing_enabled', 'true')
 adb('shell', 'settings', 'put', 'secure', 'show_ime_with_hard_keyboard', '1')
 adb('shell', 'settings', 'put', 'system', 'screen_off_timeout', '1800000')
 adb('install', '-r', args.host)
 adb('push', args.fixture, '/data/local/tmp/candidate-fixture.zip')
 results = {}
-sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
-aapt = sorted((sdk / 'build-tools').glob('*/aapt2'), key=lambda p: [int(x) for x in re.findall(r'\d+', p.parent.name)])[-1]
 for label in ('fcitx', 'before', 'after'):
     if not (args.apks / (label + '.apk')).is_file():
         continue
-    package = subprocess.check_output([str(aapt), 'dump', 'packagename', str(args.apks / (label + '.apk'))], text=True).strip()
-    assert re.fullmatch(r'[a-zA-Z0-9_.]+', package), package
+    package = identities[label]['package']
     revision = (args.apks / (label + '-commit.txt')).read_text().strip()
     # Reference APKs may have a different CI debug signer. Never upgrade across
     # signers or inherit the previous product's profile on this disposable device.
-    adb('uninstall', package + '.test', check=False)
+    adb('uninstall', identities[label]['test_package'], check=False)
     adb('uninstall', package, check=False)
     adb('install', '-r', args.apks / (label + '.apk'))
     adb('install', '-r', args.apks / (label + '-tests.apk'))

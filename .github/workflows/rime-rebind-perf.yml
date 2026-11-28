@@ -39,8 +39,10 @@ jobs:
           api-level: 35
           target: aosp_atd
           arch: x86_64
+          avd-name: test
+          emulator-port: 5554
           disable-animations: true
-          script: python3 tools/input-perf/compare-rebind.py --apks "$RUNNER_TEMP/rebind-apks" --fixture "$RUNNER_TEMP/rebind-fixture.zip" --output build/rebind-comparison
+          script: python3 tools/input-perf/compare-rebind.py --apks "$RUNNER_TEMP/rebind-apks" --fixture "$RUNNER_TEMP/rebind-fixture.zip" --output build/rebind-comparison --serial emulator-5554 --expected-avd-name test --allow-destructive-reset
       - uses: actions/upload-artifact@v7
         if: always()
         with:
