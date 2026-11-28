@@ -202,7 +202,7 @@ class FoxyTextEditingUi(
                     layoutParams = rowHeight
                 }
                 row.forEach { key ->
-                    val weight = key.appearance.percentWidth.coerceAtLeast(0.5f)
+                    val weight = key.appearance.percentWidth.takeIf { it.isFinite() && it > 0f } ?: 1f
                     rowView.addView(
                         createConfiguredButton(key),
                         LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, weight)

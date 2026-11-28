@@ -966,10 +966,17 @@ abstract class BaseKeyboard(
             return
         }
         val rv = auxBarScrollableRv
-        if (rv?.adapter != auxBarScrollableAdapter) {
-            rv?.adapter = auxBarScrollableAdapter
+        val adapter = if (hasTabs) auxBarScrollableAdapter else auxBarKeyAdapter
+        if (rv?.adapter !== adapter) {
+            rv?.stopScroll()
+            rv?.adapter = adapter
         }
-        auxBarScrollableAdapter?.updateActions(scrollable)
+        if (hasTabs) {
+            auxBarScrollableAdapter?.updateActions(scrollable)
+        } else {
+            auxBarScrollableAdapter?.updateActions(emptyList())
+            auxBarKeyAdapter?.updateKeys(customKeys)
+        }
         auxBarPinnedAdapter?.updateActions(pinned)
     }
 

@@ -222,7 +222,10 @@ class SymbolPanelUi(
                 view as KeyView
                 when (event.type) {
                     GestureType.Move -> onPopupChangeFocus(view.id, event.x, event.y)
-                    GestureType.Up -> onPopupTrigger(view.id)
+                    GestureType.Up -> if (event.cancelled) {
+                        popupActionListener.onPopupAction(PopupAction.DismissAction(view.id))
+                        false
+                    } else onPopupTrigger(view.id)
                     else -> false
                 }
             }
